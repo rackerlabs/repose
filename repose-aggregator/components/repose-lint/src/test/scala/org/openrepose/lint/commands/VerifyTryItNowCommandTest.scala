@@ -290,7 +290,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       ((parsedOutput \ "clusters") (0) \ "identityV3Check" \ "filters").as[JsArray].value should have size 2
     }
 
-    it("should work for Repose version 2.8.x configs") {
+    it("should work for Repose version 2.8.x auth-n config") {
       val configDir = new File(getClass.getResource("/configs/2.8.x/").toURI)
       val config = new LintConfig(configDir = configDir, reposeVersion = "2.8.6")
 
@@ -305,6 +305,22 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "inTenantedMode").head.as[Boolean] shouldBe true
       ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerStatus").head.as[String] should include("NotReady")
+    }
+
+    it ("should work for Repose 5.x auth-n config") {
+      val configDir = new File(getClass.getResource("/configs/5.x/").toURI)
+      val config = new LintConfig(configDir = configDir, reposeVersion = "5.0.0.0")
+
+      val out = new ByteArrayOutputStream()
+
+      Console.setOut(out)
+
+      VerifyTryItNowCommand.perform(config)
+
+      val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
+
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerStatus").head.as[String] should fullyMatch regex "Ready"
     }
   }
 }
