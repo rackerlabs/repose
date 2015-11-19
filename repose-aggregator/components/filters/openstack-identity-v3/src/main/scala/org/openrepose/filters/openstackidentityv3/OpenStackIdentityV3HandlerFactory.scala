@@ -48,7 +48,7 @@ class OpenStackIdentityV3HandlerFactory(akkaServiceClientFactory: AkkaServiceCli
   }
 
   def destroy(): Unit = {
-    akkaServiceClient.destroy()
+    Option(akkaServiceClient).foreach(_.destroy())
   }
 
   private class KeystoneV3ConfigurationListener extends UpdateListener[OpenstackIdentityV3Config] {
