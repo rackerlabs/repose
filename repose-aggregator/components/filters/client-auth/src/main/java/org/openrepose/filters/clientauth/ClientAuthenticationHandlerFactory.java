@@ -31,6 +31,7 @@ import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.filters.clientauth.atomfeed.AuthFeedReader;
 import org.openrepose.filters.clientauth.atomfeed.FeedListenerManager;
@@ -72,14 +73,15 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
     private UriMatcher uriMatcher;
     private FeedListenerManager manager;
+    private AkkaServiceClientFactory akkaServiceClientFactory;
     private AkkaServiceClient akkaServiceClient;
     private boolean isOutboundTracing;
 
 
-    public ClientAuthenticationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClient akkaServiceClient, String reposeVersion) {
+    public ClientAuthenticationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClientFactory akkaServiceClientFactory, String reposeVersion) {
         this.datastore = datastore;
         this.httpClientService = httpClientService;
-        this.akkaServiceClient = akkaServiceClient;
+        this.akkaServiceClientFactory = akkaServiceClientFactory;
         this.reposeVersion = reposeVersion;
     }
 
@@ -91,9 +93,13 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         return listenerMap;
     }
 
-    public void stopFeeds() {
+    public void destroy() {
         if (manager != null) {
             manager.stopReading();
+        }
+
+        if (akkaServiceClient != null) {
+            akkaServiceClient.destroy();
         }
     }
 
@@ -132,6 +138,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
         @Override
         public void configurationUpdated(ClientAuthConfig modifiedConfig) throws UpdateFailedException {
+            AkkaServiceClient oldAkkaServiceClient = akkaServiceClient;
+            akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId());
 
             updateUriMatcher(modifiedConfig.getWhiteList());
 
@@ -162,9 +170,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                 LOG.error("Authentication module is not understood or supported. Please check your configuration.");
             }
 
-
+            if (oldAkkaServiceClient != null) {
+                // delay destroying the previous client until everything using it has been replaced
+                oldAkkaServiceClient.destroy();
+            }
             isInitialized = true;
-
         }
 
         //Launch listener for atom-feeds if config present
