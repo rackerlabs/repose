@@ -218,7 +218,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
     }
 
     @Unroll("Origin RespCode: #originResp")
-    def "Verify no culling on non 2xx responses" () {
+    def "Verify no culling on non 2xx responses"() {
         given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -250,16 +250,16 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         mc.receivedResponse.code == originResp
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | originResp    | size
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "400"         | 0
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "401"         | 0
-        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "403"         | 0
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"         | 0
-        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "502"         | 0
+        method | tenantID       | deviceID | deviceID2 | permission     | originResp | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "400"      | 0
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "401"      | 0
+        "GET"  | randomTenant() | "520707" | "520708"  | "view_product" | "403"      | 0
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "500"      | 0
+        "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "502"      | 0
     }
 
     @Unroll("Origin RespCode: #originResp")
-    def "Case 2xx response with empty body" () {
+    def "Case 2xx response with empty body"() {
         given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -291,9 +291,9 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         mc.receivedResponse.code == "500"
 
         where:
-        method | tenantID       | deviceID | deviceID2 | permission     | originResp    | size
-        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"         | 0
-        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "204"         | 0
+        method | tenantID       | deviceID | deviceID2 | permission     | originResp | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"      | 0
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "204"      | 0
     }
 
     def String randomTenant() {
