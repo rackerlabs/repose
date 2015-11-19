@@ -215,6 +215,41 @@ class CollectResourceAdminBypassTest extends ReposeValveTest {
         }
     }
 
+    @Unroll("Origin RespCode: #osResp")
+    def "Verify no culling on non 2xx responses"() {
+        given: "a list permission devices defined in Valkyrie"
+        def tenantID = randomTenant()
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            account_perm = "account_admin"
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(osResp, null, ["content-type": "application/json"], null) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: "GET",
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantID
+                ],
+                defaultHandler: jsonResp
+        )
+
+        then: "check response"
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == osResp
+
+        where:
+        osResp << ["400", "401", "403", "500", "501", "502"]
+    }
+
     def "Test missing tenantid"() {
         given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
