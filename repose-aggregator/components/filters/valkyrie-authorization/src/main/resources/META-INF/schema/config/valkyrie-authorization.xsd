@@ -186,10 +186,61 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="path-regex" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="path-regex" type="PathRegex" minOccurs="1" maxOccurs="1"/>
             <xs:element name="collection" type="Collection" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="PathRegex">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="http-methods" type="HttpMethodList" use="optional" default="ALL">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                List of HTTP Methods this resource wants to cull on.
+                                Valid values include:
+                                GET, DELETE, POST, PUT, PATCH, HEAD, OPTIONS, CONNECT, TRACE, ALL
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="HttpMethodList">
+        <xs:list itemType="HttpMethod"/>
+    </xs:simpleType>
+
+    <!-- This was taken from limits.xsd and should be extracted to an importable Repose Type Definitions schema. -->
+    <xs:simpleType name="HttpMethod">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The HttpMethod simple type defines a string
+                    enumeration of HTTP method verbs as outlined in
+                    <a
+                            href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616
+                    </a>
+                    section 9.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="DELETE"/>
+            <xs:enumeration value="POST"/>
+            <xs:enumeration value="PUT"/>
+            <xs:enumeration value="PATCH"/>
+            <xs:enumeration value="HEAD"/>
+            <xs:enumeration value="OPTIONS"/>
+            <xs:enumeration value="CONNECT"/>
+            <xs:enumeration value="TRACE"/>
+            <xs:enumeration value="ALL"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="Collection">
         <xs:annotation>
