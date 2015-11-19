@@ -258,6 +258,44 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520705" | "520706"  | "view_product" | "502"         | 0
     }
 
+    @Unroll("Origin RespCode: #originResp")
+    def "Case 2xx response with empty body" () {
+        given: "a list permission devices defined in Valkyrie"
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_id2 = deviceID2
+            device_perm = permission
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(originResp, "OK", ["content-type": "application/json"], null) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantID
+                ],
+                defaultHandler: jsonResp
+        )
+
+        then: "check response"
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == "500"
+
+        where:
+        method | tenantID       | deviceID | deviceID2 | permission     | originResp    | size
+        "GET"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"         | 0
+        "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "204"         | 0
+    }
+
     def String randomTenant() {
         "hybrid:" + random.nextInt()
     }
