@@ -97,11 +97,11 @@ object VerifyTryItNowCommand extends Command {
                                   inTenantedMode: Boolean = false,
                                   foyerAsServiceAdmin: Boolean = false,
                                   foyerAsIgnoreTenant: Boolean = false,
-                                  foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
+                                  foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
 
       case class AuthNCheck(listedInSystemModel: Boolean = false,
                             authNFilterChecks: Seq[AuthNFilterCheck] = Seq.empty,
-                            foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
+                            foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
 
       // These Writes define the transformation from the above case classes into Play JSON objects which in turn can
       // be written as strings.
@@ -124,7 +124,7 @@ object VerifyTryItNowCommand extends Command {
         )
       }
 
-      var check = AuthNCheck()
+      var check = AuthNCheck(foyerStatus = FoyerStatus.Allowed)
       val authNFilters = getFiltersNamed(AUTH_N_FILTER_NAME)(filters)
 
       // If we have filters, perform a set of checks on their respective configurations.
@@ -162,14 +162,18 @@ object VerifyTryItNowCommand extends Command {
           // This is our truth table, defining "good" and "bad" states across versions.
           if (filterCheck.filteredByUriRegex) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
-          } else if (filterCheck.missingConfiguration || !filterCheck.inTenantedMode) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotReady)
+          } else if (filterCheck.missingConfiguration) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+          } else if (!filterCheck.inTenantedMode) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
           } else if (versionLessThan("4.1.0") && filterCheck.foyerAsServiceAdmin) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Ready)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
           } else if (versionGreaterThanOrEqualTo("4.1.0") && versionLessThan("7.1.4.0") && filterCheck.foyerAsServiceAdmin && filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Ready)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
           } else if (filterCheck.foyerAsServiceAdmin || filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Ready)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+          } else {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           }
 
           filterCheck
@@ -177,12 +181,12 @@ object VerifyTryItNowCommand extends Command {
 
         // This provides a status for the component (i.e., client-auth-n) as a whole, while the status for each
         // filter is provided above.
-        val checkFoyerStatus = if (authNFilterChecks.exists(ifc => FoyerStatus.Ready.equals(ifc.foyerStatus))) {
-          FoyerStatus.Ready
+        val checkFoyerStatus = if (authNFilterChecks.exists(ifc => FoyerStatus.NotAllowed.equals(ifc.foyerStatus))) {
+          FoyerStatus.NotAllowed
         } else if (authNFilterChecks.exists(ifc => FoyerStatus.Unknown.equals(ifc.foyerStatus))) {
           FoyerStatus.Unknown
         } else {
-          FoyerStatus.NotReady
+          FoyerStatus.Allowed
         }
 
         check = check.copy(authNFilterChecks = authNFilterChecks, foyerStatus = checkFoyerStatus)
@@ -196,11 +200,11 @@ object VerifyTryItNowCommand extends Command {
       case class AuthZFilterCheck(filteredByUriRegex: Boolean = true,
                                   missingConfiguration: Boolean = true,
                                   foyerAsIgnoreTenant: Boolean = false,
-                                  foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
+                                  foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
 
       case class AuthZCheck(listedInSystemModel: Boolean = false,
                             authZFilterChecks: Seq[AuthZFilterCheck] = Seq.empty,
-                            foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
+                            foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
 
       implicit val AuthZFilterCheckWrites = new Writes[AuthZFilterCheck] {
         override def writes(azfc: AuthZFilterCheck): JsValue = Json.obj(
@@ -219,7 +223,7 @@ object VerifyTryItNowCommand extends Command {
         )
       }
 
-      var check = AuthZCheck()
+      var check = AuthZCheck(foyerStatus = FoyerStatus.Allowed)
       val authZFilters = getFiltersNamed(AUTH_Z_FILTER_NAME)(filters)
 
       if (authZFilters.nonEmpty) {
@@ -244,22 +248,24 @@ object VerifyTryItNowCommand extends Command {
           if (filterCheck.filteredByUriRegex) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
           } else if (filterCheck.missingConfiguration) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotReady)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (versionLessThan("4.1.0")) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Ready)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+          } else if (filterCheck.foyerAsIgnoreTenant) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
           } else if (!filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Ready)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
           }
 
           filterCheck
         }
 
-        val checkFoyerStatus = if (authZFilterChecks.exists(ifc => FoyerStatus.Ready.equals(ifc.foyerStatus))) {
-          FoyerStatus.Ready
+        val checkFoyerStatus = if (authZFilterChecks.exists(ifc => FoyerStatus.NotAllowed.equals(ifc.foyerStatus))) {
+          FoyerStatus.NotAllowed
         } else if (authZFilterChecks.exists(ifc => FoyerStatus.Unknown.equals(ifc.foyerStatus))) {
           FoyerStatus.Unknown
         } else {
-          FoyerStatus.NotReady
+          FoyerStatus.Allowed
         }
 
         check = check.copy(authZFilterChecks = authZFilterChecks, foyerStatus = checkFoyerStatus)
@@ -274,11 +280,11 @@ object VerifyTryItNowCommand extends Command {
                                        inTenantedMode: Boolean = false,
                                        foyerAsPreAuth: Boolean = false,
                                        catalogAuthorization: Boolean = false,
-                                       foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
+                                       foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
 
       case class KeystoneV2Check(listedInSystemModel: Boolean = false,
                                  keystoneV2FilterChecks: Seq[KeystoneV2FilterCheck] = Seq.empty,
-                                 foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
+                                 foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
 
       implicit val KeystoneV2FilterCheckWrites = new Writes[KeystoneV2FilterCheck] {
         override def writes(kfc: KeystoneV2FilterCheck): JsValue = Json.obj(
@@ -299,7 +305,7 @@ object VerifyTryItNowCommand extends Command {
         )
       }
 
-      var check = KeystoneV2Check()
+      var check = KeystoneV2Check(foyerStatus = FoyerStatus.Allowed)
       val keystoneV2Filters = getFiltersNamed(KEYSTONEV2_FILTER_NAME)(filters)
 
       if (keystoneV2Filters.nonEmpty) {
@@ -330,21 +336,25 @@ object VerifyTryItNowCommand extends Command {
 
           if (filterCheck.filteredByUriRegex) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
-          } else if (filterCheck.missingConfiguration || !filterCheck.inTenantedMode) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotReady)
-          } else if (versionGreaterThanOrEqualTo("7.1.5.1") && filterCheck.foyerAsPreAuth && filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Ready)
+          } else if (filterCheck.missingConfiguration || versionLessThan("7.1.5.1")) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+          } else if (!filterCheck.inTenantedMode && !filterCheck.catalogAuthorization) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+          } else if (!filterCheck.foyerAsPreAuth) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+          } else if (filterCheck.foyerAsPreAuth) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
           }
 
           filterCheck
         }
 
-        val checkFoyerStatus = if (keystoneV2FilterChecks.exists(ifc => FoyerStatus.Ready.equals(ifc.foyerStatus))) {
-          FoyerStatus.Ready
+        val checkFoyerStatus = if (keystoneV2FilterChecks.exists(ifc => FoyerStatus.NotAllowed.equals(ifc.foyerStatus))) {
+          FoyerStatus.NotAllowed
         } else if (keystoneV2FilterChecks.exists(ifc => FoyerStatus.Unknown.equals(ifc.foyerStatus))) {
           FoyerStatus.Unknown
         } else {
-          FoyerStatus.NotReady
+          FoyerStatus.Allowed
         }
 
         check = check.copy(keystoneV2FilterChecks = keystoneV2FilterChecks, foyerStatus = checkFoyerStatus)
@@ -359,11 +369,11 @@ object VerifyTryItNowCommand extends Command {
                                        inTenantedMode: Boolean = false,
                                        foyerAsBypassTenant: Boolean = false,
                                        catalogAuthorization: Boolean = false,
-                                       foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
+                                       foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
 
       case class IdentityV3Check(listedInSystemModel: Boolean = false,
                                  identityV3FilterChecks: Seq[IdentityV3FilterCheck] = Seq.empty,
-                                 foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.NotReady)
+                                 foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
 
       implicit val IdentityV3FilterCheckWrites = new Writes[IdentityV3FilterCheck] {
         override def writes(ifc: IdentityV3FilterCheck): JsValue = Json.obj(
@@ -384,7 +394,7 @@ object VerifyTryItNowCommand extends Command {
         )
       }
 
-      var check = IdentityV3Check()
+      var check = IdentityV3Check(foyerStatus = FoyerStatus.Allowed)
       val identityV3Filters = getFiltersNamed(IDENTITYV3_FILTER_NAME)(filters)
 
       if (identityV3Filters.nonEmpty) {
@@ -415,21 +425,27 @@ object VerifyTryItNowCommand extends Command {
 
           if (filterCheck.filteredByUriRegex) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
-          } else if (filterCheck.missingConfiguration || !filterCheck.inTenantedMode) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotReady)
-          } else if (versionGreaterThanOrEqualTo("7.0.0.0") && filterCheck.foyerAsBypassTenant && filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Ready)
+          } else if (filterCheck.missingConfiguration || versionLessThan("7.0.0.0")) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+          } else if (!filterCheck.inTenantedMode && !filterCheck.catalogAuthorization) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+          } else if (!filterCheck.foyerAsBypassTenant) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+          } else if (filterCheck.foyerAsBypassTenant && !filterCheck.catalogAuthorization) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+          } else if (filterCheck.catalogAuthorization) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
           }
 
           filterCheck
         }
 
-        val checkFoyerStatus = if (identityV3FilterChecks.exists(ifc => FoyerStatus.Ready.equals(ifc.foyerStatus))) {
-          FoyerStatus.Ready
+        val checkFoyerStatus = if (identityV3FilterChecks.exists(ifc => FoyerStatus.NotAllowed.equals(ifc.foyerStatus))) {
+          FoyerStatus.NotAllowed
         } else if (identityV3FilterChecks.exists(ifc => FoyerStatus.Unknown.equals(ifc.foyerStatus))) {
           FoyerStatus.Unknown
         } else {
-          FoyerStatus.NotReady
+          FoyerStatus.Allowed
         }
 
         check = check.copy(identityV3FilterChecks = identityV3FilterChecks, foyerStatus = checkFoyerStatus)
@@ -460,7 +476,7 @@ object VerifyTryItNowCommand extends Command {
 
   object FoyerStatus extends Enumeration {
     type FoyerStatus = Value
-    val Ready, NotReady, Unknown = Value
+    val Allowed, NotAllowed, Unknown = Value
   }
 
 }

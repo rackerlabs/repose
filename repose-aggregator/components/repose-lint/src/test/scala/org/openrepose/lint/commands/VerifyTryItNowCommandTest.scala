@@ -57,7 +57,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       an[Exception] should be thrownBy VerifyTryItNowCommand.perform(config)
     }
 
-    it("should report not ready if filters are not listed in the system-model") {
+    it("should report allowed if filters are not listed in the system-model") {
       val configDir = new File(getClass.getResource("/configs/nofilters/").toURI)
       val config = new LintConfig(configDir = configDir)
 
@@ -70,10 +70,10 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
 
-      ((parsedOutput \ "clusters") (0) \ "authNCheck" \ "foyerStatus").as[String] should include("NotReady")
-      ((parsedOutput \ "clusters") (0) \ "authZCheck" \ "foyerStatus").as[String] should include("NotReady")
-      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \ "foyerStatus").as[String] should include("NotReady")
-      ((parsedOutput \ "clusters") (0) \ "identityV3Check" \ "foyerStatus").as[String] should include("NotReady")
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \ "foyerStatus").as[String] should include("Allowed")
+      ((parsedOutput \ "clusters") (0) \ "authZCheck" \ "foyerStatus").as[String] should include("Allowed")
+      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \ "foyerStatus").as[String] should include("Allowed")
+      ((parsedOutput \ "clusters") (0) \ "identityV3Check" \ "foyerStatus").as[String] should include("Allowed")
     }
 
     it("should report if filters are filtered by uri regex") {
@@ -304,7 +304,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val parsedOutput = Json.parse(outputString)
 
       ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "inTenantedMode").head.as[Boolean] shouldBe true
-      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerStatus").head.as[String] should include("NotReady")
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerStatus").head.as[String] should include("NotAllowed")
     }
 
     it ("should work for Repose 5.x auth-n config") {
@@ -320,7 +320,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
 
-      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerStatus").head.as[String] should fullyMatch regex "Ready"
+      ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerStatus").head.as[String] should fullyMatch regex "Allowed"
     }
   }
 }
