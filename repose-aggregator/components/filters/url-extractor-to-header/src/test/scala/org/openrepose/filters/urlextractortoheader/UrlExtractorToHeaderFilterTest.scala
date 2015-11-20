@@ -20,17 +20,103 @@
 
 package org.openrepose.filters.urlextractortoheader
 
+import javax.servlet.{ServletResponse, FilterChain}
+
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito._
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.filters.urlextractortoheader.config.{UrlExtractorToHeaderConfig, Extractor}
 import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
+import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
+
+import org.mockito.Matchers._
 
 @RunWith(classOf[JUnitRunner])
 class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
+  var servletRequest: MockHttpServletRequest = _
+  var servletResponse: MockHttpServletResponse = _
+  var filterChain: FilterChain = _
+
+  before {
+    servletRequest = new MockHttpServletRequest
+    servletResponse = new MockHttpServletResponse
+    filterChain = mock(classOf[FilterChain])
+  }
+
   describe("doFilter") {
-    it("should do nothing") {
-      // everyone is a winner!
+    it("should add the header with the regex value when the URL matches the configured regex and a default is specified") {
+      val config = new UrlExtractorToHeaderConfig
+      config.getExtraction.add(createConfigExtractor("X-Device-Id", ".*/(hybrid:\\d+)/entities/.+", Some("no-value")))
+      val filter = new UrlExtractorToHeaderFilter(null)
+      filter.configurationUpdated(config)
+      servletRequest.setRequestURI("/v1/hybrid:45678/entities/96")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeader("X-Device-Id") shouldBe "hybrid:45678"
+    }
+
+    it("should add the header with the default value when the URL does NOT match the configured regex and a default is specified") {
+      val config = new UrlExtractorToHeaderConfig
+      config.getExtraction.add(createConfigExtractor("X-Device-Id", ".*/(hybrid:\\d+)/entities/.+", Some("no-value")))
+      val filter = new UrlExtractorToHeaderFilter(null)
+      filter.configurationUpdated(config)
+      servletRequest.setRequestURI("/v1/potato:45678/entities/96")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeader("X-Device-Id") shouldBe "no-value"
+    }
+
+    it("should add the header with the regex value when the URL matches the configured regex and a default is NOT specified") {
+      val config = new UrlExtractorToHeaderConfig
+      config.getExtraction.add(createConfigExtractor("X-Device-Id", ".*/(hybrid:\\d+)/entities/.+", None))
+      val filter = new UrlExtractorToHeaderFilter(null)
+      filter.configurationUpdated(config)
+      servletRequest.setRequestURI("/v1/hybrid:45678/entities/96")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeader("X-Device-Id") shouldBe "hybrid:45678"
+    }
+
+    it("should NOT add the header when the URL does NOT match the configured regex and a default is NOT specified") {
+      val config = new UrlExtractorToHeaderConfig
+      config.getExtraction.add(createConfigExtractor("X-Device-Id", ".*/(hybrid:\\d+)/entities/.+", None))
+      val filter = new UrlExtractorToHeaderFilter(null)
+      filter.configurationUpdated(config)
+      servletRequest.setRequestURI("/v1/potato:45678/entities/96")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeader("X-Device-Id") shouldBe null
+    }
+
+    it("should add a header for an extractor even if another extractor doesn't add a header") {
+      val config = new UrlExtractorToHeaderConfig
+      config.getExtraction.add(createConfigExtractor("X-Device-Id", ".*/(hybrid:\\d+)/entities/.+", Some("no-value")))
+      config.getExtraction.add(createConfigExtractor("X-Server-Id", ".*/servers/([^/]+).*", None))
+      val filter = new UrlExtractorToHeaderFilter(null)
+      filter.configurationUpdated(config)
+      servletRequest.setRequestURI("/v1/hybrid:45678/entities/96")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeader("X-Device-Id") shouldBe "hybrid:45678"
+      requestCaptor.getValue.getHeader("X-Server-Id") shouldBe null
     }
   }
 

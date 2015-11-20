@@ -48,6 +48,26 @@
             <artifactId>core-service-api</artifactId>
         </dependency>
 
+        <!-- MutableHttpServletRequest -->
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
+
+        <!-- LogFactory, needed by MockHttpServletRequest/Response -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- MockHttpServletRequest/Response -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- JAXB -->
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
