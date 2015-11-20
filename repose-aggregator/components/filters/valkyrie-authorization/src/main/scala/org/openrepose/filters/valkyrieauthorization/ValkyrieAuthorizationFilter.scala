@@ -84,7 +84,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           val httpMethods = pathRegex.getHttpMethods
           httpMethods.isEmpty ||
             httpMethods.contains(HttpMethod.ALL) ||
-            httpMethods.contains(mutableHttpRequest.getMethod)
+            httpMethods.contains(HttpMethod.fromValue(mutableHttpRequest.getMethod))
         }
       })).getOrElse(Seq.empty[Resource])
     val translateAccountPermissions: Option[AnyRef] = Option(configuration.getTranslatePermissionsToRoles)
