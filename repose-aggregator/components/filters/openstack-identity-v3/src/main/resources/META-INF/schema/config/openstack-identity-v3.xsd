@@ -167,8 +167,12 @@
         <xs:attribute name="domain-id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Optional domain id to use when authenticating as an Admin User to OpenStack Identity.</html:p>
-                    <html:p>This will end up in the domain: { "id": HERE } JSON structure</html:p>
+                    <html:p>
+                        Optional domain id to use when authenticating as an Admin User to OpenStack Identity.
+                    </html:p>
+                    <html:p>
+                        This will end up in the domain: { "id": HERE } JSON structure
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -255,6 +259,18 @@
                         This attribute represents a regular expression which will be used to parse the project ID
                         out of the uri. A capture group should be present around the portion of the regex which matches
                         the project ID.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="strip-token-tenant-prefixes" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A '/' delimited list of prefixes to attempt to strip from the tenant id in the token
+                        response from the identity service. The post-strip tenant id is only used in the tenant
+                        validation check.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

@@ -171,6 +171,18 @@
                 </xs:annotation>
             </xs:element>
         </xs:sequence>
+
+        <xs:attribute name="strip-token-tenant-prefixes" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A '/' delimited list of prefixes to attempt to strip from the tenant id in the token
+                        response from the identity service. The post-strip tenant id is only used in the tenant
+                        validation check.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="RolesList">
