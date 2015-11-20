@@ -204,6 +204,11 @@
             <artifactId>cors</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>url-extractor-to-header</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
