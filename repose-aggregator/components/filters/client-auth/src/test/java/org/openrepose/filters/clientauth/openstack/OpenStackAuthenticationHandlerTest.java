@@ -126,7 +126,8 @@ public class OpenStackAuthenticationHandlerTest {
             serviceAdminRoles.getRole().add("12345");
 
             final Set<String> tenantPrefixes = new HashSet<>();
-            tenantPrefixes.add("test:");
+            tenantPrefixes.add("foo:");
+            tenantPrefixes.add("bar:");
 
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(
@@ -350,7 +351,7 @@ public class OpenStackAuthenticationHandlerTest {
             token.setId("tokenId");
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
             TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
-            tenant.setId("test:104772");
+            tenant.setId("foo:104772");
             tenant.setName("tenantName");
             token.setTenant(tenant);
             authResponse.setToken(token);
@@ -361,7 +362,7 @@ public class OpenStackAuthenticationHandlerTest {
             FilterDirector director = handler.handleRequest(request, response);
 
             Set expectedSet = new LinkedHashSet();
-            expectedSet.add("test:104772");
+            expectedSet.add("foo:104772");
             assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
             assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
         }
@@ -375,9 +376,9 @@ public class OpenStackAuthenticationHandlerTest {
             role1.setTenantId("123456");
             role1.setDescription("Derp description");
             Role role2 = new Role();
-            role2.setName("testL104772");
-            role2.setId("test:104772");
-            role2.setTenantId("test:104772");
+            role2.setName("foo:104772");
+            role2.setId("foo:104772");
+            role2.setTenantId("foo:104772");
             role2.setDescription("Derp description");
             RoleList roleList = new RoleList();
             roleList.getRole().add(role1);
@@ -400,7 +401,7 @@ public class OpenStackAuthenticationHandlerTest {
             FilterDirector director = handler.handleRequest(request, response);
 
             Set expectedSet = new LinkedHashSet();
-            expectedSet.add("test:104772");
+            expectedSet.add("foo:104772");
             assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
             assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
         }

@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -97,7 +97,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         }
 
         if (authToken != null && !hasIgnoreTenantRole(authToken)) {
-            List<String> tokenTenantIds = new LinkedList<>();
+            Set<String> tokenTenantIds = new HashSet<>();
 
             if (authToken.getTenantId() != null) {
                 tokenTenantIds.add(authToken.getTenantId());
