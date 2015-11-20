@@ -224,13 +224,49 @@ class CullingWMethodRetrictionTest extends ReposeValveTest {
         "POST"    | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 2
         "DELETE"  | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 2
         "OPTIONS" | randomTenant() | "520707" | "511123"  | "view_product" | "200"        | 2
-        "HEAD"    | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 2
         "TRACE"   | randomTenant() | "520707" | "520708"  | "view_product" | "200"        | 2
-        "CONNECT" | randomTenant() | "520707" | "520706"  | "view_product" | "200"        | 2
+    }
+
+    @Unroll("Regardless of Valkyrie configuration, the restricted #method method should return a #responseCode and an empty body")
+    def "Empty body on restricted methods"() {
+        given: "a list permission devices defined in Valkyrie"
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenant = tenantID
+        }
+
+        fakeValkyrie.with {
+            device_id = deviceID
+            device_id2 = deviceID2
+            device_perm = permission
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: method,
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantID
+                ],
+                defaultHandler: jsonResp
+        )
+
+        then: "check response"
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == handlings
+        new String(mc.receivedResponse.body).length() == 0
+
+        where:
+        method    | tenantID       | deviceID | deviceID2 | permission     | responseCode | handlings
+        "HEAD"    | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 1
+        "CONNECT" | randomTenant() | "520707" | "520706"  | "view_product" | "400"        | 0
     }
 
     def String randomTenant() {
         "hybrid:" + random.nextInt()
     }
 }
-
