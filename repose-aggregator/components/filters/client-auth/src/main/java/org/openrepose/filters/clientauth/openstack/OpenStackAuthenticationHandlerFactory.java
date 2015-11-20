@@ -33,8 +33,7 @@ import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityServi
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
 import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Deprecated
 public final class OpenStackAuthenticationHandlerFactory {
@@ -83,6 +82,7 @@ public final class OpenStackAuthenticationHandlerFactory {
                 endpointsConfiguration,
                 getServiceAdminRoles(authConfig.getServiceAdminRoles()),
                 getIgnoreTenantRoles(authConfig.getIgnoreTenantRoles()),
+                getTenantPrefixes(authConfig.getStripTokenTenantPrefixes()),
                 authConfig.isSendAllTenantIds(),
                 authConfig.isSendTenantIdQuality());
 
@@ -99,5 +99,15 @@ public final class OpenStackAuthenticationHandlerFactory {
         } else {
             return roles.getRole();
         }
+    }
+
+    private static Set<String> getTenantPrefixes(String stripTokenTenantPrefixes) {
+        if (stripTokenTenantPrefixes != null) {
+            Set<String> prefixSet = new HashSet<>();
+            prefixSet.addAll(Arrays.asList(stripTokenTenantPrefixes.split("/")));
+            return prefixSet;
+        }
+
+        return new HashSet<>();
     }
 }
