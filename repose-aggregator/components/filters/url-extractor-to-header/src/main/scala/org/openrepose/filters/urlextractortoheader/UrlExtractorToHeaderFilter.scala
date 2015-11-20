@@ -19,12 +19,61 @@
  */
 package org.openrepose.filters.urlextractortoheader
 
+import java.net.URL
+import javax.inject.{Named, Inject}
 import javax.servlet._
 
-class UrlExtractorToHeaderFilter extends Filter {
-  override def init(filterConfig: FilterConfig): Unit = ???
+import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.core.filter.FilterConfigHelper
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.filters.urlextractortoheader.config.UrlExtractorToHeaderConfig
+
+import scala.collection.JavaConverters._
+import scala.util.matching.Regex
+
+@Named
+class UrlExtractorToHeaderFilter @Inject()(configurationService: ConfigurationService)
+  extends Filter with UpdateListener[UrlExtractorToHeaderConfig] with LazyLogging {
+
+  import UrlExtractorToHeaderFilter._
+
+  private var configurationFile: String = DEFAULT_CONFIG
+  private var initialized = false
+  private var extractions: Iterable[Extraction] = _
+
+  override def init(filterConfig: FilterConfig): Unit = {
+    logger.trace("URL Extractor to Header filter initializing...")
+    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
+
+    logger.info("Initializing URL Extractor to Header filter using config {}", configurationFile)
+    val xsdUrl: URL = getClass.getResource(SCHEMA_FILE_NAME)
+    configurationService.subscribeTo(filterConfig.getFilterName, configurationFile, xsdUrl, this, classOf[UrlExtractorToHeaderConfig])
+
+    logger.trace("URL Extractor to Header filter initialized.")
+  }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
 
-  override def destroy(): Unit = ???
+  override def destroy(): Unit = {
+    logger.trace("URL Extractor to Header filter destroying...")
+    configurationService.unsubscribeFrom(configurationFile, this.asInstanceOf[UpdateListener[_]])
+    logger.trace("URL Extractor to Header filter destroyed.")
+  }
+
+  override def configurationUpdated(config: UrlExtractorToHeaderConfig): Unit = {
+    extractions = config.getExtraction.asScala.map { extraction =>
+      Extraction(extraction.getHeader, extraction.getUrlRegex.r, Option(extraction.getDefault))
+    }
+    initialized = true
+  }
+
+  override def isInitialized: Boolean = initialized
+}
+
+object UrlExtractorToHeaderFilter {
+  private final val DEFAULT_CONFIG = "url-extractor-to-header.cfg.xml"
+  private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/url-extractor-to-header.xsd"
+
+  case class Extraction(headerName: String, urlRegex: Regex, defaultValue: Option[String])
 }

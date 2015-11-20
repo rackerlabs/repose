@@ -25,9 +25,9 @@
            targetNamespace="http://docs.openrepose.org/repose/url-extractor-to-header/v1.0"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
-    <xs:element name="url-extractor-to-header" type="UrlExtractorToHeader"/>
+    <xs:element name="url-extractor-to-header" type="UrlExtractorToHeaderConfig"/>
 
-    <xs:complexType name="UrlExtractorToHeader">
+    <xs:complexType name="UrlExtractorToHeaderConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p>The root config type for the URL Extractor to Header filter configuration file.</html:p>
