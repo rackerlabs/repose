@@ -95,7 +95,7 @@ class CullingWMethodRetrictionTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
-        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/methodretriction", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/methodrestriction", params);
 
         repose.start()
 
