@@ -20,9 +20,11 @@
 package org.openrepose.filters.openstackidentityv3
 
 import org.junit.runner.RunWith
-import org.mockito.Mockito.when
+import org.mockito.AdditionalMatchers._
+import org.mockito.Matchers._
+import org.mockito.Mockito._
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
 import org.openrepose.filters.openstackidentityv3.config.{DelegatingType, OpenstackIdentityService, OpenstackIdentityV3Config}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -32,13 +34,16 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 class OpenStackIdentityV3HandlerFactoryTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
 
   val mockAkkaServiceClient = mock[AkkaServiceClient]
+  val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
   val mockDatastoreService = mock[DatastoreService]
   var handlerFactory: OpenStackIdentityV3HandlerFactory = _
 
   before {
+    reset(mockAkkaServiceClientFactory)
     when(mockDatastoreService.getDefaultDatastore).thenReturn(null)
+    when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
 
-    handlerFactory = new OpenStackIdentityV3HandlerFactory(mockAkkaServiceClient, mockDatastoreService)
+    handlerFactory = new OpenStackIdentityV3HandlerFactory(mockAkkaServiceClientFactory, mockDatastoreService)
   }
 
   describe("buildHandler") {
@@ -66,6 +71,55 @@ class OpenStackIdentityV3HandlerFactoryTest extends FunSpec with BeforeAndAfter 
 
       listeners should have size 1
       listeners should contain key classOf[OpenstackIdentityV3Config]
+    }
+  }
+
+  describe("configurationUpdated") {
+    it("should use the akka service client factory to get an instance with the configured connection pool id") {
+      val connectionPoolId = "some_conn_pool_id"
+      val identityService = new OpenstackIdentityService()
+      identityService.setUri("")
+      val config = new OpenstackIdentityV3Config()
+      config.setOpenstackIdentityService(identityService)
+      config.setConnectionPoolId(connectionPoolId)
+
+      handlerFactory.configurationUpdated(config)
+
+      verify(mockAkkaServiceClientFactory).newAkkaServiceClient(connectionPoolId)
+    }
+
+    it("should destroy the previous akka service client") {
+      val firstAkkaServiceClient = mock[AkkaServiceClient]
+      val secondAkkaServiceClient = mock[AkkaServiceClient]
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String])))
+        .thenReturn(firstAkkaServiceClient)
+        .thenReturn(secondAkkaServiceClient)
+
+      val identityService = new OpenstackIdentityService()
+      identityService.setUri("")
+      val config = new OpenstackIdentityV3Config()
+      config.setOpenstackIdentityService(identityService)
+
+      handlerFactory.configurationUpdated(config)
+      handlerFactory.configurationUpdated(config)
+
+      verify(mockAkkaServiceClientFactory, times(2)).newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))
+      verify(firstAkkaServiceClient, times(1)).destroy()
+      verify(secondAkkaServiceClient, never()).destroy()
+    }
+  }
+
+  describe("destroy") {
+    it("should destroy the akka service client") {
+      val identityService = new OpenstackIdentityService()
+      identityService.setUri("")
+      val config = new OpenstackIdentityV3Config()
+      config.setOpenstackIdentityService(identityService)
+      handlerFactory.configurationUpdated(config)
+
+      handlerFactory.destroy()
+
+      verify(mockAkkaServiceClient).destroy()
     }
   }
 }

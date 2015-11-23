@@ -24,14 +24,15 @@ import java.util
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.openrepose.filters.openstackidentityv3.utilities.OpenStackIdentityV3API
 
-class OpenStackIdentityV3HandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
+class OpenStackIdentityV3HandlerFactory(akkaServiceClientFactory: AkkaServiceClientFactory, datastoreService: DatastoreService)
   extends AbstractConfiguredFilterHandlerFactory[OpenStackIdentityV3Handler] {
 
   private var keystoneHandler: OpenStackIdentityV3Handler = _
+  private var akkaServiceClient: AkkaServiceClient = _
 
   override def buildHandler: OpenStackIdentityV3Handler = {
     if (isInitialized) keystoneHandler
@@ -46,10 +47,18 @@ class OpenStackIdentityV3HandlerFactory(akkaServiceClient: AkkaServiceClient, da
     listenerMap
   }
 
+  def destroy(): Unit = {
+    Option(akkaServiceClient).foreach(_.destroy())
+  }
+
   private class KeystoneV3ConfigurationListener extends UpdateListener[OpenstackIdentityV3Config] {
     private var initialized = false
 
     def configurationUpdated(config: OpenstackIdentityV3Config) {
+      val akkaServiceClientOld = Option(akkaServiceClient)
+      akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)
+      akkaServiceClientOld.foreach(_.destroy())
+
       val identityAPI = new OpenStackIdentityV3API(config, datastoreService.getDefaultDatastore, akkaServiceClient)
       keystoneHandler = new OpenStackIdentityV3Handler(config, identityAPI)
       initialized = true

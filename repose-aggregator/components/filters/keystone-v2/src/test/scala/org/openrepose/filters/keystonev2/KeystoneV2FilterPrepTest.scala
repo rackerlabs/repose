@@ -4,10 +4,12 @@ import java.net.URL
 
 import com.mockrunner.mock.web.MockFilterConfig
 import org.junit.runner.RunWith
+import org.mockito.AdditionalMatchers._
+import org.mockito.Matchers._
 import org.mockito.{ArgumentCaptor, Matchers => MockitoMatcher, Mockito}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 import org.scalatest.junit.JUnitRunner
@@ -30,8 +32,10 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
   describe("when the filter is initialized") {
     it("should initialize the configuration") {
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
       val mockConfigService = mock[ConfigurationService]
-      val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+      Mockito.when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+      val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
 
       val config: MockFilterConfig = new MockFilterConfig
       config.setFilterName("KeystoneV2Filter")
@@ -56,8 +60,10 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
     it("should initialize a configuration with a different name") {
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
       val mockConfigService = mock[ConfigurationService]
-      val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+      Mockito.when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+      val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
 
       val config: MockFilterConfig = new MockFilterConfig
       config.setFilterName("KeystoneV2Filter")
@@ -84,7 +90,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
   it("deregisters from the configuration service when destroying") {
     val mockConfigService = mock[ConfigurationService]
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mock[AkkaServiceClient], mockDatastoreService)
+    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mock[AkkaServiceClientFactory], mockDatastoreService)
 
     val config: MockFilterConfig = new MockFilterConfig
     filter.init(config)
@@ -95,7 +101,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
   describe("when the configuration is updated") {
     it("sets the current configuration on the filter asserting the defaults and initialized is true") {
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockDatastoreService)
       filter.isInitialized shouldNot be(right = true)
 
       val configuration = Marshaller.keystoneV2ConfigFromString(
@@ -132,7 +138,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     }
 
     it("sets the default delegating quality to 0.7") {
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClient], mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockDatastoreService)
       filter.isInitialized shouldNot be(right = true)
 
       val configuration = Marshaller.keystoneV2ConfigFromString(

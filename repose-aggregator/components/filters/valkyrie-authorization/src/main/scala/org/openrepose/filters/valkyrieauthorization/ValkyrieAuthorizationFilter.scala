@@ -19,7 +19,7 @@ import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, Mut
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
 import org.openrepose.filters.valkyrieauthorization.config._
 import play.api.libs.json._
 
@@ -30,7 +30,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 @Named
-class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationService, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
+class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationService, akkaServiceClientFactory: AkkaServiceClientFactory, datastoreService: DatastoreService)
   extends Filter
   with UpdateListener[ValkyrieAuthorizationConfig]
   with HttpDelegationManager
@@ -44,6 +44,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   var configurationFile: String = DEFAULT_CONFIG
   var configuration: ValkyrieAuthorizationConfig = _
+  var akkaServiceClient: AkkaServiceClient = _
   var initialized = false
 
   override def init(filterConfig: FilterConfig): Unit = {
@@ -60,6 +61,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   override def destroy(): Unit = {
+    Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(configurationFile, this)
   }
 
@@ -425,6 +427,11 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   override def configurationUpdated(configurationObject: ValkyrieAuthorizationConfig): Unit = {
     configuration = configurationObject
+
+    val akkaServiceClientOld = Option(akkaServiceClient)
+    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(configuration.getConnectionPoolId)
+    akkaServiceClientOld.foreach(_.destroy())
+
     initialized = true
   }
 

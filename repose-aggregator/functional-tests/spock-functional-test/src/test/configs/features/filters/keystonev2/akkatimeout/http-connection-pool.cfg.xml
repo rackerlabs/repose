@@ -12,7 +12,7 @@
           http.connection.max-status-line-garbage="100"
           http.tcp.nodelay="true"
           keepalive.timeout="0"/>
-    <pool id="client-auth"
+    <pool id="keystone-v2-pool"
           default="false"
           http.conn-manager.max-total="200"
           http.conn-manager.max-per-route="20"

@@ -152,6 +152,7 @@ class MockIdentityV3Service {
     def impersonate_id = ""
     def impersonate_name = ""
     def default_region = "ORD"
+    def sleeptime = 0;
     Validator validator
 
     void resetParameters() {
@@ -173,6 +174,7 @@ class MockIdentityV3Service {
         impersonate_id = ""
         impersonate_name = ""
         default_region = "ORD"
+        sleeptime = 0
     }
 
     def templateEngine = new SimpleTemplateEngine()
@@ -390,7 +392,9 @@ class MockIdentityV3Service {
         }
 
         def body = templateEngine.createTemplate(template).make(params)
-
+        if (sleeptime > 0) {
+            sleep(sleeptime)
+        }
         return new Response(code, null, headers, body)
     }
 
@@ -437,7 +441,9 @@ class MockIdentityV3Service {
         }
 
         def body = templateEngine.createTemplate(template).make(params)
-
+        if (sleeptime > 0) {
+            sleep(sleeptime)
+        }
         return new Response(code, null, headers, body)
     }
 

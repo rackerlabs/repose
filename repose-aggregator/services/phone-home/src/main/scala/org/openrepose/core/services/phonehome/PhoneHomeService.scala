@@ -29,7 +29,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.{FilterList, PhoneHomeServiceConfig, ServicesList, SystemModel}
 import org.slf4j.LoggerFactory
@@ -55,13 +55,14 @@ import scala.collection.JavaConverters._
 @Named
 class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVer: String,
                                  configurationService: ConfigurationService,
-                                 akkaServiceClient: AkkaServiceClient)
+                                 akkaServiceClientFactory: AkkaServiceClientFactory)
   extends LazyLogging {
 
   private final val msgLogger = LoggerFactory.getLogger("phone-home-message")
   private final val defaultCollectionUri = new PhoneHomeServiceConfig().getCollectionUri
 
   private var systemModel: SystemModel = _
+  private var akkaServiceClient: AkkaServiceClient = _
 
   @PostConstruct
   def init(): Unit = {
@@ -71,6 +72,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
       SystemModelConfigurationListener,
       classOf[SystemModel]
     )
+    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient()
   }
 
   private def sendUpdate(): Unit = {

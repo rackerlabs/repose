@@ -111,15 +111,17 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
         describe(s"with no headers") {
           val headers = Map[String, String]()
 
-          it("should Validate Token") {
-            val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
-            val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
-            serviceClientResponse should not be null
-            serviceClientResponse.getStatus shouldBe HttpServletResponse.SC_OK
+          List(null, "", "test_conn_pool").foreach { connectionPoolId =>
+            it(s"should validate token with connection pool id $connectionPoolId") {
+              val akkaServiceClientImpl = new AkkaServiceClientImpl(connectionPoolId, httpClientService)
+              val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
+              serviceClientResponse should not be null
+              serviceClientResponse.getStatus shouldBe HttpServletResponse.SC_OK
+            }
           }
 
           it("should Reuse Service Response") {
-            val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
+            val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService)
             val serviceClientResponse1 = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
             val serviceClientResponse2 = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
 
@@ -139,7 +141,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
         describe("with a log it header") {
           val headers = Map(HEADER_LOG -> true.toString)
           it("should Expire Item In Future Map") {
-            val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
+            val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService)
             akkaServiceClientImplDo(akkaServiceClientImpl, headers)
 
             Thread.sleep(500)
@@ -165,12 +167,12 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
               params.setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout)
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout - 2000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
-              val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
+              val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService)
               val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
               serviceClientResponse should not be null
               serviceClientResponse.getStatus shouldBe HttpServletResponse.SC_OK
               val inputStream = serviceClientResponse.getData
-              val content = io.Source.fromInputStream(inputStream).getLines().mkString
+              val content = scala.io.Source.fromInputStream(inputStream).getLines().mkString
               inputStream.close()
               content.trim shouldBe BODY_STRING
             }
@@ -180,7 +182,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
               params.setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout)
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout + 5000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
-              val akkaServiceClientImpl = new AkkaServiceClientImpl(httpClientService)
+              val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService)
               intercept[AkkaServiceClientException] {
                 val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
               }

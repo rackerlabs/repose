@@ -9,5 +9,6 @@
     <identity-service username="admin_username"
                       password="admin_password"
                       uri="http://localhost:${identityPort}"
+                      connection-pool-id="keystone-v2-pool"
                       set-groups-in-header="true"/>
 </keystone-v2>

@@ -35,9 +35,6 @@ import org.slf4j.Logger;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -47,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 import static akka.pattern.Patterns.ask;
 import static akka.routing.ConsistentHashingRouter.ConsistentHashable;
 
-@Named
 public class AkkaServiceClientImpl implements AkkaServiceClient {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaServiceClientImpl.class);
@@ -59,9 +55,8 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     private ActorSystem actorSystem;
     private ActorRef tokenActorRef;
 
-    @Inject
-    public AkkaServiceClientImpl(HttpClientService httpClientService) {
-        this.serviceClient = getServiceClient(httpClientService);
+    public AkkaServiceClientImpl(String connectionPoolId, HttpClientService httpClientService) {
+        this.serviceClient = new ServiceClient(connectionPoolId, httpClientService);
         final int numberOfActors = serviceClient.getPoolSize();
 
         Config customConf = ConfigFactory.load();
@@ -72,7 +67,6 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
                 .expireAfterWrite(FUTURE_CACHE_TTL, FUTURE_CACHE_UNIT)
                 .build();
 
-
         tokenActorRef = actorSystem.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
 
@@ -82,9 +76,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     }
 
 
-    @PreDestroy
     public void destroy() {
-        //Tie this actor system to our bean lifecycle
         actorSystem.shutdown();
     }
 
@@ -129,9 +121,5 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
                 return ask(tokenActorRef, hashableRequest, timeout);
             }
         });
-    }
-
-    public ServiceClient getServiceClient(HttpClientService httpClientService) {
-        return new ServiceClient(null, httpClientService);
     }
 }
