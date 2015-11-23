@@ -100,7 +100,7 @@ class UrlExtractorToHeaderTest extends ReposeValveTest {
 
         then: "check response"
         mc.receivedResponse.code == responseCode
-        mc.handlings.get(0).request.headers.contains("x-device-id")
+        mc.handlings.get(0).request.headers.contains("x-server-id")
         mc.handlings.get(0).request.headers.getFirstValue("x-server-id") == serverID
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")
