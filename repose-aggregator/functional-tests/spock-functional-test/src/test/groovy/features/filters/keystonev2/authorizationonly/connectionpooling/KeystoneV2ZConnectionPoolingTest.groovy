@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.keystonev2.connectionpooling
+package features.filters.keystonev2.authorizationonly.connectionpooling
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
@@ -33,7 +33,7 @@ import spock.lang.Specification
  * User: izrik
  *
  */
-class AuthNConnectionPoolingTest extends Specification {
+class KeystoneV2ZConnectionPoolingTest extends Specification {
 
     int reposePort
     int originServicePort
@@ -55,6 +55,7 @@ class AuthNConnectionPoolingTest extends Specification {
 
         // get ports
         properties = new TestProperties()
+
         reposePort = properties.reposePort
         originServicePort = properties.targetPort
         identityServicePort = properties.identityPort
@@ -88,18 +89,17 @@ class AuthNConnectionPoolingTest extends Specification {
 
         def params = properties.getDefaultTemplateParams()
         reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/filters/keystonev2/connectionpooling", params)
-        reposeConfigProvider.applyConfigs("features/filters/keystonev2/connectionpooling2", params)
+        reposeConfigProvider.applyConfigs("features/filters/keystonev2/authorizationonly/connectionpooling", params)
         repose.start()
     }
 
     def "when a client makes requests, Repose should re-use the connection to the Identity service"() {
 
-        setup: "craft an url to a resource that requires authentication"
+        setup:
         def url = "${urlBase}/servers/tenantid/resource"
 
 
-        when: "making two authenticated requests to Repose"
+        when: "making two requests to Repose"
         def mc1 = deproxy.makeRequest(url: url, headers: ['X-Auth-Token': 'token1'])
         def mc2 = deproxy.makeRequest(url: url, headers: ['X-Auth-Token': 'token2'])
         // collect all of the handlings that make it to the identity endpoint into one list

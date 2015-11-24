@@ -98,6 +98,8 @@ trait MockedAkkaServiceClient {
         throw new Exception("OVERSTEPPED BOUNDARIES")
       }
     }
+
+    override def destroy(): Unit = {}
   }
 
   val mockAkkaServiceClient = new MockAkkaServiceClient

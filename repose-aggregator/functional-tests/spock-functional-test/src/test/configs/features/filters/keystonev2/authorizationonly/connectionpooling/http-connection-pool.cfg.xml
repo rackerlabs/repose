@@ -15,7 +15,7 @@
           http.tcp.nodelay="true"
           keepalive.timeout="0"/>
 
-    <pool id="client-auth-z"
+    <pool id="keystone-v2-z"
           default="false"
           http.conn-manager.max-total="200"
           http.conn-manager.max-per-route="20"

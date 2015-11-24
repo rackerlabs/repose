@@ -30,6 +30,7 @@ import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory;
 import org.openrepose.filters.authz.cache.EndpointListCache;
 import org.openrepose.filters.authz.cache.EndpointListCacheImpl;
 import org.slf4j.Logger;
@@ -46,12 +47,13 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
     private RackspaceAuthorization authorizationConfiguration;
     private AuthenticationService authenticationService;
     private HttpClientService httpClientService;
+    private AkkaServiceClientFactory akkaServiceClientFactory;
     private AkkaServiceClient akkaServiceClient;
 
-    public RequestAuthorizationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
+    public RequestAuthorizationHandlerFactory(Datastore datastore, HttpClientService httpClientService, AkkaServiceClientFactory akkaServiceClientFactory) {
         this.datastore = datastore;
         this.httpClientService = httpClientService;
-        this.akkaServiceClient = akkaServiceClient;
+        this.akkaServiceClientFactory = akkaServiceClientFactory;
     }
 
     @Override
@@ -79,6 +81,12 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
         return updateListeners;
     }
 
+    public void destroy() {
+        if (akkaServiceClient != null) {
+            akkaServiceClient.destroy();
+        }
+    }
+
     private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
 
         private boolean isInitialized = false;
@@ -86,6 +94,9 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
         @Override
         public void configurationUpdated(RackspaceAuthorization configurationObject) throws UpdateFailedException {
             authorizationConfiguration = configurationObject;
+
+            AkkaServiceClient oldAkkaServiceClient = akkaServiceClient;
+            akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(authorizationConfiguration.getAuthenticationServer().getConnectionPoolId());
 
             final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
 
@@ -102,6 +113,10 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
                 LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
             }
 
+            if (oldAkkaServiceClient != null) {
+                // delay destroying the previous client until everything using it has been replaced
+                oldAkkaServiceClient.destroy();
+            }
             isInitialized = true;
         }
 

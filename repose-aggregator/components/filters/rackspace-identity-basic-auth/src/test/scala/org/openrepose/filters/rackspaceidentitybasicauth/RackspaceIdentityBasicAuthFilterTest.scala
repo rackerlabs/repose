@@ -28,13 +28,14 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.eclipse.jetty.server.Server
 import org.junit.runner.RunWith
+import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.openrepose.core.filter.logic.FilterAction
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -51,6 +52,7 @@ class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfter w
   var mockDatastore: Datastore = _
   var mockDatastoreService: DatastoreService = _
   var mockAkkaServiceClient: AkkaServiceClient = _
+  var mockAkkaServiceClientFactory: AkkaServiceClientFactory = _
   var mockConfigService: ConfigurationService = _
   var config: RackspaceIdentityBasicAuthConfig = _
   var filter: RackspaceIdentityBasicAuthFilter = _
@@ -62,12 +64,14 @@ class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfter w
     mockDatastore = mock[Datastore]
     mockDatastoreService = mock[DatastoreService]
     mockAkkaServiceClient = mock[AkkaServiceClient]
+    mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
     mockConfigService = mock[ConfigurationService]
     config = new RackspaceIdentityBasicAuthConfig
-    filter = new RackspaceIdentityBasicAuthFilter(mockConfigService, mockAkkaServiceClient, mockDatastoreService)
+    filter = new RackspaceIdentityBasicAuthFilter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
 
     when(mockDatastore.get(anyString)).thenReturn(null, Nil: _*)
     when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
+    when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
   }
 
   describe("the init method") {
@@ -91,6 +95,24 @@ class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfter w
 
       // then:
       assert(filter.isInitialized)
+    }
+
+    it("should destroy the previous akka service client") {
+      // given: two different clients will be returned on subsequent calls to the factory to create new instances
+      val firstAkkaServiceClient = mock[AkkaServiceClient]
+      val secondAkkaServiceClient = mock[AkkaServiceClient]
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String])))
+        .thenReturn(firstAkkaServiceClient)
+        .thenReturn(secondAkkaServiceClient)
+
+      // when: configuration is updated twice
+      filter.configurationUpdated(config)
+      filter.configurationUpdated(config)
+
+      // then: the factory is used twice, and the previous client is destroyed
+      verify(mockAkkaServiceClientFactory, times(2)).newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))
+      verify(firstAkkaServiceClient, times(1)).destroy()
+      verify(secondAkkaServiceClient, never()).destroy()
     }
   }
 
@@ -143,6 +165,19 @@ class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfter w
       // then: "the filter's response status code should be No Content (204)"
       filterDirector.getFilterAction should not be (FilterAction.NOT_SET)
       filterDirector.getResponseStatusCode should be(HttpServletResponse.SC_NO_CONTENT)
+    }
+  }
+
+  describe("when destroying the filter") {
+    it("should destroy the akka service client") {
+      // given: the akka service client exists
+      filter.configurationUpdated(config)
+
+      // when: the filter is destroyed
+      filter.destroy()
+
+      // then: the akka service client is destroyed, too
+      verify(mockAkkaServiceClient).destroy()
     }
   }
 }

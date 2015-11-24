@@ -27,6 +27,4 @@
           http.connection.max-status-line-garbage="100"
           http.tcp.nodelay="true"
           keepalive.timeout="0"/>
-
-
 </http-connection-pools>

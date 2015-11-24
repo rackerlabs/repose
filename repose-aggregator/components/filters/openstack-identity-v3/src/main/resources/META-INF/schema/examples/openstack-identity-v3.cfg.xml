@@ -3,7 +3,8 @@
 <openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
                        token-cache-timeout="300000"
                        groups-cache-timeout="300000"
-                       cache-offset="10000">
+                       cache-offset="10000"
+                       connection-pool-id="identity-v3-pool">
 
     <white-list>
         <uri-pattern>/application\.wadl$</uri-pattern>

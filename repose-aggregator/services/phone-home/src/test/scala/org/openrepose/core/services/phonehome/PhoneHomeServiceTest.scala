@@ -33,7 +33,7 @@ import org.mockito.Mockito.{never, verify, verifyZeroInteractions, when}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
 import org.openrepose.core.systemmodel._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -50,16 +50,33 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
   describe("init") {
     it("should register a system model configuration listener") {
       val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockConfigurationService,
-        mockAkkaServiceClient)
+        mockAkkaServiceClientFactory)
 
       phoneHomeService.init()
 
       verify(mockConfigurationService)
         .subscribeTo(anyString(), any[UpdateListener[SystemModel]](), mockitoEq(classOf[SystemModel]))
+    }
+
+    it("should use the factory to get an instance of the akka service client") {
+      val mockConfigurationService = mock[ConfigurationService]
+      val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+
+      val phoneHomeService = new PhoneHomeService(
+        "1.0.0",
+        mockConfigurationService,
+        mockAkkaServiceClientFactory)
+
+      phoneHomeService.init()
+
+      verify(mockAkkaServiceClientFactory).newAkkaServiceClient()
     }
   }
 
@@ -84,6 +101,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val mockConfigurationService = mock[ConfigurationService]
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -96,8 +116,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockConfigurationService,
-        mockAkkaServiceClient)
+        mockAkkaServiceClientFactory)
 
+      phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       verify(mockAkkaServiceClient).post(
@@ -128,6 +149,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val mockConfigurationService = mock[ConfigurationService]
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -140,8 +164,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockConfigurationService,
-        mockAkkaServiceClient)
+        mockAkkaServiceClientFactory)
 
+      phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       verify(mockAkkaServiceClient, never()).post(
@@ -164,12 +189,16 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val mockConfigurationService = mock[ConfigurationService]
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockConfigurationService,
-        mockAkkaServiceClient)
+        mockAkkaServiceClientFactory)
 
+      phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       val msgLogEvents = msgListAppender.getEvents
@@ -201,12 +230,16 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val mockConfigurationService = mock[ConfigurationService]
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockConfigurationService,
-        mockAkkaServiceClient)
+        mockAkkaServiceClientFactory)
 
+      phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       val msgLogEvents = msgListAppender.getEvents
@@ -238,6 +271,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val mockConfigurationService = mock[ConfigurationService]
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -250,8 +286,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockConfigurationService,
-        mockAkkaServiceClient)
+        mockAkkaServiceClientFactory)
 
+      phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       val msgLogEvents = msgListAppender.getEvents
@@ -292,6 +329,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val mockConfigurationService = mock[ConfigurationService]
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -304,8 +344,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockConfigurationService,
-        mockAkkaServiceClient)
+        mockAkkaServiceClientFactory)
 
+      phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       verify(mockAkkaServiceClient).post(
@@ -337,6 +378,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val mockConfigurationService = mock[ConfigurationService]
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -349,8 +393,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockConfigurationService,
-        mockAkkaServiceClient)
+        mockAkkaServiceClientFactory)
 
+      phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       verify(mockAkkaServiceClient).post(
@@ -396,6 +441,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       val mockConfigurationService = mock[ConfigurationService]
       val mockAkkaServiceClient = mock[AkkaServiceClient]
+      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -408,7 +456,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockConfigurationService,
-        mockAkkaServiceClient)
+        mockAkkaServiceClientFactory)
 
       val expectedMessage = Json.stringify(Json.obj(
         "serviceId" -> "foo-service",
@@ -434,6 +482,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       // Insert the Date/Time/Version RegEx.
       expectedBuilder.insert(idx, """"createdAt":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z","createdAtMillis":[0-9]{13},"jreVersion":".*","jvmName":".*",""")
 
+      phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       verify(mockAkkaServiceClient).post(
