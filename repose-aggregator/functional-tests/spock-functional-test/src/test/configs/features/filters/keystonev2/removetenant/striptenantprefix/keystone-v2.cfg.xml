@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <cache>
+        <timeouts>
+            <token>600</token>
+            <group>600</group>
+        </timeouts>
+    </cache>
+    <tenant-handling>
+        <!--multi prefix separate by "/" -->
+        <validate-tenant strip-token-tenant-prefixes="hybrid:/foo:/bar-">
+            <uri-extraction-regex>.*/accounts/(\w+)/.*</uri-extraction-regex>
+        </validate-tenant>
+    </tenant-handling>
+
+    <identity-service username="admin_username"
+                      password="admin_password"
+                      uri="http://localhost:${identityPort}"/>
+</keystone-v2>
