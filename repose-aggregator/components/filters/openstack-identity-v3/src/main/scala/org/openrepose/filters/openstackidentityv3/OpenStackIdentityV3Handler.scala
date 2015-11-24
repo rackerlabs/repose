@@ -49,6 +49,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private val forwardCatalog = identityConfig.isForwardCatalog
   private val delegatingWithQuality = Option(identityConfig.getDelegating).map(_.getQuality)
   private val projectIdUriRegex = Option(identityConfig.getValidateProjectIdInUri).map(_.getRegex.r)
+  private val projectIdPrefixes = Try(identityConfig.getValidateProjectIdInUri.getStripTokenTenantPrefixes.split('/')).getOrElse(Array.empty[String])
   private val bypassProjectIdCheckRoles = Option(identityConfig.getRolesWhichBypassProjectIdCheck).map(_.getRole.asScala.toList)
   private val configuredServiceEndpoint = Option(identityConfig.getServiceEndpoint) map { serviceEndpoint =>
     Endpoint(id = "configured-endpoint",
@@ -325,19 +326,15 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     userRoles.exists(userRole => ignoreProjectRoles.exists(ignoreRole => ignoreRole.equals(userRole)))
 
   private def projectMatches(projectFromUri: String, defaultProjectId: Option[String], roles: List[Role]): Boolean = {
-    val defaultIdMatches = defaultProjectId.exists(_.equals(projectFromUri))
-    val keystoneRolesIdMatches = roles.exists(role =>
-      role.project_id.exists(rolePID =>
-        rolePID.equals(projectFromUri)
-      )
-    )
-    val raxRolesIdMatches = roles.exists(role =>
-      role.rax_project_id.exists(rolePID =>
-        rolePID.equals(projectFromUri)
-      )
-    )
+    val allProjectIds = defaultProjectId.toSet ++
+      roles.filter(_.project_id.isDefined).map(_.project_id.get) ++
+      roles.filter(_.rax_project_id.isDefined).map(_.rax_project_id.get)
 
-    defaultIdMatches || keystoneRolesIdMatches || raxRolesIdMatches
+    allProjectIds.exists { pid =>
+      pid.equals(projectFromUri) || projectIdPrefixes.exists { prefix =>
+        pid.startsWith(prefix) && pid.substring(prefix.length).equals(projectFromUri)
+      }
+    }
   }
 
   private def extractProjectIdFromUri(projectIdRegex: Regex, uri: String): Option[String] =

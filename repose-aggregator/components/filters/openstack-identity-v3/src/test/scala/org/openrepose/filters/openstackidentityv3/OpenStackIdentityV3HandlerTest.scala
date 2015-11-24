@@ -59,6 +59,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
     identityConfig.setValidateProjectIdInUri(new ValidateProjectID())
     identityConfig.getValidateProjectIdInUri.setRegex("""/foo/(\d+)""")
+    identityConfig.getValidateProjectIdInUri.setStripTokenTenantPrefixes("foo:/bar:")
     identityConfig.setRolesWhichBypassProjectIdCheck(new IgnoreProjectIDRoles())
     identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("admin")
     identityConfig.setForwardGroups(false)
@@ -559,6 +560,14 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
     it("should return true if a role project ID matches") {
       identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("id", "name", Some("12345")))) shouldBe true
+    }
+
+    it("should return true if the default project ID matches after stripping a prefix") {
+      identityV3Handler invokePrivate projectMatches("12345", Some("foo:12345"), List(Role("id", "name", Some("09876")))) shouldBe true
+    }
+
+    it("should return true if a role project ID matches after stripping a prefix") {
+      identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("id", "name", Some("bar:12345")))) shouldBe true
     }
   }
 
