@@ -63,11 +63,11 @@ with HttpDelegationManager {
   private final val dateTime = DateTime.now().plusHours(1)
   val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
   when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+  private val mockDatastore: Datastore = mock[Datastore]
   val mockDatastoreService = mock[DatastoreService]
   val mockConfigService = mock[ConfigurationService]
   when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
   val mockSystemModel = mock[SystemModel]
-  private val mockDatastore: Datastore = mock[Datastore]
   when(mockSystemModel.isTracingHeader).thenReturn(true, Nil: _*)
 
   before {
