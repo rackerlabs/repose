@@ -59,7 +59,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
     identityConfig.setValidateProjectIdInUri(new ValidateProjectID())
     identityConfig.getValidateProjectIdInUri.setRegex("""/foo/(\d+)""")
-    identityConfig.getValidateProjectIdInUri.setStripTokenTenantPrefixes("foo:/bar:")
+    identityConfig.getValidateProjectIdInUri.setStripTokenProjectPrefixes("foo:/bar:")
     identityConfig.setRolesWhichBypassProjectIdCheck(new IgnoreProjectIDRoles())
     identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("admin")
     identityConfig.setForwardGroups(false)
