@@ -310,7 +310,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         tenantFromUri map {
           _ flatMap { uriTenant =>
             val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-            val prefixes = config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes.split('/')
+            val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
             tokenTenants find { tokenTenant =>
               tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
                 tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)

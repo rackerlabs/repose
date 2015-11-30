@@ -105,7 +105,9 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
             if (resp.getUser() != null && resp.getUser().getRoles() != null) {
                 for (Role role : resp.getUser().getRoles().getRole()) {
-                    tokenTenantIds.add(role.getTenantId());
+                    if (role.getTenantId() != null) {
+                        tokenTenantIds.add(role.getTenantId());
+                    }
                 }
             }
 
