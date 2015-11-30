@@ -183,7 +183,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>ip-classification</artifactId>
+            <artifactId>ip-user</artifactId>
             <version>${project.version}</version>
         </dependency>
 

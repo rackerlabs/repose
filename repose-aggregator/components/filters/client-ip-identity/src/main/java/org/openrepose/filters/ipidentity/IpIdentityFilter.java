@@ -59,7 +59,7 @@ public class IpIdentityFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        LOG.warn("This filter is deprecated; use the ip-classification filter");
+        LOG.warn("This filter is deprecated; use the ip-user filter");
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new IpIdentityHandlerFactory();
