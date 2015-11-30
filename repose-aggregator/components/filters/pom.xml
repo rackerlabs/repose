@@ -49,6 +49,7 @@
         <module>valkyrie-authorization</module>
         <module>keystone-v2</module>
         <module>cors</module>
+        <module>url-extractor-to-header</module>
     </modules>
 
     <properties>
