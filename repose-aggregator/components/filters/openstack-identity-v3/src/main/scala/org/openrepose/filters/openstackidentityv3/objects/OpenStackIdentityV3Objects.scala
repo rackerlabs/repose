@@ -52,7 +52,7 @@ case class Endpoint(id: String,
       case _ => true
     }
 
-    this.url == endpointRequirement.url &&
+    this.url.startsWith(endpointRequirement.url) &&
       compare(this.region, endpointRequirement.region) &&
       compare(this.name, endpointRequirement.name) &&
       compare(this.interface, endpointRequirement.interface)
