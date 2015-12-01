@@ -58,8 +58,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   // The local datastore
   private val datastore: Datastore = datastoreService.getDefaultDatastore
+
   var keystoneV2Config: KeystoneV2Config = _
   var akkaServiceClient: AkkaServiceClient = _
+
   private var configurationFile: String = DEFAULT_CONFIG
   private var sendTraceHeader = true
 
@@ -656,8 +658,6 @@ object KeystoneV2Filter {
 
   implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
 
-  sealed trait KeystoneV2Result
-
   class CachingTry[T](wrappedTry: Try[T]) {
     def cacheOnSuccess(cachingFunction: T => Unit): Try[T] = {
       wrappedTry match {
@@ -669,6 +669,10 @@ object KeystoneV2Filter {
     }
   }
 
+  sealed trait KeystoneV2Result
+
+  object Pass extends KeystoneV2Result
+
   case class Reject(status: Int, message: Option[String] = None) extends KeystoneV2Result
 
   case class MissingAuthTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
@@ -676,7 +680,5 @@ object KeystoneV2Filter {
   case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
   case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
-
-  object Pass extends KeystoneV2Result
 
 }
