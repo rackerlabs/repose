@@ -1,6 +1,6 @@
 # Set sensible defaults
 LOG_PATH=/var/log/repose # NOTE: RPM Only
-JAVA=/usr/bin/java
+JAVA=$(which java)
 CONFIG_DIRECTORY=/etc/repose
 USER=repose
 NAME=repose-valve
