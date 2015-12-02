@@ -24,6 +24,7 @@ import java.net.URL
 import java.util
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpServletResponse.{SC_MULTIPLE_CHOICES, SC_OK}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
@@ -53,7 +54,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
   private final val CACHE_PREFIX = "VALKYRIE-FILTER"
 
   //todo: I suspect some of these tests are repetitive now, although they test it from different perspectives so
-  // probably still worthwhile. I think some describe mocking behavior where it's not neccessary as well. Short
+  // probably still worthwhile. I think some describe mocking behavior where it's not necessary as well. Short
   // timelines mean i can't dig into them right now.
   val akkaServiceClient = mock[AkkaServiceClient]
   val akkaServiceClientFactory = mock[AkkaServiceClientFactory]
@@ -443,14 +444,14 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val deviceId = "56700"
 
       List(
-        (true, "12345", "12345", 200),   // account_admin bypass
-        (true, deviceId, "12345", 200),  // device Id in permissions from effective call
-        (true, "12345", deviceId, 200),  // device Id in permissions from inventory call
-        (false, "12345", "12345", 403),  // not authorized for device Id
+        (true, "12345", "12345", 200), // account_admin bypass
+        (true, deviceId, "12345", 200), // device Id in permissions from effective call
+        (true, "12345", deviceId, 200), // device Id in permissions from inventory call
+        (false, "12345", "12345", 403), // not authorized for device Id
         (false, deviceId, "12345", 200), // device Id in permissions from effective call
         (false, "12345", deviceId, 200), // device Id in permissions from inventory call
         (false, deviceId, deviceId, 200) // device Id in permissions from both calls
-      ).foreach { case(enableBypassAccountAdmin, deviceIdInEffective, deviceIdInInventory, responseCode) =>
+      ).foreach { case (enableBypassAccountAdmin, deviceIdInEffective, deviceIdInInventory, responseCode) =>
         it(s"should return $responseCode when enable_bypass_account_admin is $enableBypassAccountAdmin, effective call perm has device id $deviceIdInEffective, inventory call perm has device id $deviceIdInInventory, and request device id is $deviceId") {
           setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(accountPermissions("account_admin", "butts_permission"), devicePermissions(deviceIdInEffective, "admin_product")))
           setAdminAkkaBehavior("someTenant", "123456", 200, accountInventory(deviceIdInInventory, "10001"))
@@ -1317,6 +1318,39 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
       assert(originalResponse.getStatusCode == 500)
+    }
+
+    List.concat(
+      List.range(0, SC_OK),
+      List.range(SC_MULTIPLE_CHOICES, 600)
+    ).foreach { case (status) =>
+      it(s"should not touch the response body if the status is $status") {
+        setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(devicePermissions("98765", "view_product")))
+
+        val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
+        filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), DeviceIdMismatchAction.REMOVE))
+
+        val mockServletRequest = new MockHttpServletRequest
+        mockServletRequest.setMethod("GET")
+        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setHeader("X-Contact-Id", "123456")
+        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+        val mockFilterChain = mock[FilterChain]
+        val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+        val responseBody = s"This is a response body for status code $status"
+        Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+          override def answer(invocation: InvocationOnMock): Unit = {
+            invocation.getArguments()(1).asInstanceOf[HttpServletResponse].setStatus(status)
+            invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(responseBody)
+          }
+        })
+
+        filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+        assert(originalResponse.getStatus.equals(status))
+        assert(originalResponse.getOutputStreamContent.equals(responseBody))
+      }
     }
   }
 
