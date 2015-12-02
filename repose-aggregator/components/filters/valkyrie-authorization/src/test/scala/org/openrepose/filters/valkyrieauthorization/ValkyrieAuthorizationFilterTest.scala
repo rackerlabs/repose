@@ -1368,7 +1368,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       it(s"should not touch the response body if the $method is not in the configuration") {
         setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(devicePermissions("98765", "view_product")))
 
-        val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClient, mockDatastoreService)
+        val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
         val valkyrieAuthorizationConfig: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null, enableBypassAccountAdmin = true, configured)
         filter.configurationUpdated(setNullDeviceIdAction(valkyrieAuthorizationConfig, DeviceIdMismatchAction.REMOVE))
 
