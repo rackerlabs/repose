@@ -27,7 +27,6 @@ import org.openrepose.common.auth.AuthToken;
 import org.openrepose.common.auth.openstack.AuthenticationService;
 import org.openrepose.common.auth.openstack.AuthenticationServiceClient;
 import org.openrepose.common.auth.openstack.OpenStackToken;
-import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
@@ -41,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -56,6 +56,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     private final String wwwAuthHeaderContents;
     private final AuthenticationService authenticationService;
     private final Set<String> ignoreTenantRoles;
+    private final Set<String> tenantPrefixes;
     private boolean delegatingMode;
 
     public OpenStackAuthenticationHandler(
@@ -71,6 +72,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         this.authenticationService = serviceClient;
         this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
         this.ignoreTenantRoles = cfg.getIgnoreTenantRoles();
+        this.tenantPrefixes = cfg.getTenantPrefixes();
         this.delegatingMode = cfg.isDelegable();
     }
 
@@ -94,14 +96,29 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             authToken = new OpenStackToken(resp);
         }
 
-        if (authToken != null && !hasIgnoreTenantRole(authToken) && !StringUtilities.nullSafeEquals(authToken.getTenantId(), tenantID)) {
-            // tenant ID from token did not match URI.
+        if (authToken != null && !hasIgnoreTenantRole(authToken)) {
+            Set<String> tokenTenantIds = new HashSet<>();
+
+            if (authToken.getTenantId() != null) {
+                tokenTenantIds.add(authToken.getTenantId());
+            }
 
             if (resp.getUser() != null && resp.getUser().getRoles() != null) {
                 for (Role role : resp.getUser().getRoles().getRole()) {
-                    if (tenantID.equals(role.getTenantId())) {
-                        //we have the real tenantID
-                        authToken.setMatchingTenantId(tenantID);
+                    if (role.getTenantId() != null) {
+                        tokenTenantIds.add(role.getTenantId());
+                    }
+                }
+            }
+
+            for (String ttid : tokenTenantIds) {
+                if (ttid.equals(tenantID)) {
+                    authToken.setMatchingTenantId(ttid);
+                    return authToken;
+                }
+                for (String prefix : tenantPrefixes) {
+                    if (ttid.startsWith(prefix) && ttid.substring(prefix.length()).equals(tenantID)) {
+                        authToken.setMatchingTenantId(ttid);
                         return authToken;
                     }
                 }

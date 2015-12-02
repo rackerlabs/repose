@@ -37,7 +37,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient, AkkaServiceClientException}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
@@ -56,13 +56,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   import KeystoneV2Filter._
 
-  private var configurationFile: String = DEFAULT_CONFIG
-  private var sendTraceHeader = true
-
-  private val datastore: Datastore = datastoreService.getDefaultDatastore //Which happens to be the local datastore
+  // The local datastore
+  private val datastore: Datastore = datastoreService.getDefaultDatastore
 
   var keystoneV2Config: KeystoneV2Config = _
   var akkaServiceClient: AkkaServiceClient = _
+
+  private var configurationFile: String = DEFAULT_CONFIG
+  private var sendTraceHeader = true
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -91,13 +92,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     /**
-     * STATIC REFERENCE TO CONFIG
-     */
+      * STATIC REFERENCE TO CONFIG
+      */
     val config = keystoneV2Config
 
     /**
-     * DECLARE COMMON VALUES
-     */
+      * DECLARE COMMON VALUES
+      */
     lazy val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     // Not using the mutable wrapper because it doesn't work properly at the moment, and
     // we don't need to modify the response from further down the chain
@@ -108,8 +109,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       Option(config.getIdentityService.getPassword).isEmpty
 
     /**
-     * BEGIN PROCESSING
-     */
+      * BEGIN PROCESSING
+      */
     if (!isInitialized) {
       logger.error("Keystone v2 filter has not yet initialized")
       response.sendError(SC_INTERNAL_SERVER_ERROR)
@@ -207,8 +208,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     /**
-     * DEFINING FUNCTIONS IN SCOPE
-     */
+      * DEFINING FUNCTIONS IN SCOPE
+      */
     def tenantFromUri: Try[Option[String]] = {
       Try(
         Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
@@ -311,7 +312,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         tenantFromUri map {
           _ flatMap { uriTenant =>
             val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-            tokenTenants.find(uriTenant.equals)
+            val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
+            tokenTenants find { tokenTenant =>
+              tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
+                tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)
+              )
+            }
           }
         }
       } else {

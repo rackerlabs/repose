@@ -44,13 +44,14 @@ public class Configurables {
     private final boolean requestGroups;
     private final EndpointsConfiguration endpointsConfiguration;
     private final Set<String> ignoreTenantRoles;
+    private final Set<String> tenantPrefixes;
     private final boolean sendAllTenantIds;
     private final boolean sendTenantIdQuality;
 
     public Configurables(boolean delegable, double delegableQuality, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
                          EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles, List<String> ignoreTenantRoles,
-                         boolean sendAllTenantIds, boolean sendTenantIdQuality) {
+                         Set<String> tenantPrefixes, boolean sendAllTenantIds, boolean sendTenantIdQuality) {
         HashSet<String> noTenantRoles = new HashSet<>(serviceAdminRoles);
         noTenantRoles.addAll(ignoreTenantRoles);
 
@@ -66,6 +67,7 @@ public class Configurables {
         this.requestGroups = requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
         this.ignoreTenantRoles = noTenantRoles;
+        this.tenantPrefixes = tenantPrefixes;
         this.sendAllTenantIds = sendAllTenantIds;
         this.sendTenantIdQuality = sendTenantIdQuality;
     }
@@ -116,6 +118,10 @@ public class Configurables {
 
     public Set<String> getIgnoreTenantRoles() {
         return ignoreTenantRoles;
+    }
+
+    public Set<String> getTenantPrefixes() {
+        return tenantPrefixes;
     }
 
     public boolean sendingAllTenantIds() {

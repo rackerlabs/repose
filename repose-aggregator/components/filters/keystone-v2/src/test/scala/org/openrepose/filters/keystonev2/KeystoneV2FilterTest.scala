@@ -40,7 +40,7 @@ import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.{CommonHttpHeader, IdentityStatus, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
@@ -60,15 +60,15 @@ with IdentityResponses
 with MockedAkkaServiceClient
 with HttpDelegationManager {
 
-  val mockDatastoreService = mock[DatastoreService]
-  private val mockDatastore: Datastore = mock[Datastore]
-  when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
-  val mockConfigService = mock[ConfigurationService]
-  val mockSystemModel = mock[SystemModel]
-  when(mockSystemModel.isTracingHeader).thenReturn(true, Nil: _*)
   private final val dateTime = DateTime.now().plusHours(1)
   val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
   when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+  private val mockDatastore: Datastore = mock[Datastore]
+  val mockDatastoreService = mock[DatastoreService]
+  val mockConfigService = mock[ConfigurationService]
+  when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
+  val mockSystemModel = mock[SystemModel]
+  when(mockSystemModel.isTracingHeader).thenReturn(true, Nil: _*)
 
   before {
     reset(mockDatastore)
@@ -1469,7 +1469,7 @@ with HttpDelegationManager {
         |            set-groups-in-header="false"
         |            />
         |    <tenant-handling send-all-tenant-ids="true">
-        |        <validate-tenant>
+        |        <validate-tenant strip-token-tenant-prefixes="foo:/bar:">
         |            <uri-extraction-regex>/(\w+)/.*</uri-extraction-regex>
         |        </validate-tenant>
         |        <send-tenant-id-quality default-tenant-quality="0.9" uri-tenant-quality="0.7" roles-tenant-quality="0.5"/>
@@ -1511,6 +1511,38 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("tenant")), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+    }
+
+    it("will extract the tenant from the URI and validate that the user has a prefixed tenant as the default") {
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURI("/tenant/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("foo:tenant")), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+    }
+
+    it("will extract the tenant from the URI and validate that the user has a prefixed tenant in their roles") {
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setRequestURI("/tenant/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("oof"), tenantIds = Seq("foo:tenant", "rab")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()

@@ -125,6 +125,10 @@ public class OpenStackAuthenticationHandlerTest {
             final ServiceAdminRoles serviceAdminRoles = new ServiceAdminRoles();
             serviceAdminRoles.getRole().add("12345");
 
+            final Set<String> tenantPrefixes = new HashSet<>();
+            tenantPrefixes.add("foo:");
+            tenantPrefixes.add("bar:");
+
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(
                     delegable(),
@@ -139,7 +143,9 @@ public class OpenStackAuthenticationHandlerTest {
                     requestGroups(),
                     endpointsConfiguration,
                     serviceAdminRoles.getRole(),
-                    new ArrayList<String>(), false, false);
+                    new ArrayList<String>(),
+                    tenantPrefixes,
+                    false, false);
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null, null, null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -333,6 +339,69 @@ public class OpenStackAuthenticationHandlerTest {
 
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("104772");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
+            assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
+        }
+
+        @Test
+        public void tenantIdFromTokenMatchesUriWithoutPrefix() throws Exception {
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("foo:104772");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("foo:104772");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
+            assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
+        }
+
+        @Test
+        public void tenantIdFromRolesMatchesUriWithoutPrefix() throws Exception {
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            Role role1 = new Role();
+            role1.setName("123456");
+            role1.setId("123456");
+            role1.setTenantId("123456");
+            role1.setDescription("Derp description");
+            Role role2 = new Role();
+            role2.setName("foo:104772");
+            role2.setId("foo:104772");
+            role2.setTenantId("foo:104772");
+            role2.setDescription("Derp description");
+            RoleList roleList = new RoleList();
+            roleList.getRole().add(role1);
+            roleList.getRole().add(role2);
+            userForAuthenticateResponse.setRoles(roleList);
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("123456");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("foo:104772");
             assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")), equalTo(expectedSet));
             assertThat(director.getFilterAction(), equalTo(FilterAction.PASS));
         }
@@ -551,7 +620,9 @@ public class OpenStackAuthenticationHandlerTest {
                     requestGroups(),
                     endpointsConfiguration,
                     serviceAdminRoles.getRole(),
-                    new ArrayList<String>(), true, false);
+                    new ArrayList<String>(),
+                    new HashSet<String>(),
+                    true, false);
             handler2 = new OpenStackAuthenticationHandler(configurables, authService, null, null, null, null, new UriMatcher(whiteListRegexPatterns));
 
         }
