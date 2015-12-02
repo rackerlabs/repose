@@ -33,6 +33,7 @@
         <module>client-authorization</module>
         <module>client-ip-identity</module>
         <module>header-normalization</module>
+        <module>ip-user</module>
         <module>uri-normalization</module>
         <module>compression</module>
         <module>header-translation</module>
