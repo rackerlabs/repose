@@ -41,6 +41,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient, AkkaServiceClientException}
 import org.openrepose.filters.valkyrieauthorization.config.DevicePath.Regex
+import org.openrepose.filters.valkyrieauthorization.config.HttpMethod._
 import org.openrepose.filters.valkyrieauthorization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -1352,6 +1353,45 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         assert(originalResponse.getOutputStreamContent.equals(responseBody))
       }
     }
+
+    List(
+      ("GET", List(DELETE, POST, PUT, PATCH, HEAD, OPTIONS, CONNECT, TRACE)),
+      ("DELETE", List(GET, POST, PUT, PATCH, HEAD, OPTIONS, CONNECT, TRACE)),
+      ("POST", List(GET, DELETE, PUT, PATCH, HEAD, OPTIONS, CONNECT, TRACE)),
+      ("PUT", List(GET, DELETE, POST, PATCH, HEAD, OPTIONS, CONNECT, TRACE)),
+      ("PATCH", List(GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE)),
+      ("HEAD", List(GET, DELETE, POST, PUT, PATCH, OPTIONS, CONNECT, TRACE)),
+      ("OPTIONS", List(GET, DELETE, POST, PUT, PATCH, HEAD, CONNECT, TRACE)),
+      ("CONNECT", List(GET, DELETE, POST, PUT, PATCH, HEAD, OPTIONS, TRACE)),
+      ("TRACE", List(GET, DELETE, POST, PUT, PATCH, HEAD, OPTIONS, CONNECT))
+    ).foreach { case (method, configured) =>
+      it(s"should not touch the response body if the $method is not in the configuration") {
+        setMockAkkaBehavior("someTenant", "123456", 200, createValkyrieResponse(devicePermissions("98765", "view_product")))
+
+        val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
+        val valkyrieAuthorizationConfig: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null, enableBypassAccountAdmin = true, configured)
+        filter.configurationUpdated(setNullDeviceIdAction(valkyrieAuthorizationConfig, DeviceIdMismatchAction.REMOVE))
+
+        val mockServletRequest = new MockHttpServletRequest
+        mockServletRequest.setMethod(method)
+        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setHeader("X-Contact-Id", "123456")
+        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+
+        val mockFilterChain = mock[FilterChain]
+        val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
+        val responseBody = s"This is a response body for HTTP method $method"
+        Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
+          override def answer(invocation: InvocationOnMock): Unit =
+            invocation.getArguments()(1).asInstanceOf[HttpServletResponse].getOutputStream.print(responseBody)
+        })
+
+        filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
+
+        assert(originalResponse.getStatus.equals(SC_OK))
+        assert(originalResponse.getOutputStreamContent.equals(responseBody))
+      }
+    }
   }
 
   def createGenericValkyrieConfiguration(delegation: DelegatingType): ValkyrieAuthorizationConfig = {
@@ -1359,6 +1399,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
   }
 
   def createGenericValkyrieConfiguration(delegation: DelegatingType, enableBypassAccountAdmin: Boolean): ValkyrieAuthorizationConfig = {
+    createGenericValkyrieConfiguration(delegation, enableBypassAccountAdmin, List(HttpMethod.ALL))
+  }
+
+  def createGenericValkyrieConfiguration(delegation: DelegatingType, enableBypassAccountAdmin: Boolean, httpMethods: List[HttpMethod]): ValkyrieAuthorizationConfig = {
     val configuration = new ValkyrieAuthorizationConfig
     val server = new ValkyrieServer
     server.setUri("http://foo.com:8080")
@@ -1367,7 +1411,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     configuration.setValkyrieServer(server)
     configuration.setDelegating(delegation)
     val resource: Resource = new Resource
-    resource.setPathRegex("/bar")
+    val pathRegex: PathRegex = new PathRegex
+    pathRegex.setValue("/bar")
+    pathRegex.getHttpMethods.addAll(httpMethods.asJava)
+    resource.setPathRegex(pathRegex)
     val pathTriplet: PathTriplet = new PathTriplet
     pathTriplet.setPathToCollection("$.values")
     val devicePath: DevicePath = new DevicePath()

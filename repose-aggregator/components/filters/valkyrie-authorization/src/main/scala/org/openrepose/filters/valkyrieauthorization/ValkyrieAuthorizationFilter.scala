@@ -78,7 +78,15 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val tracingHeader = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
     val urlPath: String = new URL(mutableHttpRequest.getRequestURL.toString).getPath
     val matchingResources: Seq[Resource] = Option(configuration.getCollectionResources)
-      .map(_.getResource.asScala.filter(_.getPathRegex.r.pattern.matcher(urlPath).matches())).getOrElse(Seq.empty[Resource])
+      .map(_.getResource.asScala.filter(resource => {
+        val pathRegex = resource.getPathRegex
+        pathRegex.getValue.r.pattern.matcher(urlPath).matches() && {
+          val httpMethods = pathRegex.getHttpMethods
+          httpMethods.isEmpty ||
+            httpMethods.contains(HttpMethod.ALL) ||
+            httpMethods.contains(HttpMethod.fromValue(mutableHttpRequest.getMethod))
+        }
+      })).getOrElse(Seq.empty[Resource])
     val translateAccountPermissions: Option[AnyRef] = Option(configuration.getTranslatePermissionsToRoles)
 
     def checkHeaders(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
