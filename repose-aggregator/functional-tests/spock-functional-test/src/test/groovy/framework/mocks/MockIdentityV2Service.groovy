@@ -704,14 +704,14 @@ class MockIdentityV2Service {
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
-            if(appendedflag == true){
+            if (appendedflag == true) {
                 template = this.identityEndpointXmlAppendedTemplate
             } else {
                 template = this.identityEndpointXmlTemplate
             }
         } else {
             headers.put('Content-type', 'application/json')
-            if(appendedflag == true){
+            if (appendedflag == true) {
                 template = this.identityEndpointsJsonAppendedTemplate
             } else {
                 template = this.identityEndpointsJsonTemplate
