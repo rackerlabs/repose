@@ -20,13 +20,17 @@
   -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:this="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
            elementFormDefault="qualified"
-           attributeFormDefault="unqualified">
+           attributeFormDefault="unqualified"
+>
 
     <!-- Elements -->
-    <xs:element name="valkyrie-authorization" type="ValkyrieAuthorizationConfig"/>
+    <xs:element name="valkyrie-authorization" type="this:ValkyrieAuthorizationConfig"/>
 
     <!-- Types -->
     <xs:complexType name="ValkyrieAuthorizationConfig">
@@ -37,13 +41,13 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="valkyrie-server" type="ValkyrieServer" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="delegating" type="this:DelegatingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="valkyrie-server" type="this:ValkyrieServer" minOccurs="1" maxOccurs="1"/>
             <xs:element name="translate-permissions-to-roles" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="collection-resources" type="CollectionResources" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="pre-authorized-roles" type="RolesList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="collection-resources" type="this:CollectionResources" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="pre-authorized-roles" type="this:RolesList" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
-        <xs:attribute name="cache-timeout-millis" type="ZeroOrPositiveInteger" use="optional" default="300000">
+        <xs:attribute name="cache-timeout-millis" type="this:ZeroOrPositiveInteger" use="optional" default="300000">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Time in milliseconds to cache valkyrie response. The default is 5 minutes.</html:p>
@@ -120,7 +124,7 @@
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        <xs:attribute name="quality" type="QualityType" use="optional" default="0.1">
+        <xs:attribute name="quality" type="this:QualityType" use="optional" default="0.1">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -163,9 +167,9 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="resource" type="Resource" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="resource" type="this:Resource" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="device-id-mismatch-action" type="DeviceIdMismatchAction" use="optional" default="fail">
+        <xs:attribute name="device-id-mismatch-action" type="this:DeviceIdMismatchAction" use="optional" default="fail">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -186,31 +190,37 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="path-regex" type="PathRegex" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="collection" type="Collection" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="path-regex" type="this:PathRegex" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="collection" type="this:Collection" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="PathRegex">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute name="http-methods" type="HttpMethodList" use="optional" default="ALL">
+                <xs:attribute name="http-methods" type="this:HttpMethodList" use="optional" default="ALL">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
                                 List of HTTP Methods this resource wants to cull on.
                                 Valid values include:
                                 GET, DELETE, POST, PUT, PATCH, HEAD, OPTIONS, CONNECT, TRACE, ALL
+                                NOTE: If this attribute is present, then it must not be empty.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
+                <xs:assert vc:minVersion="1.1"
+                           test="if (exists(@http-methods)) then (string-length(string(@http-methods)) > 0) else true()"
+                           xerces:message="If the http-methods attribute is present, then it must not be empty."
+                           saxon:message="If the http-methods attribute is present, then it must not be empty."
+                />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
 
     <xs:simpleType name="HttpMethodList">
-        <xs:list itemType="HttpMethod"/>
+        <xs:list itemType="this:HttpMethod"/>
     </xs:simpleType>
 
     <!-- This was taken from limits.xsd and should be extracted to an importable Repose Type Definitions schema. -->
@@ -220,9 +230,7 @@
                 <html:p>
                     The HttpMethod simple type defines a string
                     enumeration of HTTP method verbs as outlined in
-                    <a
-                            href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616
-                    </a>
+                    <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a>
                     section 9.
                 </html:p>
             </xs:documentation>
@@ -249,7 +257,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="json" type="pathTriplet" minOccurs="1" maxOccurs="1">
+            <xs:element name="json" type="this:pathTriplet" minOccurs="1" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Specifies the JSON paths necessary to make changes to the collection.</html:p>
@@ -258,7 +266,7 @@
             </xs:element>
             <!-- We'll add this when we come back to support xml. At that point the json should switch to a minimum of 0
                  and validation should be in place so that they have at least one of the two specified.-->
-            <!--<xs:element name="xml" type="pathTriplet" minOccurs="0" maxOccurs="1">-->
+            <!--<xs:element name="xml" type="this:pathTriplet" minOccurs="0" maxOccurs="1">-->
             <!--<xs:annotation>-->
             <!--<xs:documentation>-->
             <!--<html:p>Specifies the x-paths necessary to make changes to the collection.</html:p>-->
@@ -284,7 +292,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="path-to-device-id" type="DevicePath" minOccurs="1" maxOccurs="1">
+            <xs:element name="path-to-device-id" type="this:DevicePath" minOccurs="1" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>The path to the device id relative to the objects contained in the collection.</html:p>
