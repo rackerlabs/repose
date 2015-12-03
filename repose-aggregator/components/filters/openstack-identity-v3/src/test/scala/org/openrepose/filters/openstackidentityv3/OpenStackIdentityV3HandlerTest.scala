@@ -421,6 +421,13 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       ) should be(true)
     }
 
+    it("should return true when there is an endpoint that matches the url with the project id appended") {
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com/tenantId")),
+        Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")
+      ) should be(true)
+    }
+
     it("should return false when there isn't an endpoint that matches the url") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.banana.com")),

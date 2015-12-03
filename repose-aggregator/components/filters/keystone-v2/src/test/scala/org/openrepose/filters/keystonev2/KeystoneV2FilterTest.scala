@@ -577,6 +577,48 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldNot be(null)
     }
 
+    it("allows a user through if they have the endpoint configured in their endpoints list with tenant appended") {
+      def configurationDos = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service
+          |            username="admin_username"
+          |            password="password"
+          |            uri="https://some.identity.com"
+          |            set-groups-in-header="false"
+          |            set-catalog-in-header="false"
+          |            />
+          |
+          |    <require-service-endpoint public-url="https://compute.north.public.com/v1/appended" region="Global" name="Compute" type="compute"/>
+          |</keystone-v2>
+        """.stripMargin)
+
+      val testFilter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+      testFilter.KeystoneV2ConfigListener.configurationUpdated(configurationDos)
+      testFilter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      //Pretend like the admin token is cached all the time
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+      )
+      mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
+      )
+
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      testFilter.doFilter(request, response, filterChain)
+
+      //Continues with the chain
+      filterChain.getLastRequest shouldNot be(null)
+      filterChain.getLastResponse shouldNot be(null)
+    }
+
     it("handles 203 response from endpoints call") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()

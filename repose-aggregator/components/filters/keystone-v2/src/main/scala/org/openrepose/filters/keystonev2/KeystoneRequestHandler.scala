@@ -282,7 +282,7 @@ object KeystoneRequestHandler {
         case _ => true
       }
 
-      this.publicURL == endpointRequirement.publicURL &&
+      this.publicURL.startsWith(endpointRequirement.publicURL) &&
         compare(this.region, endpointRequirement.region) &&
         compare(this.name, endpointRequirement.name) &&
         compare(this.endpointType, endpointRequirement.endpointType)

@@ -179,6 +179,7 @@ class MockIdentityV2Service {
     def impersonate_id = ""
     def impersonate_name = ""
     def validateTenant = null
+    def appendedflag = false
     Validator validator;
 
     /**
@@ -210,6 +211,7 @@ class MockIdentityV2Service {
         impersonate_id = ""
         impersonate_name = ""
         validateTenant = null
+        appendedflag = false
     }
 
     def templateEngine = new SimpleTemplateEngine();
@@ -702,10 +704,18 @@ class MockIdentityV2Service {
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
-            template = this.identityEndpointXmlTemplate
+            if (appendedflag == true) {
+                template = this.identityEndpointXmlAppendedTemplate
+            } else {
+                template = this.identityEndpointXmlTemplate
+            }
         } else {
             headers.put('Content-type', 'application/json')
-            template = this.identityEndpointsJsonTemplate
+            if (appendedflag == true) {
+                template = this.identityEndpointsJsonAppendedTemplate
+            } else {
+                template = this.identityEndpointsJsonTemplate
+            }
         }
 
         def params = [
@@ -1166,7 +1176,7 @@ class MockIdentityV2Service {
             "name": "swift",
             "adminURL": "http://\${endpointUrl}:\${originServicePort}/",
             "region": "\${region}",
-            "tenantId": 1,
+            "tenantId": "\${tenantid}",
             "type": "object-store",
             "id": 1,
             "publicURL": "http://\${endpointUrl}:\${originServicePort}/"
@@ -1176,20 +1186,76 @@ class MockIdentityV2Service {
             "name": "nova_compat",
             "adminURL": "http://\${endpointUrl}:\${originServicePort}/",
             "region": "\${region}",
-            "tenantId": 1,
+            "tenantId": "\${tenantid}",
             "type": "compute",
             "id": 2,
             "publicURL": "http://\${endpointUrl}:\${originServicePort}/"
         },
         {
-            "internalURL": "http://\${endpointUrl}:\${originServicePort}/",
+            "internalURL": "http://\${endpointUrl}:\${originServicePort}/v1",
             "name": "OpenStackService",
-            "adminURL": "http://\${endpointUrl}:\${originServicePort}/",
+            "adminURL": "http://\${endpointUrl}:\${originServicePort}/v1",
             "region": "\${region}",
-            "tenantId": 1,
+            "tenantId": "\${tenantid}",
             "type": "service",
             "id": 3,
+            "version": "1",
+            "publicURL": "http://\${endpointUrl}:\${originServicePort}/v1"
+        }
+    ]
+}"""
+
+    // TODO: Replace this with builder
+    def identityEndpointsJsonAppendedTemplate =
+            """{
+    "endpoints_links": [
+        {
+            "href": "http://localhost:\${identityPort}/tokens/\${token}/endpoints?'marker=5&limit=10'",
+            "rel": "next"
+        }
+    ],
+    "endpoints": [
+        {
+            "internalURL": "http://\${endpointUrl}:\${originServicePort}/v1/AUTH_1",
+            "name": "swift",
+            "adminURL": "http://\${endpointUrl}:\${originServicePort}/",
+            "region": "\${region}",
+            "tenantId": "\${tenantid}",
+            "type": "object-store",
+            "id": 1,
             "publicURL": "http://\${endpointUrl}:\${originServicePort}/"
+        },
+        {
+            "internalURL": "http://\${endpointUrl}:\${originServicePort}/",
+            "name": "nova_compat",
+            "adminURL": "http://\${endpointUrl}:\${originServicePort}/",
+            "region": "\${region}",
+            "tenantId": "\${tenantid}",
+            "type": "compute",
+            "id": 2,
+            "publicURL": "http://\${endpointUrl}:\${originServicePort}/"
+        },
+        {
+            "internalURL": "http://\${endpointUrl}:\${originServicePort}/v1",
+            "name": "OpenStackService",
+            "adminURL": "http://\${endpointUrl}:\${originServicePort}/v1",
+            "region": "\${region}",
+            "tenantId": "\${tenantid}",
+            "type": "service",
+            "id": 3,
+            "version": "1",
+            "publicURL": "http://\${endpointUrl}:\${originServicePort}/v1"
+        },
+        {
+            "internalURL": "http://\${endpointUrl}:\${originServicePort}/v1",
+            "name": "OpenStackService",
+            "adminURL": "http://\${endpointUrl}:\${originServicePort}/v1",
+            "region": "\${region}",
+            "tenantId": "\${tenantid}",
+            "type": "service",
+            "id": 3,
+            "version": "1",
+            "publicURL": "http://\${endpointUrl}:\${originServicePort}/v1/appended/\${tenantid}"
         }
     ]
 }"""
@@ -1231,6 +1297,33 @@ class MockIdentityV2Service {
 </endpoints>"""
 
     // TODO: Replace this with builder
+    def identityEndpointXmlAppendedTemplate =
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
+           xmlns:ns2="http://www.w3.org/2005/Atom"
+           xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+           xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+           xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+           xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+           xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+  <endpoint id="2"
+            type="compute"
+            name="nova_compat"
+            region="\${region}"
+            publicURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
+            internalURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
+            adminURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
+            tenantId="\${tenant}"/>
+   <endpoint id="3"
+            type="service"
+            name="OpenStackService"
+            region="\${region}"
+            publicURL="http://\${endpointUrl}:\${originServicePort}/v1/appended/\${tenant}"
+            internalURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
+            adminURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
+            tenantId="\${tenant}"/>
+</endpoints>"""
+
     // TODO: Replace this with builder
 
     def rackerTokenXmlTemplate =
