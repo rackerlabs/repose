@@ -81,7 +81,10 @@ public class HttpComponentResponseProcessor {
     private void setResponseBody() throws IOException {
         HttpEntity entity = httpResponse.getEntity();
         if (entity != null) {
-            if (response instanceof MutableHttpServletResponse) {
+            if (response instanceof HttpServletResponseWrapper) {
+                HttpServletResponseWrapper httpServletResponseWrapper = (HttpServletResponseWrapper) response;
+                entity.writeTo(httpServletResponseWrapper.getOutputStream());
+            } else if (response instanceof MutableHttpServletResponse) {
                 MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse) response;
                 mutableResponse.setInputStream(new HttpComponentInputStream(entity));
             } else {
