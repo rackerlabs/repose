@@ -167,16 +167,16 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
         try {
             HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(httpMethodProxyRequest);
-            HttpComponentResponseCodeProcessor responseCode = new HttpComponentResponseCodeProcessor(httpResponse.getStatusLine().getStatusCode());
+            int responseCode = httpResponse.getStatusLine().getStatusCode();
             HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
 
-            if (responseCode.isRedirect()) {
-                responseProcessor.sendTranslatedRedirect(responseCode.getCode());
+            if (responseCode >= HttpServletResponse.SC_MULTIPLE_CHOICES && responseCode < HttpServletResponse.SC_NOT_MODIFIED) {
+                responseProcessor.sendTranslatedRedirect(responseCode);
             } else {
                 responseProcessor.process();
             }
 
-            return responseCode.getCode();
+            return responseCode;
         } catch (ClientProtocolException ex) {
             if (Throwables.getRootCause(ex) instanceof ReadLimitReachedException) {
                 LOG.error("Error reading request content", ex);
@@ -216,7 +216,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         try {
             HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(base);
             HttpEntity entity = httpResponse.getEntity();
-            HttpComponentResponseCodeProcessor responseCode = new HttpComponentResponseCodeProcessor(httpResponse.getStatusLine().getStatusCode());
+            int responseCode = httpResponse.getStatusLine().getStatusCode();
 
             InputStream stream = null;
             if (entity != null) {
@@ -224,7 +224,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
                 EntityUtils.consume(entity);
             }
 
-            return new ServiceClientResponse(responseCode.getCode(), stream);
+            return new ServiceClientResponse(responseCode, stream);
         } catch (IOException ex) {
             LOG.error("Error executing request to {}", base.getURI().toString(), ex);
         } finally {

@@ -23,43 +23,73 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
-import org.openrepose.core.proxy.common.AbstractResponseProcessor;
+import org.openrepose.core.proxy.HttpException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
 
-public class HttpComponentResponseProcessor extends AbstractResponseProcessor {
+import static org.openrepose.commons.utils.http.CommonHttpHeader.CONTENT_LENGTH;
+import static org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE;
+import static org.openrepose.commons.utils.servlet.http.ResponseMode.READONLY;
 
+public class HttpComponentResponseProcessor {
+    private static final String[] EXCLUDE_HEADERS = {"connection", "transfer-encoding", "server"};
+    private static final Set<String> EXCLUDE_HEADERS_SET = new TreeSet<>(Arrays.asList(EXCLUDE_HEADERS));
+    private final HttpServletResponse response;
+    private final int responseCode;
     private final HttpResponse httpResponse;
 
-    public HttpComponentResponseProcessor(HttpResponse httpResponse, HttpServletResponse response, HttpComponentResponseCodeProcessor responseCode) {
-        super(response, responseCode.getCode());
+    public HttpComponentResponseProcessor(HttpResponse httpResponse, HttpServletResponse response, int responseCode) {
+        this.response = response;
+        this.responseCode = responseCode;
         this.httpResponse = httpResponse;
     }
 
-    @Override
-    protected void setResponseHeaders() throws IOException {
-        for (Header header : httpResponse.getAllHeaders()) {
-            addHeader(header.getName(), header.getValue());
+    public void sendTranslatedRedirect(int statusCode) throws HttpException, IOException {
+        setResponseHeaders();
+        response.setStatus(statusCode);
+        setResponseBody();
+    }
+
+    public void process() throws IOException {
+        response.setStatus(responseCode);
+
+        if (responseCode == HttpServletResponse.SC_NOT_MODIFIED) {
+            // http://www.ics.uci.edu/pub/ietf/http/rfc1945.html#Code304
+            response.setIntHeader(CONTENT_LENGTH.toString(), 0);
+        } else {
+            setResponseHeaders();
+            setResponseBody();
         }
     }
 
-    @Override
-    protected void setResponseBody() throws IOException {
+    private void setResponseHeaders() throws IOException {
+        for (Header header : httpResponse.getAllHeaders()) {
+            String name = header.getName().toLowerCase();
+            if (!EXCLUDE_HEADERS_SET.contains(name)) {
+                response.addHeader(name, header.getValue());
+            }
+        }
+    }
+
+    private void setResponseBody() throws IOException {
         HttpEntity entity = httpResponse.getEntity();
         if (entity != null) {
-            if (getResponse() instanceof MutableHttpServletResponse) {
-                MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse) getResponse();
+            if (response instanceof MutableHttpServletResponse) {
+                MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse) response;
                 mutableResponse.setInputStream(new HttpComponentInputStream(entity));
             } else {
-                final OutputStream clientOut = getResponse().getOutputStream();
+                final OutputStream clientOut = response.getOutputStream();
                 entity.writeTo(clientOut);
                 clientOut.flush();
                 EntityUtils.consume(entity);
             }
         }
-
     }
 }
