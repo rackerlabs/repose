@@ -147,9 +147,6 @@ public class PowerFilterChain implements FilterChain {
      * current request uri.
      * <p/>
      * If a necessary filter is not available, then return an empty filter list.
-     *
-     * @param uri
-     * @return
      */
     private List<FilterContext> getFilterChainForRequest(String uri) {
         List<FilterContext> filters = new LinkedList<>();
@@ -251,8 +248,7 @@ public class PowerFilterChain implements FilterChain {
         final HttpServletResponseWrapper httpServletResponseWrapper = new HttpServletResponseWrapper(
                 (HttpServletResponse) servletResponse,
                 MUTABLE,
-                PASSTHROUGH,
-                servletResponse.getOutputStream()
+                PASSTHROUGH
         );
 
         try {
