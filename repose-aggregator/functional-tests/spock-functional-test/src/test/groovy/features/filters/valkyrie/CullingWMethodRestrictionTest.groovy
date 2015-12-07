@@ -35,7 +35,7 @@ import org.junit.experimental.categories.Category
  *  Pre-config to allow method when do culling
  */
 @Category(Slow)
-class CullingWMethodRetrictionTest extends ReposeValveTest {
+class CullingWMethodRestrictionTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
