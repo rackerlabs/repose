@@ -33,7 +33,6 @@ class ReposeLintLauncher {
     def String reposeLintJar
     def String configDir
     def String reposeVer
-    def String command
 
     def clock = new SystemClock()
 
@@ -45,46 +44,26 @@ class ReposeLintLauncher {
     def ReposeConfigurationProvider configurationProvider
 
     ReposeLintLauncher(ReposeConfigurationProvider configurationProvider,
-                       TestProperties properties,
-                       String command) {
+                       TestProperties properties) {
         this(configurationProvider,
                 properties.reposeLintJar,
                 properties.configDirectory,
-                properties.reposeVersion,
-                command
+                properties.reposeVersion
         )
     }
 
     ReposeLintLauncher(ReposeConfigurationProvider configurationProvider,
                        String reposeLintJar,
                        String configDir,
-                       String reposeVer,
-                       String command) {
+                       String reposeVer) {
         TestProperties
         this.configurationProvider = configurationProvider
         this.reposeLintJar = reposeLintJar
         this.configDir = configDir
         this.reposeVer = reposeVer
-        this.command = command
     }
 
-    void start() {
-        this.start([:])
-    }
-
-    void start(Map params) {
-        boolean killOthersBeforeStarting = true
-        if (params.containsKey("killOthersBeforeStarting")) {
-            killOthersBeforeStarting = params.killOthersBeforeStarting
-        }
-
-        start(killOthersBeforeStarting)
-    }
-
-    /**
-     * @param killOthersBeforeStarting
-     */
-    void start(boolean killOthersBeforeStarting) {
+    void start(String command) {
         File jarFile = new File(reposeLintJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
             throw new FileNotFoundException("Missing or invalid Repose Lint Jar file.")
@@ -93,13 +72,6 @@ class ReposeLintLauncher {
         File configFolder = new File(configDir)
         if (!configFolder.exists() || !configFolder.isDirectory()) {
             throw new FileNotFoundException("Missing or invalid configuration folder.")
-        }
-
-        if (killOthersBeforeStarting) {
-            waitForCondition(clock, '5s', '1s', {
-                killIfUp()
-                !isUp()
-            })
         }
 
         def debugProps = ""
@@ -137,22 +109,7 @@ class ReposeLintLauncher {
         th.join()
     }
 
-    void stop() {
-        this.stop([:])
-    }
-
-    void stop(Map params) {
-        def timeout = params?.timeout ?: 45000
-        def throwExceptionOnKill = true
-
-        if (params.containsKey("throwExceptionOnKill")) {
-            throwExceptionOnKill = params.throwExceptionOnKill
-        }
-
-        stop(timeout, throwExceptionOnKill)
-    }
-
-    void stop(int timeout, boolean throwExceptionOnKill) {
+    void stop(int timeout = 45000, boolean throwExceptionOnKill = true) {
         try {
             println("Stopping Repose Lint");
             this.process?.destroy()
