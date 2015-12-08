@@ -26,7 +26,7 @@ import framework.TestProperties
 import spock.lang.Shared
 import spock.lang.Specification
 
-class ReposeLintTest extends Specification{
+class ReposeLintTest extends Specification {
     @Shared
     ReposeLintLauncher reposeLintLauncher
     @Shared

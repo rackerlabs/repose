@@ -29,6 +29,7 @@
         <project.support.dir>${project.basedir}/../../../repose-support</project.support.dir>
 
         <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
+        <repose.lint.dir>${project.set.dir}/components/repose-lint/target</repose.lint.dir>
         <filter.dir>${project.set.dir}/components/filters/filter-bundle/target</filter.dir>
         <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
         </filter.extensions.dir>
@@ -451,6 +452,13 @@
                 <directory>${repose.valve.dir}</directory>
                 <includes>
                     <include>${repose.valve.jar}</include>
+                </includes>
+                <targetPath>${project.build.directory}/repose_home</targetPath>
+            </testResource>
+            <testResource>
+                    <directory>${repose.lint.dir}</directory>
+                <includes>
+                    <include>${repose.lint.jar}</include>
                 </includes>
                 <targetPath>${project.build.directory}/repose_home</targetPath>
             </testResource>
