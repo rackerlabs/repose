@@ -39,6 +39,7 @@ class TestProperties {
     }
 
     String reposeJar
+    String reposeLintJar
     String glassfishJar
     String tomcatJar
     String reposeRootWar
@@ -87,6 +88,7 @@ class TestProperties {
             }
 
             reposeJar = properties.getProperty("repose.jar")
+            reposeLintJar = properties.getProperty("repose.lint.jar")
             reposeRootWar = properties.getProperty("repose.root.war")
             reposePort = PortFinder.Singleton.getNextOpenPort()
 

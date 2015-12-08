@@ -66,6 +66,7 @@
         <filter.bundle-five.ear>classloader-bundle-five-*.ear</filter.bundle-five.ear>
 
         <repose.valve.jar>repose-valve.jar</repose.valve.jar>
+        <repose.lint.jar>repose-lint.jar</repose.lint.jar>
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
 
@@ -75,6 +76,7 @@
         <repose.config.directory>${repose.home}/configs</repose.config.directory>
         <repose.raw.config.directory>${project.basedir}/src/test/configs</repose.raw.config.directory>
         <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
+        <repose.lint.jar.location>${repose.home}/${repose.lint.jar}</repose.lint.jar.location>
         <repose.config.templates>${project.build.directory}/configs</repose.config.templates>
 
         <repose.root.war.directory>${project.set.dir}/core/web-application/target</repose.root.war.directory>
