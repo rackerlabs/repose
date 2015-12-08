@@ -23,11 +23,17 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeLintLauncher
 import framework.ReposeLogSearch
 import framework.TestProperties
+import spock.lang.Shared
+import spock.lang.Specification
 
-class ReposeLintTest {
+class ReposeLintTest extends Specification{
+    @Shared
     ReposeLintLauncher reposeLintLauncher
+    @Shared
     TestProperties testProperties
+    @Shared
     ReposeLogSearch reposeLogSearch
+    @Shared
     ReposeConfigurationProvider reposeConfigurationProvider
 
     def setupSpec() {
@@ -54,7 +60,7 @@ class ReposeLintTest {
         given:
         def params = testProperties.getDefaultTemplateParams()
         reposeConfigurationProvider.cleanConfigDirectory()
-        reposeConfigurationProvider.applyConfigs("some/config/dir", params)
+        reposeConfigurationProvider.applyConfigs("features/filters/addheader", params)
 
         when:
         reposeLintLauncher.start("verify-try-it-now")
