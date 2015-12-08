@@ -33,7 +33,7 @@ class ReposeLintLauncher {
     String reposeLintJar
     String configDir
     String reposeVer
-    String logFile
+    String logFileLocation
 
     ReposeConfigurationProvider configurationProvider
 
@@ -58,13 +58,13 @@ class ReposeLintLauncher {
                        String reposeLintJar,
                        String configDir,
                        String reposeVer,
-                       String logFile) {
+                       String logFileLocation) {
         TestProperties
         this.configurationProvider = configurationProvider
         this.reposeLintJar = reposeLintJar
         this.configDir = configDir
         this.reposeVer = reposeVer
-        this.logFile = logFile
+        this.logFileLocation = logFileLocation
     }
 
     void start(String command) {
@@ -78,7 +78,12 @@ class ReposeLintLauncher {
             throw new FileNotFoundException("Missing or invalid configuration folder.")
         }
 
-        FileWriter logWriter = new FileWriter(logFile)
+        File logFile = new File(logFileLocation)
+        if (!logFile.exists()) {
+            logFile.getParentFile()?.mkdirs()
+            logFile.createNewFile()
+        }
+        FileWriter logWriter = new FileWriter(logFileLocation)
 
         def debugProps = ""
 
