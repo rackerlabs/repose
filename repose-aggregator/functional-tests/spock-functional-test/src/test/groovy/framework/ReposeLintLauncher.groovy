@@ -28,39 +28,43 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 
 class ReposeLintLauncher {
 
-    def boolean debugEnabled
-    def boolean doSuspend
-    def String reposeLintJar
-    def String configDir
-    def String reposeVer
+    boolean debugEnabled
+    boolean doSuspend
+    String reposeLintJar
+    String configDir
+    String reposeVer
+    String logFile
+
+    ReposeConfigurationProvider configurationProvider
+
+    Process process
 
     def clock = new SystemClock()
 
     def debugPort = null
     def additionalEnvironment = [:]
 
-    Process process
-
-    def ReposeConfigurationProvider configurationProvider
-
     ReposeLintLauncher(ReposeConfigurationProvider configurationProvider,
                        TestProperties properties) {
         this(configurationProvider,
                 properties.reposeLintJar,
                 properties.configDirectory,
-                properties.reposeVersion
+                properties.reposeVersion,
+                properties.reposeLintLogFile
         )
     }
 
     ReposeLintLauncher(ReposeConfigurationProvider configurationProvider,
                        String reposeLintJar,
                        String configDir,
-                       String reposeVer) {
+                       String reposeVer,
+                       String logFile) {
         TestProperties
         this.configurationProvider = configurationProvider
         this.reposeLintJar = reposeLintJar
         this.configDir = configDir
         this.reposeVer = reposeVer
+        this.logFile = logFile
     }
 
     void start(String command) {
@@ -73,6 +77,8 @@ class ReposeLintLauncher {
         if (!configFolder.exists() || !configFolder.isDirectory()) {
             throw new FileNotFoundException("Missing or invalid configuration folder.")
         }
+
+        FileWriter logWriter = new FileWriter(logFile)
 
         def debugProps = ""
 
@@ -102,7 +108,7 @@ class ReposeLintLauncher {
             }
             def envList = newEnv.collect { k, v -> "$k=$v" }
             this.process = cmd.execute(envList, null)
-            this.process.consumeProcessOutput(System.out, System.err)
+            this.process.consumeProcessOutput(logWriter, logWriter)
         })
 
         th.run()

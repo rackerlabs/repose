@@ -38,7 +38,7 @@ class ReposeLintTest {
         this.reposeLintLauncher = new ReposeLintLauncher(reposeConfigurationProvider, testProperties)
         this.reposeLintLauncher.enableDebug()
 
-        this.reposeLogSearch = new ReposeLogSearch(testProperties.getLogFile())
+        this.reposeLogSearch = new ReposeLogSearch(testProperties.getReposeLintLogFile())
     }
 
     def setup() {
