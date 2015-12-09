@@ -112,6 +112,15 @@ class ReposeLogSearch {
         }
     }
 
+    public String logToString() {
+        File logFile = new File(logFileLocation);
+        String log = new String()
+        logFile.eachLine {
+            log += it.trim()
+        }
+        return log
+    }
+
     public def cleanLog() {
         println("============================== Cleaning log file ==============================")
         def logFile = new File(logFileLocation)

@@ -99,7 +99,8 @@ class ReposeLintLauncher {
                 debugProps += "n"
             }
         }
-
+        if (reposeVer.contains("-SNAPSHOT"))
+            reposeVer = reposeVer - "-SNAPSHOT"
         def cmd = "java $debugProps -jar $reposeLintJar $command -r $reposeVer -c $configDir"
         println("Running repose-lint with the following command:")
         println(cmd)

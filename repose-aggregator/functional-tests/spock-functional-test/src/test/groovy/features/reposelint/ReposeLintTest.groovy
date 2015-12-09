@@ -23,8 +23,11 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeLintLauncher
 import framework.ReposeLogSearch
 import framework.TestProperties
+import groovy.json.JsonSlurper
+import static org.junit.Assert.*;
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class ReposeLintTest extends Specification {
     @Shared
@@ -56,16 +59,43 @@ class ReposeLintTest extends Specification {
     }
 
     // todo
+    @Unroll("test with config: #configdir")
     def "some test"() {
         given:
         def params = testProperties.getDefaultTemplateParams()
         reposeConfigurationProvider.cleanConfigDirectory()
-        reposeConfigurationProvider.applyConfigs("features/filters/addheader", params)
+        reposeConfigurationProvider.applyConfigs(configdir, params)
+        def reposever = reposeLintLauncher.reposeVer
 
         when:
         reposeLintLauncher.start("verify-try-it-now")
+        def debugport = reposeLintLauncher.debugPort
+        def log = reposeLogSearch.logToString() - "Listening for transport dt_socket at address: 10014"
+        println log
+        def slurper = new JsonSlurper()
+        def jsonlog = slurper.parseText(log)
 
         then:
-        reposeLogSearch.searchByString("some output")
+        reposeLogSearch.searchByString(debugport.toString())
+        jsonlog.clusters.clusterId.get(0) == "repose"
+        jsonlog.clusters[checktype][0]["filterName"] == filtername
+        jsonlog.clusters[checktype][0]["filters"].size() != 0
+        //jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode
+        jsonlog.clusters[checktype][0]["filters"][0]["foyerStatus"] == status
+        if (checktenantedmode == "yes") {
+            assertTrue(jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode)
+        }
+
+
+
+        where:
+        configdir                                  | checktype         | filtername             | checktenantedmode | tenantmode | status
+        "features/reposelint/clientauthn"          | "authNCheck"      | "client-auth"          | "yes"             | false      | "Allowed"
+        "features/reposelint/clientauthn/tenanted" | "authNCheck"      | "client-auth"          | "yes"             | true       | "NotAllowed"
+        "features/reposelint/clientauthz"          | "authZCheck"      | "client-authorization" | "no"              | false      | "NotAllowed"
+        "features/reposelint/keystonev2"           | "keystoneV2Check" | "client-authorization" | "yes"             | false      | "Allowed"
+        "features/reposelint/keystonev2/tenanted"  | "keystoneV2Check" | "client-authorization" | "yes"             | true       | "NotAllowed"
+        "features/reposelint/keystonev2/authz"     | "keystoneV2Check" | "client-authorization" | "no"              | false      | "NotAllowed"
     }
+
 }
