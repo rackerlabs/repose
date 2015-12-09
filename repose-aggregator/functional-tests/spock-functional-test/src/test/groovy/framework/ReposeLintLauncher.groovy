@@ -83,7 +83,7 @@ class ReposeLintLauncher {
             logFile.getParentFile()?.mkdirs()
             logFile.createNewFile()
         }
-        FileWriter logWriter = new FileWriter(logFileLocation)
+        PrintWriter logWriter = new PrintWriter(logFile)
 
         def debugProps = ""
 
@@ -101,23 +101,24 @@ class ReposeLintLauncher {
         }
 
         def cmd = "java $debugProps -jar $reposeLintJar $command -r $reposeVer -c $configDir"
-        println("Running repose-lint")
+        println("Running repose-lint with the following command:")
+        println(cmd)
 
-        def th = new Thread({
-            //Construct a new environment, including all from the previous, and then overriding with our new one
-            def newEnv = new HashMap<String, String>()
-            newEnv.putAll(System.getenv())
+        //Construct a new environment, including all from the previous, and then overriding with our new one
+        def newEnv = new HashMap<String, String>()
+        newEnv.putAll(System.getenv())
 
-            additionalEnvironment.each { k, v ->
-                newEnv.put(k, v) //Should override anything, if there's anything to override
-            }
-            def envList = newEnv.collect { k, v -> "$k=$v" }
-            this.process = cmd.execute(envList, null)
-            this.process.consumeProcessOutput(logWriter, logWriter)
-        })
+        additionalEnvironment.each { k, v ->
+            newEnv.put(k, v) //Should override anything, if there's anything to override
+        }
+        def envList = newEnv.collect { k, v -> "$k=$v" }
+        process = cmd.execute(envList, null)
+        process.consumeProcessOutput(logWriter, logWriter)
+        // todo: if repose-lint does not terminate, neither does the test
+        process.waitFor()
 
-        th.run()
-        th.join()
+        logWriter.flush()
+        logWriter.close()
     }
 
     void stop(int timeout = 45000, boolean throwExceptionOnKill = true) {
@@ -125,7 +126,7 @@ class ReposeLintLauncher {
             println("Stopping Repose Lint");
             this.process?.destroy()
 
-            print("Waiting for Repose to shutdown")
+            print("Waiting for Repose Lint to shutdown")
             waitForCondition(clock, "${timeout}", '1s', {
                 print(".")
                 !isUp()
