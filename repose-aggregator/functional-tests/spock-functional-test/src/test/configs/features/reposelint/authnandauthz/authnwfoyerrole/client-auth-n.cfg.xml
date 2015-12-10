@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <client-auth xmlns="http://docs.openrepose.org/repose/client-auth/v1.0">
-    <openstack-auth tenanted="false"
+    <openstack-auth tenanted="true"
                     request-groups="true"
                     token-cache-timeout="0"
                     group-cache-timeout="600000"
@@ -9,5 +9,8 @@
                           password="admin_password"
                           uri="http://localhost:${identityPort}"/>
         <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
+        <ignore-tenant-roles>
+            <role>foyer</role>
+        </ignore-tenant-roles>
     </openstack-auth>
 </client-auth>

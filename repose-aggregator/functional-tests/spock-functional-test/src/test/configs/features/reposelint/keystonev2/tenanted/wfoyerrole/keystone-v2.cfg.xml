@@ -15,6 +15,7 @@
     </tenant-handling>
 
     <pre-authorized-roles>
+        <role>foyer</role>
         <role>service:admin-role1</role>
         <role>service:admin-role2</role>
     </pre-authorized-roles>

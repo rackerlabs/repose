@@ -8,6 +8,7 @@
 
         <filters>
             <filter name="client-auth"/>
+            <filter name="client-authorization"/>
         </filters>
 
         <destinations>

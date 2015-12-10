@@ -24,10 +24,11 @@ import framework.ReposeLintLauncher
 import framework.ReposeLogSearch
 import framework.TestProperties
 import groovy.json.JsonSlurper
-import static org.junit.Assert.*;
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import static org.junit.Assert.assertTrue
 
 class ReposeLintTest extends Specification {
     @Shared
@@ -59,18 +60,48 @@ class ReposeLintTest extends Specification {
     }
 
     // todo
+    def "Test missing config"() {
+        given:
+        def params = testProperties.getDefaultTemplateParams()
+        reposeConfigurationProvider.cleanConfigDirectory()
+        reposeConfigurationProvider.applyConfigs("features/reposelint/missingconfig", params)
+
+        when:
+        reposeLintLauncher.start("verify-try-it-now")
+        def debugport = reposeLintLauncher.debugPort
+        def log = reposeLogSearch.logToString() - ("Listening for transport dt_socket at address: " + debugport)
+        println log
+        def slurper = new JsonSlurper()
+        def jsonlog = slurper.parseText(log)
+
+        then:
+        reposeLogSearch.searchByString(debugport.toString())
+        jsonlog.clusters.clusterId.get(0) == "repose"
+        jsonlog.clusters["authNCheck"][0]["filterName"] == "client-auth"
+        jsonlog.clusters["authNCheck"][0]["filters"].size() != 0
+        jsonlog.clusters["authNCheck"][0]["filters"][0]["missingConfiguration"] == true
+        jsonlog.clusters["authNCheck"][0]["filters"][0]["foyerStatus"] == "NotAllowed"
+    }
+
     @Unroll("test with config: #configdir")
     def "some test"() {
         given:
         def params = testProperties.getDefaultTemplateParams()
         reposeConfigurationProvider.cleanConfigDirectory()
         reposeConfigurationProvider.applyConfigs(configdir, params)
-        def reposever = reposeLintLauncher.reposeVer
+        def foyerAsIgnoreTenant
+        if (checktype == "keystoneV2Check") {
+            foyerAsIgnoreTenant = "foyerAsPreAuthorized"
+        } else if (checktype == "keystoneV3Check") {
+            foyerAsIgnoreTenant = "foyerAsBypassTenant"
+        } else {
+            foyerAsIgnoreTenant = "foyerAsIgnoreTenant"
+        }
 
         when:
         reposeLintLauncher.start("verify-try-it-now")
         def debugport = reposeLintLauncher.debugPort
-        def log = reposeLogSearch.logToString() - "Listening for transport dt_socket at address: 10014"
+        def log = reposeLogSearch.logToString() - ("Listening for transport dt_socket at address: " + debugport)
         println log
         def slurper = new JsonSlurper()
         def jsonlog = slurper.parseText(log)
@@ -80,22 +111,78 @@ class ReposeLintTest extends Specification {
         jsonlog.clusters.clusterId.get(0) == "repose"
         jsonlog.clusters[checktype][0]["filterName"] == filtername
         jsonlog.clusters[checktype][0]["filters"].size() != 0
-        //jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode
+        jsonlog.clusters[checktype][0]["filters"][0]["missingConfiguration"] == false
+        jsonlog.clusters[checktype][0]["filters"][0][foyerAsIgnoreTenant] == foyerignore
         jsonlog.clusters[checktype][0]["filters"][0]["foyerStatus"] == status
         if (checktenantedmode == "yes") {
             assertTrue(jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode)
         }
 
-
-
         where:
-        configdir                                  | checktype         | filtername             | checktenantedmode | tenantmode | status
-        "features/reposelint/clientauthn"          | "authNCheck"      | "client-auth"          | "yes"             | false      | "Allowed"
-        "features/reposelint/clientauthn/tenanted" | "authNCheck"      | "client-auth"          | "yes"             | true       | "NotAllowed"
-        "features/reposelint/clientauthz"          | "authZCheck"      | "client-authorization" | "no"              | false      | "NotAllowed"
-        "features/reposelint/keystonev2"           | "keystoneV2Check" | "client-authorization" | "yes"             | false      | "Allowed"
-        "features/reposelint/keystonev2/tenanted"  | "keystoneV2Check" | "client-authorization" | "yes"             | true       | "NotAllowed"
-        "features/reposelint/keystonev2/authz"     | "keystoneV2Check" | "client-authorization" | "no"              | false      | "NotAllowed"
+        configdir                                            | checktype         | filtername             | checktenantedmode | tenantmode | foyerignore | status
+        "features/reposelint/clientauthn"                    | "authNCheck"      | "client-auth"          | "yes"             | false      | false       | "Allowed"
+        "features/reposelint/clientauthn/tenanted"           | "authNCheck"      | "client-auth"          | "yes"             | true       | false       | "NotAllowed"
+        "features/reposelint/clientauthn/tenantedwfoyerrole" | "authNCheck"      | "client-auth"          | "yes"             | true       | true        | "Allowed"
+        "features/reposelint/clientauthz"                    | "authZCheck"      | "client-authorization" | "no"              | false      | false       | "NotAllowed"
+        "features/reposelint/clientauthz/wfoyerrole"         | "authZCheck"      | "client-authorization" | "no"              | false      | true        | "Allowed"
+        "features/reposelint/keystonev2"                     | "keystoneV2Check" | "client-authorization" | "yes"             | false      | false       | "Allowed"
+        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "client-authorization" | "yes"             | true       | false       | "NotAllowed"
+        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "client-authorization" | "yes"             | true       | true        | "Allowed"
+        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "client-authorization" | "no"              | false      | false       | "NotAllowed"
+        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "client-authorization" | "no"              | false      | true        | "Allowed"
     }
 
+    @Unroll("test with multi config: #configdir")
+    def "test with multi config"() {
+        given: "config with authn and authz"
+        def checktypes = ["authNCheck", "authZCheck"]
+        def filternames = ["client-auth", "client-authorization"]
+        def params = testProperties.getDefaultTemplateParams()
+        reposeConfigurationProvider.cleanConfigDirectory()
+        reposeConfigurationProvider.applyConfigs(configdir, params)
+        def foyerAsIgnoreTenant
+        checktypes.each { e ->
+            if (e == "keystoneV2Check") {
+                foyerAsIgnoreTenant = "foyerAsPreAuthorized"
+            } else if (e == "keystoneV3Check") {
+                foyerAsIgnoreTenant = "foyerAsBypassTenant"
+            } else {
+                foyerAsIgnoreTenant = "foyerAsIgnoreTenant"
+            }
+        }
+
+        when:
+        reposeLintLauncher.start("verify-try-it-now")
+        def debugport = reposeLintLauncher.debugPort
+        def log = reposeLogSearch.logToString() - ("Listening for transport dt_socket at address: " + debugport)
+        println log
+        def slurper = new JsonSlurper()
+        def jsonlog = slurper.parseText(log)
+
+        then:
+        reposeLogSearch.searchByString(debugport.toString())
+        jsonlog.clusters.clusterId.get(0) == "repose"
+        jsonlog.clusters[checktypes[0]][0]["filterName"] == filternames[0]
+        jsonlog.clusters[checktypes[0]][0]["filters"].size() != 0
+        jsonlog.clusters[checktypes[0]][0]["filters"][0]["missingConfiguration"] == false
+        jsonlog.clusters[checktypes[0]][0]["filters"][0][foyerAsIgnoreTenant] == foyerignore[0]
+        jsonlog.clusters[checktypes[0]][0]["filters"][0]["foyerStatus"] == status[0]
+        if (checktenantedmode == "yes") {
+            assertTrue(jsonlog.clusters[checktypes[0]][0]["filters"][0]["inTenantedMode"] == tenantmode)
+        }
+
+        jsonlog.clusters[checktypes[1]][0]["filterName"] == filternames[1]
+        jsonlog.clusters[checktypes[1]][0]["filters"].size() != 0
+        jsonlog.clusters[checktypes[1]][0]["filters"][0]["missingConfiguration"] == false
+        jsonlog.clusters[checktypes[1]][0]["filters"][0][foyerAsIgnoreTenant] == foyerignore[1]
+        jsonlog.clusters[checktypes[1]][0]["filters"][0]["foyerStatus"] == status[1]
+
+        where:
+        configdir                                                   | checktenantedmode | tenantmode | foyerignore    | status
+        "features/reposelint/authnandauthz"                         | "yes"             | false      | [false, false] | ["Allowed", "NotAllowed"]
+        "features/reposelint/authnandauthz/authnwfoyerrole"         | "yes"             | true       | [true, false]  | ["Allowed", "NotAllowed"]
+        "features/reposelint/authnandauthz/bothwfoyerrole"          | "yes"             | true       | [true, true]   | ["Allowed", "Allowed"]
+        "features/reposelint/authnandauthz/tenantedauthzwfoyerrole" | "yes"             | true       | [false, true]  | ["NotAllowed", "Allowed"]
+        "features/reposelint/authnandauthz/authzwfoyerrole"         | "yes"             | false      | [false, true]  | ["Allowed", "Allowed"]
+    }
 }

@@ -12,4 +12,7 @@
                       uri="http://localhost:${identityPort}"/>
 
     <require-service-endpoint public-url="http://localhost:${targetPort}/" region="ORD" name="OpenStackService" type="service"/>
+    <pre-authorized-roles>
+        <role>foyer</role>
+    </pre-authorized-roles>
 </keystone-v2>
