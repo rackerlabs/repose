@@ -239,6 +239,8 @@ object VerifyTryItNowCommand extends Command {
           }
 
           config foreach { configRoot =>
+            filterCheck = filterCheck.copy(missingConfiguration = false)
+
             val ignoreTenantRoles = (configRoot \ "ignore-tenant-roles" \ "role") ++ (configRoot \ "ignore-tenant-roles" \ "ignore-tenant-role")
             if (ignoreTenantRoles.exists(node => node.text.equals("foyer"))) {
               filterCheck = filterCheck.copy(foyerAsIgnoreTenant = true)
@@ -321,6 +323,8 @@ object VerifyTryItNowCommand extends Command {
           }
 
           config foreach { configRoot =>
+            filterCheck = filterCheck.copy(missingConfiguration = false)
+
             if ((configRoot \ "tenant-handling" \ "validate-tenant").nonEmpty) {
               filterCheck = filterCheck.copy(inTenantedMode = true)
             }
@@ -410,6 +414,8 @@ object VerifyTryItNowCommand extends Command {
           }
 
           config foreach { configRoot =>
+            filterCheck = filterCheck.copy(missingConfiguration = false)
+
             if ((configRoot \ "validate-project-id-in-uri").nonEmpty) {
               filterCheck = filterCheck.copy(inTenantedMode = true)
             }
