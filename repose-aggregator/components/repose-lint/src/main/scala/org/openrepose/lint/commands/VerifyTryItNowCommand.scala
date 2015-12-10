@@ -27,8 +27,8 @@ import play.api.libs.json._
 import scala.xml.{NodeSeq, XML}
 
 /**
-  * Ensures that the Repose configuration within a provided directory supports "Try-It-Now" traffic.
-  */
+ * Ensures that the Repose configuration within a provided directory supports "Try-It-Now" traffic.
+ */
 object VerifyTryItNowCommand extends Command {
 
   private final val SYSTEM_MODEL_FILENAME = "system-model.cfg.xml"
@@ -249,14 +249,16 @@ object VerifyTryItNowCommand extends Command {
 
           if (filterCheck.filteredByUriRegex) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
-          } else if (filterCheck.missingConfiguration) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (versionLessThan("4.1.0")) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+          } else if (filterCheck.missingConfiguration) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+          } else if (!filterCheck.foyerAsIgnoreTenant) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (filterCheck.foyerAsIgnoreTenant) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
-          } else if (!filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+          } else {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           }
 
           filterCheck
