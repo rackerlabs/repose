@@ -123,7 +123,7 @@ class ReposeLintTest extends Specification {
         "features/reposelint/clientauthn"                    | "authNCheck"      | "client-auth"          | "yes"             | false      | false       | "Allowed"
         "features/reposelint/clientauthn/tenanted"           | "authNCheck"      | "client-auth"          | "yes"             | true       | false       | "NotAllowed"
         "features/reposelint/clientauthn/tenantedwfoyerrole" | "authNCheck"      | "client-auth"          | "yes"             | true       | true        | "Allowed"
-        "features/reposelint/clientauthz"                    | "authZCheck"      | "client-authorization" | "no"              | false      | false       | "NotAllowed"
+        "features/reposelint/clientauthz"                    | "authZCheck"      | "client-authorization" | "no"              | false      | false       | "Unknown"
         "features/reposelint/clientauthz/wfoyerrole"         | "authZCheck"      | "client-authorization" | "no"              | false      | true        | "Allowed"
         "features/reposelint/keystonev2"                     | "keystoneV2Check" | "client-authorization" | "yes"             | false      | false       | "Allowed"
         "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "client-authorization" | "yes"             | true       | false       | "NotAllowed"
@@ -179,8 +179,8 @@ class ReposeLintTest extends Specification {
 
         where:
         configdir                                                   | checktenantedmode | tenantmode | foyerignore    | status
-        "features/reposelint/authnandauthz"                         | "yes"             | false      | [false, false] | ["Allowed", "NotAllowed"]
-        "features/reposelint/authnandauthz/authnwfoyerrole"         | "yes"             | true       | [true, false]  | ["Allowed", "NotAllowed"]
+        "features/reposelint/authnandauthz"                         | "yes"             | false      | [false, false] | ["Allowed", "Unknown"]
+        "features/reposelint/authnandauthz/authnwfoyerrole"         | "yes"             | true       | [true, false]  | ["Allowed", "Unknown"]
         "features/reposelint/authnandauthz/bothwfoyerrole"          | "yes"             | true       | [true, true]   | ["Allowed", "Allowed"]
         "features/reposelint/authnandauthz/tenantedauthzwfoyerrole" | "yes"             | true       | [false, true]  | ["NotAllowed", "Allowed"]
         "features/reposelint/authnandauthz/authzwfoyerrole"         | "yes"             | false      | [false, true]  | ["Allowed", "Allowed"]
