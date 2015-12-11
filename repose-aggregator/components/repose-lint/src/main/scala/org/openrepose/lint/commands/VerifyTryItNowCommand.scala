@@ -56,15 +56,18 @@ object VerifyTryItNowCommand extends Command {
       val reposeVersionSplit = reposeVersion.split('.').map(_.toInt)
       val otherVersionSplit = otherVersion.split('.').map(_.toInt)
 
-      if (reposeVersionSplit.sameElements(otherVersionSplit)) {
-        true
+      val isReposeVersionShorter = reposeVersionSplit.length < otherVersionSplit.length
+      val comparisonIdx = if (isReposeVersionShorter) {
+        reposeVersionSplit.indices
+          .dropWhile(i => reposeVersionSplit(i) == otherVersionSplit(i))
+          .headOption
       } else {
-        if (reposeVersionSplit.length < otherVersionSplit.length) {
-          reposeVersionSplit.indices.exists(i => reposeVersionSplit(i) > otherVersionSplit(i))
-        } else {
-          otherVersionSplit.indices.exists(i => otherVersionSplit(i) > reposeVersionSplit(i))
-        }
+        otherVersionSplit.indices
+          .dropWhile(i => reposeVersionSplit(i) == otherVersionSplit(i))
+          .headOption
       }
+
+      comparisonIdx.map(i => reposeVersionSplit(i) > otherVersionSplit(i)).getOrElse(!isReposeVersionShorter)
     }
 
     def versionLessThan(otherVersion: String): Boolean = !versionGreaterThanOrEqualTo(otherVersion)

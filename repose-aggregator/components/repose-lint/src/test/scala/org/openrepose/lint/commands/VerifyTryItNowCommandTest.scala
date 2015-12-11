@@ -45,7 +45,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
   describe("perform") {
     it("should fail if the system model file is not present") {
       val configDir = new File(getClass.getResource("/configs/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, reposeVersion = "7.2.2.0")
 
       a[Exception] should be thrownBy VerifyTryItNowCommand.perform(config)
     }
@@ -257,7 +257,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should check multiple clusters if present") {
       val configDir = new File(getClass.getResource("/configs/duplicateclustersandfilters/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, reposeVersion = "7.2.2.0")
 
       val out = new ByteArrayOutputStream()
 
@@ -273,7 +273,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should check multiple filers if present") {
       val configDir = new File(getClass.getResource("/configs/duplicateclustersandfilters/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, reposeVersion = "7.2.2.0")
 
       val out = new ByteArrayOutputStream()
 

@@ -84,7 +84,7 @@ class ReposeLintTest extends Specification {
     }
 
     @Unroll("test with config: #configdir")
-    def "some test"() {
+    def "test individual components"() {
         given:
         def params = testProperties.getDefaultTemplateParams()
         reposeConfigurationProvider.cleanConfigDirectory()
