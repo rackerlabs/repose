@@ -109,7 +109,7 @@ public class ApiValidatorHandlerTest {
         @Test
         public void shouldCallValidatorForRole() {
             List<HeaderValue> roles = new ArrayList<HeaderValue>();
-            roles.add(new HeaderValueImpl("role1"));
+            roles.add(new HeaderValueImpl("junk;q=0.9,role1;q=0.1,stuff;=0.8"));
 
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
             instance.handleRequest(request, response);

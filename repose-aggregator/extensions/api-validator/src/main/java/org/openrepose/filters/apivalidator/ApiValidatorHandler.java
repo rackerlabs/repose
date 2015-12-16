@@ -60,8 +60,8 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
     public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch,
                                boolean delegatingMode, MetricsService metricsService) {
-        this.validators = new ArrayList<ValidatorInfo>(validators.size());
-        this.matchedRoles = new HashSet<String>();
+        this.validators = new ArrayList<>(validators.size());
+        this.matchedRoles = new HashSet<>();
         this.validators.addAll(validators);
         this.multiRoleMatch = multiRoleMatch;
         this.defaultValidator = defaultValidator;
@@ -80,10 +80,14 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
     }
 
     private Set<String> getRolesAsSet(List<? extends HeaderValue> listRoles) {
-        Set<String> roles = new HashSet();
+        Set<String> roles = new HashSet<>();
 
-        for (HeaderValue role : listRoles) {
-            roles.add(role.getValue());
+        for (HeaderValue headerValue : listRoles) {
+            String[] split = headerValue.getValue().split(",");
+            for (String role : split) {
+                String[] value = role.split(";");
+                roles.add(value[0]);
+            }
         }
 
         return roles;
@@ -105,7 +109,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
     }
 
     protected List<ValidatorInfo> getValidatorsForRole(List<? extends HeaderValue> listRoles) {
-        List<ValidatorInfo> validatorList = new ArrayList<ValidatorInfo>();
+        List<ValidatorInfo> validatorList = new ArrayList<>();
         Set<String> roles = getRolesAsSet(listRoles);
 
         for (ValidatorInfo validator : validators) {
