@@ -184,13 +184,7 @@ object VerifyTryItNowCommand extends Command {
 
         // This provides a status for the component (i.e., client-auth-n) as a whole, while the status for each
         // filter is provided above.
-        val checkFoyerStatus = if (authNFilterChecks.exists(ifc => FoyerStatus.NotAllowed.equals(ifc.foyerStatus))) {
-          FoyerStatus.NotAllowed
-        } else if (authNFilterChecks.exists(ifc => FoyerStatus.Unknown.equals(ifc.foyerStatus))) {
-          FoyerStatus.Unknown
-        } else {
-          FoyerStatus.Allowed
-        }
+        val checkFoyerStatus = determineFoyerStatus(authNFilterChecks.map(_.foyerStatus))
 
         check = check.copy(authNFilterChecks = authNFilterChecks, foyerStatus = checkFoyerStatus)
       }
@@ -265,13 +259,7 @@ object VerifyTryItNowCommand extends Command {
           filterCheck
         }
 
-        val checkFoyerStatus = if (authZFilterChecks.exists(ifc => FoyerStatus.NotAllowed.equals(ifc.foyerStatus))) {
-          FoyerStatus.NotAllowed
-        } else if (authZFilterChecks.exists(ifc => FoyerStatus.Unknown.equals(ifc.foyerStatus))) {
-          FoyerStatus.Unknown
-        } else {
-          FoyerStatus.Allowed
-        }
+        val checkFoyerStatus = determineFoyerStatus(authZFilterChecks.map(_.foyerStatus))
 
         check = check.copy(authZFilterChecks = authZFilterChecks, foyerStatus = checkFoyerStatus)
       }
@@ -356,13 +344,7 @@ object VerifyTryItNowCommand extends Command {
           filterCheck
         }
 
-        val checkFoyerStatus = if (keystoneV2FilterChecks.exists(ifc => FoyerStatus.NotAllowed.equals(ifc.foyerStatus))) {
-          FoyerStatus.NotAllowed
-        } else if (keystoneV2FilterChecks.exists(ifc => FoyerStatus.Unknown.equals(ifc.foyerStatus))) {
-          FoyerStatus.Unknown
-        } else {
-          FoyerStatus.Allowed
-        }
+        val checkFoyerStatus = determineFoyerStatus(keystoneV2FilterChecks.map(_.foyerStatus))
 
         check = check.copy(keystoneV2FilterChecks = keystoneV2FilterChecks, foyerStatus = checkFoyerStatus)
       }
@@ -449,13 +431,7 @@ object VerifyTryItNowCommand extends Command {
           filterCheck
         }
 
-        val checkFoyerStatus = if (identityV3FilterChecks.exists(ifc => FoyerStatus.NotAllowed.equals(ifc.foyerStatus))) {
-          FoyerStatus.NotAllowed
-        } else if (identityV3FilterChecks.exists(ifc => FoyerStatus.Unknown.equals(ifc.foyerStatus))) {
-          FoyerStatus.Unknown
-        } else {
-          FoyerStatus.Allowed
-        }
+        val checkFoyerStatus = determineFoyerStatus(identityV3FilterChecks.map(_.foyerStatus))
 
         check = check.copy(identityV3FilterChecks = identityV3FilterChecks, foyerStatus = checkFoyerStatus)
       }
@@ -471,16 +447,40 @@ object VerifyTryItNowCommand extends Command {
     val clusterJsonObjects = clusters map { cluster =>
       val filters = cluster \ "filters" \ "filter"
 
+      val authNCheckResult = checkAuthN(filters)
+      val authZCheckResult = checkAuthZ(filters)
+      val keystoneV2CheckResult = checkKeystoneV2(filters)
+      val identityV3CheckResult = checkIdentityV3(filters)
+      val clusterFoyerStatus = determineFoyerStatus(Seq(
+        FoyerStatus.withName((authNCheckResult \ "foyerStatus").as[String]),
+        FoyerStatus.withName((authZCheckResult \ "foyerStatus").as[String]),
+        FoyerStatus.withName((keystoneV2CheckResult \ "foyerStatus").as[String]),
+        FoyerStatus.withName((identityV3CheckResult \ "foyerStatus").as[String])
+      ))
+
       Json.obj("clusterId" -> (cluster \ "@id").head.text,
-        "authNCheck" -> checkAuthN(filters),
-        "authZCheck" -> checkAuthZ(filters),
-        "keystoneV2Check" -> checkKeystoneV2(filters),
-        "identityV3Check" -> checkIdentityV3(filters)
+        "authNCheck" -> authNCheckResult,
+        "authZCheck" -> authZCheckResult,
+        "keystoneV2Check" -> keystoneV2CheckResult,
+        "identityV3Check" -> identityV3CheckResult,
+        "foyerStatus" -> Json.toJson(clusterFoyerStatus.toString)
       )
     }
     val clustersArray = clusterJsonObjects.foldLeft(Json.arr())((arr, obj) => arr :+ obj)
 
     println(Json.prettyPrint(Json.obj("clusters" -> clustersArray)))
+  }
+
+  private def determineFoyerStatus(foyerStatuses: Seq[FoyerStatus.FoyerStatus]): FoyerStatus.FoyerStatus = {
+    if (foyerStatuses.contains(FoyerStatus.NotAllowed)) {
+      FoyerStatus.NotAllowed
+    } else if (foyerStatuses.contains(FoyerStatus.Unknown)) {
+      FoyerStatus.Unknown
+    } else if (foyerStatuses.contains(FoyerStatus.Allowed)) {
+      FoyerStatus.Allowed
+    } else {
+      FoyerStatus.Unknown
+    }
   }
 
   object FoyerStatus extends Enumeration {
