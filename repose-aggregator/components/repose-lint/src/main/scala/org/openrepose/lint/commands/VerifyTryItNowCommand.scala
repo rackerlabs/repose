@@ -173,7 +173,7 @@ object VerifyTryItNowCommand extends Command {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
           } else if (versionGreaterThanOrEqualTo("4.1.0") && versionLessThan("7.1.4.0") && filterCheck.foyerAsServiceAdmin && filterCheck.foyerAsIgnoreTenant) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
-          } else if (filterCheck.foyerAsServiceAdmin || filterCheck.foyerAsIgnoreTenant) {
+          } else if (versionGreaterThanOrEqualTo("7.1.4.0") && filterCheck.foyerAsServiceAdmin || filterCheck.foyerAsIgnoreTenant) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
           } else {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
@@ -249,11 +249,11 @@ object VerifyTryItNowCommand extends Command {
           } else if (filterCheck.missingConfiguration) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (versionLessThan("4.1.0")) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedAuthorized)
           } else if (filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
           } else if (!filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedAuthorized)
           }
 
           filterCheck
@@ -334,11 +334,11 @@ object VerifyTryItNowCommand extends Command {
           } else if (filterCheck.missingConfiguration || versionLessThan("7.1.5.1")) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (!filterCheck.inTenantedMode && !filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
           } else if (!filterCheck.foyerAsPreAuth) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (filterCheck.foyerAsPreAuth) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
           }
 
           filterCheck
@@ -419,13 +419,13 @@ object VerifyTryItNowCommand extends Command {
           } else if (filterCheck.missingConfiguration || versionLessThan("7.0.0.0")) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (!filterCheck.inTenantedMode && !filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
           } else if (!filterCheck.foyerAsBypassTenant) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (filterCheck.foyerAsBypassTenant && !filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
           } else if (filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedAuthorized)
           }
 
           filterCheck
@@ -476,6 +476,10 @@ object VerifyTryItNowCommand extends Command {
       FoyerStatus.NotAllowed
     } else if (foyerStatuses.contains(FoyerStatus.Unknown)) {
       FoyerStatus.Unknown
+    } else if (foyerStatuses.contains(FoyerStatus.AllowedAuthorized)) {
+      FoyerStatus.AllowedAuthorized
+    } else if (foyerStatuses.contains(FoyerStatus.AllowedNotAuthorized)) {
+      FoyerStatus.AllowedNotAuthorized
     } else if (foyerStatuses.contains(FoyerStatus.Allowed)) {
       FoyerStatus.Allowed
     } else {
@@ -485,7 +489,7 @@ object VerifyTryItNowCommand extends Command {
 
   object FoyerStatus extends Enumeration {
     type FoyerStatus = Value
-    val Allowed, NotAllowed, Unknown = Value
+    val Allowed, AllowedAuthorized, AllowedNotAuthorized, NotAllowed, Unknown = Value
   }
 
 }
