@@ -96,6 +96,7 @@ object CommandExecutor {
             }
           case None =>
             // Failed to lookup the command (this should never happen since the parser should catch it first)
+            Console.err.println("Unsupported command: " + lintConfig.commandToken)
             1
         }
       case None =>
