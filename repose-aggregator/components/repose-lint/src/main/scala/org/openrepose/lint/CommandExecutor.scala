@@ -40,6 +40,9 @@ object CommandExecutor {
 
     val parser = new OptionParser[LintConfig]("repose-lint") {
       head("repose-lint", lintVer)
+
+      // Specifies the Repose configuration directory to run this tool against.
+      // The default is the current working directory.
       opt[File]('c', "config-dir") valueName "<dir>" action { (x, c) =>
         c.copy(configDir = x)
       } validate { f =>
@@ -49,6 +52,11 @@ object CommandExecutor {
           failure(s"unable to read from directory: ${f.getAbsolutePath}")
         }
       } text "the root configuration directory for Repose (i.e., the directory containing your system-model), default is the working directory"
+
+      // Specifies the version of Repose that will be used with the configuration files in the directory
+      // provided by the 'config-dir' option. The Repose version is used to determine which checks to perform,
+      // and how to perform them.
+      // This option is required.
       opt[String]('r', "repose-version") required() action { (x, c) =>
         c.copy(reposeVersion = x)
       } validate { s =>
@@ -58,8 +66,13 @@ object CommandExecutor {
           failure(s"the provided version is invalid: $s")
         }
       } text "the version of Repose which these configuration files apply to"
+
       help("help") text "prints the usage text"
+
       version("version") text "prints the version of this utility"
+
+      // Generate a scopt command for each command in the command registry. Using a command registry allows us to
+      // maintain a single source of truth for supported commands.
       CommandRegistry.getAvailableCommands foreach { command =>
         cmd(command.getCommandToken) action { (_, c) =>
           c.copy(commandToken = command.getCommandToken)
