@@ -101,6 +101,7 @@ object CommandExecutor {
         }
       case None =>
         // Failed to parse the command and/or options, error message will have been displayed
+        Console.err.print("Failed to parse the command and/or options")
         1
     }
   }
