@@ -25,11 +25,11 @@ title: Repose
     <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns">
             <h2>What is Repose?</h2>
-
             <p>Repose enables downstream services to trust incoming requests as validated and well formed.</p>
-
-            <p>It takes incoming requests and adjusts them to be ready for consumption
-                by passing requests through a series of extensible filters.</p>
+            <p>
+                It takes incoming requests and adjusts them to be ready for consumption
+                by passing requests through a series of extensible filters.
+            </p>
         </div>
     </div>
 </div>
@@ -50,9 +50,10 @@ title: Repose
                         </div>
                         <div class="large-5 columns path-text right">
                             <h3>Incoming Requests</h3>
-
-                            <p>Users submit requests to your API, which are then load balanced, and forwarded to
-                                Repose.</p>
+                            <p>
+                                Users submit requests to your API, which are then load balanced, and forwarded to
+                                Repose.
+                            </p>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -63,11 +64,13 @@ title: Repose
                         </div>
                         <div class="large-5 pull-7 columns path-text left">
                             <h3>Hello, who is it?</h3>
-
-                            <p>Repose can use an identity endpoint to authenticate an HTTP request before
-                                the request is passed to the destination.</p>
-                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Client+Authentication+Filter">Authentication
-                                »</a>
+                            <p>
+                                Repose can use an identity endpoint to authenticate an HTTP request before
+                                the request is passed to the destination.
+                            </p>
+                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+Filter">
+                                Authentication »
+                            </a>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -78,12 +81,13 @@ title: Repose
                         </div>
                         <div class="large-5 columns path-text right">
                             <h3>Access Denied</h3>
-
-                            <p>Repose validates that a client request is allowed to a destination URI. If
-                                the request is not allowed, the request will be denied with an HTTP 403
-                                - Forbidden.</p>
-                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Client+Authorization+Filter">Authorization
-                                »</a>
+                            <p>
+                                Repose validates that a client request is allowed to a destination URI. If
+                                the request is not allowed, the request will be denied with an HTTP 403 - Forbidden.
+                            </p>
+                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Client+Authorization+Filter">
+                                Authorization »
+                            </a>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -94,11 +98,13 @@ title: Repose
                         </div>
                         <div class="large-5 pull-7 columns path-text left">
                             <h3>One at at time, please</h3>
-
-                            <p>Distributed Rate limiting allows control over the amount of traffic to the
-                                destination service over the cluster.</p>
-                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Rate+Limiting+Filter">Distributed
-                                Rate Limiting »</a>
+                            <p>
+                                Distributed Rate limiting allows control over the amount of traffic to the
+                                destination service over the cluster.
+                            </p>
+                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/Rate+Limiting+Filter">
+                                Distributed Rate Limiting »
+                            </a>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -109,11 +115,13 @@ title: Repose
                         </div>
                         <div class="large-5 columns path-text right">
                             <h3>Let me get my journal</h3>
-
-                            <p>Repose can log all of your requests before they get to your service, so you
-                                can better know who's accessing your APIs</p>
-                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/HTTP+Logging+Filter">HTTP Logging
-                                »</a>
+                            <p>
+                                Repose can log all of your requests before they get to your service, so you
+                                can better know who's accessing your APIs
+                            </p>
+                            <a href="https://repose.atlassian.net/wiki/display/REPOSE/SLF4J+HTTP+Logging+filter">
+                                HTTP Logging »
+                            </a>
                         </div>
                     </div>
                     <div class="row path-item">
@@ -124,7 +132,6 @@ title: Repose
                         </div>
                         <div class="large-5 pull-7 columns path-text left">
                             <h3>Destination</h3>
-
                             <p>Your service receives only validated, well formed requests.</p>
                         </div>
                     </div>
@@ -139,21 +146,25 @@ title: Repose
     <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns">
             <h2><a href="https://repose.atlassian.net/wiki/display/REPOSE/Repose+101">Get started with Repose</a></h2>
-
             <p>
-                Repose supports multiple environments to suit your deployment. Deploy repose as a <a
-                    href="https://repose.atlassian.net/wiki/display/REPOSE/Docker">docker container</a>,
-                inside your <a href="https://repose.atlassian.net/wiki/display/REPOSE/ROOT.war+Installation">existing
-                Java application</a> or
-                as a <a href="https://repose.atlassian.net/wiki/display/REPOSE/Proxy+Server+%28Valve%29+Installation">stand
-                alone JAR</a>.
+                Repose supports multiple environments to suit your deployment. Deploy repose as a
+                <a href="https://repose.atlassian.net/wiki/display/REPOSE/Docker">docker container</a>,
+                inside your
+                <a href="https://repose.atlassian.net/wiki/display/REPOSE/ROOT.war+Installation">
+                    existing Java application
+                </a> or as a
+                <a href="https://repose.atlassian.net/wiki/display/REPOSE/Proxy+Server+%28Valve%29+Installation">
+                    stand alone JAR
+                </a>.
             </p>
-
-            <p>See our <a href="https://repose.atlassian.net/wiki/display/REPOSE/Repose+101">Repose 101 Course</a> for
-                a quick start.</p>
-
-            <p>Get Involved! Join our <a href="http://discourse.openrepose.org/">Discourse Forum.</a>
+            <p>
+                See our
+                <a href="https://repose.atlassian.net/wiki/display/REPOSE/Getting+Started+with+Repose">
+                    Getting Started with Repose
+                </a>
+                quick start guide and tutorials.
             </p>
+            <p>Get Involved! Join our <a href="http://discourse.openrepose.org/">Discourse Forum.</a></p>
         </div>
     </div>
 </div>
@@ -164,16 +175,20 @@ title: Repose
             <h2>Test your service with <a href="https://github.com/rackerlabs/deproxy">Deproxy</a> + <a
                     href="https://github.com/rackerlabs/mimic">Mimic</a>
             </h2>
+            <p>
+                Any good enterprise product is backed by testing, but why just test your code when you can
+                test the entire infrastructure?
+            </p>
+            <p>
+                <a href="https://github.com/rackerlabs/mimic">Mimic</a> is an API Mock Service that allows
+                you to easily create pre-defined API responses.
+            </p>
 
-            <p>Any good enterprise product is backed by testing, but why just test your code when you can
-                test the entire infrastructure?</p>
-
-            <p><a href="https://github.com/rackerlabs/mimic">Mimic</a> is an API Mock Service that allows
-                you to easily create pre-defined API responses.</p>
-
-            <p><a href="https://github.com/rackerlabs/deproxy">Deproxy</a> is a tool for performing high-level,
+            <p>
+                <a href="https://github.com/rackerlabs/deproxy">Deproxy</a> is a tool for performing high-level,
                 black-box, functional and regression testing of proxies, and other HTTP intermediaries.
-                It is meant to be incorporated into unit tests for functional testing.</p>
+                It is meant to be incorporated into unit tests for functional testing.
+            </p>
         </div>
     </div>
 </div>
