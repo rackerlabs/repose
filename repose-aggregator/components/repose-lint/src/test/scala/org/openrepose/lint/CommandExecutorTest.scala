@@ -77,5 +77,35 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
       errString should include("command failed")
       errString should include("Cause:")
     }
+
+    it("should notify the user if arguments cannot be parsed") {
+      val configDir = getClass.getResource("/configs/emptydir/").getPath
+      val err = new ByteArrayOutputStream()
+
+      Console.setErr(err)
+
+      val exitCode = CommandExecutor.execute(System.in, System.out, new PrintStream(err), mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir, "-foo"))
+
+      val errString = new String(err.toByteArray)
+
+      exitCode shouldEqual 1
+      errString should include("Failed to parse")
+    }
+
+    ignore("should notify the user if a command is unsupported") {
+      // remove verify-try-it-now command from the command registry
+
+      val configDir = getClass.getResource("/configs/emptydir/").getPath
+      val err = new ByteArrayOutputStream()
+
+      Console.setErr(err)
+
+      val exitCode = CommandExecutor.execute(System.in, System.out, new PrintStream(err), mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir))
+
+      val errString = new String(err.toByteArray)
+
+      exitCode shouldEqual 1
+      errString should include("Unsupported command")
+    }
   }
 }
