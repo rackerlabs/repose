@@ -292,7 +292,7 @@ object VerifyTryItNowCommand extends Command {
 
       implicit val KeystoneV2CheckWrites = new Writes[KeystoneV2Check] {
         override def writes(kc: KeystoneV2Check): JsValue = Json.obj(
-          "filterName" -> AUTH_Z_FILTER_NAME,
+          "filterName" -> KEYSTONEV2_FILTER_NAME,
           "filters" -> kc.keystoneV2FilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r),
           "foyerStatus" -> kc.foyerStatus.toString
         )
@@ -377,7 +377,7 @@ object VerifyTryItNowCommand extends Command {
 
       implicit val IdentityV3CheckWrites = new Writes[IdentityV3Check] {
         override def writes(ic: IdentityV3Check): JsValue = Json.obj(
-          "filterName" -> AUTH_Z_FILTER_NAME,
+          "filterName" -> IDENTITYV3_FILTER_NAME,
           "filters" -> ic.identityV3FilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r),
           "foyerStatus" -> ic.foyerStatus.toString
         )
