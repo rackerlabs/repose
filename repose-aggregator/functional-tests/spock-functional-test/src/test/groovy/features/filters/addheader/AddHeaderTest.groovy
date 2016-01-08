@@ -70,7 +70,7 @@ class AddHeaderTest extends ReposeValveTest {
 
         when: "Request contains value(s) of the target header"
         def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers,
-                                      defaultHandler: { new Response(302, "Redirect") })
+                defaultHandler: { new Response(302, "Redirect") })
         def sentRequest = ((MessageChain) mc).getHandlings()[0]
 
         then: "The request/response should contain additional header from add-header config"
@@ -83,5 +83,30 @@ class AddHeaderTest extends ReposeValveTest {
         mc.getReceivedResponse().headers.contains("response-header")
         mc.getReceivedResponse().headers.getFirstValue("response-header") == "foooo;q=0.9"
         mc.receivedResponse.code == "302"
+    }
+
+    def "Add header filter will add headers to request/response even if headers exist"() {
+        given:
+        def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1", "repose-test": "test1"]
+        def Map respheader = ["test": "test", "response-header": "original"]
+
+        when: "Request contains value(s) of the target header"
+        def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers,
+                defaultHandler: { new Response(200, "OK", respheader) })
+        def sentRequest = ((MessageChain) mc).getHandlings()[0]
+
+        then: "The request/response should contain additional header from add-header config"
+        sentRequest.request.headers.contains("x-rax-user")
+        sentRequest.request.headers.getFirstValue("x-rax-user") == "test-user"
+        sentRequest.request.headers.contains("x-rax-groups")
+        sentRequest.request.headers.getFirstValue("x-rax-groups") == "reposegroup1"
+        sentRequest.request.headers.contains("repose-test")
+        sentRequest.request.headers.findAll("repose-test").contains("this-is-a-test")
+        sentRequest.request.headers.findAll("repose-test").contains("test1")
+        mc.getReceivedResponse().headers.contains("response-header")
+        mc.getReceivedResponse().headers.findAll("test").contains("test")
+        mc.getReceivedResponse().headers.findAll("response-header").contains("original")
+        mc.getReceivedResponse().headers.findAll("response-header").contains("foooo;q=0.9")
+        mc.receivedResponse.code == "200"
     }
 }
