@@ -41,16 +41,16 @@ import java.net.URL;
 public class HttpxMarshallerUtility {
     private static final String XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
     private static final String HTTPX_SCHEMA = "/META-INF/schema/httpx/translation-httpx.xsd";
-    public static final Schema schema = getSchemaSource();
+    public static final Schema SCHEMA = getSchemaSource();
     private static final String HTTPX_PACKAGE = "org.openrepose.docs.repose.httpx.v1";
-    private static final JAXBContext jaxbContext = getContext();
-    public static final ObjectPool<Marshaller> marshallerPool = new SoftReferenceObjectPool<>(
+    private static final JAXBContext JAXB_CONTEXT = getContext();
+    public static final ObjectPool<Marshaller> MARSHALLER_POOL = new SoftReferenceObjectPool<>(
             new BasePoolableObjectFactory<Marshaller>() {
                 @Override
                 public Marshaller makeObject() {
                     try {
-                        Marshaller marshaller = jaxbContext.createMarshaller();
-                        marshaller.setSchema(schema);
+                        Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
+                        marshaller.setSchema(SCHEMA);
                         return marshaller;
                     } catch (JAXBException ex) {
                         throw new HttpxException("Unable to create HTTPX marshaller", ex);
@@ -58,13 +58,13 @@ public class HttpxMarshallerUtility {
                 }
             }
     );
-    public static final ObjectPool<Unmarshaller> unmarshallerPool = new SoftReferenceObjectPool<>(
+    public static final ObjectPool<Unmarshaller> UNMARSHALLER_POOL = new SoftReferenceObjectPool<>(
             new BasePoolableObjectFactory<Unmarshaller>() {
                 @Override
                 public Unmarshaller makeObject() {
                     try {
-                        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-                        unmarshaller.setSchema(schema);
+                        Unmarshaller unmarshaller = JAXB_CONTEXT.createUnmarshaller();
+                        unmarshaller.setSchema(SCHEMA);
                         return unmarshaller;
 
                     } catch (JAXBException ex) {
