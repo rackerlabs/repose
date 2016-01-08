@@ -70,6 +70,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
             client_tenantid = "mytenant"
             client_tenantname = "mytenantname"
+            client_userid = "12345"
         }
 
         when: "User passes a request through repose with valid token"
@@ -81,6 +82,11 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "mytenant"
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-name") == "mytenantname"
+        /*
+            Bug fix: REP-3204
+            verify get user group call using userid instead token
+        */
+        mc.orphanedHandlings.get(2).request.path =~ "/.*/users/" + fakeIdentityV2Service.client_userid + "/RAX-KSGRP"
     }
 
     def "Validate client token with belongsTo test"() {
@@ -187,4 +193,5 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
     }
+
 }
