@@ -106,7 +106,6 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
 
     @Override
     public Role getRole(String userName, String roleId) {
-
         String baseRole = "role." + userName + "." + roleId;
 
         String name = getProperties().getProperty(baseRole + ".name");
@@ -122,8 +121,6 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
         role.setId(roleId);
         role.setName(name);
         role.setDescription(desc);
-        //role.setServiceId("serviceId");
-        //role.setTenantId("tenantId");
 
         return role;
     }
@@ -153,7 +150,6 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
 
     @Override
     public Group getGroup(String userName, String groupId) {
-
         String baseGroup = "group." + userName + "." + groupId;
 
         String name = getProperties().getProperty(baseGroup + ".name");
@@ -217,11 +213,8 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
         fault.setCode(401);
         fault.setMessage(message);
         fault.setDetails("");
-        //fault.setMessage("You are not authorized to access this resource.");
-        //fault.setDetails("AuthErrorHandler");
 
         return fault;
-
     }
 
     @Override
@@ -257,9 +250,7 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
             }
 
             el.getEndpoint().add(endpoint);
-
         }
-
 
         return el;
     }

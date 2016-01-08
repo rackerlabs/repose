@@ -142,14 +142,11 @@ public class XmlFilterChainBuilder {
             // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
             //
             return new XmlFilterChain(getFactoryForIdentityTransform(), filters);
-            //return new XmlFilterChain(factory, filters);
-
         } catch (ParserConfigurationException ex) {
             throw new XsltException(ex);
         } catch (SAXException ex) {
             throw new XsltException(ex);
         }
-
     }
 
     protected StreamSource getClassPathResource(String path) {
@@ -184,7 +181,6 @@ public class XmlFilterChainBuilder {
             // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
             //
             Transformer transformer = getFactoryForIdentityTransform().newTransformer();
-//      Transformer transformer = factory.newTransformer();
 
             // Transform the document to the result stream
             transformer.transform(domSource, result);
@@ -196,7 +192,6 @@ public class XmlFilterChainBuilder {
     }
 
     protected Source getStylesheetSource(StyleSheetInfo stylesheet) {
-
         if (stylesheet.getXsl() != null) {
             return nodeToStreamSource(stylesheet.getXsl(), stylesheet.getSystemId());
         } else if (stylesheet.getUri() != null) {

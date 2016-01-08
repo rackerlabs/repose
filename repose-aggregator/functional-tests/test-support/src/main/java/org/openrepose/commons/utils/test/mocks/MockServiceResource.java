@@ -205,22 +205,6 @@ public class MockServiceResource {
         return getSizedResponse(size, headers, uri);
     }
 
-    /*
-    @GET
-    @Path("{prefix1: .*}/{prefix2: .*}/responsesize/{size}")
-    public StreamingOutput getSizedResponse3(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
-       return getSizedResponse(size, headers, uri);
-    }
-
-    @GET
-    @Path("{prefix1: .*}/{prefix2: .*}/{prefix3: .*}/responsesize/{size}")
-    public StreamingOutput getSizedResponse4(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
-       return getSizedResponse(size, headers, uri);
-    }
-    *
-    */
-
-
     @POST
     @Path("{id : .*}")
     public Response postEndService(String body, @Context HttpHeaders headers, @Context UriInfo uri, @Context HttpServletRequest request) {
@@ -271,7 +255,6 @@ public class MockServiceResource {
     @GET
     @Path("/nova/limits")
     public Response getNovaLimits() {
-
         StringBuilder limits = new StringBuilder();
 
         limits.append("<limits xmlns:atom=\"http://www.w3.org/2005/Atom\"");
@@ -286,7 +269,6 @@ public class MockServiceResource {
     @Path("/loadbalancers/absolutelimits")
     @Produces("application/xml")
     public Response getLBaaSLimitsXml() {
-
         return provider.getLBaaSLimitsXml();
     }
 
@@ -294,7 +276,6 @@ public class MockServiceResource {
     @Path("/loadbalancers/absolutelimits")
     @Produces("application/json")
     public Response getLBaaSLimitsJson() {
-
         return provider.getLBaaSLimitsJson();
     }
 
@@ -302,7 +283,6 @@ public class MockServiceResource {
     @Path("/{user}/loadbalancers/absolutelimits")
     @Produces("application/xml")
     public Response getLBaaSLimitsXmlUser() {
-
         return provider.getLBaaSLimitsXml();
     }
 
@@ -310,14 +290,12 @@ public class MockServiceResource {
     @Path("/{user}/loadbalancers/absolutelimits")
     @Produces("application/json")
     public Response getLBaaSLimitsJsonUser() {
-
         return provider.getLBaaSLimitsJson();
     }
 
     @GET
     @Path("/whatismyip")
     public Response getRequestingIp(@Context HttpServletRequest req) {
-
         return provider.getRequestingIp(req);
     }
 }

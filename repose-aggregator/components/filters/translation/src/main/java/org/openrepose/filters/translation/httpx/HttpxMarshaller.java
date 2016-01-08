@@ -50,7 +50,7 @@ public class HttpxMarshaller {
         parserFactory.setNamespaceAware(true);
         parserFactory.setXIncludeAware(false);
         parserFactory.setValidating(true);
-        parserFactory.setSchema(HttpxMarshallerUtility.schema);
+        parserFactory.setSchema(HttpxMarshallerUtility.SCHEMA);
     }
 
     public RequestInformation unmarshallRequestInformation(InputStream xml) {
@@ -68,7 +68,7 @@ public class HttpxMarshaller {
     public <T> T unmarshall(InputStream xml) {
         T rtnObject = null;
         Unmarshaller pooledObject = null;
-        ObjectPool<Unmarshaller> unmarshallerPool = HttpxMarshallerUtility.unmarshallerPool;
+        ObjectPool<Unmarshaller> unmarshallerPool = HttpxMarshallerUtility.UNMARSHALLER_POOL;
         try {
             try {
                 pooledObject = unmarshallerPool.borrowObject();
@@ -123,7 +123,7 @@ public class HttpxMarshaller {
 
     private void marshall(Object o, OutputStream out) {
         Marshaller pooledObject = null;
-        ObjectPool<Marshaller> marshallerPool = HttpxMarshallerUtility.marshallerPool;
+        ObjectPool<Marshaller> marshallerPool = HttpxMarshallerUtility.MARSHALLER_POOL;
         try {
             try {
                 pooledObject = marshallerPool.borrowObject();
