@@ -36,6 +36,7 @@ class AddHeaderRequestOnlyTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/addheader", params)
         repose.configurationProvider.applyConfigs("features/filters/addheader/requestonly", params)
         repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def cleanupSpec() {
@@ -43,7 +44,7 @@ class AddHeaderRequestOnlyTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "When using add-header filter the expect header(s) in config is added to request"() {
+    def "When using add-header filter the expected header in config is added to request"() {
         given:
         def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]
 
@@ -77,8 +78,7 @@ class AddHeaderRequestOnlyTest extends ReposeValveTest {
         sentRequest.request.headers.getFirstValue("x-rax-groups") == "reposegroup1"
         sentRequest.request.headers.contains("repose-test")
         sentRequest.request.headers.getFirstValue("repose-test") == "this-is-a-test"
-        mc.getReceivedResponse().headers.contains("response-header")
-        mc.getReceivedResponse().headers.getFirstValue("response-header") == "foooo;q=0.9"
+        !mc.getReceivedResponse().headers.contains("response-header")
         mc.receivedResponse.code == "302"
     }
 }

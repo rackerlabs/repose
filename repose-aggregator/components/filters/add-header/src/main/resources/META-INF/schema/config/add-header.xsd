@@ -30,8 +30,8 @@
 
     <xs:complexType name="AddHeadersConfig">
         <xs:all>
-            <xs:element name="request" type="HttpMessage"/>
-            <xs:element name="response" type="HttpMessage"/>
+            <xs:element name="request" type="HttpMessage" minOccurs="0"/>
+            <xs:element name="response" type="HttpMessage" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
 

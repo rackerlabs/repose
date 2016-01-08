@@ -37,6 +37,7 @@ class AddHeaderTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/addheader", params)
         repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def cleanupSpec() {
@@ -49,7 +50,7 @@ class AddHeaderTest extends ReposeValveTest {
         def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]
 
         when: "Request contains value(s) of the target header"
-        def mc = deproxy.makeRequest([url: reposeEndpoint, headers: headers])
+        def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
         def sentRequest = ((MessageChain) mc).getHandlings()[0]
 
         then: "The request/response should contain additional header from add-header config"
@@ -68,8 +69,8 @@ class AddHeaderTest extends ReposeValveTest {
         def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]
 
         when: "Request contains value(s) of the target header"
-        def mc = deproxy.makeRequest([url: reposeEndpoint, headers: headers,
-                                      defaultHandler: { return new Response(302, "Redirect") }])
+        def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers,
+                                      defaultHandler: { new Response(302, "Redirect") })
         def sentRequest = ((MessageChain) mc).getHandlings()[0]
 
         then: "The request/response should contain additional header from add-header config"

@@ -28,6 +28,7 @@ import org.rackspace.deproxy.Response
 class AddHeaderResponseOnlyTest extends ReposeValveTest {
 
     def setupSpec() {
+        reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
@@ -36,6 +37,7 @@ class AddHeaderResponseOnlyTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/addheader", params)
         repose.configurationProvider.applyConfigs("features/filters/addheader/responseonly", params)
         repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def cleanupSpec() {
@@ -43,15 +45,15 @@ class AddHeaderResponseOnlyTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "When using add-header filter the expect header(s) in config is added to response"() {
+    def "When using add-header filter the expected header in config is added to response"() {
         given:
-        def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]
+        def headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]
 
-        when: "Request contains value(s) of the target header"
-        def mc = deproxy.makeRequest([url: reposeEndpoint, headers: headers])
+        when:
+        def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
         def sentRequest = ((MessageChain) mc).getHandlings()[0]
 
-        then: "The request/response should contain additional header from add-header config"
+        then:
         sentRequest.request.headers.contains("x-rax-user")
         sentRequest.request.headers.getFirstValue("x-rax-user") == "test-user"
         sentRequest.request.headers.contains("x-rax-groups")
@@ -63,11 +65,10 @@ class AddHeaderResponseOnlyTest extends ReposeValveTest {
 
     def "When using add-header filter the expected origin service response code should not change"() {
         given:
-        def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]
+        def headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]
 
         when: "Request contains value(s) of the target header"
-        def mc = deproxy.makeRequest([url: reposeEndpoint, headers: headers,
-                                      defaultHandler: { return new Response(302, "Redirect") }])
+        def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers, defaultHandler: {new Response(302, "Redirect")})
         def sentRequest = ((MessageChain) mc).getHandlings()[0]
 
         then: "The request/response should contain additional header from add-header config"
@@ -75,8 +76,7 @@ class AddHeaderResponseOnlyTest extends ReposeValveTest {
         sentRequest.request.headers.getFirstValue("x-rax-user") == "test-user"
         sentRequest.request.headers.contains("x-rax-groups")
         sentRequest.request.headers.getFirstValue("x-rax-groups") == "reposegroup1"
-        sentRequest.request.headers.contains("repose-test")
-        sentRequest.request.headers.getFirstValue("repose-test") == "this-is-a-test"
+        !sentRequest.request.headers.contains("repose-test")
         mc.getReceivedResponse().headers.contains("response-header")
         mc.getReceivedResponse().headers.getFirstValue("response-header") == "foooo;q=0.9"
         mc.receivedResponse.code == "302"
