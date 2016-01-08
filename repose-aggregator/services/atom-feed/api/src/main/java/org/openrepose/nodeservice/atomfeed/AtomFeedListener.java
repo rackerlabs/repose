@@ -19,8 +19,6 @@
  */
 package org.openrepose.nodeservice.atomfeed;
 
-import java.util.List;
-
 /**
  * An instance of an {@link AtomFeedListener} may be registered with the {@link AtomFeedService} to enable programmatic
  * notifications when a feed is updated. The listener may then perform arbitrary processing given the updated feed.
@@ -28,9 +26,22 @@ import java.util.List;
 public interface AtomFeedListener {
 
     /**
-     * A callback method which will be called whenever the Atom Service reads new Atom entries.
+     * A callback method which will be called whenever the Atom Feed Service reads new Atom entries.
      *
-     * @param atomEntry A {@link List} containing {@link String} representations of Atom entries.
+     * @param atomEntry A {@link String} representation of and Atom entry.
      */
-    void onNewAtomEntry(List<String> atomEntry);
+    void onNewAtomEntry(String atomEntry);
+
+    /**
+     * A callback method which will be called whenever a lifecycle event occurs in the Atom Feed Service.
+     * This callback lets the user know the state of the system associated with the Feed that this listener is
+     * subscribed to.
+     * It also enables asynchronous processing in the service.
+     *
+     * A full list of lifecycle events can be found in {@link LifecycleEvents}.
+     *
+     * @param event A value representing the new lifecycle stage of the system associated with the Feed that this
+     *              listener is subscribed to.
+     */
+    void onLifecycleEvent(LifecycleEvents event);
 }
