@@ -26,10 +26,10 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.ResponseMode._
-import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, HttpServletRequestWrapper}
+import org.openrepose.commons.utils.servlet.http.{HeaderInteractor, HttpServletResponseWrapper, HttpServletRequestWrapper}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.addheader.config.AddHeadersConfig
+import org.openrepose.filters.addheader.config.{HttpMessage, AddHeadersConfig}
 
 import scala.collection.JavaConverters._
 
@@ -46,11 +46,9 @@ class AddHeaderFilter @Inject()(configurationService: ConfigurationService)
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Add Header filter initializing...")
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG_NAME)
-
     logger.info(s"Initializing Add Header filter using config $configurationFile")
     val xsdURL = getClass.getResource(SCHEMA_FILE_NAME)
     configurationService.subscribeTo(filterConfig.getFilterName, configurationFile, xsdURL, this, classOf[AddHeadersConfig])
-
     logger.trace("Add Header filter initialized.")
   }
 
@@ -59,36 +57,28 @@ class AddHeaderFilter @Inject()(configurationService: ConfigurationService)
     val responseWrapper: HttpServletResponseWrapper = new HttpServletResponseWrapper(
       response.asInstanceOf[HttpServletResponse], MUTABLE, READONLY, response.getOutputStream)
 
-    Option(config.getRequest).foreach { httpMessage =>
-      httpMessage.getHeader.asScala.foreach { header =>
-        if (header.isOverwrite) {
-          requestWrapper.removeHeader(header.getName)
-          logger.debug(s"Removing existing headers in request: ${header.getName}")
-        }
-
-        Option(header.getQuality) match {
-          case Some(quality) => requestWrapper.addHeader(header.getName, header.getValue, header.getQuality)
-          case None => requestWrapper.addHeader(header.getName, header.getValue)
-        }
-      }
-    }
+    addHeaders(requestWrapper, config.getRequest)
 
     chain.doFilter(requestWrapper, responseWrapper)
 
-    Option(config.getResponse).foreach { httpMessage =>
+    addHeaders(responseWrapper, config.getResponse)
+    responseWrapper.commitToResponse()
+  }
+
+  def addHeaders(wrapper: HeaderInteractor, configuredHeaders: HttpMessage): Unit = {
+    Option(configuredHeaders).foreach { httpMessage =>
       httpMessage.getHeader.asScala.foreach { header =>
         if (header.isOverwrite) {
-          responseWrapper.removeHeader(header.getName)
-          logger.debug(s"Removing existing headers in response: ${header.getName}")
+          wrapper.removeHeader(header.getName)
+          logger.debug(s"Removing existing headers: ${header.getName}")
         }
 
         Option(header.getQuality) match {
-          case Some(quality) => responseWrapper.addHeader(header.getName, header.getValue, header.getQuality)
-          case None => responseWrapper.addHeader(header.getName, header.getValue)
+          case Some(quality) => wrapper.addHeader(header.getName, header.getValue, header.getQuality)
+          case None => wrapper.addHeader(header.getName, header.getValue)
         }
       }
     }
-    responseWrapper.commitToResponse()
   }
 
   override def destroy(): Unit = {
