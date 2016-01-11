@@ -21,42 +21,89 @@ package org.openrepose.filters.addheader
 
 import javax.inject.{Inject, Named}
 import javax.servlet._
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.servlet.http.ResponseMode._
+import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, HttpServletRequestWrapper}
 import org.openrepose.core.filter.FilterConfigHelper
-import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.addheader.config.AddHeadersConfig
 
+import scala.collection.JavaConverters._
+
 @Named
-class AddHeaderFilter @Inject()(configurationService: ConfigurationService) extends Filter with LazyLogging {
+class AddHeaderFilter @Inject()(configurationService: ConfigurationService)
+  extends Filter with UpdateListener[AddHeadersConfig] with LazyLogging {
 
-  private final val DEFAULT_CONFIG = "add-header.cfg.xml"
+  import AddHeaderFilter._
 
-  private var config: String = _
-  private var handlerFactory: AddHeaderHandlerFactory = _
+  private var configurationFile: String = _
+  private var config: AddHeadersConfig = _
+  private var initialized = false
 
   override def init(filterConfig: FilterConfig): Unit = {
-    config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
-    logger.info(s"Initializing AddHeaderFilter using config $config")
+    logger.trace("Add Header filter initializing...")
+    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG_NAME)
 
-    //Spring hack -- as copied from RackspaceAuthUserFilter
-    handlerFactory = new AddHeaderHandlerFactory()
+    logger.info(s"Initializing Add Header filter using config $configurationFile")
+    val xsdURL = getClass.getResource(SCHEMA_FILE_NAME)
+    configurationService.subscribeTo(filterConfig.getFilterName, configurationFile, xsdURL, this, classOf[AddHeadersConfig])
 
-    val xsdURL = getClass.getResource("/META-INF/schema/config/add-header.xsd")
-    configurationService.subscribeTo(filterConfig.getFilterName,
-      config,
-      xsdURL,
-      handlerFactory.asInstanceOf[UpdateListener[AddHeadersConfig]],
-      classOf[AddHeadersConfig])
+    logger.trace("Add Header filter initialized.")
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
-    new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler)
+    val requestWrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest])
+    val responseWrapper: HttpServletResponseWrapper = new HttpServletResponseWrapper(
+      response.asInstanceOf[HttpServletResponse], MUTABLE, READONLY, response.getOutputStream)
+
+    Option(config.getRequest).foreach { httpMessage =>
+      httpMessage.getHeader.asScala.foreach { header =>
+        if (header.isOverwrite) {
+          requestWrapper.removeHeader(header.getName)
+          logger.debug(s"Removing existing headers in request: ${header.getName}")
+        }
+
+        Option(header.getQuality) match {
+          case Some(quality) => requestWrapper.addHeader(header.getName, header.getValue, header.getQuality)
+          case None => requestWrapper.addHeader(header.getName, header.getValue)
+        }
+      }
+    }
+
+    chain.doFilter(requestWrapper, responseWrapper)
+
+    Option(config.getResponse).foreach { httpMessage =>
+      httpMessage.getHeader.asScala.foreach { header =>
+        if (header.isOverwrite) {
+          responseWrapper.removeHeader(header.getName)
+          logger.debug(s"Removing existing headers in response: ${header.getName}")
+        }
+
+        Option(header.getQuality) match {
+          case Some(quality) => responseWrapper.addHeader(header.getName, header.getValue, header.getQuality)
+          case None => responseWrapper.addHeader(header.getName, header.getValue)
+        }
+      }
+    }
+    responseWrapper.commitToResponse()
   }
 
   override def destroy(): Unit = {
-    configurationService.unsubscribeFrom(config, handlerFactory)
+    configurationService.unsubscribeFrom(configurationFile, this.asInstanceOf[UpdateListener[_]])
   }
+
+  override def configurationUpdated(newConfig: AddHeadersConfig): Unit = {
+    config = newConfig
+    initialized = true
+  }
+
+  override def isInitialized: Boolean = initialized
+}
+
+object AddHeaderFilter {
+  private final val DEFAULT_CONFIG_NAME = "add-header.cfg.xml"
+  private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/add-header.xsd"
 }
