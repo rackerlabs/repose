@@ -29,6 +29,7 @@
         <project.support.dir>${project.basedir}/../../../repose-support</project.support.dir>
 
         <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
+        <repose.lint.dir>${project.set.dir}/components/repose-lint/target</repose.lint.dir>
         <filter.dir>${project.set.dir}/components/filters/filter-bundle/target</filter.dir>
         <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
         </filter.extensions.dir>
@@ -66,6 +67,7 @@
         <filter.bundle-five.ear>classloader-bundle-five-*.ear</filter.bundle-five.ear>
 
         <repose.valve.jar>repose-valve.jar</repose.valve.jar>
+        <repose.lint.jar>repose-lint.jar</repose.lint.jar>
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
 
@@ -75,6 +77,7 @@
         <repose.config.directory>${repose.home}/configs</repose.config.directory>
         <repose.raw.config.directory>${project.basedir}/src/test/configs</repose.raw.config.directory>
         <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
+        <repose.lint.jar.location>${repose.home}/${repose.lint.jar}</repose.lint.jar.location>
         <repose.config.templates>${project.build.directory}/configs</repose.config.templates>
 
         <repose.root.war.directory>${project.set.dir}/core/web-application/target</repose.root.war.directory>
@@ -449,6 +452,13 @@
                 <directory>${repose.valve.dir}</directory>
                 <includes>
                     <include>${repose.valve.jar}</include>
+                </includes>
+                <targetPath>${project.build.directory}/repose_home</targetPath>
+            </testResource>
+            <testResource>
+                    <directory>${repose.lint.dir}</directory>
+                <includes>
+                    <include>${repose.lint.jar}</include>
                 </includes>
                 <targetPath>${project.build.directory}/repose_home</targetPath>
             </testResource>

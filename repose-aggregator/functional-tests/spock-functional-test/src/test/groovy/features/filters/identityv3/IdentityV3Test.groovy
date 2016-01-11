@@ -187,4 +187,25 @@ class IdentityV3Test extends ReposeValveTest {
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
     }
+
+    def "No project-id in uri"() {
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/whatever/",
+                method: 'GET',
+                headers: [
+                        'content-type'   : 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token,
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+    }
 }

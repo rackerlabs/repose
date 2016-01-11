@@ -26,6 +26,7 @@ class TestProperties {
     String configDirectory
     String rawConfigDirectory
     String logFile
+    String reposeLintLogFile
     String logFilePattern
     String configTemplates
     String connFramework
@@ -39,6 +40,7 @@ class TestProperties {
     }
 
     String reposeJar
+    String reposeLintJar
     String glassfishJar
     String tomcatJar
     String reposeRootWar
@@ -78,6 +80,7 @@ class TestProperties {
             configDirectory = properties.getProperty("repose.config.directory")
             configTemplates = properties.getProperty("repose.config.templates")
             logFile = properties.getProperty("repose.log.name")
+            reposeLintLogFile = properties.getProperty("repose.lint.log.name")
             logFilePattern = properties.getProperty("repose.log.pattern")
 
             connFramework = "jersey"
@@ -87,6 +90,7 @@ class TestProperties {
             }
 
             reposeJar = properties.getProperty("repose.jar")
+            reposeLintJar = properties.getProperty("repose.lint.jar")
             reposeRootWar = properties.getProperty("repose.root.war")
             reposePort = PortFinder.Singleton.getNextOpenPort()
 
