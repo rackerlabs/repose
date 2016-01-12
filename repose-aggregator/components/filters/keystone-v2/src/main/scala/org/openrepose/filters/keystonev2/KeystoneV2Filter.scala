@@ -41,6 +41,7 @@ import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaS
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
+import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -49,6 +50,7 @@ import scala.util.{Failure, Random, Success, Try}
 @Named
 class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                                  akkaServiceClientFactory: AkkaServiceClientFactory,
+                                 atomFeedService: AtomFeedService,
                                  datastoreService: DatastoreService)
   extends Filter
   with HttpDelegationManager
