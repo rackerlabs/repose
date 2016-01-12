@@ -1,3 +1,22 @@
+/*
+ * _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+ * Repose
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Copyright (C) 2010 - 2015 Rackspace US, Inc.
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+ */
 package org.openrepose.filters.keystonev2
 
 import java.net.URL
@@ -12,6 +31,7 @@ import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
+import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -19,10 +39,10 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
 
-  val mockDatastoreService = mock[DatastoreService]
-  private val mockDatastore: Datastore = mock[Datastore]
+  private val mockDatastoreService = mock[DatastoreService]
+  private val mockDatastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
-  val mockSystemModel = mock[SystemModel]
+  private val mockSystemModel = mock[SystemModel]
   Mockito.when(mockSystemModel.isTracingHeader).thenReturn(true, Nil: _*)
 
   before {
@@ -33,23 +53,23 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     it("should initialize the configuration") {
       val mockAkkaServiceClient = mock[AkkaServiceClient]
       val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-      val mockConfigService = mock[ConfigurationService]
+      val mockConfigurationService = mock[ConfigurationService]
       Mockito.when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
-      val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-      val config: MockFilterConfig = new MockFilterConfig
+      val config = new MockFilterConfig
       config.setFilterName("KeystoneV2Filter")
 
       filter.init(config)
 
       val resourceCaptor = ArgumentCaptor.forClass(classOf[URL])
-      Mockito.verify(mockConfigService).subscribeTo(
+      Mockito.verify(mockConfigurationService).subscribeTo(
         MockitoMatcher.eq("KeystoneV2Filter"),
         MockitoMatcher.eq("keystone-v2.cfg.xml"),
         resourceCaptor.capture,
         MockitoMatcher.eq(filter.KeystoneV2ConfigListener),
         MockitoMatcher.eq(classOf[KeystoneV2Config]))
-      Mockito.verify(mockConfigService).subscribeTo(
+      Mockito.verify(mockConfigurationService).subscribeTo(
         MockitoMatcher.eq("system-model.cfg.xml"),
         MockitoMatcher.any(classOf[URL]),
         MockitoMatcher.eq(filter.SystemModelConfigListener),
@@ -61,24 +81,24 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     it("should initialize a configuration with a different name") {
       val mockAkkaServiceClient = mock[AkkaServiceClient]
       val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-      val mockConfigService = mock[ConfigurationService]
+      val mockConfigurationService = mock[ConfigurationService]
       Mockito.when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
-      val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-      val config: MockFilterConfig = new MockFilterConfig
+      val config = new MockFilterConfig
       config.setFilterName("KeystoneV2Filter")
       config.setInitParameter("filter-config", "some-other-config.xml")
 
       filter.init(config)
 
       val resourceCaptor = ArgumentCaptor.forClass(classOf[URL])
-      Mockito.verify(mockConfigService).subscribeTo(
+      Mockito.verify(mockConfigurationService).subscribeTo(
         MockitoMatcher.eq("KeystoneV2Filter"),
         MockitoMatcher.eq("some-other-config.xml"),
         resourceCaptor.capture,
         MockitoMatcher.eq(filter.KeystoneV2ConfigListener),
         MockitoMatcher.eq(classOf[KeystoneV2Config]))
-      Mockito.verify(mockConfigService).subscribeTo(
+      Mockito.verify(mockConfigurationService).subscribeTo(
         MockitoMatcher.eq("system-model.cfg.xml"),
         MockitoMatcher.any(classOf[URL]),
         MockitoMatcher.eq(filter.SystemModelConfigListener),
@@ -89,19 +109,19 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
   }
 
   it("deregisters from the configuration service when destroying") {
-    val mockConfigService = mock[ConfigurationService]
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mock[AkkaServiceClientFactory], mockDatastoreService)
+    val mockConfigurationService = mock[ConfigurationService]
+    val filter = new KeystoneV2Filter(mockConfigurationService, mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
+    val config = new MockFilterConfig
     filter.init(config)
     filter.destroy()
 
-    Mockito.verify(mockConfigService).unsubscribeFrom("keystone-v2.cfg.xml", filter.KeystoneV2ConfigListener)
+    Mockito.verify(mockConfigurationService).unsubscribeFrom("keystone-v2.cfg.xml", filter.KeystoneV2ConfigListener)
   }
 
   describe("when the configuration is updated") {
     it("sets the current configuration on the filter asserting the defaults and initialized is true") {
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
       filter.isInitialized shouldNot be(right = true)
 
       val configuration = Marshaller.keystoneV2ConfigFromString(
@@ -138,7 +158,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     }
 
     it("sets the default delegating quality to 0.7") {
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
       filter.isInitialized shouldNot be(right = true)
 
       val configuration = Marshaller.keystoneV2ConfigFromString(
@@ -157,8 +177,78 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-      val timeouts = filter.keystoneV2Config.getCache.getTimeouts
       filter.keystoneV2Config.getDelegating.getQuality should be(0.7)
+    }
+
+    it("should register to listen to the Atom Feed") {
+      val mockAtomFeedService = mock[AtomFeedService]
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockAtomFeedService, mockDatastoreService)
+
+      filter.KeystoneV2ConfigListener.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <delegating/>
+          |    <identity-service uri="https://lol.com"/>
+          |    <cache>
+          |        <atom-feed id="some-feed"/>
+          |    </cache>
+          |</keystone-v2>
+        """.stripMargin
+      ))
+
+      Mockito.verify(mockAtomFeedService).registerListener(MockitoMatcher.eq("some-feed"), MockitoMatcher.any[AtomFeedListener])
+    }
+
+
+    it("should unregister the old feeds and register the new ones") {
+      val mockAtomFeedService = mock[AtomFeedService]
+      val rickFeed = "rick-feed"
+      val mortyFeed = "morty-feed"
+      val rickId = rickFeed + "-ID"
+      val mortyId = mortyFeed + "-ID"
+      Mockito.when(
+        mockAtomFeedService.registerListener(MockitoMatcher.eq(rickFeed), MockitoMatcher.any[AtomFeedListener])
+      ).thenReturn(rickId)
+      Mockito.when(
+        mockAtomFeedService.registerListener(MockitoMatcher.eq(mortyFeed), MockitoMatcher.any[AtomFeedListener])
+      ).thenReturn(mortyId)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockAtomFeedService, mockDatastoreService)
+
+      filter.KeystoneV2ConfigListener.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
+        s"""<?xml version="1.0" encoding="UTF-8"?>
+          |
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <delegating/>
+          |    <identity-service uri="https://lol.com"/>
+          |    <cache>
+          |        <atom-feed id="$rickFeed"/>
+          |        <atom-feed id="$mortyFeed"/>
+          |    </cache>
+          |</keystone-v2>
+        """.stripMargin
+      ))
+
+      Mockito.verify(mockAtomFeedService).registerListener(MockitoMatcher.eq(rickFeed), MockitoMatcher.any[AtomFeedListener])
+      Mockito.verify(mockAtomFeedService).registerListener(MockitoMatcher.eq(mortyFeed), MockitoMatcher.any[AtomFeedListener])
+
+      filter.KeystoneV2ConfigListener.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <delegating/>
+          |    <identity-service uri="https://lol.com"/>
+          |    <cache>
+          |        <atom-feed id="some-feed"/>
+          |    </cache>
+          |</keystone-v2>
+        """.stripMargin
+      ))
+
+      Mockito.verify(mockAtomFeedService).unregisterListener(rickId)
+      Mockito.verify(mockAtomFeedService).unregisterListener(mortyId)
+
+      Mockito.verify(mockAtomFeedService).registerListener(MockitoMatcher.eq("some-feed"), MockitoMatcher.any[AtomFeedListener])
     }
   }
 }
