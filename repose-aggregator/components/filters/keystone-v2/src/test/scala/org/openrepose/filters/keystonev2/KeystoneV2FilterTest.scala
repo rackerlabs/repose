@@ -44,6 +44,7 @@ import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaS
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
+import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec}
@@ -61,24 +62,24 @@ with MockedAkkaServiceClient
 with HttpDelegationManager {
 
   private final val dateTime = DateTime.now().plusHours(1)
-  val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+  private val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
   when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
-  private val mockDatastore: Datastore = mock[Datastore]
-  val mockDatastoreService = mock[DatastoreService]
-  val mockConfigService = mock[ConfigurationService]
+  private val mockDatastore = mock[Datastore]
+  private val mockDatastoreService = mock[DatastoreService]
+  private val mockConfigurationService = mock[ConfigurationService]
   when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
-  val mockSystemModel = mock[SystemModel]
+  private val mockSystemModel = mock[SystemModel]
   when(mockSystemModel.isTracingHeader).thenReturn(true, Nil: _*)
+  private val mockFilterConfig = new MockFilterConfig
 
   before {
     reset(mockDatastore)
-    reset(mockConfigService)
+    reset(mockConfigurationService)
     mockAkkaServiceClient.reset()
   }
 
   describe("Filter lifecycle") {
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
-    val config: MockFilterConfig = new MockFilterConfig
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
     it("should throw 500 if filter is not initialized") {
       val request = new MockHttpServletRequest
@@ -91,16 +92,16 @@ with HttpDelegationManager {
     }
 
     it("should subscribe a listener to the configuration service on init") {
-      filter.init(config)
+      filter.init(mockFilterConfig)
 
-      verify(mockConfigService).subscribeTo(
+      verify(mockConfigurationService).subscribeTo(
         anyString(),
         anyString(),
         any[URL],
         any(),
         any[Class[KeystoneV2Config]]
       )
-      verify(mockConfigService).subscribeTo(
+      verify(mockConfigurationService).subscribeTo(
         anyString(),
         any[URL],
         any(),
@@ -112,7 +113,7 @@ with HttpDelegationManager {
     it("should unsubscribe a listener to the configuration service on destroy") {
       filter.destroy()
 
-      verify(mockConfigService, times(2)).unsubscribeFrom(
+      verify(mockConfigurationService, times(2)).unsubscribeFrom(
         anyString(),
         any()
       )
@@ -130,7 +131,7 @@ with HttpDelegationManager {
       val mockAkkaClient = mock[AkkaServiceClient]
       val mockAkkaClientFactory = mock[AkkaServiceClientFactory]
       when(mockAkkaClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaClient)
-      val testFilter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaClientFactory, mockDatastoreService)
+      val testFilter = new KeystoneV2Filter(mockConfigurationService, mockAkkaClientFactory, mock[AtomFeedService], mockDatastoreService)
       testFilter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       testFilter.destroy()
@@ -153,7 +154,7 @@ with HttpDelegationManager {
       when(mockAkkaClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String])))
         .thenReturn(firstAkkaServiceClient)
         .thenReturn(secondAkkaServiceClient)
-      val testFilter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaClientFactory, mockDatastoreService)
+      val testFilter = new KeystoneV2Filter(mockConfigurationService, mockAkkaClientFactory, mock[AtomFeedService], mockDatastoreService)
 
       testFilter.KeystoneV2ConfigListener.configurationUpdated(configuration)
       testFilter.KeystoneV2ConfigListener.configurationUpdated(configuration)
@@ -177,7 +178,7 @@ with HttpDelegationManager {
       val mockAkkaClient = mock[AkkaServiceClient]
       val mockAkkaClientFactory = mock[AkkaServiceClientFactory]
       when(mockAkkaClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaClient)
-      val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaClientFactory, mockDatastoreService)
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaClientFactory, mock[AtomFeedService], mockDatastoreService)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       verify(mockAkkaClientFactory).newAkkaServiceClient("potato_pool")
@@ -200,10 +201,9 @@ with HttpDelegationManager {
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -237,7 +237,7 @@ with HttpDelegationManager {
       val mockAkkaClient = mock[AkkaServiceClient]
       val mockAkkaClientFactory = mock[AkkaServiceClientFactory]
       when(mockAkkaClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaClient)
-      val keystoneFilter = new KeystoneV2Filter(mockConfigService, mockAkkaClientFactory, mockDatastoreService)
+      val keystoneFilter = new KeystoneV2Filter(mockConfigurationService, mockAkkaClientFactory, mock[AtomFeedService], mockDatastoreService)
 
       val modifiedConfig = configuration
       modifiedConfig.getIdentityService.setUri("https://some.identity.com/")
@@ -312,6 +312,8 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob")
+      // Verify the User/Token map was not updated since Cache Invalidation from an Atom Feed is not enabled.
+      verify(mockDatastore, never()).put(mockitoEq(s"$USER_ID_KEY_PREFIX$VALID_USER_ID"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       //Have to cache the result of the stuff
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"),
         any(classOf[ValidToken]),
@@ -334,6 +336,8 @@ with HttpDelegationManager {
       //When we ask the cache for our token, it works
       // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(roles = Vector("compute:admin", "object-store:admin")), Nil: _*)
+      // Doesn't update the User to Token cache.
+      verify(mockDatastore, never()).put(any(), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -561,10 +565,9 @@ with HttpDelegationManager {
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -609,7 +612,7 @@ with HttpDelegationManager {
           |</keystone-v2>
         """.stripMargin)
 
-      val testFilter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+      val testFilter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
       testFilter.KeystoneV2ConfigListener.configurationUpdated(configurationDos)
       testFilter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -987,10 +990,9 @@ with HttpDelegationManager {
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -1181,10 +1183,9 @@ with HttpDelegationManager {
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -1370,10 +1371,9 @@ with HttpDelegationManager {
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -1398,26 +1398,26 @@ with HttpDelegationManager {
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-        |    <identity-service
-        |            username="username"
-        |            password="password"
-        |            uri="https://some.identity.com"
-        |            set-catalog-in-header="true"
-        |            />
-        |      <cache>
-        |          <timeouts>
-        |              <token>270</token>
-        |              <group>300</group>
-        |              <endpoints>330</endpoints>
-        |          </timeouts>
-        |      </cache>
+        |    <identity-service username="username"
+        |                      password="password"
+        |                      uri="https://some.identity.com"
+        |                      set-catalog-in-header="true"
+        |    />
+        |    <cache>
+        |        <timeouts>
+        |            <token>270</token>
+        |            <group>300</group>
+        |            <endpoints>330</endpoints>
+        |        </timeouts>
+        |        <atom-feed id="some-feed"/>
+        |    </cache>
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val userId = "TestUser123"
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -1432,14 +1432,14 @@ with HttpDelegationManager {
       )
 
       mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(userId=userId))
       )
 
       mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$userId")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -1450,6 +1450,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
+      verify(mockDatastore).put(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any(), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(330), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(300), mockitoEq(TimeUnit.SECONDS))
@@ -1471,14 +1472,14 @@ with HttpDelegationManager {
       )
 
       mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(userId=userId))
       )
 
       mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$userId")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -1489,6 +1490,10 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      verify(mockDatastore).put(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"),
+        any(),
+        intThat(both(greaterThanOrEqualTo(Int.box(269))).and(lessThanOrEqualTo(Int.box(271)))),
+        mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"),
         any(),
         intThat(both(greaterThanOrEqualTo(Int.box(269))).and(lessThanOrEqualTo(Int.box(271)))),
@@ -1519,14 +1524,14 @@ with HttpDelegationManager {
       )
 
       mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(userId=userId))
       )
 
       mockAkkaGetResponse(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$userId")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -1537,6 +1542,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
+      verify(mockDatastore).put(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
@@ -1569,10 +1575,9 @@ with HttpDelegationManager {
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -1885,10 +1890,9 @@ with HttpDelegationManager {
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -2148,10 +2152,9 @@ with HttpDelegationManager {
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
@@ -2234,10 +2237,9 @@ with HttpDelegationManager {
         |</keystone-v2>
       """.stripMargin)
 
-    val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-    val config: MockFilterConfig = new MockFilterConfig
-    filter.init(config)
+    filter.init(mockFilterConfig)
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
