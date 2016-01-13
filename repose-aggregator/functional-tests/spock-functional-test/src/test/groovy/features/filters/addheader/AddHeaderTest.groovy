@@ -30,6 +30,7 @@ import org.rackspace.deproxy.Response
 class AddHeaderTest extends ReposeValveTest {
 
     def setupSpec() {
+        reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
@@ -108,5 +109,24 @@ class AddHeaderTest extends ReposeValveTest {
         mc.getReceivedResponse().headers.findAll("response-header").contains("original")
         mc.getReceivedResponse().headers.findAll("response-header").contains("foooo;q=0.9")
         mc.receivedResponse.code == "200"
+    }
+
+    def "Verify miss config add header - no header"() {
+        given:
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/addheader", params)
+        repose.configurationProvider.applyConfigs("features/filters/addheader/noheader", params)
+        def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1", "repose-test": "test1"]
+
+        when:
+        repose.start()
+        def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers,
+                defaultHandler: { new Response(200, "OK") })
+
+        then:
+        reposeLogSearch.searchByString("At least one header must be defined.")
+        mc.receivedResponse.code == "503"
+        mc.receivedResponse.message == "Error creating filter chain, check your configuration files."
     }
 }
