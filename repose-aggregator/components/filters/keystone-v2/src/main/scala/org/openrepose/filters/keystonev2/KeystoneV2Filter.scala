@@ -294,10 +294,27 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             val timeToLive = getTtl(cacheSettings.getToken,
               cacheSettings.getVariability,
               Some(validToken))
+
             timeToLive foreach { ttl =>
+              doUserTokensUpdate(validToken.userId, authToken, ttl)
               datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, ttl, TimeUnit.SECONDS)
             }
           }
+        }
+      }
+    }
+
+    def doUserTokensUpdate(userId: String, authToken: String, ttl: Int): Unit = {
+      if (CacheInvalidationFeedListener.invalidationEnabled()) {
+        //Have to use Vector, because List isn't serializeable in 2.10
+        val oldTokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$userId").asInstanceOf[Vector[String]]).getOrElse(Vector.empty[String])
+        if (!oldTokens.contains(authToken)) {
+          // @TODO: Do we need to clean up the oldTokens which may have irrelevant values.
+          // @TODO: Nothing is wrong with the data, but it may have extra values that would try to be removed later.
+          val newTokens = oldTokens ++ Vector(authToken)
+          // Updated for later cache invalidation via Atom Feed User events.
+          datastore.remove(s"$USER_ID_KEY_PREFIX$userId")
+          datastore.put(s"$USER_ID_KEY_PREFIX$userId", newTokens, ttl, TimeUnit.SECONDS)
         }
       }
     }
@@ -653,14 +670,57 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   object CacheInvalidationFeedListener extends AtomFeedListener {
-    def unRegisterFeeds(): Unit = ???
+    private var registeredFeeds = List.empty[String]
 
-    def registerFeeds(feeds: List[AtomFeedType]): Unit = ???
+    def invalidationEnabled(): Boolean = registeredFeeds.nonEmpty
 
-    override def onNewAtomEntry(atomEntry: String): Unit = ???
+    def unRegisterFeeds(): Unit = {
+      registeredFeeds.synchronized {
+        registeredFeeds.foreach(feed =>
+          atomFeedService.unregisterListener(feed)
+        )
+      }
+    }
 
-    override def onLifecycleEvent(event: LifecycleEvents): Unit = ???
+    def registerFeeds(feeds: List[AtomFeedType]): Unit = {
+      registeredFeeds.synchronized {
+        unRegisterFeeds()
+        registeredFeeds = feeds.map(feed =>
+          atomFeedService.registerListener(feed.getId, this)
+        )
+      }
+      //// @TODO: Need to clean up the old data if there are no feeds to listen to.
+      //if (registeredFeeds.isEmpty) {
+      //  datastore.remove(s"$USER_ID_KEY_PREFIX$WILDCARD")
+      //}
+    }
+
+    override def onNewAtomEntry(atomEntry: String): Unit = {
+      val atomXml = scala.xml.XML.loadString(atomEntry)
+      val resourceId = (atomXml \\ "event" \\ "@resourceId").map(_.text).head
+      val resourceType = (atomXml \\ "event" \\ "@resourceType").map(_.text)
+      val authTokens: Option[List[String]] = resourceType.headOption match {
+        // User OR Token Revocation Record (TRR) event
+        case Some("USER") | Some("TRR_USER") =>
+          val tokens = datastore.get(s"$USER_ID_KEY_PREFIX$resourceId").asInstanceOf[Vector[String]].toList
+          datastore.remove(s"$USER_ID_KEY_PREFIX$resourceId")
+          Some(tokens)
+        case Some("TOKEN") => Some(List(resourceId))
+        case _ => None
+      }
+
+      authTokens.getOrElse(List.empty[String]).foreach(authToken => {
+        datastore.remove(s"$TOKEN_KEY_PREFIX$authToken")
+        datastore.remove(s"$ENDPOINTS_KEY_PREFIX$authToken")
+        datastore.remove(s"$GROUPS_KEY_PREFIX$authToken")
+      })
+    }
+
+    override def onLifecycleEvent(event: LifecycleEvents): Unit = {
+      logger.debug(s"Received Lifecycle Event: $event")
+    }
   }
+
 }
 
 object KeystoneV2Filter {
