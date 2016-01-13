@@ -90,6 +90,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(configurationFile, KeystoneV2ConfigListener)
     configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigListener)
+    CacheInvalidationFeedListener.unRegisterFeeds()
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
@@ -636,6 +637,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       // Removes an extra slash at the end of the URI if applicable
       val serviceUri = keystoneV2Config.getIdentityService.getUri
       keystoneV2Config.getIdentityService.setUri(serviceUri.stripSuffix("/"))
+      CacheInvalidationFeedListener.registerFeeds(
+        // This will also force the un-registering of the Atom Feeds if the new config doesn't have a Cache element.
+        Option(keystoneV2Config.getCache).getOrElse(new CacheType).getAtomFeed.asScala.toList
+      )
 
       val akkaServiceClientOld = Option(akkaServiceClient)
       akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(keystoneV2Config.getIdentityService.getConnectionPoolId)
@@ -647,6 +652,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     override def isInitialized: Boolean = initialized
   }
 
+  object CacheInvalidationFeedListener extends AtomFeedListener {
+    def unRegisterFeeds(): Unit = ???
+
+    def registerFeeds(feeds: List[AtomFeedType]): Unit = ???
+
+    override def onNewAtomEntry(atomEntry: String): Unit = ???
+
+    override def onLifecycleEvent(event: LifecycleEvents): Unit = ???
+  }
 }
 
 object KeystoneV2Filter {
