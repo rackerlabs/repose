@@ -76,10 +76,6 @@ with HttpDelegationManager {
     mockAkkaServiceClient.reset()
   }
 
-  after {
-    mockAkkaServiceClient.validate()
-  }
-
   describe("Filter lifecycle") {
     val filter: KeystoneV2Filter = new KeystoneV2Filter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
     val config: MockFilterConfig = new MockFilterConfig
@@ -91,6 +87,7 @@ with HttpDelegationManager {
       filter.isInitialized shouldBe false
       filter.doFilter(request, response, filterChain)
       response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      mockAkkaServiceClient.validate()
     }
 
     it("should subscribe a listener to the configuration service on init") {
@@ -109,6 +106,7 @@ with HttpDelegationManager {
         any(),
         any[Class[SystemModel]]
       )
+      mockAkkaServiceClient.validate()
     }
 
     it("should unsubscribe a listener to the configuration service on destroy") {
@@ -118,6 +116,7 @@ with HttpDelegationManager {
         anyString(),
         any()
       )
+      mockAkkaServiceClient.validate()
     }
 
     it("should destroy the akka service client when filter is destroyed") {
@@ -137,6 +136,7 @@ with HttpDelegationManager {
       testFilter.destroy()
 
       verify(mockAkkaClient, times(1)).destroy()
+      mockAkkaServiceClient.validate()
     }
 
     it("should destroy the previous akka service client when configuration is updated") {
@@ -161,6 +161,7 @@ with HttpDelegationManager {
       verify(mockAkkaClientFactory, times(2)).newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))
       verify(firstAkkaServiceClient, times(1)).destroy()
       verify(secondAkkaServiceClient, never()).destroy()
+      mockAkkaServiceClient.validate()
     }
   }
 
@@ -180,6 +181,7 @@ with HttpDelegationManager {
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       verify(mockAkkaClientFactory).newAkkaServiceClient("potato_pool")
+      mockAkkaServiceClient.validate()
     }
   }
 
@@ -228,6 +230,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("should handle identity service uri ending with a '/'") {
@@ -256,6 +259,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
       verify(mockAkkaClient).get(anyString(), mockitoEq(s"https://some.identity.com$TOKEN_ENDPOINT/$VALID_TOKEN"), any())
+      mockAkkaServiceClient.validate()
     }
 
     it("caches the admin token request for 10 minutes") {
@@ -283,6 +287,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("caches a valid token for 10 minutes") {
@@ -315,6 +320,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("Makes no other calls if the token is already cached with a valid result") {
@@ -335,6 +341,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 401 an invalid token") {
@@ -359,6 +366,7 @@ with HttpDelegationManager {
 
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 403 if no x-auth-token is present") {
@@ -374,6 +382,7 @@ with HttpDelegationManager {
 
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
+      mockAkkaServiceClient.validate()
     }
 
     it("retries authentication as the admin user if the admin token is not valid") {
@@ -403,6 +412,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 500 if the admin token is not authorized to validate tokens") {
@@ -429,6 +439,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 500 if we cannot reach identity") {
@@ -451,6 +462,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 500 if we cannot authenticate as the admin user") {
@@ -480,6 +492,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 503 if we are rate limited by identity (413)") {
@@ -501,6 +514,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 503 if we are rate limited by identity (429)") {
@@ -522,6 +536,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
   }
 
@@ -575,6 +590,7 @@ with HttpDelegationManager {
       //Continues with the chain
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("allows a user through if they have the endpoint configured in their endpoints list with tenant appended") {
@@ -617,6 +633,7 @@ with HttpDelegationManager {
       //Continues with the chain
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("handles 203 response from endpoints call") {
@@ -640,6 +657,7 @@ with HttpDelegationManager {
       //Continues with the chain
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("handles 403 response from endpoints call") {
@@ -665,6 +683,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse should be(null)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      mockAkkaServiceClient.validate()
     }
 
     it("handles 401 response from endpoints call") {
@@ -690,6 +709,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      mockAkkaServiceClient.validate()
     }
 
     it("handles akka service client call failing") {
@@ -715,6 +735,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldBe null
 
       response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      mockAkkaServiceClient.validate()
     }
 
     it("handles unexpected response from endpoints call") {
@@ -742,6 +763,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldBe null
 
       response.getErrorCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 403 if the user does not have the required endpoint") {
@@ -766,6 +788,7 @@ with HttpDelegationManager {
       //Continues with the chain
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("bypasses validation if the user has the role listed in pre-authorized-roles") {
@@ -789,6 +812,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 401 if the token is no longer valid when catalog variable is set") {
@@ -820,6 +844,7 @@ with HttpDelegationManager {
       //Continues with the chain
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
 
     describe("when endpoints are cached") {
@@ -845,6 +870,7 @@ with HttpDelegationManager {
         response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
         filterChain.getLastRequest should be(null)
         filterChain.getLastResponse should be(null)
+        mockAkkaServiceClient.validate()
       }
 
       it("will allow through if the user has the endpoint") {
@@ -868,6 +894,7 @@ with HttpDelegationManager {
 
         filterChain.getLastRequest shouldNot be(null)
         filterChain.getLastResponse shouldNot be(null)
+        mockAkkaServiceClient.validate()
       }
 
       it("will allow through if the user matches the bypass roles") {
@@ -891,6 +918,7 @@ with HttpDelegationManager {
 
         filterChain.getLastRequest shouldNot be(null)
         filterChain.getLastResponse shouldNot be(null)
+        mockAkkaServiceClient.validate()
       }
 
       it("rejects with 503 if we are rate limited by identity (413)") {
@@ -916,6 +944,7 @@ with HttpDelegationManager {
 
         filterChain.getLastRequest should be(null)
         filterChain.getLastResponse should be(null)
+        mockAkkaServiceClient.validate()
       }
 
       it("rejects with 503 if we are rate limited by identity (429)") {
@@ -941,6 +970,7 @@ with HttpDelegationManager {
 
         filterChain.getLastRequest should be(null)
         filterChain.getLastResponse should be(null)
+        mockAkkaServiceClient.validate()
       }
     }
   }
@@ -987,6 +1017,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldNot be(null)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe "DERP"
+      mockAkkaServiceClient.validate()
     }
 
     it("handles when serviceClientResponse.getStatus fails") {
@@ -1009,6 +1040,7 @@ with HttpDelegationManager {
 
       response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
       filterChain.getLastRequest shouldBe null
+      mockAkkaServiceClient.validate()
     }
 
     it("handles 401 response from groups call") {
@@ -1035,6 +1067,7 @@ with HttpDelegationManager {
 
       response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
       filterChain.getLastRequest shouldBe null
+      mockAkkaServiceClient.validate()
     }
 
     it("handles 403 response from groups call") {
@@ -1058,6 +1091,7 @@ with HttpDelegationManager {
 
       response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
       filterChain.getLastRequest shouldBe null
+      mockAkkaServiceClient.validate()
     }
 
     it("handles 413 response from groups call") {
@@ -1080,6 +1114,7 @@ with HttpDelegationManager {
 
       response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
       filterChain.getLastRequest shouldBe null
+      mockAkkaServiceClient.validate()
     }
 
     it("handles 429 response from groups call") {
@@ -1102,6 +1137,7 @@ with HttpDelegationManager {
 
       response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
       filterChain.getLastRequest shouldBe null
+      mockAkkaServiceClient.validate()
     }
 
     it("handles unexpected response from groups call") {
@@ -1125,6 +1161,7 @@ with HttpDelegationManager {
 
       response.getErrorCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
       filterChain.getLastRequest shouldBe null
+      mockAkkaServiceClient.validate()
     }
   }
 
@@ -1170,6 +1207,7 @@ with HttpDelegationManager {
       val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      mockAkkaServiceClient.validate()
     }
 
     it("delegates if lacking the required service endpoint and all headers for data we have") {
@@ -1199,6 +1237,7 @@ with HttpDelegationManager {
         OpenStackServiceHeader.X_EXPIRATION.toString,
         OpenStackServiceHeader.ROLES.toString,
         OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString)
+      mockAkkaServiceClient.validate()
     }
 
     it("delegates if identity doesn't respond properly") {
@@ -1220,6 +1259,7 @@ with HttpDelegationManager {
       val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
+      mockAkkaServiceClient.validate()
     }
 
     it("delegates if the admin token is invalid") {
@@ -1245,6 +1285,7 @@ with HttpDelegationManager {
       val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      mockAkkaServiceClient.validate()
     }
 
     it("forwards the identity status as Confirmed in the x-identity-status header when delegating success") {
@@ -1261,6 +1302,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Confirmed.toString
+      mockAkkaServiceClient.validate()
     }
 
     it("forwards the identity status as Indeterminate in the x-identity-status header when delegating failure") {
@@ -1280,6 +1322,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Indeterminate.toString
+      mockAkkaServiceClient.validate()
     }
 
     it("responds with a www-authenticate header when delegating") {
@@ -1307,6 +1350,7 @@ with HttpDelegationManager {
 
       response.getStatusCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString) should contain("Keystone uri=https://some.identity.com")
+      mockAkkaServiceClient.validate()
     }
   }
 
@@ -1410,6 +1454,7 @@ with HttpDelegationManager {
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(330), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(300), mockitoEq(TimeUnit.SECONDS))
+      mockAkkaServiceClient.validate()
     }
 
     it("passes through variable offsets within a range to the distributed datastore") {
@@ -1457,6 +1502,7 @@ with HttpDelegationManager {
         any(),
         intThat(both(greaterThanOrEqualTo(Int.box(299))).and(lessThanOrEqualTo(Int.box(301)))),
         mockitoEq(TimeUnit.SECONDS))
+      mockAkkaServiceClient.validate()
     }
 
     it("tests that configurationUpdated sets timeouts to default if CacheTimeoutType is null") {
@@ -1497,6 +1543,7 @@ with HttpDelegationManager {
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
 
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      mockAkkaServiceClient.validate()
     }
   }
 
@@ -1544,6 +1591,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("will extract the tenant from the URI and validate that the user has that tenant in their list") {
@@ -1560,6 +1608,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("will extract the tenant from the URI and validate that the user has a prefixed tenant as the default") {
@@ -1576,6 +1625,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("will extract the tenant from the URI and validate that the user has a prefixed tenant in their roles") {
@@ -1592,6 +1642,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("will extract the tenant from the URI and reject if the user does not have that tenant in their list") {
@@ -1608,6 +1659,7 @@ with HttpDelegationManager {
 
       response.wasErrorSent shouldBe true
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      mockAkkaServiceClient.validate()
     }
 
     it("sends all tenant IDs when configured to") {
@@ -1631,6 +1683,7 @@ with HttpDelegationManager {
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("tenant")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("rick")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("morty")
+      mockAkkaServiceClient.validate()
     }
 
     it("sends all tenant IDs with a quality when all three are configured") {
@@ -1649,6 +1702,7 @@ with HttpDelegationManager {
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("tenant;q=0.9")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("rick;q=0.7")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("morty;q=0.5")
+      mockAkkaServiceClient.validate()
     }
 
     it("sends tenant quality when not configured to send all tenant IDs") {
@@ -1671,6 +1725,7 @@ with HttpDelegationManager {
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "rick;q=0.7"
+      mockAkkaServiceClient.validate()
     }
 
     it("bypasses the URI tenant validation check when a user has a role in the pre-authorized-roles list") {
@@ -1687,6 +1742,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("sends the tenant matching the URI when send all tenants is false and validate-tenant is enabled") {
@@ -1710,6 +1766,7 @@ with HttpDelegationManager {
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "morty"
+      mockAkkaServiceClient.validate()
     }
 
     it("sends the user's default tenant, if validate-tenant is not enabled") {
@@ -1734,6 +1791,7 @@ with HttpDelegationManager {
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "one"
+      mockAkkaServiceClient.validate()
     }
 
     it("should return a failure if a tenant could not be parsed from the URI") {
@@ -1750,6 +1808,7 @@ with HttpDelegationManager {
 
       response.wasErrorSent shouldBe true
       response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      mockAkkaServiceClient.validate()
     }
 
     it("should send the X-Authorization header with the tenant in the uri") {
@@ -1766,6 +1825,7 @@ with HttpDelegationManager {
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy years"
+      mockAkkaServiceClient.validate()
     }
 
     it("should send the X-Authorization header without a tenant if tenant handling is not used") {
@@ -1787,6 +1847,7 @@ with HttpDelegationManager {
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy foo"
+      mockAkkaServiceClient.validate()
     }
 
     it("should send the X-Authorization header without a tenant if tenant validation is not used") {
@@ -1808,6 +1869,7 @@ with HttpDelegationManager {
 
       val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy foo"
+      mockAkkaServiceClient.validate()
     }
   }
 
@@ -1853,6 +1915,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.USER.toString) shouldBe "testuser"
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "testuser"
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_ID.toString) shouldBe "123"
+      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's roles information in the x-roles header") {
@@ -1876,6 +1939,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include("compute:admin")
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include("object-store:admin")
+      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's contact id information in the x-contact-id header") {
@@ -1898,6 +1962,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.CONTACT_ID.toString) shouldBe "abc123"
+      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's impersonator information in the x-impersonator-id, x-impersonator-name, and x-impersonator roles headers") {
@@ -1923,6 +1988,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString) shouldBe "rick"
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString) should include("Racker")
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString) should include("object-store:admin")
+      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's default region information in the x-default-region header") {
@@ -1945,6 +2011,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.DEFAULT_REGION.toString) shouldBe "DFW"
+      mockAkkaServiceClient.validate()
     }
 
     it("forwards the expiration date information in the x-expiration header") {
@@ -1969,6 +2036,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
         .getHeader(OpenStackServiceHeader.X_EXPIRATION.toString) shouldBe iso8601ToRfc1123(tokenDateFormat(dateTime))
+      mockAkkaServiceClient.validate()
     }
 
     it("forwards the groups in the x-pp-groups header by default") {
@@ -1991,6 +2059,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) should include("test-group-id")
+      mockAkkaServiceClient.validate()
     }
 
     it("should not add the groups in the x-pp-groups header when RAX-KSGRP:groups not defined") {
@@ -2013,6 +2082,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      mockAkkaServiceClient.validate()
     }
 
     it("should not add the roles in the x-roles header when isSetRolesInHeader is false") {
@@ -2038,6 +2108,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) shouldBe null
+      mockAkkaServiceClient.validate()
     }
 
     it("forwards the user's catalog in x-catalog header base64 JSON encoded by default") {
@@ -2061,6 +2132,7 @@ with HttpDelegationManager {
 
       val encodedEndpoints = Base64.encodeBase64String(endpointsResponse().getBytes)
       filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.X_CATALOG.toString) shouldBe encodedEndpoints
+      mockAkkaServiceClient.validate()
     }
   }
 
@@ -2112,6 +2184,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       mockAkkaServiceClient.requestHeaders.forall(_.exists(_ == CommonHttpHeader.TRACE_GUID.toString -> "test-guid")) shouldBe true
+      mockAkkaServiceClient.validate()
     }
 
     it("should not forward the x-trans-id header if disabled") {
@@ -2147,6 +2220,7 @@ with HttpDelegationManager {
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
       mockAkkaServiceClient.requestHeaders.exists(_.exists(_ == CommonHttpHeader.TRACE_GUID.toString -> "test-guid")) shouldBe false
+      mockAkkaServiceClient.validate()
     }
   }
 
@@ -2182,6 +2256,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 413 if we are rate limited by identity (413)") {
@@ -2203,6 +2278,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
 
     it("rejects with 429 if we are rate limited by identity (429)") {
@@ -2224,6 +2300,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
+      mockAkkaServiceClient.validate()
     }
   }
 
