@@ -191,7 +191,7 @@ import java.util.regex.Pattern;
  * @author Sean Owen
  * @since 1.0
  */
-public final class CompressingFilter implements Filter {
+public class CompressingFilter implements Filter {
 
     /**
      * One may force the filter to use a particular encoding by setting its value as an attribute of the {@link
