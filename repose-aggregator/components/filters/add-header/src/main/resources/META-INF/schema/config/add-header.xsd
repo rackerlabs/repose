@@ -22,6 +22,9 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            targetNamespace="http://docs.openrepose.org/repose/add-header/v1.0"
            xmlns="http://docs.openrepose.org/repose/add-header/v1.0"
            elementFormDefault="qualified">
@@ -30,9 +33,13 @@
 
     <xs:complexType name="AddHeadersConfig">
         <xs:all>
-            <xs:element name="request" type="HttpMessage"/>
-            <xs:element name="response" type="HttpMessage"/>
+            <xs:element name="request" type="HttpMessage" minOccurs="0"/>
+            <xs:element name="response" type="HttpMessage" minOccurs="0"/>
         </xs:all>
+        <xs:assert vc:minVersion="1.1"
+                   test="count(*)>=1"
+                   xerces:message="At least one header must be defined."
+                   saxon:message="At least one header must be defined."/>
     </xs:complexType>
 
     <xs:complexType name="HttpMessage">

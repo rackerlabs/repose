@@ -59,9 +59,11 @@ class AddHeaderOverwriteTest extends ReposeValveTest {
         reposehandling.request.headers.contains("x-rax-groups")
         reposehandling.request.headers.getFirstValue("x-rax-groups") == "reposegroup1"
         reposehandling.request.headers.contains("repose-test")
-        reposehandling.request.headers.getFirstValue("repose-test") == "no-overwrite"
+        reposehandling.request.headers.findAll("repose-test").contains("no-overwrite")
+        reposehandling.request.headers.findAll("repose-test").contains("this-is-a-test;q=0.5")
         reposehandling.request.headers.contains("overwrite-test")
         reposehandling.request.headers.getFirstValue("overwrite-test") == "this-is-overwrite-value;q=0.5"
+        !reposehandling.request.headers.findAll("overwrite-test").contains("will-be-overwrite")
         mc.receivedResponse.headers.contains("response-header")
         mc.receivedResponse.headers.getFirstValue("response-header") == "foooo;q=0.9"
     }
