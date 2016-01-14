@@ -22,38 +22,38 @@ package org.openrepose.nodeservice.atomfeed.impl
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
-import akka.actor.{ActorRefFactory, ActorSystem, Cancellable}
+import akka.actor._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.docs.repose.atom_feed_service.v1.AtomFeedServiceConfigType
-import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.ReadFeed
+import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedServiceConfigType, OpenStackIdentityV2AuthenticationType}
+import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
 import org.openrepose.nodeservice.atomfeed.impl.actors._
-import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
+import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, AuthenticatedRequestFactory}
 import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConversions._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @Named
-class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
+class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVersion: String,
+                                    @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                                     @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
                                     configurationService: ConfigurationService)
   extends AtomFeedService with LazyLogging {
 
   import AtomFeedServiceImpl._
 
-  private var isServiceEnabled: Boolean = false
-  private var running: Boolean = false
-  private var actorSystem: ActorSystem = _
-  private var serviceConfig: AtomFeedServiceConfigType = _
-  private var feedSchedules: Map[String, Cancellable] = Map.empty
-  private var feedListeners: Map[String, Map[String, AtomFeedListener]] = Map.empty
+  private val actorSystem: ActorSystem = ActorSystem.create("AtomFeedServiceSystem")
+
+  private var isServiceEnabled = false
+  private var feedActors: Map[String, FeedActorPair] = Map.empty
+  private var listenerNotifierManagers: Map[String, ActorRef] = Map.empty
+  // note: feed readers creation/destruction determined by configuration updates
+  // note: notifier managers creation/destruction determined by registering/unregistering
 
   @PostConstruct
   def init(): Unit = {
@@ -75,142 +75,114 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_I
 
   @PreDestroy
   def destroy(): Unit = {
+    logger.info("Unregistering configuration listeners and shutting down service")
     configurationService.unsubscribeFrom(DEFAULT_CONFIG, AtomFeedServiceConfigurationListener)
     configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigurationListener)
 
-    if (running) {
-      actorSystem.shutdown()
-    }
+    actorSystem.shutdown()
   }
 
   override def registerListener(feedId: String, listener: AtomFeedListener): String = {
-    ifRunning {
-      serviceConfig.getFeed.find(feedConfig => feedId.equals(feedConfig.getId)) match {
-        case Some(feedConfig) =>
-          val listenerId = java.util.UUID.randomUUID().toString
-          logger.debug("Registering a listener with id: " + listenerId + " to feed with id: " + feedId)
+    val listenerId = java.util.UUID.randomUUID().toString
+    logger.info("Attempting to register a listener with id: " + listenerId + " to feed with id: " + feedId)
 
-          val pastListeners = feedListeners.getOrElse(feedId, Map.empty)
-          feedListeners = feedListeners + (feedId -> (pastListeners + (listenerId -> listener)))
-          if (pastListeners.isEmpty) {
-            val schedule = actorSystem.scheduler.schedule(
-              Duration.Zero,
-              feedConfig.getPollingFrequency.seconds,
-              actorSystem.actorOf(FeedReader.props(
-                feedConfig.getUri,
-                (arf: ActorRefFactory) =>
-                  arf.actorOf(Authenticator.props(feedConfig.getAuthentication)),
-                (arf: ActorRefFactory) =>
-                  arf.actorOf(Notifier.props(feedListeners.getOrElse(feedId, Map.empty).values.toSet)),
-                feedConfig.getEntryOrder
-              )),
-              ReadFeed
-            )
-            feedSchedules = feedSchedules + (feedId -> schedule)
-          }
+    val notifierManager = feedActors.get(feedId) match {
+      case Some(FeedActorPair(manager, _)) =>
+        manager
+      case None =>
+        val manager = actorSystem.actorOf(Props[NotifierManager], name = feedId + NOTIFIER_MANAGER_TAG)
+        feedActors = feedActors + (feedId -> FeedActorPair(manager, None))
 
-          listenerId
-        case None =>
-          throw new IllegalArgumentException("feedId parameter does not match a configured feed id")
-      }
+        if (isServiceEnabled) {
+          manager ! ServiceEnabled
+        }
+
+        manager
     }
+
+    notifierManager ! AddNotifier(listenerId, listener)
+
+    listenerNotifierManagers = listenerNotifierManagers + (listenerId -> notifierManager)
+
+    listenerId
   }
 
   override def unregisterListener(listenerId: String): Unit = {
-    ifRunning {
-      feedListeners find {
-        case (_, listeners) => listeners.contains(listenerId)
-      } match {
-        case Some((feedId, listeners)) =>
-          logger.debug("Un-registering the listener: " + listenerId)
+    logger.info("Attempting to unregister the listener with id: " + listenerId)
 
-          val newListeners = listeners filterNot { case (id, listener) => listenerId.equals(id) }
-          feedListeners = feedListeners + (feedId -> newListeners)
-          if (newListeners.isEmpty) {
-            feedSchedules(feedId).cancel()
-          }
-        case None =>
-          logger.debug("Listener not registered: " + listenerId)
-      }
+    listenerNotifierManagers.get(listenerId) match {
+      case Some(notifierManager) =>
+        notifierManager ! RemoveNotifier(listenerId)
+        listenerNotifierManagers = listenerNotifierManagers - listenerId
+      case None =>
+        logger.debug("Listener not registered: " + listenerId)
     }
   }
 
-  override def isRunning: Boolean = running
+  case class FeedActorPair(notifierManager: ActorRef, feedReader: Option[ActorRef])
 
-  private def startService(): Unit = {
-    synchronized {
-      if (isInitialized && isServiceEnabled && !running) {
-        logger.info("Starting the service")
-        actorSystem = ActorSystem.create("AtomFeedServiceSystem")
-        actorSystem.registerOnTermination(running = false)
-        running = true
-      } else if (running) {
-        logger.debug("Service not starting -- service is already running")
-      } else if (!isServiceEnabled) {
-        logger.debug("Service not starting -- disabled by configuration")
-      } else {
-        logger.debug("Service not starting -- waiting on configuration files to load")
-      }
-    }
-  }
-
-  private def stopService(): Unit = {
-    synchronized {
-      if (running) {
-        logger.info("Stopping the service")
-        actorSystem.shutdown()
-        actorSystem.awaitTermination(5 seconds)
-      } else {
-        logger.debug("Service not stopping -- service is already stopped")
-      }
-    }
-  }
-
-  private def ifRunning[T](f: => T): T = {
-    if (running) f
-    else throw new IllegalStateException("Service is not running")
-  }
-
-  private def getListenersForFeed(feedId: String): Map[String, AtomFeedListener] = {
-    feedListeners.getOrElse(feedId, Map.empty)
-  }
-
-  def isInitialized: Boolean = {
-    SystemModelConfigurationListener.isInitialized && AtomFeedServiceConfigurationListener.isInitialized
-  }
-
-  object AtomFeedServiceConfigurationListener extends UpdateListener[AtomFeedServiceConfigType] {
+  private object AtomFeedServiceConfigurationListener extends UpdateListener[AtomFeedServiceConfigType] {
     private var initialized = false
 
     override def configurationUpdated(configurationObject: AtomFeedServiceConfigType): Unit = {
       synchronized {
+        logger.trace("Service configuration updated")
         initialized = true
-        serviceConfig = configurationObject
 
-        if (running) {
-          stopService() // Stop the service if it's running to force an update of the Actors
+        configurationObject.getFeed foreach { feedConfig =>
+          val notifierManager = feedActors.get(feedConfig.getId) match {
+            case Some(actorPair) =>
+              // todo: only replace the current feed reader if the configuration has changed
+              actorPair.feedReader.foreach(_ ! PoisonPill)
+              actorPair.notifierManager
+            case None =>
+              actorSystem.actorOf(Props[NotifierManager], name = feedConfig.getId + NOTIFIER_MANAGER_TAG)
+          }
+
+          // note: if the old feed reader actor was sent a PoisonPill, the construction of this new feed reader actor
+          //       may result in the existence of multiple actors with the same name
+          val feedReader = actorSystem.actorOf(FeedReader.props(
+            feedConfig.getUri,
+            Option(feedConfig.getAuthentication).map(buildAuthenticatedRequestFactory),
+            notifierManager,
+            feedConfig.getPollingFrequency,
+            feedConfig.getEntryOrder,
+            reposeVersion
+          ), feedConfig.getId + FEED_READER_TAG)
+
+          feedActors = feedActors + (feedConfig.getId -> FeedActorPair(notifierManager, Some(feedReader)))
+
+          if (isServiceEnabled) {
+            notifierManager ! ServiceEnabled
+          }
         }
-        startService() // Try to start the service in case the system model was loaded first
       }
     }
 
     override def isInitialized: Boolean = initialized
   }
 
-  object SystemModelConfigurationListener extends UpdateListener[SystemModel] {
+  private object SystemModelConfigurationListener extends UpdateListener[SystemModel] {
     private var initialized = false
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
       synchronized {
+        logger.trace("System model configuration updated")
+
         initialized = true
 
         val systemModelInterrogator = new SystemModelInterrogator(clusterId, nodeId)
+
         isServiceEnabled = systemModelInterrogator.getServiceForCluster(configurationObject, SERVICE_NAME).isPresent
 
         if (isServiceEnabled) {
-          startService()
+          feedActors foreach { case (_, actorPair) =>
+            actorPair.notifierManager ! ServiceEnabled
+          }
         } else {
-          stopService()
+          feedActors foreach { case (_, actorPair) =>
+            actorPair.notifierManager ! ServiceDisabled
+          }
         }
       }
     }
@@ -225,4 +197,34 @@ object AtomFeedServiceImpl {
 
   private final val DEFAULT_CONFIG = SERVICE_NAME + ".cfg.xml"
   private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
+  private final val NOTIFIER_MANAGER_TAG = "NotifierManager"
+  private final val FEED_READER_TAG = "FeedReader"
+
+  def buildAuthenticatedRequestFactory(config: OpenStackIdentityV2AuthenticationType): AuthenticatedRequestFactory = {
+    val fqcn = config.getFqcn
+
+    val arfInstance = try {
+      val arfClass = Class.forName(fqcn).asSubclass(classOf[AuthenticatedRequestFactory])
+
+      val arfConstructors = arfClass.getConstructors
+      arfConstructors find { constructor =>
+        val paramTypes = constructor.getParameterTypes
+        paramTypes.size == 1 && classOf[OpenStackIdentityV2AuthenticationType].isAssignableFrom(paramTypes(0))
+      } map { constructor =>
+        constructor.newInstance(config)
+      } orElse {
+        arfConstructors.find(_.getParameterTypes.isEmpty).map(_.newInstance())
+      }
+    } catch {
+      case cnfe: ClassNotFoundException =>
+        throw new IllegalArgumentException(fqcn + " was not found", cnfe)
+      case cce: ClassCastException =>
+        throw new IllegalArgumentException(fqcn + " is not an AuthenticatedRequestFactory", cce)
+    }
+
+    arfInstance match {
+      case Some(factory: AuthenticatedRequestFactory) => factory
+      case _ => throw new IllegalArgumentException(fqcn + " is not a valid AuthenticatedRequestFactory")
+    }
+  }
 }

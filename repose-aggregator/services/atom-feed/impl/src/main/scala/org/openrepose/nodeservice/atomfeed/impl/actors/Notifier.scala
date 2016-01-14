@@ -20,29 +20,41 @@
 package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import akka.actor.{Actor, Props}
-import org.openrepose.nodeservice.atomfeed.AtomFeedListener
-
-import scala.collection.JavaConversions._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, LifecycleEvents}
 
 object Notifier {
-  case class NotifyListeners(atomEntries: List[String])
 
-  def props(listeners: => Set[AtomFeedListener]): Props = Props(new Notifier(listeners))
+  def props(listener: => AtomFeedListener): Props = Props(new Notifier(listener))
+
+  case class NotifyListener(atomEntry: String)
+
+  object FeedReaderCreated
+
+  object FeedReaderActivated
+
+  object FeedReaderDeactivated
+
+  object FeedReaderDestroyed
+
 }
 
-class Notifier(listeners: => Set[AtomFeedListener]) extends Actor {
+class Notifier(listener: => AtomFeedListener) extends Actor {
 
   import Notifier._
 
+  override def preStart(): Unit = {
+    listener.onLifecycleEvent(LifecycleEvents.LISTENER_REGISTERED)
+  }
+
+  override def postStop(): Unit = {
+    listener.onLifecycleEvent(LifecycleEvents.LISTENER_UNREGISTERED)
+  }
+
   override def receive: Receive = {
-    case NotifyListeners(atomEntries) =>
-      listeners foreach {
-        case listener =>
-          Future {
-            listener.onNewAtomEntry(atomEntries)
-          }
-      }
+    case NotifyListener(atomEntry) => listener.onNewAtomEntry(atomEntry)
+    case FeedReaderCreated => listener.onLifecycleEvent(LifecycleEvents.FEED_CREATED)
+    case FeedReaderActivated => listener.onLifecycleEvent(LifecycleEvents.FEED_ACTIVATED)
+    case FeedReaderDeactivated => listener.onLifecycleEvent(LifecycleEvents.FEED_DEACTIVATED)
+    case FeedReaderDestroyed => listener.onLifecycleEvent(LifecycleEvents.FEED_DESTROYED)
   }
 }

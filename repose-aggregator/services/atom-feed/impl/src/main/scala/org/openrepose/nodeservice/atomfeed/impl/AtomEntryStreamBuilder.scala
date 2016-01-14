@@ -23,9 +23,16 @@ import java.net.URL
 
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.{Entry, Feed}
+import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.logging.{TracingHeaderHelper, TracingKey}
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
+import org.slf4j.MDC
 
 import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.language.postfixOps
 
 /**
   * A container object for the build function.
@@ -35,22 +42,64 @@ object AtomEntryStreamBuilder {
   private val parser = Abdera.getInstance().getParser
 
   /**
+    * Calling this function will retrieve the first page of the Atom feed located at the provided baseFeedUrl.
+    * Subsequent pages will be retrieved lazily. To keep a reference to a Stream produced by this function without
+    * making a request to the Atom feed, assign the result of this function to a lazy variable like so:
+    * lazy val myFeed = build("http://my.feed.url", MyAuthenticatedRequestFactory)
+    *
     * @param baseFeedUrl a static locator pointing to the "head" of an Atom feed (e.g., the subscription document)
     * @param authenticator a URL processor which authenticates connections
+    * @param authenticationTimeLimit a maximum [[Duration]] to wait on authentication before considering authentication
+    *                                a failure
     * @return a Scala [[scala.collection.immutable.Stream]] which will yield Atom entries in an Atom feed located at the
     *         provided baseFeedUrl. The entries will be yielded in the order in which they are read from the feed XML,
     *         from top to bottom.
+    * @throws AuthenticationException when the authenticator fails to authenticate a request
     */
-  def build(baseFeedUrl: URL, authenticator: AuthenticatedRequestFactory): Stream[Entry] = {
-    val feedInputStream = authenticator.authenticateRequest(baseFeedUrl.openConnection()).getInputStream
-    val feed = parser.parse[Feed](feedInputStream).getRoot
-    feedInputStream.close()
+  def build(baseFeedUrl: URL,
+            reposeVersion: String,
+            authenticator: Option[AuthenticatedRequestFactory] = None,
+            authenticationTimeLimit: Duration = 1 second): Stream[Entry] = {
+    val requestId = java.util.UUID.randomUUID().toString
+    MDC.put(TracingKey.TRACING_KEY, requestId)
+    buildR(baseFeedUrl, reposeVersion, authenticator, authenticationTimeLimit, requestId)
+  }
 
-    feed.getLinks.find(link => link.getRel.equals("next")) match {
-      case Some(nextPageLink) =>
-        feed.getEntries.toStream #::: build(nextPageLink.getResolvedHref.toURL, authenticator)
+  private def buildR(baseFeedUrl: URL,
+                     reposeVersion: String,
+                     authenticator: Option[AuthenticatedRequestFactory] = None,
+                     authenticationTimeLimit: Duration = 1 second,
+                     requestId: String): Stream[Entry] = {
+    val baseFeedConnection = baseFeedUrl.openConnection()
+
+    val authenticatedConnection = authenticator match {
+      case Some(arf) =>
+        val connectionFuture = Future(arf.authenticateRequest(baseFeedConnection, requestId, reposeVersion))
+        Option(Await.result(connectionFuture, authenticationTimeLimit))
       case None =>
-        feed.getEntries.toStream
+        Some(baseFeedConnection)
+    }
+
+    authenticatedConnection match {
+      case Some(urlConnection) =>
+        val tracingHeader = TracingHeaderHelper.createTracingHeader(requestId, "1.1 Repose (Repose/" + reposeVersion + ")", None)
+        urlConnection.setRequestProperty(CommonHttpHeader.TRACE_GUID.toString, tracingHeader)
+
+        val feedInputStream = urlConnection.getInputStream
+        val feed = parser.parse[Feed](feedInputStream).getRoot
+        feedInputStream.close()
+
+        feed.getLinks.find(link => link.getRel.equals("next")) match {
+          case Some(nextPageLink) =>
+            feed.getEntries.toStream #::: buildR(nextPageLink.getResolvedHref.toURL, reposeVersion, authenticator, authenticationTimeLimit, requestId)
+          case None =>
+            feed.getEntries.toStream
+        }
+      case None =>
+        throw AuthenticationException
     }
   }
+
+  object AuthenticationException extends Exception
+
 }

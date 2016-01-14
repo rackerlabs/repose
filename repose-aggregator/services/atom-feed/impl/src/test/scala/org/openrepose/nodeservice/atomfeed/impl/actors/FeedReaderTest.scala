@@ -23,19 +23,21 @@ import java.io.StringWriter
 import java.net.URLConnection
 import java.util.Date
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.testkit.{TestActorRef, TestKit, TestProbe}
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
 import org.junit.runner.RunWith
 import org.mockito.AdditionalAnswers
-import org.mockito.Matchers.any
+import org.mockito.Matchers.{any, anyString}
 import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
-import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.ReadFeed
-import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.NotifyListeners
+import org.openrepose.nodeservice.atomfeed.impl.MockService
+import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.{CancelScheduledReading, ReadFeed, ScheduleReading}
+import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._
+import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager.{BindFeedReader, Notify}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuiteLike}
@@ -46,8 +48,6 @@ import scala.language.postfixOps
 class FeedReaderTest(_system: ActorSystem)
   extends TestKit(_system) with FunSuiteLike with BeforeAndAfter with MockitoSugar {
 
-  def this() = this(ActorSystem("FeedReaderTest"))
-
   val mockAuthRequestFactory = mock[AuthenticatedRequestFactory]
   val notifierProbe = TestProbe()
   val abdera = Abdera.getInstance()
@@ -56,9 +56,12 @@ class FeedReaderTest(_system: ActorSystem)
   var actorRef: TestActorRef[FeedReader] = _
   var mockAtomFeedService: MockService = _
 
+  def this() = this(ActorSystem("FeedReaderTest"))
+
   before {
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection])).thenAnswer(AdditionalAnswers.returnsFirstArg())
+    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], anyString(), anyString()))
+      .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
     mockAtomFeedService = new MockService()
 
@@ -86,21 +89,84 @@ class FeedReaderTest(_system: ActorSystem)
 
     actorRef = TestActorRef(
       new FeedReader(mockAtomFeedService.getUrl + "/feed",
-        actorFactory => actorFactory.actorOf(Props(new Authenticator(mockAuthRequestFactory))),
-        _ => notifierProbe.ref,
-        EntryOrderType.RANDOM)
+        Some(mockAuthRequestFactory),
+        notifierProbe.ref,
+        5,
+        EntryOrderType.READ,
+        "1.0")
     )
   }
 
-  test("the notifier actor should not receive a message when a old atom entry is found") {
-    val entry = feed.addEntry()
-    entry.setId("tag:openrepose.org,2007:/feed/entries/1")
-    entry.setTitle("Test Title")
-    entry.addAuthor("Repose")
-    entry.setSummary("This is a test")
-    entry.setContent("This is a test")
-    entry.setUpdated(new Date())
-    entry.setPublished(new Date())
+  test("should bind to the notifier manager and send a lifecycle update when started") {
+    actorRef = TestActorRef(
+      new FeedReader("http://test.url/feed",
+        Some(mockAuthRequestFactory),
+        notifierProbe.ref,
+        5,
+        EntryOrderType.READ,
+        "1.0")
+    )
+
+    notifierProbe.expectMsgClass(classOf[BindFeedReader])
+    notifierProbe.expectMsg(FeedReaderCreated)
+  }
+
+  test("should send a lifecycle update when stopped") {
+    actorRef = TestActorRef(
+      new FeedReader("http://test.url/feed",
+        Some(mockAuthRequestFactory),
+        notifierProbe.ref,
+        5,
+        EntryOrderType.READ,
+        "1.0")
+    )
+    actorRef.stop()
+
+    notifierProbe.fishForMessage() {
+      case FeedReaderDestroyed => true
+      case _ => false
+    }
+  }
+
+  test("schedule reading should schedule this feed to be read and send a lifecycle message to the notifier manager") {
+    finishSetup()
+
+    actorRef ! ScheduleReading
+
+    assert(actorRef.underlyingActor.schedule.isDefined)
+    notifierProbe.fishForMessage() {
+      case FeedReaderActivated => true
+      case _ => false
+    }
+  }
+
+  test("cancelling scheduled reading should prevent this feed from being read and send a lifecycle message to the notifier manager") {
+    finishSetup()
+
+    actorRef ! ScheduleReading
+    actorRef ! CancelScheduledReading
+
+    assert(actorRef.underlyingActor.schedule.isEmpty)
+    notifierProbe.fishForMessage(hint = "feed reader deactivated") {
+      case FeedReaderDeactivated => true
+      case _ => false
+    }
+  }
+
+  test("the notifier actor should not receive a message when an old atom entry is found") {
+    notifierProbe.ignoreMsg {
+      case _: BindFeedReader => true
+      case Notifier.FeedReaderCreated => true
+    }
+
+    val entryOne = feed.addEntry()
+    entryOne.setId("tag:openrepose.org,2007:/feed/entries/1")
+    entryOne.setTitle("Test Title")
+    entryOne.addAuthor("Repose")
+    entryOne.setSummary("This is a test")
+    entryOne.setContent("This is a test")
+    entryOne.setUpdated(new Date())
+    entryOne.setPublished(new Date())
 
     finishSetup()
 
@@ -109,7 +175,38 @@ class FeedReaderTest(_system: ActorSystem)
     notifierProbe.expectNoMsg()
   }
 
-  test("the notifier actor should receive a message when a new atom entry is found") {
+  test("the notifier actor should receive a message when a new atom entry is found after initial empty feed") {
+    finishSetup()
+
+    actorRef ! ReadFeed
+
+    val entry = feed.addEntry()
+    entry.setId("tag:openrepose.org,2007:/feed/entries/1")
+    entry.setTitle("Test Title")
+    entry.addAuthor("Repose")
+    entry.setSummary("This is a test")
+    entry.setContent("This is a test")
+    entry.setUpdated(new Date(System.currentTimeMillis + 60000))
+    entry.setPublished(new Date(System.currentTimeMillis + 60000))
+
+    val sw = new StringWriter()
+    feed.writeTo(sw)
+
+    mockAtomFeedService.requestHandler = {
+      case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
+        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+
+      case HttpRequest(_, _, _, _, _) =>
+        HttpResponse(404, entity = "Not Found")
+    }
+
+    actorRef ! ReadFeed
+
+    notifierProbe.expectMsgClass(classOf[Notify])
+    notifierProbe.expectNoMsg()
+  }
+
+  test("the notifier actor should receive a message when a new atom entry is found after initial populated feed") {
     val entry = feed.addEntry()
     entry.setId("tag:openrepose.org,2007:/feed/entries/1")
     entry.setTitle("Test Title")
@@ -123,37 +220,37 @@ class FeedReaderTest(_system: ActorSystem)
 
     actorRef ! ReadFeed
 
-    notifierProbe.expectMsgClass(classOf[NotifyListeners])
+    val entryTwo = feed.insertEntry()
+    entryTwo.setId("tag:openrepose.org,2007:/feed/entries/2")
+    entryTwo.setTitle("Test Title")
+    entryTwo.addAuthor("Repose")
+    entryTwo.setSummary("This is a test")
+    entryTwo.setContent("This is a test")
+    entryTwo.setUpdated(new Date(System.currentTimeMillis + 60000))
+    entryTwo.setPublished(new Date(System.currentTimeMillis + 60000))
+
+    val sw = new StringWriter()
+    feed.writeTo(sw)
+
+    mockAtomFeedService.requestHandler = {
+      case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
+        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+
+      case HttpRequest(_, _, _, _, _) =>
+        HttpResponse(404, entity = "Not Found")
+    }
+
+    actorRef ! ReadFeed
+
+    notifierProbe.expectMsgClass(classOf[Notify])
+    notifierProbe.expectNoMsg()
   }
 
-  test("only new atom entries should be sent") {
-    val oldEntry = feed.addEntry()
-    oldEntry.setId("tag:openrepose.org,2007:/feed/entries/1")
-    oldEntry.setTitle("Old Entry")
-    oldEntry.addAuthor("Repose")
-    oldEntry.setSummary("This is a test")
-    oldEntry.setContent("This is a test")
-    oldEntry.setUpdated(new Date())
-    oldEntry.setPublished(new Date())
-
-    val newEntry = feed.addEntry()
-    newEntry.setId("tag:openrepose.org,2007:/feed/entries/2")
-    newEntry.setTitle("New Entry")
-    newEntry.addAuthor("Repose")
-    newEntry.setSummary("This is a test")
-    newEntry.setContent("This is a test")
-    newEntry.setUpdated(new Date(System.currentTimeMillis + 60000))
-    newEntry.setPublished(new Date(System.currentTimeMillis + 60000))
-
+  test("the newest atom entries should come first in the list") {
     finishSetup()
 
     actorRef ! ReadFeed
 
-    val entries = notifierProbe.expectMsgClass(classOf[NotifyListeners]).atomEntries
-    assert(entries.size == 1)
-  }
-
-  test("the newest atom entries should come first in the list") {
     val oldEntry = feed.addEntry()
     oldEntry.setId("tag:openrepose.org,2007:/feed/entries/1")
     oldEntry.setTitle("Old Entry")
@@ -167,7 +264,7 @@ class FeedReaderTest(_system: ActorSystem)
     oldEntry.writeTo(oesw)
     val oldEntryHash = oesw.toString.hashCode
 
-    val newEntry = feed.addEntry()
+    val newEntry = feed.insertEntry()
     newEntry.setId("tag:openrepose.org,2007:/feed/entries/2")
     newEntry.setTitle("New Entry")
     newEntry.addAuthor("Repose")
@@ -180,20 +277,33 @@ class FeedReaderTest(_system: ActorSystem)
     newEntry.writeTo(nesw)
     val newEntryHash = nesw.toString.hashCode
 
-    finishSetup()
+    val sw = new StringWriter()
+    feed.writeTo(sw)
+
+    mockAtomFeedService.requestHandler = {
+      case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
+        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+
+      case HttpRequest(_, _, _, _, _) =>
+        HttpResponse(404, entity = "Not Found")
+    }
 
     actorRef ! ReadFeed
 
-    val entries = notifierProbe.expectMsgClass(classOf[NotifyListeners]).atomEntries
-    assert(entries.map(_.hashCode) == List(newEntryHash, oldEntryHash))
+    val messages = notifierProbe.expectMsgAllClassOf(classOf[Notify], classOf[Notify]).toArray
+    notifierProbe.expectNoMsg()
+    assert(messages(0).atomEntry.hashCode == newEntryHash)
+    assert(messages(1).atomEntry.hashCode == oldEntryHash)
   }
 
   test("a failed connection to the atom service should invalidate the authentication cache") {
     actorRef = TestActorRef(
       new FeedReader("http://bogus.url/feed",
-        actorFactory => actorFactory.actorOf(Props(new Authenticator(mockAuthRequestFactory))),
-        _ => notifierProbe.ref,
-        EntryOrderType.RANDOM)
+        Some(mockAuthRequestFactory),
+        notifierProbe.ref,
+        5,
+        EntryOrderType.READ,
+        "1.0")
     )
 
     actorRef ! ReadFeed

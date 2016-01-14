@@ -20,95 +20,124 @@
 package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import java.io.{IOException, StringWriter}
-import java.net.{URL, URLConnection, UnknownServiceException}
-import java.util.Date
+import java.net.{URL, UnknownServiceException}
 
-import akka.actor.{Actor, ActorRef, ActorRefFactory, Props}
-import akka.pattern.ask
-import akka.util.Timeout
+import akka.actor._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.abdera.Abdera
-import org.apache.abdera.model.Feed
+import org.apache.abdera.i18n.iri.IRI
 import org.apache.abdera.parser.ParseException
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
-import org.openrepose.nodeservice.atomfeed.impl.actors.Authenticator.{AuthenticateURLConnection, InvalidateCache}
-import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.NotifyListeners
+import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
+import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder
+import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.AuthenticationException
+import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.{FeedReaderActivated, FeedReaderCreated, FeedReaderDeactivated, FeedReaderDestroyed}
+import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
 
-import scala.collection.JavaConversions._
-import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 object FeedReader {
-  object ReadFeed
 
   def props(feedUri: String,
-            authenticatorMaker: ActorRefFactory => ActorRef,
-            notifierMaker: ActorRefFactory => ActorRef,
-            order: EntryOrderType): Props =
-    Props(new FeedReader(feedUri, authenticatorMaker, notifierMaker, order))
+            authenticatedRequestFactory: Option[AuthenticatedRequestFactory],
+            notifierManager: ActorRef,
+            pollingFrequency: Int,
+            order: EntryOrderType,
+            reposeVersion: String): Props =
+    Props(new FeedReader(feedUri, authenticatedRequestFactory, notifierManager, pollingFrequency, order, reposeVersion))
+
+  object ReadFeed
+
+  object ScheduleReading
+
+  object CancelScheduledReading
+
 }
 
 class FeedReader(feedUri: String,
-                 authenticatorMaker: ActorRefFactory => ActorRef,
-                 notifierMaker: ActorRefFactory => ActorRef,
-                 order: EntryOrderType)
+                 authenticatedRequestFactory: Option[AuthenticatedRequestFactory],
+                 notifierManager: ActorRef,
+                 pollingFrequency: Int,
+                 order: EntryOrderType,
+                 reposeVersion: String)
   extends Actor with LazyLogging {
 
   import FeedReader._
 
-  val authenticator = authenticatorMaker(context)
-  val notifier = notifierMaker(context)
-
-  val abdera = Abdera.getInstance()
-  val parser = abdera.getParser
+  val parser = Abdera.getInstance().getParser
   val feedUrl = new URL(feedUri)
 
-  var highWaterMark: Date = new Date()
+  var firstReadDone = false
+  var highWaterMark: Option[IRI] = None
+  var schedule: Option[Cancellable] = None
+
+  override def preStart(): Unit = {
+    // bind this feed reader to its corresponding notifier manager
+    notifierManager ! BindFeedReader(self)
+    notifierManager ! FeedReaderCreated
+  }
+
+  override def postStop(): Unit = {
+    notifierManager ! FeedReaderDestroyed
+  }
 
   override def receive: Receive = {
     case ReadFeed =>
-      // TODO: Configurable wait on authentication?
-      implicit val timeout = Timeout(5 seconds)
+      try {
+        val entryStream = AtomEntryStreamBuilder.build(feedUrl, reposeVersion, authenticatedRequestFactory)
 
-      val connectionFuture = ask(authenticator, AuthenticateURLConnection(feedUrl.openConnection())).mapTo[URLConnection]
-      val authenticatedConnection = Option(Await.result(connectionFuture, timeout.duration))
-
-      authenticatedConnection match {
-        case Some(connection) =>
-          try {
-            val feed = parser.parse[Feed](connection.getInputStream, feedUrl.toString).getRoot
-
-            // According to RFC 4287, "this specification assigns no significance to the order of atom:entry elements within
-            // the feed."
-            // So we'll sort the list of all atom entries and only take those which have been updated more recently
-            // than the last time the feed was read.
-            //
-            // The order configuration item is not currently used. Notifying listeners of entries based on the time at which
-            // they were last updated satisfies both "random" and "update" orderings.
-            val newEntries = feed.sortEntriesByUpdated(true).getEntries.toList.takeWhile(_.getUpdated.after(highWaterMark))
-
-            newEntries.headOption foreach { newestEntry =>
-              highWaterMark = newestEntry.getUpdated
-
-              val newEntryStrings = newEntries map { atomEntry =>
-                val entryString = new StringWriter()
-                atomEntry.writeTo(entryString)
-                entryString.toString
-              }
-
-              notifier ! NotifyListeners(newEntryStrings.reverse)
-            }
-          } catch {
-            case e@(_: UnknownServiceException | _: IOException) =>
-              logger.warn("Connection to Atom service failed -- an invalid URI may have been provided, or " +
-                "authentication credentials may be invalid", e)
-              authenticator ! InvalidateCache
-            case pe: ParseException =>
-              logger.warn("Failed to parse the Atom feed", pe)
+        if (firstReadDone) {
+          val newEntryStream = highWaterMark match {
+            case Some(mark) => entryStream.takeWhile(entry => !entry.getId.equals(mark))
+            case None => entryStream
           }
-        case None =>
+
+          newEntryStream foreach { entry =>
+            val entryString = new StringWriter()
+            entry.writeTo(entryString)
+            // todo: wrap atom entry in type-safe object
+            notifierManager ! Notify(entryString.toString)
+          }
+        }
+
+        firstReadDone = true
+        highWaterMark = entryStream.headOption.map(_.getId)
+      } catch {
+        // fixme: Is there any case where this feed reader actor should be killed? Or restarted after some time?
+        case AuthenticationException =>
           logger.error("Authentication failed -- connection to Atom service could not be established")
+        case e@(_: UnknownServiceException | _: IOException) =>
+          logger.error("Connection to Atom service failed -- an invalid URI may have been provided, or " +
+            "authentication credentials may be invalid", e)
+          authenticatedRequestFactory.foreach(_.invalidateCache())
+        case pe: ParseException =>
+          logger.error("Failed to parse the Atom feed", pe)
+        case e: Exception =>
+          logger.error("Feed was unable to be read", e)
       }
+    case ScheduleReading =>
+      schedule = schedule orElse {
+        logger.info("Scheduled feed reader for URI: " + feedUri)
+        val newSchedule = Some(context.system.scheduler.schedule(
+          Duration.Zero,
+          pollingFrequency.seconds,
+          self,
+          ReadFeed
+        ))
+
+        notifierManager ! FeedReaderActivated
+        newSchedule
+      }
+    case CancelScheduledReading =>
+      schedule foreach { cancellable =>
+        logger.info("Cancelled scheduled feed reader for URI: " + feedUri)
+        cancellable.cancel()
+        notifierManager ! FeedReaderDeactivated
+      }
+      schedule = None
+      highWaterMark = None
+      firstReadDone = false
   }
 }

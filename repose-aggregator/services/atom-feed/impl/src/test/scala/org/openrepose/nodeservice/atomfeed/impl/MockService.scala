@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.nodeservice.atomfeed.impl.actors
+package org.openrepose.nodeservice.atomfeed.impl
 
 import java.net.URL
 
@@ -52,7 +52,9 @@ class MockService {
 
   def start(): Unit = {
     bindingFuture = serverSource.to(Sink.foreach { connection =>
-      connection handleWithSyncHandler requestHandler
+      // Shenanigans! The anonymous function here seems redundant, but it forces the current value of requestHandler to
+      // be used (enabling hot swapping for the handler).
+      connection handleWithSyncHandler (request => requestHandler(request))
     }).run()
   }
 

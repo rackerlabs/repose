@@ -119,6 +119,26 @@
         <!-- Abdera for reading Atom Feeds -->
         <dependency>
             <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-core</artifactId>
+            <version>1.1.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Abdera IRIs -->
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-i18n</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+
+        <!-- Abdera for reading Atom Feeds -->
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
             <artifactId>abdera-parser</artifactId>
             <version>1.1.3</version>
             <exclusions>
@@ -129,19 +149,6 @@
                 <exclusion>
                     <groupId>xerces</groupId>
                     <artifactId>xercesImpl</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- Abdera for reading Atom Feeds -->
-        <dependency>
-            <groupId>org.apache.abdera</groupId>
-            <artifactId>abdera-core</artifactId>
-            <version>1.1.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

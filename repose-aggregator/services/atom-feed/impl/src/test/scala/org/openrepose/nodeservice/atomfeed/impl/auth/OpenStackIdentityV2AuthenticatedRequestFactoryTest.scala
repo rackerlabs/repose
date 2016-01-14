@@ -23,20 +23,21 @@ import java.net.URLConnection
 
 import akka.http.scaladsl.model._
 import org.junit.runner.RunWith
+import org.mockito.Matchers.{eq => mEq}
 import org.mockito.Mockito.{times, verify}
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityAuthenticationType
-import org.openrepose.nodeservice.atomfeed.impl.actors.MockService
+import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
+import org.openrepose.nodeservice.atomfeed.impl.MockService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class OpenStackIdentityAuthenticatedRequestFactoryTest
+class OpenStackIdentityV2AuthenticatedRequestFactoryTest
   extends FunSpec with BeforeAndAfter with MockitoSugar with Matchers {
 
   var mockIdentityService: MockService = _
-  var osiarf: OpenStackIdentityAuthenticatedRequestFactory = _
+  var osiarf: OpenStackIdentityV2AuthenticatedRequestFactory = _
 
   before {
     mockIdentityService = new MockService()
@@ -45,15 +46,43 @@ class OpenStackIdentityAuthenticatedRequestFactoryTest
   def finishSetup(): Unit = {
     mockIdentityService.start()
 
-    val osiat = new OpenStackIdentityAuthenticationType()
+    val osiat = new OpenStackIdentityV2AuthenticationType()
     osiat.setUsername("usr")
     osiat.setPassword("pwd")
     osiat.setUri(mockIdentityService.getUrl)
 
-    osiarf = new OpenStackIdentityAuthenticatedRequestFactory(osiat)
+    osiarf = new OpenStackIdentityV2AuthenticatedRequestFactory(osiat)
   }
 
   describe("authenticateRequest") {
+    it("should add a tracing header to the request to Identity") {
+      var requestHeaders: Seq[HttpHeader] = Seq.empty
+
+      mockIdentityService.requestHandler = {
+        case HttpRequest(_, Uri.Path("/v2.0/tokens"), headers, _, _) =>
+          requestHeaders = headers
+          HttpResponse(StatusCodes.BadRequest)
+      }
+
+      finishSetup()
+
+      osiarf.authenticateRequest(mock[URLConnection], "", "")
+
+      requestHeaders.exists(_.is(CommonHttpHeader.TRACE_GUID.toString)) shouldBe true
+    }
+
+    it("should handle a non-JSON response") {
+      mockIdentityService.requestHandler = {
+        case HttpRequest(_, Uri.Path("/v2.0/tokens"), _, _, _) =>
+          HttpResponse(entity = HttpEntity(ContentTypes.`text/plain`, """access.token.id=test-token"""))
+      }
+
+      finishSetup()
+
+      val mockConnection = mock[URLConnection]
+      osiarf.authenticateRequest(mockConnection, "", "") shouldBe null
+    }
+
     it("should handle a 4xx response") {
       mockIdentityService.requestHandler = {
         case HttpRequest(_, Uri.Path("/v2.0/tokens"), _, _, _) =>
@@ -63,7 +92,7 @@ class OpenStackIdentityAuthenticatedRequestFactoryTest
       finishSetup()
 
       val mockConnection = mock[URLConnection]
-      osiarf.authenticateRequest(mockConnection) shouldBe null
+      osiarf.authenticateRequest(mockConnection, "", "") shouldBe null
     }
 
     it("should send a valid payload and receive a valid token for the user provided") {
@@ -75,7 +104,7 @@ class OpenStackIdentityAuthenticatedRequestFactoryTest
       finishSetup()
 
       val mockConnection = mock[URLConnection]
-      osiarf.authenticateRequest(mockConnection)
+      osiarf.authenticateRequest(mockConnection, "", "")
 
       verify(mockConnection).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
     }
@@ -93,17 +122,17 @@ class OpenStackIdentityAuthenticatedRequestFactoryTest
 
       val mockConnection = mock[URLConnection]
 
-      osiarf.authenticateRequest(mockConnection)
+      osiarf.authenticateRequest(mockConnection, "", "")
       verify(mockConnection).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
       numberOfInterations shouldEqual 1
 
-      osiarf.authenticateRequest(mockConnection)
+      osiarf.authenticateRequest(mockConnection, "", "")
       verify(mockConnection, times(2)).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
       numberOfInterations shouldEqual 1
 
       osiarf.invalidateCache()
 
-      osiarf.authenticateRequest(mockConnection)
+      osiarf.authenticateRequest(mockConnection, "", "")
       verify(mockConnection, times(3)).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
       numberOfInterations shouldEqual 2
     }

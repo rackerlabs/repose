@@ -21,7 +21,7 @@ package org.openrepose.nodeservice.atomfeed;
 
 /**
  * The Atom Feed service may be used to interact with services which satisfy the Atom Syndication format.
- * <p/>
+ * <p>
  * A component may register a listener with the Atom Feed service which will be notified any time a new message
  * is posted to an associated feed.
  */
@@ -45,11 +45,4 @@ public interface AtomFeedService {
      * @throws IllegalStateException if the service is not running.
      */
     void unregisterListener(String listenerId);
-
-    /**
-     * Indicates whether or not the service is running.
-     *
-     * @return A boolean where true means that the service is running, and false means that it is not.
-     */
-    boolean isRunning();
 }

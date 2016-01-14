@@ -27,15 +27,20 @@ import akka.http.scaladsl.model._
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
 import org.junit.runner.RunWith
-import org.mockito.AdditionalAnswers
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.mockito.{AdditionalAnswers, ArgumentCaptor}
+import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
-import org.openrepose.nodeservice.atomfeed.impl.actors.MockService
-import org.openrepose.nodeservice.atomfeed.impl.auth.NoopAuthenticatedRequestFactory
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.slf4j.MDC
+
+import scala.concurrent.TimeoutException
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with MockitoSugar {
@@ -48,7 +53,8 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
 
   before {
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection])).thenAnswer(AdditionalAnswers.returnsFirstArg())
+    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], anyString(), anyString()))
+      .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
     mockAtomFeedService = new MockService()
 
@@ -58,7 +64,6 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
     feed.setSubtitle("Test Subtitle")
     feed.setUpdated(new Date())
     feed.addAuthor("Repose")
-    feed.addLink(mockAtomFeedService.getUrl + "/feed?page=2", "next")
   }
 
   def finishSetup(): Unit = {
@@ -74,6 +79,60 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
     }
 
     mockAtomFeedService.start()
+  }
+
+  test("should throw an exception if authenticating the request takes too long") {
+    finishSetup()
+
+    val waitingAuthFactory = Some(new AuthenticatedRequestFactory {
+      override def invalidateCache(): Unit = ???
+
+      override def authenticateRequest(atomFeedUrlConnection: URLConnection, requestId: String, reposeVersion: String): URLConnection = {
+        // Infinite loop to prove that the Future safeguard actually bounds the authenticator
+        while (true) {
+          Thread.sleep(1000)
+        }
+        atomFeedUrlConnection
+      }
+    })
+
+    intercept[TimeoutException] {
+      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0", waitingAuthFactory, 100 millis)
+    }
+  }
+
+  test("should add the request id to slf4j MDC") {
+    finishSetup()
+
+    AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0", Some(mockAuthRequestFactory))
+
+    assert(MDC.get(TracingKey.TRACING_KEY) != null)
+  }
+
+  test("should add a tracing header to the request to the Atom service") {
+    finishSetup()
+
+    val capturedUrlConnection = ArgumentCaptor.forClass(classOf[URLConnection])
+
+    reset(mockAuthRequestFactory)
+    when(mockAuthRequestFactory.authenticateRequest(capturedUrlConnection.capture(), anyString(), anyString()))
+      .thenAnswer(AdditionalAnswers.returnsFirstArg())
+
+    AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0", Some(mockAuthRequestFactory))
+
+    assert(capturedUrlConnection.getValue.getRequestProperty(CommonHttpHeader.TRACE_GUID.toString).nonEmpty)
+  }
+
+  test("should throw an AuthenticationException if the factory returns null") {
+    reset(mockAuthRequestFactory)
+    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], anyString(), anyString()))
+      .thenReturn(null)
+
+    finishSetup()
+
+    intercept[AtomEntryStreamBuilder.AuthenticationException.type] {
+      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0", Some(mockAuthRequestFactory))
+    }
   }
 
   test("should retrieve all entries from a complete feed") {
@@ -93,7 +152,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
 
     finishSetup()
 
-    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), new NoopAuthenticatedRequestFactory())
+    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0")
 
     assert(entryStream.exists(entry => entry.getContent.equals("entryOne")))
     assert(entryStream.exists(entry => entry.getContent.equals("entryTwo")))
@@ -116,23 +175,25 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
 
     finishSetup()
 
-    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), new NoopAuthenticatedRequestFactory())
+    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0")
 
     assert(entryStream.head.getContent.equals("entryOne"))
     assert(entryStream.drop(1).head.getContent.equals("entryTwo"))
   }
 
   test("should retrieve all entries from a paged feed in order") {
+    mockAtomFeedService.start()
+
     val feedPageOne = abdera.newFeed()
     feedPageOne.setId("tag:openrepose.org,2007:/feed")
     feedPageOne.setTitle("Test Title")
     feedPageOne.setSubtitle("Test Subtitle")
     feedPageOne.setUpdated(new Date())
     feedPageOne.addAuthor("Repose")
-    feedPageOne.addLink(mockAtomFeedService.getUrl + "/feed?page=2", "next")
+    feedPageOne.addLink(mockAtomFeedService.getUrl + "/feed2", "next")
 
     val feedPageTwo = abdera.newFeed()
-    feedPageTwo.setId("tag:openrepose.org,2007:/feed?page=2")
+    feedPageTwo.setId("tag:openrepose.org,2007:/feed2")
     feedPageTwo.setTitle("Test Title")
     feedPageTwo.setSubtitle("Test Subtitle")
     feedPageTwo.setUpdated(new Date())
@@ -161,16 +222,14 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
         HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, swpo.toString))
 
-      case HttpRequest(_, Uri.Path("/feed?page=2", _, _, _)) =>
+      case HttpRequest(_, Uri.Path("/feed2"), _, _, _) =>
         HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, swpt.toString))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
     }
 
-    mockAtomFeedService.start()
-
-    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), new NoopAuthenticatedRequestFactory())
+    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0")
 
     assert(entryStream.head.getContent.equals("entryOne"))
     assert(entryStream.drop(1).head.getContent.equals("entryTwo"))

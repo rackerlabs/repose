@@ -28,7 +28,8 @@ public interface AtomFeedListener {
     /**
      * A callback method which will be called whenever the Atom Feed Service reads new Atom entries.
      *
-     * @param atomEntry A {@link String} representation of and Atom entry.
+     * @param atomEntry A {@link String} representation of an Atom entry. Note that Atom entries are XML elements,
+     *                  therefore this {@link String} is an XML element.
      */
     void onNewAtomEntry(String atomEntry);
 
@@ -37,7 +38,7 @@ public interface AtomFeedListener {
      * This callback lets the user know the state of the system associated with the Feed that this listener is
      * subscribed to.
      * It also enables asynchronous processing in the service.
-     *
+     * <p>
      * A full list of lifecycle events can be found in {@link LifecycleEvents}.
      *
      * @param event A value representing the new lifecycle stage of the system associated with the Feed that this

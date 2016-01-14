@@ -30,8 +30,9 @@ import org.mockito.Mockito.verify
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.systemmodel._
-import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedConfigType, AtomFeedServiceConfigType}
+import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedServiceConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedListener
+import org.openrepose.nodeservice.atomfeed.impl.auth.OpenStackIdentityV2AuthenticatedRequestFactory
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -53,7 +54,7 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
 
   describe("init") {
     it("should register configuration listeners") {
-      val atomFeedService = new AtomFeedServiceImpl("", "", mockConfigService)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "", "", mockConfigService)
 
       atomFeedService.init()
 
@@ -69,135 +70,72 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
         isA(classOf[Class[AtomFeedServiceConfigType]])
       )
     }
-
-    it("should not start the service if configuration files have not yet been read") {
-      val systemModel = getSystemModelWithService
-
-      val atomFeedService = new AtomFeedServiceImpl("clusterId", "", mockConfigService)
-      atomFeedService.init()
-
-      val logEvents = serviceListAppender.getEvents
-      logEvents.size() shouldEqual 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("Initializing")
-      atomFeedService.isRunning shouldBe false
-    }
   }
 
   describe("destroy") {
     it("should unregister configuration listeners") {
-      val atomFeedService = new AtomFeedServiceImpl("", "", mockConfigService)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "", "", mockConfigService)
 
       atomFeedService.destroy()
 
-      verify(mockConfigService).unsubscribeFrom("atom-feed-service.cfg.xml", atomFeedService.AtomFeedServiceConfigurationListener)
-      verify(mockConfigService).unsubscribeFrom("system-model.cfg.xml", atomFeedService.SystemModelConfigurationListener)
-    }
-  }
-
-  describe("configurationUpdated") {
-    it("should stop the service if it is not listed in the system model for this node") {
-      val systemModel = getSystemModelWithService
-      systemModel.getReposeCluster.get(0).getServices.getService.clear()
-
-      val atomFeedService = new AtomFeedServiceImpl("clusterId", "nodeId", mockConfigService)
-      atomFeedService.init()
-      atomFeedService.SystemModelConfigurationListener.configurationUpdated(systemModel)
-      atomFeedService.AtomFeedServiceConfigurationListener.configurationUpdated(new AtomFeedServiceConfigType())
-
-      atomFeedService.isRunning shouldBe false
-    }
-
-    it("should start the service if it is listed in the system model for this node, and a valid config is provided") {
-      val systemModel = getSystemModelWithService
-
-      val atomFeedService = new AtomFeedServiceImpl("clusterId", "nodeId", mockConfigService)
-      atomFeedService.init()
-      atomFeedService.SystemModelConfigurationListener.configurationUpdated(systemModel)
-      atomFeedService.AtomFeedServiceConfigurationListener.configurationUpdated(new AtomFeedServiceConfigType())
-
-      atomFeedService.isRunning shouldBe true
-    }
-
-    it("should restart the service if it is listed in the system model and the service config is updated") {
-      val systemModel = getSystemModelWithService
-
-      val atomFeedService = new AtomFeedServiceImpl("clusterId", "nodeId", mockConfigService)
-      atomFeedService.init()
-      atomFeedService.SystemModelConfigurationListener.configurationUpdated(systemModel)
-      atomFeedService.AtomFeedServiceConfigurationListener.configurationUpdated(new AtomFeedServiceConfigType())
-      atomFeedService.AtomFeedServiceConfigurationListener.configurationUpdated(new AtomFeedServiceConfigType())
-
-      serviceListAppender.getMessages.exists(_.contains("Stopping"))
-      serviceListAppender.getMessages.exists(_.contains("Starting"))
-      atomFeedService.isRunning shouldBe true
+      verify(mockConfigService).unsubscribeFrom(isEq("atom-feed-service.cfg.xml"), isA(classOf[UpdateListener[_]]))
+      verify(mockConfigService).unsubscribeFrom(isEq("system-model.cfg.xml"), isA(classOf[UpdateListener[_]]))
     }
   }
 
   describe("registerListener") {
-    it("should throw an IllegalStateException if the service is not enabled") {
-      val systemModel = getSystemModelWithService
-      systemModel.getReposeCluster.get(0).getServices.getService.clear()
+    it("should register a notifier with a notifier manager") {
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockConfigService)
 
-      val atomFeedService = new AtomFeedServiceImpl("clusterId", "nodeId", mockConfigService)
+      val listenerIdOne = atomFeedService.registerListener("feedId", mock[AtomFeedListener])
+      val listenerIdTwo = atomFeedService.registerListener("feedIdTwo", mock[AtomFeedListener])
 
-      an[IllegalStateException] should be thrownBy atomFeedService.registerListener("feedId", mock[AtomFeedListener])
-    }
-
-    it("should throw an IllegalArgumentException if the feedId parameter does not match a configured feed") {
-      val systemModel = getSystemModelWithService
-
-      val atomFeedService = new AtomFeedServiceImpl("clusterId", "nodeId", mockConfigService)
-      atomFeedService.init()
-      atomFeedService.SystemModelConfigurationListener.configurationUpdated(systemModel)
-      atomFeedService.AtomFeedServiceConfigurationListener.configurationUpdated(new AtomFeedServiceConfigType())
-
-      an[IllegalArgumentException] should be thrownBy atomFeedService.registerListener("feedId", mock[AtomFeedListener])
-    }
-
-    it("should return a listener ID when a listener is registered") {
-      val systemModel = getSystemModelWithService
-      val serviceConfig = new AtomFeedServiceConfigType()
-      val feedConfig = new AtomFeedConfigType()
-      feedConfig.setId("feedId")
-      feedConfig.setUri("http://example.com")
-      serviceConfig.getFeed.add(feedConfig)
-
-      val atomFeedService = new AtomFeedServiceImpl("clusterId", "nodeId", mockConfigService)
-      atomFeedService.init()
-      atomFeedService.SystemModelConfigurationListener.configurationUpdated(systemModel)
-      atomFeedService.AtomFeedServiceConfigurationListener.configurationUpdated(serviceConfig)
-
-      atomFeedService.registerListener("feedId", mock[AtomFeedListener]) shouldBe a[String]
+      listenerIdOne shouldBe a[String]
+      listenerIdTwo shouldBe a[String]
+      listenerIdOne should not equal listenerIdTwo
     }
   }
 
   describe("unregisterListener") {
-    it("should throw an IllegalStateException if the service is not enabled") {
-      val systemModel = getSystemModelWithService
-      systemModel.getReposeCluster.get(0).getServices.getService.clear()
-
-      val atomFeedService = new AtomFeedServiceImpl("clusterId", "nodeId", mockConfigService)
-
-      an[IllegalStateException] should be thrownBy atomFeedService.unregisterListener("feedId")
-    }
-
     it("should unregister a listener when passed a valid listener ID") {
-      val systemModel = getSystemModelWithService
-      val serviceConfig = new AtomFeedServiceConfigType()
-      val feedConfig = new AtomFeedConfigType()
-      feedConfig.setId("feedId")
-      feedConfig.setUri("http://example.com")
-      serviceConfig.getFeed.add(feedConfig)
-
-      val atomFeedService = new AtomFeedServiceImpl("clusterId", "nodeId", mockConfigService)
-      atomFeedService.init()
-      atomFeedService.SystemModelConfigurationListener.configurationUpdated(systemModel)
-      atomFeedService.AtomFeedServiceConfigurationListener.configurationUpdated(serviceConfig)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockConfigService)
 
       val listenerId = atomFeedService.registerListener("feedId", mock[AtomFeedListener])
       atomFeedService.unregisterListener(listenerId)
 
-      serviceListAppender.getEvents.exists(_.getMessage.getFormattedMessage.contains("Un-registering")) shouldBe true
+      serviceListAppender.getEvents.exists(_.getMessage.getFormattedMessage.contains("Attempting to unregister")) shouldBe true
+      serviceListAppender.getEvents.exists(_.getMessage.getFormattedMessage.contains("not registered")) shouldBe false
+    }
+
+    it("should report if a listener ID is not registered") {
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockConfigService)
+
+      atomFeedService.unregisterListener("notRegisteredFeedId")
+
+      serviceListAppender.getEvents.exists(_.getMessage.getFormattedMessage.contains("Attempting to unregister")) shouldBe true
+      serviceListAppender.getEvents.exists(_.getMessage.getFormattedMessage.contains("not registered")) shouldBe true
+    }
+  }
+
+  describe("buildAuthenticatedRequestFactory") {
+    it("should return an AuthenticatedRequestFactory if a valid fqcn is provided") {
+      val authConfig = new OpenStackIdentityV2AuthenticationType()
+
+      AtomFeedServiceImpl.buildAuthenticatedRequestFactory(authConfig) shouldBe an[OpenStackIdentityV2AuthenticatedRequestFactory]
+    }
+
+    it("should throw an IllegalArgumentException if an invalid fqcn is provided") {
+      val authConfig = new OpenStackIdentityV2AuthenticationType()
+      authConfig.setFqcn("foo")
+
+      an[IllegalArgumentException] should be thrownBy AtomFeedServiceImpl.buildAuthenticatedRequestFactory(authConfig)
+    }
+
+    it("should throw an IllegalArgumentException if an invalid fqcn class is provided") {
+      val authConfig = new OpenStackIdentityV2AuthenticationType()
+      authConfig.setFqcn("java.lang.Object")
+
+      an[IllegalArgumentException] should be thrownBy AtomFeedServiceImpl.buildAuthenticatedRequestFactory(authConfig)
     }
   }
 

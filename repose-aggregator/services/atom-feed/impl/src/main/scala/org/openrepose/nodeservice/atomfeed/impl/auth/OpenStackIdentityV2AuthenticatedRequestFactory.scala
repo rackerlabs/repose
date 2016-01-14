@@ -29,24 +29,25 @@ import org.apache.http.impl.client.HttpClients
 import org.apache.http.util.EntityUtils
 import org.apache.http.{HttpHeaders, HttpStatus}
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityAuthenticationType
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
+import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 import play.api.libs.json.Json
 
 import scala.io.{Codec, Source}
 import scala.util.{Failure, Success, Try}
 
-object OpenStackIdentityAuthenticatedRequestFactory {
+object OpenStackIdentityV2AuthenticatedRequestFactory {
   private final val TOKENS_ENDPOINT = "/v2.0/tokens"
 }
 
 /**
- * Fetches a token from the OpenStack Identity service, if necessary, then adds the token to the request.
- */
-class OpenStackIdentityAuthenticatedRequestFactory(configuration: OpenStackIdentityAuthenticationType)
+  * Fetches a token from the OpenStack Identity service, if necessary, then adds the token to the request.
+  */
+class OpenStackIdentityV2AuthenticatedRequestFactory(configuration: OpenStackIdentityV2AuthenticationType)
   extends AuthenticatedRequestFactory with LazyLogging {
 
-  import OpenStackIdentityAuthenticatedRequestFactory._
+  import OpenStackIdentityV2AuthenticatedRequestFactory._
 
   private val serviceUri = configuration.getUri
   private val username = configuration.getUsername
@@ -55,10 +56,12 @@ class OpenStackIdentityAuthenticatedRequestFactory(configuration: OpenStackIdent
 
   private var cachedToken: Option[String] = None
 
-  override def authenticateRequest(atomFeedUrlConnection: URLConnection): URLConnection = {
+  override def authenticateRequest(atomFeedUrlConnection: URLConnection, requestId: String, reposeVersion: String): URLConnection = {
+    lazy val tracingHeader = TracingHeaderHelper.createTracingHeader(requestId, "1.1 Repose (Repose/" + reposeVersion + ")", username)
+
     val tryToken = cachedToken match {
       case Some(tkn) => Success(tkn)
-      case None => getToken
+      case None => getToken(tracingHeader)
     }
 
     tryToken match {
@@ -71,10 +74,7 @@ class OpenStackIdentityAuthenticatedRequestFactory(configuration: OpenStackIdent
     }
   }
 
-  // todo: cache invalidation
-  override def invalidateCache(): Unit = cachedToken = None
-
-  private def getToken: Try[String] = {
+  private def getToken(tracingHeader: String): Try[String] = {
     logger.debug("Attempting to get token from Identity")
 
     val httpPost = new HttpPost(s"$serviceUri$TOKENS_ENDPOINT")
@@ -83,6 +83,7 @@ class OpenStackIdentityAuthenticatedRequestFactory(configuration: OpenStackIdent
         "passwordCredentials" -> Json.obj(
           "username" -> username,
           "password" -> password))))
+    httpPost.addHeader(CommonHttpHeader.TRACE_GUID.toString, tracingHeader)
     httpPost.addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType)
     httpPost.setEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON))
 
@@ -119,4 +120,6 @@ class OpenStackIdentityAuthenticatedRequestFactory(configuration: OpenStackIdent
 
     (Json.parse(contentString) \ "access" \ "token" \ "id").as[String]
   }
+
+  override def invalidateCache(): Unit = cachedToken = None
 }

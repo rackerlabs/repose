@@ -6,7 +6,7 @@
     <feed id="non-authenticating-feed" uri="http://public.atom.com/feed"/>
 
     <feed id="authenticating-feed" uri="http://private.atom.com/feed">
-        <authentication xsi:type="OpenStackIdentityAuthenticationType"
+        <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://identity.jware.com"
                         username="zombiekid"
                         password="iliketurtles"/>

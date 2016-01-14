@@ -23,30 +23,63 @@ import akka.actor.ActorSystem
 import akka.testkit.{TestActorRef, TestKit}
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{reset, verify}
-import org.openrepose.nodeservice.atomfeed.AtomFeedListener
-import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.NotifyListeners
+import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._
+import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, LifecycleEvents}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuiteLike}
-
-import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
 class NotifierTest extends TestKit(ActorSystem("TestNotifier")) with FunSuiteLike with MockitoSugar with BeforeAndAfter {
 
   val mockAtomFeedListener = mock[AtomFeedListener]
-  val atomFeedListeners = Set(mockAtomFeedListener)
-  val actorRef = TestActorRef(new Notifier(atomFeedListeners))
+  val actorRef = TestActorRef(new Notifier(mockAtomFeedListener))
 
   before {
     reset(mockAtomFeedListener)
   }
 
+  test("a registered listener is notified on listener registration completion") {
+    actorRef.underlyingActor.preStart()
+
+    verify(mockAtomFeedListener).onLifecycleEvent(LifecycleEvents.LISTENER_REGISTERED)
+  }
+
+  test("a registered listener is notified on listener unregistration completion") {
+    actorRef.underlyingActor.postStop()
+
+    verify(mockAtomFeedListener).onLifecycleEvent(LifecycleEvents.LISTENER_UNREGISTERED)
+  }
+
   test("a registered listener is notified of new entries exactly once") {
-    val entries = List("test")
+    val entry = "test-entry"
 
-    actorRef ! NotifyListeners(entries)
+    actorRef ! NotifyListener(entry)
 
-    verify(mockAtomFeedListener).onNewAtomEntry(entries)
+    verify(mockAtomFeedListener).onNewAtomEntry(entry)
+  }
+
+  test("a registered listener is notified on feed creation") {
+    actorRef ! FeedReaderCreated
+
+    verify(mockAtomFeedListener).onLifecycleEvent(LifecycleEvents.FEED_CREATED)
+  }
+
+  test("a registered listener is notified on feed activation") {
+    actorRef ! FeedReaderActivated
+
+    verify(mockAtomFeedListener).onLifecycleEvent(LifecycleEvents.FEED_ACTIVATED)
+  }
+
+  test("a registered listener is notified on feed deactivation") {
+    actorRef ! FeedReaderDeactivated
+
+    verify(mockAtomFeedListener).onLifecycleEvent(LifecycleEvents.FEED_DEACTIVATED)
+  }
+
+  test("a registered listener is notified on feed destruction") {
+    actorRef ! FeedReaderDestroyed
+
+    verify(mockAtomFeedListener).onLifecycleEvent(LifecycleEvents.FEED_DESTROYED)
   }
 }
