@@ -2,14 +2,14 @@
  * _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
  * Repose
  * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
- * Copyright (C) 2010 - 2015 Rackspace US, Inc.
+ * Copyright (C) 2010 - 2016 Rackspace US, Inc.
  * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,30 +17,27 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.compression.utils;
 
+package org.openrepose.filters.compression
 
-public enum CompressionParameters {
+import javax.servlet.{ServletContext, FilterConfig}
 
-    DEBUG("debug"),
-    COMPRESSION_THRESHHOLD("compressionThreshold"),
-    STATS_ENABLED("statsEnabled"),
-    INCLUDE_CONTENT_TYPES("includeContentTypes"),
-    EXCLUDE_CONTENT_TYPES("excludeContentTypes"),
-    INCLUDE_PATH_PATTERNS("includePathPatterns"),
-    EXCLUDE_PATH_PATTERNS("excludePathPatterns"),
-    INCLUDE_USER_AGENT_PATTERNS("includUserAgentPatterns"),
-    EXCLUDE_USER_AGENT_PATTERNS("excludeUserAgentPatterns"),
-    JAVA_UTIL_LOGGER("javaUtilLogger"),
-    JAKARTA_COMMONS_LOGGER("jakartaCommonsLogger");
+import org.junit.runner.RunWith
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.junit.JUnitRunner
 
-    private final String param;
+@RunWith(classOf[JUnitRunner])
+class CompressingFilterFactoryTest extends FunSpec with Matchers with MockitoSugar {
 
-    private CompressionParameters(String param) {
-        this.param = param;
-    }
+  it("will return an instance") {
+    val compressingFilterFactory = new CompressingFilterFactory
+    val filterConfig = mock[FilterConfig]
+    when(filterConfig.getServletContext).thenReturn(mock[ServletContext])
 
-    public String getParam() {
-        return param;
-    }
+    val compressingFilter = compressingFilterFactory.newCompressingFilter(filterConfig)
+
+    compressingFilter should not be null
+  }
 }
