@@ -40,7 +40,7 @@ import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
+import org.openrepose.filters.rackspaceidentitybasicauth.config.{RackspaceIdentityBasicAuthConfig, SecretType}
 import org.springframework.http.HttpHeaders
 
 import scala.collection.JavaConverters._
@@ -67,6 +67,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
   private var identityServiceUri: String = _
   private var tokenCacheTtlMillis: Int = _
   private var delegationWithQuality: Option[Double] = _
+  private var secretType: SecretType = _
   private var akkaServiceClient: AkkaServiceClient = _
 
   override def init(filterConfig: FilterConfig) {
@@ -87,6 +88,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     identityServiceUri = config.getRackspaceIdentityServiceUri
     tokenCacheTtlMillis = config.getTokenCacheTimeoutMillis
     delegationWithQuality = Option(config.getDelegating).map(_.getQuality)
+    secretType = config.getSecretType
 
     val akkaServiceClientOld = Option(akkaServiceClient)
     akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)
@@ -164,29 +166,39 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     }
 
     def getUserToken(authValue: String): TokenCreationInfo = {
-      val (userName, apiKey) = extractCredentials(authValue)
+      val (userName, secret) = extractCredentials(authValue)
 
       def createAuthRequest(encoded: String) = {
-        // Base64 Decode and split the userName/apiKey
+        // Base64 Decode and split the username/secret
         // Scala's standard XML syntax does not support the XML declaration w/o a lot of hoops
         //<?xml version="1.0" encoding="UTF-8"?>
-        <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
-          <apiKeyCredentials
-          xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-          username={userName}
-          apiKey={apiKey}/>
-        </auth>
+        secretType match {
+          case SecretType.API_KEY =>
+            <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
+              <apiKeyCredentials
+              xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+              username={userName}
+              apiKey={secret}/>
+            </auth>
+          case SecretType.PASSWORD =>
+            <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
+              <passwordCredentials
+              xmlns="http://docs.openstack.org/identity/api/v2.0"
+              username={userName}
+              password={secret}/>
+            </auth>
+        }
       }
 
-      if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(apiKey)) {
+      if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(secret)) {
         TokenCreationInfo(HttpServletResponse.SC_UNAUTHORIZED, None, userName)
       } else {
-        // Request a User Token based on the extracted User Name/API Key.
+        // Request a User Token based on the extracted username/secret
         val requestTracingHeader = Option(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString))
           .map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
         val authTokenResponse = Option(akkaServiceClient.post(authValue,
           identityServiceUri,
-          Map[String, String]().++(requestTracingHeader).asJava,
+          requestTracingHeader.asJava,
           createAuthRequest(authValue).toString(),
           MediaType.APPLICATION_XML_TYPE))
 
@@ -271,7 +283,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
   }
 
   private def withEncodedCredentials(request: HttpServletRequest)(f: String => Unit): Unit = {
-    Option(request.getHeaders(HttpHeaders.AUTHORIZATION)).map { authHeader =>
+    Option(request.getHeaders(HttpHeaders.AUTHORIZATION)).foreach { authHeader =>
       val authMethodBasicHeaders = getBasicAuthHeaders(authHeader, "Basic")
       if (authMethodBasicHeaders.nonEmpty) {
         val firstHeader = authMethodBasicHeaders.next()
@@ -287,6 +299,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
 
   /**
    * Token creation info encapsulates the response from identity.
+ *
    * @param responseCode Response code received from identity
    * @param responseBody Optional Response body from identity if it's not successful
    * @param userId The user ID parsed from a successful response (if any)
