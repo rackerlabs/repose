@@ -1028,9 +1028,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
-        .thenReturn(TestValidToken(), Nil: _*)
+        .thenReturn(TestValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse.failure("Unable to reach identity!")
       )
 
@@ -1052,9 +1052,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
-        .thenReturn(TestValidToken(), Nil: _*)
+        .thenReturn(TestValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      mockAkkaGetResponses(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponses(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         Seq(
           "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
           "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, "")
@@ -1079,9 +1079,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
-        .thenReturn(TestValidToken(), Nil: _*)
+        .thenReturn(TestValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, "")
       )
 
@@ -1102,9 +1102,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
-        .thenReturn(TestValidToken(), Nil: _*)
+        .thenReturn(TestValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Rate limited by identity!")
       )
 
@@ -1125,9 +1125,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
-        .thenReturn(TestValidToken(), Nil: _*)
+        .thenReturn(TestValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(SC_TOO_MANY_REQUESTS, "Rate limited by identity!")
       )
 
@@ -1149,9 +1149,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
-        .thenReturn(TestValidToken(), Nil: _*)
+        .thenReturn(TestValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_IMPLEMENTED, "")
       )
 
@@ -1295,7 +1295,6 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
-      when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector.empty[String], Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1440,7 +1439,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -1479,7 +1478,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -1527,7 +1526,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -1904,7 +1903,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -1929,7 +1928,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -1953,7 +1952,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -1976,7 +1975,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateImpersonatedTokenResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -2002,7 +2001,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -2025,7 +2024,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(expires = dateTime))
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -2050,7 +2049,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -2073,7 +2072,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
@@ -2099,7 +2098,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -2175,7 +2174,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
@@ -2210,7 +2209,7 @@ with HttpDelegationManager {
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse())
       )
 
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")(
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
       )
 
