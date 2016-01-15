@@ -92,23 +92,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
     }
 
     // NOTE: This would normally be removed by a Header Normalization filter.
-    def "Request with X-Auth-Token header sent."() {
-        given: "the X-Auth-Token header containing the User Token"
-        def headers = [
-                "X-Auth-Token": fakeIdentityService.client_token
-        ]
-
-        when: "the request already has credentials"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
-
-        then: "simply pass it on down the filter chain with out client-aut filter just a pass through"
-        mc.receivedResponse.code == SC_OK.toString()
-        mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 0
-        !mc.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
-    }
-
-    // NOTE: This would normally be removed by a Header Normalization filter.
     def "Request that contains both an X-Auth-Token and HTTP Basic authentication header is sent."() {
         given: "header containing the User Token and an HTTP Basic authentication header (username/apikey)"
         def headers = [
