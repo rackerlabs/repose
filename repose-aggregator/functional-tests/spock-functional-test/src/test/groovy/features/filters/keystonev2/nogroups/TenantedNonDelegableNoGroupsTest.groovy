@@ -83,7 +83,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenantid = responseTenant
             service_admin_role = "not-admin"
-            client_userid = "test_123"
+            client_userid = 12345
         }
 
         if (authResponseCode != 200) {
@@ -99,6 +99,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
                     new Response(groupResponseCode)
             }
         }
+        sleep(500)
 
         when:
         "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant"
@@ -142,6 +143,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenantid = responseTenant
             service_admin_role = serviceAdminRole
+            client_userid = 1234
         }
 
         when:
