@@ -148,6 +148,8 @@ class NotifierManagerTest
 
     actorRef ! FeedReaderCreated
 
+    verify(mockListener).onLifecycleEvent(LifecycleEvents.LISTENER_REGISTERED)
+    verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.LISTENER_REGISTERED)
     verify(mockListener).onLifecycleEvent(LifecycleEvents.FEED_CREATED)
     verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.FEED_CREATED)
   }
