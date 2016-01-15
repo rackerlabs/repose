@@ -72,7 +72,7 @@ class IdentityAdminTokenTest extends ReposeValveTest {
         given:
         fakeIdentityV2Service.with {
             client_tenantid = reqTenant
-            client_userid = reqTenant
+            admin_userid = "999999"
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
 

@@ -303,7 +303,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = "rackerSSO"
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_userid = "456"
+            client_userid = "rackerSSOUsername"
             service_admin_role = "service:admin-role1"
         }
 
@@ -373,6 +373,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         def hybridtenant = "hybrid:12345"
         fakeIdentityV2Service.with {
             client_token = "dedicatedUser"
+            client_userid = "dedicatedUser"
             client_tenantid = hybridtenant
         }
         when:

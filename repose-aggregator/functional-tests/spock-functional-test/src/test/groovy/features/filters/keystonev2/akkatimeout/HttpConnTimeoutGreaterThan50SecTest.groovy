@@ -78,7 +78,7 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenantid = 613
             service_admin_role = "not-admin"
-            client_userid = 1234
+            admin_userid = "12345"
             sleeptime = 55000
         }
 

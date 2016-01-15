@@ -83,6 +83,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenantid = responseTenant
             service_admin_role = "not-admin"
+            client_userid = "test_123"
         }
 
         if (authResponseCode != 200) {

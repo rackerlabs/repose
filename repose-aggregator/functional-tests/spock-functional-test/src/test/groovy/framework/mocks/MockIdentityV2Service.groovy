@@ -657,10 +657,10 @@ class MockIdentityV2Service {
      * @return
      */
     Response getGroups(String userId, Request request, boolean xml) {
-
+        def request_userid = userId
         def params = [
                 expires     : getExpires(),
-                userid      : client_userid,
+                userid      : request_userid,
                 username    : client_username,
                 tenantid    : client_tenantid,
                 tenantname  : client_tenantname,
@@ -679,7 +679,7 @@ class MockIdentityV2Service {
             headers.put('Content-type', 'application/json')
         }
 
-        if (userId.equals(client_userid)) {
+        if (userId.equals(client_userid.toString()) || userId.equals(admin_userid)) {
             code = 200
             if (xml) {
                 template = groupsXmlTemplate
@@ -687,7 +687,7 @@ class MockIdentityV2Service {
                 template = groupsJsonTemplate
             }
         } else {
-            code = 404
+            code = 500
             if (xml) {
                 template = identityFailureXmlTemplate
             } else {
