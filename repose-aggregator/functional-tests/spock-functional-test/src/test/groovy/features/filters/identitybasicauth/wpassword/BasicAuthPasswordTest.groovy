@@ -193,7 +193,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
     def "When identity returns a 403 Forbidden, repose will also return a 403 Forbidden"() {
         given: "the HTTP Basic authentication header containing the User Name and forbidden API key"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.forbidden_apikey).bytes)
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.forbidden_apikey_or_pwd).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
@@ -208,7 +208,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
     def "When identity returns a 404 Not Found, repose will return a 401 Unauthorized"() {
         given: "the HTTP Basic authentication header containing the User Name and not found apikey"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.not_found_apikey).bytes)
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.not_found_apikey_or_pwd).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
