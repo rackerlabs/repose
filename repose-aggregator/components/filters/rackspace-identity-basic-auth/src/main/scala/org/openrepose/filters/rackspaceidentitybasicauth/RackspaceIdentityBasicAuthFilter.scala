@@ -39,7 +39,7 @@ import org.openrepose.core.filter.logic.impl.{FilterDirectorImpl, FilterLogicHan
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.rackspaceidentitybasicauth.config.RackspaceIdentityBasicAuthConfig
 import org.springframework.http.HttpHeaders
 
