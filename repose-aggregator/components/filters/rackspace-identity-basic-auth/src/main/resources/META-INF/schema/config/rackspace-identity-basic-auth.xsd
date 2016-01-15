@@ -66,6 +66,15 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="secret-type" type="SecretType" use="optional" default="api-key">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Type of the secret portion of the authentication credentials (e.g., api key or password).
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="DelegatingType">
@@ -89,6 +98,13 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
+    <xs:simpleType name="SecretType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="api-key"/>
+            <xs:enumeration value="password"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:simpleType name="QualityType">
         <xs:restriction base="xs:double">
