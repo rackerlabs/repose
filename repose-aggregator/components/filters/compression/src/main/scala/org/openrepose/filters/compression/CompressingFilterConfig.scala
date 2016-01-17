@@ -25,9 +25,9 @@ import javax.servlet.{ServletContext, FilterConfig}
 import scala.collection.JavaConverters._
 
 class CompressingFilterConfig(config: FilterConfig) extends FilterConfig {
-  wrapFilterConfig()
-
   private var params: Map[String, String] = Map.empty
+
+  wrapFilterConfig()
 
   private def wrapFilterConfig(): Unit = {
     config.getInitParameterNames.asScala.foreach { name =>

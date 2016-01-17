@@ -57,15 +57,15 @@ class CompressionFilter @Inject()(configurationService: ConfigurationService, co
 
 
   override def init(filterConfig: FilterConfig): Unit = {
-    logger.trace("CORS filter initializing...")
+    logger.trace("Compression filter initializing...")
     this.filterConfig = filterConfig
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
 
-    logger.info(s"Initializing CORS Filter using config $configurationFile")
+    logger.info(s"Initializing Compression filter using config $configurationFile")
     val xsdUrl: URL = getClass.getResource(SCHEMA_FILE_NAME)
     configurationService.subscribeTo(filterConfig.getFilterName, configurationFile, xsdUrl, this, classOf[ContentCompressionConfig])
 
-    logger.trace("CORS filter initialized.")
+    logger.trace("Compression filter initialized.")
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, filterChain: FilterChain): Unit = {
