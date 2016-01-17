@@ -49,6 +49,8 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
+
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def cleanupSpec() {
