@@ -85,7 +85,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
     finishSetup()
 
     val waitingAuthFactory = Some(new AuthenticatedRequestFactory {
-      override def invalidateCache(): Unit = ???
+      override def onInvalidCredentials(): Unit = ???
 
       override def authenticateRequest(atomFeedUrlConnection: URLConnection, requestId: String, reposeVersion: String): URLConnection = {
         // Infinite loop to prove that the Future safeguard actually bounds the authenticator

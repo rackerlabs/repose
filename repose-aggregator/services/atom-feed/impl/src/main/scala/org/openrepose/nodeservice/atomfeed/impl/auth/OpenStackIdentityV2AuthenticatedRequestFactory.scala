@@ -121,5 +121,5 @@ class OpenStackIdentityV2AuthenticatedRequestFactory(configuration: OpenStackIde
     (Json.parse(contentString) \ "access" \ "token" \ "id").as[String]
   }
 
-  override def invalidateCache(): Unit = cachedToken = None
+  override def onInvalidCredentials(): Unit = cachedToken = None
 }

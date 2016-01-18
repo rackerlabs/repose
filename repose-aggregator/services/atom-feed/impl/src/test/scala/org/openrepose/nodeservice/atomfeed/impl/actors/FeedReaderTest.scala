@@ -308,6 +308,6 @@ class FeedReaderTest(_system: ActorSystem)
 
     actorRef ! ReadFeed
 
-    verify(mockAuthRequestFactory).invalidateCache()
+    verify(mockAuthRequestFactory).onInvalidCredentials()
   }
 }

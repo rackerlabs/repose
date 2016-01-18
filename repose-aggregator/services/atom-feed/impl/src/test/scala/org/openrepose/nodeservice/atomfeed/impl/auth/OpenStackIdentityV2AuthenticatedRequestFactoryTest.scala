@@ -130,7 +130,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       verify(mockConnection, times(2)).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
       numberOfInterations shouldEqual 1
 
-      osiarf.invalidateCache()
+      osiarf.onInvalidCredentials()
 
       osiarf.authenticateRequest(mockConnection, "", "")
       verify(mockConnection, times(3)).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")

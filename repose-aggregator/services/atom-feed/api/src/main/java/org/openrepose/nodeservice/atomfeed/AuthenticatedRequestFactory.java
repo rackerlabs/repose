@@ -36,7 +36,8 @@ public interface AuthenticatedRequestFactory {
     URLConnection authenticateRequest(URLConnection atomFeedUrlConnection, String requestId, String reposeVersion);
 
     /**
-     * Invalidates any cached authentication data.
+     * This method will be called anytime authentication credentials on a request that has been processed by the
+     * authenticateRequest method are found to be invalid.
      */
-    void invalidateCache();
+    void onInvalidCredentials();
 }

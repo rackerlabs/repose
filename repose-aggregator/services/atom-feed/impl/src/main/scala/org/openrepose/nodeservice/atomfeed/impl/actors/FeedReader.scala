@@ -111,7 +111,7 @@ class FeedReader(feedUri: String,
         case e@(_: UnknownServiceException | _: IOException) =>
           logger.error("Connection to Atom service failed -- an invalid URI may have been provided, or " +
             "authentication credentials may be invalid", e)
-          authenticatedRequestFactory.foreach(_.invalidateCache())
+          authenticatedRequestFactory.foreach(_.onInvalidCredentials())
         case pe: ParseException =>
           logger.error("Failed to parse the Atom feed", pe)
         case e: Exception =>
