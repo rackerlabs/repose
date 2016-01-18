@@ -94,6 +94,10 @@ class BasicAuthTest extends ReposeValveTest {
                 assert e.request.headers.contains("x-trans-id")
                 assert e.request.headers.getFirstValue("x-trans-id") == mc.handlings[0].request.headers.getFirstValue("x-trans-id")
         }
+        //verify if request send to identity with api-key credential
+        mc.orphanedHandlings.get(0).request.body.contains("apiKeyCredentials")
+        mc.orphanedHandlings.get(0).request.body.contains("apiKey")
+        mc.orphanedHandlings.get(0).request.body.contains(fakeIdentityService.client_apikey)
     }
 
     def "No HTTP Basic authentication header sent and no token."() {

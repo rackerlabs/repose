@@ -9,7 +9,7 @@
 
         <filters>
             <filter name="rackspace-identity-basic-auth"/>
-            <filter name="client-auth"/>
+            <filter name="keystone-v2"/>
         </filters>
 
         <destinations>

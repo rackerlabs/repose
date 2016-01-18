@@ -98,6 +98,10 @@ class BasicAuthPasswordTest extends ReposeValveTest {
                 assert e.request.headers.contains("x-trans-id")
                 assert e.request.headers.getFirstValue("x-trans-id") == mc.handlings[0].request.headers.getFirstValue("x-trans-id")
         }
+        //verify if request send to identity with password credential
+        mc.orphanedHandlings.get(0).request.body.contains("passwordCredentials")
+        mc.orphanedHandlings.get(0).request.body.contains("password")
+        mc.orphanedHandlings.get(0).request.body.contains(fakeIdentityService.client_password)
     }
 
     def "No HTTP Basic authentication header sent and no token."() {

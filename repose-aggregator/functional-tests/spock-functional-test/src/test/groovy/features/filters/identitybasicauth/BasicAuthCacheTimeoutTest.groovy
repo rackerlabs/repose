@@ -59,6 +59,7 @@ class BasicAuthCacheTimeoutTest extends ReposeValveTest {
             // so that the cached version in the Akka Client is not used.
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
+            basicauth = true
         }
     }
 
