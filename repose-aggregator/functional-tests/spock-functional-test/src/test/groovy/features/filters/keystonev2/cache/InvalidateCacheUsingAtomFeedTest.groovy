@@ -24,6 +24,7 @@ import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 
 /**
  B-48277
@@ -100,7 +101,7 @@ import org.rackspace.deproxy.Response
  assert response code from repose is 401
 
  */
-//@Ignore("Not yet implemented")
+@Ignore("Not yet implemented")
 class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
     def originEndpoint
