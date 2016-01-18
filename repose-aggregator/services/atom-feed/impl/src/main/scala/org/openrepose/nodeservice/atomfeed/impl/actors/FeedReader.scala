@@ -27,12 +27,14 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.abdera.Abdera
 import org.apache.abdera.i18n.iri.IRI
 import org.apache.abdera.parser.ParseException
+import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder
 import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.AuthenticationException
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.{FeedReaderActivated, FeedReaderCreated, FeedReaderDeactivated, FeedReaderDestroyed}
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
+import org.slf4j.MDC
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -85,8 +87,11 @@ class FeedReader(feedUri: String,
 
   override def receive: Receive = {
     case ReadFeed =>
+      val requestId = java.util.UUID.randomUUID().toString
+      MDC.put(TracingKey.TRACING_KEY, requestId)
+
       try {
-        val entryStream = AtomEntryStreamBuilder.build(feedUrl, reposeVersion, authenticatedRequestFactory)
+        val entryStream = AtomEntryStreamBuilder.build(reposeVersion, requestId, feedUrl, authenticatedRequestFactory)
 
         if (firstReadDone) {
           val newEntryStream = highWaterMark match {
