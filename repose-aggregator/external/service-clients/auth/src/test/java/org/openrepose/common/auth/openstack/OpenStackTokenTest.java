@@ -393,11 +393,12 @@ public class OpenStackTokenTest {
 
             OpenStackToken openStackToken = new OpenStackToken(response);
 
-            assertThat(openStackToken.getImpersonatorRoles(), contains("imp-role-1", "imp-role-2"));
+            assertTrue(openStackToken.getImpersonatorRoles().contains("imp-role-1"));
+            assertTrue(openStackToken.getImpersonatorRoles().contains("imp-role-2"));
         }
     }
 
-    //ugh, do i hate propogating this garbage, but i don't have time to get rid of it in this class
+    //ugh, do i hate propagating this garbage, but i don't have time to get rid of it in this class
     public static class WhenPullingOutValues {
         @Test
         public void shouldPullOutContactID() throws Exception {
