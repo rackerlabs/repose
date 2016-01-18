@@ -716,7 +716,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfter with Matchers {
       TimeZone.getTimeZone("US/Pacific") -> "1969-12-31T16:00:00.000-08:00"
     )
     timeZones.foreach { timeZone =>
-      it(s"should convert as expected in ${timeZone._1.getDisplayName}") {
+      it(s"should convert as expected in ${timeZone._1.getDisplayName} (${timeZone._1.getID})") {
         TimeZone.setDefault(timeZone._1)
         timestampFormater(0, null) should equal(timeZone._2)
       }
