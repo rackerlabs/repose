@@ -102,6 +102,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         given:
         fakeIdentityV2Service.with {
             client_token = "rackerSSO"
+            client_userid = "rackerSSOUsername"
         }
 
         when: "User passes a request through repose"

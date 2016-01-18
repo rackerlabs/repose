@@ -6,6 +6,7 @@ import org.joda.time.format.ISODateTimeFormat
 trait IdentityResponses {
 
   protected final val VALID_TOKEN = "validToken"
+  protected final val VALID_USER_ID = "123"
 
   def tokenDateFormat(dateTime:DateTime): String = {
     ISODateTimeFormat.dateTime().print(dateTime)
@@ -298,7 +299,9 @@ trait IdentityResponses {
     """.stripMargin
   }
 
-  def validateTokenResponse(token: String = VALID_TOKEN, expires: DateTime = DateTime.now().plusDays(1)): String = {
+  def validateTokenResponse(token: String = VALID_TOKEN,
+                            expires: DateTime = DateTime.now().plusDays(1),
+                            userId: String = VALID_USER_ID): String = {
 
     val expiryTime = tokenDateFormat(expires)
 
@@ -316,7 +319,7 @@ trait IdentityResponses {
       |        "user":{
       |            "RAX-AUTH:defaultRegion": "DFW",
       |            "RAX-AUTH:contactId": "abc123",
-      |            "id":"123",
+      |            "id":"$userId",
       |            "name":"testuser",
       |            "roles":[{
       |                    "id":"123",
@@ -333,7 +336,8 @@ trait IdentityResponses {
     """.stripMargin
   }
 
-  def validateImpersonatedTokenResponse(token: String = VALID_TOKEN): String = {
+  def validateImpersonatedTokenResponse(token: String = VALID_TOKEN,
+                                        userId: String = VALID_USER_ID): String = {
     s"""
        |{
        |  "access":{
@@ -347,7 +351,7 @@ trait IdentityResponses {
        |       },
        |
        |      "user":{
-       |          "id":"123",
+       |          "id":"$userId",
        |          "name":"yourUsername",
        |          "roles":[{
        |                     "id":"123",
@@ -378,7 +382,8 @@ trait IdentityResponses {
     """.stripMargin
   }
 
-  def validateRackerTokenResponse(token: String = VALID_TOKEN): String = {
+  def validateRackerTokenResponse(token: String = VALID_TOKEN,
+                                  userId: String = VALID_USER_ID): String = {
     val expiryTime = tokenDateFormat(DateTime.now().plusDays(1))
 
     s"""
@@ -395,7 +400,7 @@ trait IdentityResponses {
        |        "user":{
        |            "RAX-AUTH:defaultRegion": "DFW",
        |            "RAX-AUTH:contactId": "abc123",
-       |            "id":"123",
+       |            "id":"$userId",
        |            "name":"testuser",
        |            "roles":[{
        |                    "id":"123",

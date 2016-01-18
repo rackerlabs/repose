@@ -120,8 +120,16 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = (new DateTime()).plusDays(1);
             client_tenantid = responseTenant
-            client_userid = requestTenant
             service_admin_role = serviceAdminRole
+        }
+        if (serviceAdminRole == "service:admin-role1") {
+            fakeIdentityV2Service.with {
+                admin_userid = "admin_123"
+            }
+        } else {
+            fakeIdentityV2Service.with {
+                client_userid = 12345
+            }
         }
 
         when: "User passes a request through repose"

@@ -161,7 +161,7 @@ class MockIdentityV2Service {
     def client_tenantid2 = 'this-is-the-nast-id'
     //def client_tenantname2 = 'this-is-tenant-name-two'
     def client_username = 'username';
-    def client_userid = 12345; //TODO: this should not be an int, userIDs are UUIDs
+    def client_userid = 'user_12345';
     def client_apikey = 'this-is-the-api-key';
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant'
@@ -193,7 +193,7 @@ class MockIdentityV2Service {
         client_tenantid2 = 'this-is-the-nast-id'
         //client_tenantname2 = 'this-is-tenant-name-two'
         client_username = 'username';
-        client_userid = 12345; //TODO: this should not be an int, userIDs are UUIDs
+        client_userid = 'user_12345';
         client_apikey = 'this-is-the-api-key';
         admin_token = 'this-is-the-admin-token';
         admin_tenant = 'this-is-the-admin-tenant'
@@ -657,10 +657,10 @@ class MockIdentityV2Service {
      * @return
      */
     Response getGroups(String userId, Request request, boolean xml) {
-
+        def request_userid = userId
         def params = [
                 expires     : getExpires(),
-                userid      : client_userid,
+                userid      : request_userid,
                 username    : client_username,
                 tenantid    : client_tenantid,
                 tenantname  : client_tenantname,
@@ -669,6 +669,7 @@ class MockIdentityV2Service {
 
         ]
 
+        def code;
         def template;
         def headers = [:];
 
@@ -678,15 +679,25 @@ class MockIdentityV2Service {
             headers.put('Content-type', 'application/json')
         }
 
-        if (xml) {
-            template = groupsXmlTemplate
+        if (userId.equals(client_userid.toString()) || userId.equals(admin_userid)) {
+            code = 200
+            if (xml) {
+                template = groupsXmlTemplate
+            } else {
+                template = groupsJsonTemplate
+            }
         } else {
-            template = groupsJsonTemplate
+            code = 500
+            if (xml) {
+                template = identityFailureXmlTemplate
+            } else {
+                template = identityFailureJsonTemplate
+            }
         }
 
         def body = templateEngine.createTemplate(template).make(params)
 
-        return new Response(200, null, headers, body)
+        return new Response(code, null, headers, body)
     }
 
     /**

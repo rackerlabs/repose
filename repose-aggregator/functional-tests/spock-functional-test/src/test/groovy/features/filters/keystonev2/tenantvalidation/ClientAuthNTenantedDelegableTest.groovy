@@ -70,7 +70,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1);
             client_tenantid = responseTenant
-            client_userid = requestTenant
+            admin_userid = "admin_123"
             service_admin_role = "not-admin"
         }
 
@@ -113,7 +113,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1);
             client_tenantid = responseTenant
-            client_userid = requestTenant
+            client_userid = 12345
             service_admin_role = serviceAdminRole
         }
 
