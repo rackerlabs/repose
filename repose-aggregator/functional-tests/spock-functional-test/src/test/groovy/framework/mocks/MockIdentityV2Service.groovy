@@ -288,16 +288,16 @@ class MockIdentityV2Service {
             query = null
             nonQueryPath = path
         }
+        if (isGenerateTokenCallPath(nonQueryPath) || isBasicAuthTokenCallPath(nonQueryPath)) {
+            if (method == "POST") {
+                _generateTokenCount.incrementAndGet()
+                return generateTokenHandler(request, xml);
+            } else {
+                return new Response(405)
+            }
+        }
 
         if (isTokenCallPath(nonQueryPath)) {
-            if (isGenerateTokenCallPath(nonQueryPath)) {
-                if (method == "POST") {
-                    _generateTokenCount.incrementAndGet()
-                    return generateTokenHandler(request, xml);
-                } else {
-                    return new Response(405)
-                }
-            }
 
             if (isGetEndpointsCallPath(nonQueryPath)) {
                 if (method == "GET") {
@@ -408,13 +408,23 @@ class MockIdentityV2Service {
     }
 
     /**
-     * Check Path start with /tokens
+     * checkout if it is generateTokenCallPath /tokens for basic auth call
+     * @param nonQueryPath
+     * @return true/false
+     */
+    public static boolean  isBasicAuthTokenCallPath(String nonQueryPath) {
+        return nonQueryPath == "/tokens"
+    }
+
+    /**
+     * Check Path start with /v2.0/tokens
      * @param nonQueryPath
      * @return true/false
      */
     public static boolean isTokenCallPath(String nonQueryPath) {
         return nonQueryPath.startsWith("/v2.0/tokens")
     }
+
 
     /**
      * Get token expired time as a string
