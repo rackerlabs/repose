@@ -28,6 +28,7 @@
         <yammer.version>2.2.0</yammer.version>
         <log4j.version>2.3</log4j.version>
         <jetty.version>9.2.0.v20140526</jetty.version>
+        <jacoco.version>0.7.5.201505241946</jacoco.version>
         <!-- NOTE: the saxon version should match that of API-checker, because there is saxon in core :( -->
         <saxon.version>9.4.0.9</saxon.version>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
@@ -875,7 +876,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.5.201505241946</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
