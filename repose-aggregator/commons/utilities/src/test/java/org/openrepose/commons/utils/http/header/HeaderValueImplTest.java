@@ -23,9 +23,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
@@ -127,7 +125,10 @@ public class HeaderValueImplTest {
 
         @Test
         public void shouldOutputValueParameters() {
-            final Pattern expectedPattern = Pattern.compile("[^;]+;(param1=1;?)?(param2=2;?)?(param3=3;?)?");
+            final List<Pattern> patterns = new ArrayList<>();
+            for (int i : Arrays.asList(1, 2, 3)) {
+                patterns.add(Pattern.compile(".*;?(param" + i + "=" + i + ");?.*"));
+            }
 
             final Map<String, String> parameters = new HashMap<String, String>();
             parameters.put("param1", "1");
@@ -135,8 +136,9 @@ public class HeaderValueImplTest {
             parameters.put("param3", "3");
 
             final HeaderValueImpl headerValue = new HeaderValueImpl("value", parameters);
-
-            assertTrue("Header value: " + headerValue.toString() + " must match expected pattern", expectedPattern.matcher(headerValue.toString()).matches());
+            for (Pattern expectedPattern : patterns) {
+                assertTrue("Header value: " + headerValue.toString() + " must match expected pattern", expectedPattern.matcher(headerValue.toString()).matches());
+            }
         }
 
         @Test
