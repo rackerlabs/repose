@@ -412,7 +412,7 @@ class MockIdentityV2Service {
      * @param nonQueryPath
      * @return true/false
      */
-    public static boolean  isBasicAuthTokenCallPath(String nonQueryPath) {
+    public static boolean isBasicAuthTokenCallPath(String nonQueryPath) {
         return nonQueryPath == "/tokens"
     }
 
@@ -424,7 +424,6 @@ class MockIdentityV2Service {
     public static boolean isTokenCallPath(String nonQueryPath) {
         return nonQueryPath.startsWith("/v2.0/tokens")
     }
-
 
     /**
      * Get token expired time as a string
