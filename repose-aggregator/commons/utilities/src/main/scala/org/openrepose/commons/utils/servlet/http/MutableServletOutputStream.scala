@@ -37,7 +37,8 @@ class MutableServletOutputStream(servletOutputStream: ServletOutputStream)
 
   override def setOutput(in: InputStream): Unit = {
     byteArrayOutputStream.reset()
-    Source.fromInputStream(in).foreach(byteArrayOutputStream.write(_))
+    // Account for Java null being passed in
+    Option(in).foreach(Source.fromInputStream(_).foreach(byteArrayOutputStream.write(_)))
   }
 
   override def getOutputStreamAsInputStream: InputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)

@@ -20,7 +20,7 @@
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
 import net.sf.saxon.lib.FeatureKeys;
-import org.openrepose.filters.translation.TranslationHandlerFactory;
+import org.openrepose.filters.translation.TranslationFilter;
 import org.openrepose.filters.translation.xslt.StyleSheetInfo;
 import org.openrepose.filters.translation.xslt.XsltException;
 import org.slf4j.Logger;
@@ -62,23 +62,15 @@ public class XmlFilterChainBuilder {
     private static SAXTransformerFactory XALANC_TRANSFORMER_FACTORY;
 
     static {
-
         try {
-
-            XALANC_TRANSFORMER_FACTORY =
-                    (SAXTransformerFactory) TransformerFactory.newInstance(XALANC_FACTORY_NAME, XmlFilterChainBuilder.class.getClassLoader());
-
+            XALANC_TRANSFORMER_FACTORY = (SAXTransformerFactory) TransformerFactory.newInstance(XALANC_FACTORY_NAME, XmlFilterChainBuilder.class.getClassLoader());
             XALANC_TRANSFORMER_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-
         } catch (TransformerConfigurationException ex) {
-
             LOG.error("Error", ex);
         }
     }
 
     private final SAXTransformerFactory factory;
-    //
-    //
     private final boolean allowEntities;
     private final boolean allowDtdDeclarations;
 
@@ -94,7 +86,6 @@ public class XmlFilterChainBuilder {
         }
     }
 
-
     //
     // TODO_SAXON_WORKAROUND
     // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
@@ -103,11 +94,9 @@ public class XmlFilterChainBuilder {
     // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
     //
     private SAXTransformerFactory getFactoryForIdentityTransform() {
-
-        return factory.getClass().getCanonicalName().equals(TranslationHandlerFactory.SAXON_HE_FACTORY_NAME) ?
+        return factory.getClass().getCanonicalName().equals(TranslationFilter.SAXON_HE_FACTORY_NAME) ?
                 XALANC_TRANSFORMER_FACTORY : factory;
     }
-    //
 
     public XmlFilterChain build(StyleSheetInfo... stylesheets) throws XsltException {
         try {
@@ -142,9 +131,7 @@ public class XmlFilterChainBuilder {
             // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
             //
             return new XmlFilterChain(getFactoryForIdentityTransform(), filters);
-        } catch (ParserConfigurationException ex) {
-            throw new XsltException(ex);
-        } catch (SAXException ex) {
+        } catch (ParserConfigurationException | SAXException ex) {
             throw new XsltException(ex);
         }
     }
@@ -206,7 +193,6 @@ public class XmlFilterChainBuilder {
                 }
             }
         }
-
         throw new IllegalArgumentException("No stylesheet specified for " + stylesheet.getId());
     }
 

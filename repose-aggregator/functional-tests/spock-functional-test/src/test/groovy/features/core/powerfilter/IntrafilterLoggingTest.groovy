@@ -110,7 +110,8 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         and: "checking for client-auth - response"
         //THIS IS 2ND IN THE LIST BECAUSE IT'S A STACK
         def authrespline1 = convertToJson("Intrafilter Response Log", 1)
-        assertHeadersExists(["Intrafilter-UUID", "Content-Type"], authrespline1)
+        // Due to the way this is tested it is Case-Sensitive.
+        assertHeadersExists(["Intrafilter-UUID", "content-type"], authrespline1)
         assertKeyValueMatch([
                 "currentFilter"   : "client-auth",
                 "responseBody"    : responseBody,
@@ -133,7 +134,8 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         and: "checking for ip-identity - response"
         //THIS IS FIRST ON THE LIST BECAUSE IT'S A STACK
         def authrespline2 = convertToJson("Intrafilter Response Log", 0)
-        assertHeadersExists(["Intrafilter-UUID", "Content-Type"], authrespline2)
+        // Due to the way this is tested it is Case-Sensitive.
+        assertHeadersExists(["Intrafilter-UUID", "content-type"], authrespline2)
         assertKeyValueMatch([
                 "currentFilter"   : "context_1-ip-identity",
                 "responseBody"    : responseBody,
@@ -196,6 +198,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
     }
 
     private assertHeadersExists(List headers, JSONObject jsonObject) {
+        // Due to the way this is tested it is Case-Sensitive.
         headers.each {
             headerName ->
                 assert jsonObject.get("headers").has(headerName)

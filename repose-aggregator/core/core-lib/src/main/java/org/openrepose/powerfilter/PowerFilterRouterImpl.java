@@ -22,7 +22,6 @@ package org.openrepose.powerfilter;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.RequestTimeout;
 import org.openrepose.core.ResponseCode;
@@ -113,7 +112,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     @Override
-    public void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
+    public void route(MutableHttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
         DestinationLocation location = null;
 
         if (!StringUtilities.isBlank(defaultDestination)) {
@@ -130,11 +129,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             if (configDestinationElement == null) {
                 //TODO: do we really need domain? rename to cluster?
                 LOG.warn("Invalid routing destination specified: {} for domain: {} ", routingDestination.getDestinationId(), domain.getId());
-                ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_NOT_FOUND);
+                servletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 location = locationBuilder.build(configDestinationElement, routingDestination.getUri(), servletRequest);
                 rootPath = configDestinationElement.getRootPath();
-
             }
         }
 
@@ -158,8 +156,8 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                 if (dispatcher != null) {
                     LOG.debug("Attempting to route to: {}", location.getUri());
                     LOG.debug("  Using dispatcher for: {}", uri);
-                    LOG.debug("           Request URL: {}", ((HttpServletRequest) servletRequest).getRequestURL());
-                    LOG.debug("           Request URI: {}", ((HttpServletRequest) servletRequest).getRequestURI());
+                    LOG.debug("           Request URL: {}", servletRequest.getRequestURL());
+                    LOG.debug("           Request URI: {}", servletRequest.getRequestURI());
                     LOG.debug("          Context path: {}", targetContext.getContextPath());
 
                     final long startTime = System.currentTimeMillis();
@@ -184,10 +182,9 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         if (e.getCause() instanceof ReadLimitReachedException) {
                             LOG.error("Error reading request content", e);
                             servletResponse.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content");
-                            servletResponse.setLastException(e);
                         } else {
                             LOG.error("Connection Refused to {}", location.getUri(), e);
-                            ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                            servletResponse.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                         }
                     }
                 }

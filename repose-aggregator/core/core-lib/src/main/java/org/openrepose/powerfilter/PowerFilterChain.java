@@ -29,6 +29,7 @@ import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderFieldParser;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.SplittableHeaderUtil;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.FilterProcessingTime;
@@ -49,6 +50,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static org.openrepose.commons.utils.servlet.http.ResponseMode.PASSTHROUGH;
+import static org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE;
 
 /**
  * @author fran
@@ -143,9 +147,6 @@ public class PowerFilterChain implements FilterChain {
      * current request uri.
      * <p/>
      * If a necessary filter is not available, then return an empty filter list.
-     *
-     * @param uri
-     * @return
      */
     private List<FilterContext> getFilterChainForRequest(String uri) {
         List<FilterContext> filters = new LinkedList<>();
@@ -244,33 +245,35 @@ public class PowerFilterChain implements FilterChain {
 
     private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse)
             throws IOException, ServletException {
-        final MutableHttpServletResponse mutableHttpResponse =
-                MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
+        final HttpServletResponseWrapper httpServletResponseWrapper = new HttpServletResponseWrapper(
+                (HttpServletResponse) servletResponse,
+                MUTABLE,
+                PASSTHROUGH
+        );
 
         try {
-            if (isResponseOk(mutableHttpResponse)) {
-                containerFilterChain.doFilter(mutableHttpRequest, mutableHttpResponse);
+            if (isResponseOk(httpServletResponseWrapper)) {
+                containerFilterChain.doFilter(mutableHttpRequest, httpServletResponseWrapper);
             }
-
-            if (isResponseOk(mutableHttpResponse)) {
-                router.route(mutableHttpRequest, mutableHttpResponse);
+            if (isResponseOk(httpServletResponseWrapper)) {
+                router.route(mutableHttpRequest, httpServletResponseWrapper);
             }
-            splitResponseHeaders(mutableHttpResponse);
+            splitResponseHeaders(httpServletResponseWrapper);
+            httpServletResponseWrapper.commitToResponse();
         } catch (Exception ex) {
             LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
-            mutableHttpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mutableHttpResponse.setLastException(ex);
+            httpServletResponseWrapper.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
-    private void splitResponseHeaders(MutableHttpServletResponse mutableHttpResponse) {
-        for (String headerName : mutableHttpResponse.getHeaderNames()) {
+    private void splitResponseHeaders(HttpServletResponseWrapper httpServletResponseWrapper) {
+        for (String headerName : httpServletResponseWrapper.getHeaderNames()) {
             if (splittabelHeaderUtil.isSplitable(headerName)) {
-                Collection<String> splitValues = splitResponseHeaderValues(mutableHttpResponse.getHeaders(headerName));
-                mutableHttpResponse.removeHeader(headerName);
+                Collection<String> splitValues = splitResponseHeaderValues(httpServletResponseWrapper.getHeaders(headerName));
+                httpServletResponseWrapper.removeHeader(headerName);
                 for (String splitValue : splitValues) {
                     if (StringUtils.isNotEmpty(splitValue)) {
-                        mutableHttpResponse.addHeader(headerName, splitValue);
+                        httpServletResponseWrapper.addHeader(headerName, splitValue);
                     }
                 }
             }
