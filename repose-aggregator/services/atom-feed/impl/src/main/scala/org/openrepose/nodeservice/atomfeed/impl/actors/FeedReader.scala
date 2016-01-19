@@ -111,15 +111,16 @@ class FeedReader(feedUri: String,
         firstReadDone = true
         highWaterMark = entryStream.headOption.map(_.getId)
       } catch {
-        // fixme: Is there any case where this feed reader actor should be killed? Or restarted after some time?
         case AuthenticationException =>
           logger.error("Authentication failed -- connection to Atom service could not be established")
+          authenticatedRequestFactory.foreach(_.onInvalidCredentials())
         case e@(_: UnknownServiceException | _: IOException) =>
           logger.error("Connection to Atom service failed -- an invalid URI may have been provided, or " +
             "authentication credentials may be invalid", e)
           authenticatedRequestFactory.foreach(_.onInvalidCredentials())
         case pe: ParseException =>
           logger.error("Failed to parse the Atom feed", pe)
+          authenticatedRequestFactory.foreach(_.onInvalidCredentials())
         case e: Exception =>
           logger.error("Feed was unable to be read", e)
       }
