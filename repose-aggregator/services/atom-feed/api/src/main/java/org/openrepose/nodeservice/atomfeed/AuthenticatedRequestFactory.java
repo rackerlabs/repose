@@ -30,10 +30,10 @@ public interface AuthenticatedRequestFactory {
      * Mutates a request to adhere to some authentication scheme compatible with the Atom service.
      *
      * @param atomFeedUrlConnection The unauthenticated feed {@link URLConnection} with the Atom service.
-     * @param requestId             A unique identifier associated with all of the requests for this feed reading interaction.
+     * @param context               A context object which contains information related to the request.
      * @return The {@link URLConnection} with authentication mutations applied.
      */
-    URLConnection authenticateRequest(URLConnection atomFeedUrlConnection, String requestId, String reposeVersion);
+    URLConnection authenticateRequest(URLConnection atomFeedUrlConnection, AuthenticationRequestContext context);
 
     /**
      * This method will be called anytime authentication credentials on a request that has been processed by the

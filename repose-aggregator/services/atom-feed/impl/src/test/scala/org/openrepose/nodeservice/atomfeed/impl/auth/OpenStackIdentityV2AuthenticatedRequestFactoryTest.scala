@@ -66,7 +66,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      osiarf.authenticateRequest(mock[URLConnection], "", "")
+      osiarf.authenticateRequest(mock[URLConnection], AuthenticationRequestContextImpl("", ""))
 
       requestHeaders.exists(_.is(CommonHttpHeader.TRACE_GUID.toString)) shouldBe true
     }
@@ -80,7 +80,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       finishSetup()
 
       val mockConnection = mock[URLConnection]
-      osiarf.authenticateRequest(mockConnection, "", "") shouldBe null
+      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", "")) shouldBe null
     }
 
     it("should handle a 4xx response") {
@@ -92,7 +92,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       finishSetup()
 
       val mockConnection = mock[URLConnection]
-      osiarf.authenticateRequest(mockConnection, "", "") shouldBe null
+      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", "")) shouldBe null
     }
 
     it("should send a valid payload and receive a valid token for the user provided") {
@@ -104,7 +104,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       finishSetup()
 
       val mockConnection = mock[URLConnection]
-      osiarf.authenticateRequest(mockConnection, "", "")
+      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", ""))
 
       verify(mockConnection).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
     }
@@ -122,17 +122,17 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       val mockConnection = mock[URLConnection]
 
-      osiarf.authenticateRequest(mockConnection, "", "")
+      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", ""))
       verify(mockConnection).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
       numberOfInterations shouldEqual 1
 
-      osiarf.authenticateRequest(mockConnection, "", "")
+      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", ""))
       verify(mockConnection, times(2)).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
       numberOfInterations shouldEqual 1
 
       osiarf.onInvalidCredentials()
 
-      osiarf.authenticateRequest(mockConnection, "", "")
+      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", ""))
       verify(mockConnection, times(3)).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
       numberOfInterations shouldEqual 2
     }

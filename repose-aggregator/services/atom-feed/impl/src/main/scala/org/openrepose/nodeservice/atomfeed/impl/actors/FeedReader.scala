@@ -34,6 +34,7 @@ import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder
 import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.AuthenticationException
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.{FeedReaderActivated, FeedReaderCreated, FeedReaderDeactivated, FeedReaderDestroyed}
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
+import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContextImpl
 import org.slf4j.MDC
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -91,7 +92,7 @@ class FeedReader(feedUri: String,
       MDC.put(TracingKey.TRACING_KEY, requestId)
 
       try {
-        val entryStream = AtomEntryStreamBuilder.build(reposeVersion, requestId, feedUrl, authenticatedRequestFactory)
+        val entryStream = AtomEntryStreamBuilder.build(feedUrl, AuthenticationRequestContextImpl(reposeVersion, requestId), authenticatedRequestFactory)
 
         if (firstReadDone) {
           val newEntryStream = highWaterMark match {

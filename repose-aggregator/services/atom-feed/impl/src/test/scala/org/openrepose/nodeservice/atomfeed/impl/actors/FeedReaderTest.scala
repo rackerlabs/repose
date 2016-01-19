@@ -33,7 +33,7 @@ import org.mockito.AdditionalAnswers
 import org.mockito.Matchers.{any, anyString}
 import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
-import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
+import org.openrepose.nodeservice.atomfeed.{AuthenticationRequestContext, AuthenticatedRequestFactory}
 import org.openrepose.nodeservice.atomfeed.impl.MockService
 import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.{CancelScheduledReading, ReadFeed, ScheduleReading}
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._
@@ -60,7 +60,7 @@ class FeedReaderTest(_system: ActorSystem)
 
   before {
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], anyString(), anyString()))
+    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
     mockAtomFeedService = new MockService()

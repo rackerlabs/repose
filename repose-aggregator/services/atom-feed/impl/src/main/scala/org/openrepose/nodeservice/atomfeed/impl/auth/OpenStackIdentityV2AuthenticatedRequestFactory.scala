@@ -31,7 +31,7 @@ import org.apache.http.{HttpHeaders, HttpStatus}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
-import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
 import play.api.libs.json.Json
 
 import scala.io.{Codec, Source}
@@ -56,8 +56,8 @@ class OpenStackIdentityV2AuthenticatedRequestFactory(configuration: OpenStackIde
 
   private var cachedToken: Option[String] = None
 
-  override def authenticateRequest(atomFeedUrlConnection: URLConnection, requestId: String, reposeVersion: String): URLConnection = {
-    lazy val tracingHeader = TracingHeaderHelper.createTracingHeader(requestId, "1.1 Repose (Repose/" + reposeVersion + ")", username)
+  override def authenticateRequest(atomFeedUrlConnection: URLConnection, context: AuthenticationRequestContext): URLConnection = {
+    lazy val tracingHeader = TracingHeaderHelper.createTracingHeader(context.getRequestId, "1.1 Repose (Repose/" + context.getReposeVersion + ")", username)
 
     val tryToken = cachedToken match {
       case Some(tkn) => Success(tkn)

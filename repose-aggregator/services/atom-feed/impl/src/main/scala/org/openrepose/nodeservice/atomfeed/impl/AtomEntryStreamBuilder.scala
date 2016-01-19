@@ -25,7 +25,7 @@ import org.apache.abdera.Abdera
 import org.apache.abdera.model.{Entry, Feed}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
-import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -46,9 +46,8 @@ object AtomEntryStreamBuilder {
     * making a request to the Atom feed, assign the result of this function to a lazy variable like so:
     * lazy val myFeed = build("http://my.feed.url", MyAuthenticatedRequestFactory)
     *
-    * @param reposeVersion           a version identifier used to build the tracing header
-    * @param requestId               a globally unique identifier used to build the tracing header
     * @param baseFeedUrl             a static locator pointing to the "head" of an Atom feed (e.g., the subscription document)
+    * @param context                 a context object which contains information related to the request
     * @param authenticator           a URL processor which authenticates connections
     * @param authenticationTimeLimit a maximum [[Duration]] to wait on authentication before considering authentication
     *                                a failure
@@ -57,16 +56,15 @@ object AtomEntryStreamBuilder {
     *         from top to bottom.
     * @throws AuthenticationException when the authenticator fails to authenticate a request
     */
-  def build(reposeVersion: String,
-            requestId: String,
-            baseFeedUrl: URL,
+  def build(baseFeedUrl: URL,
+            context: AuthenticationRequestContext,
             authenticator: Option[AuthenticatedRequestFactory] = None,
             authenticationTimeLimit: Duration = 1 second): Stream[Entry] = {
     val baseFeedConnection = baseFeedUrl.openConnection()
 
     val authenticatedConnection = authenticator match {
       case Some(arf) =>
-        val connectionFuture = Future(arf.authenticateRequest(baseFeedConnection, requestId, reposeVersion))
+        val connectionFuture = Future(arf.authenticateRequest(baseFeedConnection, context))
         Option(Await.result(connectionFuture, authenticationTimeLimit))
       case None =>
         Some(baseFeedConnection)
@@ -74,7 +72,7 @@ object AtomEntryStreamBuilder {
 
     authenticatedConnection match {
       case Some(urlConnection) =>
-        val tracingHeader = TracingHeaderHelper.createTracingHeader(requestId, "1.1 Repose (Repose/" + reposeVersion + ")", None)
+        val tracingHeader = TracingHeaderHelper.createTracingHeader(context.getRequestId, "1.1 Repose (Repose/" + context.getReposeVersion + ")", None)
         urlConnection.setRequestProperty(CommonHttpHeader.TRACE_GUID.toString, tracingHeader)
 
         val feedInputStream = urlConnection.getInputStream
@@ -83,7 +81,7 @@ object AtomEntryStreamBuilder {
 
         feed.getLinks.find(link => link.getRel.equals("next")) match {
           case Some(nextPageLink) =>
-            feed.getEntries.toStream #::: build(reposeVersion, requestId, nextPageLink.getResolvedHref.toURL, authenticator, authenticationTimeLimit)
+            feed.getEntries.toStream #::: build(nextPageLink.getResolvedHref.toURL, context, authenticator, authenticationTimeLimit)
           case None =>
             feed.getEntries.toStream
         }

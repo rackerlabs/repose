@@ -32,7 +32,8 @@ import org.mockito.Mockito._
 import org.mockito.{AdditionalAnswers, ArgumentCaptor}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingKey
-import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
+import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContextImpl
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
@@ -53,7 +54,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
 
   before {
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], anyString(), anyString()))
+    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
     mockAtomFeedService = new MockService()
@@ -87,7 +88,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
     val waitingAuthFactory = Some(new AuthenticatedRequestFactory {
       override def onInvalidCredentials(): Unit = ???
 
-      override def authenticateRequest(atomFeedUrlConnection: URLConnection, requestId: String, reposeVersion: String): URLConnection = {
+      override def authenticateRequest(atomFeedUrlConnection: URLConnection, context: AuthenticationRequestContext): URLConnection = {
         // Infinite loop to prove that the Future safeguard actually bounds the authenticator
         while (true) {
           Thread.sleep(1000)
@@ -97,14 +98,14 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
     })
 
     intercept[TimeoutException] {
-      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0", waitingAuthFactory, 100 millis)
+      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"), waitingAuthFactory, 100 millis)
     }
   }
 
   test("should add the request id to slf4j MDC") {
     finishSetup()
 
-    AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0", Some(mockAuthRequestFactory))
+    AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
 
     assert(MDC.get(TracingKey.TRACING_KEY) != null)
   }
@@ -115,23 +116,23 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
     val capturedUrlConnection = ArgumentCaptor.forClass(classOf[URLConnection])
 
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(capturedUrlConnection.capture(), anyString(), anyString()))
+    when(mockAuthRequestFactory.authenticateRequest(capturedUrlConnection.capture(), any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
-    AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0", Some(mockAuthRequestFactory))
+    AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
 
     assert(capturedUrlConnection.getValue.getRequestProperty(CommonHttpHeader.TRACE_GUID.toString).nonEmpty)
   }
 
   test("should throw an AuthenticationException if the factory returns null") {
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], anyString(), anyString()))
+    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
       .thenReturn(null)
 
     finishSetup()
 
     intercept[AtomEntryStreamBuilder.AuthenticationException.type] {
-      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0", Some(mockAuthRequestFactory))
+      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
     }
   }
 
@@ -152,7 +153,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
 
     finishSetup()
 
-    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0")
+    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"))
 
     assert(entryStream.exists(entry => entry.getContent.equals("entryOne")))
     assert(entryStream.exists(entry => entry.getContent.equals("entryTwo")))
@@ -175,7 +176,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
 
     finishSetup()
 
-    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0")
+    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"))
 
     assert(entryStream.head.getContent.equals("entryOne"))
     assert(entryStream.drop(1).head.getContent.equals("entryTwo"))
@@ -229,7 +230,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
         HttpResponse(404, entity = "Not Found")
     }
 
-    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), "1.0")
+    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"))
 
     assert(entryStream.head.getContent.equals("entryOne"))
     assert(entryStream.drop(1).head.getContent.equals("entryTwo"))
