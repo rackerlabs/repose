@@ -23,9 +23,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
@@ -74,7 +72,7 @@ public class HeaderValueImplTest {
 
         @Test
         public void shouldReturnEqualsWhenTwoHeadersAreTheSameEvenWithDifferingQualities() {
-            final Map<String, String> parameters = new HashMap<String, String>();
+            final Map<String, String> parameters = new HashMap<>();
             parameters.put("param1", "1");
             parameters.put("param2", "2");
             parameters.put("param3", "3");
@@ -93,7 +91,7 @@ public class HeaderValueImplTest {
 
         @Test(expected = MalformedHeaderValueException.class)
         public void shouldReturnThrowNumberFormatExceptionForUnparsableQualityFactors() {
-            final Map<String, String> parameters = new HashMap<String, String>();
+            final Map<String, String> parameters = new HashMap<>();
             parameters.put("q", "nan");
 
             final HeaderValueImpl headerValue = new HeaderValueImpl("value", parameters);
@@ -103,14 +101,14 @@ public class HeaderValueImplTest {
 
         @Test
         public void shouldIdentifyWhenHeaderValueHasNoQualityFactor() {
-            final HeaderValueImpl headerValue = new HeaderValueImpl("value", Collections.EMPTY_MAP);
+            final HeaderValueImpl headerValue = new HeaderValueImpl("value", Collections.<String, String>emptyMap());
 
             assertFalse("Header value correctly identify whether or not it has an assigned quality factor", headerValue.hasQualityFactor());
         }
 
         @Test
         public void shouldReturnNegativeOneWhenNoQualityFactorCanBeDetermined() {
-            final HeaderValueImpl headerValue = new HeaderValueImpl("value", Collections.EMPTY_MAP);
+            final HeaderValueImpl headerValue = new HeaderValueImpl("value", Collections.<String, String>emptyMap());
 
             assertTrue("Header value must match expected output", 1 == headerValue.getQualityFactor());
         }
@@ -127,28 +125,32 @@ public class HeaderValueImplTest {
 
         @Test
         public void shouldOutputValueParameters() {
-            final Pattern expectedPattern = Pattern.compile("[^;]+;(param1=1;?)?(param2=2;?)?(param3=3;?)?");
+            final List<Pattern> patterns = new ArrayList<>();
+            for (int i : Arrays.asList(1, 2, 3)) {
+                patterns.add(Pattern.compile(".*;?(param" + i + "=" + i + ");?.*"));
+            }
 
-            final Map<String, String> parameters = new HashMap<String, String>();
+            final Map<String, String> parameters = new HashMap<>();
             parameters.put("param1", "1");
             parameters.put("param2", "2");
             parameters.put("param3", "3");
 
             final HeaderValueImpl headerValue = new HeaderValueImpl("value", parameters);
-
-            assertTrue("Header value: " + headerValue.toString() + " must match expected pattern", expectedPattern.matcher(headerValue.toString()).matches());
+            for (Pattern expectedPattern : patterns) {
+                assertTrue("Header value: " + headerValue.toString() + " must match expected pattern", expectedPattern.matcher(headerValue.toString()).matches());
+            }
         }
 
         @Test
         public void shouldOutputValueWithNoParameters() {
-            final HeaderValueImpl headerValue = new HeaderValueImpl("value", Collections.EMPTY_MAP);
+            final HeaderValueImpl headerValue = new HeaderValueImpl("value", Collections.<String, String>emptyMap());
 
             assertEquals("Header value should only contain value when no parameters are present.", "value", headerValue.toString());
         }
 
         @Test
         public void shouldOutPutEmptyWithNullValue() {
-            final HeaderValueImpl headerValue = new HeaderValueImpl(null, Collections.EMPTY_MAP);
+            final HeaderValueImpl headerValue = new HeaderValueImpl(null, Collections.<String, String>emptyMap());
 
             assertEquals("Header value should be blank when passed null.", "", headerValue.toString());
         }
