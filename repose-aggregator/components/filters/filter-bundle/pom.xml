@@ -123,6 +123,11 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose.rackspace</groupId>
+            <artifactId>rackspace-identity-basic-auth-password</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrepose.rackspace</groupId>
             <artifactId>rackspace-auth-user</artifactId>
             <version>${project.version}</version>
         </dependency>
