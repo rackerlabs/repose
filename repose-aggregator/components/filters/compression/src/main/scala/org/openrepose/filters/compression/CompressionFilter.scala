@@ -28,8 +28,6 @@ import javax.servlet.http.HttpServletResponse
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper
-import org.openrepose.commons.utils.servlet.http.ResponseMode._
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.external.pjlcompression.CompressingFilter
@@ -69,10 +67,9 @@ class CompressionFilter @Inject()(configurationService: ConfigurationService, co
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, filterChain: FilterChain): Unit = {
-    val responseWrapper: HttpServletResponseWrapper = new HttpServletResponseWrapper(
-      response.asInstanceOf[HttpServletResponse], READONLY, READONLY, response.getOutputStream)
+    val httpResponse = response.asInstanceOf[HttpServletResponse]
 
-    val filterResult: ActualFilterResult = Try(actualFilter.doFilter(request, responseWrapper, filterChain)) match {
+    val filterResult: ActualFilterResult = Try(actualFilter.doFilter(request, httpResponse, filterChain)) match {
       case Success(_) => Pass
       case Failure(ioe: IOException) if "Not in GZIP format".equalsIgnoreCase(ioe.getMessage) => BadRequest(ioe)
       case Failure(ioe: IOException) if classOf[EOFException] == ioe.getClass => BadRequest(ioe)
@@ -85,10 +82,10 @@ class CompressionFilter @Inject()(configurationService: ConfigurationService, co
       case BadRequest(e: Exception) =>
         logger.warn("Unable to decompress message. Bad request body or content-encoding")
         logger.debug("Exception: ", e)
-        responseWrapper.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+        httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST)
       case InternalError(e: Exception) =>
         logger.error("Error with the CompressingFilter", e)
-        responseWrapper.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+        httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
     }
   }
 
