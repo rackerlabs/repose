@@ -2,14 +2,14 @@
  * _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
  * Repose
  * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
- * Copyright (C) 2010 - 2015 Rackspace US, Inc.
+ * Copyright (C) 2010 - 2016 Rackspace US, Inc.
  * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,26 +17,33 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
+
 package org.openrepose.filters.flush;
 
-import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import java.io.IOException;
 
-public class FlushOutputHandlerFactory extends AbstractConfiguredFilterHandlerFactory<FlushOutputHandler> {
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-    public FlushOutputHandlerFactory() {
-    }
+@RunWith(Enclosed.class)
+public class FlushOutputFilterTest {
 
-    @Override
-    protected FlushOutputHandler buildHandler() {
-        return new FlushOutputHandler();
-    }
+    public static class WhenHandlingRequests {
+        @Test
+        public void shouldCallFlushBuffer() throws IOException, ServletException {
+            ServletResponse response = mock(ServletResponse.class);
 
-    @Override
-    protected Map<Class, UpdateListener<?>> getListeners() {
-        return new HashMap<Class, UpdateListener<?>>();
+            (new FlushOutputFilter()).doFilter(mock(ServletRequest.class), response, mock(FilterChain.class));
+
+            verify(response).flushBuffer();
+        }
     }
 }
