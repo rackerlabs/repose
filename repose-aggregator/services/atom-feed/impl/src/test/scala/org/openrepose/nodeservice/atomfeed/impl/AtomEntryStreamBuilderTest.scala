@@ -102,14 +102,6 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
     }
   }
 
-  test("should add the request id to slf4j MDC") {
-    finishSetup()
-
-    AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
-
-    assert(MDC.get(TracingKey.TRACING_KEY) != null)
-  }
-
   test("should add a tracing header to the request to the Atom service") {
     finishSetup()
 

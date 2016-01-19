@@ -30,18 +30,21 @@ import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
 import org.junit.runner.RunWith
 import org.mockito.AdditionalAnswers
-import org.mockito.Matchers.{any, anyString}
+import org.mockito.Matchers.any
 import org.mockito.Mockito.{reset, verify, when}
+import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
-import org.openrepose.nodeservice.atomfeed.{AuthenticationRequestContext, AuthenticatedRequestFactory}
 import org.openrepose.nodeservice.atomfeed.impl.MockService
 import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.{CancelScheduledReading, ReadFeed, ScheduleReading}
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager.{BindFeedReader, Notify}
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuiteLike}
+import org.slf4j.MDC
 
+import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
@@ -150,6 +153,17 @@ class FeedReaderTest(_system: ActorSystem)
     notifierProbe.fishForMessage(hint = "feed reader deactivated") {
       case FeedReaderDeactivated => true
       case _ => false
+    }
+  }
+
+  test("should add the request id to slf4j MDC") {
+    finishSetup()
+
+    actorRef ! ReadFeed
+
+    assert(MDC.get(TracingKey.TRACING_KEY) != null)
+    notifierProbe.receiveWhile(500 milliseconds) {
+      case _ => true
     }
   }
 
