@@ -25,11 +25,11 @@ import javax.servlet.http.HttpServletRequest
 
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 
 /**
  * The sole purpose of this filter is to add the X-Forwarded-Proto header to a request with a value which
- * corresponds to the protocol of the request (e.g., http or https).
+ * corresponds to the protocol of the request (e.g. http or https).
  */
 @Named
 class ForwardedProtoFilter extends Filter with HttpDelegationManager with LazyLogging {
@@ -44,12 +44,13 @@ class ForwardedProtoFilter extends Filter with HttpDelegationManager with LazyLo
     val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
 
     if (Option(httpServletRequest.getHeader(X_FORWARDED_PROTO)).isEmpty) {
-      logger.debug(s"Adding the $X_FORWARDED_PROTO header")
+      val headerValue = servletRequest.getProtocol.substring(0, servletRequest.getProtocol.indexOf('/'))
+      logger.debug(s"Adding the $X_FORWARDED_PROTO header with value $headerValue")
 
-      val mutableHttpServletRequest = MutableHttpServletRequest.wrap(httpServletRequest)
-      mutableHttpServletRequest.addHeader(X_FORWARDED_PROTO, servletRequest.getProtocol.substring(0, servletRequest.getProtocol.indexOf('/')))
+      val wrappedHttpServletRequest = new HttpServletRequestWrapper(httpServletRequest)
+      wrappedHttpServletRequest.addHeader(X_FORWARDED_PROTO, headerValue)
 
-      filterChain.doFilter(mutableHttpServletRequest, servletResponse)
+      filterChain.doFilter(wrappedHttpServletRequest, servletResponse)
     } else {
       logger.debug("Passing the request without modifying headers")
       filterChain.doFilter(servletRequest, servletResponse)
