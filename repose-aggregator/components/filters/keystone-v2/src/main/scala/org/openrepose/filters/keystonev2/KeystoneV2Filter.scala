@@ -668,23 +668,29 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   object CacheInvalidationFeedListener extends AtomFeedListener {
-    private var registeredFeeds = List.empty[String]
-
+    case class RegisteredFeed(id: String, unique: String)
+    private var registeredFeeds = List.empty[RegisteredFeed]
 
     def unRegisterFeeds(): Unit = {
       registeredFeeds.synchronized {
         registeredFeeds.foreach(feed =>
-          atomFeedService.unregisterListener(feed)
+          atomFeedService.unregisterListener(feed.unique)
         )
       }
     }
 
     def registerFeeds(feeds: List[AtomFeedType]): Unit = {
       registeredFeeds.synchronized {
-        unRegisterFeeds()
-        registeredFeeds = feeds.map(feed =>
-          atomFeedService.registerListener(feed.getId, this)
-        )
+        // Unregister the feeds we no longer care about.
+        val inFeeds = feeds.map(_.getId)
+        val feedsToUnRegister = registeredFeeds.filterNot(regFeed => inFeeds.contains(regFeed.id))
+        feedsToUnRegister.foreach(feed => atomFeedService.unregisterListener(feed.unique))
+        // Register with only the new feeds we aren't already registered with.
+        val registeredFeedIds = registeredFeeds.map(_.id)
+        val feedsToRegister = inFeeds.filterNot(posFeed => registeredFeedIds.contains(posFeed))
+        val newRegisteredFeeds = feedsToRegister.map(feedId => RegisteredFeed(feedId, atomFeedService.registerListener(feedId, this)))
+        // Update to the still and newly registered feeds.
+        registeredFeeds = registeredFeeds.diff(feedsToUnRegister) ++ newRegisteredFeeds
       }
     }
 
