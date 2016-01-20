@@ -25,14 +25,15 @@ import java.util.concurrent.TimeUnit
 import com.mockrunner.mock.web.MockFilterConfig
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
-import org.mockito.Matchers.{eq => mockitoEq, _}
+import org.mockito.Matchers.{any => mockitoAny, eq => mockitoEq, _}
 import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
-import org.openrepose.nodeservice.atomfeed.AtomFeedService
+import org.openrepose.filters.keystonev2.config.AtomFeedType
+import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -56,6 +57,96 @@ with BeforeAndAfter {
     reset(mockDatastore)
     reset(mockConfigurationService)
     mockAkkaServiceClient.reset()
+  }
+
+  describe("The Atom feed (un)registration") {
+    val atomFeedType1 = new AtomFeedType
+    val atomFeedType2 = new AtomFeedType
+    val atomFeedType3 = new AtomFeedType
+    val atomFeedType4 = new AtomFeedType
+    val atomFeedType5 = new AtomFeedType
+    val atomFeedId1 = "AtomFeedId1"
+    val atomFeedId2 = "AtomFeedId2"
+    val atomFeedId3 = "AtomFeedId3"
+    val atomFeedId4 = "AtomFeedId4"
+    val atomFeedId5 = "AtomFeedId5"
+    val atomFeedPre = "SVC-"
+    atomFeedType1.setId(atomFeedId1)
+    atomFeedType2.setId(atomFeedId2)
+    atomFeedType3.setId(atomFeedId3)
+    atomFeedType4.setId(atomFeedId4)
+    atomFeedType5.setId(atomFeedId5)
+
+    def getMockAtomFeedService(): AtomFeedService = {
+      val mockAtomFeedService = mock[AtomFeedService]
+      when(mockAtomFeedService.registerListener(mockitoEq(atomFeedId1), mockitoAny[AtomFeedListener])).thenReturn(atomFeedPre + atomFeedId1)
+      when(mockAtomFeedService.registerListener(mockitoEq(atomFeedId2), mockitoAny[AtomFeedListener])).thenReturn(atomFeedPre + atomFeedId2)
+      when(mockAtomFeedService.registerListener(mockitoEq(atomFeedId3), mockitoAny[AtomFeedListener])).thenReturn(atomFeedPre + atomFeedId3)
+      when(mockAtomFeedService.registerListener(mockitoEq(atomFeedId4), mockitoAny[AtomFeedListener])).thenReturn(atomFeedPre + atomFeedId4)
+      when(mockAtomFeedService.registerListener(mockitoEq(atomFeedId5), mockitoAny[AtomFeedListener])).thenReturn(atomFeedPre + atomFeedId5)
+      mockAtomFeedService
+    }
+
+    it("register the feeds") {
+      val mockAtomFeedService = getMockAtomFeedService
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mockAtomFeedService, mockDatastoreService)
+      val feedsList = List(atomFeedType1, atomFeedType2, atomFeedType3, atomFeedType4, atomFeedType5)
+
+      filter.CacheInvalidationFeedListener.registerFeeds(feedsList)
+
+      verify(mockAtomFeedService, never()).unregisterListener(anyString())
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId1), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId2), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId3), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId4), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId5), mockitoAny[AtomFeedListener])
+    }
+
+    it("register new feeds while leaving old feeds") {
+      val mockAtomFeedService = getMockAtomFeedService
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mockAtomFeedService, mockDatastoreService)
+      val oldList = List(atomFeedType1, atomFeedType2, atomFeedType3)
+      val newList = List(atomFeedType4, atomFeedType5)
+
+      filter.CacheInvalidationFeedListener.registerFeeds(oldList)
+
+      verify(mockAtomFeedService, never()).unregisterListener(anyString())
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId1), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId2), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId3), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService, never()).registerListener(mockitoEq(atomFeedId4), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService, never()).registerListener(mockitoEq(atomFeedId5), mockitoAny[AtomFeedListener])
+
+      filter.CacheInvalidationFeedListener.registerFeeds(oldList ++ newList)
+
+      verify(mockAtomFeedService, never()).unregisterListener(anyString())
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId4), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId5), mockitoAny[AtomFeedListener])
+    }
+
+    it("unregister unwanted feeds and register new feeds") {
+      val mockAtomFeedService = getMockAtomFeedService
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mockAtomFeedService, mockDatastoreService)
+      val oldList = List(atomFeedType1, atomFeedType2, atomFeedType3)
+      val newList = List(atomFeedType3, atomFeedType4, atomFeedType5)
+
+      filter.CacheInvalidationFeedListener.registerFeeds(oldList)
+
+      verify(mockAtomFeedService, never()).unregisterListener(anyString())
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId1), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId2), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId3), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService, never()).registerListener(mockitoEq(atomFeedId4), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService, never()).registerListener(mockitoEq(atomFeedId5), mockitoAny[AtomFeedListener])
+
+      filter.CacheInvalidationFeedListener.registerFeeds(newList)
+
+      verify(mockAtomFeedService).unregisterListener(atomFeedPre + atomFeedId1)
+      verify(mockAtomFeedService).unregisterListener(atomFeedPre + atomFeedId2)
+      verify(mockAtomFeedService, times(1)).registerListener(mockitoEq(atomFeedId3), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId4), mockitoAny[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(mockitoEq(atomFeedId5), mockitoAny[AtomFeedListener])
+    }
   }
 
   describe("Configured with cache invalidation via an Atom feed") {
@@ -104,7 +195,7 @@ with BeforeAndAfter {
       verify(mockDatastore).remove(s"$TOKEN_KEY_PREFIX$tokenOne")
       verify(mockDatastore).remove(s"$ENDPOINTS_KEY_PREFIX$tokenOne")
       verify(mockDatastore).remove(s"$GROUPS_KEY_PREFIX$tokenOne")
-      verify(mockDatastore, never()).put(any(), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
+      verify(mockDatastore, never()).put(mockitoAny(), mockitoAny(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       mockAkkaServiceClient.validate()
     }
 
