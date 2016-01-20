@@ -141,7 +141,7 @@ class NotifierManagerTest
     probe.expectMsg(CancelScheduledReading)
   }
 
-  test("should notifier all registered notifiers of feed reader creation") {
+  test("should notify all registered notifiers of feed reader creation") {
     val mockListenerTwo = mock[AtomFeedListener]
     actorRef ! AddNotifier("test-id1", mockListener)
     actorRef ! AddNotifier("test-id2", mockListenerTwo)
@@ -154,7 +154,7 @@ class NotifierManagerTest
     verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.FEED_CREATED)
   }
 
-  test("should notifier all registered notifiers of feed reader activation") {
+  test("should notify all registered notifiers of feed reader activation") {
     val mockListenerTwo = mock[AtomFeedListener]
     actorRef ! AddNotifier("test-id1", mockListener)
     actorRef ! AddNotifier("test-id2", mockListenerTwo)
@@ -165,7 +165,7 @@ class NotifierManagerTest
     verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.FEED_ACTIVATED)
   }
 
-  test("should notifier all registered notifiers of feed reader deactivation") {
+  test("should notify all registered notifiers of feed reader deactivation") {
     val mockListenerTwo = mock[AtomFeedListener]
     actorRef ! AddNotifier("test-id1", mockListener)
     actorRef ! AddNotifier("test-id2", mockListenerTwo)
@@ -176,7 +176,7 @@ class NotifierManagerTest
     verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.FEED_DEACTIVATED)
   }
 
-  test("should notifier all registered notifiers of feed reader destruction") {
+  test("should notify all registered notifiers of feed reader destruction") {
     val mockListenerTwo = mock[AtomFeedListener]
     actorRef ! AddNotifier("test-id1", mockListener)
     actorRef ! AddNotifier("test-id2", mockListenerTwo)
