@@ -35,8 +35,7 @@
 package org.openrepose.external.pjlcompression;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -191,7 +190,7 @@ import java.util.regex.Pattern;
  * @author Sean Owen
  * @since 1.0
  */
-public final class CompressingFilter implements Filter {
+public class CompressingFilter implements Filter {
 
     /**
      * One may force the filter to use a particular encoding by setting its value as an attribute of the {@link
@@ -227,13 +226,6 @@ public final class CompressingFilter implements Filter {
     public void doFilter(ServletRequest request,
                          ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
-        if (isForRepose) {
-            // Remove 'Content-Encoding' header when value is identity
-            if (StringUtilities.nullSafeEqualsIgnoreCase(((HttpServletRequest) request).getHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER), CompressingStreamFactory.NO_ENCODING)) {
-                request = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-                ((MutableHttpServletRequest) request).removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
-            }
-        }
 
         ServletRequest chainRequest = getRequest(request);
         ServletResponse chainResponse = getResponse(request, response);
@@ -262,26 +254,16 @@ public final class CompressingFilter implements Filter {
 
         //Causing this filter to write out input stream so as we can catch exceptions earlier.
         if (isForRepose) {
-            MutableHttpServletRequest mutableHttpServletRequest = MutableHttpServletRequest.wrap((HttpServletRequest) chainRequest);
-            mutableHttpServletRequest.setInputStream(chainRequest.getInputStream());
-
-            // Remove the accept-encoding header before forwarding the request so that downstream servers do not attempt to
-            // compress the response. Compression/decompression is handled solely by this filter with Repose.
-            mutableHttpServletRequest.removeHeader(CompressingHttpServletResponse.ACCEPT_ENCODING_HEADER);
-            chainRequest = mutableHttpServletRequest;
+            HttpServletRequestWrapper wrappedChainRequest = new HttpServletRequestWrapper((HttpServletRequest) chainRequest);
+            wrappedChainRequest.removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
+            wrappedChainRequest.removeHeader(CompressingHttpServletResponse.ACCEPT_ENCODING_HEADER);
+            chainRequest = wrappedChainRequest;
         }
+
         chain.doFilter(chainRequest, chainResponse);
 
         if (attemptingToCompressResponse) {
-
-            //Repose does not write to the output stream unless data is written. This is for performance (since we don't always read the response body)
-            //This is the modification to CompressingFilter where we manually flush the output stream so as the CompressingHttpServletResponse can comrpess the response.
-            if (isForRepose) {
-                MutableHttpServletResponse resp = MutableHttpServletResponse.wrap((HttpServletRequest) request, (HttpServletResponse) chainResponse);
-                resp.commitBufferToServletOutputStream();
-            }
             CompressingHttpServletResponse compressingResponse = (CompressingHttpServletResponse) chainResponse;
-
 
             // We close the response in all cases since much of the logic in this filter depends upon
             // close() getting called at some point; it seems that some containers do not explicitly
@@ -304,13 +286,11 @@ public final class CompressingFilter implements Filter {
             if (statsEnabled) {
                 context.getStats().incrementNumResponsesCompressed();
             }
-
         } else {
             if (statsEnabled) {
                 context.getStats().incrementTotalResponsesNotCompressed();
             }
         }
-
     }
 
     private ServletRequest getRequest(ServletRequest request) {
@@ -321,7 +301,7 @@ public final class CompressingFilter implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String contentEncoding = httpRequest.getHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
-        if (contentEncoding == null) {
+        if (contentEncoding == null || StringUtilities.nullSafeEqualsIgnoreCase(contentEncoding, CompressingStreamFactory.NO_ENCODING)) {
             logger.logDebug("Request is not compressed, so not decompressing");
             return null;
         }
@@ -334,12 +314,6 @@ public final class CompressingFilter implements Filter {
         if (CompressingStreamFactory.NO_ENCODING.equalsIgnoreCase(contentEncoding)) {
             logger.logDebug("Can't decompress request with encoding: " + contentEncoding);
             return null;
-        }
-
-        if (isForRepose) {
-            // Remove 'Content-Encoding' header after decompression
-            httpRequest = MutableHttpServletRequest.wrap(httpRequest);
-            ((MutableHttpServletRequest) httpRequest).removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
         }
 
         return new CompressedHttpServletRequest(httpRequest,
