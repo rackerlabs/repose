@@ -160,7 +160,8 @@ with BeforeAndAfter {
         |        <atom-feed id="some-feed"/>
         |    </cache>
         |</keystone-v2>
-      """.stripMargin)
+        | """.stripMargin
+    )
 
     val userId = "TestUser123"
     val tokenOne = UUID.randomUUID().toString
@@ -172,24 +173,40 @@ with BeforeAndAfter {
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
     it("removes the token, but doesn't touch the User to Token cache on a TOKEN event") {
-      // Based on example from: https://github.com/rackerlabs/standard-usage-schemas/blob/b43ed83/message_samples/identity/xml/
+      // This was taken from: https://github.com/rackerlabs/standard-usage-schemas/blob/master/message_samples/identity/xml/cloudidentity-token-token-delete-v1-response.xml
       filter.CacheInvalidationFeedListener.onNewAtomEntry(
-        s"""<event xmlns="http://docs.rackspace.com/core/event"
-            |      xmlns:id="http://docs.rackspace.com/event/identity/trr/user"
-            |      id="12345678-1234-5678-9012-123456789012"
-            |      version="2"
-            |      resourceId="$tokenOne"
-            |      eventTime="1970-01-01T00:00:00Z"
-            |      type="DELETE"
-            |      region="DFW"
-            |      dataCenter="DFW1">
-            |    <id:product serviceCode="CloudIdentity"
-            |                version="1"
-            |                resourceType="TOKEN"
-            |    />
-            |</event>
-            |
-        """.stripMargin
+        s"""<?xml version="1.0" encoding="UTF-8"?>
+            |<atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+            |            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            |            xmlns="http://www.w3.org/2001/XMLSchema">
+            |   <atom:id>urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814</atom:id>
+            |   <atom:category term="rgn:DFW"/>
+            |   <atom:category term="dc:DFW1"/>
+            |   <atom:category term="rid:4a2b42f4-6c63-11e1-815b-7fcbcf67f549"/>
+            |   <atom:category term="cloudidentity.token.token.delete"/>
+            |   <atom:category term="type:cloudidentity.token.token.delete"/>
+            |   <atom:title>CloudIdentity</atom:title>
+            |   <atom:content type="application/xml">
+            |      <event xmlns="http://docs.rackspace.com/core/event"
+            |             xmlns:sample="http://docs.rackspace.com/event/identity/token"
+            |             id="e53d007a-fc23-11e1-975c-cfa6b29bb814"
+            |             version="1"
+            |             tenantId="5914283"
+            |             resourceId="$tokenOne"
+            |             eventTime="2013-03-15T11:51:11Z"
+            |             type="DELETE"
+            |             dataCenter="DFW1"
+            |             region="DFW">
+            |          <sample:product serviceCode="CloudIdentity" version="1" resourceType="TOKEN"
+            |                          tenants="1234 tenant2 3882"/>
+            |      </event>
+            |   </atom:content>
+            |   <atom:link href="https://ord.feeds.api.rackspacecloud.com/identity/events/entries/urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814"
+            |              rel="self"/>
+            |   <atom:updated>2013-03-01T19:42:35.507Z</atom:updated>
+            |   <atom:published>2013-03-01T19:42:35.507</atom:published>
+            |</atom:entry>
+            |""".stripMargin
       )
 
       verify(mockDatastore).remove(s"$TOKEN_KEY_PREFIX$tokenOne")
@@ -202,23 +219,43 @@ with BeforeAndAfter {
     List("USER", "TRR_USER").foreach { resourceType =>
       it(s"removes the User to Token cache along with the token cache on a $resourceType event") {
         when(mockDatastore.get(s"$USER_ID_KEY_PREFIX$userId")).thenReturn(Vector(tokenOne, tokenTwo), null)
-        // Based on example from: https://github.com/rackerlabs/standard-usage-schemas/blob/b43ed83/message_samples/identity/xml/
+        // This was taken from: https://github.com/rackerlabs/standard-usage-schemas/blob/master/message_samples/identity/xml/cloudidentity-user-trr_user-delete-v1-response.xml
         filter.CacheInvalidationFeedListener.onNewAtomEntry(
-          s"""<event xmlns="http://docs.rackspace.com/core/event"
-              |      xmlns:id="http://docs.rackspace.com/event/identity/token"
-              |      version="1"
-              |      id="12345678-1234-5678-9012-123456789012"
-              |      resourceId="$userId"
-              |      eventTime="1970-01-01T00:00:00Z"
-              |      type="DELETE"
-              |      region="DFW"
-              |      dataCenter="DFW1">
-              |    <id:product serviceCode="CloudIdentity"
-              |                version="1"
-              |                resourceType="$resourceType"
-              |    />
-              |</event>
-        """.stripMargin
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+              |<atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+              |            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+              |            xmlns="http://www.w3.org/2001/XMLSchema">
+              |   <atom:id>urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814</atom:id>
+              |   <atom:category term="rgn:DFW"/>
+              |   <atom:category term="dc:DFW1"/>
+              |   <atom:category term="rid:4a2b42f4-6c63-11e1-815b-7fcbcf67f549"/>
+              |   <atom:category term="cloudidentity.user.trr_user.delete"/>
+              |   <atom:category term="type:cloudidentity.user.trr_user.delete"/>
+              |   <atom:title>CloudIdentity</atom:title>
+              |   <atom:content type="application/xml">
+              |      <event xmlns="http://docs.rackspace.com/core/event"
+              |             xmlns:sample="http://docs.rackspace.com/event/identity/trr/user"
+              |             id="e53d007a-fc23-11e1-975c-cfa6b29bb814"
+              |             version="2"
+              |             resourceId="$userId"
+              |             eventTime="2013-03-15T11:51:11Z"
+              |             type="DELETE"
+              |             dataCenter="DFW1"
+              |             region="DFW">
+              |         <sample:product serviceCode="CloudIdentity"
+              |                         version="1"
+              |                         resourceType="$resourceType"
+              |                         tokenCreationDate="2013-09-26T15:32:00Z">
+              |            <sample:tokenAuthenticatedBy values="PASSWORD APIKEY"/>
+              |         </sample:product>
+              |      </event>
+              |   </atom:content>
+              |   <atom:link href="https://ord.feeds.api.rackspacecloud.com/identity/events/entries/urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814"
+              |              rel="self"/>
+              |   <atom:updated>2013-03-01T19:42:35.507Z</atom:updated>
+              |   <atom:published>2013-03-01T19:42:35.507</atom:published>
+              |</atom:entry>
+              |""".stripMargin
         )
 
         verify(mockDatastore).remove(s"$USER_ID_KEY_PREFIX$userId")
@@ -235,24 +272,40 @@ with BeforeAndAfter {
     }
 
     it("doesn't remove anything on any other event") {
-      // Based on example from: https://github.com/rackerlabs/standard-usage-schemas/blob/b43ed83/message_samples/identity/xml/
+      // This was taken from: https://github.com/rackerlabs/standard-usage-schemas/blob/master/message_samples/identity/xml/cloudidentity-token-token-delete-v1-response.xml
       filter.CacheInvalidationFeedListener.onNewAtomEntry(
-        s"""<event xmlns="http://docs.rackspace.com/core/event"
-            |      xmlns:id="http://docs.rackspace.com/event/identity/trr/user"
-            |      id="12345678-1234-5678-9012-123456789012"
-            |      version="2"
-            |      resourceId="$tokenOne"
-            |      eventTime="1970-01-01T00:00:00Z"
-            |      type="DELETE"
-            |      region="DFW"
-            |      dataCenter="DFW1">
-            |    <id:product serviceCode="CloudIdentity"
-            |                version="1"
-            |                resourceType="TEST"
-            |    />
-            |</event>
-            |
-        """.stripMargin
+        s"""<?xml version="1.0" encoding="UTF-8"?>
+            |<atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+            |            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            |            xmlns="http://www.w3.org/2001/XMLSchema">
+            |   <atom:id>urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814</atom:id>
+            |   <atom:category term="rgn:DFW"/>
+            |   <atom:category term="dc:DFW1"/>
+            |   <atom:category term="rid:4a2b42f4-6c63-11e1-815b-7fcbcf67f549"/>
+            |   <atom:category term="cloudidentity.token.token.delete"/>
+            |   <atom:category term="type:cloudidentity.token.token.delete"/>
+            |   <atom:title>CloudIdentity</atom:title>
+            |   <atom:content type="application/xml">
+            |      <event xmlns="http://docs.rackspace.com/core/event"
+            |             xmlns:sample="http://docs.rackspace.com/event/identity/token"
+            |             id="e53d007a-fc23-11e1-975c-cfa6b29bb814"
+            |             version="1"
+            |             tenantId="5914283"
+            |             resourceId="$tokenOne"
+            |             eventTime="2013-03-15T11:51:11Z"
+            |             type="DELETE"
+            |             dataCenter="DFW1"
+            |             region="DFW">
+            |          <sample:product serviceCode="CloudIdentity" version="1" resourceType="UNKNOWN"
+            |                          tenants="1234 tenant2 3882"/>
+            |      </event>
+            |   </atom:content>
+            |   <atom:link href="https://ord.feeds.api.rackspacecloud.com/identity/events/entries/urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814"
+            |              rel="self"/>
+            |   <atom:updated>2013-03-01T19:42:35.507Z</atom:updated>
+            |   <atom:published>2013-03-01T19:42:35.507</atom:published>
+            |</atom:entry>
+            |""".stripMargin
       )
 
       verify(mockDatastore, never()).remove(s"$USER_ID_KEY_PREFIX$userId")
