@@ -61,6 +61,13 @@
                             </request>
                         </method>
                     </resource>
+                    <resource path="defheader">
+                        <method name="GET" id="getItemDefHeader">
+                            <request>
+                                <param name="X-TEST" style="header" type="xs:string" required="true" default="Missing"/>
+                            </request>
+                        </method>
+                    </resource>
 
                 </resource>
             </resource>

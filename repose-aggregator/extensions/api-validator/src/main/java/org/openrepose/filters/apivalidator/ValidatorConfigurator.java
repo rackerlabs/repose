@@ -114,6 +114,7 @@ public class ValidatorConfigurator {
         config.setEnableIgnoreXSDExtension(validatorItem.isEnableIgnoreXsdExtension());
         config.setEnableRaxRolesExtension(validatorItem.isEnableRaxRoles());
         config.setMaskRaxRoles403(validatorItem.isMaskRaxRoles403());
+        config.setSetParamDefaults(true);
 
         return config;
     }

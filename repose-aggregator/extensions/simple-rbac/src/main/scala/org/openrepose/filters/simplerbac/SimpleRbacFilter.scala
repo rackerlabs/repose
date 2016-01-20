@@ -96,6 +96,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     configuration = configurationObject
     config.enableRaxRolesExtension = true
     config.checkPlainParams = true
+    config.setParamDefaults = true
     config.maskRaxRoles403 = configuration.isMaskRaxRoles403
     config.setResultHandler(getHandler)
 
