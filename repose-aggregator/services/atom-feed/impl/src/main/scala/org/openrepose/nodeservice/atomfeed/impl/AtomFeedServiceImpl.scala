@@ -29,7 +29,7 @@ import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedServiceConfigType, OpenStackIdentityV2AuthenticationType}
+import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedConfigType, AtomFeedServiceConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
 import org.openrepose.nodeservice.atomfeed.impl.actors._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, AuthenticatedRequestFactory}
@@ -52,6 +52,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
   private var isServiceEnabled = false
   private var feedActors: Map[String, FeedActorPair] = Map.empty
   private var listenerNotifierManagers: Map[String, ActorRef] = Map.empty
+  private var feedConfigurations: Seq[AtomFeedConfigType] = Seq.empty
   // note: feed readers creation/destruction determined by configuration updates
   // note: notifier managers creation/destruction determined by registering/unregistering
 
@@ -129,32 +130,39 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
         logger.trace("Service configuration updated")
         initialized = true
 
-        configurationObject.getFeed foreach { feedConfig =>
-          val notifierManager = feedActors.get(feedConfig.getId) match {
-            case Some(actorPair) =>
-              // todo: only replace the current feed reader if the configuration has changed
-              actorPair.feedReader.foreach(_ ! PoisonPill)
-              actorPair.notifierManager
-            case None =>
-              actorSystem.actorOf(Props[NotifierManager], name = feedConfig.getId + NOTIFIER_MANAGER_TAG)
-          }
+        // Destroy FeedReaders that have been removed from, or changed in, the configuration
+        feedConfigurations.diff(configurationObject.getFeed) foreach { deadFeedConfig =>
+          feedActors.get(deadFeedConfig.getId).foreach(actorPair => actorPair.feedReader foreach { reader =>
+            reader ! PoisonPill
+            // todo: let the notifier manager know that the FeedReader is gone, and the manager can be removed if there
+            //       are no registered listeners
+            feedActors = feedActors + (deadFeedConfig.getId -> FeedActorPair(actorPair.notifierManager, None))
+          })
+        }
 
-          // note: if the old feed reader actor was sent a PoisonPill, the construction of this new feed reader actor
-          //       may result in the existence of multiple actors with the same name
-          val feedReader = actorSystem.actorOf(FeedReader.props(
-            feedConfig.getUri,
-            Option(feedConfig.getAuthentication).map(buildAuthenticatedRequestFactory),
-            notifierManager,
-            feedConfig.getPollingFrequency,
-            feedConfig.getEntryOrder,
-            reposeVersion
-          ), feedConfig.getId + FEED_READER_TAG)
+        // Create FeedReaders that are defined in the configuration
+        configurationObject.getFeed.diff(feedConfigurations) foreach { newFeedConfig =>
+          val notifierManager = feedActors.get(newFeedConfig.getId)
+            .map(_.notifierManager)
+            .getOrElse(actorSystem.actorOf(Props[NotifierManager], name = newFeedConfig.getId + NOTIFIER_MANAGER_TAG))
 
-          feedActors = feedActors + (feedConfig.getId -> FeedActorPair(notifierManager, Some(feedReader)))
+          val feedReader = actorSystem.actorOf(
+            FeedReader.props(
+              newFeedConfig.getUri,
+              Option(newFeedConfig.getAuthentication).map(buildAuthenticatedRequestFactory),
+              notifierManager,
+              newFeedConfig.getPollingFrequency,
+              newFeedConfig.getEntryOrder,
+              reposeVersion),
+            newFeedConfig.getId + FEED_READER_TAG)
+
+          feedActors = feedActors + (newFeedConfig.getId -> FeedActorPair(notifierManager, Some(feedReader)))
 
           if (isServiceEnabled) {
             notifierManager ! ServiceEnabled
           }
+
+          feedConfigurations = feedConfigurations :+ newFeedConfig
         }
       }
     }
