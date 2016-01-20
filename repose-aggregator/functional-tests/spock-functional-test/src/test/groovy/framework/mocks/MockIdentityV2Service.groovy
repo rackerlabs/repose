@@ -163,6 +163,9 @@ class MockIdentityV2Service {
     def client_username = 'username';
     def client_userid = 'user_12345';
     def client_apikey = 'this-is-the-api-key';
+    def client_password = 'this-is-the-pwd'
+    def forbidden_apikey_or_pwd = 'this-key-pwd-results-in-forbidden'
+    def not_found_apikey_or_pwd = 'this-key-pwd-results-in-not-found'
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant'
     def admin_username = 'admin_username';
@@ -195,6 +198,9 @@ class MockIdentityV2Service {
         client_username = 'username';
         client_userid = 'user_12345';
         client_apikey = 'this-is-the-api-key';
+        client_password = 'this-is-the-pwd';
+        forbidden_apikey_or_pwd = 'this-key-pwd-results-in-forbidden'
+        not_found_apikey_or_pwd = 'this-key-pwd-results-in-not-found'
         admin_token = 'this-is-the-admin-token';
         admin_tenant = 'this-is-the-admin-tenant'
         admin_username = 'admin_username';
@@ -282,16 +288,16 @@ class MockIdentityV2Service {
             query = null
             nonQueryPath = path
         }
+        if (isGenerateTokenCallPath(nonQueryPath) || isBasicAuthTokenCallPath(nonQueryPath)) {
+            if (method == "POST") {
+                _generateTokenCount.incrementAndGet()
+                return generateTokenHandler(request, xml);
+            } else {
+                return new Response(405)
+            }
+        }
 
         if (isTokenCallPath(nonQueryPath)) {
-            if (isGenerateTokenCallPath(nonQueryPath)) {
-                if (method == "POST") {
-                    _generateTokenCount.incrementAndGet()
-                    return generateTokenHandler(request, xml);
-                } else {
-                    return new Response(405)
-                }
-            }
 
             if (isGetEndpointsCallPath(nonQueryPath)) {
                 if (method == "GET") {
@@ -402,7 +408,16 @@ class MockIdentityV2Service {
     }
 
     /**
-     * Check Path start with /tokens
+     * checkout if it is generateTokenCallPath /tokens for basic auth call
+     * @param nonQueryPath
+     * @return true/false
+     */
+    public static boolean isBasicAuthTokenCallPath(String nonQueryPath) {
+        return nonQueryPath == "/tokens"
+    }
+
+    /**
+     * Check Path start with /v2.0/tokens
      * @param nonQueryPath
      * @return true/false
      */
@@ -469,8 +484,10 @@ class MockIdentityV2Service {
             // THEN return the Admin token response.
             if (request.body.contains("username") &&
                     request.body.contains(client_username) &&
-                    request.body.contains("apiKey") &&
-                    request.body.contains(client_apikey)) {
+                    ((request.body.contains("apiKey") &&
+                            request.body.contains(client_apikey)) ||
+                            (request.body.contains("password") &&
+                                    request.body.contains(client_password)))) {
                 params = [
                         expires      : getExpires(),
                         userid       : client_userid,
@@ -548,7 +565,23 @@ class MockIdentityV2Service {
                 template = identitySuccessJsonTemplate
             }
         } else {
-            code = 401
+            //If the username or the apikey are longer than 120 characters, barf back a 400, bad request response
+            //I have to parse the XML body of the request to mimic behavior in identity
+            def auth = new XmlSlurper().parseText(request.body.toString())
+            String username = auth.apiKeyCredentials['@username']
+            String apikey = auth.apiKeyCredentials['@apiKey']
+            String password = auth.passwordCredentials['@password']
+
+            //Magic numbers are how large of a value identity will parse before giving back a 400 Bad Request
+            if (apikey.length() > 100 || password.length() > 100 || username.length() > 100) {
+                code = 400
+            } else if (request.body.toString().contains(forbidden_apikey_or_pwd)) {
+                code = 403
+            } else if (request.body.toString().contains(not_found_apikey_or_pwd)) {
+                code = 404
+            } else {
+                code = 401
+            }
             if (xml) {
                 template = identityFailureXmlTemplate
             } else {

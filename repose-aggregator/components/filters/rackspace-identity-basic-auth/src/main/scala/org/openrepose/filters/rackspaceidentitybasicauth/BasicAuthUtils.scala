@@ -26,11 +26,12 @@ import scala.util.{Failure, Success, Try}
 
 trait BasicAuthUtils {
   /**
-   * Returns a tuple of the (username, API Key) retrieved from an HTTP Basic authentication header (Authorization) that
-   * has already been stripped of the "Basic " auth method identifier.
-   * @param authValue the cleaned header value to be decoded and split
-   * @return a tuple of the (username, API Key)
-   */
+    * Returns a tuple of the (username, API key or password) retrieved from an HTTP Basic authentication header
+    * (Authorization) that has already been stripped of the "Basic " auth method identifier.
+    *
+    * @param authValue the cleaned header value to be decoded and split
+    * @return a tuple of the (username, API Key)
+    */
   def extractCredentials(authValue: String): (String, String) = {
     def getUsername(decodedCredentials: String): Try[String] = {
       Try(decodedCredentials.split(":").head)
@@ -44,11 +45,12 @@ trait BasicAuthUtils {
   }
 
   /**
-   * Returns an Iterator of the Authentication header values that match the desired auth method.
-   * @param headers the Authentication header values to search
-   * @param method the auth method to search for
-   * @return an Iterator of the Authentication header values that match the desired auth method
-   */
+    * Returns an Iterator of the Authentication header values that match the desired auth method.
+    *
+    * @param headers the Authentication header values to search
+    * @param method  the auth method to search for
+    * @return an Iterator of the Authentication header values that match the desired auth method
+    */
   def getBasicAuthHeaders(headers: java.util.Enumeration[String], method: String): Iterator[String] = {
     headers.asScala.filter(_.toUpperCase.startsWith(method.toUpperCase))
   }
