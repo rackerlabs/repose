@@ -309,19 +309,4 @@ class FeedReaderTest(_system: ActorSystem)
     assert(messages(0).atomEntry.hashCode == newEntryHash)
     assert(messages(1).atomEntry.hashCode == oldEntryHash)
   }
-
-  test("a failed connection to the atom service should invalidate the authentication cache") {
-    actorRef = TestActorRef(
-      new FeedReader("http://bogus.url/feed",
-        Some(mockAuthRequestFactory),
-        notifierProbe.ref,
-        5,
-        EntryOrderType.READ,
-        "1.0")
-    )
-
-    actorRef ! ReadFeed
-
-    verify(mockAuthRequestFactory).onInvalidCredentials()
-  }
 }

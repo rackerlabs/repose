@@ -19,7 +19,7 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl
 
-import java.io.StringWriter
+import java.io.{IOException, StringWriter}
 import java.net.{URL, URLConnection}
 import java.util.Date
 
@@ -31,13 +31,12 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.{AdditionalAnswers, ArgumentCaptor}
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.logging.TracingKey
+import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.UnrecoverableIOException
 import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContextImpl
 import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
-import org.slf4j.MDC
 
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
@@ -226,6 +225,75 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
 
     assert(entryStream.head.getContent.equals("entryOne"))
     assert(entryStream.drop(1).head.getContent.equals("entryTwo"))
+  }
+
+  test("should callback on the authentication mechanism on bad credentials") {
+    mockAtomFeedService.start()
+
+    mockAtomFeedService.requestHandler = {
+      case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
+        HttpResponse(403)
+
+      case HttpRequest(_, _, _, _, _) =>
+        HttpResponse(404, entity = "Not Found")
+    }
+
+    reset(mockAuthRequestFactory)
+    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
+      .thenAnswer(AdditionalAnswers.returnsFirstArg())
+
+    intercept[UnrecoverableIOException] {
+      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("", ""), Some(mockAuthRequestFactory))
+    }
+
+    verify(mockAuthRequestFactory, times(2)).onInvalidCredentials()
+    verify(mockAuthRequestFactory, times(2)).authenticateRequest(any[URLConnection], any[AuthenticationRequestContext])
+  }
+
+  test("should retry once if authentication credentials go bad after the initial page fetch") {
+    mockAtomFeedService.start()
+
+    val feedPageOne = abdera.newFeed()
+    feedPageOne.setId("tag:openrepose.org,2007:/feed")
+    feedPageOne.setTitle("Test Title")
+    feedPageOne.setSubtitle("Test Subtitle")
+    feedPageOne.setUpdated(new Date())
+    feedPageOne.addAuthor("Repose")
+    feedPageOne.addLink(mockAtomFeedService.getUrl + "/feed2", "next")
+
+    val feedPageTwo = abdera.newFeed()
+    feedPageTwo.setId("tag:openrepose.org,2007:/feed2")
+    feedPageTwo.setTitle("Test Title")
+    feedPageTwo.setSubtitle("Test Subtitle")
+    feedPageTwo.setUpdated(new Date())
+    feedPageTwo.addAuthor("Repose")
+
+    val swpo = new StringWriter()
+    val swpt = new StringWriter()
+    feedPageOne.writeTo(swpo)
+    feedPageTwo.writeTo(swpt)
+
+    mockAtomFeedService.requestHandler = {
+      case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
+        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, swpo.toString))
+
+      case HttpRequest(_, Uri.Path("/feed2"), _, _, _) =>
+        HttpResponse(403)
+
+      case HttpRequest(_, _, _, _, _) =>
+        HttpResponse(404, entity = "Not Found")
+    }
+
+    reset(mockAuthRequestFactory)
+    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
+      .thenAnswer(AdditionalAnswers.returnsFirstArg())
+
+    intercept[UnrecoverableIOException] {
+      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("", ""), Some(mockAuthRequestFactory))
+    }
+
+    verify(mockAuthRequestFactory, times(2)).onInvalidCredentials()
+    verify(mockAuthRequestFactory, times(3)).authenticateRequest(any[URLConnection], any[AuthenticationRequestContext])
   }
 
   ignore("should retrieve all entries from an archived feed")()

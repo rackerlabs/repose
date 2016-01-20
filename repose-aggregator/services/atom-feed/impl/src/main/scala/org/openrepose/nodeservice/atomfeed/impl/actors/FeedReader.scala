@@ -31,7 +31,7 @@ import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder
-import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.AuthenticationException
+import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.{AuthenticationException, UnrecoverableIOException}
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.{FeedReaderActivated, FeedReaderCreated, FeedReaderDeactivated, FeedReaderDestroyed}
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
 import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContextImpl
@@ -113,14 +113,11 @@ class FeedReader(feedUri: String,
       } catch {
         case AuthenticationException =>
           logger.error("Authentication failed -- connection to Atom service could not be established")
-          authenticatedRequestFactory.foreach(_.onInvalidCredentials())
-        case e@(_: UnknownServiceException | _: IOException) =>
+        case e@(_: UnknownServiceException | _: IOException | _: UnrecoverableIOException) =>
           logger.error("Connection to Atom service failed -- an invalid URI may have been provided, or " +
             "authentication credentials may be invalid", e)
-          authenticatedRequestFactory.foreach(_.onInvalidCredentials())
         case pe: ParseException =>
           logger.error("Failed to parse the Atom feed", pe)
-          authenticatedRequestFactory.foreach(_.onInvalidCredentials())
         case e: Exception =>
           logger.error("Feed was unable to be read", e)
       }

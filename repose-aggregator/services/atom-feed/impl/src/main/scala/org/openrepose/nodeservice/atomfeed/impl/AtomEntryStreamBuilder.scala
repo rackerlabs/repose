@@ -19,6 +19,7 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl
 
+import java.io.IOException
 import java.net.URL
 
 import org.apache.abdera.Abdera
@@ -32,6 +33,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
+import scala.util.Try
 
 /**
   * A container object for the build function.
@@ -60,6 +62,14 @@ object AtomEntryStreamBuilder {
             context: AuthenticationRequestContext,
             authenticator: Option[AuthenticatedRequestFactory] = None,
             authenticationTimeLimit: Duration = 1 second): Stream[Entry] = {
+    buildR(baseFeedUrl, context, authenticator, authenticationTimeLimit)
+  }
+
+  private def buildR(baseFeedUrl: URL,
+                     context: AuthenticationRequestContext,
+                     authenticator: Option[AuthenticatedRequestFactory] = None,
+                     authenticationTimeLimit: Duration = 1 second,
+                     firstAttempt: Boolean = true): Stream[Entry] = {
     val baseFeedConnection = baseFeedUrl.openConnection()
 
     val authenticatedConnection = authenticator match {
@@ -75,20 +85,35 @@ object AtomEntryStreamBuilder {
         val tracingHeader = TracingHeaderHelper.createTracingHeader(context.getRequestId, "1.1 Repose (Repose/" + context.getReposeVersion + ")", None)
         urlConnection.setRequestProperty(CommonHttpHeader.TRACE_GUID.toString, tracingHeader)
 
-        val feedInputStream = urlConnection.getInputStream
-        val feed = parser.parse[Feed](feedInputStream).getRoot
-        feedInputStream.close()
+        try {
+          val feedInputStream = urlConnection.getInputStream
+          val feed = parser.parse[Feed](feedInputStream).getRoot
 
-        feed.getLinks.find(link => link.getRel.equals("next")) match {
-          case Some(nextPageLink) =>
-            feed.getEntries.toStream #::: build(nextPageLink.getResolvedHref.toURL, context, authenticator, authenticationTimeLimit)
-          case None =>
-            feed.getEntries.toStream
+          // Try to close the stream, but ignore any failures
+          Try(feedInputStream.close())
+
+          feed.getLinks.find(link => link.getRel.equals("next")) match {
+            case Some(nextPageLink) =>
+              feed.getEntries.toStream #::: buildR(nextPageLink.getResolvedHref.toURL, context, authenticator, authenticationTimeLimit)
+            case None =>
+              feed.getEntries.toStream
+          }
+        } catch {
+          case ioe: IOException =>
+            authenticator.foreach(_.onInvalidCredentials())
+            if (firstAttempt) {
+              // Inform the authenticator that the request failed and retry once
+              buildR(baseFeedUrl, context, authenticator, authenticationTimeLimit, firstAttempt = false)
+            } else {
+              throw UnrecoverableIOException(ioe)
+            }
         }
       case None =>
         throw AuthenticationException
     }
   }
+
+  case class UnrecoverableIOException(cause: Throwable) extends RuntimeException(cause)
 
   object AuthenticationException extends Exception
 
