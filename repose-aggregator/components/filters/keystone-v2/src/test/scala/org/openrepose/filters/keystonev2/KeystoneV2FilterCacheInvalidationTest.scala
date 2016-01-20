@@ -58,10 +58,6 @@ with BeforeAndAfter {
     mockAkkaServiceClient.reset()
   }
 
-  after {
-    mockAkkaServiceClient.validate()
-  }
-
   describe("Configured with cache invalidation via an Atom feed") {
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
@@ -109,6 +105,7 @@ with BeforeAndAfter {
       verify(mockDatastore).remove(s"$ENDPOINTS_KEY_PREFIX$tokenOne")
       verify(mockDatastore).remove(s"$GROUPS_KEY_PREFIX$tokenOne")
       verify(mockDatastore, never()).put(any(), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
+      mockAkkaServiceClient.validate()
     }
 
     List("USER", "TRR_USER").foreach { resourceType =>
@@ -142,6 +139,7 @@ with BeforeAndAfter {
         verify(mockDatastore).remove(s"$TOKEN_KEY_PREFIX$tokenTwo")
         verify(mockDatastore).remove(s"$ENDPOINTS_KEY_PREFIX$tokenTwo")
         verify(mockDatastore).remove(s"$GROUPS_KEY_PREFIX$tokenTwo")
+        mockAkkaServiceClient.validate()
       }
     }
 
@@ -175,6 +173,7 @@ with BeforeAndAfter {
       verify(mockDatastore, never()).remove(s"$TOKEN_KEY_PREFIX$tokenTwo")
       verify(mockDatastore, never()).remove(s"$ENDPOINTS_KEY_PREFIX$tokenTwo")
       verify(mockDatastore, never()).remove(s"$GROUPS_KEY_PREFIX$tokenTwo")
+      mockAkkaServiceClient.validate()
     }
   }
 }
