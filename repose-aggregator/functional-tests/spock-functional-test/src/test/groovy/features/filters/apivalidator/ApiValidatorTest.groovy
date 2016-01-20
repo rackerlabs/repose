@@ -349,4 +349,27 @@ class ApiValidatorTest extends ReposeValveTest {
         "Content-TYPE" | "application/json"
         //"Content-Type" | "application/XML"
     }
+
+    @Unroll("Request should end up with X-TEST header value of \"#headerValue\" when #present")
+    def "Should add the default header value if not present"() {
+        when: "When Requesting resource with x-roles"
+        def messageChain = deproxy.makeRequest(
+                url: reposeEndpoint + baseDefaultPath + "/resource1/id/defheader",
+                method: "GET",
+                headers: reqHeaders
+        )
+
+        then:
+        def handling = messageChain.getHandlings()[0]
+        handling.request.getHeaders().findAll('X-TEST').size() == 1
+        handling.request.headers['X-TEST'] == headerValue
+
+        where:
+        reqHeaders            | headerValue   | present
+        []                    | 'Missing'     | 'missing'
+        ['X-TEST': '']        | 'Missing'     | 'empty'
+        ['X-TEST': ' ']       | 'Missing'     | 'space'
+        ['X-TEST': ':']       | ':'           | 'colon'
+        ['X-TEST': 'Present'] | 'Present'     | 'present'
+    }
 }
