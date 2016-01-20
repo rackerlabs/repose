@@ -305,17 +305,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def doUserTokensUpdate(userId: String, authToken: String, ttl: Int): Unit = {
-      if (CacheInvalidationFeedListener.invalidationEnabled()) {
-        //Have to use Vector, because List isn't serializeable in 2.10
-        val oldTokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$userId").asInstanceOf[Vector[String]]).getOrElse(Vector.empty[String])
-        if (!oldTokens.contains(authToken)) {
-          // @TODO: Do we need to clean up the oldTokens which may have irrelevant values.
-          // @TODO: Nothing is wrong with the data, but it may have extra values that would try to be removed later.
-          val newTokens = oldTokens ++ Vector(authToken)
-          // Updated for later cache invalidation via Atom Feed User events.
-          datastore.remove(s"$USER_ID_KEY_PREFIX$userId")
-          datastore.put(s"$USER_ID_KEY_PREFIX$userId", newTokens, ttl, TimeUnit.SECONDS)
-        }
+      //Have to use Vector, because List isn't serializeable in 2.10
+      val oldTokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$userId").asInstanceOf[Vector[String]]).getOrElse(Vector.empty[String])
+      if (!oldTokens.contains(authToken)) {
+        // @TODO: Do we need to clean up the oldTokens which may have irrelevant values.
+        // @TODO: Nothing is wrong with the data, but it may have extra values that would try to be removed later.
+        val newTokens = oldTokens ++ Vector(authToken)
+        // Updated for later cache invalidation via Atom Feed User events.
+        datastore.remove(s"$USER_ID_KEY_PREFIX$userId")
+        datastore.put(s"$USER_ID_KEY_PREFIX$userId", newTokens, ttl, TimeUnit.SECONDS)
       }
     }
 
@@ -672,7 +670,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   object CacheInvalidationFeedListener extends AtomFeedListener {
     private var registeredFeeds = List.empty[String]
 
-    def invalidationEnabled(): Boolean = registeredFeeds.nonEmpty
 
     def unRegisterFeeds(): Unit = {
       registeredFeeds.synchronized {
@@ -689,10 +686,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           atomFeedService.registerListener(feed.getId, this)
         )
       }
-      //// @TODO: Need to clean up the old data if there are no feeds to listen to.
-      //if (registeredFeeds.isEmpty) {
-      //  datastore.remove(s"$USER_ID_KEY_PREFIX$WILDCARD")
-      //}
     }
 
     override def onNewAtomEntry(atomEntry: String): Unit = {
