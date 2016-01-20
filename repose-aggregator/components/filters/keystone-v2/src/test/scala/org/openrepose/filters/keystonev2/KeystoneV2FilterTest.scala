@@ -312,8 +312,6 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob")
-      // Verify the User/Token map was not updated since Cache Invalidation from an Atom Feed is not enabled.
-      verify(mockDatastore, never()).put(mockitoEq(s"$USER_ID_KEY_PREFIX$VALID_USER_ID"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       //Have to cache the result of the stuff
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"),
         any(classOf[ValidToken]),
