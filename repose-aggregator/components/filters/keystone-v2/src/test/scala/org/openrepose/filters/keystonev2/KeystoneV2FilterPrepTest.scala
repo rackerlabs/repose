@@ -22,19 +22,24 @@ package org.openrepose.filters.keystonev2
 import java.net.URL
 
 import com.mockrunner.mock.web.MockFilterConfig
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
 import org.mockito.{ArgumentCaptor, Matchers => MockitoMatcher, Mockito}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+
+import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
@@ -250,5 +255,27 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
       Mockito.verify(mockAtomFeedService).registerListener(MockitoMatcher.eq("some-feed"), MockitoMatcher.any[AtomFeedListener])
     }
+  }
+
+  it("should fail to unmarshal duplicate Atom Feed ID's") {
+    val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
+    val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
+    listAppender.clear()
+    intercept[ClassCastException] {
+      Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <delegating/>
+          |    <identity-service uri="https://lol.com"/>
+          |    <cache>
+          |        <atom-feed id="duplicate-feed"/>
+          |        <atom-feed id="duplicate-feed"/>
+          |    </cache>
+          |</keystone-v2>
+        """.stripMargin
+      )
+    }
+    listAppender.getEvents.exists(_.getMessage.getFormattedMessage.contains("Atom Feed ID's must be unique")) shouldBe true
   }
 }

@@ -26,6 +26,7 @@
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0"
+           xmlns:kv2="http://docs.openrepose.org/repose/keystone-v2/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/keystone-v2/v1.0"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
@@ -230,12 +231,16 @@
         </xs:attribute>
     </xs:complexType>
 
-
     <xs:complexType name="CacheType">
         <xs:sequence>
             <xs:element name="timeouts" type="CacheTimeoutsType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="atom-feed" type="AtomFeedType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(kv2:atom-feed/@id) = count(distinct-values(kv2:atom-feed/@id))"
+                   xerces:message="Atom Feed ID's must be unique"
+                   saxon:message="Atom Feed ID's must be unique"/>
     </xs:complexType>
 
     <xs:complexType name="CacheTimeoutsType">
