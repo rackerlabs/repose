@@ -309,8 +309,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       // IF the token is NOT already there,
       // THEN append it using a patch.
       // NOTE: This is at least thread safe, but does not prevent duplication from other threads.
-      val oldTokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$userId").asInstanceOf[String])
-        .getOrElse("")
+      // TODO: Convert the tokenized StringValue into a Patchable Scala Set
+      val oldTokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$userId").asInstanceOf[StringValue])
+        .getOrElse(new StringValue("")).getValue
         .split(",")
         .map(_.trim)
       if (!oldTokens.contains(authToken)) {
@@ -702,7 +703,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       val authTokens: Option[List[String]] = resourceType.headOption match {
         // User OR Token Revocation Record (TRR) event
         case Some("USER") | Some("TRR_USER") =>
-          val tokens = datastore.get(s"$USER_ID_KEY_PREFIX$resourceId").asInstanceOf[Vector[String]].toList
+          val tokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$resourceId").asInstanceOf[StringValue])
+            .getOrElse(new StringValue("")).getValue
+            .split(",")
+            .map(_.trim).to[List]
           datastore.remove(s"$USER_ID_KEY_PREFIX$resourceId")
           Some(tokens)
         case Some("TOKEN") => Some(List(resourceId))
