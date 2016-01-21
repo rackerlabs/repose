@@ -6,6 +6,7 @@
             <token>600</token>
             <group>600</group>
         </timeouts>
+        <atom-feed id="authentication-feed" />
     </cache>
 
     <identity-service username="admin_username"

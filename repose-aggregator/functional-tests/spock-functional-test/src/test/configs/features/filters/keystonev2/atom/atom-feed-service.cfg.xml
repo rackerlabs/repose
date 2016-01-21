@@ -6,7 +6,7 @@
     <feed id="non-authenticating-feed" uri="http://localhost:${atomPort2}/feed"/>
 
     <feed id="authenticating-feed" uri="http://localhost:${atomPort}/feed">
-        <authentication xsi:type="OpenStackIdentityAuthenticationType"
+        <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
                         password="admin_password"/>
