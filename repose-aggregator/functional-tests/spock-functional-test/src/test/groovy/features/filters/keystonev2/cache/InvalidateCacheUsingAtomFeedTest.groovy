@@ -18,14 +18,11 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.keystonev2.cache
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
-
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
@@ -101,7 +98,7 @@ import spock.lang.Ignore
  assert response code from repose is 401
 
  */
-@Ignore("Not yet implemented")
+//@Ignore("Not yet implemented")
 class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
     def originEndpoint
