@@ -1448,7 +1448,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
-      verify(mockDatastore).put(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any(), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
+      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any(), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(330), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(300), mockitoEq(TimeUnit.SECONDS))
@@ -1488,7 +1488,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-      verify(mockDatastore).put(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"),
+      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"),
         any(),
         intThat(both(greaterThanOrEqualTo(Int.box(269))).and(lessThanOrEqualTo(Int.box(271)))),
         mockitoEq(TimeUnit.SECONDS))
@@ -1540,7 +1540,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
-      verify(mockDatastore).put(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
+      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))

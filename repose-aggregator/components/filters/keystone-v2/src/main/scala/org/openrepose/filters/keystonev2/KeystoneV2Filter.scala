@@ -36,7 +36,7 @@ import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
+import org.openrepose.core.services.datastore.{StringValue, Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
@@ -305,15 +305,16 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def doUserTokensUpdate(userId: String, authToken: String, ttl: Int): Unit = {
-      //Have to use Vector, because List isn't serializeable in 2.10
-      val oldTokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$userId").asInstanceOf[Vector[String]]).getOrElse(Vector.empty[String])
+      // Retrieve the current delimited string value.
+      // IF the token is NOT already there,
+      // THEN append it using a patch.
+      // NOTE: This is at least thread safe, but does not prevent duplication from other threads.
+      val oldTokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$userId").asInstanceOf[String])
+        .getOrElse("")
+        .split(",")
+        .map(_.trim)
       if (!oldTokens.contains(authToken)) {
-        // @TODO: Do we need to clean up the oldTokens which may have irrelevant values.
-        // @TODO: Nothing is wrong with the data, but it may have extra values that would try to be removed later.
-        val newTokens = oldTokens ++ Vector(authToken)
-        // Updated for later cache invalidation via Atom Feed User events.
-        datastore.remove(s"$USER_ID_KEY_PREFIX$userId")
-        datastore.put(s"$USER_ID_KEY_PREFIX$userId", newTokens, ttl, TimeUnit.SECONDS)
+        datastore.patch(s"$USER_ID_KEY_PREFIX$userId", new StringValue.Patch(", " + authToken), ttl, TimeUnit.SECONDS)
       }
     }
 
