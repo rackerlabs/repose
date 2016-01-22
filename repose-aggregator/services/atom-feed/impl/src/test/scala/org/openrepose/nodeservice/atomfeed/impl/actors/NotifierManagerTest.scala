@@ -31,19 +31,19 @@ import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.{CancelSchedul
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.{FeedReaderActivated, FeedReaderCreated, FeedReaderDeactivated, FeedReaderDestroyed}
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, LifecycleEvents}
+import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuiteLike, Matchers}
 
 import scala.collection.JavaConversions._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class NotifierManagerTest
-  extends TestKit(ActorSystem("TestNotifier")) with FunSuiteLike with BeforeAndAfter with MockitoSugar with Matchers {
+  extends TestKit(ActorSystem("TestNotifier"))
+    with FunSuiteLike with BeforeAndAfter with MockitoSugar with Matchers with Eventually {
 
   implicit val timeout = Timeout(5 seconds)
 
@@ -109,18 +109,10 @@ class NotifierManagerTest
 
     actorRef ! Notify("test-entry")
 
-    val fOne = Future {
-      while (!fakeListenerOne.lastAtomEntry.equals("test-entry")) {
-        Thread.sleep(100)
-      }
+    eventually {
+      fakeListenerOne.lastAtomEntry shouldBe "test-entry"
+      fakeListenerTwo.lastAtomEntry shouldBe "test-entry"
     }
-    val fTwo = Future {
-      while (!fakeListenerTwo.lastAtomEntry.equals("test-entry")) {
-        Thread.sleep(100)
-      }
-    }
-    Await.ready(fOne, 1 second)
-    Await.ready(fTwo, 1 second)
   }
 
   test("a removed notifier should not be notified of an update") {
@@ -162,18 +154,10 @@ class NotifierManagerTest
 
     actorRef ! FeedReaderCreated
 
-    val fOne = Future {
-      while (fakeListenerOne.lastLifecycleEvent != LifecycleEvents.FEED_CREATED) {
-        Thread.sleep(100)
-      }
+    eventually {
+      fakeListenerOne.lastLifecycleEvent shouldBe LifecycleEvents.FEED_CREATED
+      fakeListenerTwo.lastLifecycleEvent shouldBe LifecycleEvents.FEED_CREATED
     }
-    val fTwo = Future {
-      while (fakeListenerTwo.lastLifecycleEvent != LifecycleEvents.FEED_CREATED) {
-        Thread.sleep(100)
-      }
-    }
-    Await.ready(fOne, 1 second)
-    Await.ready(fTwo, 1 second)
   }
 
   test("should notify all registered notifiers of feed reader activation") {
@@ -184,18 +168,10 @@ class NotifierManagerTest
 
     actorRef ! FeedReaderActivated
 
-    val fOne = Future {
-      while (fakeListenerOne.lastLifecycleEvent != LifecycleEvents.FEED_ACTIVATED) {
-        Thread.sleep(100)
-      }
+    eventually {
+      fakeListenerOne.lastLifecycleEvent shouldBe LifecycleEvents.FEED_ACTIVATED
+      fakeListenerTwo.lastLifecycleEvent shouldBe LifecycleEvents.FEED_ACTIVATED
     }
-    val fTwo = Future {
-      while (fakeListenerTwo.lastLifecycleEvent != LifecycleEvents.FEED_ACTIVATED) {
-        Thread.sleep(100)
-      }
-    }
-    Await.ready(fOne, 1 second)
-    Await.ready(fTwo, 1 second)
   }
 
   test("should notify all registered notifiers of feed reader deactivation") {
@@ -206,18 +182,10 @@ class NotifierManagerTest
 
     actorRef ! FeedReaderDeactivated
 
-    val fOne = Future {
-      while (fakeListenerOne.lastLifecycleEvent != LifecycleEvents.FEED_DEACTIVATED) {
-        Thread.sleep(100)
-      }
+    eventually {
+      fakeListenerOne.lastLifecycleEvent shouldBe LifecycleEvents.FEED_DEACTIVATED
+      fakeListenerTwo.lastLifecycleEvent shouldBe LifecycleEvents.FEED_DEACTIVATED
     }
-    val fTwo = Future {
-      while (fakeListenerTwo.lastLifecycleEvent != LifecycleEvents.FEED_DEACTIVATED) {
-        Thread.sleep(100)
-      }
-    }
-    Await.ready(fOne, 1 second)
-    Await.ready(fTwo, 1 second)
   }
 
   test("should notify all registered notifiers of feed reader destruction") {
@@ -228,18 +196,10 @@ class NotifierManagerTest
 
     actorRef ! FeedReaderDestroyed
 
-    val fOne = Future {
-      while (fakeListenerOne.lastLifecycleEvent != LifecycleEvents.FEED_DESTROYED) {
-        Thread.sleep(100)
-      }
+    eventually {
+      fakeListenerOne.lastLifecycleEvent shouldBe LifecycleEvents.FEED_DESTROYED
+      fakeListenerTwo.lastLifecycleEvent shouldBe LifecycleEvents.FEED_DESTROYED
     }
-    val fTwo = Future {
-      while (fakeListenerTwo.lastLifecycleEvent != LifecycleEvents.FEED_DESTROYED) {
-        Thread.sleep(100)
-      }
-    }
-    Await.ready(fOne, 1 second)
-    Await.ready(fTwo, 1 second)
   }
 
   class FakeAtomFeedListener extends AtomFeedListener {
