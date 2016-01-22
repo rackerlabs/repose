@@ -36,7 +36,7 @@ import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.types.{SetPatch, PatchableSet}
+import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
@@ -54,8 +54,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                                  atomFeedService: AtomFeedService,
                                  datastoreService: DatastoreService)
   extends Filter
-  with HttpDelegationManager
-  with LazyLogging {
+    with HttpDelegationManager
+    with LazyLogging {
 
   import KeystoneV2Filter._
 
@@ -656,7 +656,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   object CacheInvalidationFeedListener extends AtomFeedListener {
+
     case class RegisteredFeed(id: String, unique: String)
+
     private var registeredFeeds = List.empty[RegisteredFeed]
 
     def unRegisterFeeds(): Unit = {
@@ -684,23 +686,25 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     override def onNewAtomEntry(atomEntry: String): Unit = {
       val atomXml = scala.xml.XML.loadString(atomEntry)
-      val resourceId = (atomXml \\ "event" \\ "@resourceId").map(_.text).head
-      val resourceType = (atomXml \\ "event" \\ "@resourceType").map(_.text)
-      val authTokens: Option[collection.Set[String]] = resourceType.headOption match {
-        // User OR Token Revocation Record (TRR) event
-        case Some("USER") | Some("TRR_USER") =>
-          val tokens = datastore.get(s"$USER_ID_KEY_PREFIX$resourceId").asInstanceOf[PatchableSet[String]]
-          datastore.remove(s"$USER_ID_KEY_PREFIX$resourceId")
-          Some(tokens)
-        case Some("TOKEN") => Some(Set(resourceId))
-        case _ => None
-      }
+      val resourceId = (atomXml \\ "event" \\ "@resourceId").map(_.text).headOption
+      if (resourceId.isDefined) {
+        val resourceType = (atomXml \\ "event" \\ "@resourceType").map(_.text)
+        val authTokens: Option[collection.Set[String]] = resourceType.headOption match {
+          // User OR Token Revocation Record (TRR) event
+          case Some("USER") | Some("TRR_USER") =>
+            val tokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX${resourceId.get}").asInstanceOf[PatchableSet[String]])
+            datastore.remove(s"$USER_ID_KEY_PREFIX${resourceId.get}")
+            tokens
+          case Some("TOKEN") => Some(Set(resourceId.get))
+          case _ => None
+        }
 
-      authTokens.getOrElse(List.empty[String]).foreach(authToken => {
-        datastore.remove(s"$TOKEN_KEY_PREFIX$authToken")
-        datastore.remove(s"$ENDPOINTS_KEY_PREFIX$authToken")
-        datastore.remove(s"$GROUPS_KEY_PREFIX$authToken")
-      })
+        authTokens.getOrElse(List.empty[String]).foreach(authToken => {
+          datastore.remove(s"$TOKEN_KEY_PREFIX$authToken")
+          datastore.remove(s"$ENDPOINTS_KEY_PREFIX$authToken")
+          datastore.remove(s"$GROUPS_KEY_PREFIX$authToken")
+        })
+      }
     }
 
     override def onLifecycleEvent(event: LifecycleEvents): Unit = {
