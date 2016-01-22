@@ -320,5 +320,40 @@ with BeforeAndAfter {
       verify(mockDatastore, never()).remove(s"$GROUPS_KEY_PREFIX$tokenTwo")
       mockAkkaServiceClient.validate()
     }
+
+    it("doesn't have any problems with bogus content") {
+      filter.CacheInvalidationFeedListener.onNewAtomEntry(
+        s"""<?xml version="1.0" encoding="UTF-8"?>
+            |<atom:entry>
+            |   <atom:content type="application/bad">
+            |      <event id="bogus"/>
+            |   </atom:content>
+            |</atom:entry>
+            |""".stripMargin
+      )
+
+      verify(mockDatastore, never()).remove(anyString())
+      mockAkkaServiceClient.validate()
+    }
+
+    it("doesn't have any problems with corrupted content") {
+      filter.CacheInvalidationFeedListener.onNewAtomEntry(
+        s"""<?xml version="1.0" encoding="UTF-8"?>
+            |<atom:entry>
+            |   <atom:content type="application/bad">
+            |      <event xmlns="http://docs.rackspace.com/core/event"
+            |             xmlns:sample="http://docs.rackspace.com/event/identity/token"
+            |             id="bogus"
+            |             resourceId="corrupted">
+            |          <sample:product serviceCode="CloudIdentity"/>
+            |      </event>
+            |   </atom:content>
+            |</atom:entry>
+            |""".stripMargin
+      )
+
+      verify(mockDatastore, never()).remove(anyString())
+      mockAkkaServiceClient.validate()
+    }
   }
 }
