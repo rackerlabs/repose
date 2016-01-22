@@ -36,7 +36,9 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuiteLike, Matchers}
 
 import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
@@ -100,14 +102,25 @@ class NotifierManagerTest
   }
 
   test("all notifiers for a feed should be notified of an update") {
-    val mockListenerTwo = mock[AtomFeedListener]
-    actorRef ! AddNotifier("test-id1", mockListener)
-    actorRef ! AddNotifier("test-id2", mockListenerTwo)
+    val fakeListenerOne = new FakeAtomFeedListener
+    val fakeListenerTwo = new FakeAtomFeedListener
+    actorRef ! AddNotifier("test-id1", fakeListenerOne)
+    actorRef ! AddNotifier("test-id2", fakeListenerTwo)
 
     actorRef ! Notify("test-entry")
 
-    verify(mockListener).onNewAtomEntry("test-entry")
-    verify(mockListenerTwo).onNewAtomEntry("test-entry")
+    val fOne = Future {
+      while (!fakeListenerOne.lastAtomEntry.equals("test-entry")) {
+        Thread.sleep(100)
+      }
+    }
+    val fTwo = Future {
+      while (!fakeListenerTwo.lastAtomEntry.equals("test-entry")) {
+        Thread.sleep(100)
+      }
+    }
+    Await.ready(fOne, 1 second)
+    Await.ready(fTwo, 1 second)
   }
 
   test("a removed notifier should not be notified of an update") {
@@ -142,48 +155,100 @@ class NotifierManagerTest
   }
 
   test("should notify all registered notifiers of feed reader creation") {
-    val mockListenerTwo = mock[AtomFeedListener]
-    actorRef ! AddNotifier("test-id1", mockListener)
-    actorRef ! AddNotifier("test-id2", mockListenerTwo)
+    val fakeListenerOne = new FakeAtomFeedListener
+    val fakeListenerTwo = new FakeAtomFeedListener
+    actorRef ! AddNotifier("test-id1", fakeListenerOne)
+    actorRef ! AddNotifier("test-id2", fakeListenerTwo)
 
     actorRef ! FeedReaderCreated
 
-    verify(mockListener).onLifecycleEvent(LifecycleEvents.LISTENER_REGISTERED)
-    verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.LISTENER_REGISTERED)
-    verify(mockListener).onLifecycleEvent(LifecycleEvents.FEED_CREATED)
-    verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.FEED_CREATED)
+    val fOne = Future {
+      while (fakeListenerOne.lastLifecycleEvent != LifecycleEvents.FEED_CREATED) {
+        Thread.sleep(100)
+      }
+    }
+    val fTwo = Future {
+      while (fakeListenerTwo.lastLifecycleEvent != LifecycleEvents.FEED_CREATED) {
+        Thread.sleep(100)
+      }
+    }
+    Await.ready(fOne, 1 second)
+    Await.ready(fTwo, 1 second)
   }
 
   test("should notify all registered notifiers of feed reader activation") {
-    val mockListenerTwo = mock[AtomFeedListener]
-    actorRef ! AddNotifier("test-id1", mockListener)
-    actorRef ! AddNotifier("test-id2", mockListenerTwo)
+    val fakeListenerOne = new FakeAtomFeedListener
+    val fakeListenerTwo = new FakeAtomFeedListener
+    actorRef ! AddNotifier("test-id1", fakeListenerOne)
+    actorRef ! AddNotifier("test-id2", fakeListenerTwo)
 
     actorRef ! FeedReaderActivated
 
-    verify(mockListener).onLifecycleEvent(LifecycleEvents.FEED_ACTIVATED)
-    verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.FEED_ACTIVATED)
+    val fOne = Future {
+      while (fakeListenerOne.lastLifecycleEvent != LifecycleEvents.FEED_ACTIVATED) {
+        Thread.sleep(100)
+      }
+    }
+    val fTwo = Future {
+      while (fakeListenerTwo.lastLifecycleEvent != LifecycleEvents.FEED_ACTIVATED) {
+        Thread.sleep(100)
+      }
+    }
+    Await.ready(fOne, 1 second)
+    Await.ready(fTwo, 1 second)
   }
 
   test("should notify all registered notifiers of feed reader deactivation") {
-    val mockListenerTwo = mock[AtomFeedListener]
-    actorRef ! AddNotifier("test-id1", mockListener)
-    actorRef ! AddNotifier("test-id2", mockListenerTwo)
+    val fakeListenerOne = new FakeAtomFeedListener
+    val fakeListenerTwo = new FakeAtomFeedListener
+    actorRef ! AddNotifier("test-id1", fakeListenerOne)
+    actorRef ! AddNotifier("test-id2", fakeListenerTwo)
 
     actorRef ! FeedReaderDeactivated
 
-    verify(mockListener).onLifecycleEvent(LifecycleEvents.FEED_DEACTIVATED)
-    verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.FEED_DEACTIVATED)
+    val fOne = Future {
+      while (fakeListenerOne.lastLifecycleEvent != LifecycleEvents.FEED_DEACTIVATED) {
+        Thread.sleep(100)
+      }
+    }
+    val fTwo = Future {
+      while (fakeListenerTwo.lastLifecycleEvent != LifecycleEvents.FEED_DEACTIVATED) {
+        Thread.sleep(100)
+      }
+    }
+    Await.ready(fOne, 1 second)
+    Await.ready(fTwo, 1 second)
   }
 
   test("should notify all registered notifiers of feed reader destruction") {
-    val mockListenerTwo = mock[AtomFeedListener]
-    actorRef ! AddNotifier("test-id1", mockListener)
-    actorRef ! AddNotifier("test-id2", mockListenerTwo)
+    val fakeListenerOne = new FakeAtomFeedListener
+    val fakeListenerTwo = new FakeAtomFeedListener
+    actorRef ! AddNotifier("test-id1", fakeListenerOne)
+    actorRef ! AddNotifier("test-id2", fakeListenerTwo)
 
     actorRef ! FeedReaderDestroyed
 
-    verify(mockListener).onLifecycleEvent(LifecycleEvents.FEED_DESTROYED)
-    verify(mockListenerTwo).onLifecycleEvent(LifecycleEvents.FEED_DESTROYED)
+    val fOne = Future {
+      while (fakeListenerOne.lastLifecycleEvent != LifecycleEvents.FEED_DESTROYED) {
+        Thread.sleep(100)
+      }
+    }
+    val fTwo = Future {
+      while (fakeListenerTwo.lastLifecycleEvent != LifecycleEvents.FEED_DESTROYED) {
+        Thread.sleep(100)
+      }
+    }
+    Await.ready(fOne, 1 second)
+    Await.ready(fTwo, 1 second)
   }
+
+  class FakeAtomFeedListener extends AtomFeedListener {
+    var lastAtomEntry: String = _
+    var lastLifecycleEvent: LifecycleEvents = _
+
+    override def onNewAtomEntry(atomEntry: String): Unit = lastAtomEntry = atomEntry
+
+    override def onLifecycleEvent(event: LifecycleEvents): Unit = lastLifecycleEvent = event
+  }
+
 }
