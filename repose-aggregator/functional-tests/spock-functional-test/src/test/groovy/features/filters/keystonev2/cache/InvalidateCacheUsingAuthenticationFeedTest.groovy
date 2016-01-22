@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.clientauthn.cache
+package features.filters.keystonev2.cache
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
