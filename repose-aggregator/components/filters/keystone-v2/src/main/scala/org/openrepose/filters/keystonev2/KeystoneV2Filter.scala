@@ -36,7 +36,7 @@ import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.types.StringValue
+import org.openrepose.core.services.datastore.types.{SetPatch, PatchableSet}
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
@@ -297,26 +297,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               Some(validToken))
 
             timeToLive foreach { ttl =>
-              doUserTokensUpdate(validToken.userId, authToken, ttl)
+              datastore.patch(s"$USER_ID_KEY_PREFIX${validToken.userId}", new SetPatch(authToken), ttl, TimeUnit.SECONDS)
               datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, ttl, TimeUnit.SECONDS)
             }
           }
         }
-      }
-    }
-
-    def doUserTokensUpdate(userId: String, authToken: String, ttl: Int): Unit = {
-      // Retrieve the current delimited string value.
-      // IF the token is NOT already there,
-      // THEN append it using a patch.
-      // NOTE: This is at least thread safe, but does not prevent duplication from other threads.
-      // TODO: Convert the tokenized StringValue into a Patchable Scala Set
-      val oldTokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$userId").asInstanceOf[StringValue])
-        .getOrElse(new StringValue("")).getValue
-        .split(",")
-        .map(_.trim)
-      if (!oldTokens.contains(authToken)) {
-        datastore.patch(s"$USER_ID_KEY_PREFIX$userId", new StringValue.Patch(", " + authToken), ttl, TimeUnit.SECONDS)
       }
     }
 
@@ -701,16 +686,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       val atomXml = scala.xml.XML.loadString(atomEntry)
       val resourceId = (atomXml \\ "event" \\ "@resourceId").map(_.text).head
       val resourceType = (atomXml \\ "event" \\ "@resourceType").map(_.text)
-      val authTokens: Option[List[String]] = resourceType.headOption match {
+      val authTokens: Option[collection.Set[String]] = resourceType.headOption match {
         // User OR Token Revocation Record (TRR) event
         case Some("USER") | Some("TRR_USER") =>
-          val tokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX$resourceId").asInstanceOf[StringValue])
-            .getOrElse(new StringValue("")).getValue
-            .split(",")
-            .map(_.trim).to[List]
+          val tokens = datastore.get(s"$USER_ID_KEY_PREFIX$resourceId").asInstanceOf[PatchableSet[String]]
           datastore.remove(s"$USER_ID_KEY_PREFIX$resourceId")
           Some(tokens)
-        case Some("TOKEN") => Some(List(resourceId))
+        case Some("TOKEN") => Some(Set(resourceId))
         case _ => None
       }
 

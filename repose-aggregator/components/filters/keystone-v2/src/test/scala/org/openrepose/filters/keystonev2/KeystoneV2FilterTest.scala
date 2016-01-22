@@ -39,7 +39,7 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.{CommonHttpHeader, IdentityStatus, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.types.StringValue
+import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
@@ -1449,7 +1449,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
-      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any[StringValue.Patch](), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
+      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any[SetPatch[String]](), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(330), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(300), mockitoEq(TimeUnit.SECONDS))
@@ -1490,7 +1490,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
       verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"),
-        any[StringValue.Patch](),
+        any[SetPatch[String]](),
         intThat(both(greaterThanOrEqualTo(Int.box(269))).and(lessThanOrEqualTo(Int.box(271)))),
         mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"),
@@ -1541,7 +1541,7 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
-      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any[StringValue.Patch](), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
+      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), any[SetPatch[String]](), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
