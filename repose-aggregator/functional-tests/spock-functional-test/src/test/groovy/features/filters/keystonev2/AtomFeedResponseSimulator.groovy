@@ -218,39 +218,48 @@ class AtomFeedResponseSimulator {
 """
 
     def userUpdateEvent =
-            """<?xml version="1.0" encoding="UTF-8"?>
+            """<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <link href="http://localhost:\${atomPort}/feed/"
+        rel="current"/>
+    <link href="http://localhost:\${atomPort}/feed/"
+        rel="self"/>
+    <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
+    <title type="text">feed</title>
+    <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
+          rel="previous"/>
+    <updated>\${time}</updated>
 <atom:entry xmlns:atom="http://www.w3.org/2005/Atom">
     <atom:id>urn:uuid:e29ac1ca-fd06-11e1-a80c-bb58fc4a6929</atom:id>
-    <atom:category term="rgn:DFW"/>
-    <atom:category term="dc:DFW1"/>
-    <atom:category term="rid:10031728"/>
-    <atom:category term="tid:123456"/>
-    <atom:category term="cloudidentity.user.user.update"/>
-    <atom:category term="type:cloudidentity.user.user.update"/>
-    <atom:category term="updatedAttributes:GROUPS"/>
+    <atom:category term="rgn:DFW" />
+    <atom:category term="dc:DFW1" />
+    <atom:category term="rid:\${userId}"/>
+    <atom:category term="tid:123456" />
+    <atom:category term="cloudidentity.user.user.update" />
+    <atom:category term="type:cloudidentity.user.user.update" />
+    <atom:category term="updatedAttributes:GROUPS ROLES PASSWORD" />
     <atom:title type="text">Identity Event</atom:title>
     <atom:content type="application/xml">
         <event xmlns="http://docs.rackspace.com/core/event"
-           xmlns:id="http://docs.rackspace.com/event/identity/user"
-           dataCenter="DFW1"
-           environment="PROD"
-           eventTime="\${time}"
-           tenantId="123456"
-           id="e29ac1ca-fd06-11e1-a80c-bb58fc4a6929"
-           region="DFW"
-           resourceId="\${userId}"
-           resourceName="testuser"
-           type="UPDATE"
-           version="1">
+            xmlns:id="http://docs.rackspace.com/event/identity/user"
+            dataCenter="DFW1"
+            environment="PROD"
+            eventTime="\${time}"
+            id="e29ac1ca-fd06-11e1-a80c-bb58fc4a6929"
+            region="DFW"
+            resourceId="\${userId}"
+            tenantId="123456"
+            resourceName="testuser"
+            type="UPDATE" version="1">
             <id:product displayName="testUser"
-                  groups="group1 group2 group3"
-                  migrated="false"
-                  multiFactorEnabled="false"
-                  resourceType="USER"
-                  roles="admin RAX:admin role3"
-                  serviceCode="CloudIdentity"
-                  updatedAttributes="GROUPS"
-                  version="2"/>
+                groups="group1 group2 group3"
+                migrated="false"
+                multiFactorEnabled="false"
+                resourceType="USER"
+                roles="admin RAX:admin role3"
+                serviceCode="CloudIdentity"
+                updatedAttributes="GROUPS ROLES PASSWORD"
+                version="2" />
         </event>
     </atom:content>
     <atom:link href="http://localhost:\${atomPort}/feed/"
@@ -258,5 +267,6 @@ class AtomFeedResponseSimulator {
     <atom:updated>\${time}</atom:updated>
     <atom:published>\${time}</atom:published>
 </atom:entry>
+</feed>
 """
 }
