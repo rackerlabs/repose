@@ -36,7 +36,8 @@ import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.{StringValue, Datastore, DatastoreService}
+import org.openrepose.core.services.datastore.types.StringValue
+import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._

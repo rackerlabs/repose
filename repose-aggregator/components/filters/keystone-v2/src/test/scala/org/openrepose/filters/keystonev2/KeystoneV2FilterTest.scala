@@ -39,7 +39,8 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.{CommonHttpHeader, IdentityStatus, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.{Datastore, DatastoreService, StringValue}
+import org.openrepose.core.services.datastore.types.StringValue
+import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._

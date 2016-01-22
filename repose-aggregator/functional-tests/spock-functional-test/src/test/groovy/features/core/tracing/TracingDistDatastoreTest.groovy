@@ -22,7 +22,7 @@ package features.core.tracing
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.openrepose.commons.utils.io.ObjectSerializer
-import org.openrepose.core.services.datastore.StringValue
+import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder

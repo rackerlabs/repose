@@ -29,7 +29,8 @@ import org.mockito.Matchers.{any => mockitoAny, eq => mockitoEq, _}
 import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.{StringValue, Datastore, DatastoreService}
+import org.openrepose.core.services.datastore.types.StringValue
+import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config.AtomFeedType

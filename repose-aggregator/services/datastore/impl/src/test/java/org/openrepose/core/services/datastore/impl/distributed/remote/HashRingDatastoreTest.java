@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
-import org.openrepose.core.services.datastore.StringValue;
+import org.openrepose.core.services.datastore.types.StringValue;
 import org.openrepose.core.services.datastore.distributed.ClusterView;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
