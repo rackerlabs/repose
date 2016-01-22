@@ -237,9 +237,9 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
                 [
-                        url           : reposeEndpoint,
-                        method        : 'GET',
-                        headers       : ['X-Auth-Token': fakeIdentityV2Service.client_token]
+                        url    : reposeEndpoint,
+                        method : 'GET',
+                        headers: ['X-Auth-Token': fakeIdentityV2Service.client_token]
                 ])
 
         then: "Repose should not have the token in the cache any more, so it try to re-validate it"
