@@ -3,10 +3,10 @@
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <cache>
         <timeouts>
-            <token>600</token>
-            <group>600</group>
+            <token>60000</token>
+            <group>60000</group>
         </timeouts>
-        <atom-feed id="authentication-feed" />
+        <atom-feed id="non-authenticating-feed" />
     </cache>
 
     <identity-service username="admin_username"
