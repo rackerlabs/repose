@@ -20,7 +20,7 @@
         <module>datastore</module>
         <module>http-client-service</module>
         <module>rate-limiting-service</module>
-        <module>health-check</module>
+        <module>health-check-service</module>
         <module>phone-home</module>
         <module>atom-feed</module>
     </modules>

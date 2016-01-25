@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Services - HttpClient Support</name>
-    <artifactId>httpclient-support</artifactId>
+    <artifactId>http-client-service-aggregator</artifactId>
     <packaging>pom</packaging>
 
     <description>

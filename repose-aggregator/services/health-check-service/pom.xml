@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Services - Health Check Service</name>
-    <artifactId>health-check-service-support</artifactId>
+    <artifactId>health-check-service-aggregator</artifactId>
     <packaging>pom</packaging>
 
     <description>
@@ -33,7 +33,7 @@
     </description>
 
     <modules>
-        <module>api</module>
+        <module>health-check-service-api</module>
         <module>impl</module>
     </modules>
 </project>
