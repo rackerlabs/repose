@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Services - HttpClient API</name>
-    <artifactId>httpclient-api</artifactId>
+    <artifactId>http-client-service-api</artifactId>
     <packaging>jar</packaging>
 
     <description>

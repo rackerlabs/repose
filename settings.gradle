@@ -1,0 +1,1 @@
+include 'repose-aggregator/services/http-client-service/http-client-service-api'

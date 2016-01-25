@@ -16,7 +16,7 @@
     </description>
 
     <modules>
-        <module>api</module>
+        <module>http-client-service-api</module>
         <module>impl</module>
     </modules>
 </project>
