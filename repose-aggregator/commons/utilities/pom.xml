@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>httpclient-api</artifactId>
+            <artifactId>http-client-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

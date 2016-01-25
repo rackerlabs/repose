@@ -1,0 +1,16 @@
+allprojects {
+    group = 'org.openrepose'
+    version = '8.0.0.0'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+    apply plugin: 'scala'
+}
+
+ext.httpClientVersion = '4.4.1'
