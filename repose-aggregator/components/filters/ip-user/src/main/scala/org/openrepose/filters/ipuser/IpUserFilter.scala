@@ -28,7 +28,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import edazdarevic.commons.net.CIDRUtils
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.ipuser.config.IpUserConfig
@@ -71,7 +71,7 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
       servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
     } else {
       logger.trace("IP Classification filter handling request...")
-      val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
+      val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
       getClassificationLabel(servletRequest.getRemoteAddr).foreach { label =>
         request.addHeader(groupHeaderName, s"$label;q=$groupHeaderQuality")
