@@ -114,8 +114,7 @@ class TransitionBadToGoodConfigsTest extends Specification {
         "rate-limiting"           | 200
         "versioning"              | 200
         "translation"             | 200
-        "client-auth-n"           | 200
-        "openstack-authorization" | 401
+        "keystone-v2"             | 200
         "dist-datastore"          | 200
         "uri-identity"            | 200
         "header-identity"         | 200
