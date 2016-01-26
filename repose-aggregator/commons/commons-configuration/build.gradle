@@ -1,23 +1,23 @@
 dependencies {
     compile project(':commons-utilities')
     compile project(':core-service-api')
-    compile "xerces:xerces-xsd11:2.12.0-rax"
+    compile "xerces:xerces-xsd11:$xercesVersion"
     compile "xalan:xalan:2.7.1"
     compile "commons-pool:commons-pool:1.6"
-    compile "org.slf4j:slf4j-api:1.7.7"
-    testCompile "junit:junit:4.12"
-    testCompile "org.mockito:mockito-all:1.9.5"
-    testCompile "org.scala-lang:scala-library:2.10.3"
-    testCompile "org.scalatest:scalatest_2.10:2.2.0"
-    testCompile "com.typesafe.scala-logging:scala-logging-slf4j_2.10:2.1.2"
-    testCompile "org.codehaus.groovy:groovy-all:2.1.3"
-    testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    testCompile "junit:junit:$junitVersion"
+    testCompile "org.mockito:mockito-all:$mockitoVersion"
+    testCompile "org.scala-lang:scala-library:$scalaVersion"
+    testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
+    testCompile "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
+    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion"
+    testCompile "org.spockframework:spock-core:$spockVersion"
 
 //todo: i suspect these are neccessary to get some decent logging out of our test, but check it out
-    testCompile "org.apache.logging.log4j:log4j-core:2.3"
+    testCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
 //todo: figure out this nonsense
-//    testCompile "org.apache.logging.log4j:log4j-core:test-jar:tests:2.3"
-    testCompile "org.apache.logging.log4j:log4j-slf4j-impl:2.3"
+//    testCompile "org.apache.logging.log4j:log4j-core:test-jar:tests:$log4jVersion"
+    testCompile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
 
 
 //todo: i don't think these are neccessary
