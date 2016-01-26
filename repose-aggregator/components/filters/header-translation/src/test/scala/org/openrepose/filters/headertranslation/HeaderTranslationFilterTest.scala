@@ -19,13 +19,13 @@
  */
 package org.openrepose.filters.headertranslation
 
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletResponse}
 
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{reset, verify}
+import org.mockito.Mockito.{never, reset, verify}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.headertranslation.config.{Header, HeaderTranslationType}
 import org.scalatest.junit.JUnitRunner
@@ -78,6 +78,21 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
     config.getHeader.add(headerFour)
 
     filter.configurationUpdated(config)
+  }
+
+  describe("when starting") {
+    it("should return a 500 if configuration has not been loaded") {
+      val mockConfigService = mock[ConfigurationService]
+      val testFilter = new HeaderTranslationFilter(mockConfigService)
+
+      val mockResponse = mock[HttpServletResponse]
+      val mockChain = mock[FilterChain]
+
+      testFilter.doFilter(null, mockResponse, mockChain)
+
+      verify(mockChain, never()).doFilter(any(), any())
+      verify(mockResponse).sendError(500)
+    }
   }
 
   describe("when configured to remove the original header") {
