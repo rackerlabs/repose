@@ -18,7 +18,7 @@
 
     <modules>
         <module>utilities</module>
-        <module>configuration</module>
+        <module>commons-configuration</module>
     </modules>
 
     <build>
