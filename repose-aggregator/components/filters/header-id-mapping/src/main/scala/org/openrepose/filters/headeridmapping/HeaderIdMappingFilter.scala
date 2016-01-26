@@ -69,11 +69,12 @@ class HeaderIdMappingFilter @Inject()(configurationService: ConfigurationService
   }
 
   private def extractUserGroup(request: HttpServletRequestWrapper, configuredHeader: HttpHeader): Option[UserGroupValues] =
-    getFirstHeaderValue(request.getHeader(configuredHeader.getUserHeader))
-      .map(UserGroupValues(_, getFirstHeaderValue(request.getHeader(configuredHeader.getGroupHeader)), configuredHeader.getQuality))
+    getFirstHeaderValue(request, configuredHeader.getUserHeader)
+      .map(UserGroupValues(_, getFirstHeaderValue(request, configuredHeader.getGroupHeader), configuredHeader.getQuality))
 
   // carry-over behavior from the old filter - be sure we only get the first value of the header
-  def getFirstHeaderValue(header: String): Option[String] = Option(header).map(_.split(",", 2)(0).trim).filterNot(_.isEmpty)
+  def getFirstHeaderValue(request: HttpServletRequestWrapper, header: String): Option[String] =
+    request.getSplittableHeaderScala(header).headOption.map(_.trim).filterNot(_.isEmpty)
 
   override def destroy(): Unit = {
     logger.trace("Header Identity Mapping filter destroying...")
