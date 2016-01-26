@@ -5,7 +5,7 @@
             username="admin_username"
             password="password"
             uri="http://localhost:${identityPort}"
-            set-groups-in-header="true"
+            set-groups-in-header="false"
             set-catalog-in-header="false"
             />
     <white-list>
