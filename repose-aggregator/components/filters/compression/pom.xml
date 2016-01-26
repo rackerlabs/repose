@@ -44,7 +44,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>pjl-compressingFilter</artifactId>
+            <artifactId>commons-utilities</artifactId>
         </dependency>
 
         <!-- Let's use Scala -->

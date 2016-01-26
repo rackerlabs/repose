@@ -17,7 +17,7 @@
     </description>
 
     <modules>
-        <module>utilities</module>
+        <module>commons-utilities</module>
         <module>commons-configuration</module>
     </modules>
 

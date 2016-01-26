@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>commons-utilities</artifactId>
             <!-- TODO this would be a solid version -->
             <version>${project.version}</version>
         </dependency>

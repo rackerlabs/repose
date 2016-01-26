@@ -1,5 +1,5 @@
 dependencies {
-    compile project(':utilities')
+    compile project(':commons-utilities')
     compile project(':core-service-api')
     compile "xerces:xerces-xsd11:2.12.0-rax"
     compile "xalan:xalan:2.7.1"
