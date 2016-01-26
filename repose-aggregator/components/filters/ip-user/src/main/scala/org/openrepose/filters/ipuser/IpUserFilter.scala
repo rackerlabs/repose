@@ -35,16 +35,15 @@ import org.openrepose.filters.ipuser.config.IpUserConfig
 
 @Named
 class IpUserFilter @Inject()(configurationService: ConfigurationService) extends Filter
-with LazyLogging
-with UpdateListener[IpUserConfig] {
+  with LazyLogging
+  with UpdateListener[IpUserConfig] {
 
   private final val DEFAULT_CONFIG = "ip-user.cfg.xml"
-  private var initialized = false
-  private var configName: String = _
-
-  case class LabeledCIDR(label: String, cidr: CIDRUtils)
 
   private val cidrList: AtomicReference[List[LabeledCIDR]] = new AtomicReference[List[LabeledCIDR]]()
+  
+  private var initialized = false
+  private var configName: String = _
   private var groupHeaderName: String = _
   private var groupHeaderQuality: Double = _
   private var userHeaderName: String = _
@@ -104,10 +103,10 @@ with UpdateListener[IpUserConfig] {
     val groups = classificationConfig.getGroup.toList
 
     /**
-     * This guy builds a List[List[LabeledCIDR]] I flat map it to remove that extra list, so it's just a
-     * List[LabeledCIDR]. I suppose I could separately transform the classification lines into lists, and then combine
-     * them, but this does the same thing
-     */
+      * This guy builds a List[List[LabeledCIDR]] I flat map it to remove that extra list, so it's just a
+      * List[LabeledCIDR]. I suppose I could separately transform the classification lines into lists, and then combine
+      * them, but this does the same thing
+      */
     val replacementCidrList: List[LabeledCIDR] = groups.flatMap { group =>
       val label = group.getName
       group.getCidrIp.map { cidr =>
@@ -139,4 +138,7 @@ with UpdateListener[IpUserConfig] {
   }
 
   override def isInitialized: Boolean = initialized
+
+  case class LabeledCIDR(label: String, cidr: CIDRUtils)
+
 }
