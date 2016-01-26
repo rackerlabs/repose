@@ -77,8 +77,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("\"currentFilter\":\"rackspace-identity-basic-auth\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"herp\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"add-header\"").size() > 0
-        reposeLogSearch.searchByString("\"currentFilter\":\"client-auth\"").size() > 0
-        reposeLogSearch.searchByString("\"currentFilter\":\"client-authorization\"").size() > 0
+        reposeLogSearch.searchByString("\"currentFilter\":\"keystone-v2\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"openstack-identity-v3\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"ip-identity\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"content-normalization\"").size() > 0
@@ -101,8 +100,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("null-rackspace-identity-basic-auth").size() == 0
         reposeLogSearch.searchByString("null-herp").size() == 0
         reposeLogSearch.searchByString("null-add-header").size() == 0
-        reposeLogSearch.searchByString("null-client-auth").size() == 0
-        reposeLogSearch.searchByString("null-client-authorization").size() == 0
+        reposeLogSearch.searchByString("null-keystone-v2").size() == 0
         reposeLogSearch.searchByString("null-openstack-identity-v3").size() == 0
         reposeLogSearch.searchByString("null-ip-identity").size() == 0
         reposeLogSearch.searchByString("null-content-normalization").size() == 0
