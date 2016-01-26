@@ -1,3 +1,4 @@
-include 'repose-aggregator/components/cli-utils',
-        'repose-aggregator/services/http-client-service/http-client-service-api',
-        'repose-aggregator/services/health-check-service/health-check-service-api'
+include 'repose-aggregator/commons/commons-configuration',
+        'repose-aggregator/components/cli-utils',
+        'repose-aggregator/services/http-client-service-aggregator/http-client-service-api',
+        'repose-aggregator/services/health-check-service-aggregator/health-check-service-api'

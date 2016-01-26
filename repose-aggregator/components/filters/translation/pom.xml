@@ -33,7 +33,7 @@
         <!-- this one actually uses guts within the configuration package :( -->
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>configuration</artifactId>
+            <artifactId>commons-configuration</artifactId>
         </dependency>
 
         <dependency>
