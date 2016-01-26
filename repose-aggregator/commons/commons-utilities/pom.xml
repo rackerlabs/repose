@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Commons - Utilities</name>
-    <artifactId>utilities</artifactId>
+    <artifactId>commons-utilities</artifactId>
     <packaging>jar</packaging>
 
     <description>
