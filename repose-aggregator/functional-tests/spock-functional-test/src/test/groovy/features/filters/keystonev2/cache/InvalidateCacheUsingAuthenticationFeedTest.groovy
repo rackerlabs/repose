@@ -20,15 +20,18 @@
 package features.filters.keystonev2.cache
 
 import framework.ReposeValveTest
+import framework.category.Slow
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 1/22/16.
  *  identity using authenticated feed
  */
+@Category(Slow.class)
 class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
 
     def originEndpoint
@@ -40,6 +43,7 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
 
     def setup() {
         deproxy = new Deproxy()
+        reposeLogSearch.cleanLog()
 
         int atomPort2 = properties.atomPort2
         fakeAtomFeed = new features.filters.keystonev2.AtomFeedResponseSimulator(atomPort2)
@@ -73,16 +77,17 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         fakeIdentityV2Service.resetCounts()
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
+        //some waiting time to establish connection to atom service
+        sleep(5000)
+
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-
         //Repose is getting an admin token and groups, so the number of
         //orphaned handlings doesn't necessarily equal the number of times a
         //token gets validated
         fakeIdentityV2Service.validateTokenCount == 1
         mc.handlings[0].endpoint == originEndpoint
-
 
         when: "I send a GET request to REPOSE with the same X-Auth-Token header"
         fakeIdentityV2Service.resetCounts()
@@ -109,10 +114,8 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
-
-
-        and: "we sleep for 11 seconds so that repose can check the atom feed"
-        sleep(15000)
+        and: "we sleep for 10 seconds so that repose can check the atom feed"
+        sleep(10000)
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
@@ -134,10 +137,12 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         fakeIdentityV2Service.resetCounts()
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
+        //some waiting time to establish connection to atom service
+        sleep(5000)
+
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-
         //Repose is getting an admin token and groups, so the number of
         //orphaned handlings doesn't necessarily equal the number of times a
         //token gets validated
@@ -162,8 +167,8 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.userUpdateHandler(fakeIdentityV2Service.client_userid.toString())
 
-        and: "we sleep for 15 seconds so that repose can check the atom feed"
-        sleep(15000)
+        and: "we sleep for 10 seconds so that repose can check the atom feed"
+        sleep(10000)
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
@@ -187,10 +192,12 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         fakeIdentityV2Service.resetCounts()
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
+        //some waiting time to establish connection to atom service
+        sleep(5000)
+
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-
         //Repose is getting an admin token and groups, so the number of
         //orphaned handlings doesn't necessarily equal the number of times a
         //token gets validated
@@ -224,8 +231,8 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.trrEventHandler(fakeIdentityV2Service.client_userid.toString())
 
-        and: "we sleep for 15 seconds so that repose can check the atom feed"
-        sleep(15000)
+        and: "we sleep for 10 seconds so that repose can check the atom feed"
+        sleep(10000)
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(

@@ -20,10 +20,12 @@
 package features.filters.keystonev2.cache
 
 import framework.ReposeValveTest
+import framework.category.Slow
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import org.junit.experimental.categories.Category
 
 /**
  B-48277
@@ -100,7 +102,7 @@ import org.rackspace.deproxy.Response
  assert response code from repose is 401
 
  */
-//@Ignore("Not yet implemented")
+@Category(Slow.class)
 class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
     def originEndpoint
