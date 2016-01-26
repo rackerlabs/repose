@@ -71,8 +71,8 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
           sourceHeader.getNewName foreach { newHeaderName =>
             originalHeaderValues foreach { originalHeaderValue =>
               httpRequest.addHeader(newHeaderName, originalHeaderValue)
-              logger.trace("Header added: " + newHeaderName)
             }
+            logger.trace("Header added: " + newHeaderName)
           }
 
           if (sourceHeader.isRemoveOriginal) {
