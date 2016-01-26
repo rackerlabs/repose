@@ -22,6 +22,7 @@ package org.openrepose.filters.headernormalization
 
 import java.net.URL
 import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
@@ -37,7 +38,6 @@ import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum
 import org.openrepose.filters.headernormalization.config.{HttpMethod, HeaderNormalizationConfig}
 
 import scala.collection.JavaConverters._
-import scala.util.matching.Regex
 
 @Named
 class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: MetricsService)
@@ -48,7 +48,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized = false
   private var config: Seq[Target] = _
-  private var metricsMeter: Option[MeterByCategorySum] = _
+  private var metricsMeter: MeterByCategorySum = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Header Normalization filter initializing...")
@@ -58,14 +58,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
     val xsdUrl: URL = getClass.getResource(SCHEMA_FILE_NAME)
     configurationService.subscribeTo(filterConfig.getFilterName, configurationFile, xsdUrl, this, classOf[HeaderNormalizationConfig])
 
-    metricsMeter = Option(metricsService) match {
-      case Some(service) =>
-        logger.debug("Initializing metrics meter for Header Normalization filter")
-        Some(service.newMeterByCategorySum(classOf[HeaderNormalization], "header-normalization", "Normalization", TimeUnit.SECONDS))
-      case None =>
-        logger.warn("Metrics meter not started for Header Normalization filter due to missing metrics service")
-        None
-    }
+    metricsMeter = metricsService.newMeterByCategorySum(classOf[HeaderNormalization], "header-normalization", "Normalization", TimeUnit.SECONDS)
 
     logger.trace("Header Normalization filter initialized.")
   }
@@ -73,11 +66,11 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
-    config.find { target =>
+    config find { target =>
       // find the first "target" config element that matches this request (if any)
-      target.url.findFirstIn(wrappedRequest.getRequestURL).isDefined &&
+      target.url.matcher(wrappedRequest.getRequestURI).matches &&
         (target.methods.contains(wrappedRequest.getMethod) || target.methods.contains(AllHttpMethods))
-    }.foreach { target =>
+    } foreach { target =>
       // figure out which headers to remove, and remove them
       (target.access match {
         case WhiteList => wrappedRequest.getHeaderNamesScala.diff(target.headers)
@@ -85,7 +78,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers.intersect(wrappedRequest.getHeaderNamesScala)
       }).foreach(wrappedRequest.removeHeader)
 
-      metricsMeter.foreach(_.mark(s"${target.url}_${wrappedRequest.getMethod}"))
+      metricsMeter.mark(s"${target.url}_${wrappedRequest.getMethod}")
     }
 
     filterChain.doFilter(wrappedRequest, servletResponse)
@@ -98,7 +91,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
   }
 
   override def configurationUpdated(config: HeaderNormalizationConfig): Unit = {
-    this.config = config.getHeaderFilters.getTarget.asScala.map { target =>
+    this.config = config.getHeaderFilters.getTarget.asScala map { target =>
       val access = if (target.getBlacklist.isEmpty) WhiteList else BlackList
       val headers = (access match {
         case WhiteList => target.getWhitelist
@@ -106,7 +99,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
       }).get(0).getHeader.asScala.map(_.getId).toSet
 
       Target(
-        Option(target.getUriRegex).getOrElse(".*").r,               // if not configured, default is ".*"
+        Option(target.getUriRegex).getOrElse(".*").r.pattern,       // if not configured, default is ".*"
         target.getHttpMethods.asScala.map(_.toString).padTo(1, AllHttpMethods).toSet,  // default is "ALL"
         access,
         headers)
@@ -129,5 +122,5 @@ object HeaderNormalizationFilter {
   object WhiteList extends AccessList
   object BlackList extends AccessList
 
-  case class Target(url: Regex, methods: Set[String], access: AccessList, headers: Set[String])
+  case class Target(url: Pattern, methods: Set[String], access: AccessList, headers: Set[String])
 }
