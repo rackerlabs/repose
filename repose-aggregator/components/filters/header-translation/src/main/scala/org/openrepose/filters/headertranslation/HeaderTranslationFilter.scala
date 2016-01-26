@@ -21,7 +21,7 @@ package org.openrepose.filters.headertranslation
 
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -57,30 +57,39 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
-    val httpRequest = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest])
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized...")
+      response.asInstanceOf[HttpServletResponse].sendError(500)
+    } else {
+      val httpRequest = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest])
 
-    sourceHeaders foreach { sourceHeader =>
-      val originalHeaderName = sourceHeader.getOriginalName
-      val originalHeaderValues = httpRequest.getHeadersScala(originalHeaderName)
+      sourceHeaders foreach { sourceHeader =>
+        val originalHeaderName = sourceHeader.getOriginalName
+        val originalHeaderValues = httpRequest.getHeadersScala(originalHeaderName)
 
-      if (originalHeaderValues.nonEmpty) {
-        sourceHeader.getNewName foreach { newHeaderName =>
-          originalHeaderValues foreach { originalHeaderValue =>
-            httpRequest.addHeader(newHeaderName, originalHeaderValue)
-            logger.trace("Header added: " + newHeaderName)
+        if (originalHeaderValues.nonEmpty) {
+          sourceHeader.getNewName foreach { newHeaderName =>
+            originalHeaderValues foreach { originalHeaderValue =>
+              httpRequest.addHeader(newHeaderName, originalHeaderValue)
+              logger.trace("Header added: " + newHeaderName)
+            }
           }
-        }
 
-        if (sourceHeader.isRemoveOriginal) {
-          httpRequest.removeHeader(originalHeaderName)
-          logger.trace("Header removed: " + originalHeaderName)
+          if (sourceHeader.isRemoveOriginal) {
+            httpRequest.removeHeader(originalHeaderName)
+            logger.trace("Header removed: " + originalHeaderName)
+          }
+        } else {
+          logger.trace("Header for translation not found: " + originalHeaderName)
         }
-      } else {
-        logger.trace("Header for translation not found: " + originalHeaderName)
       }
-    }
 
-    chain.doFilter(httpRequest, response)
+      chain.doFilter(httpRequest, response)
+    }
+  }
+
+  override def isInitialized: Boolean = {
+    initialized
   }
 
   override def destroy(): Unit = {
@@ -90,9 +99,5 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
   override def configurationUpdated(configurationObject: HeaderTranslationType): Unit = {
     sourceHeaders = configurationObject.getHeader.toList
     initialized = true
-  }
-
-  override def isInitialized: Boolean = {
-    initialized
   }
 }
