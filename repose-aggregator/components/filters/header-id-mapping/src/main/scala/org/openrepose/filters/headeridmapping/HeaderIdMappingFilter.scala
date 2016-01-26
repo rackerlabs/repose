@@ -23,7 +23,7 @@ package org.openrepose.filters.headeridmapping
 import java.net.URL
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -57,6 +57,12 @@ class HeaderIdMappingFilter @Inject()(configurationService: ConfigurationService
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
+    if (!isInitialized) {
+      logger.warn("Header Identity Mapping filter has not yet initialized.")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+      return
+    }
+
     val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
     // find the first configured "user-header" that exists in the request and use that config section to populate the user/group headers
