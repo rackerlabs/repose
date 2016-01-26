@@ -1,6 +1,19 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0")
+    }
+}
+
 allprojects {
     group = 'org.openrepose'
     version = '8.0.0.0'
+
+    apply plugin: 'idea'
 
     repositories {
         mavenCentral()
@@ -8,9 +21,29 @@ allprojects {
 }
 
 subprojects {
+
     apply plugin: 'java'
     apply plugin: 'groovy'
     apply plugin: 'scala'
+    apply plugin: 'org.unbroken-dome.test-sets'
+
+    testSets {
+        integrationTest
+    }
+
+    check.dependsOn integrationTest
+    integrationTest.mustRunAfter test
+
+    idea {
+        module {
+            testSourceDirs += project.sourceSets.integrationTest.allSource.srcDirs.flatten()
+            scopes.TEST.plus += [configurations.integrationTestCompile]
+        }
+    }
+
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 }
 
 ext.httpClientVersion = '4.4.1'
