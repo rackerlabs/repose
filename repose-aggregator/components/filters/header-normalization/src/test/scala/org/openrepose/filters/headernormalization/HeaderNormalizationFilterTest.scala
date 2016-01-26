@@ -28,6 +28,8 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.reporting.metrics.MetricsService
+import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum
 import org.openrepose.filters.headernormalization.config._
 import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
@@ -45,16 +47,21 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfter with Mat
   var servletResponse: ServletResponse = _
   var filterChain: FilterChain = _
   var filterConfig: FilterConfig = _
+  var metricsService: MetricsService = _
+  var metricsMeters: MeterByCategorySum = _
 
   before {
     servletRequest = new MockHttpServletRequest
     servletResponse = mock(classOf[ServletResponse])
     filterChain = mock(classOf[FilterChain])
     filterConfig = mock(classOf[FilterConfig])
+    metricsService = mock(classOf[MetricsService])
+    metricsMeters = mock(classOf[MeterByCategorySum])
 
     when(filterConfig.getInitParameterNames).thenReturn(List.empty[String].toIterator.asJavaEnumeration)
+    when(metricsService.newMeterByCategorySum(any(), any(), any(), any())).thenReturn(metricsMeters)
 
-    filter = new HeaderNormalizationFilter(mock(classOf[ConfigurationService]), null)
+    filter = new HeaderNormalizationFilter(mock(classOf[ConfigurationService]), metricsService)
     filter.init(filterConfig)
   }
 
@@ -297,6 +304,43 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfter with Mat
       val postFilterRequest = getPostFilterRequest
       postFilterRequest.getHeader("legit-header") shouldBe "such-value"
       postFilterRequest.getHeader("nope-header") shouldBe null
+    }
+  }
+
+  describe("metrics") {
+    it("will update metrics when a request matches a config target when using the default catch-all URL") {
+      val config = createConfig(List(ConfigTarget(List("legit-header"), WhiteList, None, None)))
+      filter.configurationUpdated(config)
+      servletRequest.addHeader("legit-header", "such-value")
+      servletRequest.setMethod("PATCH")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(metricsMeters).mark(".*_PATCH")
+    }
+
+    it("will update metrics when a request matches a config target when using a specified URL") {
+      val config = createConfig(List(ConfigTarget(List("legit-header"), WhiteList, Some("/v1/servers/[^/]+/status"), None)))
+      filter.configurationUpdated(config)
+      servletRequest.addHeader("legit-header", "such-value")
+      servletRequest.setRequestURI("/v1/servers/web-server-01/status")
+      servletRequest.setMethod("GET")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(metricsMeters).mark("/v1/servers/[^/]+/status_GET")
+    }
+
+    it("will NOT update metrics when a request does not match any config target") {
+      val config = createConfig(List(ConfigTarget(List("legit-header"), WhiteList, Some("/v1/servers/[^/]+/status"), None)))
+      filter.configurationUpdated(config)
+      servletRequest.addHeader("legit-header", "such-value")
+      servletRequest.setRequestURI("/v2/fries")
+      servletRequest.setMethod("GET")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(metricsMeters, never()).mark(any())
     }
   }
 
