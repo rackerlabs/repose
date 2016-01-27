@@ -18,9 +18,8 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.identitybasicauth.wpassword
-
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -29,15 +28,16 @@ import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
-
 /**
  * Created by jennyvo on 1/15/16.
  *  using username/password
+ * Update on 01/21/16
+ *  - Replace client-auth-n with keystone-v2 filter
  */
 class BasicAuthPasswordTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -51,7 +51,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
     }

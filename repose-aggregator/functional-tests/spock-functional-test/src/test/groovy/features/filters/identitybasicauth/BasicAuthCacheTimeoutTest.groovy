@@ -20,7 +20,7 @@
 package features.filters.identitybasicauth
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.apache.commons.codec.binary.Base64
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -31,11 +31,13 @@ import javax.ws.rs.core.HttpHeaders
 /**
  * Created by jennyvo on 9/24/14.
  * simple token cache timeout test
+ * Update on 01/21/16
+ *  - Replace client-auth-n with keystone-v2 filter
  */
 class BasicAuthCacheTimeoutTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -48,7 +50,7 @@ class BasicAuthCacheTimeoutTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
     }
