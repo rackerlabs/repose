@@ -20,7 +20,7 @@
 package features.filters.herp
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -29,13 +29,15 @@ import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 6/16/15.
+ * Update on 01/21/16
+ *  - Replace client-auth-n with keystone-v2 filter
  */
 class AuthHerpDerpRMSTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
 
@@ -45,11 +47,11 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/herp", params)
         repose.configurationProvider.applyConfigs("features/filters/herp/wderpandrms", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/wderpandrms/wauthn", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp/wderpandrms/wkeystonev2", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -76,7 +78,7 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
         }
 
         fakeIdentityService.validateTokenHandler = {
-            tokenId, request, xml ->
+            tokenId, tenantid, request, xml ->
                 new Response(authRespCode)
         }
 
@@ -100,8 +102,8 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
         */
         where:
         authRespCode | responseCode | msgBody
-        404          | "401"        | "Unable to validate token"
-        401          | "500"        | "Failure in Auth-N filter."
+        404          | "401"        | "Token is not valid for validate token request"
+        401          | "500"        | "Admin token unauthorized to make validate token request"
     }
 }
 

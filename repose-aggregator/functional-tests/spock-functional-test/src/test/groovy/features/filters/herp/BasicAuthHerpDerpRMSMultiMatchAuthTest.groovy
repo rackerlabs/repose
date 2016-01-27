@@ -20,7 +20,7 @@
 package features.filters.herp
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
@@ -31,13 +31,15 @@ import javax.ws.rs.core.HttpHeaders
 
 /**
  * Created by jennyvo on 10/7/15.
+ * Update on 01/21/16
+ *  - Replace client-auth-n with keystone-v2 filter
  */
 class BasicAuthHerpDerpRMSMultiMatchAuthTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
 
@@ -47,13 +49,13 @@ class BasicAuthHerpDerpRMSMultiMatchAuthTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/herp", params)
         repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wauthnpreference", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wauthnpreference/wbasicauth", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wauthpreference", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wauthpreference/wbasicauth", params)
 
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
