@@ -74,11 +74,11 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
       val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
       getClassificationLabel(servletRequest.getRemoteAddr).foreach { label =>
-        request.addHeader(groupHeaderName, s"$label;q=$groupHeaderQuality")
+        request.addHeader(groupHeaderName, label, groupHeaderQuality)
       }
 
       //Always set the user header name to the current IP address
-      request.addHeader(userHeaderName, s"${servletRequest.getRemoteAddr};q=$userHeaderQuality")
+      request.addHeader(userHeaderName, servletRequest.getRemoteAddr, userHeaderQuality)
 
       logger.trace("IP User filter passing request...")
       filterChain.doFilter(request, servletResponse)
