@@ -81,7 +81,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
   }
 
   describe("when starting") {
-    it("should return a 500 if configuration has not been loaded") {
+    it("should return a 503 if configuration has not been loaded") {
       val mockConfigService = mock[ConfigurationService]
       val testFilter = new HeaderTranslationFilter(mockConfigService)
 
@@ -91,7 +91,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
       testFilter.doFilter(null, mockResponse, mockChain)
 
       verify(mockChain, never()).doFilter(any(), any())
-      verify(mockResponse).sendError(500)
+      verify(mockResponse).sendError(503)
     }
   }
 
