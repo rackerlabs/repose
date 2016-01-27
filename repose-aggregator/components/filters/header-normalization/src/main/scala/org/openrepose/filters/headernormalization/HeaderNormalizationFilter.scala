@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -64,6 +64,12 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
+    if (!isInitialized) {
+      logger.warn("Header Normalization filter has not yet initialized.")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+      return
+    }
+
     val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
     config find { target =>
