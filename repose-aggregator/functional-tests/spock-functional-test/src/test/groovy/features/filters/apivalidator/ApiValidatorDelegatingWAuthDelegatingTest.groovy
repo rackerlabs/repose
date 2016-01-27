@@ -20,7 +20,7 @@
 package features.filters.apivalidator
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -31,14 +31,14 @@ import spock.lang.Unroll
  * Created by jennyvo on 11/4/14.
  *  Multiple filters with delegable option:
  *  - Api Validator with delegable set to true
- *  - Client Auth with delegating set to true
+ *  - keystone-v2 with delegating set to true
  */
 class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
 
@@ -52,7 +52,7 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -75,7 +75,7 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
 
         given:
         fakeIdentityService.with {
-            client_tenant = 12345
+            client_tenantid = 12345
             client_token = clienttoken
             tokenExpiresAt = DateTime.now().plusDays(1)
             service_admin_role = adminrole
@@ -113,14 +113,14 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
 
             def request2 = mc.handlings[0].request
             assert (request2.headers.getFirstValue("x-identity-status") == identitystatus)
-            assert (request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
+            //assert (request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
         }
 
         where:
         reqtenant | adminrole | clienttoken       | roles                      | method   | responseCode | identitystatus  | delegateMsg
         ""        | "regular" | ""                | "raxrole-test1"            | "GET"    | "200"        | "Indeterminate" | "status_code=404`component=api-validator`message=Resource not found: /{a};q=0.5"
         "test"    | "admin1"  | UUID.randomUUID() | "raxrole-test1,a:observer" | "POST"   | "200"        | "Confirmed"     | "status_code=404`component=api-validator`message=Resource not found: /a/{test};q=0.5"
-        "test"    | "admin2"  | UUID.randomUUID() | "raxrole-test1,a:observer" | "DELETE" | "200"        | "Confirmed"     | "status_code=404`component=api-validator`message=Resource not found: /a/{test};q=0.5"
+        1234      | "admin2"  | UUID.randomUUID() | "raxrole-test1,a:observer" | "DELETE" | "200"        | "Confirmed"     | "status_code=404`component=api-validator`message=Resource not found: /a/{1234};q=0.5"
         12345     | "default" | UUID.randomUUID() | "raxrole-test1,a:admin"    | "PUT"    | "200"        | "confirmed"     | "status_code=404`component=api-validator`message=Resource not found: /a/{12345};q=0.5"
     }
 
@@ -131,12 +131,12 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = 123
+            client_tenantid = 123
         }
 
         if (authresp != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantid, request, xml ->
                     new Response(authresp)
             }
         }
