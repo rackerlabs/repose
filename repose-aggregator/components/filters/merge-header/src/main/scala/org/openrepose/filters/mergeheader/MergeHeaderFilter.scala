@@ -60,7 +60,8 @@ class MergeHeaderFilter @Inject()(configurationService: ConfigurationService)
       logger.error("Filter has not yet initialized...")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
-      lazy val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+      val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+      val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
 
       Option(filterConfig.getRequest) foreach { requestConfig =>
         requestConfig.getHeader foreach { name =>
@@ -73,8 +74,6 @@ class MergeHeaderFilter @Inject()(configurationService: ConfigurationService)
       }
 
       filterChain.doFilter(wrappedRequest, servletResponse)
-
-      val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
 
       Option(filterConfig.getResponse).foreach { responseConfig =>
         responseConfig.getHeader foreach { name =>
