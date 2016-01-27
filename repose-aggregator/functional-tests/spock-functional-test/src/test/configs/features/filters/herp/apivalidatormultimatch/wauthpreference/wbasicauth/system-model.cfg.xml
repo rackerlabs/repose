@@ -9,7 +9,7 @@
 
         <filters>
             <filter name="rackspace-identity-basic-auth"/>
-            <filter name="client-auth" />
+            <filter name="keystone-v2" />
             <filter name="api-validator"/>
             <filter name="herp"/>
             <filter name="derp"/>

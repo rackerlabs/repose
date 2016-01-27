@@ -8,9 +8,4 @@
             set-groups-in-header="true"
             set-catalog-in-header="false"
             />
-    <white-list>
-        <uri-regex>^$</uri-regex>
-        <uri-regex>/buildinfo</uri-regex>
-        <uri-regex>/get</uri-regex>
-    </white-list>
 </keystone-v2>
