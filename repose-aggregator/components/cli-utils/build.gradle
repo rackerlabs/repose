@@ -1,0 +1,22 @@
+dependencies {
+    compile project(':commons-utilities')
+    compile project(':datastoreservice-api')
+    compile project(':core-lib')
+    compile "org.slf4j:slf4j-api"
+    testCompile "junit:junit"
+    testCompile "org.hamcrest:hamcrest-all"
+
+//todo: may or may not be needed, i suspect they are here for test output
+//    testCompile "org.apache.logging.log4j:log4j-core:2.3"
+//    testCompile "org.apache.logging.log4j:log4j-slf4j-impl:2.3"
+
+//todo: figure out what to do with this thing
+//    testCompile "org.apache.logging.log4j:log4j-core:test-jar:tests:2.3:test"
+
+//todo: pretty sure these are unneeded
+//    provided "javax:javaee-web-api:6.0"
+//    provided "javax.transaction:transaction-api:1.1"
+
+}
+
+//todo: make a shaded jar
