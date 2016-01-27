@@ -67,10 +67,10 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!initialized) {
-      logger.error("IP Classification filter has not yet initialized...")
+      logger.error("IP User filter has not yet initialized...")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
     } else {
-      logger.trace("IP Classification filter handling request...")
+      logger.trace("IP User filter handling request...")
       val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
       getClassificationLabel(servletRequest.getRemoteAddr).foreach { label =>
@@ -80,10 +80,10 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
       //Always set the user header name to the current IP address
       request.addHeader(userHeaderName, s"${servletRequest.getRemoteAddr};q=$userHeaderQuality")
 
-      logger.trace("IP Classification filter passing request...")
+      logger.trace("IP User filter passing request...")
       filterChain.doFilter(request, servletResponse)
 
-      logger.trace("IP Classification filter returning response...")
+      logger.trace("IP User filter returning response...")
     }
   }
 
