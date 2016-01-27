@@ -20,7 +20,7 @@
 package features.core.tracing
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
@@ -34,7 +34,7 @@ class TracingLogTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
 
@@ -46,7 +46,7 @@ class TracingLogTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -68,7 +68,7 @@ class TracingLogTest extends ReposeValveTest {
 
         given:
         fakeIdentityService.with {
-            client_tenant = 1111
+            client_tenantid = 1111
             client_userid = 1111
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -91,10 +91,16 @@ class TracingLogTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
 
         //Find the GUID out of :  Trans-Id:e6a7f92b-1d22-4f97-8367-7787ccb5f100 - 2015-05-20 12:07:14,045 68669 [qtp172333204-48] DEBUG org.openrepose.filters.clientauth.common.AuthenticationHandler - Uri is /servers/1111/
-        List<String> lines = reposeLogSearch.searchByString("Trans-Id:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} - .* Uri is /servers/1111/\$")
-        lines.size() == 1
+        List<String> lines1 = reposeLogSearch.searchByString("Trans-Id:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} - .* - checking /servers/1111/ against \\^\\\$")
+        List<String> lines2 = reposeLogSearch.searchByString("Trans-Id:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} - .* - checking /servers/1111/ against /buildinfo")
+        List<String> lines3 = reposeLogSearch.searchByString("Trans-Id:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} - .* - checking /servers/1111/ against /get")
+
+        lines1.size() == 1
+        lines2.size() == 1
+        lines3.size() == 1
+
         //Ensure that GUID is used in a log message for the actor threads
-        String GUID = (lines.first() =~ "([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")[0][1]
+        String GUID = (lines1.first() =~ "([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")[0][1]
         def actorLines = reposeLogSearch.searchByString("Trans-Id:$GUID -.*AuthTokenFutureActor request!")
         actorLines.size() == 3
     }
@@ -103,7 +109,7 @@ class TracingLogTest extends ReposeValveTest {
 
         given:
         fakeIdentityService.with {
-            client_tenant = 1212
+            client_tenantid = 1212
             client_userid = 1212
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
