@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.valkyrie
+
 import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityV2Service
@@ -26,6 +27,7 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 
 import java.util.concurrent.TimeUnit
+
 /**
  * Update on 01/28/15
  *  - replace client-auth with keystone-v2
