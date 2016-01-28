@@ -36,11 +36,13 @@ import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
+import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -49,10 +51,11 @@ import scala.util.{Failure, Random, Success, Try}
 @Named
 class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                                  akkaServiceClientFactory: AkkaServiceClientFactory,
+                                 atomFeedService: AtomFeedService,
                                  datastoreService: DatastoreService)
   extends Filter
-  with HttpDelegationManager
-  with LazyLogging {
+    with HttpDelegationManager
+    with LazyLogging {
 
   import KeystoneV2Filter._
 
@@ -88,6 +91,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(configurationFile, KeystoneV2ConfigListener)
     configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigListener)
+    CacheInvalidationFeedListener.unRegisterFeeds()
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
@@ -291,7 +295,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             val timeToLive = getTtl(cacheSettings.getToken,
               cacheSettings.getVariability,
               Some(validToken))
+
             timeToLive foreach { ttl =>
+              datastore.patch(s"$USER_ID_KEY_PREFIX${validToken.userId}", new SetPatch(authToken), ttl, TimeUnit.SECONDS)
               datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, ttl, TimeUnit.SECONDS)
             }
           }
@@ -634,6 +640,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       // Removes an extra slash at the end of the URI if applicable
       val serviceUri = keystoneV2Config.getIdentityService.getUri
       keystoneV2Config.getIdentityService.setUri(serviceUri.stripSuffix("/"))
+      CacheInvalidationFeedListener.registerFeeds(
+        // This will also force the un-registering of the Atom Feeds if the new config doesn't have a Cache element.
+        Option(keystoneV2Config.getCache).getOrElse(new CacheType).getAtomFeed.asScala.toList
+      )
 
       val akkaServiceClientOld = Option(akkaServiceClient)
       akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(keystoneV2Config.getIdentityService.getConnectionPoolId)
@@ -643,6 +653,63 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     override def isInitialized: Boolean = initialized
+  }
+
+  object CacheInvalidationFeedListener extends AtomFeedListener {
+
+    case class RegisteredFeed(id: String, unique: String)
+
+    private var registeredFeeds = List.empty[RegisteredFeed]
+
+    def unRegisterFeeds(): Unit = {
+      registeredFeeds.synchronized {
+        registeredFeeds.foreach(feed =>
+          atomFeedService.unregisterListener(feed.unique)
+        )
+      }
+    }
+
+    def registerFeeds(feeds: List[AtomFeedType]): Unit = {
+      registeredFeeds.synchronized {
+        // Unregister the feeds we no longer care about.
+        val inFeeds = feeds.map(_.getId)
+        val feedsToUnRegister = registeredFeeds.filterNot(regFeed => inFeeds.contains(regFeed.id))
+        feedsToUnRegister.foreach(feed => atomFeedService.unregisterListener(feed.unique))
+        // Register with only the new feeds we aren't already registered with.
+        val registeredFeedIds = registeredFeeds.map(_.id)
+        val feedsToRegister = inFeeds.filterNot(posFeed => registeredFeedIds.contains(posFeed))
+        val newRegisteredFeeds = feedsToRegister.map(feedId => RegisteredFeed(feedId, atomFeedService.registerListener(feedId, this)))
+        // Update to the still and newly registered feeds.
+        registeredFeeds = registeredFeeds.diff(feedsToUnRegister) ++ newRegisteredFeeds
+      }
+    }
+
+    override def onNewAtomEntry(atomEntry: String): Unit = {
+      val atomXml = scala.xml.XML.loadString(atomEntry)
+      val resourceId = (atomXml \\ "event" \\ "@resourceId").map(_.text).headOption
+      if (resourceId.isDefined) {
+        val resourceType = (atomXml \\ "event" \\ "@resourceType").map(_.text)
+        val authTokens: Option[collection.Set[String]] = resourceType.headOption match {
+          // User OR Token Revocation Record (TRR) event
+          case Some("USER") | Some("TRR_USER") =>
+            val tokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX${resourceId.get}").asInstanceOf[PatchableSet[String]])
+            datastore.remove(s"$USER_ID_KEY_PREFIX${resourceId.get}")
+            tokens
+          case Some("TOKEN") => Some(Set(resourceId.get))
+          case _ => None
+        }
+
+        authTokens.getOrElse(List.empty[String]).foreach(authToken => {
+          datastore.remove(s"$TOKEN_KEY_PREFIX$authToken")
+          datastore.remove(s"$ENDPOINTS_KEY_PREFIX$authToken")
+          datastore.remove(s"$GROUPS_KEY_PREFIX$authToken")
+        })
+      }
+    }
+
+    override def onLifecycleEvent(event: LifecycleEvents): Unit = {
+      logger.debug(s"Received Lifecycle Event: $event")
+    }
   }
 
 }

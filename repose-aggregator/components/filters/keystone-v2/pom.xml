@@ -95,6 +95,12 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
+            <artifactId>atom-feed-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
 

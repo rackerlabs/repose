@@ -21,7 +21,7 @@ package features.services.datastore
 
 import framework.*
 import org.openrepose.commons.utils.io.ObjectSerializer
-import org.openrepose.core.services.datastore.StringValue
+import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder

@@ -20,11 +20,12 @@
 package features.filters.keystonev2.cache
 
 import framework.ReposeValveTest
+import framework.category.Slow
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
+import org.junit.experimental.categories.Category
 
 /**
  B-48277
@@ -101,7 +102,7 @@ import spock.lang.Ignore
  assert response code from repose is 401
 
  */
-@Ignore("Not yet implemented")
+@Category(Slow.class)
 class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
     def originEndpoint
@@ -176,6 +177,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
                     new Response(404)
             }
         }
+
         fakeIdentityV2Service.resetCounts()
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
@@ -200,7 +202,6 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityV2Service.validateTokenCount == 1
     }
 
-
     def "When a user is cached by repose, and a user Update event, invalidate the cache for that user"() {
         when: "I send a GET request to REPOSE with an X-Auth-Token header for a specific user"
         fakeIdentityV2Service.resetCounts()
@@ -217,7 +218,6 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityV2Service.getGroupsCount == 1
         mc.handlings[0].endpoint == originEndpoint
 
-
         when: "I send a GET request to REPOSE with the same X-Auth-Token header"
         fakeIdentityV2Service.resetCounts()
         mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
@@ -229,13 +229,9 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityV2Service.getGroupsCount == 0
         mc.handlings[0].endpoint == originEndpoint
 
-
         when: "Identity atom feed has a Update User Event"
-
         //Identity needs to respond normally, so that we can get "new" user info
-
         fakeIdentityV2Service.resetCounts()
-        //Configure the fake Atom Feed to hork back a TRR token
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.userUpdateHandler(fakeIdentityV2Service.client_userid.toString())
 
@@ -245,16 +241,17 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
                 [
-                        url           : reposeEndpoint,
-                        method        : 'GET',
-                        headers       : ['X-Auth-Token': fakeIdentityV2Service.client_token]
+                        url    : reposeEndpoint,
+                        method : 'GET',
+                        headers: ['X-Auth-Token': fakeIdentityV2Service.client_token]
                 ])
 
-        then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
+        then: "Repose should not have the token in the cache any more, so it try to re-validate it"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
         fakeIdentityV2Service.validateTokenCount == 1
         fakeIdentityV2Service.getGroupsCount == 1
+
     }
 
     def "When a user is cached by repose, and a TRR event comes in, invalidate all of the cache for that user"() {
@@ -294,6 +291,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
                     new Response(404)
             }
         }
+
         fakeIdentityV2Service.resetCounts()
         //Configure the fake Atom Feed to hork back a TRR token
         fakeAtomFeed.hasEntry = true

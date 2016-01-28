@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration>
+    <Appenders>
+        <List name="serviceList"/>
+    </Appenders>
+    <Loggers>
+        <Root level="info"/>
+        <Logger name="org.openrepose.nodeservice.atomfeed" level="trace">
+            <AppenderRef ref="serviceList"/>
+        </Logger>
+    </Loggers>
+</Configuration>

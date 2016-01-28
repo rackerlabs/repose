@@ -196,6 +196,7 @@ object KeystoneRequestHandler {
   final val ENDPOINTS_ENDPOINT = (token: String) => s"/v2.0/tokens/$token/endpoints"
   final val ADMIN_TOKEN_KEY = "IDENTITY:V2:ADMIN_TOKEN"
   final val TOKEN_KEY_PREFIX = "IDENTITY:V2:TOKEN:"
+  final val USER_ID_KEY_PREFIX = "IDENTITY:V2:USER_ID:"
   final val GROUPS_KEY_PREFIX = "IDENTITY:V2:GROUPS:"
   final val ENDPOINTS_KEY_PREFIX = "IDENTITY:V2:ENDPOINTS:"
 

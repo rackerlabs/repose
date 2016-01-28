@@ -39,7 +39,7 @@
                 <html:p>Top level element for defining a power proxy system model</html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:sequence>
             <xs:element name="repose-cluster" type="mod:ReposeCluster" minOccurs="1" maxOccurs="unbounded"/>
             <xs:element name="service-cluster" type="mod:Cluster" minOccurs="0" maxOccurs="unbounded"/>
@@ -123,7 +123,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="enabled" type="xs:boolean" use="required" />
+        <xs:attribute name="enabled" type="xs:boolean" use="required"/>
         <xs:attribute name="collection-uri" type="xs:anyURI" use="optional" default="http://phone-home.openrepose.org"/>
         <xs:attribute name="origin-service-id" type="xs:string" use="optional"/>
         <xs:attribute name="contact-email" type="xs:string" use="optional"/>
@@ -292,6 +292,7 @@
             <xs:simpleType>
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="dist-datastore"/>
+                    <xs:enumeration value="atom-feed-service"/>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
