@@ -20,7 +20,6 @@
 package features.filters.headertranslation
 
 import framework.ReposeValveTest
-import framework.category.Bug
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
@@ -29,7 +28,6 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
-@org.junit.experimental.categories.Category(Bug.class)
 class ReliabilityTest extends ReposeValveTest {
 
     //Start repose once for this particular translation test
