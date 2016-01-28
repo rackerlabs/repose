@@ -20,19 +20,21 @@
 package features.filters.ratelimiting
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 /**
  * Created by jennyvo on 7/7/15.
+ * Update 01/28/16
+ *  - replace client-auth with keystone-v2 filter
  */
-class RateLimitingWClientAuthGroupTest extends ReposeValveTest {
+class RateLimitingWKeystoneV2GroupTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
 
@@ -40,11 +42,11 @@ class RateLimitingWClientAuthGroupTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/withclientauthngroups", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/wkeystonev2groups", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
     }
@@ -60,7 +62,7 @@ class RateLimitingWClientAuthGroupTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    def "Rate Limit on client auth group" () {
+    def "Rate Limit on client auth group"() {
         given:
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
