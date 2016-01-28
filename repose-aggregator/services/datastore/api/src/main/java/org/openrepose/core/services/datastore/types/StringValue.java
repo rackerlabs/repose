@@ -17,8 +17,9 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.datastore;
+package org.openrepose.core.services.datastore.types;
 
+import org.openrepose.core.services.datastore.Patchable;
 import org.openrepose.core.services.datastore.distributed.SerializablePatch;
 
 import java.io.Serializable;

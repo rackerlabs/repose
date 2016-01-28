@@ -25,14 +25,13 @@
             connection-pool-id="keystone-v2-pool"
             set-groups-in-header="true"
             set-catalog-in-header="false"
-            />
+    />
 
     <delegating quality="0.9"/>
 
     <white-list>
         <uri-regex>/application\.wadl$</uri-regex>
     </white-list>
-
 
     <cache>
         <timeouts variability="10">
@@ -41,8 +40,9 @@
             <group>600</group>
             <endpoints>600</endpoints>
         </timeouts>
+        <!-- The ID of a feed defined in the Atom Feed service configuration. -->
+        <atom-feed id="some-feed"/>
     </cache>
-
 
     <tenant-handling send-all-tenant-ids="true">
         <validate-tenant>
