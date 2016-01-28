@@ -20,21 +20,15 @@
 package org.openrepose.filters.rackspaceauthuser
 
 import java.io.InputStream
-import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
 import scala.io.Source
 import scala.xml.XML
 
-class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends AbstractFilterLogicHandler with LazyLogging {
+class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends LazyLogging {
 
   type UsernameParsingFunction = InputStream => Option[String]
   val username1_1XML: UsernameParsingFunction = { is =>
@@ -105,36 +99,24 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
     }
   }
 
-  override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
-    val director = new FilterDirectorImpl()
-    //By default, if nothing happens we're going to pass
-    director.setFilterAction(FilterAction.PASS)
+  def parseUserGroupFromInputStream(inputStream: InputStream, contentType: String): List[RackspaceAuthUserGroup] = {
+    var users = List.empty[RackspaceAuthUserGroup]
 
-    //Only operate on things if it's a POST, else there's no body to manipulate.
-    if (request.getMethod == "POST") {
-      val headerManager = director.requestHeaderManager()
-      val contentType = request.getContentType
-
-      //This logic is exactly the same regardless of the configuration, so lets reuse it
-      val updateHeaders: (IdentityGroupConfig, String) => Unit = { (config, username) =>
-        headerManager.appendHeader(PowerApiHeader.USER.toString, username, config.getQuality.toDouble)
-        headerManager.appendHeader(PowerApiHeader.GROUPS.toString, config.getGroup, config.getQuality.toDouble)
-        director.setFilterAction(FilterAction.PASS) //We don't want to muck with the response, just the headers
-      }
-
-      val inputStream = request.getInputStream()
-
-      //If the config for v11 is set, do the work
-      Option(filterConfig.getV11).map { config =>
-        parseUsername(config, inputStream, contentType, username1_1JSON, username1_1XML)(updateHeaders)
-      }
-      //If the config for v20 is set, do the work it's not likely that both will be set, or that both will succeed
-      Option(filterConfig.getV20).map { config =>
-        parseUsername(config, inputStream, contentType, username2_0JSON, username2_0XML)(updateHeaders)
-      }
+    val addUsersToReturn: (IdentityGroupConfig, String) => Unit = { (config, username) =>
+      users = RackspaceAuthUserGroup(username, config.getGroup, config.quality.toDouble) :: users
     }
 
-    director
+    //If the config for v11 is set, do the work
+    Option(filterConfig.getV11) foreach { config =>
+      parseUsername(config, inputStream, contentType, username1_1JSON, username1_1XML)(addUsersToReturn)
+    }
+
+    //If the config for v20 is set, do the work it's not likely that both will be set, or that both will succeed
+    Option(filterConfig.getV20) foreach { config =>
+      parseUsername(config, inputStream, contentType, username2_0JSON, username2_0XML)(addUsersToReturn)
+    }
+
+    users
   }
 
   /**
@@ -155,7 +137,7 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
         json(limitedInputStream)
       }
 
-      usernameOpt.map { username =>
+      usernameOpt foreach { username =>
         usernameFunction(config, username)
       }
     } catch {

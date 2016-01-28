@@ -30,11 +30,13 @@
     </repositories>
 
     <dependencies>
+        <!-- FilterConfigHelper -->
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
         </dependency>
 
+        <!-- servlet filter stuff -->
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>core-service-api</artifactId>
@@ -45,6 +47,7 @@
             <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
 
+        <!-- HTTP request/response wrappers -->
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>utilities</artifactId>
@@ -56,6 +59,7 @@
             <artifactId>scala-library</artifactId>
         </dependency>
 
+        <!-- Scalatest for testing scala -->
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
@@ -74,6 +78,19 @@
             <artifactId>scala-logging-slf4j_2.10</artifactId>
         </dependency>
 
+        <!-- MockHttpServletRequest/Response -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- LogFactory, needed by MockHttpServletRequest/Response -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
