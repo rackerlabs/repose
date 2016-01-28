@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.identitybasicauth.wpassword
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.apache.commons.lang.RandomStringUtils
@@ -28,6 +29,7 @@ import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
+
 /**
  * Created by jennyvo on 1/15/16.
  *  using username/password

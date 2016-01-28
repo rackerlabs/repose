@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.urlextractortoheader
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockValkyrie
@@ -26,6 +27,7 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 import static org.junit.Assert.assertTrue
+
 /**
  * Created by jennyvo on 11/23/15.
  *  Test valkyrie without need of validator but using url-extractor-to-header
