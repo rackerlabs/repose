@@ -1,0 +1,34 @@
+dependencies {
+    compile "org.scala-lang:scala-library"
+    compile "org.slf4j:slf4j-api"
+    compile "commons-pool:commons-pool"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "commons-codec:commons-codec"
+    compile project(':repose-aggregator/services/http-client-service/http-client-service-api')
+    compile "org.apache.commons:commons-lang3"
+    compile "com.fasterxml.jackson.core:jackson-core"
+    compile "com.fasterxml.jackson.core:jackson-databind"
+    compile "org.apache.httpcomponents:httpclient"
+    compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:0.6.3"
+    provided "javax:javaee-web-api:6.0"
+    testCompile "junit:junit"
+    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.codehaus.groovy:groovy-all"
+    testCompile "org.mockito:mockito-all"
+    testCompile "com.mockrunner:mockrunner-servlet"
+    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "javax.ws.rs:javax.ws.rs-api:2.0.1"
+    testCompile "org.glassfish:javax.servlet:3.1"
+    testCompile "org.spockframework:spock-core"
+    testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
+}
+
+
+sourceSets.main.scala.srcDir "src/main/java"
+sourceSets.main.java.srcDirs = []
+
+configurations {
+    testCompile.exclude group: 'javax', module: 'javaee-web-api'
+}
+
+//todo:try to cleanup the weird test output

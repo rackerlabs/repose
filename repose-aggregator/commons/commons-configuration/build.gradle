@@ -11,13 +11,13 @@ dependencies {
     testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
     testCompile "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
     testCompile "org.codehaus.groovy:groovy-all:$groovyVersion"
-    testCompile "org.spockframework:spock-core:$spockVersion"
+    testCompile "org.spockframework:spock-core"
 
 //todo: i suspect these are neccessary to get some decent logging out of our test, but check it out
-    testCompile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    testCompile "org.apache.logging.log4j:log4j-core"
 //todo: figure out this nonsense
 //    testCompile "org.apache.logging.log4j:log4j-core:test-jar:tests:$log4jVersion"
-    testCompile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+    testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
 
 
 //todo: i don't think these are neccessary
