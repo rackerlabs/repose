@@ -88,7 +88,6 @@ class MergeHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers wi
     }
 
     it("should merge response header values into a single comma-delimited line") {
-      val c = createConfig(Seq.empty[String], Seq("Accept"))
       filter.configurationUpdated(createConfig(Seq.empty[String], Seq("Accept")))
 
       servletResponse.addHeader("Accept", "foo")
@@ -98,6 +97,30 @@ class MergeHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers wi
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
       servletResponse.getHeader("Accept") should (include("foo") and include("bar") and include("baz"))
+    }
+
+    it("should not modify request headers if the configured header is not present") {
+      filter.configurationUpdated(createConfig(Seq("Accept"), Seq.empty[String]))
+
+      servletRequest.addHeader("Foo", "bar")
+      servletRequest.addHeader("Foo", "baz")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      servletRequest.getHeaderNames.toSet should contain only "Foo"
+      servletRequest.getHeaders("Foo").toSeq should (contain("bar") and contain("baz"))
+    }
+
+    it("should not modify response headers if the configured header is not present") {
+      filter.configurationUpdated(createConfig(Seq.empty[String], Seq("Accept")))
+
+      servletResponse.addHeader("Foo", "bar")
+      servletResponse.addHeader("Foo", "baz")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      servletResponse.getHeaderNames.toSet should contain only "Foo"
+      servletResponse.getHeaders("Foo").toSeq should (contain("bar") and contain("baz"))
     }
   }
 
