@@ -75,7 +75,7 @@ class MergeHeaderFilter @Inject()(configurationService: ConfigurationService)
 
       filterChain.doFilter(wrappedRequest, servletResponse)
 
-      Option(filterConfig.getResponse).foreach { responseConfig =>
+      Option(filterConfig.getResponse) foreach { responseConfig =>
         responseConfig.getHeader foreach { name =>
           val value = httpServletResponse.getHeaders(name).mkString(", ")
           if (value.nonEmpty) {
