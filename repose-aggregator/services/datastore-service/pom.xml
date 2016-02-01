@@ -17,7 +17,7 @@
     </description>
 
     <modules>
-        <module>api</module>
+        <module>datastore-service-api</module>
         <module>impl</module>
     </modules>
 </project>

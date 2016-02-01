@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Services - Datastore Service API</name>
-    <artifactId>datastoreservice-api</artifactId>
+    <artifactId>datastore-service-api</artifactId>
     <packaging>jar</packaging>
 
     <description>

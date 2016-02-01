@@ -17,7 +17,7 @@
 
     <modules>
         <module>service-client</module>
-        <module>datastore</module>
+        <module>datastore-service</module>
         <module>http-client-service</module>
         <module>rate-limiting-service</module>
         <module>health-check-service</module>

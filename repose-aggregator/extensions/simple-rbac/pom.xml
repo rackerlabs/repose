@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>commons-utilities</artifactId>
+            <artifactId>datastore-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
