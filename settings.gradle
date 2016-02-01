@@ -1,5 +1,6 @@
 include 'repose-aggregator/commons/commons-utilities',
-        'repose-aggregator/services/http-client-service/http-client-service-api'//,
+        'repose-aggregator/core/core-service-api',
+        'repose-aggregator/services/http-client-service/http-client-service-api'
 //        'repose-aggregator/commons/commons-configuration',
 //        'repose-aggregator/components/cli-utils',
 //        'repose-aggregator/services/health-check-service/health-check-service-api'

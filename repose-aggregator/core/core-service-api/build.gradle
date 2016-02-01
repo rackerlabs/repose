@@ -1,0 +1,101 @@
+apply plugin: 'com.github.jacobono.jaxb'
+
+dependencies {
+    jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.7-b41'
+    jaxb 'com.sun.xml.bind:jaxb-impl:2.2.7-b41'
+    jaxb 'javax.xml.bind:jaxb-api:2.2.7'
+    jaxb 'org.jvnet.jaxb2_commons:jaxb2-basics-ant:0.6.5'
+
+    compile project(":repose-aggregator/commons/commons-utilities")
+    compile "com.google.guava:guava"
+    provided "javax:javaee-web-api:6.0"
+
+}
+
+task transformXSDs() {
+    description "Runs xml through an xslt transfurm"
+    ext.outputDir = "$buildDir/src/generated-xsd"
+    //todo: make this work with multiples so i can make these paths better
+    def xsltFile = "$projectDir/src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl"
+    def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
+
+    //If they set a property for the jaxbXSLT file override our default
+    if (project.hasProperty('jaxbXsltFile')) {
+        xsltFile = project.jaxbXsltFile
+    }
+
+    if (project.hasProperty('jaxbSchemaBase')) {
+        schemaBaseDir = project.jaxbSchemaBase
+    }
+
+    inputs.files(
+            fileTree(dir: schemaBaseDir, includes: ["**/*.xsd", "**/*.xjb"]),
+            file(xsltFile)
+    )
+    outputs.dir outputDir
+
+    doLast {
+        file(outputDir).mkdirs()
+
+        //Find all XSDs in the src/main/resources/META-INF.schema
+        if (file(xsltFile).exists()) {
+            logger.lifecycle("Transforming Schemas")
+            ant.xslt(
+                    extension: '.xsd',
+                    basedir: schemaBaseDir,
+                    includes: "**/*.xsd",
+                    style: xsltFile,
+                    destdir: "${outputDir}"
+            )
+        } else {
+            logger.lifecycle("NOT Transforming Schemas")
+            copy {
+                from "$schemaBaseDir"
+                into "$outputDir"
+                include "**/*.xsd"
+            }
+        }
+
+        //Copy over any bindings.xjb into their appropriate directories
+        logger.lifecycle("Copying xjb's")
+        copy {
+            from "$schemaBaseDir"
+            into "$outputDir"
+            include "**/*.xjb"
+        }
+    }
+}
+
+
+//todo: get rid of this major pile of ugly hacks
+//todo: hinky interactions with clean
+task moreHacks() {
+    ext.jaxbTargetDir = "${buildDir}/src/generated-sources"
+    file(jaxbTargetDir).mkdirs()
+    outputs.dir jaxbTargetDir
+}
+jaxb {
+    //todo: remove this dirty hack after we improve the plugin
+    def builtDir = "${project.name}/build/src/generated-xsd"
+    xsdDir builtDir
+    bindingsDir builtDir
+//    xsdDir file(transformXSDs.outputDir)
+//    bindingsDir = file(transformXSDs.outputDir)
+    bindings = ['container/bindings.xjb', 'httpx/bindings.xjb',
+                'metrics/bindings.xjb', 'response-messaging/bindings.xjb',
+                'system-model/bindings.xjb']
+    xjc {
+        destinationDir = moreHacks.jaxbTargetDir
+    }
+}
+
+System.setProperty('javax.xml.accessExternalSchema', 'file')
+
+xjc.dependsOn transformXSDs, moreHacks
+sourceSets.main.java.srcDirs += moreHacks.jaxbTargetDir
+
+[JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
+    tasks.withType(type) {
+        dependsOn('xjc')
+    }
+}

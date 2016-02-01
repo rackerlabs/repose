@@ -1,300 +1,170 @@
 valve
     core-lib
         jee6-schemas
-        core-service-api
-        commons-utilities
         commons-configuration
         service-client-akka
-            commons-utilities
             service-client-api
-                commons-utilities
         health-check-service-api
         httpclient-connection-pool
-            core-service-api
             health-check-service-api
         datastoreservice-api
-            core-service-api
-            commons-utilities
         datastore-service
-            core-service-api
             datastoreservice-api
-            commons-utilities
             health-check-service-api
             rate-limiting-service
                 datastoreservice-api
-                commons-utilities
         phone-home
-            core-service-api
-            commons-utilities
             service-client-api
         health-check-service
             health-check-service-api
-    core-service-api
-        commons-utilities
     commons-configuration
-        commons-utilities
-        core-service-api
 filter-bundle
     rate-limiting
         rate-limiting-service
             datastoreservice-api
-            commons-utilities
         core-lib
             jee6-schemas
-            core-service-api
-            commons-utilities
             commons-configuration
             service-client-akka
-                commons-utilities
                 service-client-api
             health-check-service-api
             httpclient-connection-pool
-                core-service-api
                 health-check-service-api
             datastoreservice-api
             datastore-service
-                core-service-api
                 datastoreservice-api
-                commons-utilities
                 health-check-service-api
                 rate-limiting-service
             phone-home
-                core-service-api
-                commons-utilities
                 service-client-api
             health-check-service
                 health-check-service-api
-        core-service-api
-            commons-utilities
         datastoreservice-api
-            core-service-api
-            commons-utilities
-        commons-utilities
     versioning
         core-lib
-        core-service-api
         health-check-service-api
-        commons-utilities
     uri-normalization
         core-lib
-        core-service-api
         commons-configuration
-            commons-utilities
-            core-service-api
-        commons-utilities
     content-normalization
         core-lib
-        core-service-api
-        commons-utilities
     header-normalization
         core-lib
-        core-service-api
-        commons-utilities
     header-identity
         core-lib
-        core-service-api
-        commons-utilities
     header-id-mapping
         core-lib
-        core-service-api
-        commons-utilities
     uri-identity
         core-lib
-        core-service-api
-        commons-utilities
     client-auth
         auth
             os-auth-schemas
-            commons-utilities
             core-lib
             service-client-api
         core-lib
-        core-service-api
-        commons-utilities
         datastoreservice-api
         service-client-api
-            commons-utilities
         os-auth-schemas
     destination-router
         core-lib
-        core-service-api
-        commons-utilities
     slf4j-http-logging
         core-lib
-        core-service-api
-        commons-utilities
     translation
         core-lib
-        core-service-api
         commons-configuration
-        commons-utilities
     echo
         core-lib
-        commons-utilities
     client-authorization
         core-lib
-        core-service-api
         datastoreservice-api
         service-client-api
         os-auth-schemas
         auth
-        commons-utilities
     client-ip-identity
         core-lib
-        core-service-api
-        commons-utilities
     flush-output
         core-lib
-        core-service-api
-        commons-utilities
     compression
         core-lib
-        core-service-api
-        commons-utilities
         pjl-compressingFilter
-            commons-utilities
     header-translation
         core-lib
-        core-service-api
-        commons-utilities
     uri-stripper
         core-lib
-        core-service-api
-        commons-utilities
     openstack-identity-v3
         datastoreservice-api
         service-client-api
         core-lib
-        core-service-api
-        commons-utilities
     rackspace-identity-basic-auth
         core-lib
-        core-service-api
         datastoreservice-api
         service-client-api
-        commons-utilities
     rackspace-auth-user
         core-lib
-        core-service-api
-        commons-utilities
     content-type-stripper
         core-lib
-        core-service-api
-        commons-utilities
     add-header
         core-lib
-        core-service-api
-        commons-utilities
     derp
     forwarded-proto
-        commons-utilities
     iri-validator
     herp
         core-lib
-        commons-utilities
-        core-service-api
     valkyrie-authorization
         core-lib
-        core-service-api
         datastoreservice-api
         service-client-api
-        commons-utilities
     merge-header
         core-lib
-        core-service-api
-        commons-utilities
     keystone-v2
         core-lib
-        core-service-api
         datastoreservice-api
         service-client-api
-        commons-utilities
     cors
-        commons-utilities
-        core-service-api
         core-lib
     url-extractor-to-header
         core-lib
-        core-service-api
-        commons-utilities
     ip-user
         core-lib
-        core-service-api
-        commons-utilities
 extensions-filter-bundle
     api-validator
         core-lib
             jee6-schemas
-            core-service-api
-            commons-utilities
             commons-configuration
             service-client-akka
-                commons-utilities
                 service-client-api
-                    commons-utilities
             health-check-service-api
             httpclient-connection-pool
-                core-service-api
                 health-check-service-api
             datastoreservice-api
-                core-service-api
-                commons-utilities
             datastore-service
-                core-service-api
                 datastoreservice-api
-                commons-utilities
                 health-check-service-api
                 rate-limiting-service
                     datastoreservice-api
-                    commons-utilities
             phone-home
-                core-service-api
-                commons-utilities
                 service-client-api
             health-check-service
                 health-check-service-api
-        core-service-api
-            commons-utilities
         commons-configuration
-            commons-utilities
-            core-service-api
-        commons-utilities
     simple-rbac
         core-lib
-        core-service-api
-        commons-utilities
 web-application
-    core-service-api
-        commons-utilities
     core-lib
         jee6-schemas
-        core-service-api
-        commons-utilities
         commons-configuration
-            commons-utilities
-            core-service-api
         service-client-akka
-            commons-utilities
             service-client-api
-                commons-utilities
         health-check-service-api
         httpclient-connection-pool
-            core-service-api
             health-check-service-api
         datastoreservice-api
-            core-service-api
-            commons-utilities
         datastore-service
-            core-service-api
             datastoreservice-api
-            commons-utilities
             health-check-service-api
             rate-limiting-service
                 datastoreservice-api
-                commons-utilities
         phone-home
-            core-service-api
-            commons-utilities
             service-client-api
         health-check-service
             health-check-service-api
