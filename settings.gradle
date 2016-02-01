@@ -7,6 +7,6 @@ include 'repose-aggregator/commons/commons-configuration',
         'repose-aggregator/services/akka-http-client-service/akka-http-client-service-impl',
         'repose-aggregator/services/health-check-service/health-check-service-api',
         'repose-aggregator/services/http-client-service/http-client-service-api',
+        'repose-aggregator/services/http-client-service/http-client-service-impl',
         'repose-aggregator/services/rate-limiting-service'
-//        'repose-aggregator/commons/commons-configuration',
 //        'repose-aggregator/components/cli-utils',
