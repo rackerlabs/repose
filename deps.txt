@@ -1,6 +1,5 @@
 valve
     core-lib
-        service-client-akka
         httpclient-connection-pool
         datastore-service
         phone-home
@@ -8,7 +7,6 @@ valve
 filter-bundle
     rate-limiting
         core-lib
-            service-client-akka
             httpclient-connection-pool
             datastore-service
             phone-home
@@ -86,7 +84,6 @@ filter-bundle
 extensions-filter-bundle
     api-validator
         core-lib
-            service-client-akka
             httpclient-connection-pool
             datastore-service
             phone-home
@@ -95,7 +92,6 @@ extensions-filter-bundle
         core-lib
 web-application
     core-lib
-        service-client-akka
         httpclient-connection-pool
         datastore-service
         phone-home
