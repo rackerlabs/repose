@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Services - ServiceClient Support</name>
-    <artifactId>service-client-support</artifactId>
+    <artifactId>akka-http-client-support</artifactId>
     <packaging>pom</packaging>
 
     <description>
@@ -16,7 +16,7 @@
     </description>
 
     <modules>
-        <module>api</module>
+        <module>akka-http-client-service-api</module>
         <module>impl</module>
     </modules>
 </project>

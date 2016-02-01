@@ -16,7 +16,7 @@
     </description>
 
     <modules>
-        <module>service-client</module>
+        <module>akka-http-client-service</module>
         <module>datastore-service</module>
         <module>http-client-service</module>
         <module>rate-limiting-service</module>

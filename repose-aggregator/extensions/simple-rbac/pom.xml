@@ -36,8 +36,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.rackspace.papi.components.api-checker</groupId>
-            <artifactId>checker-core</artifactId>
+            <groupId>org.openrepose</groupId>
+            <artifactId>akka-http-client-service-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
