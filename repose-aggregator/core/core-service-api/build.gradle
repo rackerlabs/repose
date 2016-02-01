@@ -7,10 +7,4 @@ dependencies {
     provided "javax:javaee-web-api"
 }
 
-
-jaxb {
-    bindings = ['container/bindings.xjb', 'httpx/bindings.xjb',
-                'metrics/bindings.xjb', 'response-messaging/bindings.xjb',
-                'system-model/bindings.xjb']
-}
 //todo: remove the local xslt

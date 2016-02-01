@@ -130,6 +130,7 @@ subprojects {
         bindingsDir builtDir
         //xsdDir file(transformXSDs.outputDir)
         //bindingsDir = file(transformXSDs.outputDir)
+        bindings = ['**/*.xjb',]
         xjc {
             destinationDir = moreHacks.jaxbTargetDir
         }

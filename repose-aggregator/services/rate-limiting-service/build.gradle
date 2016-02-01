@@ -16,11 +16,6 @@ dependencies {
     testCompile "xerces:xerces-xsd11"
 }
 
-jaxb {
-    bindings = ['config/bindings.xjb', 'limits/bindings.xjb',]
-}
-//todo: remove the filter xslt
-
 configurations {
     testCompile.exclude group: 'javax', module: 'javaee-web-api'
 }
