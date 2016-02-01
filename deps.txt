@@ -1,13 +1,11 @@
 valve
     core-lib
-        httpclient-connection-pool
         datastore-service
         phone-home
         health-check-service
 filter-bundle
     rate-limiting
         core-lib
-            httpclient-connection-pool
             datastore-service
             phone-home
             health-check-service
@@ -84,7 +82,6 @@ filter-bundle
 extensions-filter-bundle
     api-validator
         core-lib
-            httpclient-connection-pool
             datastore-service
             phone-home
             health-check-service
@@ -92,7 +89,6 @@ extensions-filter-bundle
         core-lib
 web-application
     core-lib
-        httpclient-connection-pool
         datastore-service
         phone-home
         health-check-service
