@@ -120,7 +120,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>httpclient-connection-pool</artifactId>
+            <artifactId>http-client-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
