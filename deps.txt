@@ -3,12 +3,10 @@ valve
         jee6-schemas
         commons-configuration
         service-client-akka
-            service-client-api
         httpclient-connection-pool
         datastore-service
             rate-limiting-service
         phone-home
-            service-client-api
         health-check-service
     commons-configuration
 filter-bundle
@@ -18,12 +16,10 @@ filter-bundle
             jee6-schemas
             commons-configuration
             service-client-akka
-                service-client-api
             httpclient-connection-pool
             datastore-service
                 rate-limiting-service
             phone-home
-                service-client-api
             health-check-service
     versioning
         core-lib
@@ -44,9 +40,7 @@ filter-bundle
         auth
             os-auth-schemas
             core-lib
-            service-client-api
         core-lib
-        service-client-api
         os-auth-schemas
     destination-router
         core-lib
@@ -59,7 +53,6 @@ filter-bundle
         core-lib
     client-authorization
         core-lib
-        service-client-api
         os-auth-schemas
         auth
     client-ip-identity
@@ -74,11 +67,9 @@ filter-bundle
     uri-stripper
         core-lib
     openstack-identity-v3
-        service-client-api
         core-lib
     rackspace-identity-basic-auth
         core-lib
-        service-client-api
     rackspace-auth-user
         core-lib
     content-type-stripper
@@ -92,12 +83,10 @@ filter-bundle
         core-lib
     valkyrie-authorization
         core-lib
-        service-client-api
     merge-header
         core-lib
     keystone-v2
         core-lib
-        service-client-api
     cors
         core-lib
     url-extractor-to-header
@@ -110,12 +99,10 @@ extensions-filter-bundle
             jee6-schemas
             commons-configuration
             service-client-akka
-                service-client-api
             httpclient-connection-pool
             datastore-service
                 rate-limiting-service
             phone-home
-                service-client-api
             health-check-service
         commons-configuration
     simple-rbac
@@ -125,10 +112,8 @@ web-application
         jee6-schemas
         commons-configuration
         service-client-akka
-            service-client-api
         httpclient-connection-pool
         datastore-service
             rate-limiting-service
         phone-home
-            service-client-api
         health-check-service
