@@ -9,7 +9,9 @@ dependencies {
     compile "com.google.guava:guava"
     compile "org.slf4j:jcl-over-slf4j"
 
-    provided "javax:javaee-web-api"
+    provided "javax.ws.rs:javax.ws.rs-api"
+    provided "org.glassfish:javax.servlet"
+    provided "javax.inject:javax.inject"
 
     testCompile "junit:junit"
     testCompile "org.scala-lang:scala-library"
@@ -20,12 +22,4 @@ dependencies {
     testCompile "org.apache.logging.log4j:log4j-core"
     testCompile "org.apache.logging.log4j:log4j-core:2.3:tests"
     testCompile "org.eclipse.jetty:jetty-server"
-    testCompile "javax.ws.rs:javax.ws.rs-api"
-    testCompile "org.glassfish:javax.servlet" //todo: maybe switch this to provided, and then get rid of the configurations?
-    testCompile 'javax.inject:javax.inject'
-}
-
-//todo: maybe move this to the top?
-configurations {
-    testCompile.exclude group: 'javax', module: 'javaee-web-api'
 }

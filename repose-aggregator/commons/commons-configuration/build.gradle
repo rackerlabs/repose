@@ -3,7 +3,9 @@ dependencies {
     compile project(':repose-aggregator/core/core-service-api')
     compile "xalan:xalan:2.7.1"
     compile "org.slf4j:slf4j-api"
-    provided "javax:javaee-web-api"
+
+    provided "org.glassfish:javax.servlet"
+
     testCompile "junit:junit"
     testCompile "org.mockito:mockito-all"
     testCompile "org.scala-lang:scala-library"
@@ -11,12 +13,7 @@ dependencies {
     testCompile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.spockframework:spock-core"
-    testCompile "org.glassfish:javax.servlet"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     testCompile "org.apache.logging.log4j:log4j-core"
     testCompile "org.apache.logging.log4j:log4j-core:2.3:tests"
-}
-
-configurations {
-    testCompile.exclude group: 'javax', module: 'javaee-web-api'
 }

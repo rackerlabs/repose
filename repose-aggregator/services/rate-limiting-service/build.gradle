@@ -4,7 +4,7 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "org.apache.commons:commons-lang3"
 
-    provided "javax:javaee-web-api"
+    provided "org.glassfish:javax.servlet"
 
     testCompile project(":repose-aggregator/commons/commons-configuration")
     testCompile "junit:junit"
@@ -12,10 +12,5 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.spockframework:spock-core"
-    testCompile "org.glassfish:javax.servlet"
     testCompile "xerces:xerces-xsd11"
-}
-
-configurations {
-    testCompile.exclude group: 'javax', module: 'javaee-web-api'
 }
