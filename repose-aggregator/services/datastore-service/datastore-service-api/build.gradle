@@ -1,0 +1,4 @@
+dependencies {
+    compile project(":repose-aggregator/commons/commons-utilities")
+    compile project(":repose-aggregator/core/core-service-api")
+}

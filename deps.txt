@@ -7,12 +7,9 @@ valve
         health-check-service-api
         httpclient-connection-pool
             health-check-service-api
-        datastoreservice-api
         datastore-service
-            datastoreservice-api
             health-check-service-api
             rate-limiting-service
-                datastoreservice-api
         phone-home
             service-client-api
         health-check-service
@@ -21,7 +18,6 @@ valve
 filter-bundle
     rate-limiting
         rate-limiting-service
-            datastoreservice-api
         core-lib
             jee6-schemas
             commons-configuration
@@ -30,16 +26,13 @@ filter-bundle
             health-check-service-api
             httpclient-connection-pool
                 health-check-service-api
-            datastoreservice-api
             datastore-service
-                datastoreservice-api
                 health-check-service-api
                 rate-limiting-service
             phone-home
                 service-client-api
             health-check-service
                 health-check-service-api
-        datastoreservice-api
     versioning
         core-lib
         health-check-service-api
@@ -62,7 +55,6 @@ filter-bundle
             core-lib
             service-client-api
         core-lib
-        datastoreservice-api
         service-client-api
         os-auth-schemas
     destination-router
@@ -76,7 +68,6 @@ filter-bundle
         core-lib
     client-authorization
         core-lib
-        datastoreservice-api
         service-client-api
         os-auth-schemas
         auth
@@ -92,12 +83,10 @@ filter-bundle
     uri-stripper
         core-lib
     openstack-identity-v3
-        datastoreservice-api
         service-client-api
         core-lib
     rackspace-identity-basic-auth
         core-lib
-        datastoreservice-api
         service-client-api
     rackspace-auth-user
         core-lib
@@ -112,13 +101,11 @@ filter-bundle
         core-lib
     valkyrie-authorization
         core-lib
-        datastoreservice-api
         service-client-api
     merge-header
         core-lib
     keystone-v2
         core-lib
-        datastoreservice-api
         service-client-api
     cors
         core-lib
@@ -136,12 +123,9 @@ extensions-filter-bundle
             health-check-service-api
             httpclient-connection-pool
                 health-check-service-api
-            datastoreservice-api
             datastore-service
-                datastoreservice-api
                 health-check-service-api
                 rate-limiting-service
-                    datastoreservice-api
             phone-home
                 service-client-api
             health-check-service
@@ -158,12 +142,9 @@ web-application
         health-check-service-api
         httpclient-connection-pool
             health-check-service-api
-        datastoreservice-api
         datastore-service
-            datastoreservice-api
             health-check-service-api
             rate-limiting-service
-                datastoreservice-api
         phone-home
             service-client-api
         health-check-service
