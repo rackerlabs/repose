@@ -17,6 +17,6 @@
 
     <modules>
         <module>akka-http-client-service-api</module>
-        <module>impl</module>
+        <module>akka-http-client-service-impl</module>
     </modules>
 </project>

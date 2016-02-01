@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Services - AuthClient Akka Impl</name>
-    <artifactId>service-client-akka</artifactId>
+    <artifactId>akka-http-client-service-impl</artifactId>
     <packaging>jar</packaging>
 
     <description>

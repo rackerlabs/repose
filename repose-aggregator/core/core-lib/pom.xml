@@ -62,7 +62,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>service-client-akka</artifactId>
+            <artifactId>akka-http-client-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
