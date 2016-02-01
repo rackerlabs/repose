@@ -1,9 +1,4 @@
 dependencies {
-    jaxb "com.sun.xml.bind:jaxb-xjc"
-    jaxb "com.sun.xml.bind:jaxb-impl"
-    jaxb "javax.xml.bind:jaxb-api"
-    jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
-
     compile project(":repose-aggregator/commons/commons-utilities")
     compile project(":repose-aggregator/services/datastore-service/datastore-service-api")
     compile "org.slf4j:slf4j-api"
@@ -19,8 +14,6 @@ dependencies {
     testCompile "org.spockframework:spock-core"
     testCompile "org.glassfish:javax.servlet"
     testCompile "xerces:xerces-xsd11"
-
-
 }
 
 jaxb {
