@@ -1,27 +1,22 @@
 dependencies {
-    compile project(':commons-utilities')
-    compile project(':core-service-api')
-    compile "xerces:xerces-xsd11:$xercesVersion"
+    compile project(':repose-aggregator/commons/commons-utilities')
+    compile project(':repose-aggregator/core/core-service-api')
     compile "xalan:xalan:2.7.1"
-    compile "commons-pool:commons-pool:1.6"
-    compile "org.slf4j:slf4j-api:$slf4jVersion"
-    testCompile "junit:junit:$junitVersion"
-    testCompile "org.mockito:mockito-all:$mockitoVersion"
-    testCompile "org.scala-lang:scala-library:$scalaVersion"
-    testCompile "org.scalatest:scalatest_2.10:$scalaTestVersion"
-    testCompile "com.typesafe.scala-logging:scala-logging-slf4j_2.10:$scalaLoggingVersion"
-    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion"
+    compile "org.slf4j:slf4j-api"
+    provided "javax:javaee-web-api"
+    testCompile "junit:junit"
+    testCompile "org.mockito:mockito-all"
+    testCompile "org.scala-lang:scala-library"
+    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.spockframework:spock-core"
-
-//todo: i suspect these are neccessary to get some decent logging out of our test, but check it out
-    testCompile "org.apache.logging.log4j:log4j-core"
-//todo: figure out this nonsense
-//    testCompile "org.apache.logging.log4j:log4j-core:test-jar:tests:$log4jVersion"
+    testCompile "org.glassfish:javax.servlet"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
+    testCompile "org.apache.logging.log4j:log4j-core"
+    testCompile "org.apache.logging.log4j:log4j-core:2.3:tests"
+}
 
-
-//todo: i don't think these are neccessary
-//    provided "javax.transaction:transaction-api:1.1"
-//    provided "javax:javaee-web-api:6.0"
-//    testCompile "org.glassfish:javax.servlet:3.1"
+configurations {
+    testCompile.exclude group: 'javax', module: 'javaee-web-api'
 }

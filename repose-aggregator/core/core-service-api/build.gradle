@@ -8,7 +8,7 @@ dependencies {
 
     compile project(":repose-aggregator/commons/commons-utilities")
     compile "com.google.guava:guava"
-    provided "javax:javaee-web-api:6.0"
+    provided "javax:javaee-web-api"
 
 }
 
