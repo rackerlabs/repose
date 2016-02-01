@@ -29,9 +29,9 @@ import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 
 import static junit.framework.Assert.assertSame
+import static org.hamcrest.Matchers.containsString
 import static org.junit.Assert.assertNotNull
 import static org.junit.Assert.assertThat
-import static org.junit.matchers.JUnitMatchers.containsString
 
 class SchemaTest {
 
