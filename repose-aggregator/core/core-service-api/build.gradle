@@ -1,11 +1,6 @@
 apply plugin: 'com.github.jacobono.jaxb'
 
 dependencies {
-    jaxb "com.sun.xml.bind:jaxb-xjc"
-    jaxb "com.sun.xml.bind:jaxb-impl"
-    jaxb "javax.xml.bind:jaxb-api"
-    jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
-
     compile project(":repose-aggregator/commons/commons-utilities")
     compile "com.google.guava:guava"
 

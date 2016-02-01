@@ -37,6 +37,13 @@ subprojects {
     apply plugin: 'nebula.provided-base'
     apply plugin: 'com.github.jacobono.jaxb'
 
+    dependencies {
+        jaxb "com.sun.xml.bind:jaxb-xjc"
+        jaxb "com.sun.xml.bind:jaxb-impl"
+        jaxb "javax.xml.bind:jaxb-api"
+        jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
+    }
+
     testSets {
         integrationTest
     }
@@ -50,7 +57,6 @@ subprojects {
             scopes.TEST.plus += [configurations.integrationTestCompile]
         }
     }
-
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8

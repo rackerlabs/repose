@@ -1,6 +1,5 @@
 valve
     core-lib
-        jee6-schemas
         service-client-akka
         httpclient-connection-pool
         datastore-service
@@ -9,7 +8,6 @@ valve
 filter-bundle
     rate-limiting
         core-lib
-            jee6-schemas
             service-client-akka
             httpclient-connection-pool
             datastore-service
@@ -88,7 +86,6 @@ filter-bundle
 extensions-filter-bundle
     api-validator
         core-lib
-            jee6-schemas
             service-client-akka
             httpclient-connection-pool
             datastore-service
@@ -98,7 +95,6 @@ extensions-filter-bundle
         core-lib
 web-application
     core-lib
-        jee6-schemas
         service-client-akka
         httpclient-connection-pool
         datastore-service

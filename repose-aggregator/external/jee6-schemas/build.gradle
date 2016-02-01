@@ -1,0 +1,3 @@
+jaxb {
+    bindings = ['javaee6/javaee_6.xjb',]
+}
