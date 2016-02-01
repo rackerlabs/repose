@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Services - HttpClient Connection Pool Impl</name>
-    <artifactId>httpclient-connection-pool</artifactId>
+    <artifactId>http-client-service-impl</artifactId>
     <packaging>jar</packaging>
 
     <description>

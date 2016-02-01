@@ -17,6 +17,6 @@
 
     <modules>
         <module>http-client-service-api</module>
-        <module>impl</module>
+        <module>http-client-service-impl</module>
     </modules>
 </project>
