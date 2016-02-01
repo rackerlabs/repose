@@ -18,6 +18,6 @@
 
     <modules>
         <module>datastore-service-api</module>
-        <module>impl</module>
+        <module>datastore-service-impl</module>
     </modules>
 </project>

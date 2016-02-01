@@ -132,7 +132,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>datastore-service</artifactId>
+            <artifactId>datastore-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
