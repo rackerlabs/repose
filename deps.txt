@@ -4,18 +4,15 @@ valve
         service-client-akka
         httpclient-connection-pool
         datastore-service
-            rate-limiting-service
         phone-home
         health-check-service
 filter-bundle
     rate-limiting
-        rate-limiting-service
         core-lib
             jee6-schemas
             service-client-akka
             httpclient-connection-pool
             datastore-service
-                rate-limiting-service
             phone-home
             health-check-service
     versioning
@@ -95,7 +92,6 @@ extensions-filter-bundle
             service-client-akka
             httpclient-connection-pool
             datastore-service
-                rate-limiting-service
             phone-home
             health-check-service
     simple-rbac
@@ -106,6 +102,5 @@ web-application
         service-client-akka
         httpclient-connection-pool
         datastore-service
-            rate-limiting-service
         phone-home
         health-check-service

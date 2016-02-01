@@ -22,6 +22,9 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven {
+            url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
+        }
     }
 }
 
@@ -32,6 +35,7 @@ subprojects {
     apply plugin: 'scala'
     apply plugin: 'org.unbroken-dome.test-sets'
     apply plugin: 'nebula.provided-base'
+    apply plugin: 'com.github.jacobono.jaxb'
 
     testSets {
         integrationTest
@@ -50,18 +54,93 @@ subprojects {
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
+
+    task transformXSDs() {
+        description "Runs xml through an xslt transfurm"
+        ext.outputDir = "$buildDir/src/generated-xsd"
+        //todo: make this work with multiples so i can make these paths better
+        def xsltFile = "$rootDir/src/main/resources/remove-1.1-elements.xsl"
+        def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
+
+        //If they set a property for the jaxbXSLT file override our default
+        if (project.hasProperty('jaxbXsltFile')) {
+            xsltFile = project.jaxbXsltFile
+        }
+
+        if (project.hasProperty('jaxbSchemaBase')) {
+            schemaBaseDir = project.jaxbSchemaBase
+        }
+
+        inputs.files(
+                fileTree(dir: schemaBaseDir, includes: ["**/*.xsd", "**/*.xjb"]),
+                file(xsltFile)
+        )
+        outputs.dir outputDir
+
+        doLast {
+            file(outputDir).mkdirs()
+
+            //Find all XSDs in the src/main/resources/META-INF.schema
+            if (file(xsltFile).exists() && file(schemaBaseDir).exists()) {
+                logger.lifecycle("Transforming Schemas")
+                ant.xslt(
+                        extension: '.xsd',
+                        basedir: schemaBaseDir,
+                        includes: "**/*.xsd",
+                        style: xsltFile,
+                        destdir: "${outputDir}"
+                )
+            } else {
+                logger.lifecycle("NOT Transforming Schemas")
+                copy {
+                    from "$schemaBaseDir"
+                    into "$outputDir"
+                    include "**/*.xsd"
+                }
+            }
+
+            //Copy over any bindings.xjb into their appropriate directories
+            logger.lifecycle("Copying xjb's")
+            copy {
+                from "$schemaBaseDir"
+                into "$outputDir"
+                include "**/*.xjb"
+            }
+        }
+    }
+
+    //todo: get rid of this major pile of ugly hacks
+    //todo: hinky interactions with clean
+    task moreHacks() {
+        ext.jaxbTargetDir = "${buildDir}/src/generated-sources"
+        file(jaxbTargetDir).mkdirs()
+        outputs.dir jaxbTargetDir
+    }
+
+    jaxb {
+        //todo: remove this dirty hack after we improve the plugin
+        def builtDir = "${project.name}/build/src/generated-xsd"
+        xsdDir builtDir
+        bindingsDir builtDir
+        //xsdDir file(transformXSDs.outputDir)
+        //bindingsDir = file(transformXSDs.outputDir)
+        xjc {
+            destinationDir = moreHacks.jaxbTargetDir
+        }
+    }
+
+    System.setProperty('javax.xml.accessExternalSchema', 'file')
+
+    xjc.dependsOn transformXSDs, moreHacks
+    sourceSets.main.java.srcDirs += moreHacks.jaxbTargetDir
+
+    [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
+        tasks.withType(type) {
+            dependsOn('xjc')
+        }
+    }
 }
 
 dependencyRecommendations {
     propertiesFile file: file('versions.properties')
 }
-
-ext.httpClientVersion = '4.4.1'
-ext.xercesVersion = '2.12.0-rax'
-ext.slf4jVersion = '1.7.7'
-ext.junitVersion = '4.12'
-ext.mockitoVersion = '1.9.5'
-ext.scalaVersion = '2.10.3'
-ext.scalaTestVersion = '2.2.0'
-ext.scalaLoggingVersion = '2.1.2'
-ext.groovyVersion = '2.1.3'
