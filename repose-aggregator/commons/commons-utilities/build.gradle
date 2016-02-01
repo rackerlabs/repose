@@ -10,7 +10,7 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-databind"
     compile "org.apache.httpcomponents:httpclient"
     compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:0.6.3"
-    provided "javax:javaee-web-api:6.0"
+    provided "javax:javaee-web-api"
     testCompile "junit:junit"
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.codehaus.groovy:groovy-all"
@@ -18,7 +18,7 @@ dependencies {
     testCompile "com.mockrunner:mockrunner-servlet"
     testCompile "org.scalatest:scalatest_2.10"
     testCompile "javax.ws.rs:javax.ws.rs-api:2.0.1"
-    testCompile "org.glassfish:javax.servlet:3.1"
+    testCompile "org.glassfish:javax.servlet"
     testCompile "org.spockframework:spock-core"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
 }

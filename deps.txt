@@ -1,20 +1,17 @@
 valve
     core-lib
         jee6-schemas
-        commons-configuration
         service-client-akka
         httpclient-connection-pool
         datastore-service
             rate-limiting-service
         phone-home
         health-check-service
-    commons-configuration
 filter-bundle
     rate-limiting
         rate-limiting-service
         core-lib
             jee6-schemas
-            commons-configuration
             service-client-akka
             httpclient-connection-pool
             datastore-service
@@ -25,7 +22,6 @@ filter-bundle
         core-lib
     uri-normalization
         core-lib
-        commons-configuration
     content-normalization
         core-lib
     header-normalization
@@ -48,7 +44,6 @@ filter-bundle
         core-lib
     translation
         core-lib
-        commons-configuration
     echo
         core-lib
     client-authorization
@@ -97,20 +92,17 @@ extensions-filter-bundle
     api-validator
         core-lib
             jee6-schemas
-            commons-configuration
             service-client-akka
             httpclient-connection-pool
             datastore-service
                 rate-limiting-service
             phone-home
             health-check-service
-        commons-configuration
     simple-rbac
         core-lib
 web-application
     core-lib
         jee6-schemas
-        commons-configuration
         service-client-akka
         httpclient-connection-pool
         datastore-service
