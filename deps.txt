@@ -1,11 +1,9 @@
 valve
     core-lib
-        phone-home
         health-check-service
 filter-bundle
     rate-limiting
         core-lib
-            phone-home
             health-check-service
     versioning
         core-lib
@@ -80,11 +78,9 @@ filter-bundle
 extensions-filter-bundle
     api-validator
         core-lib
-            phone-home
             health-check-service
     simple-rbac
         core-lib
 web-application
     core-lib
-        phone-home
         health-check-service
