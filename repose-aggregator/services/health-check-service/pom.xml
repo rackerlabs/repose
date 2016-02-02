@@ -34,6 +34,6 @@
 
     <modules>
         <module>health-check-service-api</module>
-        <module>impl</module>
+        <module>health-check-service-impl</module>
     </modules>
 </project>
