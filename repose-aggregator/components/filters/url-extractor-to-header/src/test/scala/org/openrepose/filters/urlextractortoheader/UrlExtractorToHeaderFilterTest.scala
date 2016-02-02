@@ -20,18 +20,17 @@
 
 package org.openrepose.filters.urlextractortoheader
 
-import javax.servlet.{ServletResponse, FilterChain}
+import javax.servlet.http.HttpServletRequestWrapper
+import javax.servlet.{FilterChain, ServletResponse}
 
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
-import org.mockito.Mockito._
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
-import org.openrepose.filters.urlextractortoheader.config.{UrlExtractorToHeaderConfig, Extractor}
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
-import org.scalatest.junit.JUnitRunner
-import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
-
 import org.mockito.Matchers._
+import org.mockito.Mockito._
+import org.openrepose.filters.urlextractortoheader.config.{Extractor, UrlExtractorToHeaderConfig}
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
 class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers {
@@ -56,7 +55,7 @@ class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Ma
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader("X-Device-Id") shouldBe "hybrid:45678"
     }
@@ -70,7 +69,7 @@ class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Ma
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader("X-Device-Id") shouldBe "no-value"
     }
@@ -84,7 +83,7 @@ class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Ma
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader("X-Device-Id") shouldBe "hybrid:45678"
     }
@@ -98,7 +97,7 @@ class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Ma
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader("X-Device-Id") shouldBe null
     }
@@ -113,7 +112,7 @@ class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Ma
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader("X-Device-Id") shouldBe "hybrid:45678"
       requestCaptor.getValue.getHeader("X-Server-Id") shouldBe null
