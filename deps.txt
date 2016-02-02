@@ -1,10 +1,8 @@
 valve
     core-lib
-        health-check-service
 filter-bundle
     rate-limiting
         core-lib
-            health-check-service
     versioning
         core-lib
     uri-normalization
@@ -78,9 +76,7 @@ filter-bundle
 extensions-filter-bundle
     api-validator
         core-lib
-            health-check-service
     simple-rbac
         core-lib
 web-application
     core-lib
-        health-check-service
