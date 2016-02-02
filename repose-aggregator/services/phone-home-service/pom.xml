@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>Repose Services - Phone Home Service</name>
-    <artifactId>phone-home</artifactId>
+    <artifactId>phone-home-service</artifactId>
     <packaging>jar</packaging>
 
     <description>

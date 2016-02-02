@@ -21,7 +21,7 @@
         <module>http-client-service</module>
         <module>rate-limiting-service</module>
         <module>health-check-service</module>
-        <module>phone-home</module>
+        <module>phone-home-service</module>
     </modules>
 
 </project>

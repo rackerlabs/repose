@@ -1,12 +1,10 @@
 valve
     core-lib
-        datastore-service
         phone-home
         health-check-service
 filter-bundle
     rate-limiting
         core-lib
-            datastore-service
             phone-home
             health-check-service
     versioning
@@ -82,13 +80,11 @@ filter-bundle
 extensions-filter-bundle
     api-validator
         core-lib
-            datastore-service
             phone-home
             health-check-service
     simple-rbac
         core-lib
 web-application
     core-lib
-        datastore-service
         phone-home
         health-check-service
