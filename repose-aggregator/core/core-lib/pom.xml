@@ -138,19 +138,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>atom-feed-service-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>atom-feed-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>phone-home</artifactId>
+            <artifactId>phone-home-service</artifactId>
             <version>${project.version}</version>
         </dependency>
 
