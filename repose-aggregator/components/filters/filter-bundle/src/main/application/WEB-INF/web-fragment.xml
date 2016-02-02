@@ -5,10 +5,6 @@
         <filter-class>org.openrepose.filters.defaultrouter.routing.RoutingFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>client-auth</filter-name>
-        <filter-class>org.openrepose.filters.clientauth.ClientAuthenticationFilter</filter-class>
-    </filter>
-    <filter>
         <filter-name>header-identity</filter-name>
         <filter-class>org.openrepose.filters.headeridentity.HeaderIdentityFilter</filter-class>
     </filter>
@@ -55,10 +51,6 @@
     <filter>
         <filter-name>echo</filter-name>
         <filter-class>org.openrepose.filters.echo.EchoFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>client-authorization</filter-name>
-        <filter-class>org.openrepose.filters.authz.RackspaceAuthorizationFilter</filter-class>
     </filter>
     <filter>
         <filter-name>ip-identity</filter-name>

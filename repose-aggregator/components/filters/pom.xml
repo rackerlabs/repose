@@ -18,7 +18,6 @@
     <modules>
         <module>filter-bundle</module>
         <module>slf4j-http-logging</module>
-        <module>client-auth</module>
         <module>header-identity</module>
         <module>header-id-mapping</module>
         <module>uri-identity</module>
@@ -30,7 +29,6 @@
         <module>destination-router</module>
         <module>flush-output</module>
         <module>echo</module>
-        <module>client-authorization</module>
         <module>client-ip-identity</module>
         <module>header-normalization</module>
         <module>ip-user</module>
@@ -92,12 +90,6 @@
             <dependency>
                 <groupId>org.openrepose</groupId>
                 <artifactId>classloader</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.openrepose</groupId>
-                <artifactId>os-auth-schemas</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
