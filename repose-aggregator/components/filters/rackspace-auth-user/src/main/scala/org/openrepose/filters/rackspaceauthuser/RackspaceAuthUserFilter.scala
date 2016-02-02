@@ -26,6 +26,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -65,7 +66,8 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
     } else {
       val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest)
       handler.get.parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType) foreach { rackspaceAuthUserGroup =>
-        wrappedRequest.addHeader(rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
+        wrappedRequest.addHeader(PowerApiHeader.USER.toString, rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.quality)
+        wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
       }
 
       filterChain.doFilter(wrappedRequest, servletResponse)
