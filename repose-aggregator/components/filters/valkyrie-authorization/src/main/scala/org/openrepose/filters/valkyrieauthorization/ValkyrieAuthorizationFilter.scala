@@ -1,13 +1,14 @@
 package org.openrepose.filters.valkyrieauthorization
 
-import java.io.InputStream
+import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.regex.PatternSyntaxException
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse.{SC_MULTIPLE_CHOICES, SC_OK}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpServletResponseWrapper}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.ws.rs.core.MediaType
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.josephpconley.jsonpath.JSONPath
@@ -16,11 +17,11 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}
-import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.valkyrieauthorization.config._
 import play.api.libs.json._
 
@@ -33,9 +34,9 @@ import scala.util.{Failure, Success, Try}
 @Named
 class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationService, akkaServiceClientFactory: AkkaServiceClientFactory, datastoreService: DatastoreService)
   extends Filter
-  with UpdateListener[ValkyrieAuthorizationConfig]
-  with HttpDelegationManager
-  with LazyLogging {
+    with UpdateListener[ValkyrieAuthorizationConfig]
+    with HttpDelegationManager
+    with LazyLogging {
 
   private final val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
   private final val ACCOUNT_ADMIN = "account_admin"
@@ -67,16 +68,16 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
-    val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse]))
+    val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+    val httpResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
 
     def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(!"".equals(_))
 
-    val requestedTenantId = nullOrWhitespace(Option(mutableHttpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
-    val requestedDeviceId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Device-Id")))
-    val requestedContactId = nullOrWhitespace(Option(mutableHttpRequest.getHeader("X-Contact-Id")))
-    val tracingHeader = nullOrWhitespace(Option(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
-    val urlPath: String = new URL(mutableHttpRequest.getRequestURL.toString).getPath
+    val requestedTenantId = nullOrWhitespace(Option(httpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
+    val requestedDeviceId = nullOrWhitespace(Option(httpRequest.getHeader("X-Device-Id")))
+    val requestedContactId = nullOrWhitespace(Option(httpRequest.getHeader("X-Contact-Id")))
+    val tracingHeader = nullOrWhitespace(Option(httpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
+    val urlPath: String = new URL(httpRequest.getRequestURL.toString).getPath
     val matchingResources: Seq[Resource] = Option(configuration.getCollectionResources)
       .map(_.getResource.asScala.filter(resource => {
         val pathRegex = resource.getPathRegex
@@ -84,7 +85,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           val httpMethods = pathRegex.getHttpMethods
           httpMethods.isEmpty ||
             httpMethods.contains(HttpMethod.ALL) ||
-            httpMethods.contains(HttpMethod.valueOf(mutableHttpRequest.getMethod.toUpperCase()))
+            httpMethods.contains(HttpMethod.fromValue(httpRequest.getMethod))
         }
       })).getOrElse(Seq.empty[Resource])
     val translateAccountPermissions: Option[AnyRef] = Option(configuration.getTranslatePermissionsToRoles)
@@ -219,7 +220,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
 
       (valkyrieCallResult, deviceIdHeader) match {
-        case (permissions: UserPermissions, Some(deviceId)) => authorize(deviceId, permissions, mutableHttpRequest.getMethod)
+        case (permissions: UserPermissions, Some(deviceId)) => authorize(deviceId, permissions, httpRequest.getMethod)
         case (result, _) => result
       }
     }
@@ -227,7 +228,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     def addRoles(result: ValkyrieResult): ResponseResult = {
       (result, translateAccountPermissions) match {
         case (UserPermissions(roles, _), Some(_)) =>
-          roles.foreach(mutableHttpRequest.addHeader("X-Roles", _))
+          roles.foreach(httpRequest.addHeader("X-Roles", _))
           ResponseResult(200)
         case (UserPermissions(_, _), None) => ResponseResult(200)
         case (responseResult: ResponseResult, _) => responseResult
@@ -244,11 +245,11 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val preAuthRoles = Option(configuration.getPreAuthorizedRoles)
       .map(_.getRole.asScala)
       .getOrElse(List.empty)
-    val reqAuthRoles = mutableHttpRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toSeq
+    val reqAuthRoles = httpRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toSeq
       .foldLeft(List.empty[String])((list: List[String], value: String) => list ++ value.split(","))
 
     if (preAuthRoles.intersect(reqAuthRoles).nonEmpty) {
-      filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
+      filterChain.doFilter(httpRequest, httpResponse)
     } else {
       val checkHeader = checkHeaders(requestedTenantId, requestedContactId)
       val userPermissions = getPermissions(checkHeader)
@@ -256,30 +257,28 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       val authPermissions = authorizeDevice(allPermissions, requestedDeviceId)
       mask403s(addRoles(authPermissions)) match {
         case ResponseResult(200, _) =>
-          filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
-          val status = mutableHttpResponse.getStatus
+          filterChain.doFilter(httpRequest, httpResponse)
+          val status = httpResponse.getStatus
           if (SC_OK <= status && status < SC_MULTIPLE_CHOICES) {
             try {
-              cullResponse(mutableHttpResponse, authPermissions, matchingResources)
+              cullResponse(httpResponse, authPermissions, matchingResources)
             } catch {
               case rce: ResponseCullingException =>
                 logger.debug("Failed to cull response, wiping out response.", rce)
-                mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.getMessage)
+                sendError(httpResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.getMessage)
             }
           }
         case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
           buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
-            values.foreach { value => mutableHttpRequest.addHeader(key, value) }
+            values.foreach { value => httpRequest.addHeader(key, value) }
           }
-          filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
+          filterChain.doFilter(httpRequest, httpResponse)
         case ResponseResult(code, message) =>
-          mutableHttpResponse.sendError(code, message)
+          sendError(httpResponse, code, message)
       }
     }
 
-    //weep for what we must do with this flaming pile, note above where it was wrapped pointlessly just to break the chain
-    mutableHttpResponse.writeHeadersToResponse()
-    mutableHttpResponse.commitBufferToServletOutputStream()
+    httpResponse.commitToResponse()
   }
 
   def datastoreValue(transformedTenant: String,
@@ -331,7 +330,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     CACHE_PREFIX + typeOfCall + transformedTenant + contactId
   }
 
-  def cullResponse(response: MutableHttpServletResponse, potentialUserPermissions: ValkyrieResult,
+  def cullResponse(response: HttpServletResponseWrapper, potentialUserPermissions: ValkyrieResult,
                    matchingResources: Seq[Resource]): Unit = {
 
     def getJsPathFromString(jsonPath: String): JsPath = {
@@ -409,7 +408,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       case UserPermissions(roles, devicePermissions) =>
         if (!configuration.isEnableBypassAccountAdmin || !roles.contains(ACCOUNT_ADMIN)) {
           if (matchingResources.nonEmpty) {
-            val input: String = Source.fromInputStream(response.getBufferedOutputAsInputStream).getLines() mkString ""
+            val input: String = Source.fromInputStream(response.getOutputStreamAsInputStream).getLines() mkString ""
             val initialJson: JsValue = Try(Json.parse(input))
               .recover({ case jpe: JsonParseException => throw UnexpectedJsonException("Response contained improper json.", jpe) })
               .get
@@ -430,11 +429,21 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                 updateItemCount(transformedJson, collection.getJson.getPathToItemCount, culledArray.size)
               }
             }
-            response.getOutputStream.print(finalJson.toString())
+            // Replace the existing output with the modified output
+            response.setOutput(new ByteArrayInputStream(finalJson.toString().getBytes(response.getCharacterEncoding)))
           }
         }
       case _ =>
     }
+  }
+
+  // todo: remove this function when the HttpServletResponseWrapper supports sendError without writing through
+  private def sendError(response: HttpServletResponseWrapper, statusCode: Int, message: String): Unit = {
+    response.setStatus(statusCode)
+    response.setOutput(null)
+    response.setContentType(MediaType.TEXT_PLAIN)
+    response.setContentLength(message.length)
+    response.getOutputStream.print(message)
   }
 
   override def configurationUpdated(configurationObject: ValkyrieAuthorizationConfig): Unit = {

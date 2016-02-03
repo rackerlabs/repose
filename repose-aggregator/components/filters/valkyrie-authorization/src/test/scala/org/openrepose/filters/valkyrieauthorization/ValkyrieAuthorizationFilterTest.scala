@@ -23,7 +23,7 @@ import java.io.ByteArrayInputStream
 import java.net.URL
 import java.util
 import java.util.concurrent.TimeUnit
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, HttpServletResponse}
 import javax.servlet.http.HttpServletResponse.{SC_MULTIPLE_CHOICES, SC_OK}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
@@ -36,7 +36,6 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.mockito.{ArgumentCaptor, Matchers, Mockito}
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
-import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient, AkkaServiceClientException}
@@ -223,7 +222,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         val mockFilterChain = mock[FilterChain]
         filter.doFilter(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
 
-        val responseCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletResponse])
+        val responseCaptor = ArgumentCaptor.forClass(classOf[HttpServletResponseWrapper])
         Mockito.verify(mockFilterChain).doFilter(Matchers.any(classOf[ServletRequest]), responseCaptor.capture())
         assert(responseCaptor.getValue.getStatus == 200)
       }
@@ -291,7 +290,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
           if (Option(delegation).isDefined) {
             assert(mockServletResponse.getStatusCode == 200)
-            val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+            val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
             Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
             val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(result.code, "valkyrie-authorization", result.message, .1)
             assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders.get(HttpDelegationHeaderNames.Delegated).get)
@@ -321,7 +320,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
         if (Option(delegation).isDefined) {
           assert(mockServletResponse.getStatusCode == 200)
-          val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+          val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
           Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
           val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(502, "valkyrie-authorization", "Unable to communicate with Valkyrie: Valkyrie is missing", .1)
           assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders.get(HttpDelegationHeaderNames.Delegated).get)
@@ -431,7 +430,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
 
         if (Option(delegation).isDefined) {
           assert(mockServletResponse.getStatusCode == 200)
-          val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+          val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
           Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
           val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(404, "valkyrie-authorization", "Not Found", .1)
           assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders.get(HttpDelegationHeaderNames.Delegated).get)
@@ -556,7 +555,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         mockServletRequest.setHeader("X-Device-Id", deviceId)
         setMockAkkaBehavior(transformedTenant, contactId, 200,
           createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
-        val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+        val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
         filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
@@ -611,7 +610,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     it("should translate permissions to roles") {
       setup()
       setMockAkkaBehavior(transformedTenant, contactId, 200, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
@@ -697,7 +696,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       setup()
       Mockito.when(mockDatastore.get(CACHE_PREFIX + "any" + transformedTenant + contactId))
         .thenReturn(filter.UserPermissions(Vector("some_permission", "a_different_permission"), Vector.empty[filter.DeviceToPermission]), Nil: _*)
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
@@ -738,7 +737,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     it("should translate permissions to roles") {
       setup()
       setMockAkkaBehavior(transformedTenant, contactId, 200, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
@@ -753,7 +752,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       mockServletRequest.clearHeaders()
       mockServletRequest.setHeader("X-Contact-Id", contactId)
       setMockAkkaBehavior(transformedTenant, contactId, 200, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
@@ -767,7 +766,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       mockServletRequest.clearHeaders()
       mockServletRequest.setHeader("X-Tenant-Id", tenantId)
       setMockAkkaBehavior(transformedTenant, contactId, 200, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
@@ -782,7 +781,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       mockServletRequest.setHeader("X-Tenant-Id", "987654")
       mockServletRequest.setHeader("X-Contact-Id", contactId)
       setMockAkkaBehavior(transformedTenant, contactId, 200, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
@@ -794,7 +793,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     it("should 502 when valkyrie 404s") {
       setup()
       setMockAkkaBehavior(transformedTenant, contactId, 404, "Not found")
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
@@ -806,7 +805,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     it("should 502 when valkyrie 500s") {
       setup()
       setMockAkkaBehavior(transformedTenant, contactId, 500, "Internal Server Error")
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
@@ -818,7 +817,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
     it("should 502 when valkyrie gives an unexpected response") {
       setup()
       setMockAkkaBehavior(transformedTenant, contactId, 200, """{"banana":"phone"}""")
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
@@ -832,7 +831,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       Mockito.when(akkaServiceClient.get(Matchers.any(classOf[String]),
         Matchers.eq(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective"),
         Matchers.any(classOf[java.util.Map[String, String]]))).thenThrow(new AkkaServiceClientException("test exception", null))
-      val captor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
