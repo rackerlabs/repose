@@ -647,7 +647,7 @@ class MockIdentityV2Service {
                 } else if (tokenId == "rackerSSO") {
                     template = rackerSuccessfulValidateRespXmlTemplate
                 } else if (tokenId == "dedicatedUser") {
-                    template = dedicatedUserSuccessfulRespJsonTemplate
+                    template = dedicatedUserSuccessfulRespXmlTemplate
                 } else if (tokenId == "failureRacker") {
                     template = rackerTokenWithoutProperRoleXmlTemplate
                 } else if (impersonate_id != "") {
@@ -1507,7 +1507,7 @@ class MockIdentityV2Service {
             <rax-auth:credential>PASSWORD</rax-auth:credential>
         </rax-auth:authenticatedBy>
     </token>
-    <user id="dedicatedUser" name="dedicated_29502_1099363" rax-auth:defaultRegion="ORD">
+    <user id="dedicatedUser" name="dedicated_29502_1099363" rax-auth:defaultRegion="ORD" \${contactIdXml}>
         <roles>
             <role id="10015582"
                   name="monitoring:admin"
@@ -1563,6 +1563,7 @@ class MockIdentityV2Service {
           "name": "identity:default"
         }
       ],
+      \${contactIdJson}
       "name": "dedicated_29502_1099363",
       "RAX-AUTH:defaultRegion": "ORD"
     }

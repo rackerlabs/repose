@@ -301,14 +301,13 @@ class BasicValkyrieTest extends ReposeValveTest {
             client_apikey = UUID.randomUUID().toString()
             client_token = "dedicatedUser"
             client_tenantid = tenantID
+            client_userid = "dedicatedUser"
         }
 
         fakeValkyrie.with {
             device_id = deviceID
             device_perm = permission
         }
-
-        sleep(2000)
 
         when: "a request is made against a device with Valkyrie set permissions"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
@@ -325,11 +324,11 @@ class BasicValkyrieTest extends ReposeValveTest {
         method   | tenantID                   | deviceID | permission     | responseCode
         "GET"    | randomTenant()             | "520707" | "view_product" | "200"
         "HEAD"   | randomTenant()             | "520707" | "view_product" | "200"
-        "GET"    | randomTenant() - "hybrid:" | "520707" | "view_product" | "403"
         "PUT"    | randomTenant()             | "520707" | "view_product" | "403"
         "POST"   | randomTenant()             | "520707" | "view_product" | "403"
         "DELETE" | randomTenant()             | "520707" | "view_product" | "403"
         "PATCH"  | randomTenant()             | "520707" | "view_product" | "403"
+        "GET"    | randomTenant() - "hybrid:" | "520708" | "view_product" | "403"
     }
 
     def String randomTenant() {
