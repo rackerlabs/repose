@@ -26,10 +26,8 @@ import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.utils.http._
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.core.filter.logic.{FilterAction, FilterDirector, HeaderManager}
+import org.openrepose.commons.utils.servlet.filter.FilterAction
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityV3Config, WhiteList}
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
@@ -42,7 +40,7 @@ import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, identityAPI: OpenStackIdentityV3API)
-  extends AbstractFilterLogicHandler with HttpDelegationManager with LazyLogging {
+  extends HttpDelegationManager with LazyLogging {
 
   private val identityServiceUri = identityConfig.getOpenstackIdentityService.getUri
   private val forwardGroups = identityConfig.isForwardGroups
@@ -59,43 +57,43 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       region = Option(serviceEndpoint.getRegion))
   }
 
-  override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
-    val filterDirector: FilterDirector = new FilterDirectorImpl()
+  def handleRequest(request: HttpServletRequestWrapper, response: HttpServletResponse): FilterAction = {
+    var filterAction = FilterAction.PASS
 
     def delegateOrElse(responseCode: Int, message: String)(f: => Unit) {
       delegatingWithQuality match {
         case Some(quality) =>
           buildDelegationHeaders(responseCode, "openstack-identity-v3", message, quality) foreach { case (key, values) =>
-            filterDirector.requestHeaderManager.appendHeader(key, values: _*)
-            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
-            filterDirector.setResponseStatusCode(200) // Note: The response status code must be set to a non-500 so that the request will be routed appropriately.
+            values foreach { value =>
+              request.addHeader(key, value)
+            }
+            filterAction = FilterAction.PROCESS_RESPONSE
+            response.setStatus(HttpServletResponse.SC_OK) // Note: The response status code must be set to a non-500 so that the request will be routed appropriately.
           }
         case None =>
           f
       }
     }
 
-    def authServiceOverLimit(e: IdentityServiceOverLimitException, filterDirector: FilterDirector): Unit = {
-      filterDirector.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+    def authServiceOverLimit(e: IdentityServiceOverLimitException): Unit = {
+      response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
       var retry = e.getRetryAfter
       if (retry == null) {
         val retryCalendar = new GregorianCalendar
         retryCalendar.add(Calendar.SECOND, 5)
         retry = new HttpDate(retryCalendar.getTime).toRFC1123
       }
-      filterDirector.responseHeaderManager.appendHeader(HttpHeaders.RETRY_AFTER, retry)
+      response.addHeader(HttpHeaders.RETRY_AFTER, retry)
     }
 
     // Check if the request URI is whitelisted and pass it along if so
     if (isUriWhitelisted(request.getRequestURI, identityConfig.getWhiteList)) {
       logger.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
-      filterDirector.setFilterAction(FilterAction.PASS)
+      filterAction = FilterAction.PASS
     } else {
-      val requestHeaderManager = filterDirector.requestHeaderManager
-
       // Set the default behavior for this filter
-      filterDirector.setFilterAction(FilterAction.RETURN)
-      filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+      filterAction = FilterAction.RETURN
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
 
       // Track whether or not a failure has occurred so that we can stop checking the request after we know it is bad
       var failureInValidation = false
@@ -110,20 +108,20 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         case Failure(e: InvalidSubjectTokenException) =>
           failureInValidation = true
           delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage) {
-            filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
-            filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
+            response.setHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
           }
           None
         case Failure(e: IdentityServiceOverLimitException) =>
           failureInValidation = true
           delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, e.getMessage) {
-            authServiceOverLimit(e, filterDirector)
+            authServiceOverLimit(e)
           }
           None
         case Failure(e) =>
           failureInValidation = true
-          logger.error(e.getMessage)
-          delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {}
+          logger.error(e.getMessage, e)
+          delegateOrElse(response.getStatus, e.getMessage) {}
           None
       }
 
@@ -131,9 +129,9 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       if (!failureInValidation && !isProjectIdValid(request.getRequestURI, token.get)) {
         failureInValidation = true
         delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, "Invalid project ID for token: " + token.get) {
-          filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
-          filterDirector.setFilterAction(FilterAction.RETURN)
-          filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
+          response.setHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
+          filterAction = FilterAction.RETURN
+          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
         }
       }
 
@@ -141,8 +139,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       if (!failureInValidation && !isAuthorized(token.get)) {
         failureInValidation = true
         delegateOrElse(HttpServletResponse.SC_FORBIDDEN, "Invalid endpoints for token: " + token.get) {
-          filterDirector.setFilterAction(FilterAction.RETURN)
-          filterDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN)
+          filterAction = FilterAction.RETURN
+          response.setStatus(HttpServletResponse.SC_FORBIDDEN)
         }
       }
 
@@ -155,19 +153,19 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
             case Failure(e: IdentityServiceOverLimitException) =>
               failureInValidation = true
               delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, e.getMessage) {
-                authServiceOverLimit(e, filterDirector)
+                authServiceOverLimit(e)
               }
               List.empty[String]
             case Failure(e) =>
               failureInValidation = true
-              logger.error(e.getMessage)
-              delegateOrElse(filterDirector.getResponseStatusCode, e.getMessage) {}
+              logger.error(e.getMessage, e)
+              delegateOrElse(response.getStatus, e.getMessage) {}
               List.empty[String]
           }
         } getOrElse {
           failureInValidation = true
           logger.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
-          delegateOrElse(filterDirector.getResponseStatusCode,
+          delegateOrElse(response.getStatus,
             "The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.") {}
           List.empty[String]
         }
@@ -177,27 +175,27 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
       // If all validation succeeds, pass the request and set headers
       if (!failureInValidation) {
-        filterDirector.setFilterAction(FilterAction.PASS)
+        filterAction = FilterAction.PASS
 
         // Set the appropriate headers
-        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expires_at)
-        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
+        request.replaceHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expires_at)
+        request.replaceHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
         token.get.user.name.foreach { user =>
-          requestHeaderManager.appendHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, user)
-          requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, user, 1.0)
+          request.addHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, user)
+          request.addHeader(PowerApiHeader.USER.toString, user, 1.0)
         }
         token.get.roles.foreach { roles =>
-          requestHeaderManager.appendHeader(OpenStackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
+          request.addHeader(OpenStackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
         }
         token.get.user.id.foreach { id =>
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
         }
         token.get.user.rax_default_region.foreach { defaultRegion =>
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, defaultRegion)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, defaultRegion)
         }
         token.get.project.foreach { project =>
           project.name.foreach { projectName =>
-            requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
+            request.replaceHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
           }
         }
         projectIdUriRegex match {
@@ -206,39 +204,39 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
             val roles = token.flatMap(_.roles).getOrElse(List[Role]())
             val uriProjectId = extractProjectIdFromUri(regex, request.getRequestURI)
             writeProjectHeader(defaultProjectId, roles, uriProjectId, identityConfig.isSendAllProjectIds,
-              identityConfig.isSendProjectIdQuality, filterDirector.requestHeaderManager)
+              identityConfig.isSendProjectIdQuality, request)
           case None =>
             val defaultProjectId = token.flatMap(_.project.flatMap(_.id))
             val roles = token.flatMap(_.roles).getOrElse(List[Role]())
             writeProjectHeader(defaultProjectId, roles, None, identityConfig.isSendAllProjectIds,
-              identityConfig.isSendProjectIdQuality, filterDirector.requestHeaderManager)
+              identityConfig.isSendProjectIdQuality, request)
         }
         token.get.rax_impersonator.foreach { impersonator =>
-          impersonator.id.foreach(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
-          impersonator.name.foreach(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
+          impersonator.id.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
+          impersonator.name.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
         }
         if (forwardCatalog) {
-          token.get.catalog.foreach(catalog => requestHeaderManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
+          token.get.catalog.foreach(catalog => request.replaceHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
         }
         if (forwardGroups) {
-          userGroups.foreach(group => requestHeaderManager.appendHeader(PowerApiHeader.GROUPS.toString, group + ";q=1.0"))
+          userGroups.foreach(group => request.addHeader(PowerApiHeader.GROUPS.toString, group, 1.0))
         }
       }
 
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
       if (delegatingWithQuality.isDefined) {
         if (!failureInValidation) {
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
         } else {
           logger.debug("Forwarding indeterminate request")
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
-          filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
+          filterAction = FilterAction.PROCESS_RESPONSE
         }
       }
     }
 
-    filterDirector
+    filterAction
   }
 
   private def authenticate(request: HttpServletRequest, tracingHeader: Option[String] = None): Try[AuthenticateResponse] = {
@@ -263,35 +261,37 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     endpointsList exists (endpoint => endpoint.meetsRequirement(endpointRequirement))
 
   private def writeProjectHeader(defaultProject: Option[String], roles: List[Role], projectFromUri: Option[String],
-                                 writeAll: Boolean, sendQuality: Boolean, headerManager: HeaderManager) {
+                                 writeAll: Boolean, sendQuality: Boolean, request: HttpServletRequestWrapper) {
     lazy val projectsFromRoles = (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId } :::
       roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId }).toSet
 
     if (writeAll && sendQuality) {
-      defaultProject.foreach(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
+      defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
       projectsFromRoles foreach { rolePid =>
         if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
-          headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, 0.5)
+          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, 0.5)
         }
       }
     } else if (writeAll && !sendQuality) {
-      defaultProject.foreach(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
+      defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
       projectsFromRoles foreach { rolePid =>
         if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
-          headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid)
+          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid)
         }
       }
     } else if (!writeAll && sendQuality) {
-      projectFromUri map {
-        headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0)
-      } orElse {
-        defaultProject.map(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
+      projectFromUri match {
+        case Some(projectId) =>
+          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projectId, 1.0)
+        case None =>
+          defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
       }
     } else {
-      projectFromUri map {
-        headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _)
-      } orElse {
-        defaultProject.map(headerManager.appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
+      projectFromUri match {
+        case Some(projectId) =>
+          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projectId)
+        case None =>
+          defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
       }
     }
   }
@@ -348,12 +348,9 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     convertedWhiteList.exists(requestUri.matches)
   }
 
-  override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
+  def handleResponse(response: HttpServletResponse): Unit = {
     val responseStatus = response.getStatus
     logger.debug("OpenStack Identity v3 Handling Response. Incoming status code: " + responseStatus)
-    val filterDirector: FilterDirector = new FilterDirectorImpl()
-    filterDirector.setResponseStatusCode(responseStatus)
-    filterDirector.setFilterAction(FilterAction.PASS)
 
     /// The WWW Authenticate header can be used to communicate to the client
     // (since we are a proxy) how to correctly authenticate itself
@@ -370,27 +367,31 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           val valuesWithoutDelegated = responseAuthHeaderValues.filterNot(_.equalsIgnoreCase(OpenStackIdentityV3Headers.X_DELEGATED))
           val valuesWithKeystone = ("Keystone uri=" + identityServiceUri) :: valuesWithoutDelegated
 
-          filterDirector.responseHeaderManager.putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, valuesWithKeystone: _*)
+          valuesWithKeystone.headOption foreach { headValue =>
+            response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, headValue)
+            valuesWithKeystone.tail foreach { remainingValue =>
+              response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, remainingValue)
+            }
+          }
         } else {
           // In the case where authentication has failed and we did not receive
           // a delegated WWW-Authenticate header, this means that our own authentication
           // with the origin service has failed and must then be communicated as
           // a 500 (internal server error) to the client
           logger.error("Authentication with the origin service has failed.")
-          filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
         }
       case HttpServletResponse.SC_NOT_IMPLEMENTED =>
         if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.contains(OpenStackIdentityV3Headers.X_DELEGATED)) {
           logger.error("Repose authentication component is configured to forward unauthorized requests, but the origin service does not support delegated mode.")
-          filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
         } else {
-          filterDirector.setResponseStatusCode(HttpServletResponse.SC_NOT_IMPLEMENTED)
+          response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED)
         }
       case _ =>
         logger.trace("Response from origin service requires no additional processing. Passing it along.")
     }
 
-    logger.debug("OpenStack Identity v3 Handling Response. Outgoing status code: " + filterDirector.getResponseStatusCode)
-    filterDirector
+    logger.debug("OpenStack Identity v3 Handling Response. Outgoing status code: " + response.getStatus)
   }
 }
