@@ -106,13 +106,11 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     val filterAction = handleRequest(wrappedHttpRequest, httpResponse)
     filterAction match {
       case FilterAction.RETURN => // no action to take
-      case FilterAction.PASS =>
-        filterChain.doFilter(wrappedHttpRequest, httpResponse)
       case FilterAction.PROCESS_RESPONSE =>
         filterChain.doFilter(wrappedHttpRequest, httpResponse)
         handleResponse(wrappedHttpRequest, httpResponse)
-      case FilterAction.NOT_SET =>
-        logger.error("Unexpected internal filter state")
+      case _ =>
+        logger.error("Unexpected internal filter state (FilterAction)")
         httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
     }
   }
