@@ -29,7 +29,6 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.Header
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, ServiceClientResponse}
-import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
@@ -46,6 +45,7 @@ import scala.util.{Failure, Random, Success, Try}
 class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datastore, akkaServiceClient: AkkaServiceClient)
   extends LazyLogging {
 
+  private final val SC_TOO_MANY_REQUESTS = 429
   private final val TOKEN_ENDPOINT = "/v3/auth/tokens"
   private final val GROUPS_ENDPOINT = (userId: String) => s"/v3/users/$userId/groups"
 
@@ -69,7 +69,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       }
 
       val userDomain = Option(config.getOpenstackIdentityService.getDomainId) match {
-        case x:Some[String] => Some(Domain(id = x))
+        case x: Some[String] => Some(Domain(id = x))
         case _ => None
       }
 
@@ -124,11 +124,11 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 logger.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
                 Failure(new IdentityServiceException("OpenStack Identity service did not return headers with a successful response"))
             }
-          case Some(statusCode) if statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE || statusCode == FilterDirector.SC_TOO_MANY_REQUESTS =>
-            logger.error(s"Unable to get admin token. OpenStack Identity service returned an Over Limit response status code. Response Code: ${statusCode}")
+          case Some(statusCode) if statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE || statusCode == SC_TOO_MANY_REQUESTS =>
+            logger.error(s"Unable to get admin token. OpenStack Identity service returned an Over Limit response status code. Response Code: $statusCode")
             Failure(buildIdentityServiceOverLimitException(authTokenResponse.get))
           case Some(statusCode) =>
-            logger.error(s"Unable to get admin token. Please verify your admin credentials. Response Code: ${statusCode}")
+            logger.error(s"Unable to get admin token. Please verify your admin credentials. Response Code: $statusCode")
             Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
           case None =>
             logger.error("Unable to get admin token. Request to OpenStack Identity service timed out.")
@@ -168,7 +168,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
                 // TODO: Come up with a better algorithm to decide the cache TTL and handle negative/0 TTLs
                 val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
-                logger.debug(s"Caching token '${subjectToken}' with TTL set to: ${ttl}ms")
+                logger.debug(s"Caching token '$subjectToken' with TTL set to: ${ttl}ms")
                 datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
                 Success(subjectTokenObject)
@@ -179,13 +179,13 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 logger.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
                 validateToken(subjectToken, tracingHeader, checkCache = false)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && !checkCache =>
-                logger.error(s"Retry after fetching a new admin token failed. Aborting subject token validation for: '${subjectToken}'")
+                logger.error(s"Retry after fetching a new admin token failed. Aborting subject token validation for: '$subjectToken'")
                 Failure(new IdentityServiceException("Valid admin token could not be fetched"))
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE || statusCode == FilterDirector.SC_TOO_MANY_REQUESTS =>
-                logger.error(s"OpenStack Identity service returned an Over Limit response status code. Response Code: ${statusCode}")
+              case Some(statusCode) if statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE || statusCode == SC_TOO_MANY_REQUESTS =>
+                logger.error(s"OpenStack Identity service returned an Over Limit response status code. Response Code: $statusCode")
                 Failure(buildIdentityServiceOverLimitException(validateTokenResponse.get))
               case Some(statusCode) =>
-                logger.error(s"OpenStack Identity service returned an unexpected response status code. Response Code: ${statusCode}")
+                logger.error(s"OpenStack Identity service returned an unexpected response status code. Response Code: $statusCode")
                 Failure(new IdentityServiceException("Failed to validate subject token"))
               case None =>
                 logger.error("Unable to validate subject token. Request to OpenStack Identity service timed out.")
@@ -240,13 +240,13 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 logger.error("Request made with an expired admin token. Fetching a fresh admin token and retrying groups retrieval. Response Code: 401")
                 getGroups(userId, tracingHeader, checkCache = false)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && !checkCache =>
-                logger.error(s"Retry after fetching a new admin token failed. Aborting groups retrieval for: '${userId}'")
+                logger.error(s"Retry after fetching a new admin token failed. Aborting groups retrieval for: '$userId'")
                 Failure(new IdentityServiceException("Valid admin token could not be fetched"))
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE || statusCode == FilterDirector.SC_TOO_MANY_REQUESTS =>
-                logger.error(s"OpenStack Identity service returned an Over Limit response status code. Response Code: ${statusCode}")
+              case Some(statusCode) if statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE || statusCode == SC_TOO_MANY_REQUESTS =>
+                logger.error(s"OpenStack Identity service returned an Over Limit response status code. Response Code: $statusCode")
                 Failure(buildIdentityServiceOverLimitException(groupsResponse.get))
               case Some(statusCode) =>
-                logger.error(s"OpenStack Identity service returned an unexpected response status code. Response Code: ${statusCode}")
+                logger.error(s"OpenStack Identity service returned an unexpected response status code. Response Code: $statusCode")
                 Failure(new IdentityServiceException("Failed to fetch groups"))
               case None =>
                 logger.error("Unable to get groups. Request to OpenStack Identity service timed out.")
