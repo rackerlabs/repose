@@ -263,7 +263,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     }
 
     // We need to process the Response unless a couple of specific conditions occur.
-    if (!httpServletRequestWrapper.getHeaderNames.asScala.toList.contains(X_AUTH_TOKEN)) {
+    if (!httpServletRequestWrapper.getHeaderNamesScala.contains(X_AUTH_TOKEN)) {
       withEncodedCredentials(httpServletRequestWrapper) { encodedCredentials =>
         Option(datastore.get(TOKEN_KEY_PREFIX + encodedCredentials)) match {
           case Some(token) =>
