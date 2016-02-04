@@ -1,0 +1,99 @@
+configurations {
+    testEar
+}
+
+dependencies {
+    compile project(":repose-aggregator/services/phone-home-service")
+    compile project(":repose-aggregator/services/akka-http-client-service/akka-http-client-service-impl")
+    compile project(":repose-aggregator/services/http-client-service/http-client-service-impl")
+    compile project(":repose-aggregator/core/core-service-api")
+    compile project(":repose-aggregator/services/datastore-service/datastore-service-impl")
+    compile project(":repose-aggregator/commons/commons-utilities")
+    compile project(":repose-aggregator/services/health-check-service/health-check-service-api")
+    compile project(":repose-aggregator/services/health-check-service/health-check-service-impl")
+    compile project(":repose-aggregator/commons/commons-configuration")
+    compile project(":repose-aggregator/services/http-client-service/http-client-service-api")
+    compile project(":repose-aggregator/services/datastore-service/datastore-service-api")
+    compile project(":repose-aggregator/external/jee6-schemas")
+    compile "org.apache.logging.log4j:log4j-flume-ng"
+    compile "javax.inject:javax.inject"
+    compile "com.yammer.metrics:metrics-graphite"
+    compile "org.springframework:spring-core"
+    compile "org.springframework:spring-context"
+    compile "org.springframework:spring-web"
+    compile "org.slf4j:slf4j-api"
+    compile "org.slf4j:jcl-over-slf4j"
+    compile "org.apache.logging.log4j:log4j-core"
+    compile "org.apache.logging.log4j:log4j-iostreams"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl"
+    compile "org.apache.logging.log4j:log4j-jul"
+    compile "org.scala-lang:scala-library"
+    compile "xerces:xerces-xsd11"
+
+    testCompile "junit:junit"
+    testCompile "org.codehaus.groovy:groovy-all"
+    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.mockito:mockito-all"
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
+    testCompile "org.powermock:powermock-module-junit4"
+    testCompile "org.powermock:powermock-api-mockito"
+    testCompile "org.springframework:spring-test"
+    testCompile "org.spockframework:spock-core"
+    testCompile "org.jetbrains:annotations"
+
+    testEar "org.openrepose.filters.core.test:core-test-filter-bundle:2.1"
+    testEar "org.openrepose.filters.core.test:busted-application-name-ear:2.1"
+    testEar "org.openrepose.filters.core.test:busted-web-fragment-ear:2.1"
+    testEar "org.openrepose.filters.core.test:second-filter-bundle:2.1"
+
+//    compile "com.fasterxml.jackson.core:jackson-annotations:2.4.0"
+//    compile "com.fasterxml.jackson.core:jackson-core:2.4.0"
+//    compile "com.fasterxml.jackson.core:jackson-databind:2.4.0"
+//    compile "com.google.guava:guava:18.0"
+//    compile "com.typesafe:config:1.2.1"
+//    compile "com.yammer.metrics:metrics-core:2.2.0"
+//    compile "commons-io:commons-io:2.4"
+//    compile "javax.ws.rs:javax.ws.rs-api:2.0.1"
+//    compile "joda-time:joda-time:2.7"
+//    compile "org.apache.commons:commons-lang3:3.3.2"
+//    compile "org.apache.httpcomponents:httpclient:4.4.1"
+//    compile "org.eclipse.jetty:jetty-server:9.2.0.v20140526"
+//    compile "org.eclipse.jetty:jetty-servlet:9.2.0.v20140526"
+//    compile "org.apache.logging.log4j:log4j-api:2.3"
+//    compile "org.springframework:spring-beans:4.1.4.RELEASE"
+//    provided "javax.transaction:transaction-api:1.1"
+//    provided "javax:javaee-web-api:6.0"
+//    testCompile "org.hamcrest:hamcrest-all:1.3"
+//    testCompile "com.mockrunner:mockrunner-servlet:1.0.0"
+//    testCompile "org.glassfish:javax.servlet:3.1"
+}
+
+sourceSets.main.scala.srcDir "src/main/java"
+sourceSets.main.java.srcDirs = []
+
+compileTestGroovy.dependsOn compileTestScala
+
+task copyEars() {
+    description "Copies over ears needed for tests"
+    ext.outputDir = "$buildDir/earFiles/"
+    inputs.files(configurations.testEar.files)
+    outputs.dir outputDir
+
+    doLast {
+        file(outputDir).mkdirs()
+        copy {
+            from configurations.testEar.files
+            into outputDir
+        }
+    }
+}
+
+test.dependsOn copyEars
+
+processResources {
+    expand(reposeVersion: version, reposeVersionName: reposeCodename)
+}
+
+processTestResources {
+    expand(earDirectory: copyEars.outputDir, earVersion: 2.1) //todo: this number is also in our version properties, i wonder if i can pull it out?
+}
