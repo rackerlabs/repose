@@ -68,7 +68,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
               request.addHeader(key, value)
             }
             filterAction = FilterAction.PROCESS_RESPONSE
-            response.setStatus(HttpServletResponse.SC_OK) // Note: The response status code must be set to a non-500 so that the request will be routed appropriately.
+            // Note: The response status code must be set to a < 500 so that the request will be routed appropriately by the PowerFilterChain isResponseOk method.
+            response.setStatus(HttpServletResponse.SC_OK)
           }
         case None =>
           f
@@ -176,6 +177,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // If all validation succeeds, pass the request and set headers
       if (!failureInValidation) {
         filterAction = FilterAction.PASS
+        // Note: The response status code must be set to a < 500 so that the request will be routed appropriately by the PowerFilterChain isResponseOk method.
+        response.setStatus(HttpServletResponse.SC_OK)
 
         // Set the appropriate headers
         request.replaceHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expires_at)
