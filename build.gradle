@@ -2,13 +2,16 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
+        maven {
+            url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
+        }
     }
 
     dependencies {
         classpath 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0'
         classpath 'com.netflix.nebula:nebula-dependency-recommender:3.1.0'
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
-        classpath 'com.github.jacobono:gradle-jaxb-plugin:1.3.6'
+        classpath 'org.openrepose:gradle-jaxb-plugin:2.0.2'
     }
 }
 
@@ -37,7 +40,7 @@ subprojects {
     apply plugin: 'scala'
     apply plugin: 'org.unbroken-dome.test-sets'
     apply plugin: 'nebula.provided-base'
-    apply plugin: 'com.github.jacobono.jaxb'
+    apply plugin: 'org.openrepose.gradle.plugins.jaxb'
 
     dependencies {
         jaxb "com.sun.xml.bind:jaxb-xjc"
@@ -117,31 +120,18 @@ subprojects {
         }
     }
 
-    //todo: get rid of this major pile of ugly hacks
-    //todo: hinky interactions with clean
-    task moreHacks() {
-        ext.jaxbTargetDir = "${buildDir}/src/generated-sources"
-        file(jaxbTargetDir).mkdirs()
-        outputs.dir jaxbTargetDir
-    }
+    def generatedDir = "${buildDir}/src/generated-sources"
 
     jaxb {
-        //todo: remove this dirty hack after we improve the plugin
-        def builtDir = "${project.name}/build/src/generated-xsd"
-        xsdDir builtDir
-        bindingsDir builtDir
-        //xsdDir file(transformXSDs.outputDir)
-        //bindingsDir = file(transformXSDs.outputDir)
-        bindings = ['**/*.xjb',]
+        xsdDir transformXSDs.outputDir
+        bindingsDir = transformXSDs.outputDir
         xjc {
-            destinationDir = moreHacks.jaxbTargetDir
+            destinationDir = generatedDir
         }
     }
 
-    System.setProperty('javax.xml.accessExternalSchema', 'file')
-
-    xjc.dependsOn transformXSDs, moreHacks
-    sourceSets.main.java.srcDirs += moreHacks.jaxbTargetDir
+    xjc.dependsOn transformXSDs
+    sourceSets.main.java.srcDirs += generatedDir
 
     [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
         tasks.withType(type) {
