@@ -21,16 +21,18 @@ package features.filters.valkyrie.akkatimeout
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockValkyrie
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 11/10/15.
  *  when connection pool id in config valkyrie not matched connection pool config
  *      timeout using default in xsd (30 sec)
+ * update on 02/04/15
+ *  using using keystonev2 filter
  */
 @Category(Slow.class)
 class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
@@ -38,7 +40,7 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
     def static identityEndpoint
     def static valkyrieEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
 
@@ -57,7 +59,7 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
 
@@ -88,7 +90,7 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = randomTenant()
+            client_tenantid = randomTenant()
         }
 
         fakeValkyrie.with {
@@ -116,7 +118,7 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = randomTenant()
+            client_tenantid = randomTenant()
         }
 
         fakeValkyrie.with {
