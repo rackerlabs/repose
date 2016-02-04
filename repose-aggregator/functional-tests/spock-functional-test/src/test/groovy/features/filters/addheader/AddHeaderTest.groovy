@@ -126,7 +126,8 @@ class AddHeaderTest extends ReposeValveTest {
 
         then:
         reposeLogSearch.searchByString("At least one header must be defined.")
-        mc.receivedResponse.code == "503"
-        mc.receivedResponse.message == "Error creating filter chain, check your configuration files."
+        // update response code to accept 500 previously 503
+        mc.receivedResponse.code == "500"
+        mc.receivedResponse.message == "Server Error"
     }
 }

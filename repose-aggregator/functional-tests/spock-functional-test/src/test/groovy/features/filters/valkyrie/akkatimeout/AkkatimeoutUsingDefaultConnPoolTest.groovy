@@ -18,18 +18,18 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.valkyrie.akkatimeout
-
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockValkyrie
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.junit.experimental.categories.Category
-
 /**
  * Created by jennyvo on 11/10/15.
  *  when no connection pool id in config valkyrie using default connection pool time out
+ * update on 02/04/15
+ *  using using keystonev2 filter
  */
 @Category(Slow.class)
 class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
@@ -37,7 +37,7 @@ class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
     def static identityEndpoint
     def static valkyrieEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
 
@@ -56,7 +56,7 @@ class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
 
@@ -87,7 +87,7 @@ class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = randomTenant()
+            client_tenantid = randomTenant()
         }
 
         fakeValkyrie.with {
@@ -115,7 +115,7 @@ class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = randomTenant()
+            client_tenantid = randomTenant()
         }
 
         fakeValkyrie.with {
