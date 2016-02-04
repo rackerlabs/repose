@@ -12,6 +12,8 @@ buildscript {
     }
 }
 
+ext.reposeCodename = "Ezio?"
+
 allprojects {
     group = 'org.openrepose'
     version = '8.0.0.0'
@@ -99,8 +101,8 @@ subprojects {
             } else {
                 logger.lifecycle("NOT Transforming Schemas")
                 copy {
-                    from "$schemaBaseDir"
-                    into "$outputDir"
+                    from schemaBaseDir
+                    into outputDir
                     include "**/*.xsd"
                 }
             }
@@ -108,8 +110,8 @@ subprojects {
             //Copy over any bindings.xjb into their appropriate directories
             logger.lifecycle("Copying xjb's")
             copy {
-                from "$schemaBaseDir"
-                into "$outputDir"
+                from schemaBaseDir
+                into outputDir
                 include "**/*.xjb"
             }
         }

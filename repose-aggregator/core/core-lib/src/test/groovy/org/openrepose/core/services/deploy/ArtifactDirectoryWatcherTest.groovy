@@ -34,13 +34,14 @@ class ArtifactDirectoryWatcherTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder()
 
-    File artifactDir = tempFolder.newFolder()
+    File artifactDir
 
     EventService mockEventService = Mockito.mock(EventService.class)
     ArtifactDirectoryWatcher artifactDirectoryWatcher = new ArtifactDirectoryWatcher(mockEventService)
 
     @Before
     void setup() {
+        artifactDir = tempFolder.newFolder()
         FileUtils.cleanDirectory(artifactDir)
         artifactDirectoryWatcher.updateArtifactDirectoryLocation(artifactDir)
     }
