@@ -23,55 +23,35 @@ import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
-import org.openrepose.filters.openstackidentityv3.config.{DelegatingType, OpenstackIdentityService, OpenstackIdentityV3Config}
+import org.openrepose.core.services.httpclient.HttpClientService
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class OpenStackIdentityV3HandlerFactoryTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
 
+  val mockConfigurationService = mock[ConfigurationService]
+  val mockHttpClientService = mock[HttpClientService]
   val mockAkkaServiceClient = mock[AkkaServiceClient]
   val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
   val mockDatastoreService = mock[DatastoreService]
-  var handlerFactory: OpenStackIdentityV3HandlerFactory = _
+
+  var filter: OpenStackIdentityV3Filter = _
 
   before {
     reset(mockAkkaServiceClientFactory)
     when(mockDatastoreService.getDefaultDatastore).thenReturn(null)
     when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
 
-    handlerFactory = new OpenStackIdentityV3HandlerFactory(mockAkkaServiceClientFactory, mockDatastoreService)
-  }
-
-  describe("buildHandler") {
-    it("should return an OpenStack Identity v3 handler") {
-      val identityService = new OpenstackIdentityService()
-      identityService.setUri("")
-
-      val config = new OpenstackIdentityV3Config()
-      val delegating = new DelegatingType()
-      delegating.setQuality(0.5)
-      config.setOpenstackIdentityService(identityService)
-      config.setTokenCacheTimeout(0)
-      config.setGroupsCacheTimeout(0)
-      config.setCacheOffset(0)
-      config.setDelegating(delegating)
-
-      handlerFactory.configurationUpdated(config)
-      handlerFactory.buildHandler shouldBe a[OpenStackIdentityV3Handler]
-    }
-  }
-
-  describe("getListeners") {
-    it("should return a map of listeners one of which listens to the OpenStack Identity configuration file") {
-      val listeners = handlerFactory.getListeners
-
-      listeners should have size 1
-      listeners should contain key classOf[OpenstackIdentityV3Config]
-    }
+    filter = new OpenStackIdentityV3Filter(mockConfigurationService,
+      mockDatastoreService,
+      mockHttpClientService,
+      mockAkkaServiceClientFactory)
   }
 
   describe("configurationUpdated") {
@@ -83,7 +63,7 @@ class OpenStackIdentityV3HandlerFactoryTest extends FunSpec with BeforeAndAfter 
       config.setOpenstackIdentityService(identityService)
       config.setConnectionPoolId(connectionPoolId)
 
-      handlerFactory.configurationUpdated(config)
+      filter.configurationUpdated(config)
 
       verify(mockAkkaServiceClientFactory).newAkkaServiceClient(connectionPoolId)
     }
@@ -100,8 +80,8 @@ class OpenStackIdentityV3HandlerFactoryTest extends FunSpec with BeforeAndAfter 
       val config = new OpenstackIdentityV3Config()
       config.setOpenstackIdentityService(identityService)
 
-      handlerFactory.configurationUpdated(config)
-      handlerFactory.configurationUpdated(config)
+      filter.configurationUpdated(config)
+      filter.configurationUpdated(config)
 
       verify(mockAkkaServiceClientFactory, times(2)).newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))
       verify(firstAkkaServiceClient, times(1)).destroy()
@@ -115,9 +95,9 @@ class OpenStackIdentityV3HandlerFactoryTest extends FunSpec with BeforeAndAfter 
       identityService.setUri("")
       val config = new OpenstackIdentityV3Config()
       config.setOpenstackIdentityService(identityService)
-      handlerFactory.configurationUpdated(config)
+      filter.configurationUpdated(config)
 
-      handlerFactory.destroy()
+      filter.destroy()
 
       verify(mockAkkaServiceClient).destroy()
     }
