@@ -19,31 +19,51 @@
  */
 package org.openrepose.filters.ratelimiting;
 
+import com.google.common.base.Optional;
+
+import org.openrepose.commons.config.manager.UpdateFailedException;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.core.filter.FilterConfigHelper;
-import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.ratelimit.RateLimitingService;
+import org.openrepose.core.services.ratelimit.RateLimitingServiceFactory;
+import org.openrepose.core.services.ratelimit.cache.ManagedRateLimitCache;
+import org.openrepose.core.services.ratelimit.cache.RateLimitCache;
+import org.openrepose.core.services.ratelimit.config.DatastoreType;
 import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
+import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
+import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.*;
+import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.regex.Pattern;
 
 @Named
-public class RateLimitingFilter implements Filter {
+public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingConfiguration> {
 
-    private static final String DEFAULT_CONFIG = "rate-limiting.cfg.xml";
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingFilter.class);
+    private static final String DEFAULT_CONFIG = "rate-limiting.cfg.xml";
+    private static final String SCHEMA_FILE_NAME = "/META-INF/schema/config/rate-limiting-configuration.xsd";
+    private static final String DEFAULT_DATASTORE_NAME = "local/default";
+
     private final ConfigurationService configurationService;
     private final DatastoreService datastoreService;
-    private String config;
-    private RateLimitingHandlerFactory handlerFactory;
+    private String configFilename;
     private EventService eventService;
+
+    private RateLimitingHandler rateLimitingHandler;
+
+    private boolean initialized = false;
 
     @Inject
     public RateLimitingFilter(
@@ -56,22 +76,87 @@ public class RateLimitingFilter implements Filter {
     }
 
     @Override
-    public void destroy() {
-        configurationService.unsubscribeFrom(config, handlerFactory);
+    public void init(FilterConfig filterConfig) throws ServletException {
+        LOG.trace("Rate Limiting filter initializing...");
+        configFilename = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
+
+        LOG.info("Initializing Rate Limiting filter using config {}", configFilename);
+        URL xsdURL = getClass().getResource(SCHEMA_FILE_NAME);
+        configurationService.subscribeTo(filterConfig.getFilterName(), configFilename, xsdURL, this, RateLimitingConfiguration.class);
+
+        LOG.trace("Rate Limiting filter initialized");
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler());
+        if (!initialized) {
+            LOG.error("Rate Limiting filter has not yet initialized...");
+            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return;
+        }
+
+        // TODO: do stuff
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
-        LOG.info("Initializing filter using config " + config);
-        filterConfig.getFilterName();
-        handlerFactory = new RateLimitingHandlerFactory(datastoreService, eventService);
-        URL xsdURL = getClass().getResource("/META-INF/schema/config/rate-limiting-configuration.xsd");
-        configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, RateLimitingConfiguration.class);
+    public void destroy() {
+        LOG.trace("Rate Limiting filter destroying...");
+        configurationService.unsubscribeFrom(configFilename, this);
+        LOG.trace("Rate Limiting filter destroyed.");
+    }
+
+    @Override
+    public void configurationUpdated(RateLimitingConfiguration configurationObject) throws UpdateFailedException {
+        RateLimitCache rateLimitCache = new ManagedRateLimitCache(getDatastore(configurationObject.getDatastore()));
+        RateLimitingService rateLimitingService = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject);
+        Optional<Pattern> describeLimitsUriRegex = configurationObject.getRequestEndpoint() != null ?
+                Optional.of(Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex())) :
+                Optional.<Pattern>absent();
+        boolean includeAbsoluteLimits = configurationObject.getRequestEndpoint() != null &&
+                configurationObject.getRequestEndpoint().isIncludeAbsoluteLimits();
+
+        rateLimitingHandler = new RateLimitingHandler(
+                new RateLimitingServiceHelper(rateLimitingService, new ActiveLimitsWriter(), new CombinedLimitsWriter()),
+                eventService,
+                includeAbsoluteLimits,
+                describeLimitsUriRegex,
+                configurationObject.isOverLimit429ResponseCode(),
+                configurationObject.getDatastoreWarnLimit().intValue());
+
+        initialized = true;
+    }
+
+    private Datastore getDatastore(DatastoreType datastoreType) {
+        String requestedDatastore = datastoreType.value();
+        if (StringUtilities.isNotBlank(requestedDatastore)) {
+            LOG.info("Requesting datastore {}", datastoreType);
+
+            if (requestedDatastore.equals(DEFAULT_DATASTORE_NAME)) {
+                LOG.info("Using requested datastore {}", requestedDatastore);
+                return datastoreService.getDefaultDatastore();
+            }
+
+            Datastore datastore = datastoreService.getDatastore(requestedDatastore);
+            if (datastore != null) {
+                LOG.info("Using requested datastore {}", requestedDatastore);
+                return datastore;
+            } else {
+                LOG.warn("Requested datastore not found");
+            }
+        }
+
+        Datastore targetDatastore = datastoreService.getDistributedDatastore();
+        if (targetDatastore != null) {
+            LOG.info("Using distributed datastore {}", targetDatastore.getName());
+        } else {
+            LOG.warn("There were no distributed datastore managers available. Clustering for rate-limiting will be disabled.");
+            targetDatastore = datastoreService.getDefaultDatastore();
+        }
+        return targetDatastore;
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return initialized;
     }
 }

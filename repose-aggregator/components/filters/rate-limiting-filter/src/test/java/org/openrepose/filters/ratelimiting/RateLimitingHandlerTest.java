@@ -49,7 +49,6 @@ import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -62,13 +61,12 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
-import static org.openrepose.core.filter.logic.FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE;
 
 @RunWith(Enclosed.class)
 public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
     private static Enumeration<String> createStringEnumeration(String... names) {
-        Vector<String> namesCollection = new Vector<String>(names.length);
+        Vector<String> namesCollection = new Vector<>(names.length);
 
         namesCollection.addAll(Arrays.asList(names));
 
@@ -79,7 +77,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
         @Test
         public void shouldReturnUnauthorizedWhenUserInformationIsMissing() {
-            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            final FilterDirector director = newHandler().handleRequest(mockedRequest, null);
 
             assertEquals("FilterDirectory must return on rate limiting failure", FilterAction.RETURN, director.getFilterAction());
             assertEquals("Must return 401 if the user has not been identified", HttpServletResponse.SC_UNAUTHORIZED, director.getResponseStatusCode());
@@ -113,7 +111,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
             when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenAnswer(new Answer<Object>() {
                 public Object answer(InvocationOnMock invocation) throws Throwable {
-                    List<String> headerValues = new LinkedList<String>();
+                    List<String> headerValues = new LinkedList<>();
                     headerValues.add("group-4");
                     headerValues.add("group-2");
                     headerValues.add("group-1");
@@ -125,7 +123,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
             when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenAnswer(new Answer<Object>() {
                 public Object answer(InvocationOnMock invocation) throws Throwable {
-                    List<String> headerValues = new LinkedList<String>();
+                    List<String> headerValues = new LinkedList<>();
                     headerValues.add("that other user;q=0.5");
                     headerValues.add("127.0.0.1;q=0.1");
 
@@ -143,12 +141,12 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
             when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
             when(mockedRequest.getHeaders("Accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
-            HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+            HashMap<String, CachedRateLimit> limitMap = new HashMap<>();
             CachedRateLimit cachedRateLimit = new CachedRateLimit(defaultConfig);
             limitMap.put("252423958:46792755", cachedRateLimit);
             when(datastore.patch(any(String.class), any(Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
 
-            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            final FilterDirector director = newHandler().handleRequest(mockedRequest, null);
 
             assertEquals("Filter must pass valid, non-limited requests", FilterAction.PASS, director.getFilterAction());
         }
@@ -160,7 +158,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
             when(mockedRequest.getHeaders("Accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
 
-            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            final FilterDirector director = newHandler().handleRequest(mockedRequest, null);
 
             assertEquals("On successful pass, filter must process response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
         }
@@ -172,7 +170,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_XML.toString());
             when(mockedRequest.getHeaders("Accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_XML.toString()));
 
-            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            final FilterDirector director = newHandler().handleRequest(mockedRequest, null);
 
             assertTrue("Filter Director is set to add an accept type header", director.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("accept")));
             assertTrue("Filter Director is set to remove the accept type header", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("accept")));
@@ -187,7 +185,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             when(mockedRequest.getHeader("Accept")).thenReturn("leqz");
             when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
 
-            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            final FilterDirector director = newHandler().handleRequest(mockedRequest, null);
 
             assertEquals("On rejected media type, filter must return a response", FilterAction.RETURN, director.getFilterAction());
             assertEquals("On rejected media type, returned status code must be 406", HttpServletResponse.SC_NOT_ACCEPTABLE, director.getResponseStatusCode());
@@ -207,12 +205,14 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             when(mockedRequest.getHeader("Accept")).thenReturn("");
             when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("")));
 
-            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            final FilterDirector director = newHandler().handleRequest(mockedRequest, null);
 
             assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
             assertTrue("Filter Director is set to add application/xml to the accept header",
                     director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
         }
+
+        @Test
         public void shouldRaiseEventWhenRateLimitBreaches() throws OverLimitException {
             RateLimitingServiceHelper helper = mock(RateLimitingServiceHelper.class);
             when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(MimeType.APPLICATION_XML.toString())));
@@ -228,7 +228,6 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
     @Ignore
     public static class TestParent {
 
-        protected RateLimitingHandlerFactory handlerFactory;
         protected HttpServletRequest mockedRequest;
         protected ReadableHttpServletResponse mockedResponse;
         protected DistributedDatastore datastore;
@@ -242,11 +241,12 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
             when(service.getDistributedDatastore()).thenReturn(datastore);
 
-            handlerFactory = new RateLimitingHandlerFactory(service, eventService);
-            handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());
-
             mockedRequest = mock(HttpServletRequest.class);
             mockedResponse = mock(ReadableHttpServletResponse.class);
+        }
+
+        public RateLimitingHandler newHandler() {
+            return RateLimitingTestSupport.createHandler(defaultRateLimitingConfiguration(), eventService, datastore);
         }
 
     }
