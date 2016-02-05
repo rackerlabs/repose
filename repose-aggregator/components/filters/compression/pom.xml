@@ -49,7 +49,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>pjl-compressingFilter</artifactId>
+            <artifactId>pjl-compressing-filter</artifactId>
         </dependency>
     </dependencies>
 
