@@ -93,8 +93,7 @@ class StartWithBadConfigsTest extends Specification {
         "rate-limiting"           | _
         "versioning"              | _
         "translation"             | _
-        "client-auth-n"           | _
-        "openstack-authorization" | _
+        "keystone-v2"             | _
         "dist-datastore"          | _
         "uri-identity"            | _
         "header-identity"         | _

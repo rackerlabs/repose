@@ -21,14 +21,14 @@ package features.filters.valkyrie
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockValkyrie
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
-import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 10/30/15.
@@ -37,6 +37,8 @@ import org.junit.experimental.categories.Category
  *      2, keep
  *      3, remove
  *
+ * Update on 01/28/15
+ *  - replace client-auth with keystone-v2
  */
 @Category(Slow)
 class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
@@ -44,7 +46,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
     def static identityEndpoint
     def static valkyrieEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
     def static deviceId1 = "520707"
@@ -144,7 +146,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
 
@@ -167,7 +169,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         given: "a list permission devices defined in Valkyrie"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenantid = tenantID
         }
 
         fakeValkyrie.with {
@@ -215,7 +217,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
 
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenantid = tenantID
         }
 
         fakeValkyrie.with {
@@ -262,7 +264,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
 
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenantid = tenantID
         }
 
         fakeValkyrie.with {
@@ -318,7 +320,7 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         "a list of permission defined in valkyrie"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenantid = tenantID
         }
 
         fakeValkyrie.with {

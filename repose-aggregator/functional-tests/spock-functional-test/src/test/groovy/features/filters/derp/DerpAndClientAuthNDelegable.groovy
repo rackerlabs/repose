@@ -20,7 +20,7 @@
 package features.filters.derp
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -29,13 +29,15 @@ import spock.lang.Unroll
 
 /**
  * Created by jamesc on 12/1/14.
+ * Update on 01/27/16
+ *  - replace client-auth with keystone-v2 filter
  */
 class DerpAndClientAuthNDelegable extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
 
@@ -43,12 +45,12 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/derp/responsemessaging/clientauthn", params)
+        repose.configurationProvider.applyConfigs("features/filters/derp/responsemessaging/keystonev2", params)
         repose.start(waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(reposeEndpoint)
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -77,7 +79,7 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         fakeIdentityService.with {
             client_token = ""
             tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenant = responseTenant
+            client_tenantid = responseTenant
             client_userid = requestTenant
             service_admin_role = serviceAdminRole
         }
@@ -101,8 +103,8 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | serviceAdminRole | responseCode | msgBody
-        506           | 506            | "not-admin"      | "401"        | "Failure in Auth-N filter."
-        ""            | 512            | "not-admin"      | "401"        | "Failure in Auth-N filter."
+        506           | 506            | "not-admin"      | "401"        | "X-Auth-Token header not found"
+        ""            | 512            | "not-admin"      | "401"        | "X-Auth-Token header not found"
     }
 
 
@@ -115,7 +117,7 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         }
 
         fakeIdentityService.validateTokenHandler = {
-            tokenId, request, xml ->
+            tokenId, tenantid, request, xml ->
                 new Response(authRespCode)
         }
 
@@ -132,13 +134,9 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         mc.handlings.size() == 0
         mc.getOrphanedHandlings().size() == 2
 
-        /* expected internal delegated messages to derp from authn:
-            "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.3"
-            "status_code=500.component=client-auth-n.message=Failure in Auth-N filter.;q=0.3"
-        */
         where:
         authRespCode | responseCode | msgBody
-        404          | "401"        | "Unable to validate token"
-        401          | "500"        | "Failure in Auth-N filter."
+        404          | "401"        | "Token is not valid for validate token request"
+        401          | "500"        | "Admin token unauthorized to make validate token request"
     }
 }

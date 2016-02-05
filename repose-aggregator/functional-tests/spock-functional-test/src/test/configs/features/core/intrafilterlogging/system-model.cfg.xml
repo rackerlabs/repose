@@ -10,8 +10,7 @@
         <filters>
             <filter name="rackspace-identity-basic-auth" />
             <filter name="add-header" />
-            <filter name="client-auth" />
-            <filter name="client-authorization" />
+            <filter name="keystone-v2" />
             <filter name="openstack-identity-v3" />
             <filter name="ip-identity" />
             <filter name="content-normalization"/>

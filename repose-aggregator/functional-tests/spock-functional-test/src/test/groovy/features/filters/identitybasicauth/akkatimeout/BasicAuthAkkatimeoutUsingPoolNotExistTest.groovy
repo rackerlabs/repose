@@ -22,24 +22,26 @@ package features.filters.identitybasicauth.akkatimeout
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.apache.commons.codec.binary.Base64
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
-import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 11/9/15.
  *  using xsd default socket and http time out
+ * Update on 01/21/16
+ *  - Replace client-auth-n with keystone-v2 filter
  */
 @Category(Slow.class)
 class BasicAuthAkkatimeoutUsingPoolNotExistTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -54,7 +56,7 @@ class BasicAuthAkkatimeoutUsingPoolNotExistTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
     }

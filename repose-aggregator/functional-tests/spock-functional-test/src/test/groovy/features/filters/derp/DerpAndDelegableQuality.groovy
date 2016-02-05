@@ -20,7 +20,7 @@
 package features.filters.derp
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -28,13 +28,15 @@ import spock.lang.Unroll
 
 /**
  * Created by jamesc on 12/2/14.
+ * Update on 01/27/16
+ *  - replace client-auth with keystone-v2 filter
  */
 class DerpAndDelegableQuality extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
 
@@ -47,7 +49,7 @@ class DerpAndDelegableQuality extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -94,13 +96,13 @@ class DerpAndDelegableQuality extends ReposeValveTest {
 
 
         where:
-        method   | path           | roles                 | responseCode | msgBody                     | component       | quality
-        "GET"    | "servers/"     | "raxRole"             | "403"        | "forbidden"                 | "api-validator" | 0.6
-        "GET"    | "servers/"     | "raxRole, a:observer" | "401"        | "Failure in Auth-N filter." | "client-auth-n" | 0.3
-        "POST"   | "servers/1235" | "raxRole, a:observer" | "404"        | "Resource not found"        | "api-validator" | 0.6
-        "PUT"    | "servers/"     | "raxRole, a:admin"    | "405"        | "Bad method"                | "api-validator" | 0.6
-        "DELETE" | "servers/test" | "raxRole, a:observer" | "404"        | "Resource not found"        | "api-validator" | 0.6
-        "GET"    | "get/"         | "raxRole"             | "404"        | "Resource not found"        | "api-validator" | 0.6
+        method   | path           | roles                 | responseCode | msgBody                         | component       | quality
+        "GET"    | "servers/"     | "raxRole"             | "403"        | "forbidden"                     | "api-validator" | 0.6
+        "GET"    | "servers/"     | "raxRole, a:observer" | "401"        | "X-Auth-Token header not found" | "keystone-v2"   | 0.3
+        "POST"   | "servers/1235" | "raxRole, a:observer" | "404"        | "Resource not found"            | "api-validator" | 0.6
+        "PUT"    | "servers/"     | "raxRole, a:admin"    | "405"        | "Bad method"                    | "api-validator" | 0.6
+        "DELETE" | "servers/test" | "raxRole, a:observer" | "404"        | "Resource not found"            | "api-validator" | 0.6
+        "GET"    | "get/"         | "raxRole"             | "404"        | "Resource not found"            | "api-validator" | 0.6
 
     }
 

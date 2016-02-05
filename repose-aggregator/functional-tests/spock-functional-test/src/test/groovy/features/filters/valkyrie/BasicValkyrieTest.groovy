@@ -20,7 +20,7 @@
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -31,7 +31,7 @@ class BasicValkyrieTest extends ReposeValveTest {
     def static identityEndpoint
     def static valkyrieEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
 
@@ -48,7 +48,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
 
@@ -81,7 +81,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenantid = tenantID
         }
 
         fakeValkyrie.with {
@@ -151,7 +151,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenantid = tenantID
         }
         fakeValkyrie.with {
             device_id = deviceID
@@ -208,7 +208,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = ""
+            client_tenantid = ""
         }
         fakeValkyrie.with {
             device_id = deviceID
@@ -251,7 +251,7 @@ class BasicValkyrieTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenantid = tenantID
             contact_id = ""
         }
         fakeValkyrie.with {
@@ -300,15 +300,14 @@ class BasicValkyrieTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = "dedicatedUser"
-            client_tenant = tenantID
+            client_tenantid = tenantID
+            client_userid = "dedicatedUser"
         }
 
         fakeValkyrie.with {
             device_id = deviceID
             device_perm = permission
         }
-
-        sleep(2000)
 
         when: "a request is made against a device with Valkyrie set permissions"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
@@ -325,11 +324,11 @@ class BasicValkyrieTest extends ReposeValveTest {
         method   | tenantID                   | deviceID | permission     | responseCode
         "GET"    | randomTenant()             | "520707" | "view_product" | "200"
         "HEAD"   | randomTenant()             | "520707" | "view_product" | "200"
-        "GET"    | randomTenant() - "hybrid:" | "520707" | "view_product" | "403"
         "PUT"    | randomTenant()             | "520707" | "view_product" | "403"
         "POST"   | randomTenant()             | "520707" | "view_product" | "403"
         "DELETE" | randomTenant()             | "520707" | "view_product" | "403"
         "PATCH"  | randomTenant()             | "520707" | "view_product" | "403"
+        "GET"    | randomTenant() - "hybrid:" | "520708" | "view_product" | "403"
     }
 
     def String randomTenant() {
