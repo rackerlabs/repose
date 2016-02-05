@@ -1,82 +1,46 @@
 valve
-    core-lib
 filter-bundle
     rate-limiting
-        core-lib
     versioning
-        core-lib
     uri-normalization
-        core-lib
     content-normalization
-        core-lib
     header-normalization
-        core-lib
     header-identity
-        core-lib
     header-id-mapping
-        core-lib
     uri-identity
-        core-lib
     client-auth
         auth
             os-auth-schemas
-            core-lib
-        core-lib
         os-auth-schemas
     destination-router
-        core-lib
     slf4j-http-logging
-        core-lib
     translation
-        core-lib
     echo
-        core-lib
     client-authorization
-        core-lib
         os-auth-schemas
         auth
     client-ip-identity
-        core-lib
     flush-output
-        core-lib
     compression
-        core-lib
         pjl-compressingFilter
     header-translation
-        core-lib
     uri-stripper
-        core-lib
     openstack-identity-v3
-        core-lib
     rackspace-identity-basic-auth
-        core-lib
     rackspace-auth-user
-        core-lib
     content-type-stripper
-        core-lib
     add-header
-        core-lib
     derp
     forwarded-proto
     iri-validator
     herp
-        core-lib
     valkyrie-authorization
-        core-lib
     merge-header
-        core-lib
     keystone-v2
-        core-lib
     cors
-        core-lib
     url-extractor-to-header
-        core-lib
     ip-user
-        core-lib
 extensions-filter-bundle
     api-validator
-        core-lib
     simple-rbac
-        core-lib
 web-application
-    core-lib

@@ -10,7 +10,7 @@ dependencies {
     compile "org.slf4j:jcl-over-slf4j"
 
     provided "javax.ws.rs:javax.ws.rs-api"
-    provided "org.glassfish:javax.servlet"
+    provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"
 
     testCompile "junit:junit"

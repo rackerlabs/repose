@@ -4,7 +4,7 @@ dependencies {
     compile "xalan:xalan:2.7.1"
     compile "org.slf4j:slf4j-api"
 
-    provided "org.glassfish:javax.servlet"
+    provided "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
     testCompile "org.mockito:mockito-all"
