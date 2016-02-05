@@ -79,6 +79,31 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The startup script -->
+                                <mapping>
+                                    <directory>/usr/share/repose</directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../configs/usr/bin/repose-lint</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- A link to put the startup script on the path -->
+                                <mapping>
+                                    <directory>/usr/bin</directory>
+                                    <sources>
+                                        <softlinkSource>
+                                            <location>/usr/share/repose/repose-lint</location>
+                                        </softlinkSource>
+                                    </sources>
+                                </mapping>
+
                                 <!--The git.properties file -->
                                 <mapping>
                                     <directory>
