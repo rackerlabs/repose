@@ -8,7 +8,7 @@
     </parent>
 
     <name>PlanetJ CompressingFilter</name>
-    <artifactId>pjl-compressingFilter</artifactId>
+    <artifactId>pjl-compressing-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

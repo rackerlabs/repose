@@ -8,17 +8,10 @@ filter-bundle
     header-identity
     header-id-mapping
     uri-identity
-    client-auth
-        auth
-            os-auth-schemas
-        os-auth-schemas
     destination-router
     slf4j-http-logging
     translation
     echo
-    client-authorization
-        os-auth-schemas
-        auth
     client-ip-identity
     flush-output
     compression
