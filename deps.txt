@@ -15,7 +15,6 @@ filter-bundle
     client-ip-identity
     flush-output
     compression
-        pjl-compressingFilter
     header-translation
     uri-stripper
     openstack-identity-v3
@@ -37,3 +36,8 @@ extensions-filter-bundle
     api-validator
     simple-rbac
 web-application
+experimental-filter-bundle
+    servlet-contract-filter
+    exception-filter
+    tightly-coupled-filter
+cli-utils

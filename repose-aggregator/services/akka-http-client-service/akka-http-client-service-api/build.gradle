@@ -1,4 +1,6 @@
 dependencies {
     compile project(":repose-aggregator/commons/commons-utilities")
-    provided "javax:javaee-web-api"
+
+    provided "org.glassfish:javax.servlet"
+    provided "javax.ws.rs:javax.ws.rs-api"
 }
