@@ -26,7 +26,7 @@ import org.openrepose.lint.commands.CommandRegistry
 import scopt.OptionParser
 
 /**
-  * A command line parser which determines what command to execute and executse it.
+  * A command line parser which determines what command to execute and executes it.
   */
 object CommandExecutor {
 
