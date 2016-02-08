@@ -22,6 +22,7 @@
         <module>rate-limiting-service</module>
         <module>health-check-service</module>
         <module>phone-home-service</module>
+        <module>atom-feed-service</module>
     </modules>
 
 </project>

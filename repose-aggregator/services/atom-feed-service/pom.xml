@@ -21,7 +21,7 @@
     </description>
 
     <modules>
-        <module>api</module>
-        <module>impl</module>
+        <module>atom-feed-service-api</module>
+        <module>atom-feed-service-impl</module>
     </modules>
 </project>
