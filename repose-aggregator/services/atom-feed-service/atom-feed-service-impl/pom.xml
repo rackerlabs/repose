@@ -11,7 +11,7 @@
     </parent>
 
     <name>Repose Services - Atom Feed Service Impl</name>
-    <artifactId>atom-feed-service</artifactId>
+    <artifactId>atom-feed-service-impl</artifactId>
     <packaging>jar</packaging>
 
     <properties>

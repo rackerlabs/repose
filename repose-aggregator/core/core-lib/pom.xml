@@ -144,7 +144,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>atom-feed-service</artifactId>
+            <artifactId>atom-feed-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
