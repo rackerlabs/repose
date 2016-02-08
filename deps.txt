@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    rate-limiting
     versioning
     uri-normalization
     header-normalization
