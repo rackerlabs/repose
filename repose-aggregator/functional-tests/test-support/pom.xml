@@ -68,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>rate-limiting</artifactId>
+            <artifactId>rate-limiting-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

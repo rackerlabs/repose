@@ -23,7 +23,7 @@
         <module>uri-identity</module>
         <module>rackspace-auth-user</module>
         <module>content-normalization</module>
-        <module>rate-limiting</module>
+        <module>rate-limiting-filter</module>
         <module>versioning</module>
         <module>translation</module>
         <module>destination-router</module>

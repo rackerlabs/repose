@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Rate Limiting</name>
-    <artifactId>rate-limiting</artifactId>
+    <artifactId>rate-limiting-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

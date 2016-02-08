@@ -3,16 +3,13 @@ filter-bundle
     rate-limiting
     versioning
     uri-normalization
-    content-normalization
     header-normalization
-    header-identity
     header-id-mapping
     uri-identity
     destination-router
     slf4j-http-logging
     translation
     echo
-    client-ip-identity
     flush-output
     compression
     header-translation
@@ -39,5 +36,6 @@ web-application
 experimental-filter-bundle
     servlet-contract-filter
     exception-filter
-    tightly-coupled-filter
+    *tightly-coupled-filter
 cli-utils
+repose-lint
