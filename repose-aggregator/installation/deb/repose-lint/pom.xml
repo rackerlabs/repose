@@ -92,8 +92,8 @@
                                         <!-- A link to put the startup script on the path -->
                                         <data>
                                             <type>link</type>
-                                            <linkName>/usr/share/repose/repose-lint</linkName>
-                                            <linkTarget>/usr/bin/repose-lint</linkTarget>
+                                            <linkName>/usr/bin/repose-lint</linkName>
+                                            <linkTarget>/usr/share/repose/repose-lint</linkTarget>
                                             <symlink>true</symlink>
                                         </data>
 
