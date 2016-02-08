@@ -2,7 +2,7 @@ dependencies {
     compile project(":repose-aggregator/commons/commons-utilities")
     compile "com.google.guava:guava"
 
-    provided "javax:javaee-web-api"
+    provided "org.glassfish:javax.servlet"
 }
 
 //todo: remove the local xslt
