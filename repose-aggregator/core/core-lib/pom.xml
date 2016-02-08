@@ -50,19 +50,19 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>commons-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>configuration</artifactId>
+            <artifactId>commons-configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>service-client-akka</artifactId>
+            <artifactId>akka-http-client-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -114,25 +114,25 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>httpclient-api</artifactId>
+            <artifactId>http-client-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>httpclient-connection-pool</artifactId>
+            <artifactId>http-client-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>datastoreservice-api</artifactId>
+            <artifactId>datastore-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>datastore-service</artifactId>
+            <artifactId>datastore-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -150,7 +150,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>phone-home</artifactId>
+            <artifactId>phone-home-service</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -200,7 +200,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>health-check-service</artifactId>
+            <artifactId>health-check-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 

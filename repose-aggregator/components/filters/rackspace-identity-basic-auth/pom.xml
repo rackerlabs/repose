@@ -66,25 +66,25 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>datastoreservice-api</artifactId>
+            <artifactId>datastore-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>httpclient-api</artifactId>
+            <artifactId>http-client-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>service-client-api</artifactId>
+            <artifactId>akka-http-client-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>commons-utilities</artifactId>
         </dependency>
 
         <dependency>

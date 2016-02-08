@@ -44,7 +44,9 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>pjl-compressingFilter</artifactId>
+            <artifactId>commons-utilities</artifactId>
+            <version>${project.version}</version>
+
         </dependency>
 
         <!-- Let's use Scala -->
@@ -71,6 +73,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>pjl-compressing-filter</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

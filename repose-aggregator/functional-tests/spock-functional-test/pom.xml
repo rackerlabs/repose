@@ -156,13 +156,13 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>commons-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>datastoreservice-api</artifactId>
+            <artifactId>datastore-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

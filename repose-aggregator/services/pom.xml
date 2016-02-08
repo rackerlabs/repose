@@ -16,12 +16,12 @@
     </description>
 
     <modules>
-        <module>service-client</module>
-        <module>datastore</module>
-        <module>httpclient</module>
+        <module>akka-http-client-service</module>
+        <module>datastore-service</module>
+        <module>http-client-service</module>
         <module>rate-limiting-service</module>
-        <module>health-check</module>
-        <module>phone-home</module>
+        <module>health-check-service</module>
+        <module>phone-home-service</module>
         <module>atom-feed</module>
     </modules>
 

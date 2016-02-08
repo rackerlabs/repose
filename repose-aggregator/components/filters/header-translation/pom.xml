@@ -25,16 +25,19 @@
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>core-service-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>commons-utilities</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- JAXB -->
@@ -78,6 +81,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>commons-utilities</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

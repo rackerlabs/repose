@@ -32,12 +32,12 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>configuration</artifactId>
+            <artifactId>commons-configuration</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>commons-utilities</artifactId>
         </dependency>
 
         <dependency>

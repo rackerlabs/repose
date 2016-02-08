@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.filters.valkyrie.akkatimeout
+
 import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityV2Service
@@ -25,6 +26,7 @@ import framework.mocks.MockValkyrie
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+
 /**
  * Created by jennyvo on 11/10/15.
  *  when no connection pool id in config valkyrie using default connection pool time out

@@ -50,7 +50,7 @@
         <!-- HTTP request/response wrappers -->
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>commons-utilities</artifactId>
         </dependency>
 
         <!-- Let's use Scala -->

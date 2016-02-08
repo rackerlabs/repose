@@ -51,7 +51,7 @@
         <!-- MutableHttpServletRequest -->
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>commons-utilities</artifactId>
         </dependency>
 
         <!-- LogFactory, needed by MockHttpServletRequest/Response -->

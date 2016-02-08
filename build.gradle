@@ -1,0 +1,145 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven {
+            url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
+        }
+    }
+
+    dependencies {
+        classpath 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0'
+        classpath 'com.netflix.nebula:nebula-dependency-recommender:3.1.0'
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
+        classpath 'org.openrepose:gradle-jaxb-plugin:2.0.2'
+    }
+}
+
+ext.reposeCodename = "Ezio?"
+
+allprojects {
+    group = 'org.openrepose'
+    version = '8.0.0.0'
+
+    apply plugin: 'idea'
+    apply plugin: 'nebula.dependency-recommender'
+
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
+        }
+    }
+}
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+    apply plugin: 'scala'
+    apply plugin: 'org.unbroken-dome.test-sets'
+    apply plugin: 'nebula.provided-base'
+    apply plugin: 'org.openrepose.gradle.plugins.jaxb'
+
+    dependencies {
+        jaxb "com.sun.xml.bind:jaxb-xjc"
+        jaxb "com.sun.xml.bind:jaxb-impl"
+        jaxb "javax.xml.bind:jaxb-api"
+        jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
+    }
+
+    testSets {
+        integrationTest
+    }
+
+    check.dependsOn integrationTest
+    integrationTest.mustRunAfter test
+
+    idea {
+        module {
+            testSourceDirs += project.sourceSets.integrationTest.allSource.srcDirs.flatten()
+            scopes.TEST.plus += [configurations.integrationTestCompile]
+        }
+    }
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    task transformXSDs() {
+        description "Runs xml through an xslt transfurm"
+        ext.outputDir = "$buildDir/src/generated-xsd"
+        //todo: make this work with multiples so i can make these paths better
+        def xsltFile = "$rootDir/src/main/resources/remove-1.1-elements.xsl"
+        def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
+
+        //If they set a property for the jaxbXSLT file override our default
+        if (project.hasProperty('jaxbXsltFile')) {
+            xsltFile = project.jaxbXsltFile
+        }
+
+        if (project.hasProperty('jaxbSchemaBase')) {
+            schemaBaseDir = project.jaxbSchemaBase
+        }
+
+        inputs.files(
+                fileTree(dir: schemaBaseDir, includes: ["**/*.xsd", "**/*.xjb"]),
+                file(xsltFile)
+        )
+        outputs.dir outputDir
+
+        doLast {
+            file(outputDir).mkdirs()
+
+            //Find all XSDs in the src/main/resources/META-INF.schema
+            if (file(xsltFile).exists() && file(schemaBaseDir).exists()) {
+                logger.lifecycle("Transforming Schemas")
+                ant.xslt(
+                        extension: '.xsd',
+                        basedir: schemaBaseDir,
+                        includes: "**/*.xsd",
+                        style: xsltFile,
+                        destdir: "${outputDir}"
+                )
+            } else {
+                logger.lifecycle("NOT Transforming Schemas")
+                copy {
+                    from schemaBaseDir
+                    into outputDir
+                    include "**/*.xsd"
+                }
+            }
+
+            //Copy over any bindings.xjb into their appropriate directories
+            logger.lifecycle("Copying xjb's")
+            copy {
+                from schemaBaseDir
+                into outputDir
+                include "**/*.xjb"
+            }
+        }
+    }
+
+    def generatedDir = "${buildDir}/src/generated-sources"
+
+    jaxb {
+        xsdDir transformXSDs.outputDir
+        bindingsDir = transformXSDs.outputDir
+        xjc {
+            destinationDir = generatedDir
+        }
+    }
+
+    xjc.dependsOn transformXSDs
+    sourceSets.main.java.srcDirs += generatedDir
+
+    [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
+        tasks.withType(type) {
+            dependsOn('xjc')
+        }
+    }
+}
+
+dependencyRecommendations {
+    propertiesFile file: file('versions.properties')
+}

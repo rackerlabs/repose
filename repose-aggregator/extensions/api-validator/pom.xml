@@ -33,7 +33,7 @@
         <!-- actually uses something from the commons project -->
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>configuration</artifactId>
+            <artifactId>commons-configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>commons-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
