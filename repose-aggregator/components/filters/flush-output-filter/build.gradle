@@ -1,0 +1,6 @@
+dependencies {
+    provided "javax.servlet:javax.servlet-api"
+
+    testCompile "junit:junit"
+    testCompile "org.mockito:mockito-all"
+}

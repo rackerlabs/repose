@@ -19,11 +19,9 @@
  */
 package org.openrepose.filters.flush;
 
-import javax.inject.Named;
 import javax.servlet.*;
 import java.io.IOException;
 
-@Named
 @Deprecated
 public class FlushOutputFilter implements Filter {
 
