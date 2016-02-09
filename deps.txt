@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    uri-identity
     destination-router
     slf4j-http-logging
     translation
