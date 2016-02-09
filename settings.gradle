@@ -1,6 +1,7 @@
 include 'repose-aggregator/commons/commons-configuration',
         'repose-aggregator/commons/commons-utilities',
         'repose-aggregator/components/filters/destination-router-filter',
+        'repose-aggregator/components/filters/echo-filter',
         'repose-aggregator/components/filters/header-id-mapping-filter',
         'repose-aggregator/components/filters/header-normalization-filter',
         'repose-aggregator/components/filters/rate-limiting-filter',

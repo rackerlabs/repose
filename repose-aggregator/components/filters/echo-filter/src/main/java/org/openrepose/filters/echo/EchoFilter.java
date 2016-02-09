@@ -19,14 +19,12 @@
  */
 package org.openrepose.filters.echo;
 
-import javax.inject.Named;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Enumeration;
 
-@Named
 public class EchoFilter implements Filter {
 
     @Override
