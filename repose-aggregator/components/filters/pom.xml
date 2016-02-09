@@ -25,7 +25,7 @@
         <module>content-normalization</module>
         <module>rate-limiting-filter</module>
         <module>versioning-filter</module>
-        <module>translation</module>
+        <module>translation-filter</module>
         <module>destination-router-filter</module>
         <module>flush-output</module>
         <module>echo</module>

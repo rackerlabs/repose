@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Translation</name>
-    <artifactId>translation</artifactId>
+    <artifactId>translation-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
