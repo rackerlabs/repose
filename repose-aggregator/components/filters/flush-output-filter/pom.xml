@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Flush Output Stream</name>
-    <artifactId>flush-output</artifactId>
+    <artifactId>flush-output-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

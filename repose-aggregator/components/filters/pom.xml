@@ -27,7 +27,7 @@
         <module>versioning-filter</module>
         <module>translation-filter</module>
         <module>destination-router-filter</module>
-        <module>flush-output</module>
+        <module>flush-output-filter</module>
         <module>echo-filter</module>
         <module>client-ip-identity</module>
         <module>header-normalization-filter</module>

@@ -83,7 +83,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>flush-output</artifactId>
+            <artifactId>flush-output-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
