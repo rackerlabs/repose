@@ -33,7 +33,7 @@
         <module>header-normalization-filter</module>
         <module>ip-user</module>
         <module>uri-normalization-filter</module>
-        <module>compression</module>
+        <module>compression-filter</module>
         <module>header-translation</module>
         <module>uri-stripper</module>
         <module>merge-header</module>
