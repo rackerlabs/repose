@@ -27,7 +27,7 @@ import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.core.filters.DestinationRouter;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
+import org.openrepose.core.services.reporting.metrics.MeterByCategorySum;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;

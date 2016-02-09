@@ -32,7 +32,7 @@ import org.openrepose.core.services.headers.response.ResponseHeaderService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
+import org.openrepose.core.services.reporting.metrics.MeterByCategorySum;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.core.systemmodel.DestinationCluster;
 import org.openrepose.core.systemmodel.DestinationEndpoint;

@@ -21,6 +21,7 @@ package org.openrepose.core.filters;
 
 /**
  * This class is used to register the header-normalization-related metrics to JMX.
+ * todo: figure out a way to get rid of this
  */
 public class HeaderNormalization {
 }

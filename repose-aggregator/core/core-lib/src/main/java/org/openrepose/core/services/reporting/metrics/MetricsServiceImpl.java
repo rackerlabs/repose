@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.reporting.metrics.impl;
+package org.openrepose.core.services.reporting.metrics;
 
 import com.yammer.metrics.core.*;
 import com.yammer.metrics.reporting.GraphiteReporter;
@@ -27,9 +27,6 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
-import org.openrepose.core.services.reporting.metrics.MeterByCategory;
-import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 import org.openrepose.core.services.reporting.metrics.config.GraphiteServer;
 import org.openrepose.core.services.reporting.metrics.config.MetricsConfiguration;
 import org.openrepose.core.spring.ReposeJmxNamingStrategy;

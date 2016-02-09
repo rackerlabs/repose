@@ -28,8 +28,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.MetricsService
-import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum
+import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
 import org.openrepose.filters.headernormalization.config._
 import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner

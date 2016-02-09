@@ -33,8 +33,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filters.HeaderNormalization
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.MetricsService
-import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum
+import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
 import org.openrepose.filters.headernormalization.config.{HttpMethod, HeaderNormalizationConfig}
 
 import scala.collection.JavaConverters._
