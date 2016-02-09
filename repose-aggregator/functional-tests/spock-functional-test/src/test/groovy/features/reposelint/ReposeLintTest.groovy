@@ -40,8 +40,10 @@ class ReposeLintTest extends Specification {
     @Shared
     ReposeConfigurationProvider reposeConfigurationProvider
 
-    def static String allowedNotAuthorizedDesc = "Users with the 'foyer' Identity role WILL pass through this component BUT authorization checks will not be performed"
-    def static String allowedAuthorizedDecs = "Users with the 'foyer' Identity role WILL pass through this component IF AND ONLY IF their Identity service catalog contains an endpoint required by the authorization component"
+    def
+    static String allowedNotAuthorizedDesc = "Users with the 'foyer' Identity role WILL pass through this component BUT authorization checks will not be performed"
+    def
+    static String allowedAuthorizedDecs = "Users with the 'foyer' Identity role WILL pass through this component IF AND ONLY IF their Identity service catalog contains an endpoint required by the authorization component"
     def static String allowedDesc = "Users with the 'foyer' Identity role WILL pass through this component"
     def static String notAllowedDesc = "Users with the 'foyer' Identity role WILL NOT pass through this component"
 
@@ -132,17 +134,17 @@ class ReposeLintTest extends Specification {
         }
 
         where:
-        configdir                                            | checktype         | filtername             | checktenantedmode | tenantmode | foyerignore | status                   | desc
-        "features/reposelint/clientauthn"                    | "authNCheck"      | "client-auth"          | "yes"             | false      | false       | "Allowed"                | allowedDesc
-        "features/reposelint/clientauthn/tenanted"           | "authNCheck"      | "client-auth"          | "yes"             | true       | false       | "NotAllowed"             | notAllowedDesc
-        "features/reposelint/clientauthn/tenantedwfoyerrole" | "authNCheck"      | "client-auth"          | "yes"             | true       | true        | "Allowed"                | allowedDesc
-        "features/reposelint/clientauthz"                    | "authZCheck"      | "client-authorization" | "no"              | false      | false       | "AllowedAuthorized"      | allowedAuthorizedDecs
-        "features/reposelint/clientauthz/wfoyerrole"         | "authZCheck"      | "client-authorization" | "no"              | false      | true        | "AllowedNotAuthorized"   | allowedNotAuthorizedDesc
-        "features/reposelint/keystonev2"                     | "keystoneV2Check" | "keystone-v2"          | "yes"             | false      | false       | "AllowedNotAuthorized"   | allowedNotAuthorizedDesc
-        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | false       | "NotAllowed"             | notAllowedDesc
-        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | true        | "AllowedNotAuthorized"   | allowedNotAuthorizedDesc
-        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | false       | "NotAllowed"             | notAllowedDesc
-        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | true        | "AllowedNotAuthorized"   | allowedNotAuthorizedDesc
+        configdir                                            | checktype         | filtername             | checktenantedmode | tenantmode | foyerignore | status                 | desc
+        "features/reposelint/clientauthn"                    | "authNCheck"      | "client-auth"          | "yes"             | false      | false       | "Allowed"              | allowedDesc
+        "features/reposelint/clientauthn/tenanted"           | "authNCheck"      | "client-auth"          | "yes"             | true       | false       | "NotAllowed"           | notAllowedDesc
+        "features/reposelint/clientauthn/tenantedwfoyerrole" | "authNCheck"      | "client-auth"          | "yes"             | true       | true        | "Allowed"              | allowedDesc
+        "features/reposelint/clientauthz"                    | "authZCheck"      | "client-authorization" | "no"              | false      | false       | "AllowedAuthorized"    | allowedAuthorizedDecs
+        "features/reposelint/clientauthz/wfoyerrole"         | "authZCheck"      | "client-authorization" | "no"              | false      | true        | "AllowedNotAuthorized" | allowedNotAuthorizedDesc
+        "features/reposelint/keystonev2"                     | "keystoneV2Check" | "keystone-v2"          | "yes"             | false      | false       | "AllowedNotAuthorized" | allowedNotAuthorizedDesc
+        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | false       | "NotAllowed"           | notAllowedDesc
+        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | true        | "AllowedNotAuthorized" | allowedNotAuthorizedDesc
+        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | false       | "NotAllowed"           | notAllowedDesc
+        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | true        | "AllowedNotAuthorized" | allowedNotAuthorizedDesc
     }
 
     @Unroll("test with multi config: #configdir")
