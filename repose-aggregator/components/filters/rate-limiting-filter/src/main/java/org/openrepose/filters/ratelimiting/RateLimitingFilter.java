@@ -32,7 +32,6 @@ import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
 import org.openrepose.core.services.ratelimit.RateLimitingServiceFactory;
 import org.openrepose.core.services.ratelimit.cache.ManagedRateLimitCache;
-import org.openrepose.core.services.ratelimit.cache.RateLimitCache;
 import org.openrepose.core.services.ratelimit.config.DatastoreType;
 import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
 import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
@@ -57,11 +56,14 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
     private static final String DEFAULT_DATASTORE_NAME = "local/default";
 
     private final ConfigurationService configurationService;
-    private final DatastoreService datastoreService;
     private String configFilename;
-    private EventService eventService;
 
-    private RateLimitingHandler rateLimitingHandler;
+    private final DatastoreService datastoreService;
+    private EventService eventService;
+    private RateLimitingConfiguration config;
+    private RateLimitingService rateLimitingService;
+    private Optional<Pattern> describeLimitsUriRegex;
+    private boolean includeAbsoluteLimits;
 
     private boolean initialized = false;
 
@@ -107,23 +109,28 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
 
     @Override
     public void configurationUpdated(RateLimitingConfiguration configurationObject) throws UpdateFailedException {
-        RateLimitCache rateLimitCache = new ManagedRateLimitCache(getDatastore(configurationObject.getDatastore()));
-        RateLimitingService rateLimitingService = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject);
-        Optional<Pattern> describeLimitsUriRegex = configurationObject.getRequestEndpoint() != null ?
+        rateLimitingService = RateLimitingServiceFactory.createRateLimitingService(
+                new ManagedRateLimitCache(getDatastore(configurationObject.getDatastore())), configurationObject);
+        describeLimitsUriRegex = configurationObject.getRequestEndpoint() != null ?
                 Optional.of(Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex())) :
                 Optional.<Pattern>absent();
-        boolean includeAbsoluteLimits = configurationObject.getRequestEndpoint() != null &&
+        includeAbsoluteLimits = configurationObject.getRequestEndpoint() != null &&
                 configurationObject.getRequestEndpoint().isIncludeAbsoluteLimits();
+        config = configurationObject;
+        initialized = true;
+    }
 
-        rateLimitingHandler = new RateLimitingHandler(
+    /**
+     * For now, carry over the old behavior of building a new handler per request.
+     */
+    private RateLimitingHandler buildHandler() {
+        return new RateLimitingHandler(
                 new RateLimitingServiceHelper(rateLimitingService, new ActiveLimitsWriter(), new CombinedLimitsWriter()),
                 eventService,
                 includeAbsoluteLimits,
                 describeLimitsUriRegex,
-                configurationObject.isOverLimit429ResponseCode(),
-                configurationObject.getDatastoreWarnLimit().intValue());
-
-        initialized = true;
+                config.isOverLimit429ResponseCode(),
+                config.getDatastoreWarnLimit().intValue());
     }
 
     private Datastore getDatastore(DatastoreType datastoreType) {
