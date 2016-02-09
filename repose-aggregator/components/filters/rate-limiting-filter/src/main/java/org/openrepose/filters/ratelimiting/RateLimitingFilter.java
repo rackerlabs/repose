@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 @Named
@@ -59,12 +60,8 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
     private String configFilename;
 
     private final DatastoreService datastoreService;
-    private EventService eventService;
-    private RateLimitingConfiguration config;
-    private RateLimitingService rateLimitingService;
-    private Optional<Pattern> describeLimitsUriRegex;
-    private boolean includeAbsoluteLimits;
-
+    private final EventService eventService;
+    private final AtomicReference<RateLimitingConfig> config = new AtomicReference<>();
     private boolean initialized = false;
 
     @Inject
@@ -109,14 +106,18 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
 
     @Override
     public void configurationUpdated(RateLimitingConfiguration configurationObject) throws UpdateFailedException {
-        rateLimitingService = RateLimitingServiceFactory.createRateLimitingService(
+        RateLimitingConfig newConfig = new RateLimitingConfig();
+        newConfig.rateLimitingService = RateLimitingServiceFactory.createRateLimitingService(
                 new ManagedRateLimitCache(getDatastore(configurationObject.getDatastore())), configurationObject);
-        describeLimitsUriRegex = configurationObject.getRequestEndpoint() != null ?
+        newConfig.describeLimitsUriRegex = configurationObject.getRequestEndpoint() != null ?
                 Optional.of(Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex())) :
                 Optional.<Pattern>absent();
-        includeAbsoluteLimits = configurationObject.getRequestEndpoint() != null &&
+        newConfig.includeAbsoluteLimits = configurationObject.getRequestEndpoint() != null &&
                 configurationObject.getRequestEndpoint().isIncludeAbsoluteLimits();
-        config = configurationObject;
+        newConfig.isOverLimit429ResponseCode = configurationObject.isOverLimit429ResponseCode();
+        newConfig.datastoreWarnLimit = configurationObject.getDatastoreWarnLimit().intValue();
+
+        config.set(newConfig);
         initialized = true;
     }
 
@@ -124,13 +125,16 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
      * For now, carry over the old behavior of building a new handler per request.
      */
     private RateLimitingHandler buildHandler() {
+        // snapshot of current config
+        RateLimitingConfig currentConfig = config.get();
+
         return new RateLimitingHandler(
-                new RateLimitingServiceHelper(rateLimitingService, new ActiveLimitsWriter(), new CombinedLimitsWriter()),
+                new RateLimitingServiceHelper(currentConfig.rateLimitingService, new ActiveLimitsWriter(), new CombinedLimitsWriter()),
                 eventService,
-                includeAbsoluteLimits,
-                describeLimitsUriRegex,
-                config.isOverLimit429ResponseCode(),
-                config.getDatastoreWarnLimit().intValue());
+                currentConfig.includeAbsoluteLimits,
+                currentConfig.describeLimitsUriRegex,
+                currentConfig.isOverLimit429ResponseCode,
+                currentConfig.datastoreWarnLimit);
     }
 
     private Datastore getDatastore(DatastoreType datastoreType) {
@@ -165,5 +169,13 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
     @Override
     public boolean isInitialized() {
         return initialized;
+    }
+
+    private static class RateLimitingConfig {
+        public RateLimitingService rateLimitingService;
+        public Optional<Pattern> describeLimitsUriRegex;
+        public boolean includeAbsoluteLimits;
+        public boolean isOverLimit429ResponseCode;
+        public int datastoreWarnLimit;
     }
 }
