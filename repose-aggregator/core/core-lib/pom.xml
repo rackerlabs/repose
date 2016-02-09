@@ -20,7 +20,8 @@
         <reposeVersion>${project.version}</reposeVersion>
         <reposeVersionName>Dirk</reposeVersionName>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
-        <test.artifact.version>2.1</test.artifact.version>
+        <earVersion>2.1</earVersion>
+        <earDirectory>${project.build.directory}/earFiles/</earDirectory>
     </properties>
 
     <dependencies>
@@ -307,29 +308,29 @@
                                 <artifactItem>
                                     <groupId>org.openrepose.filters.core.test</groupId>
                                     <artifactId>core-test-filter-bundle</artifactId>
-                                    <version>${test.artifact.version}</version>
+                                    <version>${earVersion}</version>
                                     <type>ear</type>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.openrepose.filters.core.test</groupId>
                                     <artifactId>busted-application-name-ear</artifactId>
-                                    <version>${test.artifact.version}</version>
+                                    <version>${earVersion}</version>
                                     <type>ear</type>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.openrepose.filters.core.test</groupId>
                                     <artifactId>busted-web-fragment-ear</artifactId>
-                                    <version>${test.artifact.version}</version>
+                                    <version>${earVersion}</version>
                                     <type>ear</type>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.openrepose.filters.core.test</groupId>
                                     <artifactId>second-filter-bundle</artifactId>
-                                    <version>${test.artifact.version}</version>
+                                    <version>${earVersion}</version>
                                     <type>ear</type>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.directory}/earFiles/</outputDirectory>
+                            <outputDirectory>${earDirectory}</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
