@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    uri-normalization
     header-normalization
     header-id-mapping
     uri-identity
