@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Client Header Identity Mapping</name>
-    <artifactId>header-id-mapping</artifactId>
+    <artifactId>header-id-mapping-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

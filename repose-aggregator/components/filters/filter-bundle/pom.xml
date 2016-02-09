@@ -48,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>header-id-mapping</artifactId>
+            <artifactId>header-id-mapping-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
