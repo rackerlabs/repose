@@ -30,7 +30,7 @@
         <module>flush-output</module>
         <module>echo</module>
         <module>client-ip-identity</module>
-        <module>header-normalization</module>
+        <module>header-normalization-filter</module>
         <module>ip-user</module>
         <module>uri-normalization-filter</module>
         <module>compression</module>
