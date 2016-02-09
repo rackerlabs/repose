@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - URI Normalization</name>
-    <artifactId>uri-normalization</artifactId>
+    <artifactId>uri-normalization-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
