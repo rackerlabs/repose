@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Client Identity By URI</name>
-    <artifactId>uri-identity</artifactId>
+    <artifactId>uri-identity-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
