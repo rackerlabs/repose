@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Compression</name>
-    <artifactId>compression</artifactId>
+    <artifactId>compression-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
