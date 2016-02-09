@@ -73,7 +73,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>echo</artifactId>
+            <artifactId>echo-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
