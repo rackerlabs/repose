@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Testing Echo Filter</name>
-    <artifactId>echo</artifactId>
+    <artifactId>echo-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
