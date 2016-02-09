@@ -68,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>translation</artifactId>
+            <artifactId>translation-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
