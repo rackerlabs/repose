@@ -26,7 +26,7 @@
         <module>rate-limiting-filter</module>
         <module>versioning-filter</module>
         <module>translation</module>
-        <module>destination-router</module>
+        <module>destination-router-filter</module>
         <module>flush-output</module>
         <module>echo</module>
         <module>client-ip-identity</module>
