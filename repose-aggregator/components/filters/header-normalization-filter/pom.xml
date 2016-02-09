@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Header Normalization</name>
-    <artifactId>header-normalization</artifactId>
+    <artifactId>header-normalization-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
