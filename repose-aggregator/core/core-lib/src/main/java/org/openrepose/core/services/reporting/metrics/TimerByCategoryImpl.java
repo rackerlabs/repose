@@ -17,12 +17,10 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.reporting.metrics.impl;
+package org.openrepose.core.services.reporting.metrics;
 
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
-import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * By calling the time(), stop(), and update() methods, a Timer object is automatically registered and can be updated
  * by later calls.
  * <p/>
- * This is created by the {@link org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl} factory class.
+ * This is created by the {@link MetricsServiceImpl} factory class.
  * <p/>
  * This class is thread-safe.
  */

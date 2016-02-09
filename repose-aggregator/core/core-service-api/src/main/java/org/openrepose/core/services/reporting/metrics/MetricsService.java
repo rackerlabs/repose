@@ -23,7 +23,6 @@ import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
 import com.yammer.metrics.core.Timer;
 import org.openrepose.commons.utils.Destroyable;
-import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
 
 import java.util.concurrent.TimeUnit;
 

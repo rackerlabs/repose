@@ -17,10 +17,9 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.reporting.metrics.impl;
+package org.openrepose.core.services.reporting.metrics;
 
 import com.yammer.metrics.core.Meter;
-import org.openrepose.core.services.reporting.metrics.MetricsService;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * Additionally, an additional Meter registered under the name ACROSS ALL tracks the summary of all Meters in this
  * object.
  * <p/>
- * This is created by the {@link org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl} factory class.
+ * This is created by the {@link MetricsServiceImpl} factory class.
  * <p/>
  * This class is thread-safe.
  */

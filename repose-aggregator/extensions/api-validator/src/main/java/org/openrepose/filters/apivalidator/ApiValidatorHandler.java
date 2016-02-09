@@ -33,7 +33,7 @@ import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.core.filters.ApiValidator;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
+import org.openrepose.core.services.reporting.metrics.MeterByCategorySum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

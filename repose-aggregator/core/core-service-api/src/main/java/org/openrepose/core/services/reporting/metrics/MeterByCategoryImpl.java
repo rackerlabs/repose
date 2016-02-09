@@ -17,11 +17,9 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.reporting.metrics.impl;
+package org.openrepose.core.services.reporting.metrics;
 
 import com.yammer.metrics.core.Meter;
-import org.openrepose.core.services.reporting.metrics.MeterByCategory;
-import org.openrepose.core.services.reporting.metrics.MetricsService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * <p/>
  * By calling the mark() methods, a Meter object is automatically registered and can be marked by later calls.
  * <p/>
- * This is created by the {@link org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl} factory class.
+ * This is created by the {@link MetricsServiceImpl} factory class.
  * <p/>
  * This class is thread-safe.
  */
