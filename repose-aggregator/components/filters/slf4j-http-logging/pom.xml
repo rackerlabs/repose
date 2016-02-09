@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
@@ -39,18 +41,35 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics-runtime</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>commons-utilities</artifactId>
         </dependency>
 
         <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
+        </dependency>
+
+        <!-- Let's use Scala -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.10</artifactId>
+        </dependency>
+
+        <!-- LazyLogging -->
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging-slf4j_2.10</artifactId>
         </dependency>
     </dependencies>
 
@@ -77,6 +96,7 @@
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
+
                 <executions>
                     <execution>
                         <goals>
@@ -84,21 +104,21 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
 
+                <configuration>
                     <specVersion>2.2</specVersion>
                     <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
 
                     <schemaIncludes>
                         <include>**/*.xsd</include>
                     </schemaIncludes>
+
                     <bindingIncludes>
                         <include>**/*.xjb</include>
                     </bindingIncludes>
 
                     <strict>true</strict>
                     <verbose>false</verbose>
-
                 </configuration>
             </plugin>
         </plugins>
