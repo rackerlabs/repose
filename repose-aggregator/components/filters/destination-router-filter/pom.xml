@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Destination Router</name>
-    <artifactId>destination-router</artifactId>
+    <artifactId>destination-router-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

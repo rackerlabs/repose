@@ -58,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>destination-router</artifactId>
+            <artifactId>destination-router-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
