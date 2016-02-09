@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    destination-router
     slf4j-http-logging
     translation
     echo
