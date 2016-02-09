@@ -9,7 +9,7 @@
     </parent>
 
     <name>Repose Components - Header Translation</name>
-    <artifactId>header-translation</artifactId>
+    <artifactId>header-translation-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
