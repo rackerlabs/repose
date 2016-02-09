@@ -93,7 +93,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>header-translation</artifactId>
+            <artifactId>header-translation-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

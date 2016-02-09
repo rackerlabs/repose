@@ -34,7 +34,7 @@
         <module>ip-user</module>
         <module>uri-normalization-filter</module>
         <module>compression-filter</module>
-        <module>header-translation</module>
+        <module>header-translation-filter</module>
         <module>uri-stripper</module>
         <module>merge-header</module>
         <module>openstack-identity-v3</module>
