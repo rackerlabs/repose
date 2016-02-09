@@ -24,6 +24,8 @@ import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.servlet.filter.FilterAction;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.Datastore;
@@ -41,6 +43,7 @@ import org.slf4j.Logger;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
@@ -91,10 +94,27 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
         if (!initialized) {
             LOG.error("Rate Limiting filter has not yet initialized...");
             ((HttpServletResponse) response).sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-            return;
-        }
+        } else {
+            HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request);
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        // TODO: do stuff
+            RateLimitingHandler handler = buildHandler();
+            FilterAction filterAction = handler.handleRequest(wrappedRequest, httpResponse);
+            switch (filterAction) {
+                case RETURN:
+                    break; // no further processing
+                case PASS:
+                    chain.doFilter(wrappedRequest, httpResponse);
+                    break;
+                case PROCESS_RESPONSE:
+                    chain.doFilter(wrappedRequest, httpResponse);
+                    handler.handleResponse(wrappedRequest, httpResponse);
+                    break;
+                default:
+                    LOG.error("Unexpected internal filter state");
+                    httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+        }
     }
 
     @Override

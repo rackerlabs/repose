@@ -203,6 +203,7 @@ public class RateLimitingHandler {
                 //We'll get here if we were able to properly parse JSON, or if we had XML from upstream!
                 final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, wrappedResponse.getOutputStream());
                 wrappedResponse.replaceHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
+                wrappedResponse.commitToResponse();
             } else {
                 LOG.warn("NO DATA RECEIVED FROM UPSTREAM limits, only sending regular rate limits!");
                 //No data from upstream, so we send the regular stuff no matter what
