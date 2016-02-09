@@ -67,7 +67,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         public void shouldReturnUnauthorizedWhenUserInformationIsMissing() {
             FilterAction filterAction = newHandler().handleRequest(new HttpServletRequestWrapper(mockedRequest), mockedResponse);
 
-            assertEquals("FilterDirectory must return on rate limiting failure", FilterAction.RETURN, filterAction);
+            assertEquals("Handler must return on rate limiting failure", FilterAction.RETURN, filterAction);
             verify(mockedResponse).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
@@ -128,8 +128,8 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
             newHandler().handleRequest(wrappedRequest, null);
 
-            assertNotNull("Filter Director is set to add an accept type header", wrappedRequest.getHeader("accept"));
-            assertEquals("Filter Director is set to add application/xml to the accept header", MimeType.APPLICATION_XML.getMimeType(), wrappedRequest.getHeader("accept"));
+            assertNotNull("Request has an Accept header", wrappedRequest.getHeader("accept"));
+            assertEquals("Request Accept header set to application/xml", MimeType.APPLICATION_XML.getMimeType(), wrappedRequest.getHeader("accept"));
         }
 
         @Test
@@ -159,7 +159,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             FilterAction filterAction = newHandler().handleRequest(wrappedRequest, null);
 
             assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, filterAction);
-            assertEquals("Filter Director is set to add application/xml to the accept header", MimeType.APPLICATION_XML.getMimeType(), wrappedRequest.getHeader("accept"));
+            assertEquals("Request Accept header set to application/xml", MimeType.APPLICATION_XML.getMimeType(), wrappedRequest.getHeader("accept"));
         }
 
         @Test
