@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>versioning</artifactId>
+            <artifactId>versioning-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
