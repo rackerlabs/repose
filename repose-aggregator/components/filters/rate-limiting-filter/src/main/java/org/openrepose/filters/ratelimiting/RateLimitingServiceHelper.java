@@ -21,7 +21,6 @@ package org.openrepose.filters.ratelimiting;
 
 import com.sun.jersey.server.impl.provider.RuntimeDelegateImpl;
 import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
@@ -54,16 +53,16 @@ public class RateLimitingServiceHelper {
         RuntimeDelegate.setInstance(runtimeDelegateImpl);
     }
 
-    public MimeType queryActiveLimits(HttpServletRequest request, MediaType preferredMediaType, OutputStream outputStream) {
+    public MimeType queryActiveLimits(HttpServletRequest request, MimeType preferredMediaType, OutputStream outputStream) {
         RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
-        javax.ws.rs.core.MediaType mediaType = activeLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), outputStream);
+        javax.ws.rs.core.MediaType mediaType = activeLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType), outputStream);
 
         return getReposeMimeType(mediaType);
     }
 
-    public MimeType queryCombinedLimits(HttpServletRequest request, MediaType preferredMediaType, InputStream absoluteLimits, OutputStream outputStream) {
+    public MimeType queryCombinedLimits(HttpServletRequest request, MimeType preferredMediaType, InputStream absoluteLimits, OutputStream outputStream) {
         RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
-        javax.ws.rs.core.MediaType mediaType = combinedLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), absoluteLimits, outputStream);
+        javax.ws.rs.core.MediaType mediaType = combinedLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType), absoluteLimits, outputStream);
 
         return getReposeMimeType(mediaType);
     }

@@ -66,11 +66,13 @@ public enum MimeType {
         if (StringUtilities.isNotBlank(mimeType)) {
 
             for (MimeType ct : values()) {
+                // worst case scenario this will match on UNKNOWN because everything contains "" (an empty string)
                 if (mimeType.contains(ct.getType()) && mimeType.contains(ct.getSubType())) {
                     return ct;
                 }
             }
 
+            // this is unreachable code, and at this point I'm too afraid to fix it
             for (MimeType ct : values()) {
                 if (mimeType.contains(ct.getSubType())) {
                     return ct;
