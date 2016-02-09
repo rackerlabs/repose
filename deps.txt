@@ -2,7 +2,6 @@ valve
 filter-bundle
     slf4j-http-logging
     translation
-    echo
     flush-output
     compression
     header-translation

@@ -1,0 +1,3 @@
+dependencies {
+    provided "javax.servlet:javax.servlet-api"
+}
