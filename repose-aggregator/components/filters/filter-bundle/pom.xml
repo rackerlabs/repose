@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>uri-normalization</artifactId>
+            <artifactId>uri-normalization-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -32,7 +32,7 @@
         <module>client-ip-identity</module>
         <module>header-normalization</module>
         <module>ip-user</module>
-        <module>uri-normalization</module>
+        <module>uri-normalization-filter</module>
         <module>compression</module>
         <module>header-translation</module>
         <module>uri-stripper</module>
