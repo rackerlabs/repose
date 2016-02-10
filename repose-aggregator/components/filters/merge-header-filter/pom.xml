@@ -10,7 +10,7 @@
 
     <name>Repose Merge Header Filter</name>
     <groupId>org.openrepose</groupId>
-    <artifactId>merge-header</artifactId>
+    <artifactId>merge-header-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
