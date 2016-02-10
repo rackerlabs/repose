@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    herp
     valkyrie-authorization
     merge-header
     keystone-v2
