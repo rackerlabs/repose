@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Forwarded Protocol</name>
-    <artifactId>forwarded-proto</artifactId>
+    <artifactId>forwarded-proto-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

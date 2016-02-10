@@ -133,7 +133,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>forwarded-proto</artifactId>
+            <artifactId>forwarded-proto-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
