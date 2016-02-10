@@ -1,12 +1,11 @@
 valve
 filter-bundle
-    merge-header
-    keystone-v2
     cors
     url-extractor-to-header
     ip-user
     slf4j-http-logging
     translation
+    keystone-v2
 extensions-filter-bundle
     api-validator
     simple-rbac

@@ -91,7 +91,7 @@
                 <configuration>
                     <transformationSets>
                         <transformationSet>
-                            <dir>src/main/resources/META-INF/config/schema</dir>
+                            <dir>src/main/resources/META-INF/schema/config</dir>
                             <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/config</outputDir>
                         </transformationSet>
