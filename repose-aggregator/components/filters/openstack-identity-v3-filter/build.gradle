@@ -1,0 +1,26 @@
+dependencies {
+    compile project(":repose-aggregator/core/core-service-api")
+    compile project(":repose-aggregator/commons/commons-utilities")
+    compile project(":repose-aggregator/services/akka-http-client-service/akka-http-client-service-api")
+    compile project(":repose-aggregator/services/http-client-service/http-client-service-api")//todo: why do we need this one also?
+    compile project(":repose-aggregator/services/datastore-service/datastore-service-api")
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "org.openrepose:http-delegation"
+    compile "commons-codec:commons-codec"
+    compile "io.spray:spray-json_2.10"
+    compile "org.springframework:spring-web"
+    compile "joda-time:joda-time"
+    compile "org.joda:joda-convert"
+
+    provided "javax.servlet:javax.servlet-api"
+    provided "javax.inject:javax.inject"
+    provided "javax.ws.rs:javax.ws.rs-api"
+
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.mockito:mockito-all"
+    testCompile "com.mockrunner:mockrunner-servlet"
+    testCompile project(":repose-aggregator/core/core-lib") //todo: get rid of this when filter director is dead
+}
