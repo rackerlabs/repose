@@ -148,7 +148,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>valkyrie-authorization</artifactId>
+            <artifactId>valkyrie-authorization-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
