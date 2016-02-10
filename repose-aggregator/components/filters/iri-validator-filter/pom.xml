@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - IRI Validator</name>
-    <artifactId>iri-validator</artifactId>
+    <artifactId>iri-validator-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
