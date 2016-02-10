@@ -2,7 +2,6 @@ valve
 filter-bundle
     slf4j-http-logging
     translation
-    uri-stripper
     openstack-identity-v3
     rackspace-identity-basic-auth
     rackspace-auth-user
