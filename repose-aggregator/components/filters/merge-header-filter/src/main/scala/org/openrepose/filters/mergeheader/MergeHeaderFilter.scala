@@ -45,7 +45,7 @@ class MergeHeaderFilter @Inject()(configurationService: ConfigurationService)
     configFilename = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
 
     logger.info(s"Initializing MergeHeaderFilter using config $configFilename")
-    val xsdURL = getClass.getResource("/META-INF/config/schema/merge-header.xsd")
+    val xsdURL = getClass.getResource("/META-INF/schema/config/merge-header.xsd")
     configurationService.subscribeTo(
       filterConfig.getFilterName,
       configFilename,
