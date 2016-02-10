@@ -1,0 +1,14 @@
+dependencies {
+    compile project(":repose-aggregator/commons/commons-utilities")
+    compile "org.scala-lang:scala-library"
+    compile "org.apache.commons:commons-lang3"
+    compile "org.apache.httpcomponents:httpcore"
+
+    provided "javax.servlet:javax.servlet-api"
+
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.mockito:mockito-all"
+    testCompile "org.springframework:spring-test"
+    testCompile "commons-io:commons-io"
+}

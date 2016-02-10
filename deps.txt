@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    content-type-stripper
     add-header
     derp
     forwarded-proto
