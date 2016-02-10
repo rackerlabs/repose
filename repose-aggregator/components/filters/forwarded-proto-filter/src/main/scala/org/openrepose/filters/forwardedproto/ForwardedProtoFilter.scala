@@ -19,11 +19,9 @@
  */
 package org.openrepose.filters.forwardedproto
 
-import javax.inject.Named
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
-import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 
@@ -31,8 +29,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
  * The sole purpose of this filter is to add the X-Forwarded-Proto header to a request with a value which
  * corresponds to the protocol of the request (e.g. http or https).
  */
-@Named
-class ForwardedProtoFilter extends Filter with HttpDelegationManager with LazyLogging {
+class ForwardedProtoFilter extends Filter with LazyLogging {
 
   private final val X_FORWARDED_PROTO = "X-Forwarded-Proto"
 

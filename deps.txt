@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    forwarded-proto
     iri-validator
     herp
     valkyrie-authorization
