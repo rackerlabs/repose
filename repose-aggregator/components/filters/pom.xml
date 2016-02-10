@@ -21,7 +21,7 @@
         <module>header-identity</module>
         <module>header-id-mapping-filter</module>
         <module>uri-identity-filter</module>
-        <module>rackspace-auth-user</module>
+        <module>rackspace-auth-user-filter</module>
         <module>content-normalization</module>
         <module>rate-limiting-filter</module>
         <module>versioning-filter</module>
