@@ -47,7 +47,7 @@
         <module>herp-filter</module>
         <module>valkyrie-authorization-filter</module>
         <module>keystone-v2</module>
-        <module>cors</module>
+        <module>cors-filter</module>
         <module>url-extractor-to-header</module>
     </modules>
 

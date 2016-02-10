@@ -163,7 +163,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>cors</artifactId>
+            <artifactId>cors-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
