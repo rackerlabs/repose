@@ -36,7 +36,7 @@
         <module>compression-filter</module>
         <module>header-translation-filter</module>
         <module>uri-stripper-filter</module>
-        <module>merge-header</module>
+        <module>merge-header-filter</module>
         <module>openstack-identity-v3-filter</module>
         <module>rackspace-identity-basic-auth-filter</module>
         <module>content-type-stripper-filter</module>
