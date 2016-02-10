@@ -44,7 +44,7 @@ import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
-import org.openrepose.filters.keystonev2.config.{AllowRackerGroupFailType, KeystoneV2Config, ServiceEndpointType}
+import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -1165,11 +1165,7 @@ with HttpDelegationManager {
       mockAkkaServiceClient.validate()
     }
 
-    it("allows Racker users through and adds the x-pp-groups header") {
-      val modifiedConfig = configuration
-      modifiedConfig.getIdentityService.setAllowRackerGroupFail(new AllowRackerGroupFailType().withSetGroup("Racker"))
-      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
-
+    it("handles 404s from groups call by allowing users through with no X-PP-Groups") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
@@ -1188,34 +1184,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe "Racker"
-      mockAkkaServiceClient.validate()
-    }
-
-    it("allows racker (case-insensitive) users through and adds the x-pp-groups header") {
-      val modifiedConfig = configuration
-      modifiedConfig.getIdentityService.setAllowRackerGroupFail(new AllowRackerGroupFailType().withSetGroup("Racker"))
-      filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
-
-      //make a request and validate that it called the akka service client?
-      val request = new MockHttpServletRequest()
-      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
-
-      //Pretend like the admin token is cached all the time
-      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
-        .thenReturn(TestValidToken(userId = VALID_USER_ID, roles = Seq("racker")), Nil: _*)
-
-      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
-        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, "")
-      )
-
-      val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
-
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe "Racker"
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
       mockAkkaServiceClient.validate()
     }
   }

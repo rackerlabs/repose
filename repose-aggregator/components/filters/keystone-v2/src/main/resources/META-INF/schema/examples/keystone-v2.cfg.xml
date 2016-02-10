@@ -24,9 +24,8 @@
             uri="https://some.identity.com"
             connection-pool-id="keystone-v2-pool"
             set-groups-in-header="true"
-            set-catalog-in-header="false">
-        <allow-racker-group-fail set-group="racker"/>
-    </identity-service>
+            set-catalog-in-header="false"
+    />
 
     <delegating quality="0.9"/>
 

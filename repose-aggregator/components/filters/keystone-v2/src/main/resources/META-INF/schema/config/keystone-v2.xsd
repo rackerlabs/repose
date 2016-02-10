@@ -63,10 +63,6 @@
     </xs:complexType>
 
     <xs:complexType name="IdentityServiceType">
-        <xs:sequence>
-            <xs:element name="allow-racker-group-fail" type="AllowRackerGroupFailType" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
-
         <xs:attribute name="username" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -124,31 +120,6 @@
                    test="if (@username or @password) then (@username and @password) else true()"
                    xerces:message="Must provide both a username and a password"
                    saxon:message="Must provide both a username and a password"/>
-    </xs:complexType>
-
-    <xs:complexType name="AllowRackerGroupFailType">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                    If included, users with the "Racker" role will continue past the groups call.
-                    <html:br/>
-                    If excluded, the groups call will fail for users with the "Racker" role.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:attribute name="set-group" type="xs:string" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        In included, the X-PP-Groups header will be populated with the value of this
-                        attribute.
-                        <html:br/>
-                        If excluded, the X-PP-Groups header will not be populated.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="TenantHandlingType">
