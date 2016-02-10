@@ -93,10 +93,12 @@ class KeystoneV2BasicTest extends ReposeValveTest {
     /*
         REP-3212: Conditional Group Call for racker
         Repose handle Racker role as case insensitive
-        Racker with racker role will ignore request get group call
+        Racker with racker role have no x-pp-groups set to header even though config with set-groups-in-header
+        Current code change doesn't check for racker role (regardless racker role)
+           so if get group call return 404 or empty group we handle as no x-pp-groups in header
     */
     @Unroll()
-    def "Validate racker token with correct Racker role"() {
+    def "Validate conditional group call to handle racker token with 404 resp for getGroups call"() {
         given:
         fakeIdentityV2Service.with {
             client_token = "rackerSSO"
@@ -118,6 +120,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         "racker"    | "200"     | 1
         "Racker"    | "200"     | 1
         "RACKER"    | "200"     | 1
+        "test"      | "200"     | 1
     }
 
     def "Validate client token with belongsTo test"() {
