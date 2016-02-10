@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.irivalidator
 
-import javax.inject.Named
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
@@ -29,7 +28,6 @@ import org.apache.jena.iri.{IRIException, IRIFactory}
 /**
  * This filter validates that the request URI is a valid IRI.
  */
-@Named
 class IriValidatorFilter extends Filter with LazyLogging {
 
   override def init(filterConfig: FilterConfig): Unit = {

@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    iri-validator
     herp
     valkyrie-authorization
     merge-header
