@@ -128,7 +128,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>derp</artifactId>
+            <artifactId>derp-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
