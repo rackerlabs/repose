@@ -343,10 +343,12 @@ object VerifyTryItNowCommand extends Command {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (!filterCheck.inTenantedMode && !filterCheck.catalogAuthorization) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
-          } else if (!filterCheck.foyerAsPreAuth) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (filterCheck.foyerAsPreAuth) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
+          } else if (filterCheck.inTenantedMode && !filterCheck.foyerAsPreAuth) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+          } else if (!filterCheck.inTenantedMode && !filterCheck.foyerAsPreAuth) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedAuthorized)
           }
 
           filterCheck
