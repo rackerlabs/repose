@@ -41,7 +41,7 @@
         <module>rackspace-identity-basic-auth-filter</module>
         <module>content-type-stripper-filter</module>
         <module>derp</module>
-        <module>add-header</module>
+        <module>add-header-filter</module>
         <module>forwarded-proto</module>
         <module>iri-validator</module>
         <module>herp</module>

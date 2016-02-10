@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Add Header</name>
-    <artifactId>add-header</artifactId>
+    <artifactId>add-header-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

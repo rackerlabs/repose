@@ -123,7 +123,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>add-header</artifactId>
+            <artifactId>add-header-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
