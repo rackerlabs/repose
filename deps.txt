@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    add-header
     derp
     forwarded-proto
     iri-validator
