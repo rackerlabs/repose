@@ -28,7 +28,7 @@
     </parent>
 
     <name>Repose Components - CORS</name>
-    <artifactId>cors</artifactId>
+    <artifactId>cors-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
