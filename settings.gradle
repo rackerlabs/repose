@@ -1,6 +1,7 @@
 include 'repose-aggregator/commons/commons-configuration',
         'repose-aggregator/commons/commons-utilities',
         'repose-aggregator/components/filters/compression-filter',
+        'repose-aggregator/components/filters/content-type-stripper-filter',
         'repose-aggregator/components/filters/destination-router-filter',
         'repose-aggregator/components/filters/echo-filter',
         'repose-aggregator/components/filters/flush-output-filter',
