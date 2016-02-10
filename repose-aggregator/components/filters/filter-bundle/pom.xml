@@ -118,7 +118,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>content-type-stripper</artifactId>
+            <artifactId>content-type-stripper-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

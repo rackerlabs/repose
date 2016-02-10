@@ -39,7 +39,7 @@
         <module>merge-header</module>
         <module>openstack-identity-v3-filter</module>
         <module>rackspace-identity-basic-auth-filter</module>
-        <module>content-type-stripper</module>
+        <module>content-type-stripper-filter</module>
         <module>derp</module>
         <module>add-header</module>
         <module>forwarded-proto</module>

@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Content Type Stripper</name>
-    <artifactId>content-type-stripper</artifactId>
+    <artifactId>content-type-stripper-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    rackspace-auth-user
     content-type-stripper
     add-header
     derp
