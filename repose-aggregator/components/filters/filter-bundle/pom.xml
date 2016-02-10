@@ -98,7 +98,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>uri-stripper</artifactId>
+            <artifactId>uri-stripper-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - URI Stripper</name>
-    <artifactId>uri-stripper</artifactId>
+    <artifactId>uri-stripper-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
