@@ -44,7 +44,7 @@ import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
-import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
+import org.openrepose.filters.keystonev2.config.{AllowRackerGroupFailType, KeystoneV2Config, ServiceEndpointType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -1167,7 +1167,7 @@ with HttpDelegationManager {
 
     it("allows Racker users through and adds the x-pp-groups header") {
       val modifiedConfig = configuration
-      modifiedConfig.getIdentityService.setSetRackersGroups("Racker")
+      modifiedConfig.getIdentityService.setAllowRackerGroupFail(new AllowRackerGroupFailType().withSetGroup("Racker"))
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       //make a request and validate that it called the akka service client?
@@ -1194,7 +1194,7 @@ with HttpDelegationManager {
 
     it("allows racker (case-insensitive) users through and adds the x-pp-groups header") {
       val modifiedConfig = configuration
-      modifiedConfig.getIdentityService.setSetRackersGroups("Racker")
+      modifiedConfig.getIdentityService.setAllowRackerGroupFail(new AllowRackerGroupFailType().withSetGroup("Racker"))
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       //make a request and validate that it called the akka service client?
