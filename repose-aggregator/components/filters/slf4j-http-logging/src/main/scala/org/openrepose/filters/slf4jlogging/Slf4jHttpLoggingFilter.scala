@@ -80,7 +80,7 @@ class Slf4jHttpLoggingFilter @Inject()(configurationService: ConfigurationServic
 
   override def configurationUpdated(configurationObject: Slf4JHttpLoggingConfig): Unit = {
     synchronized {
-      val newLoggerWrappers = mutable.Seq.empty[Slf4jLoggerWrapper]
+      val newLoggerWrappers = mutable.ListBuffer.empty[Slf4jLoggerWrapper]
 
       configurationObject.getSlf4JHttpLog foreach { logConfig =>
         val loggerName = logConfig.getId
@@ -97,7 +97,7 @@ class Slf4jHttpLoggingFilter @Inject()(configurationService: ConfigurationServic
             throw new IllegalArgumentException("Either the format element or the format attribute must be defined")
         }
 
-        newLoggerWrappers :+ new Slf4jLoggerWrapper(LoggerFactory.getLogger(loggerName), formatString)
+        newLoggerWrappers += new Slf4jLoggerWrapper(LoggerFactory.getLogger(loggerName), formatString)
       }
 
       loggerWrappers = newLoggerWrappers
