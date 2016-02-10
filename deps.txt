@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    valkyrie-authorization
     merge-header
     keystone-v2
     cors
