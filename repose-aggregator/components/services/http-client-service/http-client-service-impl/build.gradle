@@ -1,0 +1,14 @@
+dependencies {
+    compile project(":repose-aggregator/core/core-service-api")
+    compile project(":repose-aggregator/components/services/http-client-service/http-client-service-api")
+    compile project(":repose-aggregator/components/services/health-check-service/health-check-service-api")
+    compile "org.slf4j:slf4j-api"
+    compile "org.slf4j:jcl-over-slf4j"
+
+    provided "javax.inject:javax.inject"
+
+    testCompile "junit:junit:4.12"
+    testCompile "org.codehaus.groovy:groovy-all"
+    testCompile "org.mockito:mockito-all"
+    testCompile "xerces:xerces-xsd11"
+}
