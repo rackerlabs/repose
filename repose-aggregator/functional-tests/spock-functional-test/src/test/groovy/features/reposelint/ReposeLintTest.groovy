@@ -143,7 +143,7 @@ class ReposeLintTest extends Specification {
         "features/reposelint/keystonev2"                     | "keystoneV2Check" | "keystone-v2"          | "yes"             | false      | false       | "AllowedNotAuthorized" | allowedNotAuthorizedDesc
         "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | false       | "NotAllowed"           | notAllowedDesc
         "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | true        | "AllowedNotAuthorized" | allowedNotAuthorizedDesc
-        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | false       | "NotAllowed"           | notAllowedDesc
+        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | false       | "AllowedAuthorized"    | allowedAuthorizedDecs
         "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | true        | "AllowedNotAuthorized" | allowedNotAuthorizedDesc
     }
 
