@@ -1,8 +1,5 @@
 valve
 filter-bundle
-    slf4j-http-logging
-    translation
-    openstack-identity-v3
     rackspace-identity-basic-auth
     rackspace-auth-user
     content-type-stripper
@@ -17,6 +14,8 @@ filter-bundle
     cors
     url-extractor-to-header
     ip-user
+    slf4j-http-logging
+    translation
 extensions-filter-bundle
     api-validator
     simple-rbac
