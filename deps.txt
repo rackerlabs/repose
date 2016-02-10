@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    derp
     forwarded-proto
     iri-validator
     herp
