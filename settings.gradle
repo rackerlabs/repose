@@ -1,5 +1,6 @@
 include 'repose-aggregator/commons/commons-configuration',
         'repose-aggregator/commons/commons-utilities',
+        'repose-aggregator/components/filters/add-header-filter',
         'repose-aggregator/components/filters/compression-filter',
         'repose-aggregator/components/filters/content-type-stripper-filter',
         'repose-aggregator/components/filters/destination-router-filter',
