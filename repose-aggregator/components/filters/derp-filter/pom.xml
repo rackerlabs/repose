@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - DeRP</name>
-    <artifactId>derp</artifactId>
+    <artifactId>derp-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
