@@ -42,7 +42,7 @@
         <module>content-type-stripper-filter</module>
         <module>derp-filter</module>
         <module>add-header-filter</module>
-        <module>forwarded-proto</module>
+        <module>forwarded-proto-filter</module>
         <module>iri-validator</module>
         <module>herp</module>
         <module>valkyrie-authorization</module>
