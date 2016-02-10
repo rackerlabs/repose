@@ -41,11 +41,11 @@ import org.slf4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
-
 
 /* Responsible for handling requests and responses to rate limiting, also tracks and provides limits */
 public class RateLimitingHandler {
@@ -71,7 +71,7 @@ public class RateLimitingHandler {
         this.eventService = eventService;
     }
 
-    public FilterAction handleRequest(HttpServletRequestWrapper request, HttpServletResponse response) {
+    public FilterAction handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         FilterAction filterAction;
 
         List<String> headerValues = request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString());
@@ -98,6 +98,7 @@ public class RateLimitingHandler {
 
             // Auto return a 401 if the request does not meet expectations
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentLength(0);
             filterAction = FilterAction.RETURN;
         }
 
@@ -108,7 +109,7 @@ public class RateLimitingHandler {
         return request.getHeader(PowerApiHeader.USER.toString()) != null;
     }
 
-    private FilterAction describeLimitsForRequest(HttpServletRequestWrapper request, HttpServletResponse response) {
+    private FilterAction describeLimitsForRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         if (originalPreferredAccept == MimeType.UNKNOWN) {
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
             return FilterAction.RETURN;
@@ -125,14 +126,14 @@ public class RateLimitingHandler {
         }
     }
 
-    private FilterAction noUpstreamResponse(HttpServletRequestWrapper request, HttpServletResponse response) {
+    private FilterAction noUpstreamResponse(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         try {
-            HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper(response, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-            final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, originalPreferredAccept, wrappedResponse.getOutputStream());
-
-            wrappedResponse.replaceHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
-            wrappedResponse.setStatus(HttpServletResponse.SC_OK);
-            wrappedResponse.commitToResponse();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, originalPreferredAccept, outputStream);
+            response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
+            response.setContentLength(outputStream.size());
+            response.setContentType(mimeType.toString());
+            response.setStatus(HttpServletResponse.SC_OK);
         } catch (Exception e) {
             LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -141,7 +142,7 @@ public class RateLimitingHandler {
         return FilterAction.RETURN;
     }
 
-    private boolean recordLimitedRequest(HttpServletRequest request, HttpServletResponse response) {
+    private boolean recordLimitedRequest(HttpServletRequest request, HttpServletResponseWrapper response) {
         boolean success = false;
 
         try {
@@ -175,25 +176,23 @@ public class RateLimitingHandler {
         return success;
     }
 
-    public void handleResponse(HttpServletRequestWrapper request, HttpServletResponse response) {
+    public void handleResponse(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         try {
             if (response.getContentType() != null) {
                 //If we have a content type to process, then we should do something about it,
                 // else we should ensure that just the repose limits make it through...
 
-                HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper(response, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-
                 // I have to use mutable state, and that makes me sad, because If's aren't expressions
                 InputStream absoluteInputStream;
-                if (wrappedResponse.getContentType().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
+                if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
                     //New set up! Grab the upstream json, make it look like XML
-                    String newXml = UpstreamJsonToXml.convert(wrappedResponse.getOutputStreamAsInputStream());
+                    String newXml = UpstreamJsonToXml.convert(response.getOutputStreamAsInputStream());
 
                     //Now we use the new XML we converted from the JSON as the input to the processing stream
                     absoluteInputStream = new ByteArrayInputStream(newXml.getBytes(StandardCharsets.UTF_8));
-                } else if (wrappedResponse.getContentType().equalsIgnoreCase(MimeType.APPLICATION_XML.toString())) {
+                } else if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_XML.toString())) {
                     //If we got XML from upstream, just read the stream directly
-                    absoluteInputStream = wrappedResponse.getOutputStreamAsInputStream();
+                    absoluteInputStream = response.getOutputStreamAsInputStream();
                 } else {
                     LOG.error("Upstream limits responded with a content type we cannot understand: {}", response.getContentType());
                     //Upstream responded with something we cannot talk, we failed to combine upstream limits, return a 502!
@@ -201,9 +200,11 @@ public class RateLimitingHandler {
                 }
 
                 //We'll get here if we were able to properly parse JSON, or if we had XML from upstream!
-                final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, wrappedResponse.getOutputStream());
-                wrappedResponse.replaceHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
-                wrappedResponse.commitToResponse();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, outputStream);
+                response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
+                response.setContentLength(outputStream.size());
+                response.setContentType(mimeType.toString());
             } else {
                 LOG.warn("NO DATA RECEIVED FROM UPSTREAM limits, only sending regular rate limits!");
                 //No data from upstream, so we send the regular stuff no matter what

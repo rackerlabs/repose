@@ -29,6 +29,7 @@ import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.filter.FilterAction;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
@@ -166,7 +167,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         public void shouldRaiseEventWhenRateLimitBreaches() throws OverLimitException {
             RateLimitingServiceHelper helper = mock(RateLimitingServiceHelper.class);
             mockedRequest.addHeader("Accept", MimeType.APPLICATION_XML.toString());
-            RateLimitingHandler handler = new RateLimitingHandler(helper, eventService, true, Optional.<Pattern>of(Pattern.compile(".*")), false, 1);
+            RateLimitingHandler handler = new RateLimitingHandler(helper, eventService, true, Optional.of(Pattern.compile(".*")), false, 1);
             OverLimitException exception = new OverLimitException("testmsg", "127.0.0.1;q=0.1", new Date(), 10, "10");
             HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(mockedRequest);
             doThrow(exception).when(helper).trackLimits(wrappedRequest, 1);
@@ -181,7 +182,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
     public static class TestParent {
 
         protected MockHttpServletRequest mockedRequest;
-        protected HttpServletResponse mockedResponse;
+        protected HttpServletResponseWrapper mockedResponse;
         protected DistributedDatastore datastore;
         protected EventService eventService;
 
@@ -194,7 +195,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             when(service.getDistributedDatastore()).thenReturn(datastore);
 
             mockedRequest = new MockHttpServletRequest();
-            mockedResponse = mock(HttpServletResponse.class);
+            mockedResponse = mock(HttpServletResponseWrapper.class);
         }
 
         public RateLimitingHandler newHandler() {

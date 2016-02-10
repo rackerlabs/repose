@@ -26,6 +26,8 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.filter.FilterAction;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
+import org.openrepose.commons.utils.servlet.http.ResponseMode;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.datastore.Datastore;
@@ -96,24 +98,27 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
             ((HttpServletResponse) response).sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
             HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request);
-            HttpServletResponse httpResponse = (HttpServletResponse) response;
+            HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper(
+                    (HttpServletResponse) response, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
 
             RateLimitingHandler handler = buildHandler();
-            FilterAction filterAction = handler.handleRequest(wrappedRequest, httpResponse);
+            FilterAction filterAction = handler.handleRequest(wrappedRequest, wrappedResponse);
             switch (filterAction) {
                 case RETURN:
                     break; // no further processing
                 case PASS:
-                    chain.doFilter(wrappedRequest, httpResponse);
+                    chain.doFilter(wrappedRequest, wrappedResponse);
                     break;
                 case PROCESS_RESPONSE:
-                    chain.doFilter(wrappedRequest, httpResponse);
-                    handler.handleResponse(wrappedRequest, httpResponse);
+                    chain.doFilter(wrappedRequest, wrappedResponse);
+                    handler.handleResponse(wrappedRequest, wrappedResponse);
                     break;
                 default:
                     LOG.error("Unexpected internal filter state");
-                    httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    ((HttpServletResponse) response).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
+
+            wrappedResponse.commitToResponse();
         }
     }
 
