@@ -138,7 +138,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>iri-validator</artifactId>
+            <artifactId>iri-validator-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
