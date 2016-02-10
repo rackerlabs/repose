@@ -44,7 +44,7 @@
         <module>add-header-filter</module>
         <module>forwarded-proto-filter</module>
         <module>iri-validator-filter</module>
-        <module>herp</module>
+        <module>herp-filter</module>
         <module>valkyrie-authorization</module>
         <module>keystone-v2</module>
         <module>cors</module>

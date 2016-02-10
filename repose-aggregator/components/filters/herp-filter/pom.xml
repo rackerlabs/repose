@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - HERP</name>
-    <artifactId>herp</artifactId>
+    <artifactId>herp-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
