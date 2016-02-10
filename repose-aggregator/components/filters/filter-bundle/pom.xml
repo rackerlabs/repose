@@ -103,7 +103,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>openstack-identity-v3</artifactId>
+            <artifactId>openstack-identity-v3-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

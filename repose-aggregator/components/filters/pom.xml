@@ -37,7 +37,7 @@
         <module>header-translation-filter</module>
         <module>uri-stripper-filter</module>
         <module>merge-header</module>
-        <module>openstack-identity-v3</module>
+        <module>openstack-identity-v3-filter</module>
         <module>rackspace-identity-basic-auth</module>
         <module>content-type-stripper</module>
         <module>derp</module>

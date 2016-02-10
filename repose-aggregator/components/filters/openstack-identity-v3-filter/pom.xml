@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - OpenStack Identity V3</name>
-    <artifactId>openstack-identity-v3</artifactId>
+    <artifactId>openstack-identity-v3-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
