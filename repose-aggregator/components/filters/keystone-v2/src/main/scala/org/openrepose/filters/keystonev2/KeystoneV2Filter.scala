@@ -409,7 +409,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
-              case _: InvalidTokenException if Option(keystoneV2Config.getIdentityService.getSetRackersGroups).isDefined && validToken.roles.contains("Racker") =>
+              case _: InvalidTokenException if Option(keystoneV2Config.getIdentityService.getSetRackersGroups).isDefined && validToken.roles.exists(_.equalsIgnoreCase("racker")) =>
                 Success(Vector(keystoneV2Config.getIdentityService.getSetRackersGroups))
             } cacheOnSuccess { groups =>
               val cacheSettings = config.getCache.getTimeouts
