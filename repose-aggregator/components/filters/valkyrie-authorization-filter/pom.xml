@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Valkyrie Authorization</name>
-    <artifactId>valkyrie-authorization</artifactId>
+    <artifactId>valkyrie-authorization-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
