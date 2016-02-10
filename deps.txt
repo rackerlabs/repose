@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    cors
     url-extractor-to-header
     ip-user
     slf4j-http-logging
