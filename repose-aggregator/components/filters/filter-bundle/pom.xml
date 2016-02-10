@@ -113,7 +113,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose.rackspace</groupId>
-            <artifactId>rackspace-auth-user</artifactId>
+            <artifactId>rackspace-auth-user-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -9,7 +9,7 @@
 
     <name>Rackspace Authentication User filter</name>
     <groupId>org.openrepose.rackspace</groupId>
-    <artifactId>rackspace-auth-user</artifactId>
+    <artifactId>rackspace-auth-user-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

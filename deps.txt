@@ -22,6 +22,6 @@ web-application
 experimental-filter-bundle
     servlet-contract-filter
     exception-filter
-    *tightly-coupled-filter
+    tightly-coupled-filter
 cli-utils
 repose-lint
