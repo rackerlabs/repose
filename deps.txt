@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    url-extractor-to-header
     ip-user
     slf4j-http-logging
     translation
