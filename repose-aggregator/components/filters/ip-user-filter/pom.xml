@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - IP Classification Filter</name>
-    <artifactId>ip-user</artifactId>
+    <artifactId>ip-user-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
