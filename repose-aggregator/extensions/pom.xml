@@ -19,7 +19,6 @@
     </description>
 
     <modules>
-        <module>simple-rbac</module>
         <module>extensions-filter-bundle</module>
     </modules>
 

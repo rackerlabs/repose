@@ -28,7 +28,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>simple-rbac</artifactId>
+            <artifactId>simple-rbac-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -64,7 +64,7 @@
                         </jarModule>
                         <jarModule>
                             <groupId>org.openrepose</groupId>
-                            <artifactId>simple-rbac</artifactId>
+                            <artifactId>simple-rbac-filter</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
