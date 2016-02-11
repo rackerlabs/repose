@@ -48,7 +48,7 @@
         <module>valkyrie-authorization-filter</module>
         <module>keystone-v2</module>
         <module>cors-filter</module>
-        <module>url-extractor-to-header</module>
+        <module>url-extractor-to-header-filter</module>
     </modules>
 
     <properties>
