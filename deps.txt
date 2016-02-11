@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    ip-user
     slf4j-http-logging
     translation
     keystone-v2
