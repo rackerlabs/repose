@@ -1,7 +1,6 @@
 valve
 filter-bundle
     slf4j-http-logging
-    translation
     keystone-v2
 extensions-filter-bundle
     api-validator
