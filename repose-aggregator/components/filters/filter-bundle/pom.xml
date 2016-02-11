@@ -168,7 +168,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>url-extractor-to-header</artifactId>
+            <artifactId>url-extractor-to-header-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

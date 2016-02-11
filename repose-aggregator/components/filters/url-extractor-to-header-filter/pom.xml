@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - URL Extractor to Header</name>
-    <artifactId>url-extractor-to-header</artifactId>
+    <artifactId>url-extractor-to-header-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
