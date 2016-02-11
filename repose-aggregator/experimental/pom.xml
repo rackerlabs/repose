@@ -16,10 +16,7 @@
     </description>
 
     <modules>
-        <module>servlet-contract-filter</module>
-        <module>exception-filter</module>
         <module>experimental-filter-bundle</module>
-        <module>tightly-coupled-filter</module>
     </modules>
 
 </project>
