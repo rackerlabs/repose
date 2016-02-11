@@ -173,7 +173,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>ip-user</artifactId>
+            <artifactId>ip-user-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
 

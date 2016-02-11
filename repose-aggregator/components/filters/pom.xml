@@ -31,7 +31,7 @@
         <module>echo-filter</module>
         <module>client-ip-identity</module>
         <module>header-normalization-filter</module>
-        <module>ip-user</module>
+        <module>ip-user-filter</module>
         <module>uri-normalization-filter</module>
         <module>compression-filter</module>
         <module>header-translation-filter</module>
