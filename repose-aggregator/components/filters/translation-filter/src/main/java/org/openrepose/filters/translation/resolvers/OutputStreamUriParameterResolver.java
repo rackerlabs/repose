@@ -69,7 +69,7 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
         }
     }
 
-    @Override
+//    @Override  todo:add this back once we are fully gradled
     public OutputURIResolver newInstance() {
         return new OutputStreamUriParameterResolver(this);
     }
