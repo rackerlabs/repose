@@ -34,7 +34,8 @@ import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Matchers {
-  var wrappedRequest: HttpServletRequestWrapper = _
+  val queryParamMap: Map[String, Array[String]] = Map(
+    "foo" -> Array("bar", "baz"))
   val headerMap: Map[String, List[String]] = Map(
     "foo" -> List("bar", "baz"),
     "banana-phone" -> List("ring,ring,ring"),
@@ -43,11 +44,16 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     "thumbs" -> List("2"),
     "abc" -> List("1,2,3"),
     "awesomeTime" -> List("Fri, 29 May 2015 12:12:12 CST"))
+  var wrappedRequest: HttpServletRequestWrapper = _
 
   before {
     val mockRequest = new MockHttpServletRequest
-    headerMap.foreach { case (headerName, headerValues) =>
-      headerValues.foreach { headerValue =>
+    queryParamMap foreach { case (parameterKey, parameterValues) =>
+      mockRequest.setupAddParameter(parameterKey, parameterValues)
+      mockRequest.setQueryString(Option(mockRequest.getQueryString).getOrElse("") + parameterValues.map(value => parameterKey + "=" + value).mkString("&"))
+    }
+    headerMap foreach { case (headerName, headerValues) =>
+      headerValues foreach { headerValue =>
         mockRequest.addHeader(headerName, headerValue)
       }
     }
@@ -691,6 +697,141 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should throw an exception when quality is garbage") {
       wrappedRequest.addHeader("cup", "butts;q=butts")
       a[QualityFormatException] should be thrownBy wrappedRequest.getPreferredSplittableHeaders("cup")
+    }
+  }
+
+  describe("getQueryString") {
+    it("should return null if there are no parameters") {
+      wrappedRequest.setParameterMap(Map.empty[String, Array[String]].asJava)
+
+      wrappedRequest.getQueryString shouldBe null
+    }
+
+    it("should return a string representation of the query string") {
+      wrappedRequest.getQueryString shouldBe "foo=bar&foo=baz"
+    }
+
+    it("should return a string representation of the query string after mutation") {
+      wrappedRequest.setParameterMap(Map("bar" -> Array("rab"), "baz" -> Array("zab")).asJava)
+
+      wrappedRequest.getQueryString shouldBe "bar=rab&baz=zab"
+    }
+  }
+
+  describe("getParameter") {
+    it("should return null if there is no value associated with a key") {
+      wrappedRequest.getParameter("mia") shouldBe null
+    }
+
+    it("should return the first parameter value associated with a key") {
+      wrappedRequest.getParameter("foo") shouldBe "bar"
+    }
+
+    it("should return the first parameter value associated with a key after mutation") {
+      wrappedRequest.setParameterMap(Map("bar" -> Array("rab")).asJava)
+
+      wrappedRequest.getParameter("bar") shouldBe "rab"
+    }
+  }
+
+  describe("getParameterNames") {
+    it("should return an empty enumeration if there are no parameters") {
+      wrappedRequest.setParameterMap(Map.empty[String, Array[String]].asJava)
+
+      wrappedRequest.getParameterNames.asScala shouldBe empty
+    }
+
+    it("should return all parameter names") {
+      wrappedRequest.getParameterNames.asScala.toSeq should contain only "foo"
+    }
+
+    it("should return all parameter names after mutation") {
+      wrappedRequest.setParameterMap(Map("bar" -> Array("rab"), "baz" -> Array("zab")).asJava)
+
+      wrappedRequest.getParameterNames.asScala.toSeq should contain only("bar", "baz")
+    }
+  }
+
+  describe("getParameterValues") {
+    it("should return an null if there is no key parameter") {
+      wrappedRequest.setParameterMap(Map.empty[String, Array[String]].asJava)
+
+      wrappedRequest.getParameterValues("mia") shouldBe null
+    }
+
+    it("should return all parameter values associated with a key") {
+      wrappedRequest.getParameterValues("foo") should contain only("bar", "baz")
+    }
+
+    it("should return all parameter values associated with a key after mutation") {
+      wrappedRequest.setParameterMap(Map("bar" -> Array("rab")).asJava)
+
+      wrappedRequest.getParameterValues("bar") should contain only "rab"
+    }
+  }
+
+  describe("getParameterMap") {
+    it("should return an empty map if there are no parameters") {
+      wrappedRequest.setParameterMap(Map.empty[String, Array[String]].asJava)
+
+      wrappedRequest.getParameterMap shouldBe empty
+    }
+
+    it("should return the original request query parameters if no mutation has occurred") {
+      wrappedRequest.getParameterMap.keySet().asScala should contain only "foo"
+      wrappedRequest.getParameterMap.get("foo") should contain only("bar", "baz")
+    }
+
+    it("should return the new request query parameters if mutation has occurred") {
+      wrappedRequest.setParameterMap(Map("1" -> Array("2")).asJava)
+
+      wrappedRequest.getParameterMap.keySet().asScala should contain only "1"
+      wrappedRequest.getParameterMap.get("1") should contain only "2"
+    }
+
+    it("should return an immutable map") {
+      an[UnsupportedOperationException] should be thrownBy wrappedRequest.getParameterMap.put("foo", Array("oof"))
+      wrappedRequest.getParameterMap.get("foo") should contain only("bar", "baz")
+    }
+  }
+
+  describe("setParameterMap") {
+    it("should throw an IllegalArgumentException if passed null") {
+      an[IllegalArgumentException] should be thrownBy wrappedRequest.setParameterMap(null)
+    }
+
+    it("should replace the current parameter map") {
+      wrappedRequest.setParameterMap(Map("bar" -> Array("rab")).asJava)
+
+      wrappedRequest.getParameterMap.keySet().asScala should contain only "bar"
+      wrappedRequest.getParameterMap.get("bar") should contain only "rab"
+    }
+
+    it("should set the parameter map with the same iteration order as the provided map") {
+      val orderedMap = mutable.LinkedHashMap(
+        "2" -> Array("2"),
+        "4" -> Array("4"),
+        "3" -> Array("3"),
+        "1" -> Array("1"),
+        "5" -> Array("5"))
+
+      wrappedRequest.setParameterMap(orderedMap.asJava)
+
+      wrappedRequest.getParameterMap.keySet().asScala.toSeq should contain inOrderOnly("2", "4", "3", "1", "5")
+    }
+
+    it("should not reflect changes made to the provided map after this method has been called") {
+      val orderedMap = mutable.LinkedHashMap(
+        "2" -> Array("2"),
+        "4" -> Array("4"),
+        "3" -> Array("3"),
+        "1" -> Array("1"),
+        "5" -> Array("5"))
+
+      wrappedRequest.setParameterMap(orderedMap.asJava)
+      orderedMap += ("6" -> Array("6"))
+
+      wrappedRequest.getParameterMap.keySet().asScala.toSeq should contain inOrderOnly("2", "4", "3", "1", "5")
     }
   }
 }

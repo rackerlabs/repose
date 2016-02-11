@@ -27,7 +27,8 @@ import javax.servlet.http.HttpServletRequest
 import org.apache.http.client.utils.DateUtils
 
 import scala.collection.JavaConverters._
-import scala.collection.immutable.{TreeMap, TreeSet}
+import scala.collection.immutable.{ListMap, TreeMap, TreeSet}
+import scala.collection.mutable
 
 class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream: ServletInputStream)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
@@ -43,6 +44,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
 
+  private var queryParameterMap: Option[ListMap[String, Array[String]]] = None
   private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
   private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
 
@@ -145,4 +147,65 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   def getSplittableHeaderScala(headerName: String): List[String] = getHeadersScala(headerName).foldLeft(List.empty[String])((list, s) => list ++ s.split(","))
 
   override def getSplittableHeaders(headerName: String): util.List[String] = getSplittableHeaderScala(headerName).asJava
+
+  /**
+    * @return a string representation of the query parameters for this request
+    */
+  override def getQueryString: String = {
+    queryParameterMap match {
+      case Some(parameterMap) if parameterMap.isEmpty =>
+        null
+      case Some(parameterMap) =>
+        parameterMap map { case (key, values) =>
+          values.map(value => key + "=" + value).mkString("&")
+        } mkString "&"
+      case None =>
+        super.getQueryString
+    }
+  }
+
+  /**
+    * @param key a query parameter key
+    * @return the first query parameter value associated with the provided key for this request, or null if no value exists
+    */
+  override def getParameter(key: String): String =
+    Option(getParameterValues(key)).map(_.head).orNulln
+  /**
+    * @param key a query parameter key
+    * @return all query parameter values associated with the provided key for this request
+    */
+  override def getParameterValues(key: String): Array[String] =
+    queryParameterMap.map(_.get(key).orNull).getOrElse(super.getParameterValues(key))
+
+  /**
+    * @return all query parameter names for this request
+    */
+  override def getParameterNames: util.Enumeration[String] =
+    queryParameterMap.map(_.keysIterator.asJavaEnumeration).getOrElse(super.getParameterNames)
+
+  /**
+    * @return the query parameter map for this request
+    */
+  override def getParameterMap: util.Map[String, Array[String]] =
+    queryParameterMap.map(_.asJava).getOrElse(super.getParameterMap)
+
+  /** Sets the query parameter map for this request.
+    *
+    * The provided map parameter will have its contents copied into an immutable map.
+    * As a result, modifications to the map parameter after calling this method will have no effect on the query
+    * parameters of this request.
+    * The iteration order of the provided map will be maintained.
+    *
+    * @param map a [[java.util.Map]] containing all of the query parameters for this request
+    */
+  def setParameterMap(map: util.Map[String, Array[String]]): Unit = {
+    if (Option(map).isEmpty) throw new IllegalArgumentException("null is not a legal argument to setParameterMap")
+
+    val mapCopy = mutable.LinkedHashMap.empty[String, Array[String]]
+    map.entrySet().asScala foreach { entry =>
+      val arrayCopy = util.Arrays.copyOf(entry.getValue, entry.getValue.length)
+      mapCopy += (entry.getKey -> arrayCopy)
+    }
+    queryParameterMap = Option(ListMap(mapCopy.toSeq: _*))
+  }
 }
