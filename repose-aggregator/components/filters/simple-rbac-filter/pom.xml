@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Simple RBAC</name>
-    <artifactId>simple-rbac</artifactId>
+    <artifactId>simple-rbac-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
@@ -16,7 +16,7 @@
     </description>
 
     <properties>
-        <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
     <dependencies>

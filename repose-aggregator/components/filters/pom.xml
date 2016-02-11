@@ -50,6 +50,7 @@
         <module>cors-filter</module>
         <module>url-extractor-to-header-filter</module>
         <module>api-validator-filter</module>
+        <module>simple-rbac-filter</module>
     </modules>
 
     <properties>
