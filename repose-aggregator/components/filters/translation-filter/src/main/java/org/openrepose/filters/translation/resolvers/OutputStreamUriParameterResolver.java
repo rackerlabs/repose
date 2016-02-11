@@ -70,6 +70,11 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
     }
 
     @Override
+    public OutputURIResolver newInstance() {
+        return new OutputStreamUriParameterResolver(this);
+    }
+
+    @Override
     public Result resolve(String href, String base) throws TransformerException {
         OutputStream stream = streams.get(href);
         if (stream != null) {
