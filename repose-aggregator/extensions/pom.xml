@@ -18,12 +18,7 @@
         No other filters should be developed here.
     </description>
 
-    <properties>
-        <api.checker.version>1.1.4</api.checker.version>
-    </properties>
-
     <modules>
-        <module>api-validator</module>
         <module>simple-rbac</module>
         <module>extensions-filter-bundle</module>
     </modules>

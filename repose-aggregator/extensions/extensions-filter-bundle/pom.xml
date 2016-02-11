@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>api-validator</artifactId>
+            <artifactId>api-validator-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -60,7 +60,7 @@
                     <modules>
                         <jarModule>
                             <groupId>org.openrepose</groupId>
-                            <artifactId>api-validator</artifactId>
+                            <artifactId>api-validator-filter</artifactId>
                         </jarModule>
                         <jarModule>
                             <groupId>org.openrepose</groupId>

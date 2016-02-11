@@ -49,6 +49,7 @@
         <module>keystone-v2</module>
         <module>cors-filter</module>
         <module>url-extractor-to-header-filter</module>
+        <module>api-validator-filter</module>
     </modules>
 
     <properties>
@@ -109,6 +110,12 @@
                 <groupId>org.openrepose</groupId>
                 <artifactId>http-delegation</artifactId>
                 <version>${http.delegation.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components.api-checker</groupId>
+                <artifactId>checker-core</artifactId>
+                <version>${api.checker.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
