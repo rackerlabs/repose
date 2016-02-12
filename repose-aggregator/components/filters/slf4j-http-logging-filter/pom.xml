@@ -10,7 +10,7 @@
     </parent>
 
     <name>Repose Components - SLF4J HTTP Logging</name>
-    <artifactId>slf4j-http-logging</artifactId>
+    <artifactId>slf4j-http-logging-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
