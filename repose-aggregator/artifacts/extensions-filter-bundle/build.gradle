@@ -1,0 +1,6 @@
+apply plugin: 'ear'
+
+dependencies {
+    earlib project(":repose-aggregator/components/filters/api-validator-filter")
+    earlib project(":repose-aggregator/components/filters/simple-rbac-filter")
+}
