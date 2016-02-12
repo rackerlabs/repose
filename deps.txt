@@ -1,6 +1,5 @@
 valve
 filter-bundle
-    slf4j-http-logging
     keystone-v2
 cli-utils
 repose-lint
