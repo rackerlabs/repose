@@ -73,11 +73,6 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>echo-filter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrepose</groupId>
             <artifactId>client-ip-identity</artifactId>
             <version>${project.version}</version>
         </dependency>
