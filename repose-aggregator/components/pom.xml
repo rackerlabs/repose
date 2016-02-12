@@ -21,7 +21,6 @@
 
     <modules>
         <module>filters</module>
-        <module>cli-utils</module>
         <module>repose-lint</module>
         <module>services</module>
     </modules>
