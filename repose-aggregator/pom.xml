@@ -43,7 +43,6 @@
         <module>commons</module>
         <module>core</module>
         <module>components</module>
-        <module>extensions</module>
         <module>installation</module>
         <module>artifacts</module>
         <module>functional-tests</module>

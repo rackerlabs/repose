@@ -18,6 +18,7 @@
     <modules>
         <module>experimental-filter-bundle</module>
         <module>extensions-filter-bundle</module>
+        <module>filter-bundle</module>
     </modules>
 
 </project>
