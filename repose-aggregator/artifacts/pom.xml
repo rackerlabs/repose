@@ -19,6 +19,7 @@
         <module>experimental-filter-bundle</module>
         <module>extensions-filter-bundle</module>
         <module>filter-bundle</module>
+        <module>cli-utils</module>
     </modules>
 
 </project>
