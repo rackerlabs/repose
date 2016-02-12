@@ -409,7 +409,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
-              case _: he newxception =>
+              case _: NotFoundException =>
                 Success(Vector.empty)
             } cacheOnSuccess { groups =>
               val cacheSettings = config.getCache.getTimeouts
