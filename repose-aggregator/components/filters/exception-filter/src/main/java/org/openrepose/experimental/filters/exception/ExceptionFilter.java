@@ -22,7 +22,6 @@ package org.openrepose.experimental.filters.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Named;
 import javax.servlet.*;
 import java.io.IOException;
 
@@ -45,7 +44,6 @@ import java.io.IOException;
  * PS - ServletResponse.getContentType() returns null as well, although the content type can be accessed through the
  * call to ServletResponse.getHeaders()
  */
-@Named
 public class ExceptionFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(ExceptionFilter.class);
 
