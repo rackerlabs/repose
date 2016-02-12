@@ -121,7 +121,7 @@ class GlobalRateLimitingTest extends ReposeValveTest {
                 assertTrue(messageChain.handlings.size() == 1)
         }
 
-        when: "user2 hit the same resource, rate limitted"
+        when: "user1 hit the same resource, rate limitted"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
                 headers: headers1, defaultHandler: handler)
 
@@ -145,7 +145,7 @@ class GlobalRateLimitingTest extends ReposeValveTest {
         when: "we make multiple requests"
         response = deproxy.makeRequest(method: method, url: reposeEndpoint + url, headers: headers)
 
-        then: "it should limit based off of the global rate limit"
+        then: "it should limit based off of the global rate limit group"
         response.receivedResponse.code == responseCode
 
         where:
