@@ -25,7 +25,6 @@
         <module>core-service-api</module>
         <module>core-lib</module>
         <module>web-application</module>
-        <module>valve</module>
     </modules>
 
     <dependencyManagement>

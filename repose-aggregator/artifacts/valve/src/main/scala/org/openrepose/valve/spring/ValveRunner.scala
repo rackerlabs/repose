@@ -87,6 +87,7 @@ class ValveRunner @Inject()(
    * When testMode is set to true, valve will not honor the existing port configuration set in
    * the system model, but will instead let the JVM select a random port.
    * This port will then be provided via JMX
+ *
    * @return
    */
   def run(configRoot: String, insecure: Boolean, testMode: Boolean = false): Int = {

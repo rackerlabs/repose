@@ -48,6 +48,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
 
   /**
    * For this class, the test mode is going to be true!
+ *
    * @param configRoot
    * @param insecure
    * @param testMode
