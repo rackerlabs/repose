@@ -5,7 +5,6 @@ filter-bundle
 extensions-filter-bundle
 web-application
 experimental-filter-bundle
-    exception-filter
     tightly-coupled-filter
 cli-utils
 repose-lint
