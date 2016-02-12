@@ -228,4 +228,19 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
 
         verify(limiter).handleRateLimit(eq("GlobalLimitUser"), any(List.class), eq(TimeUnit.MINUTE), eq(1000))
     }
+
+    @Test(expected = OverLimitException.class)
+    public void shouldDefaultToAllHttpMethodsForGlobalLimits() {
+        RateLimiter limiter = mock(RateLimiter.class)
+        doThrow(new OverLimitException("User rate limited!", "GlobalLimitUser", new Date(), 1, "1"))
+        .when(limiter).handleRateLimit(eq("GlobalLimitUser"), any(List.class), eq(TimeUnit.MINUTE), eq(1000))
+
+        ConfiguredRatelimit globalLimit = config.getGlobalLimitGroup().getLimit().get(0)
+        globalLimit.httpMethods.clear()
+
+        RateLimitingServiceImpl rateLimitingService = new RateLimitingServiceImpl(null, config)
+        rateLimitingService.rateLimiter = limiter
+
+        rateLimitingService.trackLimits("testUser", new ArrayList<String>(), "/global/test", new HashMap<String, String[]>(), "GET", 1000)
+    }
 }
