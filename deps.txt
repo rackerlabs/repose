@@ -3,6 +3,5 @@ filter-bundle
     slf4j-http-logging
     keystone-v2
 extensions-filter-bundle
-experimental-filter-bundle
 cli-utils
 repose-lint

@@ -1,4 +1,5 @@
-include 'repose-aggregator/artifacts/web-application',
+include 'repose-aggregator/artifacts/experimental-filter-bundle',
+        'repose-aggregator/artifacts/web-application',
         'repose-aggregator/commons/commons-configuration',
         'repose-aggregator/commons/commons-utilities',
         'repose-aggregator/components/filters/api-validator-filter',
