@@ -21,6 +21,7 @@
         <module>filter-bundle</module>
         <module>cli-utils</module>
         <module>valve</module>
+        <module>web-application</module>
     </modules>
 
 </project>
