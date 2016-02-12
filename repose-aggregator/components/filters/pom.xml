@@ -16,7 +16,6 @@
     </description>
 
     <modules>
-        <module>filter-bundle</module>
         <module>slf4j-http-logging</module>
         <module>header-identity</module>
         <module>header-id-mapping-filter</module>
