@@ -1,5 +1,4 @@
 valve
 filter-bundle
     keystone-v2
-cli-utils
 repose-lint
