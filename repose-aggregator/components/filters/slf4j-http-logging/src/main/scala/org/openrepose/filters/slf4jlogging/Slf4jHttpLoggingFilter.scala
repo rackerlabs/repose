@@ -26,10 +26,11 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.logging.apache.HttpLogFormatter
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLoggingConfig
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
@@ -104,4 +105,9 @@ class Slf4jHttpLoggingFilter @Inject()(configurationService: ConfigurationServic
       initialized = true
     }
   }
+
+  case class Slf4jLoggerWrapper(logger: Logger, formatString: String) {
+    val formatter = new HttpLogFormatter(formatString)
+  }
+
 }
