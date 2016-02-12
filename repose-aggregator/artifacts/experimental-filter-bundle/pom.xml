@@ -35,6 +35,11 @@
             <artifactId>tightly-coupled-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>echo-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -69,6 +74,10 @@
                         <jarModule>
                             <groupId>org.openrepose</groupId>
                             <artifactId>exception-filter</artifactId>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.openrepose</groupId>
+                            <artifactId>echo-filter</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
