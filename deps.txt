@@ -5,7 +5,6 @@ filter-bundle
 extensions-filter-bundle
 web-application
 experimental-filter-bundle
-    servlet-contract-filter
     exception-filter
     tightly-coupled-filter
 cli-utils
