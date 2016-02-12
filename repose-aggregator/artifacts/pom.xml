@@ -20,6 +20,7 @@
         <module>extensions-filter-bundle</module>
         <module>filter-bundle</module>
         <module>cli-utils</module>
+        <module>valve</module>
     </modules>
 
 </project>
