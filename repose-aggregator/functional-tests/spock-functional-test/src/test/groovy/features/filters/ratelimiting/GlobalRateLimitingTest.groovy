@@ -69,12 +69,12 @@ class GlobalRateLimitingTest extends ReposeValveTest {
 
     def "When Repose config with Global Rate Limit, user limit should hit first"() {
         given: "the rate-limit has not been reached"
-        //waitForLimitReset()
+        def methods = ["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH"]
 
         (1..5).each {
             i ->
                 when: "the user sends their request and the rate-limit has not been reached"
-                MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
+                MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: methods[i],
                         headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
                 then: "the request is not rate-limited, and passes to the origin service"
@@ -121,7 +121,7 @@ class GlobalRateLimitingTest extends ReposeValveTest {
                 assertTrue(messageChain.handlings.size() == 1)
         }
 
-        when: "user2 hit the same resource, rate limitted"
+        when: "user1 hit the same resource, rate limitted"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
                 headers: headers1, defaultHandler: handler)
 
@@ -145,7 +145,7 @@ class GlobalRateLimitingTest extends ReposeValveTest {
         when: "we make multiple requests"
         response = deproxy.makeRequest(method: method, url: reposeEndpoint + url, headers: headers)
 
-        then: "it should limit based off of the global rate limit"
+        then: "it should limit based off of the global rate limit group"
         response.receivedResponse.code == responseCode
 
         where:

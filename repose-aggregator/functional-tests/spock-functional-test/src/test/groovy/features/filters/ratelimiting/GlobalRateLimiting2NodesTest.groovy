@@ -141,7 +141,7 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
         then: "the request is rate-limited, and passes to the origin service"
         messageChain.receivedResponse.code.equals("503")
 
-        when: "user1 hit the same resource, rate limitted"
+        when: "user2 hit the same resource, rate limitted"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
                 headers: headers2, defaultHandler: handler)
 

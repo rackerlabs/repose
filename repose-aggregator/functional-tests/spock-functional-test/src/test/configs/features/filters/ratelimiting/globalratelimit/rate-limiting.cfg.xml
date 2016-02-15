@@ -4,7 +4,8 @@
     <request-endpoint uri-regex="/service/limits/" include-absolute-limits="true"/>
 
     <global-limit-group>
-        <limit id="globallimit" uri="all" uri-regex="/service/.*" http-methods="ALL" value="5" unit="MINUTE"/>
+        <!-- The first one tests for the default http-methods of ALL. -->
+        <limit id="globallimit" uri="all" uri-regex="/service/.*" value="5" unit="MINUTE"/>
         <limit id="GlobalLimitGroup1" uri="all" uri-regex="/test1.*" http-methods="ALL" value="3" unit="MINUTE"/>
         <limit id="GlobalLimitGroup2" uri="all" uri-regex="/test2.*" http-methods="ALL" value="3" unit="MINUTE"/>
         <limit id="GlobalLimitGroup3" uri="all" uri-regex="/test3.*" http-methods="GET" value="3" unit="MINUTE"/>
