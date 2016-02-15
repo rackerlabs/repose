@@ -22,7 +22,7 @@ package org.openrepose.lint
 import java.io.{File, InputStream, PrintStream}
 
 import com.typesafe.config.Config
-import org.openrepose.lint.commands.CommandRegistry
+import org.openrepose.lint.commands.VerifyTryItNowCommand
 import scopt.OptionParser
 
 /**
@@ -71,32 +71,22 @@ object CommandExecutor {
 
       version("version") text "prints the version of this utility"
 
-      // Generate a scopt command for each command in the command registry. Using a command registry allows us to
-      // maintain a single source of truth for supported commands.
-      CommandRegistry.getAvailableCommands foreach { command =>
-        cmd(command.getCommandToken) action { (_, c) =>
-          c.copy(commandToken = command.getCommandToken)
-        } text command.getCommandDescription
-      }
+      // A command to ascertain the status of users with the "foyer" role for a given set of configuration files.
+      cmd(VerifyTryItNowCommand.getCommandToken) action { (_, c) =>
+        c.copy(command = VerifyTryItNowCommand)
+      } text VerifyTryItNowCommand.getCommandDescription
     }
 
     parser.parse(args, LintConfig()) match {
       case Some(lintConfig) =>
-        CommandRegistry.lookup(lintConfig.commandToken) match {
-          case Some(command) =>
-            try {
-              command.perform(lintConfig)
-              0
-            } catch {
-              case t: Throwable =>
-                // The command has failed
-                Console.err.println(s"${command.getCommandToken} command failed")
-                Console.err.println(s"Cause: ${t.getMessage}")
-                1
-            }
-          case None =>
-            // Failed to lookup the command (this should never happen since the parser should catch it first)
-            Console.err.println("Unsupported command: " + lintConfig.commandToken)
+        try {
+          lintConfig.command.perform(lintConfig)
+          0
+        } catch {
+          case t: Throwable =>
+            // The command has failed
+            Console.err.println(s"${lintConfig.command.getCommandToken} command failed")
+            Console.err.println(s"Cause: ${t.getMessage}")
             1
         }
       case None =>
