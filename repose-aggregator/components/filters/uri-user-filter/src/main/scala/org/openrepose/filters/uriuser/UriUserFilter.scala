@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package org.openrepose.filters.uriidentity
+package org.openrepose.filters.uriuser
 
 import java.net.URL
 import java.util.regex.Pattern
@@ -32,34 +32,34 @@ import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.uriidentity.config.UriIdentityConfig
+import org.openrepose.filters.uriuser.config.UriUserConfig
 
 import scala.collection.JavaConversions._
 
 @Named
-class UriIdentityFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[UriIdentityConfig] with LazyLogging {
+class UriUserFilter @Inject()(configurationService: ConfigurationService)
+  extends Filter with UpdateListener[UriUserConfig] with LazyLogging {
 
-  import UriIdentityFilter._
+  import UriUserFilter._
 
   private var configurationFileName: String = DefaultConfigFileName
   private var initialized = false
   private var config: Config = _
 
   override def init(filterConfig: FilterConfig): Unit = {
-    logger.trace("URI Identity filter initializing...")
+    logger.trace("URI User filter initializing...")
     configurationFileName = new FilterConfigHelper(filterConfig).getFilterConfig(DefaultConfigFileName)
 
-    logger.info(s"Initializing URI Identity Filter using config $configurationFileName")
+    logger.info(s"Initializing URI User Filter using config $configurationFileName")
     val xsdUrl: URL = getClass.getResource(SchemaFileName)
-    configurationService.subscribeTo(filterConfig.getFilterName, configurationFileName, xsdUrl, this, classOf[UriIdentityConfig])
+    configurationService.subscribeTo(filterConfig.getFilterName, configurationFileName, xsdUrl, this, classOf[UriUserConfig])
 
-    logger.trace("URI Identity filter initialized.")
+    logger.trace("URI User filter initialized.")
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!isInitialized) {
-      logger.error("URI Identity filter has not yet initialized...")
+      logger.error("URI User filter has not yet initialized...")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
@@ -77,25 +77,25 @@ class UriIdentityFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def destroy(): Unit = {
-    logger.trace("URI Identity filter destroying...")
+    logger.trace("URI User filter destroying...")
     configurationService.unsubscribeFrom(configurationFileName, this.asInstanceOf[UpdateListener[_]])
-    logger.trace("URI Identity filter destroyed.")
+    logger.trace("URI User filter destroyed.")
   }
 
-  override def configurationUpdated(uriIdentityConfig: UriIdentityConfig): Unit = {
+  override def configurationUpdated(uriUserConfig: UriUserConfig): Unit = {
     config = Config(
-      uriIdentityConfig.getIdentificationMappings.getMapping.map(_.getIdentificationRegex.r.pattern),
-      Option(uriIdentityConfig.getGroup).filterNot(_.trim.isEmpty).getOrElse(DefaultGroup),
-      Option(uriIdentityConfig.getQuality).map(_.toDouble).getOrElse(DefaultQuality))
+      uriUserConfig.getIdentificationMappings.getMapping.map(_.getIdentificationRegex.r.pattern),
+      Option(uriUserConfig.getGroup).filterNot(_.trim.isEmpty).getOrElse(DefaultGroup),
+      Option(uriUserConfig.getQuality).map(_.toDouble).getOrElse(DefaultQuality))
     initialized = true
   }
 
   override def isInitialized: Boolean = initialized
 }
 
-object UriIdentityFilter {
-  private final val DefaultConfigFileName = "uri-identity.cfg.xml"
-  private final val SchemaFileName = "/META-INF/schema/config/uri-identity-configuration.xsd"
+object UriUserFilter {
+  private final val DefaultConfigFileName = "uri-user.cfg.xml"
+  private final val SchemaFileName = "/META-INF/schema/config/uri-user-configuration.xsd"
 
   // while the XSD specifies these defaults, the generated getters don't provide these values for some reason
   private final val DefaultQuality = 0.5d

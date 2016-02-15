@@ -19,7 +19,7 @@
         <module>slf4j-http-logging-filter</module>
         <module>header-identity</module>
         <module>header-id-mapping-filter</module>
-        <module>uri-identity-filter</module>
+        <module>uri-user-filter</module>
         <module>rackspace-auth-user-filter</module>
         <module>content-normalization</module>
         <module>rate-limiting-filter</module>

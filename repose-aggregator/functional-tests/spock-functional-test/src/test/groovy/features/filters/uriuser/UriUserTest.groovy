@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.uriidentity
+package features.filters.uriuser
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
@@ -26,7 +26,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-class UriIdentityTest extends ReposeValveTest {
+class UriUserTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -34,7 +34,7 @@ class UriIdentityTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/uriidentity", params)
+        repose.configurationProvider.applyConfigs("features/filters/uriuser", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }
@@ -58,10 +58,8 @@ class UriIdentityTest extends ReposeValveTest {
         then: "Repose will send x-pp-user with a single value"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains("reposeuser1;q=0.5")
 
-        and: "Repose will send x-pp-groups with value set in Uri identity config instead of User_standard"
+        and: "Repose will send x-pp-groups with value set in Uri User config instead of User_standard"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("User_Default;q=0.5")
-
-
     }
 
     def "when identifying requests on uri without user"() {
@@ -74,8 +72,6 @@ class UriIdentityTest extends ReposeValveTest {
 
         and: "Repose will not send a value for x-pp-groups"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
-
-
     }
 
     def "Should split request headers according to rfc by default"() {
@@ -141,8 +137,6 @@ class UriIdentityTest extends ReposeValveTest {
         "aCCept"           | "text/plain"
         "CONTENT-Encoding" | "identity"
         "Content-ENCODING" | "identity"
-        //"content-encoding" | "idENtItY"
-        //"Content-Encoding" | "IDENTITY"
     }
 
     @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
@@ -170,7 +164,5 @@ class UriIdentityTest extends ReposeValveTest {
         "x-auth-TOKEN" | "sl4hsdlg"
         "CONTENT-Type" | "application/json"
         "Content-TYPE" | "application/json"
-        //"content-type" | "application/xMl"
-        //"Content-Type" | "APPLICATION/xml"
     }
 }

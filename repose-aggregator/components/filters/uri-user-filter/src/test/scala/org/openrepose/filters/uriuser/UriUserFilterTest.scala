@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package org.openrepose.filters.uriidentity
+package org.openrepose.filters.uriuser
 
 import javax.servlet.{FilterChain, ServletResponse}
 
@@ -28,18 +28,18 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.filters.uriidentity.config.{IdentificationMapping, IdentificationMappingList, UriIdentityConfig}
+import org.openrepose.filters.uriuser.config.{IdentificationMapping, IdentificationMappingList, UriUserConfig}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
 import org.springframework.mock.web.MockHttpServletRequest
 
 @RunWith(classOf[JUnitRunner])
-class UriIdentityFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class UriUserFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
 
-  import UriIdentityFilterTest._
+  import UriUserFilterTest._
 
-  var filter: UriIdentityFilter = _
+  var filter: UriUserFilter = _
   var request: MockHttpServletRequest = _
   var response: ServletResponse = _
   var filterChain: FilterChain = _
@@ -49,7 +49,7 @@ class UriIdentityFilterTest extends FunSpec with BeforeAndAfter with Matchers wi
     response = mock[ServletResponse]
     filterChain = mock[FilterChain]
 
-    filter = new UriIdentityFilter(null)
+    filter = new UriUserFilter(null)
   }
 
   describe("the user header") {
@@ -172,22 +172,22 @@ class UriIdentityFilterTest extends FunSpec with BeforeAndAfter with Matchers wi
     }
   }
 
-  def createConfig(uriPatterns: Seq[String] = Seq.empty, group: Option[String] = None, quality: Option[Double] = None): UriIdentityConfig = {
+  def createConfig(uriPatterns: Seq[String] = Seq.empty, group: Option[String] = None, quality: Option[Double] = None): UriUserConfig = {
     def createIdMapping(pattern: String): IdentificationMapping = {
       val identificationMapping = new IdentificationMapping
       identificationMapping.setIdentificationRegex(pattern)
       identificationMapping
     }
 
-    val uriIdentityConfig = new UriIdentityConfig
+    val uriUserConfig = new UriUserConfig
     val identificationMappingList = new IdentificationMappingList
-    uriIdentityConfig.setIdentificationMappings(identificationMappingList)
+    uriUserConfig.setIdentificationMappings(identificationMappingList)
 
     uriPatterns.map(createIdMapping).foreach(identificationMappingList.getMapping.add)
-    group.foreach(uriIdentityConfig.setGroup)
-    quality.foreach(uriIdentityConfig.setQuality(_))
+    group.foreach(uriUserConfig.setGroup)
+    quality.foreach(uriUserConfig.setQuality(_))
 
-    uriIdentityConfig
+    uriUserConfig
   }
 
   /**
@@ -200,7 +200,7 @@ class UriIdentityFilterTest extends FunSpec with BeforeAndAfter with Matchers wi
   }
 }
 
-object UriIdentityFilterTest {
+object UriUserFilterTest {
   private final val User = PowerApiHeader.USER.toString
   private final val Groups = PowerApiHeader.GROUPS.toString
   private final val DefaultQuality = ";q=0.5"
