@@ -41,6 +41,11 @@ object CommandExecutor {
     val parser = new OptionParser[LintConfig]("repose-lint") {
       head("repose-lint", lintVer)
 
+      // Specifies whether or not to output verbose output.
+      opt[Unit]('v', "verbose") action { (_, c) =>
+        c.copy(verbose = true)
+      } text "flag for verbose output"
+
       // Specifies the Repose configuration directory to run this tool against.
       // The default is the current working directory.
       opt[File]('c', "config-dir") valueName "<dir>" action { (x, c) =>

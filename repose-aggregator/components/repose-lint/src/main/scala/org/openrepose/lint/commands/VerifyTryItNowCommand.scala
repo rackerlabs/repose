@@ -482,13 +482,18 @@ object VerifyTryItNowCommand extends Command {
     val clustersArray = clusterJsonObjects.foldLeft(Json.arr())((arr, obj) => arr :+ obj)
     val fullSystemFoyerStatus = determineFoyerStatus(clusterJsonObjects.map(cluster =>
       FoyerStatus.withName((cluster \ FOYER_STATUS).as[String])))
+    val fullSystemFoyerStatusDescription = describeFoyerStatus(fullSystemFoyerStatus)
     val fullSystemJson = Json.obj(
       FOYER_STATUS -> fullSystemFoyerStatus.toString,
-      FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(fullSystemFoyerStatus),
+      FOYER_STATUS_DESCRIPTION -> fullSystemFoyerStatusDescription,
       "clusters" -> clustersArray
     )
 
-    println(Json.prettyPrint(fullSystemJson))
+    if (lintConfig.verbose) {
+      println(Json.prettyPrint(fullSystemJson))
+    } else {
+      println(fullSystemFoyerStatusDescription)
+    }
   }
 
   private def determineFoyerStatus(foyerStatuses: Seq[FoyerStatus.FoyerStatus]): FoyerStatus.FoyerStatus = {
