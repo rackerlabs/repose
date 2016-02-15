@@ -78,20 +78,27 @@ object CommandExecutor {
 
       // A command to ascertain the status of users with the "foyer" role for a given set of configuration files.
       cmd(VerifyTryItNowCommand.getCommandToken) action { (_, c) =>
-        c.copy(command = VerifyTryItNowCommand)
+        c.copy(command = Some(VerifyTryItNowCommand))
       } text VerifyTryItNowCommand.getCommandDescription
     }
 
     parser.parse(args, LintConfig()) match {
       case Some(lintConfig) =>
-        try {
-          lintConfig.command.perform(lintConfig)
-          0
-        } catch {
-          case t: Throwable =>
-            // The command has failed
-            Console.err.println(s"${lintConfig.command.getCommandToken} command failed")
-            Console.err.println(s"Cause: ${t.getMessage}")
+        lintConfig.command match {
+          case Some(command) =>
+            try {
+              command.perform(lintConfig)
+              0
+            } catch {
+              case t: Throwable =>
+                // The command has failed
+                Console.err.println(s"${command.getCommandToken} command failed")
+                Console.err.println(s"Cause: ${t.getMessage}")
+                1
+            }
+          case None =>
+            // Failed to lookup the command (this should never happen since the parser should catch it first)
+            Console.err.println("Unsupported command")
             1
         }
       case None =>
