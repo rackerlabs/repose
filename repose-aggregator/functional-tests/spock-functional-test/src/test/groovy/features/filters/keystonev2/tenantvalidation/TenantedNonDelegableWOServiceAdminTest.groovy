@@ -106,7 +106,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | x_www_auth
         813           | 813            | 500              | "502"        | 200               | false
         814           | 814            | 404              | "401"        | 200               | true
-        815           | 815            | 200              | "401"        | 404               | false
+        815           | 815            | 200              | "200"        | 404               | false        // REP-3212 changes
         816           | 816            | 200              | "502"        | 500               | false
         811           | 812            | 200              | "401"        | 200               | true
 
