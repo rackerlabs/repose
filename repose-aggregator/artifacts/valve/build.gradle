@@ -1,0 +1,40 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compile project(":repose-aggregator/core/core-service-api")
+    compile project(":repose-aggregator/commons/commons-configuration")
+    compile project(":repose-aggregator/core/core-lib")
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "org.slf4j:jcl-over-slf4j"
+    compile "com.github.scopt:scopt_2.10"
+    compile "com.typesafe:config"
+    compile "org.springframework:spring-core"
+    compile "org.springframework:spring-context"
+    compile "org.springframework:spring-web"
+    compile "org.springframework:spring-beans"
+    compile "org.eclipse.jetty:jetty-servlet"
+    compile "org.eclipse.jetty:jetty-server"
+    compile "org.eclipse.jetty:jetty-util"
+
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.apache.httpcomponents:httpclient"
+}
+
+processResources {
+    expand(reposeVersion: version, jettyVersion: '9.2.0.v20140526') //todo: try to reuse this from the version properties
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.openrepose.valve.Main'
+    }
+}
+
+shadowJar {
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+    exclude 'META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat' //todo: this might bone us
+}
