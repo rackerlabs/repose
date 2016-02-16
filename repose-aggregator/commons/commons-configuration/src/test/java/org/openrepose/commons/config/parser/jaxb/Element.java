@@ -30,6 +30,3 @@ public class Element {
     @XmlElement(name = "goodbye")
     public String goodbye;
 }
-
-
-
