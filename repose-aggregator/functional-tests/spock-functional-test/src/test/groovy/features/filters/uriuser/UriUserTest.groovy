@@ -60,11 +60,31 @@ class UriUserTest extends ReposeValveTest {
 
         and: "Repose will send x-pp-groups with value set in Uri User config instead of User_standard"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("User_Default;q=0.5")
+
+        when: "Request math any uri in config and contain the user within the uri"
+        messageChain = deproxy.makeRequest([url: reposeEndpoint + "/resource/myuser"])
+        sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+
+        then: "Repose will send x-pp-user with a single value"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains("myuser;q=0.5")
+
+        and: "Repose will send x-pp-groups with value set in Uri User config instead of User_standard"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("User_Default;q=0.5")
+
+        when: "Request doesn't contain the user within the uri"
+        messageChain = deproxy.makeRequest([url: reposeEndpoint + "/service/something"])
+        sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+
+        then: "Repose will not send a x-pp-user header"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+
+        and: "Repose will not send a value for x-pp-groups"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
     }
 
-    def "when identifying requests on uri without user"() {
-        when: "Request does not contain the user within the uri"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/resource/reposeuser1/something"])
+    def "when send request doesn't match the uri in config"() {
+        when: "Request does not match any of config uri"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/test/reposeuser1/something"])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will not send a x-pp-user header"

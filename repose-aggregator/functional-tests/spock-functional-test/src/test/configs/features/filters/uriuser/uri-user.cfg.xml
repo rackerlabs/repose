@@ -4,6 +4,7 @@
 
     <identification-mappings>
         <mapping identification-regex=".*/service/(\w*)?/.*"/>
+        <mapping identification-regex=".*/resource/(\w*)?"/>
     </identification-mappings>
 
     <group>User_Default</group>
