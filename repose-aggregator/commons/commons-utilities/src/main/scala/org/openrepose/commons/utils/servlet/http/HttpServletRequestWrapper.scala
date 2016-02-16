@@ -46,7 +46,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   private var requestUri: String = originalRequest.getRequestURI
   private var requestUrl: StringBuffer = originalRequest.getRequestURL
-  private var queryParameterMap: Option[ListMap[String, Array[String]]] = None
+  private var queryString: String = originalRequest.getQueryString
+  private var parameterMap: Option[ListMap[String, Array[String]]] = None
   private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
   private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
 
@@ -169,48 +170,48 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   /**
     * @return a string representation of the query parameters for this request
     */
-  override def getQueryString: String = {
-    queryParameterMap match {
-      case Some(parameterMap) if parameterMap.isEmpty =>
-        null
-      case Some(parameterMap) =>
-        parameterMap map { case (key, values) =>
-          values.map(value => key + "=" + value).mkString("&")
-        } mkString "&"
-      case None =>
-        super.getQueryString
-    }
+  override def getQueryString: String = queryString
+
+  /**
+    * @param string the desired query string for this request
+    */
+  def setQueryString(string: String): Unit = {
+    // todo: update parameter map
+    // parse the current query string and remove from parameter map
+    // parse the new query string and add to parameter map
+    queryString = string
   }
 
   /**
-    * @param key a query parameter key
-    * @return the first query parameter value associated with the provided key for this request, or null if no value exists
+    * @param key a parameter key
+    * @return the first parameter value associated with the provided key for this request, or null if no value exists
     */
   override def getParameter(key: String): String =
     Option(getParameterValues(key)).map(_.head).orNull
+
   /**
-    * @param key a query parameter key
-    * @return all query parameter values associated with the provided key for this request
+    * @param key a parameter key
+    * @return all parameter values associated with the provided key for this request
     */
   override def getParameterValues(key: String): Array[String] =
-    queryParameterMap.map(_.get(key).orNull).getOrElse(super.getParameterValues(key))
+    parameterMap.map(_.get(key).orNull).getOrElse(super.getParameterValues(key))
 
   /**
-    * @return all query parameter names for this request
+    * @return all parameter names for this request
     */
   override def getParameterNames: util.Enumeration[String] =
-    queryParameterMap.map(_.keysIterator.asJavaEnumeration).getOrElse(super.getParameterNames)
+    parameterMap.map(_.keysIterator.asJavaEnumeration).getOrElse(super.getParameterNames)
 
   /**
-    * @return the query parameter map for this request
+    * @return the parameter map for this request
     */
   override def getParameterMap: util.Map[String, Array[String]] =
-    queryParameterMap.map(_.asJava).getOrElse(super.getParameterMap)
+    parameterMap.map(_.asJava).getOrElse(super.getParameterMap)
 
-  /** Sets the query parameter map for this request.
+  /** Sets the parameter map for this request.
     *
     * The provided map parameter will have its contents copied into an immutable map.
-    * As a result, modifications to the map parameter after calling this method will have no effect on the query
+    * As a result, modifications to the map parameter after calling this method will have no effect on the
     * parameters of this request.
     * The iteration order of the provided map will be maintained.
     *
@@ -224,6 +225,6 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
       val arrayCopy = util.Arrays.copyOf(entry.getValue, entry.getValue.length)
       mapCopy += (entry.getKey -> arrayCopy)
     }
-    queryParameterMap = Option(ListMap(mapCopy.toSeq: _*))
+    parameterMap = Option(ListMap(mapCopy.toSeq: _*))
   }
 }

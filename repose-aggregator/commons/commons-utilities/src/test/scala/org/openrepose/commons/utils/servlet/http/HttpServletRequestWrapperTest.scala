@@ -703,20 +703,26 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   }
 
   describe("getQueryString") {
-    it("should return null if there are no parameters") {
-      wrappedRequest.setParameterMap(Map.empty[String, Array[String]].asJava)
+    it("should return a string representation of the query string") {
+      wrappedRequest.getQueryString shouldBe "foo=bar&foo=baz"
+    }
+  }
+
+  describe("setQueryString") {
+    it("should return a string representation of the query string after mutation") {
+      wrappedRequest.setQueryString("bar=rab&baz=zab")
+
+      wrappedRequest.getQueryString shouldBe "bar=rab&baz=zab"
+    }
+
+    it("should return null after mutation to null") {
+      wrappedRequest.setQueryString(null)
 
       wrappedRequest.getQueryString shouldBe null
     }
 
-    it("should return a string representation of the query string") {
-      wrappedRequest.getQueryString shouldBe "foo=bar&foo=baz"
-    }
-
-    it("should return a string representation of the query string after mutation") {
-      wrappedRequest.setParameterMap(Map("bar" -> Array("rab"), "baz" -> Array("zab")).asJava)
-
-      wrappedRequest.getQueryString shouldBe "bar=rab&baz=zab"
+    it("should update the parameter map to reflect the change in query parameters") {
+      pending
     }
   }
 
