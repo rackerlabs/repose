@@ -28,23 +28,22 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import edazdarevic.commons.net.CIDRUtils
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.ipuser.config.IpUserConfig
 
 @Named
 class IpUserFilter @Inject()(configurationService: ConfigurationService) extends Filter
-with LazyLogging
-with UpdateListener[IpUserConfig] {
+  with LazyLogging
+  with UpdateListener[IpUserConfig] {
 
   private final val DEFAULT_CONFIG = "ip-user.cfg.xml"
-  private var initialized = false
-  private var configName: String = _
-
-  case class LabeledCIDR(label: String, cidr: CIDRUtils)
 
   private val cidrList: AtomicReference[List[LabeledCIDR]] = new AtomicReference[List[LabeledCIDR]]()
+  
+  private var initialized = false
+  private var configName: String = _
   private var groupHeaderName: String = _
   private var groupHeaderQuality: Double = _
   private var userHeaderName: String = _
@@ -68,23 +67,23 @@ with UpdateListener[IpUserConfig] {
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!initialized) {
-      logger.error("IP Classification filter has not yet initialized...")
+      logger.error("IP User filter has not yet initialized...")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
     } else {
-      logger.trace("IP Classification filter handling request...")
-      val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
+      logger.trace("IP User filter handling request...")
+      val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
       getClassificationLabel(servletRequest.getRemoteAddr).foreach { label =>
-        request.addHeader(groupHeaderName, s"$label;q=$groupHeaderQuality")
+        request.addHeader(groupHeaderName, label, groupHeaderQuality)
       }
 
       //Always set the user header name to the current IP address
-      request.addHeader(userHeaderName, s"${servletRequest.getRemoteAddr};q=$userHeaderQuality")
+      request.addHeader(userHeaderName, servletRequest.getRemoteAddr, userHeaderQuality)
 
-      logger.trace("IP Classification filter passing request...")
+      logger.trace("IP User filter passing request...")
       filterChain.doFilter(request, servletResponse)
 
-      logger.trace("IP Classification filter returning response...")
+      logger.trace("IP User filter returning response...")
     }
   }
 
@@ -104,10 +103,10 @@ with UpdateListener[IpUserConfig] {
     val groups = classificationConfig.getGroup.toList
 
     /**
-     * This guy builds a List[List[LabeledCIDR]] I flat map it to remove that extra list, so it's just a
-     * List[LabeledCIDR]. I suppose I could separately transform the classification lines into lists, and then combine
-     * them, but this does the same thing
-     */
+      * This guy builds a List[List[LabeledCIDR]] I flat map it to remove that extra list, so it's just a
+      * List[LabeledCIDR]. I suppose I could separately transform the classification lines into lists, and then combine
+      * them, but this does the same thing
+      */
     val replacementCidrList: List[LabeledCIDR] = groups.flatMap { group =>
       val label = group.getName
       group.getCidrIp.map { cidr =>
@@ -139,4 +138,7 @@ with UpdateListener[IpUserConfig] {
   }
 
   override def isInitialized: Boolean = initialized
+
+  case class LabeledCIDR(label: String, cidr: CIDRUtils)
+
 }

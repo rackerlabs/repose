@@ -41,6 +41,20 @@ import static org.mockito.Mockito.*;
 @RunWith(Enclosed.class)
 public class HttpComponentResponseProcessorTest {
 
+    private static List<Header> mockHeaders(Map<String, String> headerValues) {
+        final List<Header> headers = new ArrayList<>();
+        for (String header : headerValues.keySet()) {
+            String values = headerValues.get(header);
+            for (String value : values.split(",")) {
+                Header header1 = mock(Header.class);
+                when(header1.getName()).thenReturn(header);
+                when(header1.getValue()).thenReturn(value);
+                headers.add(header1);
+            }
+        }
+        return headers;
+    }
+
     public static class WhenProcessingResponses {
 
         private HttpResponse response;
@@ -53,30 +67,20 @@ public class HttpComponentResponseProcessorTest {
 
         @Before
         public void setUp() throws IOException {
-            final String[] headerNames = {"header1", "header2"};
-            headerValues = new HashMap<String, String>();
+            headerValues = new HashMap<>();
             headerValues.put("header1", "value1");
             headerValues.put("header2", "value21,value22");
 
-            headers = new ArrayList<Header>();
-            for (String header : headerNames) {
-                String values = headerValues.get(header);
-                for (String value : values.split(",")) {
-                    Header header1 = mock(Header.class);
-                    when(header1.getName()).thenReturn(header);
-                    when(header1.getValue()).thenReturn(value);
-                    headers.add(header1);
-                }
-            }
+            headers = HttpComponentResponseProcessorTest.mockHeaders(headerValues);
             entity = mock(HttpEntity.class);
             out = mock(ServletOutputStream.class);
             response = mock(HttpResponse.class);
             servletResponse = mock(HttpServletResponse.class);
-            when(response.getAllHeaders()).thenReturn(headers.toArray(new Header[0]));
+            when(response.getAllHeaders()).thenReturn(headers.toArray(new Header[headers.size()]));
             when(response.getEntity()).thenReturn(entity);
             when(servletResponse.getOutputStream()).thenReturn(out);
 
-            processor = new HttpComponentResponseProcessor(response, servletResponse, new HttpComponentResponseCodeProcessor(200));
+            processor = new HttpComponentResponseProcessor(response, servletResponse, 200);
         }
 
         @Test
@@ -121,30 +125,20 @@ public class HttpComponentResponseProcessorTest {
 
         @Before
         public void setUp() throws IOException {
-            final String[] headerNames = {"header1", "header2"};
-            headerValues = new HashMap<String, String>();
+            headerValues = new HashMap<>();
             headerValues.put("header1", "value1");
             headerValues.put("header2", "value21,value22");
 
-            headers = new ArrayList<Header>();
-            for (String header : headerNames) {
-                String values = headerValues.get(header);
-                for (String value : values.split(",")) {
-                    Header header1 = mock(Header.class);
-                    when(header1.getName()).thenReturn(header);
-                    when(header1.getValue()).thenReturn(value);
-                    headers.add(header1);
-                }
-            }
+            headers = HttpComponentResponseProcessorTest.mockHeaders(headerValues);
             entity = mock(HttpEntity.class);
             out = mock(ServletOutputStream.class);
             response = mock(HttpResponse.class);
             servletResponse = mock(MutableHttpServletResponse.class);
-            when(response.getAllHeaders()).thenReturn(headers.toArray(new Header[0]));
+            when(response.getAllHeaders()).thenReturn(headers.toArray(new Header[headers.size()]));
             when(response.getEntity()).thenReturn(entity);
             when(servletResponse.getOutputStream()).thenReturn(out);
 
-            processor = new HttpComponentResponseProcessor(response, servletResponse, new HttpComponentResponseCodeProcessor(200));
+            processor = new HttpComponentResponseProcessor(response, servletResponse, 200);
         }
 
         @Test

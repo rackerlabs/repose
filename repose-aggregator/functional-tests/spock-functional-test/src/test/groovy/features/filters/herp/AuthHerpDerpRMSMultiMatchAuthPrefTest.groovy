@@ -20,7 +20,7 @@
 package features.filters.herp
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -29,13 +29,15 @@ import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 6/16/15.
+ * Update on 01/21/16
+ *  - Replace client-auth-n with keystone-v2 filter
  */
 class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
 
@@ -45,12 +47,12 @@ class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/herp", params)
         repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch", params)
-        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wauthnpreference", params)
+        repose.configurationProvider.applyConfigs("features/filters/herp/apivalidatormultimatch/wauthpreference", params)
 
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -82,7 +84,7 @@ class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
         }
 
         fakeIdentityService.validateTokenHandler = {
-            tokenId, request, xml ->
+            tokenId, tenantid, request, xml ->
                 new Response(authRespCode)
         }
 
@@ -104,11 +106,11 @@ class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
             "status_code=401.component=client-auth-n.message=Unable to validate token:\\s.*;q=0.6"
         */
         where:
-        authRespCode | responseCode | msgBody                     | token_id          | expireat                      | orphans
-        404          | "401"        | "Unable to validate token:" | UUID.randomUUID() | (new DateTime()).plusDays(1)  | 2
-        404          | "401"        | "Failure in Auth-N filter." | ""                | (new DateTime()).plusDays(1)  | 0
-        404          | "401"        | "Unable to validate token:" | UUID.randomUUID() | (new DateTime()).minusDays(1) | 1
-        404          | "401"        | "Failure in Auth-N filter." | ""                | (new DateTime()).minusDays(1) | 0
+        authRespCode | responseCode | msgBody                                         | token_id          | expireat                      | orphans
+        404          | "401"        | "Token is not valid for validate token request" | UUID.randomUUID() | (new DateTime()).plusDays(1)  | 2
+        404          | "401"        | "X-Auth-Token header not found"                 | ""                | (new DateTime()).plusDays(1)  | 0
+        404          | "401"        | "Token is not valid for validate token request" | UUID.randomUUID() | (new DateTime()).minusDays(1) | 1
+        404          | "401"        | "X-Auth-Token header not found"                 | ""                | (new DateTime()).minusDays(1) | 0
     }
 
     // test ensure repose send x-roles to origin service

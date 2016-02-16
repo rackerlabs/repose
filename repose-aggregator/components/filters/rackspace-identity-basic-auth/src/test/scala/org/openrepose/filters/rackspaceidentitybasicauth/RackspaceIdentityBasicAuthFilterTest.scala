@@ -26,13 +26,12 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
-import org.eclipse.jetty.server.Server
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import org.openrepose.core.filter.logic.FilterAction
+import org.openrepose.commons.utils.servlet.filter.FilterAction
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
@@ -46,7 +45,6 @@ import scala.collection.JavaConversions._
 @RunWith(classOf[JUnitRunner])
 class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar with LazyLogging {
 
-  val identityServer = new Server(0)
   var listAppender: ListAppender = _
   var filterChain: MockFilterChain = _
   var mockDatastore: Datastore = _
@@ -140,13 +138,13 @@ class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfter w
     it("should simply pass if there is not an HTTP Basic authentication header") {
       // given: "a mock'd ServletRequest and ServletResponse"
       val mockServletRequest = new MockHttpServletRequest
-      val mockServletResponse = mock[ReadableHttpServletResponse]
+      val mockServletResponse = new MockHttpServletResponse
 
       // when: "the filter's handleRequest() is called without an HTTP Basic authentication header"
-      val filterDirector = filter.handleRequest(mockServletRequest, mockServletResponse)
+      val filterAction = filter.handleRequest(new HttpServletRequestWrapper(mockServletRequest), mockServletResponse)
 
       // then: "the filter's response status code would only be processed if it were set to UNAUTHORIZED (401) by another filter/service."
-      filterDirector.getFilterAction equals FilterAction.PROCESS_RESPONSE
+      filterAction shouldBe FilterAction.PROCESS_RESPONSE
     }
   }
 
@@ -156,15 +154,15 @@ class RackspaceIdentityBasicAuthFilterTest extends FunSpec with BeforeAndAfter w
     it("should pass filter") {
       // given: "a mock'd ServletRequest and ServletResponse"
       val mockServletRequest = new MockHttpServletRequest
-      val mockServletResponse = mock[ReadableHttpServletResponse]
+      val mockServletResponse = new MockHttpServletResponse
       //when(mockServletResponse.getStatus).thenReturn(HttpServletResponse.SC_OK)
 
       // when: "the filter's/handler's handleResponse() is called"
-      val filterDirector = filter.handleResponse(mockServletRequest, mockServletResponse)
+      val filterAction = filter.handleResponse(mockServletRequest, mockServletResponse)
 
       // then: "the filter's response status code should be No Content (204)"
-      filterDirector.getFilterAction should not be (FilterAction.NOT_SET)
-      filterDirector.getResponseStatusCode should be(HttpServletResponse.SC_NO_CONTENT)
+      filterAction should not be FilterAction.NOT_SET
+      mockServletResponse.getStatus should be(HttpServletResponse.SC_NO_CONTENT)
     }
   }
 

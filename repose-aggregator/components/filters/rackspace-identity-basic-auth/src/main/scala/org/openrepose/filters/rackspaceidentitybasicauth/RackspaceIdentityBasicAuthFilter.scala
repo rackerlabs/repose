@@ -32,11 +32,9 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
+import org.openrepose.commons.utils.servlet.filter.FilterAction
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
-import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
-import org.openrepose.core.filter.logic.impl.{FilterDirectorImpl, FilterLogicHandlerDelegate}
-import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
@@ -51,16 +49,16 @@ import scala.xml.XML
 class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: ConfigurationService,
                                                  akkaServiceClientFactory: AkkaServiceClientFactory,
                                                  datastoreService: DatastoreService)
-  extends AbstractFilterLogicHandler
-  with Filter
-  with UpdateListener[RackspaceIdentityBasicAuthConfig]
-  with HttpDelegationManager
-  with BasicAuthUtils
-  with LazyLogging {
+  extends Filter
+    with UpdateListener[RackspaceIdentityBasicAuthConfig]
+    with HttpDelegationManager
+    with BasicAuthUtils
+    with LazyLogging {
 
   private final val DEFAULT_CONFIG = "rackspace-identity-basic-auth.cfg.xml"
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val X_AUTH_TOKEN = "X-Auth-Token"
+  private final val SC_TOO_MANY_REQUESTS = 429
   private val datastore = datastoreService.getDefaultDatastore
   private var initialized = false
   private var config: String = _
@@ -102,19 +100,32 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
-    new FilterLogicHandlerDelegate(servletRequest, servletResponse, filterChain).doFilter(this)
+    val wrappedHttpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+    val httpResponse = servletResponse.asInstanceOf[HttpServletResponse]
+
+    val filterAction = handleRequest(wrappedHttpRequest, httpResponse)
+    filterAction match {
+      case FilterAction.RETURN => // no action to take
+      case FilterAction.PROCESS_RESPONSE =>
+        filterChain.doFilter(wrappedHttpRequest, httpResponse)
+        handleResponse(wrappedHttpRequest, httpResponse)
+      case _ =>
+        logger.error("Unexpected internal filter state (FilterAction)")
+        httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+    }
   }
 
-  override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
+  def handleRequest(httpServletRequestWrapper: HttpServletRequestWrapper, httpServletResponse: HttpServletResponse): FilterAction = {
     logger.debug("Handling HTTP Request")
-    val filterDirector: FilterDirector = new FilterDirectorImpl()
+    var filterAction = FilterAction.PROCESS_RESPONSE
 
     def delegateOrElse(responseCode: Int, message: String)(f: => Any) = {
       delegationWithQuality match {
         case Some(quality) =>
           buildDelegationHeaders(responseCode, "Rackspace Identity Basic Auth", message, quality) foreach { case (key, values) =>
-            filterDirector.requestHeaderManager.appendHeader(key, values: _*)
-            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+            values foreach { value =>
+              httpServletRequestWrapper.addHeader(key, value)
+            }
           }
         case None =>
           f
@@ -126,43 +137,43 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
       tokenResponseInfo match {
         case TokenCreationInfo(SC_UNAUTHORIZED, _, userName, _, _) =>
           delegateOrElse(SC_UNAUTHORIZED, s"Failed to authenticate user: $userName") {
-            filterDirector.setResponseStatusCode(SC_UNAUTHORIZED) // (401)
-            filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+            httpServletResponse.setStatus(SC_UNAUTHORIZED) // (401)
+            httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
             datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
           }
-        case TokenCreationInfo((SC_REQUEST_ENTITY_TOO_LARGE | FilterDirector.SC_TOO_MANY_REQUESTS), _, userName, Some(retry), _) => // (413 | 429)
+        case TokenCreationInfo((SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS), _, userName, Some(retry), _) => // (413 | 429)
           delegateOrElse(SC_SERVICE_UNAVAILABLE, "Rate limited by identity service") {
-            filterDirector.setResponseStatusCode(SC_SERVICE_UNAVAILABLE) // (503)
-            filterDirector.responseHeaderManager().appendHeader(HttpHeaders.RETRY_AFTER, retry)
+            httpServletResponse.setStatus(SC_SERVICE_UNAVAILABLE) // (503)
+            httpServletResponse.addHeader(HttpHeaders.RETRY_AFTER, retry)
           }
         case TokenCreationInfo(SC_BAD_REQUEST, _, userName, _, identityResponseBody) =>
           identityResponseBody.foreach { responseContent =>
             logger.warn(s"Bad Request received from identity for $userName. Identity Response: $responseContent")
           }
           delegateOrElse(SC_UNAUTHORIZED, s"Bad Request received from identity service for $userName") {
-            filterDirector.setResponseStatusCode(SC_UNAUTHORIZED)
-            filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+            httpServletResponse.setStatus(SC_UNAUTHORIZED)
+            httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
             datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
           }
         case TokenCreationInfo(SC_FORBIDDEN, _, userName, _, _) =>
           delegateOrElse(SC_FORBIDDEN, s"$userName is forbidden") {
-            filterDirector.setResponseStatusCode(SC_FORBIDDEN) // (401)
+            httpServletResponse.setStatus(SC_FORBIDDEN) // (401)
             //Not removing it from the datastore, they're forbidden, cache is legit
           }
         case TokenCreationInfo(SC_NOT_FOUND, _, userName, _, _) =>
           logger.warn(s"404 Received from identity attempting to authenticate $userName")
 
           delegateOrElse(SC_UNAUTHORIZED, s"Failed to authenticate user: $userName") {
-            filterDirector.setResponseStatusCode(SC_UNAUTHORIZED) // (401)
-            filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+            httpServletResponse.setStatus(SC_UNAUTHORIZED) // (401)
+            httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
             datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
           }
         case (_) =>
           delegateOrElse(SC_INTERNAL_SERVER_ERROR, "Failed with internal server error") {
-            filterDirector.setResponseStatusCode(SC_INTERNAL_SERVER_ERROR) // (500)
+            httpServletResponse.setStatus(SC_INTERNAL_SERVER_ERROR) // (500)
           }
       }
-      if (delegationWithQuality.isEmpty) filterDirector.setFilterAction(FilterAction.RETURN)
+      if (delegationWithQuality.isEmpty) filterAction = FilterAction.RETURN
     }
 
     def getUserToken(authValue: String): TokenCreationInfo = {
@@ -194,7 +205,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
         TokenCreationInfo(HttpServletResponse.SC_UNAUTHORIZED, None, userName)
       } else {
         // Request a User Token based on the extracted username/secret
-        val requestTracingHeader = Option(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString))
+        val requestTracingHeader = Option(httpServletRequestWrapper.getHeader(CommonHttpHeader.TRACE_GUID.toString))
           .map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
         val authTokenResponse = Option(akkaServiceClient.post(authValue,
           identityServiceUri,
@@ -211,7 +222,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
           } else {
             val responseBody = Some(Source.fromInputStream(tokenResponse.getData).mkString)
             //Figure out what our Retry Headers are, if identity returned us a rate limited response.
-            val retryHeaders: Option[String] = if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == FilterDirector.SC_TOO_MANY_REQUESTS) {
+            val retryHeaders: Option[String] = if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == SC_TOO_MANY_REQUESTS) {
               // (413 | 429)
               val identityRetryHeader = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER) }
               if (identityRetryHeader.isEmpty) {
@@ -243,47 +254,43 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
           if (tokenCacheTtlMillis > 0) {
             datastore.put(TOKEN_KEY_PREFIX + encodedCredentials, tokenStr, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
           }
-          filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, tokenStr)
+          httpServletRequestWrapper.addHeader(X_AUTH_TOKEN, tokenStr)
         case failure: TokenCreationInfo =>
           processFailedToken(failure, encodedCredentials)
       }
     }
 
     // We need to process the Response unless a couple of specific conditions occur.
-    filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
-    if (!httpServletRequest.getHeaderNames.asScala.toList.contains(X_AUTH_TOKEN)) {
-      withEncodedCredentials(httpServletRequest) { encodedCredentials =>
+    if (!httpServletRequestWrapper.getHeaderNamesScala.contains(X_AUTH_TOKEN)) {
+      withEncodedCredentials(httpServletRequestWrapper) { encodedCredentials =>
         Option(datastore.get(TOKEN_KEY_PREFIX + encodedCredentials)) match {
           case Some(token) =>
             val tokenString = token.toString
-            filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, tokenString)
+            httpServletRequestWrapper.addHeader(X_AUTH_TOKEN, tokenString)
           case None =>
             processNoCachedToken(encodedCredentials)
         }
       }
     }
-    filterDirector
+
+    filterAction
   }
 
-  override def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
+  def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse): Unit = {
     val responseStatus = httpServletResponse.getStatus
     logger.debug("Handling HTTP Response. Incoming status code: " + responseStatus)
-    val filterDirector: FilterDirector = new FilterDirectorImpl()
-    filterDirector.setResponseStatusCode(responseStatus)
-    filterDirector.setFilterAction(FilterAction.PASS)
     if (responseStatus == HttpServletResponse.SC_UNAUTHORIZED ||
       responseStatus == HttpServletResponse.SC_FORBIDDEN) {
-      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+      httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
       withEncodedCredentials(httpServletRequest) { encodedCredentials =>
         datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
       }
     }
-    logger.debug("Rackspace Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatusCode)
-    filterDirector
+    logger.debug("Rackspace Identity Basic Auth Response. Outgoing status code: " + httpServletResponse.getStatus)
   }
 
   private def withEncodedCredentials(request: HttpServletRequest)(f: String => Unit): Unit = {
-    Option(request.getHeaders(HttpHeaders.AUTHORIZATION)).foreach { authHeader =>
+    Option(request.getHeaders(HttpHeaders.AUTHORIZATION)) foreach { authHeader =>
       val authMethodBasicHeaders = getBasicAuthHeaders(authHeader, "Basic")
       if (authMethodBasicHeaders.nonEmpty) {
         val firstHeader = authMethodBasicHeaders.next()
@@ -299,7 +306,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
 
   /**
    * Token creation info encapsulates the response from identity.
- *
+   *
    * @param responseCode Response code received from identity
    * @param responseBody Optional Response body from identity if it's not successful
    * @param userId The user ID parsed from a successful response (if any)

@@ -21,7 +21,7 @@ package features.filters.identitybasicauth.wpassword
 
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.apache.commons.lang.RandomStringUtils
 import org.openrepose.commons.utils.http.HttpDate
 import org.rackspace.deproxy.Deproxy
@@ -35,11 +35,13 @@ import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUES
 
 /**
  * Created by jennyvo on 1/18/16.
+ * Update on 01/21/16
+ *  - Replace client-auth-n with keystone-v2 filter
  */
 class BasicAuthPasswordAloneTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
     ReposeLogSearch reposeLogSearch
 
     def setupSpec() {
@@ -55,7 +57,7 @@ class BasicAuthPasswordAloneTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
     }

@@ -20,7 +20,7 @@
 package features.filters.apivalidator
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -35,7 +35,7 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
 
@@ -49,7 +49,7 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -111,7 +111,7 @@ class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
 
         if (authresp != 200) {
             fakeIdentityService.validateTokenHandler = {
-                tokenId, request, xml ->
+                tokenId, tenantid, request, xml ->
                     new Response(authresp)
             }
         }

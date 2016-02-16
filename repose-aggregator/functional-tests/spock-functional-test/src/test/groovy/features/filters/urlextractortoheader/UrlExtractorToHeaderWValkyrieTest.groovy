@@ -20,23 +20,26 @@
 package features.filters.urlextractortoheader
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import static org.junit.Assert.*;
 import spock.lang.Unroll
+
+import static org.junit.Assert.assertTrue
 
 /**
  * Created by jennyvo on 11/23/15.
  *  Test valkyrie without need of validator but using url-extractor-to-header
+ * Update on 01/28/15
+ *  - replace client-auth with keystone-v2
  */
 class UrlExtractorToHeaderWValkyrieTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
 
@@ -54,7 +57,7 @@ class UrlExtractorToHeaderWValkyrieTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
 
@@ -87,7 +90,7 @@ class UrlExtractorToHeaderWValkyrieTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantID
+            client_tenantid = tenantID
         }
 
         fakeValkyrie.with {

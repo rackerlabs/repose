@@ -30,6 +30,11 @@ import spock.lang.Unroll
 
 import static org.junit.Assert.assertTrue
 
+/**
+ * Update on 01/28/15
+ *  - replace client-auth with keystone-v2
+ */
+
 class ReposeLintTest extends Specification {
     @Shared
     ReposeLintLauncher reposeLintLauncher
@@ -119,70 +124,11 @@ class ReposeLintTest extends Specification {
         }
 
         where:
-        configdir                                            | checktype         | filtername             | checktenantedmode | tenantmode | foyerignore | status
-        "features/reposelint/clientauthn"                    | "authNCheck"      | "client-auth"          | "yes"             | false      | false       | "Allowed"
-        "features/reposelint/clientauthn/tenanted"           | "authNCheck"      | "client-auth"          | "yes"             | true       | false       | "NotAllowed"
-        "features/reposelint/clientauthn/tenantedwfoyerrole" | "authNCheck"      | "client-auth"          | "yes"             | true       | true        | "Allowed"
-        "features/reposelint/clientauthz"                    | "authZCheck"      | "client-authorization" | "no"              | false      | false       | "AllowedAuthorized"
-        "features/reposelint/clientauthz/wfoyerrole"         | "authZCheck"      | "client-authorization" | "no"              | false      | true        | "AllowedNotAuthorized"
-        "features/reposelint/keystonev2"                     | "keystoneV2Check" | "keystone-v2"          | "yes"             | false      | false       | "AllowedNotAuthorized"
-        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | false       | "NotAllowed"
-        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | true        | "AllowedNotAuthorized"
-        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | false       | "NotAllowed"
-        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | true        | "AllowedNotAuthorized"
-    }
-
-    @Unroll("test with multi config: #configdir")
-    def "test with multi config"() {
-        given: "config with authn and authz"
-        def checktypes = ["authNCheck", "authZCheck"]
-        def filternames = ["client-auth", "client-authorization"]
-        def params = testProperties.getDefaultTemplateParams()
-        reposeConfigurationProvider.cleanConfigDirectory()
-        reposeConfigurationProvider.applyConfigs(configdir, params)
-        def foyerAsIgnoreTenant
-        checktypes.each { e ->
-            if (e == "keystoneV2Check") {
-                foyerAsIgnoreTenant = "foyerAsPreAuthorized"
-            } else if (e == "keystoneV3Check") {
-                foyerAsIgnoreTenant = "foyerAsBypassTenant"
-            } else {
-                foyerAsIgnoreTenant = "foyerAsIgnoreTenant"
-            }
-        }
-
-        when:
-        reposeLintLauncher.start("verify-try-it-now")
-        def debugport = reposeLintLauncher.debugPort
-        def log = reposeLogSearch.logToString() - ("Listening for transport dt_socket at address: " + debugport)
-        println log
-        def slurper = new JsonSlurper()
-        def jsonlog = slurper.parseText(log)
-
-        then:
-        reposeLogSearch.searchByString(debugport.toString())
-        jsonlog.clusters.clusterId.get(0) == "repose"
-        jsonlog.clusters[checktypes[0]][0]["filterName"] == filternames[0]
-        jsonlog.clusters[checktypes[0]][0]["filters"].size() != 0
-        jsonlog.clusters[checktypes[0]][0]["filters"][0]["missingConfiguration"] == false
-        jsonlog.clusters[checktypes[0]][0]["filters"][0][foyerAsIgnoreTenant] == foyerignore[0]
-        jsonlog.clusters[checktypes[0]][0]["filters"][0]["foyerStatus"] == status[0]
-        if (checktenantedmode == "yes") {
-            assertTrue(jsonlog.clusters[checktypes[0]][0]["filters"][0]["inTenantedMode"] == tenantmode)
-        }
-
-        jsonlog.clusters[checktypes[1]][0]["filterName"] == filternames[1]
-        jsonlog.clusters[checktypes[1]][0]["filters"].size() != 0
-        jsonlog.clusters[checktypes[1]][0]["filters"][0]["missingConfiguration"] == false
-        jsonlog.clusters[checktypes[1]][0]["filters"][0][foyerAsIgnoreTenant] == foyerignore[1]
-        jsonlog.clusters[checktypes[1]][0]["filters"][0]["foyerStatus"] == status[1]
-
-        where:
-        configdir                                                   | checktenantedmode | tenantmode | foyerignore    | status
-        "features/reposelint/authnandauthz"                         | "yes"             | false      | [false, false] | ["Allowed", "AllowedAuthorized"]
-        "features/reposelint/authnandauthz/authnwfoyerrole"         | "yes"             | true       | [true, false]  | ["Allowed", "AllowedAuthorized"]
-        "features/reposelint/authnandauthz/bothwfoyerrole"          | "yes"             | true       | [true, true]   | ["Allowed", "AllowedNotAuthorized"]
-        "features/reposelint/authnandauthz/tenantedauthzwfoyerrole" | "yes"             | true       | [false, true]  | ["NotAllowed", "AllowedNotAuthorized"]
-        "features/reposelint/authnandauthz/authzwfoyerrole"         | "yes"             | false      | [false, true]  | ["Allowed", "AllowedNotAuthorized"]
+        configdir                                            | checktype         | filtername    | checktenantedmode | tenantmode | foyerignore | status
+        "features/reposelint/keystonev2"                     | "keystoneV2Check" | "keystone-v2" | "yes"             | false      | false       | "AllowedNotAuthorized"
+        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2" | "yes"             | true       | false       | "NotAllowed"
+        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2" | "yes"             | true       | true        | "AllowedNotAuthorized"
+        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2" | "no"              | false      | false       | "NotAllowed"
+        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2" | "no"              | false      | true        | "AllowedNotAuthorized"
     }
 }

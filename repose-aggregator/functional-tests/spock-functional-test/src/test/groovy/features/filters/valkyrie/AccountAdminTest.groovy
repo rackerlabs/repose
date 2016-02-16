@@ -21,18 +21,20 @@ package features.filters.valkyrie
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockValkyrie
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
-import org.junit.experimental.categories.Category
 
 /**
  * Updated by jennyvo on 11/04/15.
  * if account_admin role make additional call (inventory) to valkyrie to get the full list of devices
  *  Test with:
  *      mock valkyrie return with a list of > 500 devices
+ * Update on 01/28/15
+ *  - replace client-auth with keystone-v2
  */
 @Category(Slow.class)
 class AccountAdminTest extends ReposeValveTest {
@@ -40,7 +42,7 @@ class AccountAdminTest extends ReposeValveTest {
     def static identityEndpoint
     def static valkyrieEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
 
@@ -58,7 +60,7 @@ class AccountAdminTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
         fakeIdentityService.checkTokenValid = true
 
@@ -93,7 +95,7 @@ class AccountAdminTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = tenantId
+            client_tenantid = tenantId
         }
 
         fakeValkyrie.with {
@@ -133,7 +135,7 @@ class AccountAdminTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = randomTenant()
+            client_tenantid = randomTenant()
         }
 
         fakeValkyrie.with {
@@ -169,7 +171,7 @@ class AccountAdminTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
-            client_tenant = randomTenant()
+            client_tenantid = randomTenant()
         }
 
         fakeValkyrie.with {

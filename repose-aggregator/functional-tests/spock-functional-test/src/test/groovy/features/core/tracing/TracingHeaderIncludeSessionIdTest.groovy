@@ -20,7 +20,7 @@
 package features.core.tracing
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import framework.mocks.MockIdentityV2Service
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.apache.commons.codec.binary.Base64
@@ -41,7 +41,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityService fakeIdentityService
+    def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -52,7 +52,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -73,7 +73,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
     def 'X-Trans-Id header should be added to the request and response when it does not come in externally'() {
         given:
         fakeIdentityService.with {
-            client_tenant = 1212
+            client_tenantid = 1212
             client_userid = 1212
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -120,7 +120,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
     def 'X-Trans-Id header should be added to the request and response when the header is an empty string'() {
         given:
         fakeIdentityService.with {
-            client_tenant = 1212
+            client_tenantid = 1212
             client_userid = 1212
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -172,7 +172,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
     def 'Parse externally provided X-Trans-Id header and add the Request ID to the logging context'() {
         given:
         fakeIdentityService.with {
-            client_tenant = 1212
+            client_tenantid = 1212
             client_userid = 1212
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -216,7 +216,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
     def 'Parse externally provided X-Trans-Id header with several fields and add the Request ID to the logging context'() {
         given:
         fakeIdentityService.with {
-            client_tenant = 1212
+            client_tenantid = 1212
             client_userid = 1212
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -252,7 +252,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
     def 'Handle invalid JSON in X-Trans-Id header and add the whole string to the logging context'() {
         given:
         fakeIdentityService.with {
-            client_tenant = 1212
+            client_tenantid = 1212
             client_userid = 1212
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -286,7 +286,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
     def 'Handle invalid Base64 encoding in X-Trans-Id header and add the whole string to the logging context'() {
         given:
         fakeIdentityService.with {
-            client_tenant = 1212
+            client_tenantid = 1212
             client_userid = 1212
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -319,7 +319,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
     def 'Handle legacy X-Trans-Id header (i.e. UUID string) and add the whole string to the logging context'() {
         given:
         fakeIdentityService.with {
-            client_tenant = 1212
+            client_tenantid = 1212
             client_userid = 1212
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)

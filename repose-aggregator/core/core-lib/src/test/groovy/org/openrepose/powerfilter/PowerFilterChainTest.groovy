@@ -31,6 +31,7 @@ import javax.servlet.ServletException
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 import static org.mockito.Mockito.mock
 
@@ -109,7 +110,7 @@ class PowerFilterChainTest extends Specification {
         def values = headerValues
         def router = new PowerFilterRouter() {
             @Override
-            void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
+            void route(MutableHttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
                 values.each {
                     servletResponse.addHeader(name, it)
                 }

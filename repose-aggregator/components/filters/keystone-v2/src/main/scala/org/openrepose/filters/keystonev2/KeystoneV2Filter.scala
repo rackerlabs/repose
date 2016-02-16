@@ -33,7 +33,7 @@ import org.apache.http.HttpHeaders
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
@@ -103,7 +103,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     /**
       * DECLARE COMMON VALUES
       */
-    lazy val request = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
+    lazy val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
     // Not using the mutable wrapper because it doesn't work properly at the moment, and
     // we don't need to modify the response from further down the chain
     lazy val response = servletResponse.asInstanceOf[HttpServletResponse]

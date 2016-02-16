@@ -20,13 +20,13 @@
 package org.openrepose.filters.urlextractortoheader
 
 import java.net.URL
-import javax.inject.{Named, Inject}
+import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.urlextractortoheader.config.UrlExtractorToHeaderConfig
@@ -56,17 +56,17 @@ class UrlExtractorToHeaderFilter @Inject()(configurationService: ConfigurationSe
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
+    val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
     extractions.foreach { extraction =>
-      (extraction.urlRegex.findFirstIn(mutableHttpRequest.getRequestURI), extraction.defaultValue) match {
-        case (Some(extraction.urlRegex(headerValue)), _) => mutableHttpRequest.addHeader(extraction.headerName, headerValue)
-        case (None, Some(defaultValue)) => mutableHttpRequest.addHeader(extraction.headerName, defaultValue)
+      (extraction.urlRegex.findFirstIn(httpRequest.getRequestURI), extraction.defaultValue) match {
+        case (Some(extraction.urlRegex(headerValue)), _) => httpRequest.addHeader(extraction.headerName, headerValue)
+        case (None, Some(defaultValue)) => httpRequest.addHeader(extraction.headerName, defaultValue)
         case (None, None) => // don't add a header
       }
     }
 
-    filterChain.doFilter(mutableHttpRequest, servletResponse)
+    filterChain.doFilter(httpRequest, servletResponse)
   }
 
   override def destroy(): Unit = {
@@ -90,4 +90,5 @@ object UrlExtractorToHeaderFilter {
   private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/url-extractor-to-header.xsd"
 
   case class Extraction(headerName: String, urlRegex: Regex, defaultValue: Option[String])
+
 }
