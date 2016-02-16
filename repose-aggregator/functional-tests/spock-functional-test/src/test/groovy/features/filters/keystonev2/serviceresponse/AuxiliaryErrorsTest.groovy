@@ -122,13 +122,14 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         false       | false          | true         | 401       | "500"
         false       | false          | true         | 402       | "500"
         false       | false          | true         | 403       | "500"
-        false       | false          | true         | 404       | "401"
         false       | false          | true         | 413       | "503"
         false       | false          | true         | 429       | "503"
         false       | false          | true         | 500       | "502"
         false       | false          | true         | 501       | "502"
         false       | false          | true         | 502       | "502"
         false       | false          | true         | 503       | "502"
+        // REP-3212 changes-no longer an error but still leave here easy to track
+        false       | false          | true         | 404       | "200"
     }
 
 

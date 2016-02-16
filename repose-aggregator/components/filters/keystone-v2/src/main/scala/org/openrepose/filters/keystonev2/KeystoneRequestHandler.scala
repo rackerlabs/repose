@@ -224,7 +224,7 @@ object KeystoneRequestHandler {
           case SC_UNAUTHORIZED =>
             Failure(AdminTokenUnauthorizedException(s"Admin token unauthorized to make $call request"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException(s"Admin token forbidden from making $call request"))
-          case SC_NOT_FOUND => Failure(InvalidTokenException(s"Token is not valid for $call request"))
+          case SC_NOT_FOUND => Failure(NotFoundException(s"Resource not found for $call request"))
           case statusCode@(SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS) =>
             Failure(OverLimitException(statusCode, buildRetryValue(serviceClientResponse), s"Rate limited when making $call request"))
           case statusCode if statusCode >= 500 =>
@@ -245,7 +245,7 @@ object KeystoneRequestHandler {
 
   case class IdentityResponseProcessingException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
-  case class InvalidTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class NotFoundException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class BadRequestException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 

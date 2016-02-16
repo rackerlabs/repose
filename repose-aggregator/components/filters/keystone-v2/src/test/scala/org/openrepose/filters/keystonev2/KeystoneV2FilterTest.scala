@@ -1164,6 +1164,29 @@ with HttpDelegationManager {
       filterChain.getLastRequest shouldBe null
       mockAkkaServiceClient.validate()
     }
+
+    it("handles 404s from groups call by allowing users through with no X-PP-Groups") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      //Pretend like the admin token is cached all the time
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
+        .thenReturn(TestValidToken(userId = VALID_USER_ID, roles = Seq("Racker")), Nil: _*)
+
+      mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, "")
+      )
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      mockAkkaServiceClient.validate()
+    }
   }
 
   describe("Configured to delegate") {
