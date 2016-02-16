@@ -25,50 +25,5 @@
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>core-lib</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>core-service-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics-runtime</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>commons-utilities</artifactId>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-
-                <configuration>
-
-                    <specVersion>2.1</specVersion>
-
-                    <schemaIncludes>
-                        <include>**/*.xsd</include>
-                    </schemaIncludes>
-                    <bindingIncludes>
-                        <include>**/*.xjb</include>
-                    </bindingIncludes>
-
-                    <strict>true</strict>
-                    <verbose>false</verbose>
-
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <dependencies/>
 </project>

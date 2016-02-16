@@ -32,13 +32,12 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>datastore-service-api</artifactId>
+            <artifactId>commons-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>akka-http-client-service-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.rackspace.papi.components.api-checker</groupId>
+            <artifactId>checker-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

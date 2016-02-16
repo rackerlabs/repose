@@ -1,4 +1,3 @@
-valve
 filter-bundle
     keystone-v2
 repose-lint

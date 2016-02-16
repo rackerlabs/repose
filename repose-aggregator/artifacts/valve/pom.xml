@@ -17,6 +17,8 @@
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <reposeVersion>${project.version}</reposeVersion>
+        <jettyVersion>${jetty.version}</jettyVersion>
     </properties>
 
     <!-- for the scala logger -->

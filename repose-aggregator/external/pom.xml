@@ -18,8 +18,6 @@
 
     <modules>
         <module>jee6-schemas</module>
-        <module>service-clients</module>
-        <module>os-auth-schemas</module>
         <module>pjl-compressing-filter</module>
     </modules>
 </project>

@@ -99,12 +99,6 @@
 
             <dependency>
                 <groupId>org.openrepose</groupId>
-                <artifactId>os-auth-schemas</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.openrepose</groupId>
                 <artifactId>pjl-compressing-filter</artifactId>
                 <version>${project.version}</version>
             </dependency>

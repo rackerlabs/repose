@@ -28,15 +28,15 @@
         <project.set.dir>${project.basedir}/../..</project.set.dir>
         <project.support.dir>${project.basedir}/../../../repose-support</project.support.dir>
 
-        <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
+        <repose.valve.dir>${project.set.dir}/artifacts/valve/target</repose.valve.dir>
         <repose.lint.dir>${project.set.dir}/components/repose-lint/target</repose.lint.dir>
         <filter.dir>${project.set.dir}/artifacts/filter-bundle/target</filter.dir>
-        <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
+        <filter.extensions.dir>${project.set.dir}/artifacts/extensions-filter-bundle/target
         </filter.extensions.dir>
 
         <!-- adding the experimental filters for solving boogz -->
         <filter.experimental.dir>
-            ${project.set.dir}/experimental/experimental-filter-bundle/target
+            ${project.set.dir}/artifacts/experimental-filter-bundle/target
         </filter.experimental.dir>
         <filter.experimental.ear>experimental-filter-bundle-*.ear</filter.experimental.ear>
 
@@ -80,7 +80,7 @@
         <repose.lint.jar.location>${repose.home}/${repose.lint.jar}</repose.lint.jar.location>
         <repose.config.templates>${project.build.directory}/configs</repose.config.templates>
 
-        <repose.root.war.directory>${project.set.dir}/core/web-application/target</repose.root.war.directory>
+        <repose.root.war.directory>${project.set.dir}/artifacts/web-application/target</repose.root.war.directory>
         <repose.root.war>ROOT.war</repose.root.war>
         <glassfish.jar.dir>${project.set.dir}/functional-tests/glassfish-support/target</glassfish.jar.dir>
         <glassfish.jar>test-glassfish-container-${project.version}-jar-with-dependencies.jar</glassfish.jar>

@@ -26,6 +26,7 @@
             <artifactId>core-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>datastore-service-api</artifactId>
@@ -74,15 +75,12 @@
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.yammer.metrics</groupId>
             <artifactId>metrics-ehcache</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>akka-http-client-service-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

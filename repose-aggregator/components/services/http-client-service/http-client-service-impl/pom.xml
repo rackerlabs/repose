@@ -47,7 +47,8 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>commons-utilities</artifactId>
+            <artifactId>health-check-service-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
