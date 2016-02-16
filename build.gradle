@@ -13,6 +13,7 @@ buildscript {
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
         classpath 'org.openrepose:gradle-jaxb-plugin:2.0.2'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+        classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:0.8.2' //todo: this will need to be changed when we switch to scala 2.11
     }
 }
 
@@ -42,6 +43,9 @@ subprojects {
     apply plugin: 'org.unbroken-dome.test-sets'
     apply plugin: 'nebula.provided-base'
     apply plugin: 'org.openrepose.gradle.plugins.jaxb'
+    apply plugin: 'checkstyle'
+    apply plugin: 'codenarc'
+    apply plugin: 'scalaStyle'
 
     dependencies {
         jaxb "com.sun.xml.bind:jaxb-xjc"
@@ -71,7 +75,7 @@ subprojects {
         description "Runs xml through an xslt transfurm"
         ext.outputDir = "$buildDir/src/generated-xsd"
         //todo: make this work with multiples so i can make these paths better
-        def xsltFile = "$rootDir/repose-aggregator/src/main/resources/remove-1.1-elements.xsl"
+        def xsltFile = "$rootDir/repose-aggregator/src/main/resources/xsl/remove-1.1-elements.xsl"
         def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
 
         //If they set a property for the jaxbXSLT file override our default
@@ -139,6 +143,30 @@ subprojects {
             dependsOn('xjc')
         }
     }
+
+    configurations {
+        compile.exclude group: 'commons-logging', module: 'commons-logging'
+    }
+
+    //todo: remove old location for these files
+    checkstyle {
+        configFile = file("$rootDir/repose-aggregator/src/main/resources/styles/checkstyle.xml")
+    }
+
+    codenarc {
+        configFile = file("$rootDir/repose-aggregator/src/main/resources/styles/codenarc.xml")
+    }
+
+    //todo: write a good one of these plugins, because this is garbage
+    scalaStyle {
+        configLocation = "$rootDir/repose-aggregator/src/main/resources/styles/scalastyle_config.xml"
+        includeTestSourceDirectory = true
+        source = "src/main/scala"
+        testSource = "src/test/scala"
+        failOnWarning = true
+    }
+
+    check.dependsOn scalaStyle
 }
 
 dependencyRecommendations {

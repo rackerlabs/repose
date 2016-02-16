@@ -11,4 +11,5 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.springframework:spring-test"
     testCompile "commons-io:commons-io"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }

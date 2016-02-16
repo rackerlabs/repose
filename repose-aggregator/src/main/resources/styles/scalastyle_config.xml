@@ -1,0 +1,124 @@
+<scalastyle commentFilter="enabled">
+    <name>Scalastyle standard configuration</name>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">for\(|if\(|while\(</parameter>
+        </parameters>
+        <customMessage>No space before paren after for, if, or while</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">for\s\s+\(|if\s\s+\(|while\s\s+\(</parameter>
+        </parameters>
+        <customMessage>Too many spaces before paren after for, if, or while</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">if.*\(.*\)\{|while.*\(.*\)\{</parameter>
+        </parameters>
+        <customMessage>No space before if or while left brace</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">if.*\(.*\)\s\s+\{|while.*\(.*\)\s\s+\{</parameter>
+        </parameters>
+        <customMessage>Too many spaces before if or while left brace</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">else\{|else.*\)\{</parameter>
+        </parameters>
+        <customMessage>No space before else left brace</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">else\s\s+\{|else.*\)\s\s+\{</parameter>
+        </parameters>
+        <customMessage>Too many spaces before else left brace</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">for.*\(.*\)\{|do\{</parameter>
+        </parameters>
+        <customMessage>No space before for or do left brace</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">for.*\(.*\)\s\s+\{|do\s\s+\{</parameter>
+        </parameters>
+        <customMessage>Too many spaces before for or do left brace</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">class .*[^\s-]\{|def.*[^\s-]\{</parameter>
+        </parameters>
+        <customMessage>No space before class or method left brace</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">class .*\s\s+\{|def.*\s\s+\{</parameter>
+        </parameters>
+        <customMessage>Too many spaces before class or method left brace</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">try\{|catch\{|finally\{</parameter>
+        </parameters>
+        <customMessage>No space before try, catch, or finally left brace</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">try\s\s+\{|catch\s\s+\{|finally\s\s+\{</parameter>
+        </parameters>
+        <customMessage>Too many spaces before try, catch, or finally left brace</customMessage>
+    </check>
+
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">^[^"]*:[^\s-]|^[^"]*;[^\s-]|^[^"]*,[^\s-]</parameter>
+        </parameters>
+        <customMessage>Require space after comma, semicolon, and colon not in string</customMessage>
+    </check>
+
+    <!-- this causes too many false positives -->
+    <check enabled="false" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">\n\s*\{</parameter>
+        </parameters>
+        <customMessage>Brace on a newline</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">package.*\n[^\s-]</parameter>
+        </parameters>
+        <customMessage>Blank line after package please!</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">^import .*\n(?!import )[^\n]*[^\s-]</parameter>
+        </parameters>
+        <customMessage>missing blank line after import</customMessage>
+    </check>
+
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+        <parameters>
+            <parameter name="regex">\n\n\n\n</parameter>
+        </parameters>
+        <customMessage>max 2 blank lines in the code</customMessage>
+    </check>
+</scalastyle>
