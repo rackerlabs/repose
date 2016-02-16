@@ -48,6 +48,8 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   before {
     val mockRequest = new MockHttpServletRequest
+    mockRequest.setRequestURI("/foo/bar")
+    mockRequest.setRequestURL("http://example.com/foo/bar")
     queryParamMap foreach { case (parameterKey, parameterValues) =>
       mockRequest.setupAddParameter(parameterKey, parameterValues)
       mockRequest.setQueryString(Option(mockRequest.getQueryString).getOrElse("") + parameterValues.map(value => parameterKey + "=" + value).mkString("&"))
@@ -832,6 +834,30 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       orderedMap += ("6" -> Array("6"))
 
       wrappedRequest.getParameterMap.keySet().asScala.toSeq should contain inOrderOnly("2", "4", "3", "1", "5")
+    }
+  }
+
+  describe("setRequestURL") {
+    it("should change the URI returned by getRequestURI") {
+      an[IllegalArgumentException] should be thrownBy wrappedRequest.setRequestURL(null)
+    }
+
+    it("should change the URL returned by getRequestURL") {
+      wrappedRequest.setRequestURL(new StringBuffer("http://example.com/foo"))
+
+      wrappedRequest.getRequestURL shouldBe "http://example.com/foo"
+    }
+  }
+
+  describe("setRequestURI") {
+    it("should change the URI returned by getRequestURI") {
+      an[IllegalArgumentException] should be thrownBy wrappedRequest.setRequestURI(null)
+    }
+
+    it("should change the URI returned by getRequestURI") {
+      wrappedRequest.setRequestURI("/foo")
+
+      wrappedRequest.getRequestURI shouldBe "/foo"
     }
   }
 }

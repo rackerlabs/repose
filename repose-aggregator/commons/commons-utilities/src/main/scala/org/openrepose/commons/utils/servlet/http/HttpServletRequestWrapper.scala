@@ -44,6 +44,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
 
+  private var requestUri: String = originalRequest.getRequestURI
+  private var requestUrl: StringBuffer = originalRequest.getRequestURL
   private var queryParameterMap: Option[ListMap[String, Array[String]]] = None
   private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
   private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
@@ -148,6 +150,22 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   override def getSplittableHeaders(headerName: String): util.List[String] = getSplittableHeaderScala(headerName).asJava
 
+  override def getRequestURL: StringBuffer = requestUrl
+
+  def setRequestURL(url: StringBuffer): Unit = {
+    if (Option(url).isEmpty) throw new IllegalArgumentException("null is not a legal argument to setRequestURL")
+
+    requestUrl = url
+  }
+
+  override def getRequestURI: String = requestUri
+
+  def setRequestURI(uri: String): Unit = {
+    if (Option(uri).isEmpty) throw new IllegalArgumentException("null is not a legal argument to setRequestURI")
+
+    requestUri = uri
+  }
+
   /**
     * @return a string representation of the query parameters for this request
     */
@@ -169,7 +187,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     * @return the first query parameter value associated with the provided key for this request, or null if no value exists
     */
   override def getParameter(key: String): String =
-    Option(getParameterValues(key)).map(_.head).orNulln
+    Option(getParameterValues(key)).map(_.head).orNull
   /**
     * @param key a query parameter key
     * @return all query parameter values associated with the provided key for this request
