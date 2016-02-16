@@ -838,19 +838,19 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   }
 
   describe("setRequestURL") {
-    it("should change the URI returned by getRequestURI") {
+    it("should throw an IllegalArgumentException if passed null") {
       an[IllegalArgumentException] should be thrownBy wrappedRequest.setRequestURL(null)
     }
 
     it("should change the URL returned by getRequestURL") {
       wrappedRequest.setRequestURL(new StringBuffer("http://example.com/foo"))
 
-      wrappedRequest.getRequestURL shouldBe "http://example.com/foo"
+      wrappedRequest.getRequestURL.toString shouldEqual "http://example.com/foo"
     }
   }
 
   describe("setRequestURI") {
-    it("should change the URI returned by getRequestURI") {
+    it("should throw an IllegalArgumentException if passed null") {
       an[IllegalArgumentException] should be thrownBy wrappedRequest.setRequestURI(null)
     }
 
