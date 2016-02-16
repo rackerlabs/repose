@@ -19,4 +19,5 @@ dependencies {
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     testCompile "com.mockrunner:mockrunner-servlet"
     testCompile "org.springframework:spring-test" //todo: why do we ha ve both of these?
+    testCompile "org.slf4j:jcl-over-slf4j"
 }

@@ -139,6 +139,10 @@ subprojects {
             dependsOn('xjc')
         }
     }
+
+    configurations {
+        compile.exclude group: 'commons-logging', module: 'commons-logging'
+    }
 }
 
 dependencyRecommendations {

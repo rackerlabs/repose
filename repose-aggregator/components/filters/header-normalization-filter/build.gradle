@@ -11,4 +11,5 @@ dependencies {
     testCompile "org.scalatest:scalatest_2.10"
     testCompile "org.springframework:spring-test"
     testCompile "org.mockito:mockito-all"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }
