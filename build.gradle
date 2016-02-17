@@ -148,6 +148,7 @@ subprojects {
                 compileClasspath += generated.output
                 runtimeClasspath += generated.output
             }
+            output.dir(sourceSets.generated.output.classesDir, builtBy: 'compileGeneratedJava')
         }
     }
 
@@ -164,7 +165,7 @@ subprojects {
     //todo: remove old location for these files
     checkstyle {
         configFile = file("$rootDir/repose-aggregator/src/main/resources/styles/checkstyle.xml")
-        sourceSets = [sourceSets.main, sourceSets.test, sourceSets.integrationTest]
+        sourceSets = sourceSets.matching {it.name != 'generated'}
     }
 
     codenarc {
