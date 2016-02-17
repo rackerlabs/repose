@@ -56,7 +56,7 @@ class FilterChainUnstableTest extends ReposeValveTest {
     def "when sending requests on failure to startup repose due to bad configurations"() {
 
         given:
-        def List<String> logMatches = reposeLogSearch.searchByString("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
+        def List<String> logMatches = reposeLogSearch.searchByString("Please check your configuration files and your artifacts directory.");
         def existingWarningNumber = logMatches.size()
 
         when:
@@ -66,7 +66,7 @@ class FilterChainUnstableTest extends ReposeValveTest {
 
         then:
 
-        def List<String> logMatchesAfterRequests = reposeLogSearch.searchByString("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
+        def List<String> logMatchesAfterRequests = reposeLogSearch.searchByString("Please check your configuration files and your artifacts directory.");
         logMatchesAfterRequests.size() == (expectedWarnings + existingWarningNumber)
 
         where:
