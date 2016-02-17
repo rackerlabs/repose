@@ -118,7 +118,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
 
         //it should not have triggered any nodes
         runner.getActiveNodes shouldBe empty
@@ -142,7 +142,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
         runner.getActiveNodes shouldBe empty
 
         updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
 
         runner.getActiveNodes.size shouldBe 1
         val port = getValvePortMXBean.getPort("repose", "repose_node1")
@@ -155,7 +155,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
         updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
 
         runner.getActiveNodes.size shouldBe 1
@@ -171,7 +171,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
     def withSingleNodeRunner(f: ValveRunner => Unit) = {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
         updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
         f(runner)
       }
@@ -186,7 +186,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
 
         oldPort should equal(jmxOldPort)
 
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
         runner.getActiveNodes.size shouldBe 1
         runner.getActiveNodes.head shouldNot be(node)
 
@@ -207,7 +207,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           val jmxOldPort = getValvePortMXBean.getPort("repose", "repose_node1")
           jmxOldPort shouldNot equal(0)
 
-          updateSystemModel("/valveTesting/1node/change-node-1-port.xml")
+          updateSystemModel("/valveTesting/1node/change-node-1-port.cfg.xml")
           runner.getActiveNodes.size shouldBe 1
           val newNode = runner.getActiveNodes.head
           newNode shouldNot be(node)
@@ -229,7 +229,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           val beforePort = getValvePortMXBean.getPort("repose", "repose_node1")
           beforePort shouldNot equal(0)
 
-          updateSystemModel("/valveTesting/1node/change-node-1.xml")
+          updateSystemModel("/valveTesting/1node/change-node-1.cfg.xml")
           runner.getActiveNodes.size shouldBe 1
           runner.getActiveNodes.head shouldNot be(node)
           val afterPort = getValvePortMXBean.getPort("repose", "le_repose_node")
@@ -260,7 +260,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
     def withTwoNodeRunner(f: ValveRunner => Unit) = {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
         updateSystemModel("/valveTesting/2node/system-model-2.cfg.xml")
         f(runner)
       }
@@ -278,7 +278,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
         node1Port shouldNot equal(0)
         node2Port shouldNot equal(0)
 
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
 
         runner.getActiveNodes.size shouldBe 2
 
@@ -308,7 +308,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           val node1Port = getValvePortMXBean.getPort("repose", "repose_node1")
           val node2Port = getValvePortMXBean.getPort("repose", "repose_node2")
 
-          updateSystemModel("/valveTesting/2node/change-node-2.xml")
+          updateSystemModel("/valveTesting/2node/change-node-2.cfg.xml")
 
           runner.getActiveNodes.size shouldBe 2
           val newNode2 = runner.getActiveNodes.find(_.nodeId == "le_changed_node").get
@@ -324,7 +324,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           runner.getActiveNodes.size shouldBe 2
           val node1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
 
-          updateSystemModel("/valveTesting/2node/remove-node-2.xml")
+          updateSystemModel("/valveTesting/2node/remove-node-2.cfg.xml")
           runner.getActiveNodes.size shouldBe 1
           val stillNode1 = runner.getActiveNodes.head
 
@@ -346,7 +346,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
 
           node3Port should equal(0)
 
-          updateSystemModel("/valveTesting/2node/add-node-3.xml")
+          updateSystemModel("/valveTesting/2node/add-node-3.cfg.xml")
 
           runner.getActiveNodes.size shouldBe 3
           val newNode1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
@@ -402,7 +402,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
 
       runner.getActiveNodes shouldBe empty
 
-      updateContainerConfig("/valveTesting/without-keystore.xml")
+      updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
       updateSystemModel("/valveTesting/0node/system-model-0.cfg.xml")
       runner.getActiveNodes shouldBe empty
       val exitCode = Await.result(runnerTask, 1 second)

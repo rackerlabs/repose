@@ -68,7 +68,7 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
   }
 
   def valveConfig(systemModelResource: String,
-                  containerConfigResource: String = "/valveTesting/without-keystore.xml")(testFunc: (String, File) => Unit) = {
+                  containerConfigResource: String = "/valveTesting/without-keystore.cfg.xml")(testFunc: (String, File) => Unit) = {
     val configRoot = autoCleanTempDir("valve").toString
     val systemModelContent = resourceContent(systemModelResource)
     //I have to parse the Container Config Content to make sure it knows about the path to the log4j file

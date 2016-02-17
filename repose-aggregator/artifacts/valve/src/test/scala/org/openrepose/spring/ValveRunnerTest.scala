@@ -90,7 +90,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
 
         //it should not have triggered any nodes
         runner.getActiveNodes shouldBe empty
@@ -112,7 +112,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
         runner.getActiveNodes shouldBe empty
 
         updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
 
         runner.getActiveNodes.size shouldBe 1
       }
@@ -121,7 +121,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
 
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
         updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
 
         runner.getActiveNodes.size shouldBe 1
@@ -133,7 +133,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
     def withSingleNodeRunner(f: ValveRunner => Unit) = {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
         updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
         f(runner)
       }
@@ -144,7 +144,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
         runner.getActiveNodes.size shouldBe 1
         val node = runner.getActiveNodes.head
 
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
         runner.getActiveNodes.size shouldBe 1
         runner.getActiveNodes.head shouldNot be(node)
       }
@@ -157,7 +157,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
           node.httpPort.isDefined shouldBe (true)
           node.httpPort.get shouldBe (10234)
 
-          updateSystemModel("/valveTesting/1node/change-node-1-port.xml")
+          updateSystemModel("/valveTesting/1node/change-node-1-port.cfg.xml")
           runner.getActiveNodes.size shouldBe 1
           runner.getActiveNodes.head shouldNot be(node)
           runner.getActiveNodes.head.httpPort.isDefined shouldBe (true)
@@ -172,7 +172,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
           val node = runner.getActiveNodes.head
           node.nodeId shouldBe "repose_node1"
 
-          updateSystemModel("/valveTesting/1node/change-node-1.xml")
+          updateSystemModel("/valveTesting/1node/change-node-1.cfg.xml")
           runner.getActiveNodes.size shouldBe 1
           runner.getActiveNodes.head shouldNot be(node)
 
@@ -196,7 +196,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
     def withTwoNodeRunner(f: ValveRunner => Unit) = {
       withRunner() { runner =>
         runner.getActiveNodes shouldBe empty
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
         updateSystemModel("/valveTesting/2node/system-model-2.cfg.xml")
         f(runner)
       }
@@ -208,7 +208,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
         val node1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
         val node2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
 
-        updateContainerConfig("/valveTesting/without-keystore.xml")
+        updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
 
         runner.getActiveNodes.size shouldBe 2
 
@@ -227,7 +227,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
         withTwoNodeRunner { runner =>
           val node2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
 
-          updateSystemModel("/valveTesting/2node/change-node-2.xml")
+          updateSystemModel("/valveTesting/2node/change-node-2.cfg.xml")
 
           runner.getActiveNodes.size shouldBe 2
           val newNode2 = runner.getActiveNodes.find(_.nodeId == "le_changed_node").get
@@ -239,7 +239,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
           runner.getActiveNodes.size shouldBe 2
           val node1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
 
-          updateSystemModel("/valveTesting/2node/remove-node-2.xml")
+          updateSystemModel("/valveTesting/2node/remove-node-2.cfg.xml")
           runner.getActiveNodes.size shouldBe 1
           val stillNode1 = runner.getActiveNodes.head
 
@@ -252,7 +252,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
           val node1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
           val node2 = runner.getActiveNodes.find(_.nodeId == "repose_node2").get
 
-          updateSystemModel("/valveTesting/2node/add-node-3.xml")
+          updateSystemModel("/valveTesting/2node/add-node-3.cfg.xml")
 
           runner.getActiveNodes.size shouldBe 3
           val newNode1 = runner.getActiveNodes.find(_.nodeId == "repose_node1").get
@@ -293,7 +293,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
 
       runner.getActiveNodes shouldBe empty
 
-      updateContainerConfig("/valveTesting/without-keystore.xml")
+      updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
       updateSystemModel("/valveTesting/0node/system-model-0.cfg.xml")
       runner.getActiveNodes shouldBe empty
       val exitCode = Await.result(runnerTask, 1 second)
