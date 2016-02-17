@@ -22,11 +22,11 @@ package org.openrepose.lint
 import java.io.{File, InputStream, PrintStream}
 
 import com.typesafe.config.Config
-import org.openrepose.lint.commands.CommandRegistry
+import org.openrepose.lint.commands.VerifyTryItNowCommand
 import scopt.OptionParser
 
 /**
-  * A command line parser which determines what command to execute and executse it.
+  * A command line parser which determines what command to execute and executes it.
   */
 object CommandExecutor {
 
@@ -40,6 +40,11 @@ object CommandExecutor {
 
     val parser = new OptionParser[LintConfig]("repose-lint") {
       head("repose-lint", lintVer)
+
+      // Specifies whether or not to output verbose output.
+      opt[Unit]('v', "verbose") action { (_, c) =>
+        c.copy(verbose = true)
+      } text "flag for verbose output"
 
       // Specifies the Repose configuration directory to run this tool against.
       // The default is the current working directory.
@@ -71,18 +76,15 @@ object CommandExecutor {
 
       version("version") text "prints the version of this utility"
 
-      // Generate a scopt command for each command in the command registry. Using a command registry allows us to
-      // maintain a single source of truth for supported commands.
-      CommandRegistry.getAvailableCommands foreach { command =>
-        cmd(command.getCommandToken) action { (_, c) =>
-          c.copy(commandToken = command.getCommandToken)
-        } text command.getCommandDescription
-      }
+      // A command to ascertain the status of users with the "foyer" role for a given set of configuration files.
+      cmd(VerifyTryItNowCommand.getCommandToken) action { (_, c) =>
+        c.copy(command = Some(VerifyTryItNowCommand))
+      } text VerifyTryItNowCommand.getCommandDescription
     }
 
     parser.parse(args, LintConfig()) match {
       case Some(lintConfig) =>
-        CommandRegistry.lookup(lintConfig.commandToken) match {
+        lintConfig.command match {
           case Some(command) =>
             try {
               command.perform(lintConfig)
@@ -96,7 +98,7 @@ object CommandExecutor {
             }
           case None =>
             // Failed to lookup the command (this should never happen since the parser should catch it first)
-            Console.err.println("Unsupported command: " + lintConfig.commandToken)
+            Console.err.println("Unsupported command")
             1
         }
       case None =>

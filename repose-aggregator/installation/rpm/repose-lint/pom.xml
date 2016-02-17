@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
@@ -60,6 +61,10 @@
                         <configuration>
                             <name>${artifactName}</name>
 
+                            <description>
+                                A command-line utility which flags suspicious usage of Repose.
+                            </description>
+
                             <mappings>
                                 <!-- The JAR file -->
                                 <mapping>
@@ -76,6 +81,31 @@
                                                 ${project.build.directory}/repose-lint.jar
                                             </location>
                                         </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- The startup script -->
+                                <mapping>
+                                    <directory>/usr/share/repose</directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../configs/usr/bin/repose-lint</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- A link to put the startup script on the path -->
+                                <mapping>
+                                    <directory>/usr/bin</directory>
+                                    <sources>
+                                        <softlinkSource>
+                                            <location>/usr/share/repose/repose-lint</location>
+                                        </softlinkSource>
                                     </sources>
                                 </mapping>
 

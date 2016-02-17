@@ -55,7 +55,7 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
 
       Console.setOut(out)
 
-      val exitCode = CommandExecutor.execute(System.in, new PrintStream(out), System.err, mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir))
+      val exitCode = CommandExecutor.execute(System.in, new PrintStream(out), System.err, mockConfig, Array("verify-try-it-now", "-v", "-r", "7.2.0.0", "-c", configDir))
 
       val outString = new String(out.toByteArray)
 

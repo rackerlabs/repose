@@ -40,6 +40,13 @@ class ReposeLintTest extends Specification {
     @Shared
     ReposeConfigurationProvider reposeConfigurationProvider
 
+    def
+    static String allowedWithoutAuthorizationDesc = "Users with the 'foyer' Identity role WILL pass through this component BUT authorization checks will not be performed"
+    def
+    static String allowedWithAuthorizationDesc = "Users with the 'foyer' Identity role WILL pass through this component IF AND ONLY IF their Identity service catalog contains an endpoint required by the authorization component"
+    def static String allowedDesc = "Users with the 'foyer' Identity role WILL pass through this component"
+    def static String notAllowedDesc = "Users with the 'foyer' Identity role WILL NOT pass through this component"
+
     def setupSpec() {
         this.testProperties = new TestProperties()
 
@@ -59,7 +66,6 @@ class ReposeLintTest extends Specification {
         reposeLintLauncher.stop()
     }
 
-    // todo
     def "Test missing config"() {
         given:
         def params = testProperties.getDefaultTemplateParams()
@@ -76,14 +82,19 @@ class ReposeLintTest extends Specification {
 
         then:
         reposeLogSearch.searchByString(debugport.toString())
+        //top level status
+        jsonlog["foyerStatus"] == "NotAllowed"
+        jsonlog["foyerStatusDescription"] == notAllowedDesc
+
         jsonlog.clusters.clusterId.get(0) == "repose"
         jsonlog.clusters["authNCheck"][0]["filterName"] == "client-auth"
         jsonlog.clusters["authNCheck"][0]["filters"].size() != 0
         jsonlog.clusters["authNCheck"][0]["filters"][0]["missingConfiguration"] == true
         jsonlog.clusters["authNCheck"][0]["filters"][0]["foyerStatus"] == "NotAllowed"
+        jsonlog.clusters["authNCheck"][0]["filters"][0]["foyerStatusDescription"] == notAllowedDesc
     }
 
-    @Unroll("test with config: #configdir")
+    @Unroll("test with config: #configdir & #status")
     def "test individual components"() {
         given:
         def params = testProperties.getDefaultTemplateParams()
@@ -108,28 +119,32 @@ class ReposeLintTest extends Specification {
 
         then:
         reposeLogSearch.searchByString(debugport.toString())
+        //top level status
+        jsonlog["foyerStatus"] == status
+        jsonlog["foyerStatusDescription"] == desc
         jsonlog.clusters.clusterId.get(0) == "repose"
         jsonlog.clusters[checktype][0]["filterName"] == filtername
         jsonlog.clusters[checktype][0]["filters"].size() != 0
         jsonlog.clusters[checktype][0]["filters"][0]["missingConfiguration"] == false
         jsonlog.clusters[checktype][0]["filters"][0][foyerAsIgnoreTenant] == foyerignore
         jsonlog.clusters[checktype][0]["filters"][0]["foyerStatus"] == status
+        jsonlog.clusters[checktype][0]["filters"][0]["foyerStatusDescription"] == desc
         if (checktenantedmode == "yes") {
             assertTrue(jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode)
         }
 
         where:
-        configdir                                            | checktype         | filtername             | checktenantedmode | tenantmode | foyerignore | status
-        "features/reposelint/clientauthn"                    | "authNCheck"      | "client-auth"          | "yes"             | false      | false       | "Allowed"
-        "features/reposelint/clientauthn/tenanted"           | "authNCheck"      | "client-auth"          | "yes"             | true       | false       | "NotAllowed"
-        "features/reposelint/clientauthn/tenantedwfoyerrole" | "authNCheck"      | "client-auth"          | "yes"             | true       | true        | "Allowed"
-        "features/reposelint/clientauthz"                    | "authZCheck"      | "client-authorization" | "no"              | false      | false       | "AllowedAuthorized"
-        "features/reposelint/clientauthz/wfoyerrole"         | "authZCheck"      | "client-authorization" | "no"              | false      | true        | "AllowedNotAuthorized"
-        "features/reposelint/keystonev2"                     | "keystoneV2Check" | "keystone-v2"          | "yes"             | false      | false       | "AllowedNotAuthorized"
-        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | false       | "NotAllowed"
-        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | true        | "AllowedNotAuthorized"
-        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | false       | "NotAllowed"
-        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | true        | "AllowedNotAuthorized"
+        configdir                                            | checktype         | filtername             | checktenantedmode | tenantmode | foyerignore | status                        | desc
+        "features/reposelint/clientauthn"                    | "authNCheck"      | "client-auth"          | "yes"             | false      | false       | "Allowed"                     | allowedDesc
+        "features/reposelint/clientauthn/tenanted"           | "authNCheck"      | "client-auth"          | "yes"             | true       | false       | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/clientauthn/tenantedwfoyerrole" | "authNCheck"      | "client-auth"          | "yes"             | true       | true        | "Allowed"                     | allowedDesc
+        "features/reposelint/clientauthz"                    | "authZCheck"      | "client-authorization" | "no"              | false      | false       | "AllowedWithAuthorization"    | allowedWithAuthorizationDesc
+        "features/reposelint/clientauthz/wfoyerrole"         | "authZCheck"      | "client-authorization" | "no"              | false      | true        | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
+        "features/reposelint/keystonev2"                     | "keystoneV2Check" | "keystone-v2"          | "yes"             | false      | false       | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
+        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | false       | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | true        | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
+        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | false       | "AllowedWithAuthorization"    | allowedWithAuthorizationDesc
+        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | true        | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
     }
 
     @Unroll("test with multi config: #configdir")
@@ -179,10 +194,10 @@ class ReposeLintTest extends Specification {
 
         where:
         configdir                                                   | checktenantedmode | tenantmode | foyerignore    | status
-        "features/reposelint/authnandauthz"                         | "yes"             | false      | [false, false] | ["Allowed", "AllowedAuthorized"]
-        "features/reposelint/authnandauthz/authnwfoyerrole"         | "yes"             | true       | [true, false]  | ["Allowed", "AllowedAuthorized"]
-        "features/reposelint/authnandauthz/bothwfoyerrole"          | "yes"             | true       | [true, true]   | ["Allowed", "AllowedNotAuthorized"]
-        "features/reposelint/authnandauthz/tenantedauthzwfoyerrole" | "yes"             | true       | [false, true]  | ["NotAllowed", "AllowedNotAuthorized"]
-        "features/reposelint/authnandauthz/authzwfoyerrole"         | "yes"             | false      | [false, true]  | ["Allowed", "AllowedNotAuthorized"]
+        "features/reposelint/authnandauthz"                         | "yes"             | false      | [false, false] | ["Allowed", "AllowedWithAuthorization"]
+        "features/reposelint/authnandauthz/authnwfoyerrole"         | "yes"             | true       | [true, false]  | ["Allowed", "AllowedWithAuthorization"]
+        "features/reposelint/authnandauthz/bothwfoyerrole"          | "yes"             | true       | [true, true]   | ["Allowed", "AllowedWithoutAuthorization"]
+        "features/reposelint/authnandauthz/tenantedauthzwfoyerrole" | "yes"             | true       | [false, true]  | ["NotAllowed", "AllowedWithoutAuthorization"]
+        "features/reposelint/authnandauthz/authzwfoyerrole"         | "yes"             | false      | [false, true]  | ["Allowed", "AllowedWithoutAuthorization"]
     }
 }
