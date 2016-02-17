@@ -136,7 +136,20 @@ subprojects {
     }
 
     xjc.dependsOn transformXSDs
-    sourceSets.main.java.srcDirs += generatedDir
+
+    sourceSets {
+        generated {
+            java {
+                srcDirs += generatedDir
+            }
+        }
+        main {
+            java {
+                compileClasspath += generated.output
+                runtimeClasspath += generated.output
+            }
+        }
+    }
 
     [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
         tasks.withType(type) {
@@ -151,6 +164,7 @@ subprojects {
     //todo: remove old location for these files
     checkstyle {
         configFile = file("$rootDir/repose-aggregator/src/main/resources/styles/checkstyle.xml")
+        sourceSets = [sourceSets.main, sourceSets.test, sourceSets.integrationTest]
     }
 
     codenarc {
