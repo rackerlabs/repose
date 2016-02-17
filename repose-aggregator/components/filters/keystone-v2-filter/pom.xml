@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Components - Keystone v2</name>
-    <artifactId>keystone-v2</artifactId>
+    <artifactId>keystone-v2-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>

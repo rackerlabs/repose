@@ -45,7 +45,7 @@
         <module>iri-validator-filter</module>
         <module>herp-filter</module>
         <module>valkyrie-authorization-filter</module>
-        <module>keystone-v2</module>
+        <module>keystone-v2-filter</module>
         <module>cors-filter</module>
         <module>url-extractor-to-header-filter</module>
         <module>api-validator-filter</module>

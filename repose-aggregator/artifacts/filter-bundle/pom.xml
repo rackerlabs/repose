@@ -153,7 +153,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>keystone-v2</artifactId>
+            <artifactId>keystone-v2-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
