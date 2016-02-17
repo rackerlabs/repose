@@ -27,7 +27,6 @@ import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -125,7 +124,6 @@ class TransitionBadToGoodConfigsTest extends Specification {
         "connectionPooling"  | 200
     }
 
-    @Ignore
     @Unroll("start with bad #componentLabel configs, change to good (for configs that lead to connection errors)")
     def "start with bad #componentLabel configs, change to good (for configs that lead to connection errors)"() {
 
