@@ -803,46 +803,6 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
-  describe("setParameterMap") {
-    it("should throw an IllegalArgumentException if passed null") {
-      an[IllegalArgumentException] should be thrownBy wrappedRequest.setParameterMap(null)
-    }
-
-    it("should replace the current parameter map") {
-      wrappedRequest.setParameterMap(Map("bar" -> Array("rab")).asJava)
-
-      wrappedRequest.getParameterMap.keySet().asScala should contain only "bar"
-      wrappedRequest.getParameterMap.get("bar") should contain only "rab"
-    }
-
-    it("should set the parameter map with the same iteration order as the provided map") {
-      val orderedMap = mutable.LinkedHashMap(
-        "2" -> Array("2"),
-        "4" -> Array("4"),
-        "3" -> Array("3"),
-        "1" -> Array("1"),
-        "5" -> Array("5"))
-
-      wrappedRequest.setParameterMap(orderedMap.asJava)
-
-      wrappedRequest.getParameterMap.keySet().asScala.toSeq should contain inOrderOnly("2", "4", "3", "1", "5")
-    }
-
-    it("should not reflect changes made to the provided map after this method has been called") {
-      val orderedMap = mutable.LinkedHashMap(
-        "2" -> Array("2"),
-        "4" -> Array("4"),
-        "3" -> Array("3"),
-        "1" -> Array("1"),
-        "5" -> Array("5"))
-
-      wrappedRequest.setParameterMap(orderedMap.asJava)
-      orderedMap += ("6" -> Array("6"))
-
-      wrappedRequest.getParameterMap.keySet().asScala.toSeq should contain inOrderOnly("2", "4", "3", "1", "5")
-    }
-  }
-
   describe("setRequestURL") {
     it("should throw an IllegalArgumentException if passed null") {
       an[IllegalArgumentException] should be thrownBy wrappedRequest.setRequestURL(null)

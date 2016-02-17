@@ -207,24 +207,4 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     */
   override def getParameterMap: util.Map[String, Array[String]] =
     parameterMap.map(_.asJava).getOrElse(super.getParameterMap)
-
-  /** Sets the parameter map for this request.
-    *
-    * The provided map parameter will have its contents copied into an immutable map.
-    * As a result, modifications to the map parameter after calling this method will have no effect on the
-    * parameters of this request.
-    * The iteration order of the provided map will be maintained.
-    *
-    * @param map a [[java.util.Map]] containing all of the query parameters for this request
-    */
-  def setParameterMap(map: util.Map[String, Array[String]]): Unit = {
-    if (Option(map).isEmpty) throw new IllegalArgumentException("null is not a legal argument to setParameterMap")
-
-    val mapCopy = mutable.LinkedHashMap.empty[String, Array[String]]
-    map.entrySet().asScala foreach { entry =>
-      val arrayCopy = util.Arrays.copyOf(entry.getValue, entry.getValue.length)
-      mapCopy += (entry.getKey -> arrayCopy)
-    }
-    parameterMap = Option(ListMap(mapCopy.toSeq: _*))
-  }
 }
