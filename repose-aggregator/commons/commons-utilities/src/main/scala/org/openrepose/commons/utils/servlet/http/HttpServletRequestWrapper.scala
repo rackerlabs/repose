@@ -34,22 +34,23 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
 
-  object RequestBodyStatus extends Enumeration {
-    val Available, InputStream, Reader = Value
-  }
+  private final val HTTP = "http"
+  private final val HTTPS = "https"
+
+  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
 
   private var status = RequestBodyStatus.Available
-
-  def this(originalRequest: HttpServletRequest) = this(originalRequest, originalRequest.getInputStream)
-
-  val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
-
   private var requestUri: String = originalRequest.getRequestURI
-  private var requestUrl: StringBuffer = originalRequest.getRequestURL
   private var queryString: String = originalRequest.getQueryString
   private var parameterMap: Option[ListMap[String, Array[String]]] = None
   private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
   private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
+
+  object RequestBodyStatus extends Enumeration {
+    val Available, InputStream, Reader = Value
+  }
+
+  def this(originalRequest: HttpServletRequest) = this(originalRequest, originalRequest.getInputStream)
 
   override def getInputStream: ServletInputStream = {
     if (status == RequestBodyStatus.Reader) throw new IllegalStateException else status = RequestBodyStatus.InputStream
@@ -151,12 +152,22 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   override def getSplittableHeaders(headerName: String): util.List[String] = getSplittableHeaderScala(headerName).asJava
 
-  override def getRequestURL: StringBuffer = requestUrl
+  /**
+    * @return a [[StringBuffer]] containing the reconstructed URL for this request (note that
+    *         mutation of this [[StringBuffer]] will have no effect on the request URL)
+    */
+  override def getRequestURL: StringBuffer = {
+    val url: StringBuffer = new StringBuffer(getScheme).append("://").append(getServerName)
 
-  def setRequestURL(url: StringBuffer): Unit = {
-    if (Option(url).isEmpty) throw new IllegalArgumentException("null is not a legal argument to setRequestURL")
+    if (getServerPort > 0 && ((HTTP.equalsIgnoreCase(getScheme) && getServerPort != 80) || (HTTPS.equalsIgnoreCase(getScheme) && getServerPort != 443))) {
+      url.append(':').append(getServerPort)
+    }
 
-    requestUrl = url
+    if (Option(getRequestURI).exists(_.nonEmpty)) {
+      url.append(getRequestURI)
+    }
+
+    url
   }
 
   override def getRequestURI: String = requestUri

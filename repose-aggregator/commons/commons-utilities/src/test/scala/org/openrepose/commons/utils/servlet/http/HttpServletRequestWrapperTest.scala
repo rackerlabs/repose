@@ -803,18 +803,6 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
   }
 
-  describe("setRequestURL") {
-    it("should throw an IllegalArgumentException if passed null") {
-      an[IllegalArgumentException] should be thrownBy wrappedRequest.setRequestURL(null)
-    }
-
-    it("should change the URL returned by getRequestURL") {
-      wrappedRequest.setRequestURL(new StringBuffer("http://example.com/foo"))
-
-      wrappedRequest.getRequestURL.toString shouldEqual "http://example.com/foo"
-    }
-  }
-
   describe("setRequestURI") {
     it("should throw an IllegalArgumentException if passed null") {
       an[IllegalArgumentException] should be thrownBy wrappedRequest.setRequestURI(null)
@@ -824,6 +812,12 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.setRequestURI("/foo")
 
       wrappedRequest.getRequestURI shouldBe "/foo"
+    }
+
+    it("should change the URL returned by getRequestURL") {
+      wrappedRequest.setRequestURI("/foo")
+
+      wrappedRequest.getRequestURL.toString shouldBe "http://localhost:8080/foo"
     }
   }
 }
