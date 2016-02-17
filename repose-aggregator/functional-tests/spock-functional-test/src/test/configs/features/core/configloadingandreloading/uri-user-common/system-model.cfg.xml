@@ -8,7 +8,7 @@
         </nodes>
 
         <filters>
-            <filter name="uri-identity"/>
+            <filter name="uri-user"/>
         </filters>
 
         <destinations>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<uri-user xmlns='http://docs.openrepose.org/repose/uri-user/v1.0'>
+
+    <identification-mappings>
+        <mapping identification-regex=".*/service/(\w*)?/.*"/>
+        <mapping identification-regex=".*/resource/(\w*)?"/>
+    </identification-mappings>
+
+    <group>User_Default</group>
+    <quality>0.5</quality>
