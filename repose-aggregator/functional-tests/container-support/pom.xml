@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>functional-test-support</artifactId>
-        <version>7.3.2.0</version>
+        <version>8.0.0.0-SNAPSHOT</version>
     </parent>
 
     <name>Repose Test - Testing embedded support for Repose</name>
