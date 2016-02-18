@@ -37,6 +37,7 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/checkratelimit", params)
         repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def cleanupSpec() {
@@ -58,6 +59,7 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         then:
         mc1.handlings.size() == 1
         RateLimitMeasurementUtilities.checkAbsoluteLimitJsonResponse(json, checklimit)
+        mc1.receivedResponse.headers.findAll('Content-Type')
 
         where:
         limitgroup                          | checklimit

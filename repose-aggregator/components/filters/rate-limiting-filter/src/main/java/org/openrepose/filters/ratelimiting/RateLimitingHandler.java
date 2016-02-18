@@ -25,14 +25,9 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
-import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.core.filter.logic.FilterAction;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.commons.utils.servlet.filter.FilterAction;
+import org.openrepose.commons.utils.servlet.http.*;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.ratelimit.OverLimitData;
@@ -46,21 +41,23 @@ import org.slf4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
 
-
-/* Responsible for handling requests and responses to ratelimiting, also tracks and provides limits */
-public class RateLimitingHandler extends AbstractFilterLogicHandler {
+/* Responsible for handling requests and responses to rate limiting, also tracks and provides limits */
+public class RateLimitingHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
-    private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.APPLICATION_JSON);
+    private static final MimeType DEFAULT_MIME_TYPE = MimeType.APPLICATION_JSON;
+    private static final int SC_TOO_MANY_REQUESTS = 429;
+
     private final boolean includeAbsoluteLimits;
     private final Optional<Pattern> describeLimitsUriPattern;
     private final RateLimitingServiceHelper rateLimitingServiceHelper;
-    private MediaType originalPreferredAccept;
+    private MimeType originalPreferredAccept;
     private boolean overLimit429ResponseCode;
     private int datastoreWarnLimit;
     private final EventService eventService;
@@ -74,139 +71,112 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         this.eventService = eventService;
     }
 
-    @Override
-    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-        final FilterDirector director = new FilterDirectorImpl();
-        MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
-        MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaders(CommonHttpHeader.ACCEPT.toString(), DEFAULT_TYPE));
+    public FilterAction handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
+        FilterAction filterAction;
 
-
-        List<MediaType> mediaTypes = processor.process();
-
+        List<String> headerValues = request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString());
+        List<MimeType> mimeTypes = MediaRangeProcessor.getMimeTypesFromHeaderValues(headerValues);
+        if (mimeTypes.isEmpty()) {
+            mimeTypes.add(DEFAULT_MIME_TYPE);
+        }
 
         if (requestHasExpectedHeaders(request)) {
-            originalPreferredAccept = getPreferredMediaType(mediaTypes);
-            MediaType preferredMediaType = originalPreferredAccept;
+            originalPreferredAccept = getPreferredMimeType(mimeTypes);
 
-            final String requestUri = request.getRequestURI();
-
-            // request now considered valid with user.
-            director.setFilterAction(FilterAction.PASS);
-
-            boolean pass = false;
-
-            try {
-                // Record limits
-                pass = recordLimitedRequest(request, director);
-            } catch (DatastoreOperationException doe) {
-                LOG.error("Unable to communicate with dist-datastore.", doe);
-                response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-            }
-
-            // Does the request match the configured getCurrentLimits API call endpoint?
-            if (pass && describeLimitsUriPattern.isPresent() && describeLimitsUriPattern.get().matcher(requestUri).matches()) {
-                describeLimitsForRequest(request, director, preferredMediaType);
+            // record limits
+            if (!recordLimitedRequest(request, response)) {
+                // failure - either over the limit or some other exception related to the data store occurred
+                filterAction = FilterAction.RETURN;
+            } else if (describeLimitsUriPattern.isPresent() && describeLimitsUriPattern.get().matcher(request.getRequestURI()).matches()) {
+                // request matches the configured getCurrentLimits API call endpoint
+                filterAction = describeLimitsForRequest(request, response);
+            } else {
+                filterAction = FilterAction.PASS;
             }
         } else {
             LOG.warn("Expected header: {} was not supplied in the request. Rate limiting requires this header to operate.", PowerApiHeader.USER.toString());
 
             // Auto return a 401 if the request does not meet expectations
-            director.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
-            director.setFilterAction(FilterAction.RETURN);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentLength(0);
+            filterAction = FilterAction.RETURN;
         }
 
-        return director;
+        return filterAction;
     }
 
     private boolean requestHasExpectedHeaders(HttpServletRequest request) {
         return request.getHeader(PowerApiHeader.USER.toString()) != null;
     }
 
-    private void consumeException(Exception e, FilterDirector director, int desiredStatus) {
-        LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
-
-        director.setFilterAction(FilterAction.RETURN);
-        director.setResponseStatusCode(desiredStatus);
-    }
-
-    private void consumeException(Exception e, FilterDirector director) {
-        consumeException(e, director, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    }
-
-    private void describeLimitsForRequest(HttpServletRequest request, FilterDirector director, MediaType preferredMediaType) {
-        if (preferredMediaType.getMimeType() == MimeType.UNKNOWN) {
-            director.setFilterAction(FilterAction.RETURN);
-            director.setResponseStatusCode(HttpServletResponse.SC_NOT_ACCEPTABLE);
+    private FilterAction describeLimitsForRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
+        if (originalPreferredAccept == MimeType.UNKNOWN) {
+            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+            return FilterAction.RETURN;
         } else {
             // If include absolute limits let request pass thru but prepare the combined
             // (absolute and active) limits when processing the response
             // TODO: A way to query global rate limits
             if (includeAbsoluteLimits) {
-                director.setFilterAction(FilterAction.PROCESS_RESPONSE);
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), MimeType.APPLICATION_XML.toString());
+                request.replaceHeader(CommonHttpHeader.ACCEPT.toString(), MimeType.APPLICATION_XML.toString());
+                return FilterAction.PROCESS_RESPONSE;
             } else {
-                noUpstreamResponse(request, director, preferredMediaType);
+                return noUpstreamResponse(request, response);
             }
         }
     }
 
-    private void noUpstreamResponse(HttpServletRequest request, FilterDirector director, MediaType preferredMediaType) {
+    private FilterAction noUpstreamResponse(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         try {
-            final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, preferredMediaType, director.getResponseOutputStream());
-
-            director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
-            director.setFilterAction(FilterAction.RETURN);
-            director.setResponseStatusCode(HttpServletResponse.SC_OK);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, originalPreferredAccept, outputStream);
+            response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
+            response.setContentLength(outputStream.size());
+            response.setContentType(mimeType.toString());
+            response.setStatus(HttpServletResponse.SC_OK);
         } catch (Exception e) {
-            consumeException(e, director);
+            LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
+        return FilterAction.RETURN;
     }
 
-    /**
-     * @return false if over-limit and response delegation is not enabled
-     */
-    private boolean recordLimitedRequest(HttpServletRequest request, FilterDirector director) {
-        boolean pass = true;
+    private boolean recordLimitedRequest(HttpServletRequest request, HttpServletResponseWrapper response) {
+        boolean success = false;
 
         try {
             rateLimitingServiceHelper.trackLimits(request, datastoreWarnLimit);
+            success = true;
         } catch (OverLimitException e) {
             LOG.trace("Over Limit", e);
             new LimitLogger(e.getUser(), request).log(e.getConfiguredLimit(), Integer.toString(e.getCurrentLimitAmount()));
             final HttpDate nextAvailableTime = new HttpDate(e.getNextAvailableTime());
 
-            // Tell the filter we want to return right away
-            director.setFilterAction(FilterAction.RETURN);
-            pass = false;
-
             // We use a 413 "Request Entity Too Large" to communicate that the user
             // in question has hit their rate limit for this requested URI
             if (e.getUser().equals(RateLimitingServiceImpl.GLOBAL_LIMIT_USER)) {
-                director.setResponseStatusCode(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             } else if (overLimit429ResponseCode) {
-                director.setResponseStatusCode(FilterDirector.SC_TOO_MANY_REQUESTS);
+                response.setStatus(SC_TOO_MANY_REQUESTS);
             } else {
-                director.setResponseStatusCode(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+                response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
             }
-            director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
-            eventService.newEvent(RateLimitFilterEvent.OVER_LIMIT, new OverLimitData(e, datastoreWarnLimit, request, director.getResponseStatusCode()));
+
+            response.addHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
+            eventService.newEvent(RateLimitFilterEvent.OVER_LIMIT, new OverLimitData(e, datastoreWarnLimit, request, response.getStatus()));
         } catch (CacheException e) {
             LOG.error("Failure when tracking limits.", e);
-
-            director.setFilterAction(FilterAction.RETURN);
-            director.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
+            response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
+        } catch (DatastoreOperationException doe) {
+            LOG.error("Unable to communicate with dist-datastore.", doe);
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
 
-        return pass;
+        return success;
     }
 
-    @Override
-    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
-        final FilterDirector director = new FilterDirectorImpl();
-        director.setResponseStatusCode(response.getStatus());
-        director.setFilterAction(FilterAction.PASS);
-
+    public void handleResponse(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         try {
             if (response.getContentType() != null) {
                 //If we have a content type to process, then we should do something about it,
@@ -216,13 +186,13 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
                 InputStream absoluteInputStream;
                 if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
                     //New set up! Grab the upstream json, make it look like XML
-                    String newXml = UpstreamJsonToXml.convert(response.getInputStream());
+                    String newXml = UpstreamJsonToXml.convert(response.getOutputStreamAsInputStream());
 
                     //Now we use the new XML we converted from the JSON as the input to the processing stream
                     absoluteInputStream = new ByteArrayInputStream(newXml.getBytes(StandardCharsets.UTF_8));
                 } else if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_XML.toString())) {
                     //If we got XML from upstream, just read the stream directly
-                    absoluteInputStream = response.getBufferedOutputAsInputStream();
+                    absoluteInputStream = response.getOutputStreamAsInputStream();
                 } else {
                     LOG.error("Upstream limits responded with a content type we cannot understand: {}", response.getContentType());
                     //Upstream responded with something we cannot talk, we failed to combine upstream limits, return a 502!
@@ -230,37 +200,34 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
                 }
 
                 //We'll get here if we were able to properly parse JSON, or if we had XML from upstream!
-                final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, director.getResponseOutputStream());
-                director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, outputStream);
+                response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
+                response.setContentLength(outputStream.size());
+                response.setContentType(mimeType.toString());
             } else {
                 LOG.warn("NO DATA RECEIVED FROM UPSTREAM limits, only sending regular rate limits!");
                 //No data from upstream, so we send the regular stuff no matter what
-                noUpstreamResponse(request, director, originalPreferredAccept);
+                noUpstreamResponse(request, response);
             }
-
         } catch (UpstreamException ue) {
             //I want a 502 returned when upstream didn't respond appropriately
-            consumeException(ue, director, HttpServletResponse.SC_BAD_GATEWAY);
+            LOG.error("Failure when querying limits. Reason: " + ue.getMessage(), ue);
+            response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         } catch (Exception e) {
-            consumeException(e, director);
+            LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-
-        return director;
     }
 
-    public MediaType getPreferredMediaType(List<MediaType> mediaTypes) {
-
-        for (MediaType mediaType : mediaTypes) {
-
-            if (mediaType.getMimeType() == MimeType.APPLICATION_XML) {
-                return mediaType;
-            } else if (mediaType.getMimeType() == MimeType.APPLICATION_JSON) {
-                return mediaType;
+    public MimeType getPreferredMimeType(List<MimeType> mimeTypes) {
+        for (MimeType mimeType : mimeTypes) {
+            if (mimeType == MimeType.APPLICATION_XML || mimeType == MimeType.APPLICATION_JSON) {
+                return mimeType;
             }
         }
 
-        return mediaTypes.get(0);
-
+        return mimeTypes.get(0);
     }
 
     /**

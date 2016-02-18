@@ -130,6 +130,20 @@
             <artifactId>scala-library</artifactId>
         </dependency>
 
+        <!-- LogFactory, needed by MockHttpServletRequest/Response -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- MockHttpServletRequest/Response -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

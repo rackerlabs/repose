@@ -42,14 +42,28 @@ public class MediaRangeProcessor {
     }
 
     public MediaType process(HeaderValue headerValue) {
-        String mediaTypeWithParamtersStripped = headerValue.getValue().split(";")[0];
+        String mediaTypeWithParametersStripped = headerValue.getValue().split(";")[0];
 
-        MimeType mediaType = MimeType.getMatchingMimeType(mediaTypeWithParamtersStripped);
+        MimeType mediaType = MimeType.getMatchingMimeType(mediaTypeWithParametersStripped);
 
         if (MimeType.UNKNOWN.equals(mediaType)) {
-            mediaType = MimeType.guessMediaTypeFromString(mediaTypeWithParamtersStripped);
+            mediaType = MimeType.guessMediaTypeFromString(mediaTypeWithParametersStripped);
         }
 
-        return new MediaType(mediaTypeWithParamtersStripped, mediaType, headerValue.getParameters());
+        return new MediaType(mediaTypeWithParametersStripped, mediaType, headerValue.getParameters());
+    }
+
+    public static List<MimeType> getMimeTypesFromHeaderValues(List<String> headerValues) {
+        List<MimeType> mimeTypes = new ArrayList<>();
+
+        for (String headerValue : headerValues) {
+            MimeType mimeType = MimeType.getMatchingMimeType(headerValue);
+            if (MimeType.UNKNOWN.equals(mimeType)) {
+                mimeType = MimeType.guessMediaTypeFromString(headerValue);
+            }
+            mimeTypes.add(mimeType);
+        }
+
+        return mimeTypes;
     }
 }

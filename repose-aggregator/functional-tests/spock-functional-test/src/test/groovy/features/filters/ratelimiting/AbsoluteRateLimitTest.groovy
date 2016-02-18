@@ -94,6 +94,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/onenodes", params)
         repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
 
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
     }

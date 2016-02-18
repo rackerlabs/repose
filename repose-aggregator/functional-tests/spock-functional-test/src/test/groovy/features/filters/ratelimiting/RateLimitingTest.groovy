@@ -52,6 +52,7 @@ class RateLimitingTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/onenodes", params)
         repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
 
         //Set up our rate limit utils
         rlmu = new RateLimitMeasurementUtilities(deproxy, reposeEndpoint, groupHeaderDefault, userHeaderDefault)

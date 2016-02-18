@@ -19,7 +19,16 @@
  */
 package org.openrepose.filters.ratelimiting;
 
+import com.google.common.base.Optional;
+import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
+import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.ratelimit.RateLimitingService;
+import org.openrepose.core.services.ratelimit.RateLimitingServiceFactory;
+import org.openrepose.core.services.ratelimit.cache.ManagedRateLimitCache;
+import org.openrepose.core.services.ratelimit.cache.RateLimitCache;
 import org.openrepose.core.services.ratelimit.config.*;
+import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
+import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +40,24 @@ public abstract class RateLimitingTestSupport {
 
     public static final String DEFAULT_URI = "/v1.0/*", DEFAULT_USER_ROLE = "group", DEFAULT_URI_REGEX = "/v1.0/([^/]*)/.*", DEFAULT_LIMIT_GROUP_ID = "testing-group";
     public static final String MULTI_METHOD_URI = "/v2.0/*", MULTI_METHOD_URI_REGEX = "/v2.0/([^/]*)/.*", MULTI_METHOD_LIMIT_GROUP_ID = "multi-group";
+
+    public static RateLimitingHandler createHandler(RateLimitingConfiguration configurationObject, EventService eventService, DistributedDatastore datastore) {
+        RateLimitCache rateLimitCache = new ManagedRateLimitCache(datastore);
+        RateLimitingService rateLimitingService = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject);
+        Optional<Pattern> describeLimitsUriRegex = configurationObject.getRequestEndpoint() != null ?
+                Optional.of(Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex())) :
+                Optional.<Pattern>absent();
+        boolean includeAbsoluteLimits = configurationObject.getRequestEndpoint() != null &&
+                configurationObject.getRequestEndpoint().isIncludeAbsoluteLimits();
+
+        return new RateLimitingHandler(
+                new RateLimitingServiceHelper(rateLimitingService, new ActiveLimitsWriter(), new CombinedLimitsWriter()),
+                eventService,
+                includeAbsoluteLimits,
+                describeLimitsUriRegex,
+                configurationObject.isOverLimit429ResponseCode(),
+                configurationObject.getDatastoreWarnLimit().intValue());
+    }
 
 
     public static RateLimitingConfiguration defaultRateLimitingConfiguration() {
