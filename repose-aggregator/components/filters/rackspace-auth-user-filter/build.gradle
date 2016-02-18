@@ -14,3 +14,7 @@ dependencies {
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
 }
+
+license {
+    exclude "**/rackspace-auth-user.xml"
+}
