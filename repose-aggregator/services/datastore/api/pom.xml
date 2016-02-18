@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>datastore-service-support</artifactId>
-        <version>7.3.2.0-SNAPSHOT</version>
+        <version>8.0.0.0-SNAPSHOT</version>
     </parent>
 
     <name>Repose Services - Datastore Service API</name>
