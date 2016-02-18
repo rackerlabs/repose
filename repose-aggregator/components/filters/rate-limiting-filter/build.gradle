@@ -22,6 +22,7 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.spockframework:spock-core"
     testCompile "com.mockrunner:mockrunner-servlet"
+    testCompile "org.springframework:spring-test"
 }
 
 sourceSets.main.scala.srcDir "src/main/java"

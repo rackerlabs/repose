@@ -103,8 +103,4 @@ public class RemoteCommandExecutorTest {
             assertEquals("Host key must be set in the remote command", TRACING_HEADER, tracingHeader);
         }
     }
-
 }
-
-
-

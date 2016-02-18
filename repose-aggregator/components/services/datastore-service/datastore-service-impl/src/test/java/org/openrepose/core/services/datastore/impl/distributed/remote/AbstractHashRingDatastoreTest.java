@@ -84,7 +84,8 @@ public class AbstractHashRingDatastoreTest {
                     new InetSocketAddress(addresses[0], 2200),
                     new InetSocketAddress(addresses[1], 2200),
                     new InetSocketAddress(addresses[2], 2200),
-                    new InetSocketAddress(addresses[3], 2200),});
+                    new InetSocketAddress(addresses[3], 2200),
+            });
 
             mockedDatastore = mock(Datastore.class);
         }
