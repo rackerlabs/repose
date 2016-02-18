@@ -17,3 +17,10 @@ dependencies {
     testCompile "org.apache.logging.log4j:log4j-core"
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
 }
+
+license {
+    ["limits.xsd", "atom.xsd", "httpx-headers.xsd", "httpx-common.xsd", "httpx.xsd", "versioning-schema1.1.xsd.txt",
+     "versioning.xsd", "xproc-papi.xsd", "xml.xsd", "xproc.xsd", "test.properties", "README.md"]
+            .collect {"**/$it"}
+            .each { exclude it }
+}
