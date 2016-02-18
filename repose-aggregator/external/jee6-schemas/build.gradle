@@ -1,0 +1,5 @@
+license {
+    excludes(["**/application_6.xsd", "**/jsp_2_2.xsd", "**/javaee_6.xsd", "**/javaee_web_services_client_1_3.xsd",
+              "**/ejb-jar_3_1.xsd", "**/web-app_3_0.xsd", "**/web-fragment_3_0.xsd", "**/web-common_3_0.xsd",
+              "**/xml.xsd"])
+}

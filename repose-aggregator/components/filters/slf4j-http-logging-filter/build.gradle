@@ -20,3 +20,7 @@ dependencies {
     testCompile project(":repose-aggregator/commons/commons-configuration")
     testCompile "xerces:xerces-xsd11"
 }
+
+license {
+    exclude "**/slf4j-http-logging.xml"
+}

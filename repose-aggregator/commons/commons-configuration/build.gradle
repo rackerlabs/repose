@@ -19,8 +19,7 @@ dependencies {
 }
 
 license {
-    ["limits.xsd", "atom.xsd", "httpx-headers.xsd", "httpx-common.xsd", "httpx.xsd", "versioning-schema1.1.xsd.txt",
-     "versioning.xsd", "xproc-papi.xsd", "xml.xsd", "xproc.xsd", "test.properties", "README.md"]
-            .collect {"**/$it"}
-            .each { exclude it }
+    excludes(["**/limits.xsd", "**/atom.xsd", "**/httpx-headers.xsd", "**/httpx-common.xsd", "**/httpx.xsd",
+              "**/versioning-schema1.1.xsd.txt", "**/versioning.xsd", "**/xproc-papi.xsd", "**/xml.xsd", "**/xproc.xsd",
+              "**/test.properties", "**/README.md"])
 }

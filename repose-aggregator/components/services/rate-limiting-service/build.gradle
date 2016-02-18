@@ -14,3 +14,7 @@ dependencies {
     testCompile "org.spockframework:spock-core"
     testCompile "xerces:xerces-xsd11"
 }
+
+license {
+    excludes(["**/limits.xml", "**/limits.xsd", "**/duplicate-limit-ids.xml", "**/valid-rate-limiting-config.xml"])
+}

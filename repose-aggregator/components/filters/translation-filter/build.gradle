@@ -31,3 +31,10 @@ dependencies {
 configurations {
     testCompile.exclude group: 'net.sf.saxon', module: 'Saxon-EE'
 }
+
+license {
+    excludes(["version.properties", "configuration.xml", "pipeline-library.xml", "request-post-process.xsl", "xml.xsd",
+              "xproc-papi.xsd", "xproc.xsd", "query-parameters.xml", "post_server_req_v1.0.xml", "headers.xml",
+              "request.xml", "post_server_req_v1.1.xsl", "add-element.xsl", "empty.xml", "identity.xsl",
+              "remove-me-element.xml", "remove-element.xsl", "style.xsl", "request-information.xml"].collect {"**/$it"})
+}

@@ -32,7 +32,5 @@ sourceSets.main.java.srcDirs = []
 //todo:try to cleanup the weird test output
 
 license {
-    ["empty.txt", "fail.xml", "message.xsl", "test.properties", "warn.xml"]
-            .collect {"**/$it"}
-            .each { exclude it }
+    excludes(["**/empty.txt", "**/fail.xml", "**/message.xsl", "**/test.properties", "**/warn.xml"])
 }

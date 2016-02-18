@@ -15,3 +15,10 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "xmlunit:xmlunit"
 }
+
+license {
+    excludes(["atom.xsd", "versioning-schema1.1.xsd.txt", "versioning.xsd", "remove-1.1-elements.xsl", "xml.xsd",
+              "version-json.xsl", "version-atom.xsl", "version-html.xsl", "s1.0p.xsl", "choices.json", "version.json",
+              "choices2.json", "versions.json", "choices.xml", "versions2.json", "version.xml", "versions.xml"]
+            .collect { "**/$it"})
+}
