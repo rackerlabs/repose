@@ -23,6 +23,8 @@ dependencies {
     testCompile "org.scalatest:scalatest_2.10"
     testCompile "org.spockframework:spock-core"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
+    testCompile "org.springframework:spring-test"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }
 
 

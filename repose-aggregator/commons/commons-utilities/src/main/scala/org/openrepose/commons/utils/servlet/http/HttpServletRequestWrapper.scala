@@ -27,28 +27,21 @@ import javax.servlet.http.HttpServletRequest
 import org.apache.http.client.utils.DateUtils
 
 import scala.collection.JavaConverters._
-import scala.collection.immutable.{ListMap, TreeMap, TreeSet}
+import scala.collection.immutable.{TreeMap, TreeSet}
 import scala.collection.mutable
 
 class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream: ServletInputStream)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
 
-  private final val HTTP = "http"
-  private final val HTTPS = "https"
-
-  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
+  import HttpServletRequestWrapper._
 
   private var status = RequestBodyStatus.Available
   private var requestUri: String = originalRequest.getRequestURI
   private var queryString: String = originalRequest.getQueryString
-  private var parameterMap: Option[ListMap[String, Array[String]]] = None
+  private var parameterMap: Option[Map[String, Array[String]]] = None
   private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
   private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
-
-  object RequestBodyStatus extends Enumeration {
-    val Available, InputStream, Reader = Value
-  }
 
   def this(originalRequest: HttpServletRequest) = this(originalRequest, originalRequest.getInputStream)
 
@@ -184,13 +177,45 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   override def getQueryString: String = queryString
 
   /**
-    * @param string the desired query string for this request
+    * @param newQueryString the desired query string for this request
     */
-  def setQueryString(string: String): Unit = {
-    // todo: update parameter map
-    // parse the current query string and remove from parameter map
-    // parse the new query string and add to parameter map
-    queryString = string
+  def setQueryString(newQueryString: String): Unit = {
+    def parseQueryString(s: String): Map[String, Array[String]] = {
+      val parameterMap = mutable.Map.empty[String, Array[String]]
+
+      s.split(QueryPairDelimiter) foreach { queryPair =>
+        val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
+
+        if (keyValuePair.length == 2) {
+          val key = keyValuePair(0)
+          val value = keyValuePair(1)
+          parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(value))
+        } else {
+          val key = keyValuePair(0)
+          parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(""))
+        }
+      }
+
+      parameterMap.toMap
+    }
+
+    val updatedParameterMap = mutable.Map.empty[String, Array[String]]
+    val curQueryMap = Option(getQueryString).map(parseQueryString).getOrElse(Map.empty[String, Array[String]])
+    val newQueryMap = Option(newQueryString).map(parseQueryString).getOrElse(Map.empty[String, Array[String]])
+
+    // Remove all current query parameters from the parameter map
+    getParameterMap.asScala foreach { case (key, values) =>
+      val formValues = values.filterNot(value => curQueryMap.get(key).exists(_.contains(value)))
+      if (formValues.nonEmpty) updatedParameterMap += (key -> formValues)
+    }
+
+    // All all new query parameters to the parameter map with query parameters preceding form parameters
+    newQueryMap foreach { case (key, values) =>
+      updatedParameterMap += (key -> (values ++ updatedParameterMap.getOrElse(key, Array.empty[String])))
+    }
+
+    parameterMap = Option(updatedParameterMap.toMap)
+    queryString = newQueryString
   }
 
   /**
@@ -213,9 +238,26 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   override def getParameterNames: util.Enumeration[String] =
     parameterMap.map(_.keysIterator.asJavaEnumeration).getOrElse(super.getParameterNames)
 
-  /**
+  /** Returns the parameter map containing all form and query parameters for this request. Note that form parameters
+    * are only modifiable "manually" by manipulating the body of this request. Changes to form parameters in the body
+    * of this request will no be reflected in this parameter map.
+    *
     * @return the parameter map for this request
     */
   override def getParameterMap: util.Map[String, Array[String]] =
     parameterMap.map(_.asJava).getOrElse(super.getParameterMap)
+}
+
+object HttpServletRequestWrapper {
+  private final val HTTP = "http"
+  private final val HTTPS = "https"
+  private final val QueryPairDelimiter = "&"
+  private final val QueryKeyValueDelimiter = "="
+
+  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
+
+  object RequestBodyStatus extends Enumeration {
+    val Available, InputStream, Reader = Value
+  }
+
 }

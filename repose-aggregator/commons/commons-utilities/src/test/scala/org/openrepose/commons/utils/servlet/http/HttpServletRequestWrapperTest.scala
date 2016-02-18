@@ -23,10 +23,10 @@ import java.io.{BufferedReader, IOException}
 import java.util
 import javax.servlet.ServletInputStream
 
-import com.mockrunner.mock.web.MockHttpServletRequest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -49,17 +49,16 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
   before {
     val mockRequest = new MockHttpServletRequest
     mockRequest.setRequestURI("/foo/bar")
-    mockRequest.setRequestURL("http://example.com/foo/bar")
     queryParamMap foreach { case (parameterKey, parameterValues) =>
-      mockRequest.setupAddParameter(parameterKey, parameterValues)
-      mockRequest.setQueryString(Option(mockRequest.getQueryString).getOrElse("") + parameterValues.map(value => parameterKey + "=" + value).mkString("&"))
+      mockRequest.addParameter(parameterKey, parameterValues)
+      mockRequest.setQueryString(Option(mockRequest.getQueryString).map(_ + "&").getOrElse("") + parameterValues.map(value => parameterKey + "=" + value).mkString("&"))
     }
     headerMap foreach { case (headerName, headerValues) =>
       headerValues foreach { headerValue =>
         mockRequest.addHeader(headerName, headerValue)
       }
     }
-    mockRequest.setBodyContent("i like pie\nyummy yummy\n")
+    mockRequest.setContent("i like pie\nyummy yummy\n".getBytes)
     wrappedRequest = new HttpServletRequestWrapper(mockRequest)
   }
 
@@ -85,7 +84,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("tests IOException is thrown") {
       val is: ServletInputStream = wrappedRequest.getInputStream
-      is.close
+      is.close()
       an[IOException] should be thrownBy is.reset
     }
   }
@@ -114,7 +113,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("tests IOException is thrown") {
       val br: BufferedReader = wrappedRequest.getReader
-      br.close
+      br.close()
       an[IOException] should be thrownBy br.reset
     }
   }
@@ -722,7 +721,52 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("should update the parameter map to reflect the change in query parameters") {
-      pending
+      val localRequest = new MockHttpServletRequest()
+      localRequest.addParameter("a", "b")
+      localRequest.setQueryString("b=c")
+
+      val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
+
+      localWrappedRequest.setQueryString("bar=rab&baz=zab")
+
+      localWrappedRequest.getQueryString shouldBe "bar=rab&baz=zab"
+      localWrappedRequest.getParameterMap should have size 3
+      localWrappedRequest.getParameterMap should not contain key("b")
+      localWrappedRequest.getParameterMap should contain key "a"
+      localWrappedRequest.getParameterMap should contain key "bar"
+      localWrappedRequest.getParameterMap should contain key "baz"
+      localWrappedRequest.getParameterMap.get("a") should contain("b")
+      localWrappedRequest.getParameterMap.get("bar") should contain("rab")
+      localWrappedRequest.getParameterMap.get("baz") should contain("zab")
+    }
+
+    it("should order query parameter values before form parameter values") {
+      val localRequest = new MockHttpServletRequest()
+      localRequest.addParameter("a", "b")
+      localRequest.setQueryString("a=c")
+
+      val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
+
+      localWrappedRequest.setQueryString("a=d")
+
+      localWrappedRequest.getQueryString shouldBe "a=d"
+      localWrappedRequest.getParameterMap should have size 1
+      localWrappedRequest.getParameterMap should contain key "a"
+      localWrappedRequest.getParameterMap.get("a") should contain inOrderOnly("d", "b")
+    }
+
+    it("should handle a query parameter with no value as having an empty string value") {
+      val localRequest = new MockHttpServletRequest()
+      localRequest.addParameter("a", "b")
+
+      val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
+
+      localWrappedRequest.setQueryString("a&b=c")
+
+      localWrappedRequest.getQueryString shouldBe "a&b=c"
+      localWrappedRequest.getParameterMap should have size 2
+      localWrappedRequest.getParameterMap should contain key "a"
+      localWrappedRequest.getParameterMap.get("a") should contain inOrderOnly("", "b")
     }
   }
 
@@ -736,25 +780,19 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("should return the first parameter value associated with a key after mutation") {
-      wrappedRequest.setParameterMap(Map("bar" -> Array("rab")).asJava)
+      wrappedRequest.setQueryString("bar=rab")
 
       wrappedRequest.getParameter("bar") shouldBe "rab"
     }
   }
 
   describe("getParameterNames") {
-    it("should return an empty enumeration if there are no parameters") {
-      wrappedRequest.setParameterMap(Map.empty[String, Array[String]].asJava)
-
-      wrappedRequest.getParameterNames.asScala shouldBe empty
-    }
-
     it("should return all parameter names") {
       wrappedRequest.getParameterNames.asScala.toSeq should contain only "foo"
     }
 
     it("should return all parameter names after mutation") {
-      wrappedRequest.setParameterMap(Map("bar" -> Array("rab"), "baz" -> Array("zab")).asJava)
+      wrappedRequest.setQueryString("bar=rab&baz=zab")
 
       wrappedRequest.getParameterNames.asScala.toSeq should contain only("bar", "baz")
     }
@@ -762,8 +800,6 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
   describe("getParameterValues") {
     it("should return an null if there is no key parameter") {
-      wrappedRequest.setParameterMap(Map.empty[String, Array[String]].asJava)
-
       wrappedRequest.getParameterValues("mia") shouldBe null
     }
 
@@ -772,26 +808,20 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     }
 
     it("should return all parameter values associated with a key after mutation") {
-      wrappedRequest.setParameterMap(Map("bar" -> Array("rab")).asJava)
+      wrappedRequest.setQueryString("bar=rab")
 
       wrappedRequest.getParameterValues("bar") should contain only "rab"
     }
   }
 
   describe("getParameterMap") {
-    it("should return an empty map if there are no parameters") {
-      wrappedRequest.setParameterMap(Map.empty[String, Array[String]].asJava)
-
-      wrappedRequest.getParameterMap shouldBe empty
-    }
-
     it("should return the original request query parameters if no mutation has occurred") {
       wrappedRequest.getParameterMap.keySet().asScala should contain only "foo"
       wrappedRequest.getParameterMap.get("foo") should contain only("bar", "baz")
     }
 
     it("should return the new request query parameters if mutation has occurred") {
-      wrappedRequest.setParameterMap(Map("1" -> Array("2")).asJava)
+      wrappedRequest.setQueryString("1=2")
 
       wrappedRequest.getParameterMap.keySet().asScala should contain only "1"
       wrappedRequest.getParameterMap.get("1") should contain only "2"
@@ -800,6 +830,18 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should return an immutable map") {
       an[UnsupportedOperationException] should be thrownBy wrappedRequest.getParameterMap.put("foo", Array("oof"))
       wrappedRequest.getParameterMap.get("foo") should contain only("bar", "baz")
+    }
+  }
+
+  describe("getRequestURL") {
+    it("should return the wrapped request's url") {
+      wrappedRequest.getRequestURL.toString shouldBe "http://localhost/foo/bar"
+    }
+  }
+
+  describe("getRequestURI") {
+    it("should return the wrapped request's uri") {
+      wrappedRequest.getRequestURI shouldBe "/foo/bar"
     }
   }
 
@@ -817,7 +859,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     it("should change the URL returned by getRequestURL") {
       wrappedRequest.setRequestURI("/foo")
 
-      wrappedRequest.getRequestURL.toString shouldBe "http://localhost:8080/foo"
+      wrappedRequest.getRequestURL.toString shouldBe "http://localhost/foo"
     }
   }
 }
