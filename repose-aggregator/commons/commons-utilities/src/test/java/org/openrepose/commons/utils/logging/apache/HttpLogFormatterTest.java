@@ -149,10 +149,10 @@ public class HttpLogFormatterTest {
         public void shouldParseCustomTimeFormat() {
             final String customDateFormatRegex = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}";
 
-            final HttpLogFormatter formatter = new HttpLogFormatter("%{yyyy-MM-dd HH:mm:ss}t");
+            final HttpLogFormatter httpLogFormatter = new HttpLogFormatter("%{yyyy-MM-dd HH:mm:ss}t");
 
-            assertEquals(1, formatter.getHandlerList().size());
-            assertTrue(Pattern.matches(customDateFormatRegex, formatter.format(request, response)));
+            assertEquals(1, httpLogFormatter.getHandlerList().size());
+            assertTrue(Pattern.matches(customDateFormatRegex, httpLogFormatter.format(request, response)));
         }
     }
 
