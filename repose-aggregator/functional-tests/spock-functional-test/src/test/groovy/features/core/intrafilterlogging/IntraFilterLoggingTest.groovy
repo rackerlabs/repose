@@ -88,7 +88,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("\"currentFilter\":\"content-type-stripper\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"merge-header\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"slf4j-http-logging\"").size() > 0
-        reposeLogSearch.searchByString("\"currentFilter\":\"uri-identity\"").size() > 0
+        reposeLogSearch.searchByString("\"currentFilter\":\"uri-user\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"uri-normalization\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"uri-stripper\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"compression\"").size() > 0
@@ -111,7 +111,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("null-content-type-stripper").size() == 0
         reposeLogSearch.searchByString("null-merge-header").size() == 0
         reposeLogSearch.searchByString("null-slf4j-http-logging").size() == 0
-        reposeLogSearch.searchByString("null-uri-identity").size() == 0
+        reposeLogSearch.searchByString("null-uri-user").size() == 0
         reposeLogSearch.searchByString("null-uri-normalization").size() == 0
         reposeLogSearch.searchByString("null-uri-stripper").size() == 0
         reposeLogSearch.searchByString("null-compression").size() == 0
