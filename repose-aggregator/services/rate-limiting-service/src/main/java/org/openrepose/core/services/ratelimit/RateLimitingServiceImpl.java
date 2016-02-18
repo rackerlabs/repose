@@ -97,9 +97,10 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             }
 
             // Did we find a limit that matches the incoming uri and http method?
-            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(rateLimit.getQueryParamNames(), parameterMap)) {
+            List<Matcher> queryParamMatchers = getQueryParamMatchers(rateLimit.getQueryParam(), parameterMap);
+            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryParamMatchers != null) {
                 matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(configuredLimitGroup.getId(),
-                        rateLimit.getId(), uriMatcher, useCaptureGroups), rateLimit));
+                        rateLimit.getId(), uriMatcher, queryParamMatchers, useCaptureGroups), rateLimit));
 
                 if (rateLimit.getUnit().compareTo(largestUnit) > 0) {
                     largestUnit = rateLimit.getUnit();
@@ -119,9 +120,10 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         for (ConfiguredRatelimit globalLimit : globalLimitGroup.getLimit()) {
             Matcher uriMatcher = ((ConfiguredRateLimitWrapper) globalLimit).getRegexPattern().matcher(uri);
 
-            if (uriMatcher.matches() && httpMethodMatches(globalLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(globalLimit.getQueryParamNames(), parameterMap)) {
+            List<Matcher> queryParamMatchers = getQueryParamMatchers(globalLimit.getQueryParam(), parameterMap);
+            if (uriMatcher.matches() && httpMethodMatches(globalLimit.getHttpMethods(), httpMethod) && queryParamMatchers != null) {
                 matchingGlobalConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(GLOBAL_LIMIT_GROUP,
-                        globalLimit.getId(), uriMatcher, useCaptureGroups), globalLimit)); // NOTE: GLOBAL_LIMIT_GROUP is not guaranteed to be unique since XSD validation does not enforce uniqueness as it does for other rate limit groups
+                        globalLimit.getId(), uriMatcher, queryParamMatchers, useCaptureGroups), globalLimit)); // NOTE: GLOBAL_LIMIT_GROUP is not guaranteed to be unique since XSD validation does not enforce uniqueness as it does for other rate limit groups
 
                 if (globalLimit.getUnit().compareTo(largestUnit) > 0) {
                     largestUnit = globalLimit.getUnit();
@@ -140,22 +142,45 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                 configMethods.contains(HttpMethod.valueOf(requestMethod.toUpperCase()));
     }
 
-    private boolean queryParameterNameMatches(List<String> configuredQueryParams, Map<String, String[]> requestParameterMap) {
-        for (String configuredParamKey : configuredQueryParams) {
-            boolean matchFound = false;
+    /**
+     *
+     * @param configuredQueryParams A <code>List</code> of the configured query parameter regexes.
+     * @param requestParameterMap A <code>Map</code> of the key/value pairs in the request.
+     * @return Returns a <code>List</code> of <code>Matcher</code> if the configured query parameters are all matched
+     *         against the request query parameters. Otherwise, <code>null</code> is returned.
+     */
+    private List<Matcher> getQueryParamMatchers(List<QueryParam> configuredQueryParams, Map<String, String[]> requestParameterMap) {
+        List<Matcher> matchingMatchers = new ArrayList<>();
+        
+        for (QueryParam configuredQueryParam : configuredQueryParams) {
+            boolean paramMatchFound = false;
+            Pattern configuredKeyPattern = Pattern.compile(configuredQueryParam.getKeyRegex());
+            Pattern configuredValuePattern = Pattern.compile(configuredQueryParam.getValueRegex());
 
-            for (String requestParamKey : requestParameterMap.keySet()) {
-                if (decodeQueryString(configuredParamKey).equalsIgnoreCase(decodeQueryString(requestParamKey))) {
-                    matchFound = true;
-                    break;
+            for (Map.Entry<String, String[]> requestParam : requestParameterMap.entrySet()) {
+                Matcher keyMatcher = configuredKeyPattern.matcher(decodeQueryString(requestParam.getKey()));
+
+                if (keyMatcher.matches()) {
+                    boolean valueMatchFound = false;
+
+                    for (String requestValue : requestParam.getValue()) {
+                        Matcher valueMatcher = configuredValuePattern.matcher(decodeQueryString(requestValue));
+
+                        if (valueMatcher.matches()) {
+                            matchingMatchers.add(valueMatcher);
+                            paramMatchFound = true;
+                            valueMatchFound = true;
+                        }
+                    }
+
+                    if (valueMatchFound) { matchingMatchers.add(keyMatcher); }
                 }
             }
 
-            if (!matchFound) {
-                return false;
-            }
+            if (!paramMatchFound) { return null; }
         }
-        return true;
+
+        return matchingMatchers;
     }
 
     private String decodeQueryString(String queryString) {

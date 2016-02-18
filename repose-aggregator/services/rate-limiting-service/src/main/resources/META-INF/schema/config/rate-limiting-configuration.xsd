@@ -20,7 +20,8 @@
   -->
 
 
-<xs:schema xmlns:rl="http://docs.openrepose.org/repose/rate-limiting/v1.0" xmlns:live-limits="http://docs.openstack.org/common/api/v1.0"
+<xs:schema xmlns:rl="http://docs.openrepose.org/repose/rate-limiting/v1.0"
+           xmlns:live-limits="http://docs.openstack.org/common/api/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
@@ -62,7 +63,6 @@
             <xs:minInclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
-
 
     <!-- Configuration Schema Definitions -->
     <xs:element name="rate-limiting" type="rl:RateLimitingConfiguration"/>
@@ -167,7 +167,6 @@
                    saxon:message="ALL Limits must have unique ids across all limit groups" xpathDefaultNamespace="##targetNamespace"/>
 
         <!-- TODO: assert at least one limit-group or global-limit-group is present -->
-
     </xs:complexType>
 
     <xs:complexType name="RequestEndpoint">
@@ -299,6 +298,10 @@
             </xs:documentation>
         </xs:annotation>
 
+        <xs:sequence>
+            <xs:element name="query-param" type="rl:QueryParam" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
         <!-- The "id" attribute should be prohibited, but doesn't appear present in the generated
         class is designated as such -->
         <xs:attribute name="id" type="xs:string" use="required">
@@ -358,15 +361,18 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="query-param-names" type="rl:StringList" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>List of query parameter names/keys that this rate limit will match on.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
+    <xs:complexType name="QueryParam">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines query parameter for a rate limit to match against.</html:p>
+            </xs:documentation>
+        </xs:annotation>
 
+        <xs:all>
+            <xs:element name="key-regex" type="xs:string"/>
+            <xs:element name="value-regex" type="xs:string"/>
+        </xs:all>
+    </xs:complexType>
 </xs:schema>
