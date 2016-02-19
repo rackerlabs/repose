@@ -65,7 +65,8 @@ class ReachFluffyBunnyDemoTest extends ReposeValveTest {
         if (deproxy)
             deproxy.shutdown()
     }
-    def "Verify lower bound limit" () {
+
+    def "Verify lower bound limit"() {
         when: "the user hit the rate-limit"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "PUT",
                 headers: userHeaderDefault, defaultHandler: handler)
@@ -94,12 +95,12 @@ class ReachFluffyBunnyDemoTest extends ReposeValveTest {
         then: "the request is rate-limited, and respond with correct respcode"
         messageChain.receivedResponse.code.equals("413")
 
-        def methods = ["POST","DELETE","HEAD","PATCH"]
+        def methods = ["POST", "DELETE", "HEAD", "PATCH"]
         (1..3).each {
             i ->
                 when: "the global limit not reach"
                 messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: methods[i],
-                        headers: ["x-pp-user":"test1"] + groupHeaderDefault, defaultHandler: handler)
+                        headers: ["x-pp-user": "test1"] + groupHeaderDefault, defaultHandler: handler)
 
                 then: "the request is not rate-limited, and passes to the origin service"
                 assertTrue(messageChain.receivedResponse.code.equals("200"))
@@ -108,7 +109,7 @@ class ReachFluffyBunnyDemoTest extends ReposeValveTest {
 
         when: "hit global limit"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "PATCH",
-                headers: ["x-pp-user":"test2"], defaultHandler: handler)
+                headers: ["x-pp-user": "test2"], defaultHandler: handler)
 
         then: "the request is rate-limited, and respond with correct respcode"
         messageChain.receivedResponse.code.equals("503")
