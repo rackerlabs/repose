@@ -12,12 +12,13 @@ buildscript {
 
     dependencies {
         classpath 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0'
-        classpath 'com.netflix.nebula:nebula-dependency-recommender:3.1.0'
+        classpath 'com.netflix.nebula:nebula-dependency-recommender:3.3.0'
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
         classpath 'org.openrepose:gradle-jaxb-plugin:2.1.0'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3' //todo:remove this
         classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:0.8.2' //todo: this will need to be changed when we switch to scala 2.11
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.3.2.RELEASE'
     }
 }
 
@@ -28,7 +29,7 @@ allprojects {
     version = '8.0.0.0'
 
     apply plugin: 'idea'
-    apply plugin: 'nebula.dependency-recommender'
+//    apply plugin: 'nebula.dependency-recommender'
 
 
     repositories {
@@ -200,6 +201,10 @@ subprojects {
             scopes.TEST.plus += [configurations.integrationTestCompile]
         }
     }
+}
+
+configure(allprojects.findAll {it.name != 'repose-aggregator/artifacts/valve'}) {
+    apply plugin: 'nebula.dependency-recommender'
 }
 
 dependencyRecommendations {

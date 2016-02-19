@@ -1,4 +1,4 @@
-apply plugin: 'com.github.johnrengelman.shadow'
+//apply plugin: 'spring-boot'
 
 dependencies {
     compile project(":repose-aggregator/core/core-service-api")
@@ -32,9 +32,3 @@ jar {
     }
 }
 
-shadowJar {
-    exclude 'META-INF/*.SF'
-    exclude 'META-INF/*.DSA'
-    exclude 'META-INF/*.RSA'
-    exclude 'META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat' //todo: this might bone us
-}
