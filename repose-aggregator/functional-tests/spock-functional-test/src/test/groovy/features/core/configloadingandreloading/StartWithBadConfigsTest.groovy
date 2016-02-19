@@ -97,7 +97,7 @@ class StartWithBadConfigsTest extends Specification {
         "dist-datastore"          | _
         "uri-identity"            | _
         "header-identity"         | _
-        "ip-identity"             | _
+        "ip-user"                 | _
         "validator"               | _
         "metrics"                 | _
         "connectionPooling"       | _
