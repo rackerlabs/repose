@@ -22,7 +22,7 @@ package features.core.powerfilter
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
-import org.codehaus.jettison.json.JSONObject
+import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -100,7 +100,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         // This part of test what will be in the TRACE log to expect
         and: "checking for client-auth - request"
 
-        JSONObject authreqline1 = convertToJson("Intrafilter Request Log", 0)
+        def authreqline1 = convertToJson("Intrafilter Request Log", 0)
         assertHeadersExists(["X-Auth-Token", "Intrafilter-UUID"], authreqline1)
         assertKeyValueMatch([
                 "currentFilter": "keystone-v2",
@@ -176,41 +176,41 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         // This part of test what will be in the TRACE log to expect
         and: "Checking to make sure that we didn't clobber the x-pp-user header entries in the log output"
 
-        JSONObject authreqline1 = convertToJson("Intrafilter Request Log", 0)
+        def authreqline1 = convertToJson("Intrafilter Request Log", 0)
 
         //Need to assert that the splittable headers are logged properly, not just the first one (or the last one)
         //get the headers object out
-        def xPPUsers = authreqline1.get("headers").get("x-pp-user").split(",")
+        def xPPUsers = authreqline1.headers.'x-pp-user'.split(",")
 
         //We expect that THERE ARE FOUR LIGHTS.... er entries in the xPPUser header
         xPPUsers.length == 4
 
         and: "Need to verify the response while we're at it"
-        JSONObject responseLine1 = convertToJson("Intrafilter Response Log", 1)
-        def responseUsers = responseLine1.get("headers").get("x-pp-user").split(",")
+        def responseLine1 = convertToJson("Intrafilter Response Log", 1)
+        def responseUsers = responseLine1.headers.'x-pp-user'.split(",")
         responseUsers.length == 3
     }
 
-    private JSONObject convertToJson(String searchString, int entryNumber) {
+    private convertToJson(String searchString, int entryNumber) {
         def reqString = reposeLogSearch.searchByString(searchString).get(entryNumber)
         def requestJson = reqString.substring(reqString.indexOf("{\"preamble\""))
         println requestJson
-
-        return new JSONObject(requestJson)
+        def slurper = new JsonSlurper()
+        slurper.parseText(requestJson)
     }
 
-    private assertHeadersExists(List headers, JSONObject jsonObject) {
+    private assertHeadersExists(List headers, Object jsonObject) {
         // Due to the way this is tested it is Case-Sensitive.
         headers.each {
             headerName ->
-                assert jsonObject.get("headers").has(headerName)
+                assert jsonObject.headers.containsKey(headerName)
         }
     }
 
-    private assertKeyValueMatch(Map headers, JSONObject jsonObject) {
+    private assertKeyValueMatch(Map headers, Object jsonObject) {
         headers.each {
             key, value ->
-                assert jsonObject.get(key) == value
+                assert jsonObject."$key" == value
 
         }
 
