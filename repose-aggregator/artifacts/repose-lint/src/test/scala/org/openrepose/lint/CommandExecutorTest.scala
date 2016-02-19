@@ -50,7 +50,7 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
     }
 
     it("should execute the command") {
-      val configDir = getClass.getResource("/configs/master/").getPath
+      val configDir = getClass.getResource("/configs/master").getPath
       val out = new ByteArrayOutputStream()
 
       Console.setOut(out)
@@ -64,7 +64,7 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
     }
 
     it("should notify the user if a command fails") {
-      val configDir = getClass.getResource("/configs/emptydir/").getPath
+      val configDir = getClass.getResource("/configs/emptydir").getPath
       val err = new ByteArrayOutputStream()
 
       Console.setErr(err)
@@ -79,7 +79,7 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
     }
 
     it("should notify the user if arguments cannot be parsed") {
-      val configDir = getClass.getResource("/configs/emptydir/").getPath
+      val configDir = getClass.getResource("/configs/emptydir").getPath
       val err = new ByteArrayOutputStream()
 
       Console.setErr(err)
@@ -95,7 +95,7 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
     ignore("should notify the user if a command is unsupported") {
       // remove verify-try-it-now command from the command registry
 
-      val configDir = getClass.getResource("/configs/emptydir/").getPath
+      val configDir = getClass.getResource("/configs/emptydir").getPath
       val err = new ByteArrayOutputStream()
 
       Console.setErr(err)

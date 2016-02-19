@@ -22,6 +22,7 @@
         <module>cli-utils</module>
         <module>valve</module>
         <module>web-application</module>
+        <module>repose-lint</module>
     </modules>
 
 </project>
