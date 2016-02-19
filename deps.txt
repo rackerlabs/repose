@@ -1,3 +1,2 @@
 filter-bundle
-    keystone-v2
 repose-lint
