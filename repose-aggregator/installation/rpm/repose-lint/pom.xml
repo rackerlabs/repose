@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>rpm</artifactId>
-        <version>7.3.2.0-SNAPSHOT</version>
+        <version>8.0.0.0-SNAPSHOT</version>
     </parent>
 
     <name>Repose - Installation Repose Lint RPM</name>
@@ -60,6 +60,10 @@
                         <configuration>
                             <name>${artifactName}</name>
 
+                            <description>
+                                A command-line utility which flags suspicious usage of Repose.
+                            </description>
+
                             <mappings>
                                 <!-- The JAR file -->
                                 <mapping>
@@ -76,6 +80,31 @@
                                                 ${project.build.directory}/repose-lint.jar
                                             </location>
                                         </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- The startup script -->
+                                <mapping>
+                                    <directory>/usr/share/repose</directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../configs/usr/bin/repose-lint</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- A link to put the startup script on the path -->
+                                <mapping>
+                                    <directory>/usr/bin</directory>
+                                    <sources>
+                                        <softlinkSource>
+                                            <location>/usr/share/repose/repose-lint</location>
+                                        </softlinkSource>
                                     </sources>
                                 </mapping>
 

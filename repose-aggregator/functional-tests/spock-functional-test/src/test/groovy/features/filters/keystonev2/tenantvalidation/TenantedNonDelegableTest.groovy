@@ -107,7 +107,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | x_www_auth
         713           | 713            | 500              | "502"        | 200               | false
         714           | 714            | 404              | "401"        | 200               | true
-        715           | 715            | 200              | "401"        | 404               | true
+        715           | 715            | 200              | "200"        | 404               | false     // REP-3212 changes
         716           | 716            | 200              | "502"        | 500               | false
         711           | 712            | 200              | "401"        | 200               | true
     }

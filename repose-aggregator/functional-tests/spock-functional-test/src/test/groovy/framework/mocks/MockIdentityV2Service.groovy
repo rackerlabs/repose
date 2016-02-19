@@ -713,11 +713,20 @@ class MockIdentityV2Service {
         }
 
         if (userId.equals(client_userid.toString()) || userId.equals(admin_userid)) {
-            code = 200
-            if (xml) {
-                template = groupsXmlTemplate
+            if (userId == "rackerSSOUsername" || service_admin_role.toLowerCase() == "racker") {
+                code = 404
+                if (xml) {
+                    template = identityFailureXmlTemplate
+                } else {
+                    template = identityFailureJsonTemplate
+                }
             } else {
-                template = groupsJsonTemplate
+                code = 200
+                if (xml) {
+                    template = groupsXmlTemplate
+                } else {
+                    template = groupsJsonTemplate
+                }
             }
         } else {
             code = 500

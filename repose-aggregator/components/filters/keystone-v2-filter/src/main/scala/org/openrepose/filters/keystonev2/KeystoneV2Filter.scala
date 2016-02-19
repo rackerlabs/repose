@@ -147,7 +147,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           processingResult match {
             case Success(_) => Pass
             case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-            case Failure(e: InvalidTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+            case Failure(e: NotFoundException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
             case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
             case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
             case Failure(e: IdentityCommunicationException) => Reject(SC_BAD_GATEWAY, Some(e.getMessage))
@@ -409,6 +409,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
+              case _: NotFoundException =>
+                Success(Vector.empty)
             } cacheOnSuccess { groups =>
               val cacheSettings = config.getCache.getTimeouts
               val timeToLive = getTtl(cacheSettings.getGroup, cacheSettings.getVariability)

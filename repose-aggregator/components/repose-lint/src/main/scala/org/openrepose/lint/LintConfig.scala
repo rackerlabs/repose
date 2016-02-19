@@ -21,6 +21,9 @@ package org.openrepose.lint
 
 import java.io.File
 
-case class LintConfig(commandToken: String = "",
+import org.openrepose.lint.commands.Command
+
+case class LintConfig(command: Option[Command] = None,
+                      verbose: Boolean = false,
                       configDir: File = new File("."),
                       reposeVersion: String = "")

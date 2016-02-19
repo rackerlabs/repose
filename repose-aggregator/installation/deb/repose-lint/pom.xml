@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>deb</artifactId>
-        <version>7.3.2.0-SNAPSHOT</version>
+        <version>8.0.0.0-SNAPSHOT</version>
     </parent>
 
     <name>Repose - Installation Repose Lint DEB</name>
@@ -62,6 +62,10 @@
                                     <deb>[[buildDir]]/[[artifactName]]-[[version]].deb</deb>
                                     <timestamped>false</timestamped>
 
+                                    <description>
+                                        A command-line utility which flags suspicious usage of Repose.
+                                    </description>
+
                                     <dataSet>
                                         <!-- The jar file -->
                                         <data>
@@ -76,6 +80,25 @@
                                             <src>
                                                 ${project.build.directory}/repose-lint.jar
                                             </src>
+                                        </data>
+
+                                        <!-- The startup script -->
+                                        <data>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>/usr/share/repose</prefix>
+                                                <filemode>755</filemode>
+                                            </mapper>
+                                            <src>${basedir}/../../configs/usr/bin/repose-lint</src>
+                                        </data>
+
+                                        <!-- A link to put the startup script on the path -->
+                                        <data>
+                                            <type>link</type>
+                                            <linkName>/usr/bin/repose-lint</linkName>
+                                            <linkTarget>/usr/share/repose/repose-lint</linkTarget>
+                                            <symlink>true</symlink>
                                         </data>
 
                                         <!--The git.properties file -->

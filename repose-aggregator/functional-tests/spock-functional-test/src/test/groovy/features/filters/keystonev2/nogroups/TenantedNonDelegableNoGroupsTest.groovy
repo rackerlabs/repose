@@ -71,7 +71,6 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
      * - tenant id in the request does not match tenant id in the response from identity and service admin role is not present
      * - token is not found (404)
      * - get groups call responds with 500
-     * - get groups call returns with a 404
      * - token returns expired
      * @return
      */
@@ -120,7 +119,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | x_www_auth
         113           | 113            | 500              | "502"        | 200               | false
         114           | 114            | 404              | "401"        | 200               | true
-        115           | 115            | 200              | "401"        | 404               | true
+        115           | 115            | 200              | "200"        | 404               | false     // REP-3212 changes
         116           | 116            | 200              | "502"        | 500               | false
         111           | 112            | 200              | "401"        | 200               | true
     }

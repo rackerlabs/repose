@@ -40,6 +40,8 @@ object VerifyTryItNowCommand extends Command {
   private final val DEFAULT_KEYSTONEV2_FILENAME = "keystone-v2.cfg.xml"
   private final val IDENTITYV3_FILTER_NAME = "openstack-identity-v3"
   private final val DEFAULT_IDENTITYV3_FILENAME = "openstack-identity-v3.cfg.xml"
+  private final val FOYER_STATUS = "foyerStatus"
+  private final val FOYER_STATUS_DESCRIPTION = "foyerStatusDescription"
 
   override def getCommandToken: String = {
     "verify-try-it-now"
@@ -110,20 +112,22 @@ object VerifyTryItNowCommand extends Command {
       // be written as strings.
       implicit val AuthNFilterCheckWrites = new Writes[AuthNFilterCheck] {
         override def writes(anfc: AuthNFilterCheck): JsValue = Json.obj(
+          FOYER_STATUS -> anfc.foyerStatus.toString,
+          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(anfc.foyerStatus),
           "filteredByUriRegex" -> anfc.filteredByUriRegex,
           "missingConfiguration" -> anfc.missingConfiguration,
           "inTenantedMode" -> anfc.inTenantedMode,
           "foyerAsServiceAdmin" -> anfc.foyerAsServiceAdmin,
-          "foyerAsIgnoreTenant" -> anfc.foyerAsIgnoreTenant,
-          "foyerStatus" -> anfc.foyerStatus.toString
+          "foyerAsIgnoreTenant" -> anfc.foyerAsIgnoreTenant
         )
       }
 
       implicit val AuthNCheckWrites = new Writes[AuthNCheck] {
         override def writes(anc: AuthNCheck): JsValue = Json.obj(
+          FOYER_STATUS -> anc.foyerStatus.toString,
+          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(anc.foyerStatus),
           "filterName" -> AUTH_N_FILTER_NAME,
-          "filters" -> anc.authNFilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r),
-          "foyerStatus" -> anc.foyerStatus.toString
+          "filters" -> anc.authNFilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r)
         )
       }
 
@@ -205,18 +209,20 @@ object VerifyTryItNowCommand extends Command {
 
       implicit val AuthZFilterCheckWrites = new Writes[AuthZFilterCheck] {
         override def writes(azfc: AuthZFilterCheck): JsValue = Json.obj(
+          FOYER_STATUS -> azfc.foyerStatus.toString,
+          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(azfc.foyerStatus),
           "filteredByUriRegex" -> azfc.filteredByUriRegex,
           "missingConfiguration" -> azfc.missingConfiguration,
-          "foyerAsIgnoreTenant" -> azfc.foyerAsIgnoreTenant,
-          "foyerStatus" -> azfc.foyerStatus.toString
+          "foyerAsIgnoreTenant" -> azfc.foyerAsIgnoreTenant
         )
       }
 
       implicit val AuthZCheckWrites = new Writes[AuthZCheck] {
         override def writes(azc: AuthZCheck): JsValue = Json.obj(
+          FOYER_STATUS -> azc.foyerStatus.toString,
+          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(azc.foyerStatus),
           "filterName" -> AUTH_Z_FILTER_NAME,
-          "filters" -> azc.authZFilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r),
-          "foyerStatus" -> azc.foyerStatus.toString
+          "filters" -> azc.authZFilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r)
         )
       }
 
@@ -249,11 +255,11 @@ object VerifyTryItNowCommand extends Command {
           } else if (filterCheck.missingConfiguration) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (versionLessThan("4.1.0")) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedAuthorized)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithAuthorization)
           } else if (filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
           } else if (!filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedAuthorized)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithAuthorization)
           }
 
           filterCheck
@@ -281,20 +287,22 @@ object VerifyTryItNowCommand extends Command {
 
       implicit val KeystoneV2FilterCheckWrites = new Writes[KeystoneV2FilterCheck] {
         override def writes(kfc: KeystoneV2FilterCheck): JsValue = Json.obj(
+          FOYER_STATUS -> kfc.foyerStatus.toString,
+          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(kfc.foyerStatus),
           "filteredByUriRegex" -> kfc.filteredByUriRegex,
           "missingConfiguration" -> kfc.missingConfiguration,
           "inTenantedMode" -> kfc.inTenantedMode,
           "foyerAsPreAuthorized" -> kfc.foyerAsPreAuth,
-          "catalogAuthorization" -> kfc.catalogAuthorization,
-          "foyerStatus" -> kfc.foyerStatus.toString
+          "catalogAuthorization" -> kfc.catalogAuthorization
         )
       }
 
       implicit val KeystoneV2CheckWrites = new Writes[KeystoneV2Check] {
         override def writes(kc: KeystoneV2Check): JsValue = Json.obj(
+          FOYER_STATUS -> kc.foyerStatus.toString,
+          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(kc.foyerStatus),
           "filterName" -> KEYSTONEV2_FILTER_NAME,
-          "filters" -> kc.keystoneV2FilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r),
-          "foyerStatus" -> kc.foyerStatus.toString
+          "filters" -> kc.keystoneV2FilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r)
         )
       }
 
@@ -334,11 +342,13 @@ object VerifyTryItNowCommand extends Command {
           } else if (filterCheck.missingConfiguration || versionLessThan("7.1.5.1")) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (!filterCheck.inTenantedMode && !filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
-          } else if (!filterCheck.foyerAsPreAuth) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
           } else if (filterCheck.foyerAsPreAuth) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
+          } else if (filterCheck.inTenantedMode && !filterCheck.foyerAsPreAuth) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+          } else if (!filterCheck.inTenantedMode && !filterCheck.foyerAsPreAuth) {
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithAuthorization)
           }
 
           filterCheck
@@ -366,20 +376,22 @@ object VerifyTryItNowCommand extends Command {
 
       implicit val IdentityV3FilterCheckWrites = new Writes[IdentityV3FilterCheck] {
         override def writes(ifc: IdentityV3FilterCheck): JsValue = Json.obj(
+          FOYER_STATUS -> ifc.foyerStatus.toString,
+          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(ifc.foyerStatus),
           "filteredByUriRegex" -> ifc.filteredByUriRegex,
           "missingConfiguration" -> ifc.missingConfiguration,
           "inTenantedMode" -> ifc.inTenantedMode,
           "foyerAsBypassTenant" -> ifc.foyerAsBypassTenant,
-          "catalogAuthorization" -> ifc.catalogAuthorization,
-          "foyerStatus" -> ifc.foyerStatus.toString
+          "catalogAuthorization" -> ifc.catalogAuthorization
         )
       }
 
       implicit val IdentityV3CheckWrites = new Writes[IdentityV3Check] {
         override def writes(ic: IdentityV3Check): JsValue = Json.obj(
+          FOYER_STATUS -> ic.foyerStatus.toString,
+          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(ic.foyerStatus),
           "filterName" -> IDENTITYV3_FILTER_NAME,
-          "filters" -> ic.identityV3FilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r),
-          "foyerStatus" -> ic.foyerStatus.toString
+          "filters" -> ic.identityV3FilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r)
         )
       }
 
@@ -419,13 +431,13 @@ object VerifyTryItNowCommand extends Command {
           } else if (filterCheck.missingConfiguration || versionLessThan("7.0.0.0")) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (!filterCheck.inTenantedMode && !filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
           } else if (!filterCheck.foyerAsBypassTenant) {
             filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
           } else if (filterCheck.foyerAsBypassTenant && !filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedNotAuthorized)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
           } else if (filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedAuthorized)
+            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithAuthorization)
           }
 
           filterCheck
@@ -452,23 +464,36 @@ object VerifyTryItNowCommand extends Command {
       val keystoneV2CheckResult = checkKeystoneV2(filters)
       val identityV3CheckResult = checkIdentityV3(filters)
       val clusterFoyerStatus = determineFoyerStatus(Seq(
-        FoyerStatus.withName((authNCheckResult \ "foyerStatus").as[String]),
-        FoyerStatus.withName((authZCheckResult \ "foyerStatus").as[String]),
-        FoyerStatus.withName((keystoneV2CheckResult \ "foyerStatus").as[String]),
-        FoyerStatus.withName((identityV3CheckResult \ "foyerStatus").as[String])
+        FoyerStatus.withName((authNCheckResult \ FOYER_STATUS).as[String]),
+        FoyerStatus.withName((authZCheckResult \ FOYER_STATUS).as[String]),
+        FoyerStatus.withName((keystoneV2CheckResult \ FOYER_STATUS).as[String]),
+        FoyerStatus.withName((identityV3CheckResult \ FOYER_STATUS).as[String])
       ))
 
       Json.obj("clusterId" -> (cluster \ "@id").head.text,
+        FOYER_STATUS -> clusterFoyerStatus.toString,
+        FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(clusterFoyerStatus),
         "authNCheck" -> authNCheckResult,
         "authZCheck" -> authZCheckResult,
         "keystoneV2Check" -> keystoneV2CheckResult,
-        "identityV3Check" -> identityV3CheckResult,
-        "foyerStatus" -> Json.toJson(clusterFoyerStatus.toString)
+        "identityV3Check" -> identityV3CheckResult
       )
     }
     val clustersArray = clusterJsonObjects.foldLeft(Json.arr())((arr, obj) => arr :+ obj)
+    val fullSystemFoyerStatus = determineFoyerStatus(clusterJsonObjects.map(cluster =>
+      FoyerStatus.withName((cluster \ FOYER_STATUS).as[String])))
+    val fullSystemFoyerStatusDescription = describeFoyerStatus(fullSystemFoyerStatus)
+    val fullSystemJson = Json.obj(
+      FOYER_STATUS -> fullSystemFoyerStatus.toString,
+      FOYER_STATUS_DESCRIPTION -> fullSystemFoyerStatusDescription,
+      "clusters" -> clustersArray
+    )
 
-    println(Json.prettyPrint(Json.obj("clusters" -> clustersArray)))
+    if (lintConfig.verbose) {
+      println(Json.prettyPrint(fullSystemJson))
+    } else {
+      println(fullSystemFoyerStatusDescription)
+    }
   }
 
   private def determineFoyerStatus(foyerStatuses: Seq[FoyerStatus.FoyerStatus]): FoyerStatus.FoyerStatus = {
@@ -476,10 +501,10 @@ object VerifyTryItNowCommand extends Command {
       FoyerStatus.NotAllowed
     } else if (foyerStatuses.contains(FoyerStatus.Unknown)) {
       FoyerStatus.Unknown
-    } else if (foyerStatuses.contains(FoyerStatus.AllowedAuthorized)) {
-      FoyerStatus.AllowedAuthorized
-    } else if (foyerStatuses.contains(FoyerStatus.AllowedNotAuthorized)) {
-      FoyerStatus.AllowedNotAuthorized
+    } else if (foyerStatuses.contains(FoyerStatus.AllowedWithAuthorization)) {
+      FoyerStatus.AllowedWithAuthorization
+    } else if (foyerStatuses.contains(FoyerStatus.AllowedWithoutAuthorization)) {
+      FoyerStatus.AllowedWithoutAuthorization
     } else if (foyerStatuses.contains(FoyerStatus.Allowed)) {
       FoyerStatus.Allowed
     } else {
@@ -487,9 +512,26 @@ object VerifyTryItNowCommand extends Command {
     }
   }
 
+  private def describeFoyerStatus(foyerStatus: FoyerStatus.FoyerStatus): String = {
+    foyerStatus match {
+      case FoyerStatus.Allowed =>
+        "Users with the 'foyer' Identity role WILL pass through this component"
+      case FoyerStatus.AllowedWithAuthorization =>
+        "Users with the 'foyer' Identity role WILL pass through this component IF AND ONLY IF their Identity " +
+          "service catalog contains an endpoint required by the authorization component"
+      case FoyerStatus.AllowedWithoutAuthorization =>
+        "Users with the 'foyer' Identity role WILL pass through this component BUT authorization checks will not " +
+          "be performed"
+      case FoyerStatus.NotAllowed =>
+        "Users with the 'foyer' Identity role WILL NOT pass through this component"
+      case FoyerStatus.Unknown =>
+        "Users with the 'foyer' Identity role MAY OR MAY NOT pass through this component"
+    }
+  }
+
   object FoyerStatus extends Enumeration {
     type FoyerStatus = Value
-    val Allowed, AllowedAuthorized, AllowedNotAuthorized, NotAllowed, Unknown = Value
+    val Allowed, AllowedWithAuthorization, AllowedWithoutAuthorization, NotAllowed, Unknown = Value
   }
 
 }

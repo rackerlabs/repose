@@ -137,7 +137,7 @@ class NonTenantedNonDelegableNoServiceAdminRolesTest extends ReposeValveTest {
         requestTenant | responseTenant | authResponseCode | responseCode | groupResponseCode | clientToken
         613           | 613            | 500              | "502"        | 200               | UUID.randomUUID()
         614           | 614            | 404              | "401"        | 200               | UUID.randomUUID()
-        615           | 615            | 200              | "401"        | 404               | UUID.randomUUID()
+        615           | 615            | 200              | "200"        | 404               | UUID.randomUUID()    // REP-3212 changes
         616           | 616            | 200              | "502"        | 500               | UUID.randomUUID()
         ""            | 612            | 200              | "401"        | 200               | ""
 

@@ -82,11 +82,45 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "mytenant"
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-name") == "mytenantname"
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-pp-groups") == "0"
         /*
             Bug fix: REP-3204
             verify get user group call using userid instead token
         */
         mc.orphanedHandlings.get(2).request.path =~ "/.*/users/" + fakeIdentityV2Service.client_userid + "/RAX-KSGRP"
+    }
+
+    /*
+        REP-3212: Conditional Group Call for racker
+        Repose handle Racker role as case insensitive
+        Racker with racker role have no x-pp-groups set to header even though config with set-groups-in-header
+        Current code change doesn't check for racker role (regardless racker role)
+           so if get group call return 404 or empty group we handle as no x-pp-groups in header
+    */
+    @Unroll()
+    def "Validate conditional group call to handle racker token with 404 resp for getGroups call"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = "rackerSSO"
+            client_userid = "rackerSSOUsername"
+            service_admin_role = roles
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "They should pass"
+        mc.receivedResponse.code == status
+        mc.handlings.size() == handlings
+        mc.handlings[0].request.headers.findAll("x-pp-groups").size() == 0
+
+        where:
+        roles       | status    | handlings
+        "racker"    | "200"     | 1
+        "Racker"    | "200"     | 1
+        "RACKER"    | "200"     | 1
+        "test"      | "200"     | 1
     }
 
     def "Validate client token with belongsTo test"() {

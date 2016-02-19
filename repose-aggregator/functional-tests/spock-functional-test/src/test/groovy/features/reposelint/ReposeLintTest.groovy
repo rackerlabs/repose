@@ -45,6 +45,13 @@ class ReposeLintTest extends Specification {
     @Shared
     ReposeConfigurationProvider reposeConfigurationProvider
 
+    def
+    static String allowedWithoutAuthorizationDesc = "Users with the 'foyer' Identity role WILL pass through this component BUT authorization checks will not be performed"
+    def
+    static String allowedWithAuthorizationDesc = "Users with the 'foyer' Identity role WILL pass through this component IF AND ONLY IF their Identity service catalog contains an endpoint required by the authorization component"
+    def static String allowedDesc = "Users with the 'foyer' Identity role WILL pass through this component"
+    def static String notAllowedDesc = "Users with the 'foyer' Identity role WILL NOT pass through this component"
+
     def setupSpec() {
         this.testProperties = new TestProperties()
 
@@ -64,7 +71,6 @@ class ReposeLintTest extends Specification {
         reposeLintLauncher.stop()
     }
 
-    // todo
     def "Test missing config"() {
         given:
         def params = testProperties.getDefaultTemplateParams()
@@ -81,14 +87,19 @@ class ReposeLintTest extends Specification {
 
         then:
         reposeLogSearch.searchByString(debugport.toString())
+        //top level status
+        jsonlog["foyerStatus"] == "NotAllowed"
+        jsonlog["foyerStatusDescription"] == notAllowedDesc
+
         jsonlog.clusters.clusterId.get(0) == "repose"
         jsonlog.clusters["authNCheck"][0]["filterName"] == "client-auth"
         jsonlog.clusters["authNCheck"][0]["filters"].size() != 0
         jsonlog.clusters["authNCheck"][0]["filters"][0]["missingConfiguration"] == true
         jsonlog.clusters["authNCheck"][0]["filters"][0]["foyerStatus"] == "NotAllowed"
+        jsonlog.clusters["authNCheck"][0]["filters"][0]["foyerStatusDescription"] == notAllowedDesc
     }
 
-    @Unroll("test with config: #configdir")
+    @Unroll("test with config: #configdir & #status")
     def "test individual components"() {
         given:
         def params = testProperties.getDefaultTemplateParams()
@@ -113,12 +124,16 @@ class ReposeLintTest extends Specification {
 
         then:
         reposeLogSearch.searchByString(debugport.toString())
+        //top level status
+        jsonlog["foyerStatus"] == status
+        jsonlog["foyerStatusDescription"] == desc
         jsonlog.clusters.clusterId.get(0) == "repose"
         jsonlog.clusters[checktype][0]["filterName"] == filtername
         jsonlog.clusters[checktype][0]["filters"].size() != 0
         jsonlog.clusters[checktype][0]["filters"][0]["missingConfiguration"] == false
         jsonlog.clusters[checktype][0]["filters"][0][foyerAsIgnoreTenant] == foyerignore
         jsonlog.clusters[checktype][0]["filters"][0]["foyerStatus"] == status
+        jsonlog.clusters[checktype][0]["filters"][0]["foyerStatusDescription"] == desc
         if (checktenantedmode == "yes") {
             assertTrue(jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode)
         }

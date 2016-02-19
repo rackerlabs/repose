@@ -134,7 +134,7 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
 
         where:
         authRespCode | delegatedMsg
-        404          | "status_code=401`component=keystone-v2`message=Token is not valid for validate token request;q=0.3"
+        404          | "status_code=401`component=keystone-v2`message=Resource not found for validate token request;q=0.3" // REP-3212 changes
         401          | "status_code=500`component=keystone-v2`message=Admin token unauthorized to make validate token request;q=0.3"
     }
 }

@@ -3,8 +3,8 @@
 
     <cache>
         <timeouts>
-            <token>0</token>
-            <group>0</group>
+            <token>-1</token>
+            <group>-1</group>
         </timeouts>
     </cache>
 

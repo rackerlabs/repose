@@ -21,6 +21,7 @@ package org.openrepose.lint.commands
 
 import java.io.{ByteArrayOutputStream, File}
 
+import com.fasterxml.jackson.core.JsonParseException
 import org.junit.runner.RunWith
 import org.openrepose.lint.LintConfig
 import org.scalatest.junit.JUnitRunner
@@ -45,21 +46,21 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
   describe("perform") {
     it("should fail if the system model file is not present") {
       val configDir = new File(getClass.getResource("/configs/").toURI)
-      val config = new LintConfig(configDir = configDir, reposeVersion = "7.2.2.0")
+      val config = new LintConfig(configDir = configDir, reposeVersion = "7.2.2.0", verbose = true)
 
       a[Exception] should be thrownBy VerifyTryItNowCommand.perform(config)
     }
 
     it("should fail if the system model file cannot be read") {
       val configDir = new File(getClass.getResource("/configs/invalidsystemmodel/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       an[Exception] should be thrownBy VerifyTryItNowCommand.perform(config)
     }
 
     it("should report allowed if filters are not listed in the system-model") {
       val configDir = new File(getClass.getResource("/configs/nofilters/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -78,7 +79,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if filters are filtered by uri regex") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -97,7 +98,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if auth-n is not in tenanted mode") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -113,7 +114,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if auth-n has foyer as a service admin role") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -129,7 +130,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if auth-n has foyer as an ignore tenant role") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -145,7 +146,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if auth-z has foyer as a role bypass") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -161,7 +162,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if keystone-v2 is not in tenanted mode") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -177,7 +178,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if keystone-v2 has foyer as a pre-authorized role") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -193,7 +194,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if keystone-v2 authorization is present") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -209,7 +210,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if identity-v3 is not in tenanted mode") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -225,7 +226,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if identity-v3 has foyer as a pre-authorized role") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -241,7 +242,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should report if identity-v3 authorization is present") {
       val configDir = new File(getClass.getResource("/configs/master/").toURI)
-      val config = new LintConfig(configDir = configDir)
+      val config = new LintConfig(configDir = configDir, verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -257,7 +258,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should check multiple clusters if present") {
       val configDir = new File(getClass.getResource("/configs/duplicateclustersandfilters/").toURI)
-      val config = new LintConfig(configDir = configDir, reposeVersion = "7.2.2.0")
+      val config = new LintConfig(configDir = configDir, reposeVersion = "7.2.2.0", verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -273,7 +274,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should check multiple filers if present") {
       val configDir = new File(getClass.getResource("/configs/duplicateclustersandfilters/").toURI)
-      val config = new LintConfig(configDir = configDir, reposeVersion = "7.2.2.0")
+      val config = new LintConfig(configDir = configDir, reposeVersion = "7.2.2.0", verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -292,7 +293,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
     it("should work for Repose version 2.8.x auth-n config") {
       val configDir = new File(getClass.getResource("/configs/2.8.x/").toURI)
-      val config = new LintConfig(configDir = configDir, reposeVersion = "2.8.6")
+      val config = new LintConfig(configDir = configDir, reposeVersion = "2.8.6", verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -307,9 +308,9 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerStatus").head.as[String] should include("NotAllowed")
     }
 
-    it ("should work for Repose 5.x auth-n config") {
+    it("should work for Repose 5.x auth-n config") {
       val configDir = new File(getClass.getResource("/configs/5.x/").toURI)
-      val config = new LintConfig(configDir = configDir, reposeVersion = "5.0.0.0")
+      val config = new LintConfig(configDir = configDir, reposeVersion = "5.0.0.0", verbose = true)
 
       val out = new ByteArrayOutputStream()
 
@@ -321,6 +322,22 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       val parsedOutput = Json.parse(outputString)
 
       ((parsedOutput \ "clusters") (0) \ "authNCheck" \\ "foyerStatus").head.as[String] should fullyMatch regex "Allowed"
+    }
+
+    it("should print only a high-level description if not in verbose mode") {
+      val configDir = new File(getClass.getResource("/configs/nofilters/").toURI)
+      val config = new LintConfig(configDir = configDir, verbose = false)
+
+      val out = new ByteArrayOutputStream()
+
+      Console.setOut(out)
+
+      VerifyTryItNowCommand.perform(config)
+
+      val outputString = new String(out.toByteArray)
+
+      a[JsonParseException] should be thrownBy Json.parse(outputString)
+      outputString should include("WILL pass")
     }
   }
 }
