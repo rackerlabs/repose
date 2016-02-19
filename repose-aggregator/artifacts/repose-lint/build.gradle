@@ -1,0 +1,24 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe:config"
+    compile "com.typesafe.play:play-json_2.10"
+    compile "com.github.scopt:scopt_2.10"
+
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.mockito:mockito-all"
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.openrepose.lint.Lint'
+    }
+}
+
+shadowJar {
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
