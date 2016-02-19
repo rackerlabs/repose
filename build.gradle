@@ -66,13 +66,6 @@ subprojects {
     check.dependsOn integrationTest
     integrationTest.mustRunAfter test
 
-    idea {
-        module {
-            testSourceDirs += project.sourceSets.integrationTest.allSource.srcDirs.flatten()
-            scopes.TEST.plus += [configurations.integrationTestCompile]
-        }
-    }
-
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -196,6 +189,14 @@ subprojects {
         exclude "**/*.cfg.xml"
         exclude "**/log4j2*.xml"
         sourceSets = sourceSets.matching {it.name != 'generated'}
+    }
+
+    idea {
+        module {
+            generatedSourceDirs += file("$generatedDir")
+            testSourceDirs += project.sourceSets.integrationTest.allSource.srcDirs.flatten()
+            scopes.TEST.plus += [configurations.integrationTestCompile]
+        }
     }
 }
 
