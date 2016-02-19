@@ -163,7 +163,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
       logger.trace("sendUpdateMessage method called")
 
       try {
-        val updateHeaders = if (staticSystemModel.isTracingHeader) {
+        val updateHeaders = if (staticSystemModel.getTracingHeader == null || staticSystemModel.getTracingHeader.isEnabled) {
           Map(CommonHttpHeader.TRACE_GUID.toString -> UUID.randomUUID().toString).asJava
         } else {
           Map.empty[String, String].asJava

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0" rewrite-tracing-header="true">
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
     <repose-cluster id="repose-cluster">
         <nodes>
             <node id="node" hostname="localhost" http-port="${reposePort}"/>
@@ -13,4 +13,5 @@
                       default="true"/>
         </destinations>
     </repose-cluster>
+    <tracing-header rewrite-header="true"/>
 </system-model>

@@ -604,7 +604,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     private var initialized = false
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
-      sendTraceHeader = configurationObject.isTracingHeader
+      sendTraceHeader = configurationObject.getTracingHeader == null || configurationObject.getTracingHeader.isEnabled
       initialized = true
     }
 

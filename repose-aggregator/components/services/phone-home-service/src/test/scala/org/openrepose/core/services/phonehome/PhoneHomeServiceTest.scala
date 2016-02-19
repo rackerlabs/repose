@@ -317,7 +317,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       val servicesList = new ServicesList()
       val phoneHomeConfig = new PhoneHomeServiceConfig()
 
-      systemModel.setTracingHeader(true)
+      val tracingHeader = new TracingHeaderConfig
+      systemModel.setTracingHeader(tracingHeader)
+      tracingHeader.setEnabled(true)
       phoneHomeConfig.setEnabled(true)
 
       reposeCluster.setFilters(filterList)
@@ -366,7 +368,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       val servicesList = new ServicesList()
       val phoneHomeConfig = new PhoneHomeServiceConfig()
 
-      systemModel.setTracingHeader(false)
+      val tracingHeader = new TracingHeaderConfig
+      systemModel.setTracingHeader(tracingHeader)
+      tracingHeader.setEnabled(false)
       phoneHomeConfig.setEnabled(true)
 
       reposeCluster.setFilters(filterList)
