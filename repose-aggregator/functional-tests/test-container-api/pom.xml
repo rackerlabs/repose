@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Test - Testing embedded support for Repose</name>
-    <artifactId>test-container-support</artifactId>
+    <artifactId>test-container-api</artifactId>
     <packaging>jar</packaging>
 
     <description>

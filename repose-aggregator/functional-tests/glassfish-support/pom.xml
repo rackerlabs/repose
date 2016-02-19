@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>test-container-support</artifactId>
+            <artifactId>test-container-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
