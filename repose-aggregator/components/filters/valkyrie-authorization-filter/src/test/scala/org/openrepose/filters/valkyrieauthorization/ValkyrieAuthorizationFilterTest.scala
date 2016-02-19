@@ -853,6 +853,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -880,6 +881,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -907,6 +909,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -934,6 +937,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -961,6 +965,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -988,6 +993,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1012,6 +1018,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1039,6 +1046,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1066,6 +1074,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1090,6 +1099,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1118,6 +1128,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1145,6 +1156,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/foo")
+      mockServletRequest.setRequestURI("/foo")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1174,6 +1186,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1201,6 +1214,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1227,6 +1241,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1253,6 +1268,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1279,6 +1295,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1304,6 +1321,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
       mockServletRequest.setRequestURL("http://foo.com/bar")
+      mockServletRequest.setRequestURI("/bar")
       mockServletRequest.setHeader("X-Contact-Id", "123456")
       mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1333,6 +1351,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
         mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setRequestURI("/bar")
         mockServletRequest.setHeader("X-Contact-Id", "123456")
         mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
@@ -1374,6 +1393,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(method)
         mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setRequestURI("/bar")
         mockServletRequest.setHeader("X-Contact-Id", "123456")
         mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
 
