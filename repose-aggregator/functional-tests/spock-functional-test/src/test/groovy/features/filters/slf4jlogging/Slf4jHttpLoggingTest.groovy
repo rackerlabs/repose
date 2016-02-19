@@ -54,7 +54,7 @@ class Slf4jHttpLoggingTest extends ReposeValveTest {
         then:
         logSearch.searchByString("Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method").size() == 1
         logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.targetPort}//\tRequest Protocol=HTTP/1.1").size() == 1
-        logSearch.searchByString("Time Request Received=\\d{2}-\\d{2}-\\d{4}-\\d{2}:\\d{2}:\\d{2}\\.\\d{3}").size() == 1 // default date format
+        logSearch.searchByString("Time Request Received=\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}").size() == 1 // default date format
 
         where:
         method << [
