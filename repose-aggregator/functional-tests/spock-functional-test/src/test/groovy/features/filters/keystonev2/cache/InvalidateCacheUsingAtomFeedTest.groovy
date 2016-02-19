@@ -229,7 +229,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityV2Service.getGroupsCount == 0
         mc.handlings[0].endpoint == originEndpoint
 
-        when: "Identity atom feed has a Update User Event
+        when: "Identity atom feed has a Update User Event"
         //Identity needs to respond normally, so that we can get "new" user info
         fakeIdentityV2Service.resetCounts()
         fakeAtomFeed.hasEntry = true
