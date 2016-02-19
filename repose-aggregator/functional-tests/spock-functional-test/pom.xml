@@ -82,8 +82,8 @@
 
         <repose.root.war.directory>${project.set.dir}/artifacts/web-application/target</repose.root.war.directory>
         <repose.root.war>ROOT.war</repose.root.war>
-        <glassfish.jar.dir>${project.set.dir}/functional-tests/glassfish-support/target</glassfish.jar.dir>
-        <glassfish.jar>test-glassfish-container-${project.version}-jar-with-dependencies.jar</glassfish.jar>
+        <glassfish.jar.dir>${project.set.dir}/functional-tests/test-container-glassfish/target</glassfish.jar.dir>
+        <glassfish.jar>test-container-glassfish-${project.version}-jar-with-dependencies.jar</glassfish.jar>
         <repose.glassfish.jar.location>${repose.home}/${glassfish.jar}</repose.glassfish.jar.location>
         <tomcat.jar.dir>${project.set.dir}/functional-tests/tomcat-support/target</tomcat.jar.dir>
         <tomcat.jar>test-tomcat-container-${project.version}-jar-with-dependencies.jar</tomcat.jar>
@@ -137,7 +137,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>test-glassfish-container</artifactId>
+            <artifactId>test-container-glassfish</artifactId>
             <version>${project.version}</version>
         </dependency>
 
