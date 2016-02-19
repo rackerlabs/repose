@@ -65,4 +65,7 @@
         <limit id="queryone" uri="/service2/limits" uri-regex="/service2/limits" http-methods="GET" unit="HOUR" value="1"/>
     </limit-group>
 
+    <limit-group id="no-limit" groups="no-limit" default="false">
+        <limit id="test-no-limit" uri="" uri-regex="/repose/.*" http-methods="ALL" value="0" unit="DAY" />
+    </limit-group>
 </rate-limiting>
