@@ -20,8 +20,6 @@
 package features.core.embedded
 
 import framework.*
-import org.openrepose.commons.utils.test.mocks.util.MocksUtil
-import org.openrepose.commons.utils.test.mocks.util.RequestInfo
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Specification
@@ -48,7 +46,7 @@ class EmbeddedTomcatProxyTest extends Specification {
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
         def mocksWar = properties.getMocksWar()
-        def mocksPath = MocksUtil.getServletPath(mocksWar)
+        def mocksPath = mocksWar.substring(mocksWar.lastIndexOf('/') + 1, mocksWar.lastIndexOf('.'))
 
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configTemplates)
 
@@ -86,7 +84,7 @@ class EmbeddedTomcatProxyTest extends Specification {
 
         when: "Request is sent through Repose/Tomcat"
         MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster?a=b&c=123", headers: ['passheader': 'value1', 'PassHeAder': 'value2'])
-        RequestInfo info = MocksUtil.xmlStringToRequestInfo(mc.receivedResponse.body.toString())
+        def xmlData = new XmlSlurper().parseText(mc.receivedResponse.body.toString())
 
         then: "Repose Should Forward Response"
         mc.receivedResponse.code == "200"
@@ -95,8 +93,8 @@ class EmbeddedTomcatProxyTest extends Specification {
         !mc.receivedResponse.body.toString().empty
 
         and: "Repose should have passed the pass header"
-        info.getHeaders().get("passheader").get(0) == "value1"
-        info.getHeaders().get("pAssHeader").size() == 2
+        xmlData.headers.header.find { it.@name == 'passheader' }.@value.text() == "value1"
+        xmlData.headers.header.findAll { it.@name == 'passheader' }.size() == 2
 
         and: "Repose should have passed query params"
         info.getQueryParams().get("a").get(0).equals("[b]")

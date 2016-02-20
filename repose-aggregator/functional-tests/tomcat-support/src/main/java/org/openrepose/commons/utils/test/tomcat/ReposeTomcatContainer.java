@@ -24,7 +24,6 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.openrepose.commons.utils.test.ReposeContainer;
 import org.openrepose.commons.utils.test.ReposeContainerProps;
-import org.openrepose.commons.utils.test.mocks.util.MocksUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +54,13 @@ public class ReposeTomcatContainer extends ReposeContainer {
 
         if (props.getOriginServiceWars() != null && props.getOriginServiceWars().length != 0) {
             for (String originService : props.getOriginServiceWars()) {
-                tomcat.addWebapp("/" + MocksUtil.getServletPath(originService), originService);
+                tomcat.addWebapp("/" + getServletPath(originService), originService);
             }
         }
+    }
+
+    private static String getServletPath(String filePath) {
+        return filePath.substring(filePath.lastIndexOf('/') + 1, filePath.lastIndexOf('.'));
     }
 
     @Override
