@@ -29,7 +29,7 @@ import java.util.Calendar;
 
 public class TimeReceivedHandler implements FormatterLogic {
 
-    private final static String DEFAULT_DATE_FORMAT = "dd-MM-yyyy-HH:mm:ss.SSS";
+    private final static String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private final String dateFormat;
 

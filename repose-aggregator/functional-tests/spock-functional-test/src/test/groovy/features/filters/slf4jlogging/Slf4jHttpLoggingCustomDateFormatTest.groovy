@@ -36,6 +36,7 @@ class Slf4jHttpLoggingCustomDateFormatTest extends ReposeValveTest {
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def "Check slf4log for our custom date format"() {
@@ -46,6 +47,6 @@ class Slf4jHttpLoggingCustomDateFormatTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then:
-        logSearch.searchByString("Time Request Received=\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}").size() == 1
+        logSearch.searchByString("Time Request Received=\\d{2}-\\d{2}-\\d{4}-\\d{2}:\\d{2}:\\d{2}\\.\\d{3}").size() == 1
     }
 }

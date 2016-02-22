@@ -103,7 +103,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void shouldParseSimpleTimeFormat() {
-            final String defaultDateFormatRegex = "\\d{2}-\\d{2}-\\d{4}-\\d{2}:\\d{2}:\\d{2}\\.\\d{3}";
+            final String defaultDateFormatRegex = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}";
 
             final HttpLogFormatter formatter = new HttpLogFormatter("%t");
 
