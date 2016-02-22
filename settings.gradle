@@ -57,4 +57,5 @@ include 'repose-aggregator/artifacts/cli-utils',
         'repose-aggregator/core/core-service-api',
         'repose-aggregator/external/jee6-schemas',
         'repose-aggregator/external/pjl-compressing-filter',
-        'repose-aggregator/functional-tests/test-container-api'
+        'repose-aggregator/functional-tests/test-container-api',
+        'repose-aggregator/functional-tests/test-container-glassfish'
