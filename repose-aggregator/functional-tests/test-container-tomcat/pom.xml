@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Test - Testing Repose with Embedded Tomcat</name>
-    <artifactId>test-tomcat-container</artifactId>
+    <artifactId>test-container-tomcat</artifactId>
     <packaging>jar</packaging>
 
     <description>

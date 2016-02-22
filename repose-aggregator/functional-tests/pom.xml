@@ -19,7 +19,7 @@
     <modules>
         <module>test-container-api</module>
         <module>test-container-glassfish</module>
-        <module>tomcat-support</module>
+        <module>test-container-tomcat</module>
         <module>mocks-util</module>
         <module>mocks-servlet</module>
         <module>spock-functional-test</module>
