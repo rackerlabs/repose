@@ -60,11 +60,6 @@
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>mocks-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!--For SLF4J/Log4J 2.x logging support-->
         <dependency>
