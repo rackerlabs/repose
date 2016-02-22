@@ -18,6 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 package features.clientconfigs.reach
+
 import framework.ReposeValveTest
 import framework.category.Demo
 import org.junit.experimental.categories.Category
@@ -26,6 +27,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
 import static org.junit.Assert.assertTrue
+
 /**
  * Created by jennyvo on 2/19/16.
  */
@@ -65,10 +67,11 @@ class ReachFluffyBunnyWRBACDemoTest extends ReposeValveTest {
         if (deproxy)
             deproxy.shutdown()
     }
-    def "Verify lower bound limit" () {
+
+    def "Verify lower bound limit"() {
         when: "the user hit the rate-limit"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "PUT",
-                headers: userHeaderDefault+rolesHeaderDefault, defaultHandler: handler)
+                headers: userHeaderDefault + rolesHeaderDefault, defaultHandler: handler)
 
         then: "the request is rate-limited, and respond with correct respcode"
         messageChain.receivedResponse.code.equals("413")
@@ -95,12 +98,12 @@ class ReachFluffyBunnyWRBACDemoTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("413")
 
         "Global limit not Reach but Methods are forbidden by rbac"
-        def methods = ["POST","DELETE","HEAD","PATCH"]
+        def methods = ["POST", "DELETE", "HEAD", "PATCH"]
         (1..3).each {
             i ->
                 when: "the global limit not reach"
                 messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: methods[i],
-                        headers: ["x-pp-user":"test1"] + rolesHeaderDefault + groupHeaderDefault, defaultHandler: handler)
+                        headers: ["x-pp-user": "test1"] + rolesHeaderDefault + groupHeaderDefault, defaultHandler: handler)
 
                 then: "the request is not rate-limited, but block by rbac with 405 code"
                 assertTrue(messageChain.receivedResponse.code.equals("405"))
