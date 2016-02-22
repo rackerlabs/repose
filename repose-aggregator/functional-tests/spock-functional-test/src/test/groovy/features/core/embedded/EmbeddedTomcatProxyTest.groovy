@@ -97,7 +97,7 @@ class EmbeddedTomcatProxyTest extends Specification {
         xmlData.headers.header.findAll { it.@name == 'passheader' }.size() == 2
 
         and: "Repose should have passed query params"
-        info.getQueryParams().get("a").get(0).equals("[b]")
-        info.getQueryParams().size() == 2
+        xmlData."query-params".parameter.find { it.@name == "a" }.@value.text() == "[b]"
+        xmlData."query-params".parameter.size() == 2
     }
 }
