@@ -67,7 +67,7 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
       val identifiedMediaType = mediaTypeNormalizer.getMediaTypeForVariant(wrappedRequest)
 
       wrappedRequest.getRequestURI shouldBe "/a/request/uri"
-      wrappedRequest.getRequestURL shouldBe "http://localhost/a/request/uri"
+      wrappedRequest.getRequestURL.toString shouldBe "http://localhost/a/request/uri"
       identifiedMediaType.isDefined shouldBe true
       identifiedMediaType.get.getVariantExtension shouldBe "xml"
     }
@@ -82,7 +82,7 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
       val identifiedMediaType = mediaTypeNormalizer.getMediaTypeForVariant(wrappedRequest)
 
       wrappedRequest.getRequestURI shouldBe "/a/request/uri?name=name&value=1"
-      wrappedRequest.getRequestURL shouldBe "http://localhost/a/request/uri?name=name&value=1"
+      wrappedRequest.getRequestURL.toString shouldBe "http://localhost/a/request/uri?name=name&value=1"
       identifiedMediaType.isDefined shouldBe true
       identifiedMediaType.get.getVariantExtension shouldBe "xml"
     }
@@ -90,14 +90,14 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
     // todo: again, fragments should not be returned
     it("should correctly ignore uri fragments") {
       val request = new MockHttpServletRequest()
-      request.setRequestURI("/a/request/uri.xml?name=name#fragment")
+      request.setRequestURI("/a/request/uri.xml#fragment")
 
       val wrappedRequest = new HttpServletRequestWrapper(request)
 
       val identifiedMediaType = mediaTypeNormalizer.getMediaTypeForVariant(wrappedRequest)
 
       wrappedRequest.getRequestURI shouldBe "/a/request/uri#fragment"
-      wrappedRequest.getRequestURL shouldBe "http://localhost/a/request/uri#fragment"
+      wrappedRequest.getRequestURL.toString shouldBe "http://localhost/a/request/uri#fragment"
       identifiedMediaType.isDefined shouldBe true
       identifiedMediaType.get.getVariantExtension shouldBe "xml"
     }
@@ -111,7 +111,7 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
       val identifiedMediaType = mediaTypeNormalizer.getMediaTypeForVariant(wrappedRequest)
 
       wrappedRequest.getRequestURI shouldBe "/a/request/uri?name=name&value=1#fragment"
-      wrappedRequest.getRequestURL shouldBe "http://localhost/a/request/uri?name=name&value=1#fragment"
+      wrappedRequest.getRequestURL.toString shouldBe "http://localhost/a/request/uri?name=name&value=1#fragment"
       identifiedMediaType.isDefined shouldBe true
       identifiedMediaType.get.getVariantExtension shouldBe "xml"
     }
@@ -125,11 +125,13 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
       val identifiedMediaType = mediaTypeNormalizer.getMediaTypeForVariant(wrappedRequest)
 
       wrappedRequest.getRequestURI shouldBe "/a/request/uri/"
-      wrappedRequest.getRequestURL shouldBe "http://localhost/a/request/uri/"
+      wrappedRequest.getRequestURL.toString shouldBe "http://localhost/a/request/uri/"
       identifiedMediaType.isDefined shouldBe true
       identifiedMediaType.get.getVariantExtension shouldBe "xml"
     }
+  }
 
+  describe("normalizeContentMediaType") {
     it("should set correct media type when wildcard is provided") {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.ACCEPT.toString, "*/*")
@@ -137,7 +139,7 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
 
       val wrappedRequest = new HttpServletRequestWrapper(request)
 
-      val identifiedMediaType = mediaTypeNormalizer.getMediaTypeForVariant(wrappedRequest)
+      val identifiedMediaType = mediaTypeNormalizer.normalizeContentMediaType(wrappedRequest)
 
       wrappedRequest.getHeader(CommonHttpHeader.ACCEPT.toString) shouldBe "application/xml"
     }
@@ -149,7 +151,7 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
 
       val wrappedRequest = new HttpServletRequestWrapper(request)
 
-      val identifiedMediaType = mediaTypeNormalizer.getMediaTypeForVariant(wrappedRequest)
+      val identifiedMediaType = mediaTypeNormalizer.normalizeContentMediaType(wrappedRequest)
 
       wrappedRequest.getHeader(CommonHttpHeader.ACCEPT.toString) shouldBe "application/json"
     }
@@ -160,7 +162,7 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
 
       val wrappedRequest = new HttpServletRequestWrapper(request)
 
-      val identifiedMediaType = mediaTypeNormalizer.getMediaTypeForVariant(wrappedRequest)
+      val identifiedMediaType = mediaTypeNormalizer.normalizeContentMediaType(wrappedRequest)
 
       wrappedRequest.getHeader(CommonHttpHeader.ACCEPT.toString) shouldBe "application/xml"
     }

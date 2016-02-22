@@ -68,17 +68,16 @@ class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogg
 
         if (variantExtension.nonEmpty && requestedVariant.equalsIgnoreCase(variantExtension)) {
           val uriExtensionIndex = request.getRequestURI.lastIndexOf(requestedVariant)
-          val urlExtensionIndex = request.getRequestURL.lastIndexOf(requestedVariant)
 
-          if (uriExtensionIndex > 0 && urlExtensionIndex > 0) {
+          if (uriExtensionIndex > 0) {
             val uriBuilder = new StringBuilder(request.getRequestURI)
 
             request.setRequestURI(uriBuilder.delete(uriExtensionIndex, uriExtensionIndex + requestedVariant.length).toString)
           }
 
-          true
-        } else {
           false
+        } else {
+          true
         }
       } headOption
     } else {
