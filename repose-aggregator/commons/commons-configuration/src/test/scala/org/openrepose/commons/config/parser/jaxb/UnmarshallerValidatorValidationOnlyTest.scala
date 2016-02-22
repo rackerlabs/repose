@@ -20,7 +20,6 @@
 package org.openrepose.commons.config.parser.jaxb
 
 import java.net.URL
-import java.util.{Calendar, Date, GregorianCalendar}
 import javax.xml.bind.JAXBContext
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.validation.{Schema, SchemaFactory}
@@ -37,9 +36,9 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import scala.io.Source
 
 /**
- * TODO: Unfortunately we can't actually test all the Unmarshalling because of classpath problems.
- * Fortunately an integration test catches some of the unmarshalling problem
- */
+  * TODO: Unfortunately we can't actually test all the Unmarshalling because of classpath problems.
+  * Fortunately an integration test catches some of the unmarshalling problem
+  */
 @RunWith(classOf[JUnitRunner])
 class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar with LazyLogging {
 
@@ -72,8 +71,8 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
   var app: ListAppender = _
 
   /**
-   * Construct myself a list of files to do work on!
-   */
+    * Construct myself a list of files to do work on!
+    */
   def pathedFiles(path: String): List[String] = {
     Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path)).getLines().toList.map { file =>
       path + file
@@ -83,9 +82,10 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
   import scala.collection.JavaConversions._
 
   /**
-   * Do the actual validation
-   * @param configFile
-   */
+    * Do the actual validation
+    *
+    * @param configFile
+    */
   def validate(configFile: String): Unit = {
     uv.setSchema(getSchemaForFile(configFile))
 
@@ -98,10 +98,11 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
   }
 
   /**
-   * Get a schema based on the configuration file name. Much easier to deal with
-   * @param configFile
-   * @return
-   */
+    * Get a schema based on the configuration file name. Much easier to deal with
+    *
+    * @param configFile
+    * @return
+    */
   def getSchemaForFile(configFile: String): Schema = {
     val xsdURL = xsdUrlMap(configFile.split("/").last)
     //Build the schema thingy
@@ -110,17 +111,7 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
     factory.newSchema(xsdURL)
   }
 
-  ignore("Validating oldXmlConfigs") {
-    oldXmlFiles.foreach { configFile =>
-      it(s"validates the old namespace configuration for $configFile") {
-        validate(configFile)
-        val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
-        events.count(_.contains(expectedLogMessage)) shouldBe 1
-      }
-    }
-  }
-
-  ignore("Validating an already correct namespace") {
+  describe("Validating an already correct namespace") {
     correctNamespaceFiles.foreach { configFile =>
       it(s"should not log the a message for $configFile") {
         validate(configFile)
@@ -131,7 +122,8 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
       }
     }
   }
-  ignore("Validating invalid configurations") {
+
+  describe("Validating invalid configurations") {
     badNamespaceFiles.foreach { configFile =>
       it(s"should throw an exception for $configFile") {
         intercept[Exception] {
@@ -140,5 +132,4 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
       }
     }
   }
-
 }
