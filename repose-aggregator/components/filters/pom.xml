@@ -17,18 +17,15 @@
 
     <modules>
         <module>slf4j-http-logging-filter</module>
-        <module>header-identity</module>
         <module>header-id-mapping-filter</module>
         <module>uri-user-filter</module>
         <module>rackspace-auth-user-filter</module>
-        <module>content-normalization</module>
         <module>rate-limiting-filter</module>
         <module>versioning-filter</module>
         <module>translation-filter</module>
         <module>destination-router-filter</module>
         <module>flush-output-filter</module>
         <module>echo-filter</module>
-        <module>client-ip-identity</module>
         <module>header-normalization-filter</module>
         <module>ip-user-filter</module>
         <module>uri-normalization-filter</module>

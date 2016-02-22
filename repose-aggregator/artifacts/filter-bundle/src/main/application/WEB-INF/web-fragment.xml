@@ -25,17 +25,10 @@
         <filter-class>org.openrepose.filters.defaultrouter.routing.RoutingFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>header-identity</filter-name>
-        <filter-class>org.openrepose.filters.headeridentity.HeaderIdentityFilter</filter-class>
-    </filter>
-    <filter>
         <filter-name>header-id-mapping</filter-name>
         <filter-class>org.openrepose.filters.headeridmapping.HeaderIdMappingFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>content-normalization</filter-name>
-        <filter-class>org.openrepose.filters.cnorm.ContentNormalizationFilter</filter-class>
-    </filter>
     <filter>
         <filter-name>uri-user</filter-name>
         <filter-class>org.openrepose.filters.uriuser.UriUserFilter</filter-class>
@@ -67,10 +60,6 @@
     <filter>
         <filter-name>translation</filter-name>
         <filter-class>org.openrepose.filters.translation.TranslationFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>ip-identity</filter-name>
-        <filter-class>org.openrepose.filters.ipidentity.IpIdentityFilter</filter-class>
     </filter>
     <filter>
         <filter-name>flush-output</filter-name>
