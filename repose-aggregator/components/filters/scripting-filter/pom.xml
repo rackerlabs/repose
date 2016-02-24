@@ -35,6 +35,18 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.openrepose</groupId>
+            <artifactId>commons-utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- JAXB2 Commons -->
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
         <!-- Delegation -->
         <dependency>
             <groupId>org.openrepose</groupId>
