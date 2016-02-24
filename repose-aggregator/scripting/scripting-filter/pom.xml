@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>extensions-support</artifactId>
-        <version>7.1.0.3-SNAPSHOT</version>
+        <version>8.0.0.0-SNAPSHOT</version>
+        <relativePath>../../extensions/pom.xml</relativePath>
     </parent>
 
     <name>Repose Components - Scripting Filter</name>
@@ -60,26 +61,31 @@
             <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.jruby</groupId>
             <artifactId>jruby-complete</artifactId>
             <version>1.7.19</version>
         </dependency>
+
         <dependency>
             <groupId>org.python</groupId>
             <artifactId>jython</artifactId>
             <version>2.7.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>2.4.3</version>
         </dependency>
+
         <dependency>
             <groupId>org.luaj</groupId>
             <artifactId>luaj-jse</artifactId>
             <version>3.0.1</version>
         </dependency>
+
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging-slf4j_2.10</artifactId>
@@ -90,17 +96,18 @@
             <artifactId>http-delegation</artifactId>
             <version>4.0.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
         </dependency>
 
+        <!-- MockHttpServletRequest/Response -->
         <dependency>
-            <groupId>com.mockrunner</groupId>
-            <artifactId>mockrunner-servlet</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -125,25 +132,25 @@
                     </transformationSets>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
 
                 <configuration>
-
                     <specVersion>2.2</specVersion>
                     <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
 
                     <schemaIncludes>
                         <include>**/*.xsd</include>
                     </schemaIncludes>
+
                     <bindingIncludes>
                         <include>**/*.xjb</include>
                     </bindingIncludes>
 
                     <strict>true</strict>
                     <verbose>false</verbose>
-
                 </configuration>
             </plugin>
         </plugins>

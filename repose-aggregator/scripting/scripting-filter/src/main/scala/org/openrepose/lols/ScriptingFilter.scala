@@ -1,3 +1,22 @@
+/*
+ * _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+ * Repose
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Copyright (C) 2010 - 2015 Rackspace US, Inc.
+ * _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+ */
 package org.openrepose.lols
 
 import java.net.URL
@@ -15,21 +34,20 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.scripting.config.{ScriptData, ScriptingConfig}
 import org.python.core.Options
 
+import scala.collection.JavaConversions._
+
 @Named
 class ScriptingFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter
-  with UpdateListener[ScriptingConfig]
-  with HttpDelegationManager
-  with LazyLogging {
+  extends Filter with UpdateListener[ScriptingConfig] with HttpDelegationManager with LazyLogging {
 
-  //THIS IS OMFG NECESSARY for JYTHONS, DOESN'T WORK IN JSR223 without, fails silently!
+  // Necessary for Jython, doesn't work with JSR223 without, fails silently!
   Options.importSite = false
 
   private final val DEFAULT_CONFIG = "scripting.cfg.xml"
 
   var configurationFile: String = DEFAULT_CONFIG
   var configuration: ScriptingConfig = _
-  var initialized = false
+  var initialized: Boolean = false
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -40,8 +58,7 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
       configurationFile,
       xsdURL,
       this,
-      classOf[ScriptingConfig]
-    )
+      classOf[ScriptingConfig])
   }
 
   override def destroy(): Unit = {
@@ -49,29 +66,25 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    import scala.collection.JavaConversions._
-
     logger.debug("Before wrapping thingers")
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
     val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
 
     logger.debug("Creating new ScriptEngineManager")
     val manager = new ScriptEngineManager()
-    logger.debug("Runnin all dem scripts")
-    configuration.getRequestScript.foreach { script: ScriptData =>
 
+    logger.debug("Running scripts")
+    configuration.getRequestScript.foreach { script: ScriptData =>
       logger.debug(s"Getting engine for ${script.getLanguage}")
       val engine = manager.getEngineByName(script.getLanguage)
 
-      logger.debug(s"ENGINE IS ${engine}")
+      logger.debug(s"ENGINE IS $engine")
       logger.debug("Setting request in global context")
       engine.put("request", mutableHttpRequest)
+
       logger.debug("Evaluating script!")
       engine.eval(script.getValue)
     }
-
-    //TODO: HAX
-    logger.info(s"HEADER LOL SET TO: ${mutableHttpRequest.getHeader("lol")}")
 
     filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
   }

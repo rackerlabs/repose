@@ -19,13 +19,13 @@
  */
 package org.openrepose.filters.valkyrieauthorization
 
-import com.mockrunner.mock.web.{MockHttpServletResponse, MockFilterChain, MockHttpServletRequest}
 import com.rackspace.httpdelegation.HttpDelegationManager
 import org.junit.runner.RunWith
 import org.openrepose.filters.scripting.config.{ScriptData, ScriptingConfig}
 import org.openrepose.lols.ScriptingFilter
-import org.scalatest.{BeforeAndAfterAll, Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
 class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matchers with BeforeAndAfterAll {
@@ -34,7 +34,6 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
     System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
       "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
   }
-
 
   it("can parse some jruby to add a header with static value") {
     val fakeConfigService = new FakeConfigService()
@@ -98,5 +97,4 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
 
     filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain())
   }
-
 }
