@@ -31,13 +31,14 @@ import java.util.regex.Pattern
 
 class RewriteTracingHeaderTest extends ReposeValveTest {
     def static final Pattern UUID_PATTERN = ~/\p{XDigit}{8}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{12}/
+    static def params
 
     def setupSpec() {
         reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        def params = properties.getDefaultTemplateParams()
+        params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/tracing", params)
         repose.configurationProvider.applyConfigs("features/core/tracing/rewritetransid", params)
@@ -49,7 +50,7 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
     def "should not pass the externally provided tracing header (#tracingHeaderInput) through the filter chain"() {
         when:
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput, via:'some_via'])
+                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput, via: 'some_via'])
 
         def tracingHeader = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
         def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
@@ -65,7 +66,7 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
 
     def "should pass a new tracing header through the filter chain if one was not provided"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [via:'some_via'])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [via: 'some_via'])
 
         def tracingHeader = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
         def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
@@ -79,10 +80,11 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
     def "should not return the externally provided tracing header (#tracingHeaderInput) if one was provided"() {
         when:
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput, via:'some_via'])
+                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput, via: 'some_via'])
 
         def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
         def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
+        println(tracingHeader)
 
         then:
         tracingValues['requestId'] != 'test-guid-for-rewrite'
@@ -95,7 +97,7 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
 
     def "should return a tracing header if one was not provided"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [via:'some_via'])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [via: 'some_via'])
 
         def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
         def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
@@ -103,5 +105,23 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
         then:
         tracingValues['requestId'] ==~ UUID_PATTERN
         tracingValues['origin'] == 'some_via'
+    }
+
+    def "should not rewrite the externally provided tracing header (#tracingHeaderInput) if one was provided"() {
+        given:
+        def tracingid = UUID.randomUUID().toString()
+        repose.configurationProvider.applyConfigs("features/core/tracing/rewritetransid/rewritefalse", params, 5)
+        repose.start()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingid, via: 'some_via'])
+
+        def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
+        //doesn't come with json form and base64encoded
+        //def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
+
+        then:
+        tracingHeader == tracingid
     }
 }
