@@ -21,17 +21,17 @@ package org.openrepose.filters.scripting
 
 import java.net.URL
 import javax.inject.{Inject, Named}
-import javax.script.ScriptEngineManager
+import javax.script._
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
+import org.openrepose.commons.utils.servlet.http._
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.scripting.config.{ScriptData, ScriptingConfig}
+import org.openrepose.filters.scripting.config.ScriptingConfig
 import org.python.core.Options
 
 import scala.collection.JavaConversions._
@@ -45,9 +45,10 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
 
   private final val DEFAULT_CONFIG = "scripting.cfg.xml"
 
-  var configurationFile: String = DEFAULT_CONFIG
-  var configuration: ScriptingConfig = _
-  var initialized: Boolean = false
+  private var configurationFile: String = DEFAULT_CONFIG
+  private var initialized: Boolean = false
+  private var requestScripts: Iterable[ScriptRunner] = Iterable.empty
+  private var responseScripts: Iterable[ScriptRunner] = Iterable.empty
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -66,33 +67,82 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    logger.debug("Before wrapping thingers")
-    val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
-    val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
+    logger.debug("Wrapping servlet request and response")
+    val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+    val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.MUTABLE, ResponseMode.MUTABLE)
 
     logger.debug("Creating new ScriptEngineManager")
     val manager = new ScriptEngineManager()
 
     logger.debug("Running scripts")
-    configuration.getRequestScript.foreach { script: ScriptData =>
+    configuration.getRequestScript foreach { script =>
       logger.debug(s"Getting engine for ${script.getLanguage}")
       val engine = manager.getEngineByName(script.getLanguage)
 
-      logger.debug(s"ENGINE IS $engine")
+      logger.debug(s"Engine is $engine")
       logger.debug("Setting request in global context")
-      engine.put("request", mutableHttpRequest)
+      engine.put("request", wrappedRequest)
+      logger.debug("Setting response in global context")
+      engine.put("response", wrappedResponse)
 
       logger.debug("Evaluating script!")
       engine.eval(script.getValue)
     }
 
-    filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
+    filterChain.doFilter(wrappedRequest, wrappedResponse)
+
+    configuration.getResponseScript foreach { script =>
+      logger.debug(s"Getting engine for ${script.getLanguage}")
+      val engine = manager.getEngineByName(script.getLanguage)
+
+      logger.debug(s"Engine is $engine")
+      logger.debug("Setting response in global context")
+      engine.put("response", wrappedResponse)
+
+      logger.debug("Evaluating script!")
+      engine.eval(script.getValue)
+    }
+
+    // FIXME: Catch exceptions on eval, return internal server error
+    // FIXME: Compile scripts when possible
   }
 
   override def configurationUpdated(configurationObject: ScriptingConfig): Unit = {
+    val scriptEngineManager = new ScriptEngineManager()
+
+    configurationObject.getRequestScript map { script =>
+      Option(scriptEngineManager.getEngineByName(script.getLanguage)) match {
+        case Some(engine) =>
+          engine match {
+            case compilable: Compilable =>
+              compilable.compile(script.getValue)
+            case _ =>
+
+          }
+        case None => // todo: throw exception, no matching engine
+      }
+      script.getValue
+    }
     configuration = configurationObject
     initialized = true
   }
 
   override def isInitialized: Boolean = initialized
+
+  private sealed trait ScriptRunner {
+    def run(bindings: Bindings): AnyRef
+  }
+
+  private class CompiledScriptRunner(compiledScript: CompiledScript) extends ScriptRunner {
+    override def run(bindings: Bindings): AnyRef = {
+      compiledScript.eval(bindings)
+    }
+  }
+
+  private class StringScriptRunner(script: String, scriptEngine: ScriptEngine) extends ScriptRunner {
+    override def run(bindings: Bindings): AnyRef = {
+      scriptEngine.eval(script, bindings)
+    }
+  }
+
 }
