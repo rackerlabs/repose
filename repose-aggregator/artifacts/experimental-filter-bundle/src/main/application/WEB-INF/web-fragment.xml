@@ -37,7 +37,7 @@
         <filter-class>org.openrepose.filters.echo.EchoFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>scripting-filter</filter-name>
+        <filter-name>scripting</filter-name>
         <filter-class>org.openrepose.filters.scriptingfilter.ScriptingFilter</filter-class>
     </filter>
 </web-fragment>

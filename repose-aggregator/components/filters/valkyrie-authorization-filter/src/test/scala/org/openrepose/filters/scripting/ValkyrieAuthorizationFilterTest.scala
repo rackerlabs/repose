@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.valkyrieauthorization
+package org.openrepose.filters.scripting
 
 import java.io.ByteArrayInputStream
 import java.net.URL
@@ -39,9 +39,9 @@ import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientRespons
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient, AkkaServiceClientException}
-import org.openrepose.filters.valkyrieauthorization.config.DevicePath.Regex
-import org.openrepose.filters.valkyrieauthorization.config.HttpMethod._
-import org.openrepose.filters.valkyrieauthorization.config._
+import org.openrepose.filters.scripting.config.DevicePath.Regex
+import org.openrepose.filters.scripting.config.HttpMethod._
+import org.openrepose.filters.scripting.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec}

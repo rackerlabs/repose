@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.valkyrieauthorization
+package org.openrepose.filters.scripting
 
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URL
@@ -41,7 +41,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.filters.valkyrieauthorization.config._
+import org.openrepose.filters.scripting.config._
 import play.api.libs.json._
 
 import scala.annotation.tailrec

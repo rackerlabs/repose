@@ -22,13 +22,13 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns="http://docs.openrepose.org/repose/scripting-filter/v1.0"
-           targetNamespace="http://docs.openrepose.org/repose/scripting-filter/v1.0"
+           xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/scripting/v1.0"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
 
     <!-- Elements -->
-    <xs:element name="scripting-filter" type="ScriptingConfig"/>
+    <xs:element name="scripting" type="ScriptingConfig"/>
 
     <!-- Types -->
     <xs:complexType name="ScriptingConfig">

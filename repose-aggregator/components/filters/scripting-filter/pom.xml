@@ -4,17 +4,17 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
-        <artifactId>extensions-support</artifactId>
+        <artifactId>filters-support</artifactId>
         <version>8.0.0.0-SNAPSHOT</version>
-        <relativePath>../../extensions/pom.xml</relativePath>
     </parent>
 
-    <name>Repose Components - Scripting Filter</name>
+    <name>Repose Components - Scripting</name>
     <artifactId>scripting-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
-        TODO
+        This filter will run user-provided scripts in supported scripting languages.
+        These scripts will have access to the request and response objects.
     </description>
 
     <properties>
@@ -22,6 +22,7 @@
     </properties>
 
     <dependencies>
+        <!-- Internal dependencies -->
         <dependency>
             <groupId>org.openrepose</groupId>
             <artifactId>core-lib</artifactId>
@@ -34,34 +35,39 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- actually uses something from the commons project -->
+        <!-- Delegation -->
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>configuration</artifactId>
-            <version>${project.version}</version>
+            <artifactId>http-delegation</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
+        <!-- Scala -->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
 
+        <!-- ScalaTest -->
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.10</artifactId>
+        </dependency>
+
+        <!-- LazyLogging -->
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging-slf4j_2.10</artifactId>
+        </dependency>
+
+        <!-- MockHttpServletRequest/Response -->
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics-runtime</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
+        <!-- Supported script languages -->
         <dependency>
             <groupId>org.jruby</groupId>
             <artifactId>jruby-complete</artifactId>
@@ -85,39 +91,10 @@
             <artifactId>luaj-jse</artifactId>
             <version>3.0.1</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.10</artifactId>
-        </dependency>
-        <!-- Http Delegation Library for delegating requests -->
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>http-delegation</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
-        </dependency>
-
-        <!-- MockHttpServletRequest/Response -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- The plugin that gets Scala running -->
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-            </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>

@@ -114,7 +114,7 @@
     </filter>
     <filter>
         <filter-name>valkyrie-authorization</filter-name>
-        <filter-class>org.openrepose.filters.valkyrieauthorization.ValkyrieAuthorizationFilter</filter-class>
+        <filter-class>org.openrepose.filters.scripting.ValkyrieAuthorizationFilter</filter-class>
     </filter>
     <filter>
         <filter-name>merge-header</filter-name>

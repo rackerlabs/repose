@@ -17,12 +17,11 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.valkyrieauthorization
+package org.openrepose.filters.scripting
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import org.junit.runner.RunWith
 import org.openrepose.filters.scripting.config.{ScriptData, ScriptingConfig}
-import org.openrepose.lols.ScriptingFilter
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}

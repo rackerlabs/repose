@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.valkyrieauthorization
+package org.openrepose.filters.scripting
 
 import java.net.URL
 

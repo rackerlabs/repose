@@ -1,4 +1,4 @@
-package org.openrepose.lols
+package org.openrepose.filters.scripting
 
 import javax.script.ScriptEngineManager
 

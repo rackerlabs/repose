@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.lols
+package org.openrepose.filters.scripting
 
 import java.net.URL
 import javax.inject.{Inject, Named}
@@ -52,7 +52,7 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info("Initializing filter using config " + configurationFile)
-    val xsdURL: URL = getClass.getResource("/META-INF/schema/config/scripting-filter.xsd")
+    val xsdURL: URL = getClass.getResource("/META-INF/schema/config/scripting.xsd")
     configurationService.subscribeTo(
       filterConfig.getFilterName,
       configurationFile,
