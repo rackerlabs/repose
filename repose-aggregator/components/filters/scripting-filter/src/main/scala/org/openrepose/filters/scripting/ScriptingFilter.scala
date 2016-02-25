@@ -80,6 +80,7 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
       runner.run(bindings)
     }
 
+    // TODO: doFilter(...) call dependent on return of run(...)
     logger.debug("Calling next filter")
     filterChain.doFilter(wrappedRequest, wrappedResponse)
 
