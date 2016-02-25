@@ -75,7 +75,7 @@ class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
     that information back to the client.  The origin service, thus, never gets invoked.
     */
 
-    @Unroll("#token_id expireat: #expireat, respcode: #responseCode and #msgBody")
+    @Unroll("token: #token_id expireat: #expireat, respcode: #responseCode and #msgBody")
     def "When req with invalid token using delegable mode with quality"() {
         given:
         fakeIdentityService.with {
@@ -107,9 +107,9 @@ class AuthHerpDerpRMSMultiMatchAuthPrefTest extends ReposeValveTest {
         */
         where:
         authRespCode | responseCode | msgBody                                         | token_id          | expireat                      | orphans
-        404          | "401"        | "Token is not valid for validate token request" | UUID.randomUUID() | (new DateTime()).plusDays(1)  | 2
+        404          | "401"        | "Resource not found for validate token request" | UUID.randomUUID() | (new DateTime()).plusDays(1)  | 2
         404          | "401"        | "X-Auth-Token header not found"                 | ""                | (new DateTime()).plusDays(1)  | 0
-        404          | "401"        | "Token is not valid for validate token request" | UUID.randomUUID() | (new DateTime()).minusDays(1) | 1
+        404          | "401"        | "Resource not found for validate token request" | UUID.randomUUID() | (new DateTime()).minusDays(1) | 1
         404          | "401"        | "X-Auth-Token header not found"                 | ""                | (new DateTime()).minusDays(1) | 0
     }
 

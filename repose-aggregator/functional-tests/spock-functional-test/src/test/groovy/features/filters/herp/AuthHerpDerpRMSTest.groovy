@@ -102,7 +102,7 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
         */
         where:
         authRespCode | responseCode | msgBody
-        404          | "401"        | "Token is not valid for validate token request"
+        404          | "401"        | "Resource not found for validate token request"
         401          | "500"        | "Admin token unauthorized to make validate token request"
     }
 }
