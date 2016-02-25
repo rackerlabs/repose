@@ -139,11 +139,11 @@ class ReposeLintTest extends Specification {
         }
 
         where:
-        configdir                                            | checktype         | filtername    | checktenantedmode | tenantmode | foyerignore | status
-        "features/reposelint/keystonev2"                     | "keystoneV2Check" | "keystone-v2" | "yes"             | false      | false       | "AllowedNotAuthorized"
-        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2" | "yes"             | true       | false       | "NotAllowed"
-        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2" | "yes"             | true       | true        | "AllowedNotAuthorized"
-        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2" | "no"              | false      | false       | "NotAllowed"
-        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2" | "no"              | false      | true        | "AllowedNotAuthorized"
+        configdir                                            | checktype         | filtername    | checktenantedmode | tenantmode | foyerignore | status                        | desc
+        "features/reposelint/keystonev2"                     | "keystoneV2Check" | "keystone-v2" | "yes"             | false      | false       | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
+        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2" | "yes"             | true       | false       | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2" | "yes"             | true       | true        | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
+        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2" | "no"              | false      | false       | "AllowedWithAuthorization"    | allowedWithAuthorizationDesc
+        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2" | "no"              | false      | true        | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
     }
 }
