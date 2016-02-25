@@ -19,6 +19,8 @@
  */
 package org.openrepose.filters.scripting
 
+import javax.servlet.http.HttpServletRequest
+
 import com.rackspace.httpdelegation.HttpDelegationManager
 import org.junit.runner.RunWith
 import org.openrepose.filters.scripting.config.{ScriptData, ScriptingConfig}
@@ -37,6 +39,7 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
   it("can parse some jruby to add a header with static value") {
     val fakeConfigService = new FakeConfigService()
     val filter = new ScriptingFilter(fakeConfigService)
+    val filterChain = new MockFilterChain()
 
     val scriptingConfig = new ScriptingConfig()
 
@@ -53,8 +56,8 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
 
     val request = new MockHttpServletRequest()
 
-    filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain())
-    request.getHeader("lol") should equal("butts")
+    filter.doFilter(request, new MockHttpServletResponse(), filterChain)
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
   }
 
   it("can parse some jython to add a header with static value") {
