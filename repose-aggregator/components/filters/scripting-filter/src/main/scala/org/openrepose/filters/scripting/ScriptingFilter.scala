@@ -70,10 +70,9 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
     logger.debug("Wrapping servlet request and response")
     val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
     val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.MUTABLE, ResponseMode.MUTABLE)
-    val bindings = new SimpleBindings(Map(
-      "request" -> wrappedRequest,
-      "response" -> wrappedResponse
-    ))
+    val bindings = new SimpleBindings()
+    bindings.put("request", wrappedRequest)
+    bindings.put("response", wrappedResponse)
 
     logger.debug("Running request scripts")
     requestScriptRunners foreach { runner =>
