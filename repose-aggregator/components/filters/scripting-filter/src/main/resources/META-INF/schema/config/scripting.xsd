@@ -53,6 +53,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="language" type="xs:string" use="required"/>
+                <!-- TODO: configure response headers/body mutation -->
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
