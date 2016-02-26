@@ -43,14 +43,14 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
   // Necessary for Jython, doesn't work with JSR223 without, fails silently!
   Options.importSite = false
 
-  private final val DEFAULT_CONFIG = "scripting.cfg.xml"
+  private final val DefaultConfig = "scripting.cfg.xml"
 
-  private var configurationFile: String = DEFAULT_CONFIG
   private var initialized: Boolean = false
+  private var configurationFile: String = _
   private var scriptRunner: ScriptRunner = _
 
   override def init(filterConfig: FilterConfig): Unit = {
-    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
+    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DefaultConfig)
     logger.info("Initializing filter using config " + configurationFile)
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/scripting.xsd")
     configurationService.subscribeTo(

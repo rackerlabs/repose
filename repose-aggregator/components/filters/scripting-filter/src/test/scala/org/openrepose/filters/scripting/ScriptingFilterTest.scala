@@ -19,21 +19,59 @@
  */
 package org.openrepose.filters.scripting
 
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
-import com.rackspace.httpdelegation.HttpDelegationManager
 import org.junit.runner.RunWith
 import org.openrepose.filters.scripting.config.{ScriptData, ScriptingConfig}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
-import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
+import org.scalatest.{FunSpec, Matchers}
+import org.springframework.mock.web.{MockFilterConfig, MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
-class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matchers with BeforeAndAfterAll {
+class ScriptingFilterTest extends FunSpec with Matchers {
 
-  override def beforeAll() {
-    System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-      "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+  System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+    "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+
+  it("should return a 503 if the filter has not yet initialized") {
+    val filter = new ScriptingFilter(null)
+    val response = new MockHttpServletResponse()
+
+    filter.doFilter(null, response, null)
+
+    response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+  }
+
+  it("should register to a configuration on init") {
+    pending
+  }
+
+  it("should unregister from a configuration on destroy") {
+    pending
+  }
+
+  it("can parse some javascript to add a header with static value") {
+    val fakeConfigService = new FakeConfigService()
+    val filter = new ScriptingFilter(fakeConfigService)
+    val filterChain = new MockFilterChain()
+
+    val scriptingConfig = new ScriptingConfig()
+
+    val scriptData = new ScriptData()
+    scriptData.setValue(
+      """
+        |request.addHeader("lol", "butts")
+        |filterChain.doFilter(request, response)
+      """.stripMargin)
+    scriptData.setLanguage("javascript")
+    scriptingConfig.setScript(scriptData)
+
+    filter.configurationUpdated(scriptingConfig)
+
+    val request = new MockHttpServletRequest()
+
+    filter.doFilter(request, new MockHttpServletResponse(), filterChain)
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
   }
 
   it("can parse some jruby to add a header with static value") {
@@ -46,7 +84,6 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
     val scriptData = new ScriptData()
     scriptData.setValue(
       """
-        |puts("lol")
         |$request.addHeader("lol", "butts")
         |$filterChain.doFilter($request, $response)
       """.stripMargin)
@@ -71,7 +108,6 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
     val scriptData = new ScriptData()
     scriptData.setValue(
       """
-        |print "jython fails silently in ways that make me sad"
         |request.addHeader("lol", "butts")
         |filterChain.doFilter(request, response)
       """.stripMargin)
@@ -94,11 +130,32 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
     val scriptData = new ScriptData()
     scriptData.setValue(
       """
-        |print("lol lua ftw")
         |request:addHeader("lol", "butts")
         |filterChain:doFilter(request, response)
       """.stripMargin)
     scriptData.setLanguage("lua")
+    scriptingConfig.setScript(scriptData)
+
+    filter.configurationUpdated(scriptingConfig)
+
+    filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain)
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
+  }
+
+  ignore("can parse some scala to add a header with static value") {
+    val fakeConfigService = new FakeConfigService()
+    val filter = new ScriptingFilter(fakeConfigService)
+    val filterChain = new MockFilterChain()
+
+    val scriptingConfig = new ScriptingConfig()
+
+    val scriptData = new ScriptData()
+    scriptData.setValue(
+      """
+        |request.addHeader("lol", "butts")
+        |filterChain.doFilter(request, response)
+      """.stripMargin)
+    scriptData.setLanguage("scala")
     scriptingConfig.setScript(scriptData)
 
     filter.configurationUpdated(scriptingConfig)
