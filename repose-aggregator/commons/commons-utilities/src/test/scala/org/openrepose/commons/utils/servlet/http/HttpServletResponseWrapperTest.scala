@@ -1531,18 +1531,6 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("setOutput") {
-    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
-
-      an[IllegalStateException] should be thrownBy wrappedResponse.setOutput(new ByteArrayInputStream("test body".getBytes))
-    }
-
-    it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
-
-      an[IllegalStateException] should be thrownBy wrappedResponse.setOutput(new ByteArrayInputStream("test body".getBytes))
-    }
-
     it("should set the output") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
 

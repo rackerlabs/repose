@@ -34,7 +34,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.scripting.config.ScriptingConfig
 import org.python.core.Options
 
-import scala.collection.JavaConversions._
+import scala.util.{Failure, Success, Try}
 
 @Named
 class ScriptingFilter @Inject()(configurationService: ConfigurationService)
@@ -47,8 +47,7 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
 
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized: Boolean = false
-  private var requestScriptRunners: Iterable[ScriptRunner] = Iterable.empty
-  private var responseScriptRunners: Iterable[ScriptRunner] = Iterable.empty
+  private var scriptRunner: ScriptRunner = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -67,57 +66,46 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    logger.debug("Wrapping servlet request and response")
-    val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-    val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.MUTABLE, ResponseMode.MUTABLE)
-    val bindings = new SimpleBindings()
-    bindings.put("request", wrappedRequest)
-    bindings.put("response", wrappedResponse)
+    if (!isInitialized) {
+      logger.warn("Scripting filter has not yet initialized")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+    } else {
+      val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+      val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse],
+        ResponseMode.MUTABLE,
+        ResponseMode.MUTABLE)
 
-    logger.debug("Running request scripts")
-    requestScriptRunners foreach { runner =>
+      val bindings = new SimpleBindings()
+      bindings.put("request", wrappedRequest)
+      bindings.put("response", wrappedResponse)
+      bindings.put("filterChain", filterChain)
+
       logger.debug("Running script")
-      runner.run(bindings)
-    }
-
-    // TODO: doFilter(...) call dependent on return of run(...)
-    logger.debug("Calling next filter")
-    filterChain.doFilter(wrappedRequest, wrappedResponse)
-
-    logger.debug("Running response scripts")
-    responseScriptRunners foreach { runner =>
-      logger.debug("Running script")
-      runner.run(bindings)
+      Try(scriptRunner.run(bindings)) match {
+        case Success(_) =>
+          wrappedResponse.commitToResponse()
+        case Failure(e) =>
+          logger.error("Processing failure -- the script threw an Exception", e)
+          servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+      }
     }
   }
+
+  override def isInitialized: Boolean = initialized
 
   override def configurationUpdated(configurationObject: ScriptingConfig): Unit = {
     val scriptEngineManager = new ScriptEngineManager()
 
-    requestScriptRunners = configurationObject.getRequestScript map { requestScript =>
-      Option(scriptEngineManager.getEngineByName(requestScript.getLanguage)) match {
-        case Some(engine) =>
-          ScriptRunner(requestScript.getValue, engine)
-        case None =>
-          logger.error(requestScript.getLanguage + " is not a supported language")
-          throw new UpdateFailedException(requestScript.getLanguage + " is not a supported language", null)
-      }
-    }
-
-    responseScriptRunners = configurationObject.getResponseScript map { responseScript =>
-      Option(scriptEngineManager.getEngineByName(responseScript.getLanguage)) match {
-        case Some(engine) =>
-          ScriptRunner(responseScript.getValue, engine)
-        case None =>
-          logger.error(responseScript.getLanguage + " is not a supported language")
-          throw new UpdateFailedException(responseScript.getLanguage + " is not a supported language", null)
-      }
+    scriptRunner = Option(scriptEngineManager.getEngineByName(configurationObject.getScript.getLanguage)) match {
+      case Some(engine) =>
+        ScriptRunner(configurationObject.getScript.getValue, engine)
+      case None =>
+        logger.error(configurationObject.getScript.getLanguage + " is not a supported language")
+        throw new UpdateFailedException(configurationObject.getScript.getLanguage + " is not a supported language", null)
     }
 
     initialized = true
   }
-
-  override def isInitialized: Boolean = initialized
 
   private sealed trait ScriptRunner {
     def run(bindings: Bindings): AnyRef

@@ -37,10 +37,9 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:sequence>
-            <xs:element name="request-script" type="ScriptData" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="response-script" type="ScriptData" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        <xs:all>
+            <xs:element name="script" type="ScriptData"/>
+        </xs:all>
     </xs:complexType>
 
     <xs:complexType name="ScriptData">
@@ -53,7 +52,6 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="language" type="xs:string" use="required"/>
-                <!-- TODO: configure response headers/body mutation -->
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

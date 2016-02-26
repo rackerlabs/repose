@@ -48,9 +48,10 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
       """
         |puts("lol")
         |$request.addHeader("lol", "butts")
+        |$filterChain.doFilter($request, $response)
       """.stripMargin)
     scriptData.setLanguage("jruby")
-    scriptingConfig.getRequestScript.add(scriptData)
+    scriptingConfig.setScript(scriptData)
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -63,6 +64,7 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
   it("can parse some jython to add a header with static value") {
     val fakeConfigService = new FakeConfigService()
     val filter = new ScriptingFilter(fakeConfigService)
+    val filterChain = new MockFilterChain()
 
     val scriptingConfig = new ScriptingConfig()
 
@@ -71,18 +73,21 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
       """
         |print "jython fails silently in ways that make me sad"
         |request.addHeader("lol", "butts")
+        |filterChain.doFilter(request, response)
       """.stripMargin)
     scriptData.setLanguage("python")
-    scriptingConfig.getRequestScript.add(scriptData)
+    scriptingConfig.setScript(scriptData)
 
     filter.configurationUpdated(scriptingConfig)
 
-    filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain())
+    filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain)
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
   }
 
   it("can parse some lua to add a header with static value") {
     val fakeConfigService = new FakeConfigService()
     val filter = new ScriptingFilter(fakeConfigService)
+    val filterChain = new MockFilterChain()
 
     val scriptingConfig = new ScriptingConfig()
 
@@ -91,12 +96,14 @@ class ScriptingFilterTest extends FunSpec with HttpDelegationManager with Matche
       """
         |print("lol lua ftw")
         |request:addHeader("lol", "butts")
+        |filterChain:doFilter(request, response)
       """.stripMargin)
     scriptData.setLanguage("lua")
-    scriptingConfig.getRequestScript.add(scriptData)
+    scriptingConfig.setScript(scriptData)
 
     filter.configurationUpdated(scriptingConfig)
 
-    filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain())
+    filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain)
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
   }
 }
