@@ -95,12 +95,12 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
   override def configurationUpdated(configurationObject: ScriptingConfig): Unit = {
     val scriptEngineManager = new ScriptEngineManager()
 
-    scriptRunner = Option(scriptEngineManager.getEngineByName(configurationObject.getScript.getLanguage)) match {
+    scriptRunner = Option(scriptEngineManager.getEngineByName(configurationObject.getLanguage)) match {
       case Some(engine) =>
-        ScriptRunner(configurationObject.getScript.getValue, engine)
+        ScriptRunner(configurationObject.getValue, engine)
       case None =>
-        logger.error(configurationObject.getScript.getLanguage + " is not a supported language")
-        throw new UpdateFailedException(configurationObject.getScript.getLanguage + " is not a supported language", null)
+        logger.error(configurationObject.getLanguage + " is not a supported language")
+        throw new UpdateFailedException(configurationObject.getLanguage + " is not a supported language", null)
     }
 
     initialized = true

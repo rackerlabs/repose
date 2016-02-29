@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0">
-    <request-script language="groovy">
-        request.addHeader("foo", "bar")
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    request.addHeader("foo", "bar")
 
-        // Return the request so that processing continues
-        request
-    </request-script>
-
-    <response-script language="python">
-        request.addHeader("foo", "bar")
-
-        # Return the request so that processing continues
-        request
-    </response-script>
+    // Call the next filter in the chain
+    filter.doChain(request, response)
 </scripting>

@@ -27,7 +27,7 @@ import org.mockito.Matchers.{any, anyString, same}
 import org.mockito.Mockito.verify
 import org.openrepose.commons.config.manager.UpdateFailedException
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.scripting.config.{ScriptData, ScriptingConfig}
+import org.openrepose.filters.scripting.config.ScriptingConfig
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
@@ -70,14 +70,12 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val filter = new ScriptingFilter(null)
 
     val scriptingConfig = new ScriptingConfig()
-    val scriptData = new ScriptData()
-    scriptData.setValue(
+    scriptingConfig.setValue(
       """
         |request.addHeader("lol", "butts")
         |filterChain.doFilter(request, response)
       """.stripMargin)
-    scriptData.setLanguage("foo")
-    scriptingConfig.setScript(scriptData)
+    scriptingConfig.setLanguage("foo")
 
     an[UpdateFailedException] should be thrownBy filter.configurationUpdated(scriptingConfig)
   }
@@ -88,15 +86,12 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val filterChain = new MockFilterChain()
 
     val scriptingConfig = new ScriptingConfig()
-
-    val scriptData = new ScriptData()
-    scriptData.setValue(
+    scriptingConfig.setValue(
       """
         |request.addHeader("lol", "butts")
         |filterChain.doFilter(request, response)
       """.stripMargin)
-    scriptData.setLanguage("javascript")
-    scriptingConfig.setScript(scriptData)
+    scriptingConfig.setLanguage("javascript")
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -112,15 +107,12 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val filterChain = new MockFilterChain()
 
     val scriptingConfig = new ScriptingConfig()
-
-    val scriptData = new ScriptData()
-    scriptData.setValue(
+    scriptingConfig.setValue(
       """
         |$request.addHeader("lol", "butts")
         |$filterChain.doFilter($request, $response)
       """.stripMargin)
-    scriptData.setLanguage("jruby")
-    scriptingConfig.setScript(scriptData)
+    scriptingConfig.setLanguage("jruby")
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -136,15 +128,12 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val filterChain = new MockFilterChain()
 
     val scriptingConfig = new ScriptingConfig()
-
-    val scriptData = new ScriptData()
-    scriptData.setValue(
+    scriptingConfig.setValue(
       """
         |request.addHeader("lol", "butts")
         |filterChain.doFilter(request, response)
       """.stripMargin)
-    scriptData.setLanguage("python")
-    scriptingConfig.setScript(scriptData)
+    scriptingConfig.setLanguage("python")
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -158,15 +147,12 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val filterChain = new MockFilterChain()
 
     val scriptingConfig = new ScriptingConfig()
-
-    val scriptData = new ScriptData()
-    scriptData.setValue(
+    scriptingConfig.setValue(
       """
         |request:addHeader("lol", "butts")
         |filterChain:doFilter(request, response)
       """.stripMargin)
-    scriptData.setLanguage("lua")
-    scriptingConfig.setScript(scriptData)
+    scriptingConfig.setLanguage("lua")
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -180,15 +166,12 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val filterChain = new MockFilterChain()
 
     val scriptingConfig = new ScriptingConfig()
-
-    val scriptData = new ScriptData()
-    scriptData.setValue(
+    scriptingConfig.setValue(
       """
         |request.addHeader("lol", "butts")
         |filterChain.doFilter(request, response)
       """.stripMargin)
-    scriptData.setLanguage("scala")
-    scriptingConfig.setScript(scriptData)
+    scriptingConfig.setLanguage("scala")
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -201,14 +184,11 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val filterChain = new MockFilterChain()
 
     val scriptingConfig = new ScriptingConfig()
-
-    val scriptData = new ScriptData()
-    scriptData.setValue(
+    scriptingConfig.setValue(
       """
         |throw "EXCEPTION"
       """.stripMargin)
-    scriptData.setLanguage("javascript")
-    scriptingConfig.setScript(scriptData)
+    scriptingConfig.setLanguage("javascript")
 
     filter.configurationUpdated(scriptingConfig)
 

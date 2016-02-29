@@ -33,18 +33,6 @@
     <xs:complexType name="ScriptingConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p>The root config type.</html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:all>
-            <xs:element name="script" type="ScriptData"/>
-        </xs:all>
-    </xs:complexType>
-
-    <xs:complexType name="ScriptData">
-        <xs:annotation>
-            <xs:documentation>
                 <html:p>The script to be run.</html:p>
             </xs:documentation>
         </xs:annotation>
