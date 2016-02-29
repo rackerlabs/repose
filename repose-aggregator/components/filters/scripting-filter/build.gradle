@@ -1,0 +1,20 @@
+dependencies {
+    compile project(":repose-aggregator/core/core-lib")
+    compile project(":repose-aggregator/core/core-service-api")
+    compile project(":repose-aggregator/commons/commons-utilities")
+    compile "org.openrepose:http-delegation"
+    compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime"
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "org.jruby:jruby-complete"
+    compile "org.python:jython"
+    compile "org.codehaus.groovy:groovy-all"
+    compile "org.luaj:luaj-jse"
+
+    provided "javax.servlet:javax.servlet-api"
+    provided "javax.inject:javax.inject"
+
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.springframework:spring-test"
+}
