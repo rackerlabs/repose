@@ -85,7 +85,7 @@
         <glassfish.jar.dir>${project.set.dir}/functional-tests/test-container-glassfish/target</glassfish.jar.dir>
         <glassfish.jar>test-container-glassfish-${project.version}-jar-with-dependencies.jar</glassfish.jar>
         <repose.glassfish.jar.location>${repose.home}/${glassfish.jar}</repose.glassfish.jar.location>
-        <tomcat.jar.dir>${project.set.dir}/functional-tests/test-conatiner-tomcat/target</tomcat.jar.dir>
+        <tomcat.jar.dir>${project.set.dir}/functional-tests/test-container-tomcat/target</tomcat.jar.dir>
         <tomcat.jar>test-container-tomcat-${project.version}-jar-with-dependencies.jar</tomcat.jar>
         <repose.tomcat.jar.location>${repose.home}/${tomcat.jar}</repose.tomcat.jar.location>
         <repose.root.war.location>${repose.home}/${repose.root.war}</repose.root.war.location>
