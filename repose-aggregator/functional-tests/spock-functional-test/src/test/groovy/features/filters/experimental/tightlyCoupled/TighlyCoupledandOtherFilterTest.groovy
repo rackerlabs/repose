@@ -36,7 +36,6 @@ class TighlyCoupledandOtherFilterTest extends ReposeValveTest {
     def static identityEndpoint
 
     def static MockIdentityV2Service fakeIdentityService
-    def static started
 
     def setupSpec() {
         def params = properties.defaultTemplateParams
@@ -44,8 +43,7 @@ class TighlyCoupledandOtherFilterTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/experimental/tightlycoupledandotherfilter", params)
 
         deproxy = new Deproxy()
-        started = true
-        repose.start([waitOnJmxAfterStarting: false])
+        repose.start(waitOnJmxAfterStarting: false)
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
@@ -56,30 +54,24 @@ class TighlyCoupledandOtherFilterTest extends ReposeValveTest {
     }
 
     def "Proving that any other filter with a custom filter does in fact work"() {
-        when:
-        MessageChain mc = null
-        mc = deproxy.makeRequest(
-                [
-                        method        : 'GET',
-                        url           : reposeEndpoint + "/get",
-                        headers       : ['X-Auth-Token': fakeIdentityService.client_token],
-                        defaultHandler: {
-                            new Response(200, null, null, "This should be the body")
-                        }
-                ])
+        given:
+        def body = "This should be the body"
 
+        when:
+        MessageChain mc = deproxy.makeRequest(
+                method        : 'GET',
+                url           : "$reposeEndpoint/get",
+                headers       : ['X-Auth-Token': fakeIdentityService.client_token],
+                defaultHandler: { new Response(200, null, null, body) })
 
         then:
         mc.receivedResponse.code == '200'
+        mc.receivedResponse.body.contains(body)
         mc.receivedResponse.body.contains("<extra> Added by TestFilter, should also see the rest of the content </extra>")
         println(mc.receivedResponse.body)
 
         cleanup:
-        if (started)
-            repose.stop()
-        if (deproxy != null)
-            deproxy.shutdown()
-
+        repose?.stop()
+        deproxy?.shutdown()
     }
-
 }
