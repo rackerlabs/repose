@@ -25,7 +25,6 @@ import javax.script._
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
 import org.openrepose.commons.utils.servlet.http._
@@ -38,7 +37,7 @@ import scala.util.{Failure, Success, Try}
 
 @Named
 class ScriptingFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[ScriptingConfig] with HttpDelegationManager with LazyLogging {
+  extends Filter with UpdateListener[ScriptingConfig] with LazyLogging {
 
   // Necessary for Jython, doesn't work with JSR223 without, fails silently!
   Options.importSite = false

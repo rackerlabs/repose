@@ -41,13 +41,6 @@
             <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
 
-        <!-- Delegation -->
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>http-delegation</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
         <!-- Scala -->
         <dependency>
             <groupId>org.scala-lang</groupId>
