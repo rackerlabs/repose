@@ -27,6 +27,6 @@
           schemaLocation="valkyrie-authorization.xsd">
 
     <schemaBindings>
-        <package name="org.openrepose.filters.scripting.config"/>
+        <package name="org.openrepose.filters.valkyrieauthorization.config"/>
     </schemaBindings>
 </bindings>
