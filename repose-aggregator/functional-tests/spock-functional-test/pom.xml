@@ -29,7 +29,7 @@
         <project.support.dir>${project.basedir}/../../../repose-support</project.support.dir>
 
         <repose.valve.dir>${project.set.dir}/artifacts/valve/target</repose.valve.dir>
-        <repose.lint.dir>${project.set.dir}/components/repose-lint/target</repose.lint.dir>
+        <repose.lint.dir>${project.set.dir}/artifacts/repose-lint/target</repose.lint.dir>
         <filter.dir>${project.set.dir}/artifacts/filter-bundle/target</filter.dir>
         <filter.extensions.dir>${project.set.dir}/artifacts/extensions-filter-bundle/target
         </filter.extensions.dir>
