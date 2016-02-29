@@ -1,7 +1,7 @@
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-    compile project(":repose-aggregator/functional-tests/test-container-api")
+    compile project(":repose-aggregator/functional-tests/test-containers/test-container-api")
     compile "org.glassfish.main.extras:glassfish-embedded-all"
     compile "org.slf4j:slf4j-api"
     compile "org.apache.logging.log4j:log4j-slf4j-impl"
