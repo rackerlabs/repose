@@ -7,7 +7,7 @@
             <node id="non-local" hostname="not.this.host" http-port="12345"/>
         </nodes>
         <filters>
-            <filter name="ip-identity"/>
+            <filter name="ip-user"/>
         </filters>
         <services>
         </services>

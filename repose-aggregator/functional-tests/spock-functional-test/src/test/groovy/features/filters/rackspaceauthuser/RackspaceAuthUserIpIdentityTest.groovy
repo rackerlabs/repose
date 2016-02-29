@@ -35,7 +35,7 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/rackspaceauthuser/ip-identity", params)
+        repose.configurationProvider.applyConfigs("features/filters/rackspaceauthuser/ip-user", params)
         repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests()
     }
@@ -51,7 +51,7 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
     }
 
 
-    @Unroll("When request contains identity 2.0 in content preceded by ip-identity #testName Expected user is #expectedUser")
+    @Unroll("When request contains identity 2.0 in content preceded by ip-user #testName Expected user is #expectedUser")
     def "Verifying that x-pp-user and x-pp-groups are added for an auth2.0 payload, not replacing existing headers"() {
 
         when: "Request body contains user credentials"
@@ -104,7 +104,7 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
         xmlOverLimit | contentXml  | "xmlOverLimit"
     }
     // Joe Savak - we don't need to do other v1.1 internal contracts
-    @Unroll("When request contains identity 1.1 in content, with preceding ip-identity, #testName Expected user is #expectedUser")
+    @Unroll("When request contains identity 1.1 in content, with preceding ip-user, #testName Expected user is #expectedUser")
     def "Verifying that x-pp-user and x-pp-groups are added for an auth1.1 payload, not replacing existing headers"() {
 
         when: "Request body contains user credentials"
@@ -132,7 +132,7 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
     }
 
     @Unroll("Does not affect #method requests")
-    def "Does not affect non-post requests, when preceded by an ip-identity filter"() {
+    def "Does not affect non-post requests, when preceded by an ip-user filter"() {
         when: "Request is a #method"
         def messageChain = deproxy.makeRequest([url: reposeEndpoint, method: method])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]

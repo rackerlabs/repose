@@ -7,7 +7,7 @@
             <node id="le_repose_node" hostname="localhost" http-port="10234"/>
         </nodes>
         <filters>
-            <filter name="ip-identity"/>
+            <filter name="ip-user"/>
         </filters>
         <services>
         </services>

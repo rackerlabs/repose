@@ -57,8 +57,8 @@ The configuration files to be tested are:
   - openstack-authorization.cfg.xml
   - dist-datastore.cfg.xml
   - uri-identity.cfg.xml
-  - header-identity.cfg.xml
-  - ip-identity.cfg.xml
+  - header-id-mapping.cfg.xml
+  - ip-user.cfg.xml
   - validator.cfg.xml
 
 For each of these, there will be one good version and one bad version. The bad
@@ -183,21 +183,21 @@ Test cases for B-29898
     +---------------------------------+----------------+-----------------+
     | uri-identity.cfg.xml            | Bad to Good    | 200             |
     +---------------------------------+----------------+-----------------+
-    | header-identity.cfg.xml         | Start Good     | 200             |
+    | header-id-mapping.cfg.xml       | Start Good     | 200             |
     +---------------------------------+----------------+-----------------+
-    | header-identity.cfg.xml         | Start Bad      | 503             |
+    | header-id-mapping.cfg.xml       | Start Bad      | 503             |
     +---------------------------------+----------------+-----------------+
-    | header-identity.cfg.xml         | Good to Bad    | 200             |
+    | header-id-mapping.cfg.xml       | Good to Bad    | 200             |
     +---------------------------------+----------------+-----------------+
-    | header-identity.cfg.xml         | Bad to Good    | 200             |
+    | header-id-mapping.cfg.xml       | Bad to Good    | 200             |
     +---------------------------------+----------------+-----------------+
-    | ip-identity.cfg.xml             | Start Good     | 200             |
+    | ip-user.cfg.xml                 | Start Good     | 200             |
     +---------------------------------+----------------+-----------------+
-    | ip-identity.cfg.xml             | Start Bad      | 503             |
+    | ip-user.cfg.xml                 | Start Bad      | 503             |
     +---------------------------------+----------------+-----------------+
-    | ip-identity.cfg.xml             | Good to Bad    | 200             |
+    | ip-user.cfg.xml                 | Good to Bad    | 200             |
     +---------------------------------+----------------+-----------------+
-    | ip-identity.cfg.xml             | Bad to Good    | 200             |
+    | ip-user.cfg.xml                 | Bad to Good    | 200             |
     +---------------------------------+----------------+-----------------+
 
 

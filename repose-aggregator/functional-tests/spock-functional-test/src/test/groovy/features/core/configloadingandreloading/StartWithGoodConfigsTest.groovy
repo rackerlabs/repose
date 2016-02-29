@@ -104,9 +104,9 @@ class StartWithGoodConfigsTest extends Specification {
         "translation"             | 200
         "keystone-v2"             | 200
         "dist-datastore"          | 200
-        "uri-user"                | 200
-        "header-identity"         | 200
-        "ip-identity"             | 200
+        "uri-identity"            | 200
+        "header-id-mapping"       | 200
+        "ip-user"                 | 200
         "validator"               | 200
     }
 

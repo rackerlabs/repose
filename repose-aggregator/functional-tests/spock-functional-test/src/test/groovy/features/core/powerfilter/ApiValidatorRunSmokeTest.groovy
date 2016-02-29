@@ -50,7 +50,7 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
     }
 
     @Category(Smoke)
-    def "when request is sent check to make sure it goes through ip-identity and API-Validator filters"() {
+    def "when request is sent check to make sure it goes through ip-user and API-Validator filters"() {
 
         when:
 
@@ -58,7 +58,7 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
 
         then:
         mc1.receivedResponse.getHeaders().names.contains("X-api-validator-Time")
-        mc1.receivedResponse.getHeaders().names.contains("X-ip-identity-Time")
+        mc1.receivedResponse.getHeaders().names.contains("X-ip-user-Time")
 
     }
 

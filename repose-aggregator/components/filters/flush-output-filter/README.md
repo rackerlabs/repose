@@ -13,7 +13,6 @@ forcing all buffered response data to the output stream.
 
     <filters>
       <filter name="http-logging" />
-      <filter name="ip-identity" />
       <filter name="flush-output" />
       <filter name="default-router"/>
     </filters>

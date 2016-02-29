@@ -20,17 +20,18 @@
   -->
 
 
-<xs:schema xmlns:header-identity="http://docs.openrepose.org/repose/header-id-mapping/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns="http://docs.openrepose.org/repose/header-id-mapping/v1.0"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified"
            targetNamespace="http://docs.openrepose.org/repose/header-id-mapping/v1.0">
 
     <!-- Client IP Identity Configuration -->
-    <xs:element name="header-id-mapping" type="header-identity:HeaderIdMappingConfig"/>
+    <xs:element name="header-id-mapping" type="HeaderIdMappingConfig"/>
 
     <xs:complexType name="HeaderIdMappingConfig">
         <xs:annotation>
@@ -43,7 +44,7 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="source-headers" type="header-identity:HttpHeaderList" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="source-headers" type="HttpHeaderList" minOccurs="1" maxOccurs="1"/>
         </xs:all>
     </xs:complexType>
 
@@ -57,14 +58,13 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="header" type="header-identity:HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="header" type="HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
-                   test="count(distinct-values(header-identity:header/@id)) = count(header-identity:header/@id)"
+                   test="count(distinct-values(header/@id)) = count(header/@id)"
                    xerces:message="Filters must have ids unique within their containing filter list"
                    saxon:message="Filters must have ids unique within their containing filter list"/>
-
     </xs:complexType>
 
 
@@ -118,7 +118,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="quality" type="header-identity:doubleBetweenZeroandOne" use="optional" default="0.1">
+        <xs:attribute name="quality" type="doubleBetweenZeroandOne" use="optional" default="0.1">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
