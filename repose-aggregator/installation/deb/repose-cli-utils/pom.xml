@@ -61,7 +61,7 @@
                         <executions>
                             <execution>
                                 <configuration>
-                                    <deb>[[buildDir]]/[[artifactName]]-[[version]].deb</deb>
+                                    <deb>${project.build.directory}/${artifactName}_${version}.deb</deb>
                                     <timestamped>false</timestamped>
 
                                     <dataSet>
