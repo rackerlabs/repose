@@ -25,12 +25,6 @@
         <!-- Internal dependencies -->
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>core-lib</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrepose</groupId>
             <artifactId>core-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -64,6 +58,7 @@
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- LazyLogging -->
@@ -76,6 +71,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Apache Commons Logging Bridge -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
             <scope>test</scope>
         </dependency>
 

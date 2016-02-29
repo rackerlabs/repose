@@ -1,5 +1,4 @@
 dependencies {
-    compile project(":repose-aggregator/core/core-lib")
     compile project(":repose-aggregator/core/core-service-api")
     compile project(":repose-aggregator/commons/commons-utilities")
     compile "org.openrepose:http-delegation"
@@ -17,4 +16,5 @@ dependencies {
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_2.10"
     testCompile "org.springframework:spring-test"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }
