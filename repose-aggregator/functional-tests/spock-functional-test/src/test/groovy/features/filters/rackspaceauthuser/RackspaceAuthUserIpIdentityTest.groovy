@@ -96,7 +96,7 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
 
         and: "Repose will send 'My Group' for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("IP_Standard;q=0.4")
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("ip-standard;q=0.4")
 
         where:
         requestBody  | contentType | testName
@@ -147,7 +147,7 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
 
         and: "Repose will send 'My Group' for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("IP_Standard;q=0.4")
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("ip-standard;q=0.4")
 
         and: "The result will be passed through"
         messageChain.receivedResponse.code == "200"
@@ -174,7 +174,7 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
 
         and: "Repose will send 'My Group' for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("IP_Standard;q=0.4")
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("ip-standard;q=0.4")
 
         and: "The result will be passed through"
         messageChain.receivedResponse.code == "200"
