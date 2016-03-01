@@ -13,5 +13,5 @@
                       default="true"/>
         </destinations>
     </repose-cluster>
-    <tracing-header rewrite-header="true"/>
+    <tracing-header rewrite-header="false"/>
 </system-model>

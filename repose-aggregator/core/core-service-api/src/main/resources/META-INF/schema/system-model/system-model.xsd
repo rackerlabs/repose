@@ -44,10 +44,8 @@
             <xs:element name="repose-cluster" type="mod:ReposeCluster" minOccurs="1" maxOccurs="unbounded"/>
             <xs:element name="service-cluster" type="mod:Cluster" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="phone-home" type="mod:PhoneHomeServiceConfig" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="tracing-header" type="mod:TracingHeaderConfig" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
-
-        <xs:attribute name="tracing-header" type="xs:boolean" use="optional" default="true"/>
-        <xs:attribute name="rewrite-tracing-header" type="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
 
     <xs:complexType name="Cluster">
@@ -127,6 +125,19 @@
         <xs:attribute name="collection-uri" type="xs:anyURI" use="optional" default="http://phone-home.openrepose.org"/>
         <xs:attribute name="origin-service-id" type="xs:string" use="optional"/>
         <xs:attribute name="contact-email" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="TracingHeaderConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Allows you to configure the tracing header.  If not present, feature will be enabled by default.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="enabled" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="rewrite-header" type="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
 
     <xs:complexType name="NodeList">

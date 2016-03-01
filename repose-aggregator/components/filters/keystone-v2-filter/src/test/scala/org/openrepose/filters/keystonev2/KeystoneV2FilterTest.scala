@@ -42,7 +42,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.{TracingHeaderConfig, SystemModel}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
@@ -70,7 +70,9 @@ with HttpDelegationManager {
   private val mockConfigurationService = mock[ConfigurationService]
   when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
   private val mockSystemModel = mock[SystemModel]
-  when(mockSystemModel.isTracingHeader).thenReturn(true, Nil: _*)
+  private val mockTracingHeader = mock[TracingHeaderConfig]
+  when(mockSystemModel.getTracingHeader).thenReturn(mockTracingHeader)
+  when(mockTracingHeader.isEnabled).thenReturn(true, Nil: _*)
   private val mockFilterConfig = new MockFilterConfig
 
   before {
@@ -2213,7 +2215,9 @@ with HttpDelegationManager {
 
     it("should not forward the x-trans-id header if disabled") {
       val mockSystemModelNoTracing = mock[SystemModel]
-      when(mockSystemModelNoTracing.isTracingHeader).thenReturn(false)
+      val mockTracingHeaderConfig = mock[TracingHeaderConfig]
+      when(mockSystemModelNoTracing.getTracingHeader).thenReturn(mockTracingHeaderConfig)
+      when(mockTracingHeaderConfig.isEnabled).thenReturn(false)
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModelNoTracing)
 
       val request = new MockHttpServletRequest()

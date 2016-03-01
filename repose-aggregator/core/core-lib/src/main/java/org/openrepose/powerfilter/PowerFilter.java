@@ -353,7 +353,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
-        if (currentSystemModel.get().isRewriteTracingHeader()) {
+        if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
             mutableHttpRequest.removeHeader(CommonHttpHeader.TRACE_GUID.toString());
         }
 
@@ -378,7 +378,7 @@ public class PowerFilter extends DelegatingFilterProxy {
             new URI(mutableHttpRequest.getRequestURI());
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
             if (requestFilterChain != null) {
-                if (currentSystemModel.get().isTracingHeader()) {
+                if (currentSystemModel.get().getTracingHeader() == null || currentSystemModel.get().getTracingHeader().isEnabled()) {
                     if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
                         mutableHttpRequest.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
                                 TracingHeaderHelper.createTracingHeader(traceGUID, mutableHttpRequest.getHeader(CommonHttpHeader.VIA.toString())));
