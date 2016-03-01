@@ -21,7 +21,7 @@ Example:
 request: curl 'localhost:8080/path/to/resource?query=param' -d 'Request Body' -H "header1:value1" -H "header2:value2"
 
 &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
-&lt;request-info xmlns="http://openrepose.org/repose/httpx/v1.0"&gt;
+&lt;request-info xmlns="http://docs.openrepose.org/repose/httpx/v1.0"&gt;
   &lt;method&gt;POST&lt;/method&gt;
   &lt;path&gt;/path/to/resource&lt;/path&gt;
   &lt;uri&gt;http://localhost:8080/path/to/resource&lt;/uri&gt;
