@@ -75,7 +75,6 @@
 
         <reposeHome>${project.build.directory}/repose_home</reposeHome>
         <repose.config.directory>${reposeHome}/configs</repose.config.directory>
-        <repose.raw.config.directory>${project.basedir}/src/test/configs</repose.raw.config.directory>
         <repose.valve.jar.location>${reposeHome}/${repose.valve.jar}</repose.valve.jar.location>
         <repose.lint.jar.location>${reposeHome}/${repose.lint.jar}</repose.lint.jar.location>
         <repose.config.templates>${project.build.directory}/configs</repose.config.templates>
