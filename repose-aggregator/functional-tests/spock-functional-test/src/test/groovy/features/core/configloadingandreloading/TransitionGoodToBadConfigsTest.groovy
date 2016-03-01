@@ -106,21 +106,21 @@ class TransitionGoodToBadConfigsTest extends Specification {
 
 
         where:
-        componentLabel            | expectedResponseCode
-        "system-model"            | 200
-        "container"               | 200
-        "response-messaging"      | 200
-        "rate-limiting"           | 200
-        "versioning"              | 200
-        "translation"             | 200
-        "keystone-v2"             | 200
-        "dist-datastore"          | 200
-        "uri-identity"            | 200
-        "header-identity"         | 200
-        "ip-identity"             | 200
-        "validator"               | 200
-        "metrics"                 | 200
-        "connectionPooling"       | 200
+        componentLabel       | expectedResponseCode
+        "system-model"       | 200
+        "container"          | 200
+        "response-messaging" | 200
+        "rate-limiting"      | 200
+        "versioning"         | 200
+        "translation"        | 200
+        "keystone-v2"        | 200
+        "dist-datastore"     | 200
+        "uri-user"           | 200
+        "header-identity"    | 200
+        "ip-identity"        | 200
+        "validator"          | 200
+        "metrics"            | 200
+        "connectionPooling"  | 200
     }
 
     def cleanup() {
