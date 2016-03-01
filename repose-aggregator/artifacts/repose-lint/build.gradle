@@ -1,5 +1,9 @@
 apply plugin: 'com.github.johnrengelman.shadow'
 
+configurations {
+    fatJar
+}
+
 dependencies {
     compile "org.scala-lang:scala-library"
     compile "com.typesafe:config"
@@ -22,3 +26,9 @@ shadowJar {
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
 }
+
+artifacts {
+    fatJar shadowJar
+}
+
+build.dependsOn shadowJar

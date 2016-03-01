@@ -59,6 +59,7 @@ include 'repose-aggregator',
         'repose-aggregator/external/jee6-schemas',
         'repose-aggregator/external/pjl-compressing-filter',
         'repose-aggregator/functional-tests/mocks-servlet',
+        'repose-aggregator/functional-tests/spock-functional-test',
         'repose-aggregator/functional-tests/test-containers/test-container-api',
         'repose-aggregator/functional-tests/test-containers/test-container-glassfish',
         'repose-aggregator/functional-tests/test-containers/test-container-tomcat'

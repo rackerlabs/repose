@@ -1,5 +1,9 @@
 apply plugin: 'com.github.johnrengelman.shadow'
 
+configurations {
+    fatJar
+}
+
 dependencies {
     compile project(':repose-aggregator/commons/commons-utilities')
     compile project(':repose-aggregator/components/services/datastore-service/datastore-service-api')
@@ -21,3 +25,9 @@ shadowJar {
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
 }
+
+artifacts {
+    fatJar shadowJar
+}
+
+build.dependsOn shadowJar

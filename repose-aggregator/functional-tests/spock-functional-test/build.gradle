@@ -1,0 +1,87 @@
+configurations {
+    testRunnable
+    testBundle
+}
+
+dependencies {
+    testCompile "junit:junit"
+    testCompile "org.codehaus.groovy:groovy-all"
+    testCompile "org.spockframework:spock-core"
+    testCompile "org.rackspace:deproxy"
+    testCompile "joda-time:joda-time"
+    testCompile project(":repose-aggregator/commons/commons-utilities")
+    testCompile project(":repose-aggregator/core/core-service-api")
+    testCompile project(":repose-aggregator/core/core-lib") //todo: remove this when filter director is gone
+    testCompile "javax.ws.rs:javax.ws.rs-api"
+
+    testRunnable project(path: ":repose-aggregator/artifacts/valve", configuration: "fatJar")
+    testRunnable project(path: ":repose-aggregator/artifacts/repose-lint", configuration: "fatJar")
+    testRunnable project(path: ":repose-aggregator/artifacts/cli-utils", configuration: "fatJar")
+
+    testBundle project(path: ":repose-aggregator/artifacts/filter-bundle", configuration: "archives")
+    testBundle project(path: ":repose-aggregator/artifacts/extensions-filter-bundle", configuration: "archives")
+    testBundle project(path: ":repose-aggregator/artifacts/experimental-filter-bundle", configuration: "archives")
+
+//    testCompile "xerces:xerces-xsd11:2.12.0-rax"
+//    testCompile "org.slf4j:slf4j-api:1.7.7"
+//    testCompile "org.openrepose:valve:8.0.0.0-SNAPSHOT"
+//    testCompile "org.openrepose:datastore-service-api:8.0.0.0-SNAPSHOT"
+//    testCompile "commons-codec:commons-codec:1.10"
+//    testCompile "org.hamcrest:hamcrest-all:1.3"
+//    testCompile "org.apache.logging.log4j:log4j-core:2.3"
+//    testCompile "org.linkedin:org.linkedin.util-groovy:1.8.0"
+//    testCompile "org.mockito:mockito-all:1.9.5"
+//    testCompile "org.powermock:powermock-module-junit4:1.5.4"
+//    testCompile "org.powermock:powermock-api-mockito:1.5.4"
+//    testCompile "org.apache.logging.log4j:log4j-slf4j-impl:2.3"
+//    testCompile "com.mockrunner:mockrunner-servlet:1.0.0"
+//    testCompile "commons-io:commons-io:2.4"
+//    testCompile "org.apache.httpcomponents:httpclient:4.4.1"
+//    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
+}
+
+task copyArtifacts() {
+    dependsOn(":repose-aggregator/artifacts/valve:shadowJar",
+              ":repose-aggregator/artifacts/repose-lint:shadowJar",
+              ":repose-aggregator/artifacts/cli-utils:shadowJar",
+              ":repose-aggregator/artifacts/filter-bundle:ear",
+              ":repose-aggregator/artifacts/extensions-filter-bundle:ear",
+              ":repose-aggregator/artifacts/experimental-filter-bundle:ear")
+    ext.outputDir = "$buildDir/repose_home"
+    inputs.files(configurations.testRunnable.files,
+                 configurations.testBundle.files)
+    outputs.dir outputDir
+
+    doLast {
+        //copy the runnables
+        file(outputDir).mkdirs()
+        copy {
+            from configurations.testRunnable.files
+            into outputDir
+        }
+
+        //copy the bundles
+        file("$outputDir/artifacts").mkdirs()
+        copy {
+            from configurations.testBundle.files
+            into "$outputDir/artifacts"
+        }
+    }
+}
+
+task copyConfigs() {
+    ext.outputDir = "$buildDir/configs"
+    inputs.dir "$projectDir/src/test/configs"
+    outputs.dir outputDir
+
+    doLast {
+        //copy the configs
+        file(outputDir).mkdirs()
+        copy {
+            from "$projectDir/src/test/configs"
+            into outputDir
+        }
+    }
+}
+
+test.dependsOn copyArtifacts, copyConfigs
