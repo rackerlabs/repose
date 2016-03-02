@@ -124,3 +124,7 @@ if(!hasProperty('runAll')) {
         }
     }
 }
+
+license {
+    excludes(["**/credentials.xsd", "**/atom.xsd", "**/xml.xsd"])
+}
