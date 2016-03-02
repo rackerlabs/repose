@@ -1,5 +1,9 @@
 apply plugin: 'com.github.johnrengelman.shadow'
 
+configurations {
+    fatJar
+}
+
 dependencies {
     compile project(":repose-aggregator/functional-tests/test-containers/test-container-api")
     compile "org.glassfish.main.extras:glassfish-embedded-all"
@@ -21,3 +25,9 @@ shadowJar {
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
 }
+
+artifacts {
+    fatJar shadowJar
+}
+
+build.dependsOn shadowJar

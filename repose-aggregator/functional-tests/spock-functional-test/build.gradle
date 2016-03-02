@@ -16,7 +16,10 @@ dependencies {
 
     testRunnable project(path: ":repose-aggregator/artifacts/valve", configuration: "fatJar")
     testRunnable project(path: ":repose-aggregator/artifacts/repose-lint", configuration: "fatJar")
-    testRunnable project(path: ":repose-aggregator/artifacts/cli-utils", configuration: "fatJar")
+    testRunnable project(path: ":repose-aggregator/artifacts/web-application", configuration: "archives")
+    testRunnable project(path: ":repose-aggregator/functional-tests/mocks-servlet", configuration: "archives")
+    testRunnable project(path: ":repose-aggregator/functional-tests/test-containers/test-container-glassfish", configuration: "fatJar")
+    testRunnable project(path: ":repose-aggregator/functional-tests/test-containers/test-container-tomcat", configuration: "fatJar")
 
     testBundle project(path: ":repose-aggregator/artifacts/filter-bundle", configuration: "archives")
     testBundle project(path: ":repose-aggregator/artifacts/extensions-filter-bundle", configuration: "archives")
@@ -43,7 +46,11 @@ dependencies {
 task copyArtifacts() {
     dependsOn(":repose-aggregator/artifacts/valve:shadowJar",
               ":repose-aggregator/artifacts/repose-lint:shadowJar",
-              ":repose-aggregator/artifacts/cli-utils:shadowJar",
+              ":repose-aggregator/artifacts/web-application:war",
+              ":repose-aggregator/functional-tests/mocks-servlet:war",
+              ":repose-aggregator/functional-tests/test-containers/test-container-glassfish:shadowJar",
+              ":repose-aggregator/functional-tests/test-containers/test-container-tomcat:shadowJar",
+              ":repose-aggregator/functional-tests/mocks-servlet:war",
               ":repose-aggregator/artifacts/filter-bundle:ear",
               ":repose-aggregator/artifacts/extensions-filter-bundle:ear",
               ":repose-aggregator/artifacts/experimental-filter-bundle:ear")
@@ -85,3 +92,35 @@ task copyConfigs() {
 }
 
 test.dependsOn copyArtifacts, copyConfigs
+
+def container = "valve"
+def targetHostName = "localhost"
+def valveFileName = tasks.getByPath(":repose-aggregator/artifacts/valve:shadowJar").archiveName.split("/").last()
+def lintFileName = tasks.getByPath(":repose-aggregator/artifacts/repose-lint:shadowJar").archiveName.split("/").last()
+def warFileName = tasks.getByPath(":repose-aggregator/artifacts/web-application:war").archiveName.split("/").last()
+def glassfishFileName = tasks.getByPath(":repose-aggregator/functional-tests/test-containers/test-container-glassfish:shadowJar").archiveName.split("/").last()
+def tomcatFileName = tasks.getByPath(":repose-aggregator/functional-tests/test-containers/test-container-tomcat:shadowJar").archiveName.split("/").last()
+def mocksFileName = tasks.getByPath(":repose-aggregator/functional-tests/mocks-servlet:war").archiveName.split("/").last()
+
+processTestResources {
+    expand( reposeHome: copyArtifacts.outputDir,
+            version: version,
+            projectBuildDirectory: buildDir,
+            configTemplates: copyConfigs.outputDir,
+            reposeContainer: container,
+            valveLocation: "${copyArtifacts.outputDir}/$valveFileName",
+            lintLocation: "${copyArtifacts.outputDir}/$lintFileName",
+            warLocation: "${copyArtifacts.outputDir}/$warFileName",
+            glassfishLocation: "${copyArtifacts.outputDir}/$glassfishFileName",
+            tomcatLocation: "${copyArtifacts.outputDir}/$tomcatFileName",
+            mocksLocation: "${copyArtifacts.outputDir}/$mocksFileName",
+            targetHostname: targetHostName)
+}
+
+if(!hasProperty('runAll')) {
+    test {
+        useJUnit {
+            includeCategories "framework.category.Smoke"
+        }
+    }
+}
