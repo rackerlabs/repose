@@ -34,7 +34,6 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
-import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.ReposeSpringProperties
@@ -83,11 +82,11 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
       logger.error("Simple RBAC filter has not yet initialized...")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
     } else {
-      val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
-      val mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, servletResponse.asInstanceOf[HttpServletResponse])
-
       logger.trace("Simple RBAC filter processing request...")
-      validator.validate(mutableHttpRequest, mutableHttpResponse, filterChain)
+      validator.validate(
+        servletRequest.asInstanceOf[HttpServletRequest],
+        servletResponse.asInstanceOf[HttpServletResponse],
+        filterChain)
     }
     logger.trace("Simple RBAC filter returning response...")
   }

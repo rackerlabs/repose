@@ -32,7 +32,7 @@ import org.mockito.{ArgumentCaptor, Matchers => MockitoMatcher, Mockito}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.{TracingHeaderConfig, SystemModel}
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
@@ -48,7 +48,9 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
   private val mockDatastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
   private val mockSystemModel = mock[SystemModel]
-  Mockito.when(mockSystemModel.isTracingHeader).thenReturn(true, Nil: _*)
+  private val mockTracingHeader = mock[TracingHeaderConfig]
+  Mockito.when(mockSystemModel.getTracingHeader).thenReturn(mockTracingHeader)
+  Mockito.when(mockTracingHeader.isEnabled).thenReturn(true, Nil: _*)
 
   before {
     Mockito.reset(mockDatastore)

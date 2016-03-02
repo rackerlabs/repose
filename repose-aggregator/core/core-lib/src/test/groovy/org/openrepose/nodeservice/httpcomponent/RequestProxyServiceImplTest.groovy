@@ -34,6 +34,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.httpclient.HttpClientResponse
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.TracingHeaderConfig
 import spock.lang.Specification
 
 import static org.mockito.Mockito.mock
@@ -125,7 +126,9 @@ class RequestProxyServiceImplTest extends Specification {
     def "a request does not include the x-trans-id header for tracing when disabled"() {
         given:
         SystemModel systemModel = mock(SystemModel)
-        when(systemModel.isTracingHeader()).thenReturn(false)
+        TracingHeaderConfig tracingHeader = mock(TracingHeaderConfig)
+        when(systemModel.getTracingHeader()).thenReturn(tracingHeader)
+        when(tracingHeader.isEnabled()).thenReturn(false)
         StatusLine statusLine = mock(StatusLine)
         when(statusLine.getStatusCode()).thenReturn(418)
         HttpEntity httpEntity = mock(HttpEntity)

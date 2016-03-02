@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openrepose</groupId>
+        <artifactId>functional-test-support</artifactId>
+        <version>8.0.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>Repose - Functional Test Support</name>
+    <artifactId>test-containers</artifactId>
+    <packaging>pom</packaging>
+
+    <description>
+        This project houses our container projects for in container testing.
+    </description>
+
+    <modules>
+        <module>test-container-api</module>
+        <module>test-container-glassfish</module>
+        <module>test-container-tomcat</module>
+    </modules>
+
+</project>

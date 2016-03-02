@@ -53,7 +53,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>uri-identity-filter</artifactId>
+            <artifactId>uri-user-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
