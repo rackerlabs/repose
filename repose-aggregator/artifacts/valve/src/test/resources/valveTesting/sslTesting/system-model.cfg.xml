@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- just a single node configuration for use in testing servo proper -->
-<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
     <repose-cluster id="cluster">
         <nodes>
             <node id="node" hostname="localhost" https-port="10235"/>

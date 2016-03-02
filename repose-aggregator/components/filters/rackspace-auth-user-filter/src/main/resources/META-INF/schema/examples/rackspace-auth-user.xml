@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<rackspace-auth-user xmlns='http://docs.openrepose.org/rackspace-auth-user/v1.0'>
+<rackspace-auth-user xmlns='http://docs.openrepose.org/repose/rackspace-auth-user/v1.0'>
     <!-- both of the version configs are optional, if neither are specified, this filter is a no-op -->
     <v1_1>
         <group>1_1 Group</group>

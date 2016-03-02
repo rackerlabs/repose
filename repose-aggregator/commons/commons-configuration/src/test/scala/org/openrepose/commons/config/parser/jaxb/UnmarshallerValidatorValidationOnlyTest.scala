@@ -20,7 +20,6 @@
 package org.openrepose.commons.config.parser.jaxb
 
 import java.net.URL
-import java.util.{Calendar, Date, GregorianCalendar}
 import javax.xml.bind.JAXBContext
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.validation.{Schema, SchemaFactory}
@@ -37,17 +36,13 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import scala.io.Source
 
 /**
- * TODO: Unfortunately we can't actually test all the Unmarshalling because of classpath problems.
- * Fortunately an integration test catches some of the unmarshalling problem
- */
+  * TODO: Unfortunately we can't actually test all the Unmarshalling because of classpath problems.
+  * Fortunately an integration test catches some of the unmarshalling problem
+  */
 @RunWith(classOf[JUnitRunner])
 class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar with LazyLogging {
 
-
-  val expectedLogMessage = "DEPRECATION WARNING: One of your config files contains an old namespace"
-
   val LIST_APPENDER_REF = "List0"
-  val oldXmlFiles = pathedFiles("unmarshallerValidator/oldXmlConfigs/")
 
   before {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
@@ -57,23 +52,22 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
 
   val badNamespaceFiles = pathedFiles("unmarshallerValidator/badNamespace/")
   val correctNamespaceFiles = pathedFiles("unmarshallerValidator/correctNamespace/")
-  //oldXmlFiles contains the largest list of the files, I should probably combine them.
-  val xsdUrlMap: Map[String, URL] = oldXmlFiles.map { file =>
-    val fileName = file.split("/").last
-
-    val xsdSchemaName = fileName.replace(".cfg.xml", ".xsd")
-
-    //Return a map of the config file to the schema location
-    fileName -> this.getClass.getResource(s"/unmarshallerValidator/xsd/$xsdSchemaName")
-  }.toMap
   //Since this test isn't doing any actual unmarshalling, we'll give it a fake JAXB context
   val mockContext = mock[JAXBContext]
   val uv = new UnmarshallerValidator(mockContext)
   var app: ListAppender = _
 
   /**
-   * Construct myself a list of files to do work on!
-   */
+    * Get the URL of the schema for a given filter configuration filename.
+    *
+    * @param filterConfig the filename of the filter configuration to find the schema URL for
+    */
+  def getFilterSchemaUrl(filterConfig: String): URL =
+    this.getClass.getResource("/unmarshallerValidator/xsd/" + filterConfig.replace(".cfg.xml", ".xsd"))
+
+  /**
+    * Construct myself a list of files to do work on!
+    */
   def pathedFiles(path: String): List[String] = {
     Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream(path)).getLines().toList.map { file =>
       path + file
@@ -83,9 +77,10 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
   import scala.collection.JavaConversions._
 
   /**
-   * Do the actual validation
-   * @param configFile
-   */
+    * Do the actual validation
+    *
+    * @param configFile
+    */
   def validate(configFile: String): Unit = {
     uv.setSchema(getSchemaForFile(configFile))
 
@@ -98,40 +93,30 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
   }
 
   /**
-   * Get a schema based on the configuration file name. Much easier to deal with
-   * @param configFile
-   * @return
-   */
+    * Get a schema based on the configuration file name. Much easier to deal with
+    *
+    * @param configFile
+    * @return
+    */
   def getSchemaForFile(configFile: String): Schema = {
-    val xsdURL = xsdUrlMap(configFile.split("/").last)
+    val xsdURL = getFilterSchemaUrl(configFile.split("/").last)
     //Build the schema thingy
     val factory: SchemaFactory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
     factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
     factory.newSchema(xsdURL)
   }
 
-  ignore("Validating oldXmlConfigs") {
-    oldXmlFiles.foreach { configFile =>
-      it(s"validates the old namespace configuration for $configFile") {
-        validate(configFile)
-        val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
-        events.count(_.contains(expectedLogMessage)) shouldBe 1
-      }
-    }
-  }
-
-  ignore("Validating an already correct namespace") {
+  describe("Validating an already correct namespace") {
     correctNamespaceFiles.foreach { configFile =>
       it(s"should not log the a message for $configFile") {
         validate(configFile)
 
         val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
-        events.count(_.contains(expectedLogMessage)) shouldBe 0
-
       }
     }
   }
-  ignore("Validating invalid configurations") {
+
+  describe("Validating invalid configurations") {
     badNamespaceFiles.foreach { configFile =>
       it(s"should throw an exception for $configFile") {
         intercept[Exception] {
@@ -140,5 +125,4 @@ class UnmarshallerValidatorValidationOnlyTest extends FunSpec with BeforeAndAfte
       }
     }
   }
-
 }

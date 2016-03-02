@@ -148,7 +148,7 @@ public class SystemModelInterrogatorTest {
     public void "When having multiple clusters, it should select the right local Cluster"() {
         @Language("XML")
         def systemModelXML = """<?xml version="1.0" encoding="UTF-8"?>
-<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   <repose-cluster id="cluster-1">
     <nodes>
       <node id="node-1-1" hostname="localhost" http-port="1011"/>
