@@ -128,7 +128,7 @@ class ReposeJettyServer(val clusterId: String,
           }
         }
 
-        cf.setRenegotiationAllowed(Option(ssl.isTlsRenegotiationAllowed).getOrElse[java.lang.Boolean](false))
+        cf.setRenegotiationAllowed(Option(ssl.isTlsRenegotiationAllowed).getOrElse[java.lang.Boolean](java.lang.Boolean.FALSE))
 
         sslConnector
       } getOrElse {
