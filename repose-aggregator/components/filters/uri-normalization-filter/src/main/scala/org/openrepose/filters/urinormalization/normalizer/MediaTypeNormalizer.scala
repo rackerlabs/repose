@@ -63,7 +63,7 @@ class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogg
     if (variantMatcher.find) {
       val requestedVariant = variantMatcher.group(VariantExtensionGroup)
 
-      configuredMediaTypes dropWhile { mediaType =>
+      configuredMediaTypes find { mediaType =>
         val variantExtension = formatVariant(mediaType.getVariantExtension)
 
         if (variantExtension.nonEmpty && requestedVariant.equalsIgnoreCase(variantExtension)) {
@@ -79,7 +79,7 @@ class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogg
         } else {
           true
         }
-      } headOption
+      }
     } else {
       None
     }
