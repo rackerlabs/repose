@@ -8,7 +8,7 @@
         </nodes>
 
         <filters>
-            <filter name="ip-identity"/>
+            <filter name="ip-user"/>
             <filter name="api-validator"/>
         </filters>
 

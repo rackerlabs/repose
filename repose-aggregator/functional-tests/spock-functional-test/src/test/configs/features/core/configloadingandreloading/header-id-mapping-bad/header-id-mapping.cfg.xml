@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<header-id-mapping xmlns='http://docs.openrepose.org/repose/header-id-mapping/v1.0'>
+
+    <source-headers>
+        <header id="header-mapping-1" user-header="X-RAX-USER1" group-header="X-RAX-GROUPS1"/>
+        <header id="header-mapping-2" user-header="X-RAX-USER2" group-header="X-RAX-GROUPS2" quality="0.2"/>
+    </source-headers>

@@ -9,7 +9,7 @@
 
 
         <filters>
-            <filter name="ip-identity"/>
+            <filter name="ip-user"/>
         </filters>
 
         <destinations>

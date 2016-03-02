@@ -28,7 +28,7 @@ class FilterProcessingDelayJMXTest extends ReposeValveTest {
     String PREFIX = "\"${jmxHostname}-org.openrepose.core\":type=\"FilterProcessingTime\",scope=\"Delay\""
 
     String API_VALIDATOR = PREFIX + ",name=\"api-validator\""
-    String IP_IDENTITY = PREFIX + ",name=\"ip-identity\""
+    String IP_IDENTITY = PREFIX + ",name=\"ip-user\""
 
     def handler = { return new Response(200) }
 

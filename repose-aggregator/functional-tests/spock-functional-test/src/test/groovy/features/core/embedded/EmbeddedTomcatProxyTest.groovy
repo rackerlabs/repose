@@ -61,7 +61,7 @@ class EmbeddedTomcatProxyTest extends Specification {
         ]
         config.cleanConfigDirectory()
         config.applyConfigs("common", params)
-        config.applyConfigs("features/filters/ipidentity", params)
+        config.applyConfigs("features/filters/ipuser", params)
 
         config.applyConfigs("features/core/embedded", params)
 

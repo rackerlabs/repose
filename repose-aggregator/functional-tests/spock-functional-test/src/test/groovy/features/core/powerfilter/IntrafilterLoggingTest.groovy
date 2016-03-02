@@ -73,7 +73,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
     }
 
     @Unroll("when sending token #sendtoken respcode will be #respcode")
-    def "Check TRACE log entries for when req sent to Repose with client-auth and ip-identity filter"() {
+    def "Check TRACE log entries for when req sent to Repose with client-auth and ip-user filter"() {
         given:
         fakeIdentityService.with {
             client_token = sendtoken
@@ -121,25 +121,25 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         ], authrespline1)
         requestId == authrespline1.get("headers").get("Intrafilter-UUID")
 
-        and: "checking for ip-identity - request"
+        and: "checking for ip-user - request"
         def authreqline2 = convertToJson("Intrafilter Request Log", 1)
         // set-groups-in-header="false" and remove check for "x-pp-groups" for now since getgroup call fix haven't merged
         assertHeadersExists(["X-Auth-Token", "x-pp-user", "x-tenant-name",
                              "x-user-id", "x-authorization", "Intrafilter-UUID"], authreqline2)
         assertKeyValueMatch([
-                "currentFilter": "context_1-ip-identity",
+                "currentFilter": "context_1-ip-user",
                 "httpMethod"   : "GET",
                 "requestURI"   : "/servers/server123",
                 "requestBody"  : ""
         ], authreqline2)
         requestId == authreqline2.get("headers").get("Intrafilter-UUID")
 
-        and: "checking for ip-identity - response"
+        and: "checking for ip-user - response"
         //THIS IS FIRST ON THE LIST BECAUSE IT'S A STACK
         def authrespline2 = convertToJson("Intrafilter Response Log", 0)
         assertHeadersExists(["Intrafilter-UUID", "content-type"], authrespline2)
         assertKeyValueMatch([
-                "currentFilter"   : "context_1-ip-identity",
+                "currentFilter"   : "context_1-ip-user",
                 "responseBody"    : responseBody,
                 "httpResponseCode": respcode
         ], authrespline2)

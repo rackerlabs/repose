@@ -8,10 +8,9 @@
         </nodes>
         <filters>
             <filter name="keystone-v2"/>
-            <filter name="ip-identity"/>
+            <filter name="ip-user"/>
             <filter name="destination-router"/>
             <filter name="header-id-mapping"/>
-            <filter name="header-identity"/>
             <filter name="header-normalization"/>
             <filter name="header-translation"/>
             <filter name="rate-limiting"/>

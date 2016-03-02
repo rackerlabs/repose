@@ -32,11 +32,10 @@ FILES=(\
 /etc/repose/destination-router.cfg.xml \
 #/etc/repose/dist-datastore.cfg.xml \
 /etc/repose/fail-404.wadl \
-/etc/repose/header-identity.cfg.xml \
 /etc/repose/header-id-mapping.cfg.xml \
 /etc/repose/header-normalization.cfg.xml \
 /etc/repose/header-translation.cfg.xml \
-/etc/repose/ip-identity.cfg.xml \
+/etc/repose/ip-user.cfg.xml \
 /etc/repose/log4j2.xml \
 /etc/repose/openstack-authorization.cfg.xml \
 /etc/repose/pass.wadl \

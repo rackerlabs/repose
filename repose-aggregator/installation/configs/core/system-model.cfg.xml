@@ -11,8 +11,8 @@
         </nodes>
         <filters>
             <!--
-            <filter name="ip-identity"/>
-            <filter name="header-identity"/>
+            <filter name="ip-user"/>
+            <filter name="header-id-mapping"/>
             <filter name="rate-limiting"/>
             -->
         </filters>

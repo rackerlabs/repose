@@ -95,9 +95,9 @@ class StartWithBadConfigsTest extends Specification {
         "translation"             | _
         "keystone-v2"             | _
         "dist-datastore"          | _
-        "uri-user"                | _
-        "header-identity"         | _
-        "ip-identity"             | _
+        "uri-identity"            | _
+        "header-id-mapping"       | _
+        "ip-user"                 | _
         "validator"               | _
         "metrics"                 | _
         "connectionPooling"       | _

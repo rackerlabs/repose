@@ -9,7 +9,7 @@
 
         <filters>
             <filter name="keystone-v2"/>
-            <filter name="ip-identity" id="context_1"/>
+            <filter name="ip-user" id="context_1"/>
         </filters>
 
         <destinations>
