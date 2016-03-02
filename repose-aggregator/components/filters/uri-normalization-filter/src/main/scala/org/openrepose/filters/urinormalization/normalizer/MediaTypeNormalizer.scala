@@ -31,8 +31,8 @@ import scala.language.postfixOps
 
 class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogging {
 
-  private final val VARIANT_EXTRACTOR_REGEX = Pattern.compile("((\\.)[^\\d][\\w]*)")
-  private final val VARIANT_EXTENSION_GROUP = 1
+  private final val VariantExtractorRegex = Pattern.compile("((\\.)[^\\d][\\w]*)")
+  private final val VariantExtensionGroup = 1
 
   private val configuredPreferredMediaType: Option[MediaType] = configuredMediaTypes.find(_.isPreferred) orElse {
     configuredMediaTypes.headOption map { mt =>
@@ -58,10 +58,10 @@ class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogg
   }
 
   def getMediaTypeForVariant(request: HttpServletRequestWrapper): Option[MediaType] = {
-    val variantMatcher = VARIANT_EXTRACTOR_REGEX.matcher(request.getRequestURI)
+    val variantMatcher = VariantExtractorRegex.matcher(request.getRequestURI)
 
     if (variantMatcher.find) {
-      val requestedVariant = variantMatcher.group(VARIANT_EXTENSION_GROUP)
+      val requestedVariant = variantMatcher.group(VariantExtensionGroup)
 
       configuredMediaTypes dropWhile { mediaType =>
         val variantExtension = formatVariant(mediaType.getVariantExtension)

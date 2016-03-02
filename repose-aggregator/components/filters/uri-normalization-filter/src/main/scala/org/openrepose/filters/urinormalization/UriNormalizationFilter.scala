@@ -43,7 +43,7 @@ import scala.collection.mutable
 class UriNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: MetricsService)
   extends Filter with UpdateListener[UriNormalizationConfig] with LazyLogging {
 
-  private final val DEFAULT_CONFIG: String = "uri-normalization.cfg.xml"
+  private final val DefaultConfig: String = "uri-normalization.cfg.xml"
 
   private val mbcsUriNormalizations: MeterByCategorySum = metricsService.newMeterByCategorySum(
     classOf[UriNormalization],
@@ -65,8 +65,7 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
 
       mediaTypeNormalizer.normalizeContentMediaType(request)
       if (request.getParameterMap.nonEmpty) {
-        queryStringNormalizers.dropWhile(!_.normalize(request))
-          .headOption
+        queryStringNormalizers.find(_.normalize(request))
           .foreach(queryStringNormalizer => mbcsUriNormalizations.mark(queryStringNormalizer.getLastMatch.toString + "_" + request.getMethod))
       }
 
@@ -81,7 +80,7 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
   }
 
   override def init(filterConfig: FilterConfig): Unit = {
-    configFilename = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
+    configFilename = new FilterConfigHelper(filterConfig).getFilterConfig(DefaultConfig)
     logger.info("Initializing filter using config " + configFilename)
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/uri-normalization-configuration.xsd")
     configurationService.subscribeTo(filterConfig.getFilterName,
