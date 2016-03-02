@@ -36,23 +36,6 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
 
   var mediaTypeNormalizer: MediaTypeNormalizer = _
 
-  implicit class WithableMediaType(val mt: MediaType) extends MediaType {
-    def withName(n: String): WithableMediaType = {
-      this.setName(n)
-      this
-    }
-
-    def withVariantExtension(ve: String): WithableMediaType = {
-      this.setVariantExtension(ve)
-      this
-    }
-
-    def withPreferred(p: Boolean): WithableMediaType = {
-      this.setPreferred(p)
-      this
-    }
-  }
-
   before {
     mediaTypeNormalizer = new MediaTypeNormalizer(configuredMediaTypes)
   }
