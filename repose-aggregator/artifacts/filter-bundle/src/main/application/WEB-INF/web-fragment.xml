@@ -29,7 +29,6 @@
         <filter-class>org.openrepose.filters.headeridmapping.HeaderIdMappingFilter</filter-class>
     </filter>
     <filter>
-    <filter>
         <filter-name>uri-user</filter-name>
         <filter-class>org.openrepose.filters.uriuser.UriUserFilter</filter-class>
     </filter>
