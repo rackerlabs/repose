@@ -40,6 +40,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   private var requestUri: String = originalRequest.getRequestURI
   private var queryString: String = originalRequest.getQueryString
   private var parameterMap: Option[Map[String, Array[String]]] = None
+  private var formParameterMap: Option[Map[String, Array[String]]] = None
   private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
   private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
 
@@ -204,9 +205,17 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     val newQueryMap = Option(newQueryString).map(parseQueryString).getOrElse(Map.empty[String, Array[String]])
 
     // Remove all current query parameters from the parameter map
-    getParameterMap.asScala foreach { case (key, values) =>
-      val formValues = values.filterNot(value => curQueryMap.get(key).exists(_.contains(value)))
-      if (formValues.nonEmpty) updatedParameterMap += (key -> formValues)
+    formParameterMap match {
+      case Some(fpm) =>
+        updatedParameterMap ++= fpm
+      case None =>
+        getParameterMap.asScala foreach { case (key, values) =>
+          val formValues = mutable.ArrayBuffer(values: _*)
+          curQueryMap.get(key).foreach(queryValues => queryValues.foreach(formValues.-=))
+
+          if (formValues.nonEmpty) updatedParameterMap += (key -> formValues.toArray)
+        }
+        formParameterMap = Option(updatedParameterMap.toMap)
     }
 
     // All all new query parameters to the parameter map with query parameters preceding form parameters
