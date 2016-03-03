@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.scripting
+package org.openrepose.filters.valkyrieauthorization
 
 import java.net.URL
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -27,7 +27,7 @@ import org.mockito.Matchers.{any, anyString, same}
 import org.mockito.Mockito.verify
 import org.openrepose.commons.config.manager.UpdateFailedException
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.scripting.config.ScriptingConfig
+import org.openrepose.filters.valkyrieauthorization.config.ScriptingConfig
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
