@@ -14,7 +14,7 @@
             <filter name="header-normalization"/>
             <filter name="header-translation"/>
             <filter name="rate-limiting"/>
-            <filter name="uri-identity"/>
+            <filter name="uri-user"/>
             <filter name="uri-normalization"/>
             <filter name="uri-stripper"/>
             <filter name="versioning"/>
