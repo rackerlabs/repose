@@ -124,6 +124,27 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     response.getHeader("foo") shouldBe "bar"
   }
 
+  it("can parse some groovy to add a request header with static value") {
+    val fakeConfigService = new FakeConfigService()
+    val filter = new ScriptingFilter(fakeConfigService)
+    val filterChain = new MockFilterChain()
+
+    val scriptingConfig = new ScriptingConfig()
+    scriptingConfig.setValue(
+      """
+        |request.addHeader("lol", "butts")
+        |filterChain.doFilter(request, response)
+      """.stripMargin)
+    scriptingConfig.setLanguage("groovy")
+
+    filter.configurationUpdated(scriptingConfig)
+
+    val request = new MockHttpServletRequest()
+
+    filter.doFilter(request, new MockHttpServletResponse(), filterChain)
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
+  }
+
   it("can parse some jruby to add a request header with static value") {
     val fakeConfigService = new FakeConfigService()
     val filter = new ScriptingFilter(fakeConfigService)
