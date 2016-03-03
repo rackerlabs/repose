@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.valkyrieauthorization
+package org.openrepose.filters.scripting
 
 import java.net.URL
 import javax.inject.{Inject, Named}
@@ -30,7 +30,7 @@ import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListe
 import org.openrepose.commons.utils.servlet.http._
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.valkyrieauthorization.config.ScriptingConfig
+import org.openrepose.filters.scripting.config.ScriptingConfig
 import org.python.core.Options
 
 import scala.util.{Failure, Success, Try}
