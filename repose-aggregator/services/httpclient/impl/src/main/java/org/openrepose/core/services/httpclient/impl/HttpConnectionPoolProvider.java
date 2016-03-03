@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
+import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
@@ -27,14 +28,19 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
+import org.openrepose.core.service.httpclient.config.HeaderType;
 import org.openrepose.core.service.httpclient.config.PoolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public final class HttpConnectionPoolProvider {
@@ -66,6 +72,10 @@ public final class HttpConnectionPoolProvider {
         params.setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, poolConf.getHttpSocketBufferSize());
         params.setBooleanParameter(CHUNKED_ENCODING_PARAM, poolConf.isChunkedEncoding());
 
+        if (poolConf.getHeaders() != null) {
+            params.setParameter(ClientPNames.DEFAULT_HEADERS, createHeaders(poolConf.getHeaders().getHeader()));
+        }
+
         final String uuid = UUID.randomUUID().toString();
         params.setParameter(CLIENT_INSTANCE_ID, uuid);
 
@@ -83,5 +93,15 @@ public final class HttpConnectionPoolProvider {
         LOG.info("HTTP connection pool {} with instance id {} has been created", poolConf.getId(), uuid);
 
         return client;
+    }
+
+    private static Collection<Header> createHeaders(List<HeaderType> configHeaders) {
+        Collection<Header> headers = new ArrayList<>();
+
+        for (HeaderType configHeader : configHeaders) {
+            headers.add(new BasicHeader(configHeader.getName(), configHeader.getValue()));
+        }
+
+        return headers;
     }
 }
