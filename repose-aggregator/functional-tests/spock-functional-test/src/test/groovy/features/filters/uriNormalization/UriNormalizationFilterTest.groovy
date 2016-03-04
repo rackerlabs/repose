@@ -20,6 +20,7 @@
 package features.filters.uriNormalization
 
 import framework.ReposeValveTest
+import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
@@ -29,6 +30,7 @@ import spock.lang.Unroll
 /**
  * Functional test for the URI Normalization filter
  */
+@Category(Slow.class)
 class UriNormalizationFilterTest extends ReposeValveTest {
 
     def setupSpec() {
