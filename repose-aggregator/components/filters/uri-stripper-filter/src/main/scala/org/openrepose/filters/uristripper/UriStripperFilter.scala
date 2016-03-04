@@ -78,7 +78,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       }
 
       token = Some(uriTokens.remove(config.getTokenIndex))
-      joinTokensIntoUri(uriTokens) // todo: update request with new URI
+      wrappedRequest.setRequestURI(joinTokensIntoUri(uriTokens))
     }
 
     filterChain.doFilter(wrappedRequest, wrappedResponse)
