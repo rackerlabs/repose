@@ -28,7 +28,7 @@ import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
 import org.openrepose.core.service.httpclient.config.PoolType
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
-import org.openrepose.core.services.httpclient.HttpClientResponse
+import org.openrepose.core.services.httpclient.HttpClientContainer
 
 import static org.junit.Assert.assertEquals
 import static org.mockito.Mockito.mock
@@ -80,7 +80,7 @@ class MultiThreadHttpClientUserTest {
             Thread thread = Thread.start {
 
                 for (y in 1..2) {
-                    HttpClientResponse clientResponse = httpClientService.getClient("pool1")
+                    HttpClientContainer clientResponse = httpClientService.getClient("pool1")
                     HttpClient httpClient = clientResponse.getHttpClient();
                     HttpGet get
                     HttpResponse rsp

@@ -20,23 +20,29 @@
 package org.openrepose.core.services.httpclient.impl;
 
 import org.apache.http.client.HttpClient;
-import org.openrepose.core.services.httpclient.HttpClientResponse;
+import org.openrepose.core.services.httpclient.HttpClientContainer;
 
 /**
- * An HttpClientResponse that generates a unique UUID
+ * An HttpClientContainer that generates a unique UUID
  */
-public class HttpClientResponseImpl implements HttpClientResponse {
+public class HttpClientContainerImpl implements HttpClientContainer {
 
     private HttpClient httpClient;
-    private String clientId;
     private String clientInstanceId;
     private String userId;
+    private int maxConnections;
+    private int socketTimeout;
 
-    public HttpClientResponseImpl(HttpClient httpClient, String clientId, String clientInstanceId, String userId) {
+    public HttpClientContainerImpl(HttpClient httpClient,
+                                   String clientInstanceId,
+                                   String userId,
+                                   int maxConnections,
+                                   int socketTimeout) {
         this.httpClient = httpClient;
-        this.clientId = clientId;
         this.clientInstanceId = clientInstanceId;
         this.userId = userId;
+        this.maxConnections = maxConnections;
+        this.socketTimeout = socketTimeout;
     }
 
     @Override
@@ -44,12 +50,23 @@ public class HttpClientResponseImpl implements HttpClientResponse {
         return httpClient;
     }
 
+    @Override
     public String getClientInstanceId() {
         return clientInstanceId;
     }
 
+    @Override
     public String getUserId() {
         return userId;
     }
 
+    @Override
+    public int getMaxConnections() {
+        return maxConnections;
+    }
+
+    @Override
+    public int getSocketTimeout() {
+        return socketTimeout;
+    }
 }

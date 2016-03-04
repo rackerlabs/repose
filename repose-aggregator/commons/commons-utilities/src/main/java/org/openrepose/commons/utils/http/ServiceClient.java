@@ -37,7 +37,7 @@ import org.apache.http.util.EntityUtils;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
-import org.openrepose.core.services.httpclient.HttpClientResponse;
+import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,7 @@ public class ServiceClient {
     }
 
     private HttpClient getClientWithBasicAuth() throws ServiceClientException {
-        HttpClientResponse clientResponse = null;
+        HttpClientContainer clientResponse = null;
 
         try {
 
@@ -101,10 +101,6 @@ public class ServiceClient {
             }
 
             return client;
-
-        } catch (HttpClientNotFoundException e) {
-            LOG.error("Failed to obtain an HTTP default client connection");
-            throw new ServiceClientException("Failed to obtain an HTTP default client connection", e);
         } finally {
             if (clientResponse != null) {
                 httpClientService.releaseClient(clientResponse);
@@ -210,11 +206,11 @@ public class ServiceClient {
     }
 
     public int getPoolSize() {
-        return httpClientService.getMaxConnections(connectionPoolId);
+        return httpClientService.getClient(connectionPoolId).getMaxConnections();
     }
 
     public int getSocketTimeout() {
-        return httpClientService.getSocketTimeout(connectionPoolId);
+        return httpClientService.getClient(connectionPoolId).getSocketTimeout();
     }
 
 }

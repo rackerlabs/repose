@@ -31,7 +31,7 @@ import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
-import org.openrepose.core.services.httpclient.HttpClientResponse
+import org.openrepose.core.services.httpclient.HttpClientContainer
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.core.systemmodel.TracingHeaderConfig
@@ -46,7 +46,7 @@ class RequestProxyServiceImplTest extends Specification {
 
     def setup() {
         httpClient = mock(HttpClient)
-        HttpClientResponse httpClientResponse = mock(HttpClientResponse)
+        HttpClientContainer httpClientResponse = mock(HttpClientContainer)
         when(httpClientResponse.getHttpClient()).thenReturn(httpClient)
         HttpClientService httpClientService = mock(HttpClientService)
         when(httpClientService.getClient(Mockito.any(String))).thenReturn(httpClientResponse)

@@ -26,7 +26,7 @@ import org.apache.http.client.methods.HttpRequestBase
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
-import org.openrepose.core.services.httpclient.HttpClientResponse
+import org.openrepose.core.services.httpclient.HttpClientContainer
 import org.openrepose.core.services.httpclient.HttpClientService
 
 import javax.ws.rs.core.MediaType
@@ -48,7 +48,7 @@ class ServiceClientTest {
     @Before
     void setup() {
         HttpClientService mockClientService = mock(HttpClientService)
-        HttpClientResponse mockClientResponse = mock(HttpClientResponse)
+        HttpClientContainer mockClientResponse = mock(HttpClientContainer)
         HttpResponse mockHttpResponse = mock(HttpResponse)
         StatusLine mockStatusLine = mock(StatusLine)
         mockHttpClient = mock(HttpClient)

@@ -38,7 +38,7 @@ import org.mockito.AdditionalMatchers.or
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.openrepose.commons.utils.http.ServiceClientResponse
-import org.openrepose.core.services.httpclient.{HttpClientResponse, HttpClientService}
+import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -54,7 +54,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
   val BODY_STRING = "BODY"
   val LIST_APPENDER_REF = "List0"
   val httpClientService = mock[HttpClientService]
-  val httpClientResponse = mock[HttpClientResponse]
+  val httpClientContainer = mock[HttpClientContainer]
   val originServer = new Server(0)
   val hashKey = "hashKey"
   var request: HttpGet = _
@@ -101,7 +101,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
 
   describe("The Akka Client") {
     val methods = List("GET", "POST")
-    when(httpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(httpClientResponse)
+    when(httpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(httpClientContainer)
     methods.foreach { method =>
       describe(s"using the HTTP request method $method") {
         def akkaServiceClientImplDo(akkaServiceClientImpl: AkkaServiceClientImpl, headers: Map[String, String]): ServiceClientResponse = method match {
@@ -159,11 +159,11 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
             val httpClientDefault = new DefaultHttpClient
             val params = httpClientDefault.getParams
 
-            when(httpClientService.getMaxConnections(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(20)
-            when(httpClientResponse.getHttpClient).thenReturn(httpClientDefault)
+            when(httpClientContainer.getHttpClient).thenReturn(httpClientDefault)
+            when(httpClientContainer.getMaxConnections).thenReturn(20)
 
             it("should succeed when the server response time is LESS than the Socket timeout.") {
-              when(httpClientService.getSocketTimeout(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(timeout)
+              when(httpClientContainer.getSocketTimeout).thenReturn(timeout)
               params.setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout)
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout - 2000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
@@ -178,7 +178,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
             }
 
             it("should fail with a logged error when the server response time is MORE than the Socket timeout.") {
-              when(httpClientService.getSocketTimeout(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(timeout)
+              when(httpClientContainer.getSocketTimeout).thenReturn(timeout)
               params.setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout)
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout + 5000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
