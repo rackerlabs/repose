@@ -28,23 +28,23 @@ import org.apache.http.client.utils.DateUtils
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.{TreeMap, TreeSet}
+import scala.collection.mutable
 
 class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream: ServletInputStream)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
   with HeaderInteractor {
 
-  object RequestBodyStatus extends Enumeration {
-    val Available, InputStream, Reader = Value
-  }
+  import HttpServletRequestWrapper._
 
   private var status = RequestBodyStatus.Available
-
-  def this(originalRequest: HttpServletRequest) = this(originalRequest, originalRequest.getInputStream)
-
-  val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
-
+  private var requestUri: String = originalRequest.getRequestURI
+  private var queryString: String = originalRequest.getQueryString
+  private var parameterMap: Option[Map[String, Array[String]]] = None
+  private var formParameterMap: Option[Map[String, Array[String]]] = None
   private var headerMap: Map[String, List[String]] = new TreeMap[String, List[String]]()(caseInsensitiveOrdering)
   private var removedHeaders: Set[String] = new TreeSet[String]()(caseInsensitiveOrdering)
+
+  def this(originalRequest: HttpServletRequest) = this(originalRequest, originalRequest.getInputStream)
 
   override def getInputStream: ServletInputStream = {
     if (status == RequestBodyStatus.Reader) throw new IllegalStateException else status = RequestBodyStatus.InputStream
@@ -145,4 +145,128 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   def getSplittableHeaderScala(headerName: String): List[String] = getHeadersScala(headerName).foldLeft(List.empty[String])((list, s) => list ++ s.split(","))
 
   override def getSplittableHeaders(headerName: String): util.List[String] = getSplittableHeaderScala(headerName).asJava
+
+  /**
+    * @return a [[StringBuffer]] containing the reconstructed URL for this request (note that
+    *         mutation of this [[StringBuffer]] will have no effect on the request URL)
+    */
+  override def getRequestURL: StringBuffer = {
+    val url: StringBuffer = new StringBuffer(getScheme).append("://").append(getServerName)
+
+    if (getServerPort > 0 && ((HTTP.equalsIgnoreCase(getScheme) && getServerPort != 80) || (HTTPS.equalsIgnoreCase(getScheme) && getServerPort != 443))) {
+      url.append(':').append(getServerPort)
+    }
+
+    if (Option(getRequestURI).exists(_.nonEmpty)) {
+      url.append(getRequestURI)
+    }
+
+    url
+  }
+
+  override def getRequestURI: String = requestUri
+
+  def setRequestURI(uri: String): Unit = {
+    if (Option(uri).isEmpty) throw new IllegalArgumentException("null is not a legal argument to setRequestURI")
+
+    requestUri = uri
+  }
+
+  /**
+    * @return a string representation of the query parameters for this request
+    */
+  override def getQueryString: String = queryString
+
+  /**
+    * @param newQueryString the desired query string for this request
+    */
+  def setQueryString(newQueryString: String): Unit = {
+    def parseQueryString(s: String): Map[String, Array[String]] = {
+      val parameterMap = mutable.Map.empty[String, Array[String]]
+
+      s.split(QueryPairDelimiter) foreach { queryPair =>
+        val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
+
+        if (keyValuePair.length == 2) {
+          val key = keyValuePair(0)
+          val value = keyValuePair(1)
+          parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(value))
+        } else {
+          val key = keyValuePair(0)
+          parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(""))
+        }
+      }
+
+      parameterMap.toMap
+    }
+
+    val updatedParameterMap = mutable.Map.empty[String, Array[String]]
+    val curQueryMap = Option(getQueryString).map(parseQueryString).getOrElse(Map.empty[String, Array[String]])
+    val newQueryMap = Option(newQueryString).map(parseQueryString).getOrElse(Map.empty[String, Array[String]])
+
+    // Remove all current query parameters from the parameter map
+    formParameterMap match {
+      case Some(fpm) =>
+        updatedParameterMap ++= fpm
+      case None =>
+        getParameterMap.asScala foreach { case (key, values) =>
+          val formValues = mutable.ArrayBuffer(values: _*)
+          curQueryMap.get(key).foreach(queryValues => queryValues.foreach(formValues.-=))
+
+          if (formValues.nonEmpty) updatedParameterMap += (key -> formValues.toArray)
+        }
+        formParameterMap = Option(updatedParameterMap.toMap)
+    }
+
+    // All all new query parameters to the parameter map with query parameters preceding form parameters
+    newQueryMap foreach { case (key, values) =>
+      updatedParameterMap += (key -> (values ++ updatedParameterMap.getOrElse(key, Array.empty[String])))
+    }
+
+    parameterMap = Option(updatedParameterMap.toMap)
+    queryString = newQueryString
+  }
+
+  /**
+    * @param key a parameter key
+    * @return the first parameter value associated with the provided key for this request, or null if no value exists
+    */
+  override def getParameter(key: String): String =
+    Option(getParameterValues(key)).map(_.head).orNull
+
+  /**
+    * @param key a parameter key
+    * @return all parameter values associated with the provided key for this request
+    */
+  override def getParameterValues(key: String): Array[String] =
+    parameterMap.map(_.get(key).orNull).getOrElse(super.getParameterValues(key))
+
+  /**
+    * @return all parameter names for this request
+    */
+  override def getParameterNames: util.Enumeration[String] =
+    parameterMap.map(_.keysIterator.asJavaEnumeration).getOrElse(super.getParameterNames)
+
+  /** Returns the parameter map containing all form and query parameters for this request. Note that form parameters
+    * are only modifiable "manually" by manipulating the body of this request. Changes to form parameters in the body
+    * of this request will no be reflected in this parameter map.
+    *
+    * @return the parameter map for this request
+    */
+  override def getParameterMap: util.Map[String, Array[String]] =
+    parameterMap.map(_.asJava).getOrElse(super.getParameterMap)
+}
+
+object HttpServletRequestWrapper {
+  private final val HTTP = "http"
+  private final val HTTPS = "https"
+  private final val QueryPairDelimiter = "&"
+  private final val QueryKeyValueDelimiter = "="
+
+  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
+
+  object RequestBodyStatus extends Enumeration {
+    val Available, InputStream, Reader = Value
+  }
+
 }
