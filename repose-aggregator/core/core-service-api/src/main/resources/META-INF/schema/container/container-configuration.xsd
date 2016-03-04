@@ -250,10 +250,10 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="tls-renegotiation-allowed" type="xs:boolean" default="true" minOccurs="0" maxOccurs="1">
+            <xs:element name="tls-renegotiation-allowed" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
-                        <html:p>Whether to allow TLS Renegotiation. Allowed by default.</html:p>
+                        <html:p>Whether to allow TLS Renegotiation. Default is to disallow.</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
