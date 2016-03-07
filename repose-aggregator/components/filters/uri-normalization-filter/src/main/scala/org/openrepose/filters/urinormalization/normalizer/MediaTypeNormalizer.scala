@@ -75,9 +75,9 @@ class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogg
             request.setRequestURI(uriBuilder.delete(uriExtensionIndex, uriExtensionIndex + requestedVariant.length).toString)
           }
 
-          false
-        } else {
           true
+        } else {
+          false
         }
       }
     } else {
