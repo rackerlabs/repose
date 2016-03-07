@@ -42,9 +42,9 @@ command -v $JAVA >/dev/null 2>&1 || { echo 'Repose requires the $JAVA environmen
 VERSION=$($JAVA -version 2>&1 | grep ' version' | awk '{ print substr($3, 2, length($3)-2); }')
 JAVA_MINOR=$(echo $VERSION | tr "." " " | cut -d " " -f2)
 
-if [ "$JAVA_MINOR" -lt "7" ]; then
-  echo "Repose requires a Java version of at least 7 to function."
-  echo "Please install a JRE 1.7 or greater."
+if [ "$JAVA_MINOR" -lt "8" ]; then
+  echo "Repose requires a Java version of at least 8 to function."
+  echo "Please install a JRE 1.8 or greater."
   exit 1
 fi
 
