@@ -945,6 +945,8 @@
                                         <regexIgnoredClass>org\.apache\.http\..+</regexIgnoredClass>
                                         <regexIgnoredClass>com\.typesafe\.scalalogging\..+</regexIgnoredClass>
                                         <regexIgnoredClass>play\.api\.libs\.functional\..+</regexIgnoredClass>
+                                        <regexIgnoredClass>scala\.util\..+</regexIgnoredClass>
+                                        <regexIgnoredClass>scala\.xml\..+</regexIgnoredClass>
                                     </regexIgnoredClasses>
                                 </illegalTransitiveDependencyCheck>
                             </rules>
