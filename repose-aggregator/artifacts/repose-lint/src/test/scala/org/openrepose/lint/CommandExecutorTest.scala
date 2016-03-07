@@ -39,9 +39,8 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
     it("should exit if the command cannot be parsed") {
       val err = new ByteArrayOutputStream()
 
-      Console.setErr(err)
-
-      val exitCode = CommandExecutor.execute(System.in, System.out, new PrintStream(err), mockConfig, Array("butts"))
+      val exitCode = Console.withIn(System.in)(Console.withOut(System.out)(Console.withErr(new PrintStream(err))(
+        CommandExecutor.execute(mockConfig, Array("butts")))))
 
       val errString = new String(err.toByteArray)
 
@@ -53,9 +52,8 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
       val configDir = getClass.getResource("/configs/master").getPath
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      val exitCode = CommandExecutor.execute(System.in, new PrintStream(out), System.err, mockConfig, Array("verify-try-it-now", "-v", "-r", "7.2.0.0", "-c", configDir))
+      val exitCode = Console.withIn(System.in)(Console.withOut(new PrintStream(out))(Console.withErr(System.err)(
+        CommandExecutor.execute(mockConfig, Array("verify-try-it-now", "-v", "-r", "7.2.0.0", "-c", configDir)))))
 
       val outString = new String(out.toByteArray)
 
@@ -67,9 +65,8 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
       val configDir = getClass.getResource("/configs/emptydir").getPath
       val err = new ByteArrayOutputStream()
 
-      Console.setErr(err)
-
-      val exitCode = CommandExecutor.execute(System.in, System.out, new PrintStream(err), mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir))
+      val exitCode = Console.withIn(System.in)(Console.withOut(System.out)(Console.withErr(new PrintStream(err))(
+        CommandExecutor.execute(mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir)))))
 
       val errString = new String(err.toByteArray)
 
@@ -82,9 +79,8 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
       val configDir = getClass.getResource("/configs/emptydir").getPath
       val err = new ByteArrayOutputStream()
 
-      Console.setErr(err)
-
-      val exitCode = CommandExecutor.execute(System.in, System.out, new PrintStream(err), mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir, "-foo"))
+      val exitCode = Console.withIn(System.in)(Console.withOut(System.out)(Console.withErr(new PrintStream(err))(
+        CommandExecutor.execute(mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir, "-foo")))))
 
       val errString = new String(err.toByteArray)
 
@@ -98,9 +94,8 @@ class CommandExecutorTest extends FunSpec with MockitoSugar with Matchers {
       val configDir = getClass.getResource("/configs/emptydir").getPath
       val err = new ByteArrayOutputStream()
 
-      Console.setErr(err)
-
-      val exitCode = CommandExecutor.execute(System.in, System.out, new PrintStream(err), mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir))
+      val exitCode = Console.withIn(System.in)(Console.withOut(System.out)(Console.withErr(new PrintStream(err))(
+        CommandExecutor.execute(mockConfig, Array("verify-try-it-now", "-r", "7.2.0.0", "-c", configDir)))))
 
       val errString = new String(err.toByteArray)
 

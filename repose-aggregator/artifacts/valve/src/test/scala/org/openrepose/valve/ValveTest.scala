@@ -53,11 +53,10 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
     val stderr = new ByteArrayOutputStream()
 
     //Valve doesn't care about stdin, so we'll just hook that up
-    val stdin = System.in
-
     val valve = new Valve()
 
-    val exitStatus = valve.execute(args, stdin, new PrintStream(stdout), new PrintStream(stderr), defaultConfig)
+    val exitStatus = Console.withIn(System.in)(Console.withOut(new PrintStream(stdout))(Console.withErr(new PrintStream(stderr))(
+      valve.execute(args, defaultConfig))))
 
     val error = new String(stderr.toByteArray)
     val output = new String(stdout.toByteArray)
@@ -137,7 +136,8 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
         //TODO
         val valve = new Valve()
         val exitValue = Future {
-          valve.execute(Array("--config-file", configRoot.toString), System.in, System.out, System.err, defaultConfig)
+          Console.withIn(System.in)(Console.withOut(System.out)(Console.withErr(System.err)(
+            valve.execute(Array("--config-file", configRoot.toString), defaultConfig))))
         }
 
         exitValue onComplete {

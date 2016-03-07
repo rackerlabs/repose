@@ -19,7 +19,7 @@
  */
 package org.openrepose.valve
 
-import java.io.{File, InputStream, PrintStream}
+import java.io.File
 import javax.net.ssl.SSLContext
 
 import com.typesafe.config.Config
@@ -28,17 +28,11 @@ import org.openrepose.valve.spring.ValveRunner
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
-
 class Valve {
 
   lazy val valveContext = new AnnotationConfigApplicationContext()
 
-  def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream, config: Config): Int = {
-    //Attach the actual console output streams to the passed in streams
-    Console.setOut(out)
-    Console.setIn(in)
-    Console.setErr(err)
-
+  def execute(args: Array[String], config: Config): Int = {
     val reposeVersion = config.getString("myVersion")
     val jettyVersion = config.getString("jettyVersion")
 
@@ -91,25 +85,24 @@ class Valve {
         parser.showUsage
         1
       } else if (valveConfig.showVersion) {
-        out.println(s"Repose Valve: $reposeVersion on Jetty $jettyVersion")
+        Console.println(s"Repose Valve: $reposeVersion on Jetty $jettyVersion")
         1
       } else if (valveConfig.showSslParams) {
-        import scala.concurrent.JavaConversions._
         //Print lots of SSL info!
         val sslContext = SSLContext.getDefault
         val sslEngine = sslContext.createSSLEngine()
-        out.println("Displaying Available SSL Information for the current JVM")
-        out.println("Default enabled SSL Protocols:")
-        out.println("\t" + sslEngine.getEnabledProtocols.toList.sorted.mkString("\n\t"))
-        out.println()
-        out.println("Default enabled SSL Ciphers:")
-        out.println("\t" + sslEngine.getEnabledCipherSuites.toList.sorted.mkString("\n\t"))
-        out.println()
-        out.println("All available SSL Protocols:")
-        out.println("\t" + sslEngine.getSupportedProtocols.toList.sorted.mkString("\n\t"))
-        out.println()
-        out.println("All available SSL Ciphers:")
-        out.println("\t" + sslEngine.getSupportedCipherSuites.toList.sorted.mkString("\n\t"))
+        Console.println("Displaying Available SSL Information for the current JVM")
+        Console.println("Default enabled SSL Protocols:")
+        Console.println("\t" + sslEngine.getEnabledProtocols.toList.sorted.mkString("\n\t"))
+        Console.println()
+        Console.println("Default enabled SSL Ciphers:")
+        Console.println("\t" + sslEngine.getEnabledCipherSuites.toList.sorted.mkString("\n\t"))
+        Console.println()
+        Console.println("All available SSL Protocols:")
+        Console.println("\t" + sslEngine.getSupportedProtocols.toList.sorted.mkString("\n\t"))
+        Console.println()
+        Console.println("All available SSL Ciphers:")
+        Console.println("\t" + sslEngine.getSupportedCipherSuites.toList.sorted.mkString("\n\t"))
 
         1
       } else {
