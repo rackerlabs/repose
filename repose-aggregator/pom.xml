@@ -292,6 +292,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-xml</artifactId>
+                <version>${scala.MajDotMin}.0-M4</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest_${scala.MajDotMin}</artifactId>
                 <version>2.2.0</version>
@@ -946,7 +952,6 @@
                                         <regexIgnoredClass>com\.typesafe\.scalalogging\..+</regexIgnoredClass>
                                         <regexIgnoredClass>play\.api\.libs\.functional\..+</regexIgnoredClass>
                                         <regexIgnoredClass>scala\.util\..+</regexIgnoredClass>
-                                        <regexIgnoredClass>scala\.xml\..+</regexIgnoredClass>
                                     </regexIgnoredClasses>
                                 </illegalTransitiveDependencyCheck>
                             </rules>

@@ -130,6 +130,11 @@
             <artifactId>scala-library</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-xml</artifactId>
+        </dependency>
+
         <!-- LogFactory, needed by MockHttpServletRequest/Response -->
         <dependency>
             <groupId>org.slf4j</groupId>
