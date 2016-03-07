@@ -66,6 +66,10 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
+                    <html:strong>Deprecation warning:</html:strong> Multiple validators will not be supported in
+                    Repose 9.  In Repose 9, only a single validator will be allowed in config.
+                </html:p>
+                <html:p>
                     The validator.cfg.xml will contain a list of validator elements.
                     A validator element will specify the WADL to be used in order to
                     validate a request for a user of a given role/group.
@@ -82,11 +86,15 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        set to true will match validators to header 'x-roles' and all matches are
-                        validated until one of them is valid. In the event that all matches are invalid, the response
+                        <html:strong>Deprecation warning:</html:strong> Multiple validators will not be supported
+                        in Repose 9 making this attribute moot. This attribute will not be available in Repose 9.
+                    </html:p>
+                    <html:p>
+                        When set to true, filter will match validators to header 'x-roles' and all matches are
+                        validated until one of them is valid. If a default validator is configured, it will be
+                        the first validator to be checked. In the event that all matches are invalid, the response
                         returned will be that of the last matched validator. If set to false, or not set at all, the
-                        filer
-                        will use the first validator which matches the 'x-roles' header.
+                        filter will use the first validator which matches the 'x-roles' header.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -110,14 +118,31 @@
 
     <!-- The Validator Type -->
     <xs:complexType name="ValidatorItem">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    <html:strong>Deprecation warning:</html:strong> Embedding a WADL inside of a validator
+                    element will no longer be supported in Repose 9.  The WADL will need to be in its own
+                    file and referenced in this config.
+                </html:p>
+                <html:p>Creates a new validator.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
         <xs:sequence>
+            <!-- Allow embedding a WADL - deprecated in Repose 8, to be removed in Repose 9 -->
             <xs:any minOccurs="0" namespace="##any" processContents="skip"/>
         </xs:sequence>
 
         <xs:attribute name="role" type="scr:StringList" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>List of roles that are applied on single validator. Triggers off of 'x-roles' header.
+                    <html:p>
+                        <html:strong>Deprecation warning:</html:strong> Starting in Repose 9, roles will need to
+                        be specified inside of the WADL.  This attribute will not be available in Repose 9.
+                    </html:p>
+                    <html:p>
+                        List of roles that are applied on single validator. Triggers off of 'x-roles' header.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -139,9 +164,13 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        <html:strong>Deprecation warning:</html:strong> Multiple validators will not be supported
+                        in Repose 9 making this attribute moot. This attribute will not be available in Repose 9.
+                    </html:p>
+                    <html:p>
                         Set to use this validator if no 'x-roles' header is passed.
-                        If the api-validator config 'multi-match' is set to true then thh default validator
-                        will be the first validator to process the incoming request. If multimatch is set to
+                        If the api-validator config 'multi-match' is set to true then the default validator
+                        will be the first validator to process the incoming request. If multi-match is set to
                         false and if no validator is matched to the users' roles, then the filter will use
                         the default validator.
                     </html:p>
@@ -158,6 +187,7 @@
                         Can be located within the file system or pointed to a remote file.
                         Can use absolute or relative path.
                     </html:p>
+                    <html:p>Note: This will be a required attribute in Repose 9.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
