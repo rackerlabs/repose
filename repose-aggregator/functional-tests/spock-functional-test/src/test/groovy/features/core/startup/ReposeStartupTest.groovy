@@ -180,7 +180,7 @@ class ReposeStartupTest extends ReposeValveTest {
     static def deployRpm() {
         return [
                 'sudo yum update -y',
-                'sudo yum install java-1.7.0-openjdk -y',
+                'sudo yum install java-1.8.0-openjdk -y',
                 'sudo wget -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo',
                 'sudo yum update -y',
                 'sudo yum install -y repose-valve repose-filters repose-filters repose-extension-filters',

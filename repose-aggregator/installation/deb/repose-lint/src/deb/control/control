@@ -6,4 +6,4 @@ Architecture: all
 Maintainer: Repose Development <repose-development@lists.openrepose.org>
 Description: Debian Package for Repose Lint
 Homepage: http://openrepose.org
-Depends: java7-runtime-headless
+Depends: java8-runtime-headless
