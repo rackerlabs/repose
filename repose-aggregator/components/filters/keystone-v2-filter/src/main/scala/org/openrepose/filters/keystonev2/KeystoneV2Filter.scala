@@ -47,6 +47,7 @@ import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, L
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 import scala.util.{Failure, Random, Success, Try}
+import scala.xml.XML
 
 @Named
 class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
@@ -687,7 +688,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     override def onNewAtomEntry(atomEntry: String): Unit = {
-      val atomXml = scala.xml.XML.loadString(atomEntry)
+      val atomXml = XML.loadString(atomEntry)
       val resourceId = (atomXml \\ "event" \\ "@resourceId").map(_.text).headOption
       if (resourceId.isDefined) {
         val resourceType = (atomXml \\ "event" \\ "@resourceType").map(_.text)

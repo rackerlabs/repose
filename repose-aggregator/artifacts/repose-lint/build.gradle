@@ -6,6 +6,7 @@ configurations {
 
 dependencies {
     compile "org.scala-lang:scala-library"
+    compile "org.scala-lang:scala-xml"
     compile "com.typesafe:config"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "com.github.scopt:scopt_$scalaMajDotMin"
