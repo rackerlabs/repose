@@ -1,9 +1,9 @@
 dependencies {
     compile project(':repose-aggregator/components/services/http-client-service/http-client-service-api')
-    compile "org.scala-lang:scala-library"
+    compile "org.scala-lang:scala-library:$scalaMajDotMin.$scalaPatch"
     compile "org.slf4j:slf4j-api"
     compile "commons-pool:commons-pool"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "commons-codec:commons-codec"
     compile "org.apache.commons:commons-lang3"
     compile "com.fasterxml.jackson.core:jackson-core"
@@ -20,7 +20,7 @@ dependencies {
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.mockito:mockito-all"
     testCompile "com.mockrunner:mockrunner-servlet"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.spockframework:spock-core"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     testCompile "org.springframework:spring-test"
