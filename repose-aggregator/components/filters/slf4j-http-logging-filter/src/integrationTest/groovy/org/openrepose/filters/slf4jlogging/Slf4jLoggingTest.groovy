@@ -30,7 +30,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 @Ignore
-class Slf4jLoggingIntegrationTest extends Specification {
+class Slf4jLoggingTest extends Specification {
     ListAppender app
 
     @Shared
