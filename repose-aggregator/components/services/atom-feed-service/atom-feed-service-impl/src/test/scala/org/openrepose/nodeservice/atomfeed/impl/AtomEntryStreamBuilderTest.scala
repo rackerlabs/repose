@@ -295,6 +295,4 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
     verify(mockAuthRequestFactory, times(2)).onInvalidCredentials()
     verify(mockAuthRequestFactory, times(3)).authenticateRequest(any[URLConnection], any[AuthenticationRequestContext])
   }
-
-  ignore("should retrieve all entries from an archived feed")()
 }
