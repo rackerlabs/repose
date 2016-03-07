@@ -28,7 +28,6 @@ import org.openrepose.components.apivalidator.servlet.config.ValidatorConfigurat
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +41,7 @@ import java.util.List;
 public class ValidatorConfigurator {
     private static final Logger LOG = LoggerFactory.getLogger(ValidatorConfigurator.class);
 
-    private ValidatorInfo defaultvalidator;
+    private ValidatorInfo defaultValidator;
     private List<ValidatorInfo> validators;
 
     public ValidatorConfigurator() {
@@ -53,7 +52,7 @@ public class ValidatorConfigurator {
     }
 
     public ValidatorInfo getDefaultValidator() {
-        return defaultvalidator;
+        return defaultValidator;
     }
 
     public List<ValidatorInfo> getValidators() {
@@ -61,7 +60,9 @@ public class ValidatorConfigurator {
     }
 
     public void processConfiguration(ValidatorConfiguration validatorConfiguration, String configRoot, String wadlUri) {
-        defaultvalidator = null;
+        logDeprecationWarnings(validatorConfiguration);
+
+        defaultValidator = null;
 
         List<? extends ValidatorItem> validatorItems = validatorConfiguration.getValidator();
         validators = new ArrayList<ValidatorInfo>(validatorItems.size());
@@ -76,18 +77,42 @@ public class ValidatorConfigurator {
             configuration.setPreserveRequestBody(validatorConfiguration.isMultiRoleMatch());
             ValidatorInfo validator = validatorItem.getAny() != null
                     ? new ValidatorInfo(validatorItem.getRole(),
-                    (Element) validatorItem.getAny(),
-                    getWadlPath(wadlUri, configRoot),
-                    configuration,
-                    validatorItem.getValidatorName())
+                        validatorItem.getAny(),
+                        getWadlPath(wadlUri, configRoot),
+                        configuration,
+                        validatorItem.getValidatorName())
                     : new ValidatorInfo(validatorItem.getRole(),
-                    getWadlPath(validatorItem.getWadl(), configRoot),
-                    configuration,
-                    validatorItem.getValidatorName());
+                        getWadlPath(validatorItem.getWadl(), configRoot),
+                        configuration,
+                        validatorItem.getValidatorName());
 
             validators.add(validator);
-            if (validatorItem.isDefault() && defaultvalidator == null) {
-                defaultvalidator = validator;
+            if (validatorItem.isDefault() && defaultValidator == null) {
+                defaultValidator = validator;
+            }
+        }
+    }
+
+    private void logDeprecationWarnings(ValidatorConfiguration validatorConfiguration) {
+        if (validatorConfiguration.isMultiRoleMatch()) {
+            LOG.warn("Support for multi-role-match has been deprecated in Repose 8 and will be removed in Repose 9.");
+        }
+
+        if (validatorConfiguration.getValidator().size() > 1) {
+            LOG.warn("Support for multiple validators has been deprecated in Repose 8 and will be removed in Repose 9.");
+        }
+
+        for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
+            if (validatorItem.getAny() != null) {
+                LOG.warn("Support for embedded WADLs has been deprecated in Repose 8 and will be removed in Repose 9.");
+                break;
+            }
+        }
+
+        for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
+            if (validatorItem.getRole() != null && !validatorItem.getRole().isEmpty()) {
+                LOG.warn("Support for specifying roles in the validator config has been deprecated in Repose 8 and will be removed in Repose 9.  Please use rax:roles in the WADL instead.");
+                break;
             }
         }
     }

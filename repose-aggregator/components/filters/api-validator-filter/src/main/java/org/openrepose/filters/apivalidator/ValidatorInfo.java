@@ -54,12 +54,7 @@ public class ValidatorInfo {
         this.config = config;
         this.wadl = null;
         this.systemId = null;
-
-        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && !roles.isEmpty()) {
-            this.name = getNameFromRoles(roles);
-        } else {
-            this.name = name;
-        }
+        this.name = (StringUtilities.isEmpty(name) && !roles.isEmpty()) ? getNameFromRoles(roles) : name;
     }
 
     public ValidatorInfo(List<String> roles, Node wadl, String systemId, Config config, String name) {
@@ -68,11 +63,7 @@ public class ValidatorInfo {
         this.wadl = wadl;
         this.systemId = systemId;
         this.uri = null;
-        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && !roles.isEmpty()) {
-            this.name = getNameFromRoles(roles);
-        } else {
-            this.name = name;
-        }
+        this.name = (StringUtilities.isEmpty(name) && !roles.isEmpty()) ? getNameFromRoles(roles) : name;
     }
 
     private Source getSource() {
