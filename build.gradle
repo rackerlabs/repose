@@ -50,7 +50,8 @@ subprojects {
     apply plugin: 'checkstyle'
     apply plugin: 'codenarc'
     apply plugin: 'scalaStyle'
-    apply plugin: "com.github.hierynomus.license"
+    apply plugin: 'com.github.hierynomus.license'
+    apply plugin: 'jacoco'
 
     dependencies {
         jaxb "com.sun.xml.bind:jaxb-xjc"
@@ -191,6 +192,23 @@ subprojects {
         exclude "**/*.cfg.xml"
         exclude "**/log4j2*.xml"
         sourceSets = sourceSets.matching {it.name != 'generated'}
+    }
+
+    jacoco {
+        toolVersion = "0.7.6.201602180812"
+    }
+
+    test {
+        jacoco {
+            destinationFile = file("$rootDir/build/jacoco/jacocoTest.exec")
+        }
+    }
+
+    integrationTest {
+        jacoco {
+            destinationFile = file("$rootDir/build/jacoco/jacocoIntegrationTest.exec")
+        }
+        systemProperty 'jacocoArguments', jacoco.getAsJvmArg()
     }
 
     idea {
