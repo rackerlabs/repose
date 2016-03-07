@@ -28,7 +28,7 @@
 
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- Http Delegation Library for delegating requests -->
@@ -40,7 +40,7 @@
         <!-- Lazy logging -->
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.10</artifactId>
+            <artifactId>scala-logging-slf4j_${scala.MajDotMin}</artifactId>
         </dependency>
     </dependencies>
 </project>

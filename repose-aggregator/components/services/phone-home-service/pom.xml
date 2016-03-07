@@ -32,19 +32,19 @@
         <!-- ScalaTest -->
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- LazyLogging -->
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.10</artifactId>
+            <artifactId>scala-logging-slf4j_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- Play JSON -->
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-json_2.10</artifactId>
+            <artifactId>play-json_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- @Value -->

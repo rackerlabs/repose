@@ -116,12 +116,12 @@
         <!-- Use play-json to easily grab data out of the JSON coming from upstream -->
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-json_2.10</artifactId>
+            <artifactId>play-json_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
             <scope>test</scope>
         </dependency>
 

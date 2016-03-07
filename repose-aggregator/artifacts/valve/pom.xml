@@ -51,15 +51,14 @@
 
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
             <scope>test</scope>
         </dependency>
 
         <!-- will replace args4j -->
         <dependency>
             <groupId>com.github.scopt</groupId>
-            <!-- scopt built for scala 2.10 -->
-            <artifactId>scopt_2.10</artifactId>
+            <artifactId>scopt_${scala.MajDotMin}</artifactId>
             <version>3.2.0</version>
         </dependency>
 
@@ -139,7 +138,7 @@
         <!-- super handy lazy logging! -->
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.10</artifactId>
+            <artifactId>scala-logging-slf4j_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <dependency>

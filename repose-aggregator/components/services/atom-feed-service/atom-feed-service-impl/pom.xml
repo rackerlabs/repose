@@ -33,13 +33,13 @@
         <!-- Scalatest for testing scala -->
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- Lazy logging -->
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.10</artifactId>
+            <artifactId>scala-logging-slf4j_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- Injecting Spring values -->
@@ -63,19 +63,19 @@
         <!-- Play JSON -->
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-json_2.10</artifactId>
+            <artifactId>play-json_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- Akka -->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.10</artifactId>
+            <artifactId>akka-actor_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- Akka Testing -->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit_2.10</artifactId>
+            <artifactId>akka-testkit_${scala.MajDotMin}</artifactId>
             <version>${akka.version}</version>
             <scope>test</scope>
         </dependency>
@@ -83,7 +83,7 @@
         <!-- Akka Mock Atom Feed Service -->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-http-core-experimental_2.10</artifactId>
+            <artifactId>akka-http-core-experimental_${scala.MajDotMin}</artifactId>
             <version>1.0</version>
             <scope>test</scope>
         </dependency>
