@@ -1,11 +1,11 @@
 dependencies {
     compile "org.scala-lang:scala-library"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.apache.jena:jena-iri"
 
     provided "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
 }

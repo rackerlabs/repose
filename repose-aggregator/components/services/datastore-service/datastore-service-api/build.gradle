@@ -3,5 +3,5 @@ dependencies {
     compile project(":repose-aggregator/core/core-service-api")
 
     testCompile "junit:junit"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
 }

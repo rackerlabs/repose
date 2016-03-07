@@ -6,7 +6,7 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "com.typesafe:config"
     compile "commons-io:commons-io"
-    compile "com.typesafe.akka:akka-actor_2.10"
+    compile "com.typesafe.akka:akka-actor_$scalaMajDotMin"
     compile "com.google.guava:guava"
     compile "org.slf4j:jcl-over-slf4j"
 
@@ -16,9 +16,9 @@ dependencies {
 
     testCompile "junit:junit"
     testCompile "org.scala-lang:scala-library"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
-    testCompile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    testCompile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     testCompile "org.apache.logging.log4j:log4j-core"
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'

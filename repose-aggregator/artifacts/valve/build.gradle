@@ -9,9 +9,9 @@ dependencies {
     compile project(":repose-aggregator/commons/commons-configuration")
     compile project(":repose-aggregator/core/core-lib")
     compile "org.scala-lang:scala-library"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.slf4j:jcl-over-slf4j"
-    compile "com.github.scopt:scopt_2.10"
+    compile "com.github.scopt:scopt_$scalaMajDotMin"
     compile "com.typesafe:config"
     compile "org.springframework:spring-core"
     compile "org.springframework:spring-context"
@@ -22,7 +22,7 @@ dependencies {
     compile "org.eclipse.jetty:jetty-util"
 
     testCompile "junit:junit"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.apache.httpcomponents:httpclient"
 }
 
