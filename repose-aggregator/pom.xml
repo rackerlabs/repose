@@ -39,7 +39,7 @@
         <sonar.jacoco.itReportPath>
             ${project.basedir}/repose-aggregator/functional-tests/spock-functional-test/target/jacoco-it.exec
         </sonar.jacoco.itReportPath>
-        <api.checker.version>1.1.4</api.checker.version>
+        <api.checker.version>2.0.0-SNAPSHOT</api.checker.version>
     </properties>
 
     <modules>
