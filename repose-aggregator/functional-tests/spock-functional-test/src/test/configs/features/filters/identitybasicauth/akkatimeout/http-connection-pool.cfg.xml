@@ -23,5 +23,9 @@
           http.connection.max-header-count="100"
           http.connection.max-status-line-garbage="100"
           http.tcp.nodelay="true"
-          keepalive.timeout="0"/>
+          keepalive.timeout="0">
+       <headers>
+           <header name="auth-proxy" value="testing"/>
+       </headers>
+    </pool>
 </http-connection-pools>

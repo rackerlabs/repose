@@ -117,6 +117,9 @@ class KeystoneV2ConnectionPoolingTest extends Specification {
         identityHandlings.size() > 0
         // there should be no requests to auth with a different connection id
         diff.size() == 0
+        // REP-3577 - add header using connection pool
+        mc1.orphanedHandlings.get(0).request.headers.contains("auth-proxy")
+        mc1.orphanedHandlings.get(0).request.headers.getFirstValue("auth-proxy") == "testing"
     }
 
     def cleanup() {
