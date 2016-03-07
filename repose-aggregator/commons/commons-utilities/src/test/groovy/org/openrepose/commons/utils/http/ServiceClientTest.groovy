@@ -42,16 +42,18 @@ class ServiceClientTest {
 
     private ServiceClient serviceClient
 
+    private HttpClientService mockClientService
     private HttpClient mockHttpClient
+    private HttpClientContainer mockClientResponse
     private ArgumentCaptor<HttpRequestBase> requestCaptor
 
     @Before
     void setup() {
-        HttpClientService mockClientService = mock(HttpClientService)
-        HttpClientContainer mockClientResponse = mock(HttpClientContainer)
         HttpResponse mockHttpResponse = mock(HttpResponse)
         StatusLine mockStatusLine = mock(StatusLine)
+        mockClientService = mock(HttpClientService)
         mockHttpClient = mock(HttpClient)
+        mockClientResponse = mock(HttpClientContainer)
         requestCaptor = ArgumentCaptor.forClass(HttpRequestBase)
 
         when(mockClientService.getClient(anyString())).thenReturn(mockClientResponse)

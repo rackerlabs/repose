@@ -30,19 +30,13 @@ public class HttpClientContainerImpl implements HttpClientContainer {
     private HttpClient httpClient;
     private String clientInstanceId;
     private String userId;
-    private int maxConnections;
-    private int socketTimeout;
 
     public HttpClientContainerImpl(HttpClient httpClient,
                                    String clientInstanceId,
-                                   String userId,
-                                   int maxConnections,
-                                   int socketTimeout) {
+                                   String userId) {
         this.httpClient = httpClient;
         this.clientInstanceId = clientInstanceId;
         this.userId = userId;
-        this.maxConnections = maxConnections;
-        this.socketTimeout = socketTimeout;
     }
 
     @Override
@@ -58,15 +52,5 @@ public class HttpClientContainerImpl implements HttpClientContainer {
     @Override
     public String getUserId() {
         return userId;
-    }
-
-    @Override
-    public int getMaxConnections() {
-        return maxConnections;
-    }
-
-    @Override
-    public int getSocketTimeout() {
-        return socketTimeout;
     }
 }

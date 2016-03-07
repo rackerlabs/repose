@@ -20,6 +20,7 @@
 
 package org.openrepose.core.services.serviceclient.akka.impl;
 
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory;
@@ -31,10 +32,13 @@ import javax.inject.Named;
 public class AkkaServiceClientFactoryImpl implements AkkaServiceClientFactory {
 
     private final HttpClientService httpClientService;
+    private final ConfigurationService configurationService;
 
     @Inject
-    public AkkaServiceClientFactoryImpl(HttpClientService httpClientService) {
+    public AkkaServiceClientFactoryImpl(HttpClientService httpClientService,
+                                        ConfigurationService configurationService) {
         this.httpClientService = httpClientService;
+        this.configurationService = configurationService;
     }
 
     @Override
@@ -44,6 +48,6 @@ public class AkkaServiceClientFactoryImpl implements AkkaServiceClientFactory {
 
     @Override
     public AkkaServiceClient newAkkaServiceClient(String connectionPoolId) {
-        return new AkkaServiceClientImpl(connectionPoolId, httpClientService);
+        return new AkkaServiceClientImpl(connectionPoolId, httpClientService, configurationService);
     }
 }

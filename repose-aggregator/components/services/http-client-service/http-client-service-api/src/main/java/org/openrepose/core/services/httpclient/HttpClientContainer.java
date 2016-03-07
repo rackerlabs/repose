@@ -27,8 +27,4 @@ public interface HttpClientContainer {
     String getClientInstanceId();
 
     String getUserId();
-
-    int getMaxConnections();
-
-    int getSocketTimeout();
 }

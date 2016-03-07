@@ -36,7 +36,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
 import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.slf4j.Logger;
@@ -204,13 +203,4 @@ public class ServiceClient {
         setHeaders(httpget, headers);
         return execute(httpget);
     }
-
-    public int getPoolSize() {
-        return httpClientService.getClient(connectionPoolId).getMaxConnections();
-    }
-
-    public int getSocketTimeout() {
-        return httpClientService.getClient(connectionPoolId).getSocketTimeout();
-    }
-
 }

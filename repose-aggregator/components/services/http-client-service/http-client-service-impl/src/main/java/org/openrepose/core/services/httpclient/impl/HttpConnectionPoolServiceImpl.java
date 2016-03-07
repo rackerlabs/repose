@@ -21,7 +21,6 @@ package org.openrepose.core.services.httpclient.impl;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.pool.PoolStats;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
@@ -122,9 +121,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
 
         return new HttpClientContainerImpl(requestedClient,
                 clientInstanceId,
-                userId,
-                ((PoolingClientConnectionManager) requestedClient.getConnectionManager()).getMaxTotal(),
-                requestedClient.getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0));
+                userId);
     }
 
     @Override

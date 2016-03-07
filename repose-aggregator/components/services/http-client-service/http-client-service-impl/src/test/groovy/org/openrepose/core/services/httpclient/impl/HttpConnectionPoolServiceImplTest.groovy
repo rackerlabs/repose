@@ -221,30 +221,4 @@ class HttpConnectionPoolServiceImplTest {
 
         assertEquals(0, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
     }
-
-    @Test
-    void getMaxConnections() {
-        int maxConnectionsOne = srv.getClient(POOL1_ID).getMaxConnections()
-        int maxConnectionsTwo = srv.getClient(POOL2_ID).getMaxConnections()
-        int maxConnectionsUnk = srv.getClient(POOLU_ID).getMaxConnections()
-        int maxConnectionsNul = srv.getClient(null).getMaxConnections()
-
-        assertEquals(POOL1_MAX_CON, maxConnectionsOne)
-        assertEquals(POOL2_MAX_CON, maxConnectionsTwo)
-        assertEquals(POOL2_MAX_CON, maxConnectionsUnk)
-        assertEquals(POOL2_MAX_CON, maxConnectionsNul)
-    }
-
-    @Test
-    void getSocketTimeouts() {
-        int soTimeoutOne = srv.getClient(POOL1_ID).getSocketTimeout()
-        int soTimeoutTwo = srv.getClient(POOL2_ID).getSocketTimeout()
-        int soTimeoutUnk = srv.getClient(POOLU_ID).getSocketTimeout()
-        int soTimeoutNul = srv.getClient(null).getSocketTimeout()
-
-        assertEquals(POOL1_SO_TIMEOUT, soTimeoutOne)
-        assertEquals(POOL2_SO_TIMEOUT, soTimeoutTwo)
-        assertEquals(POOL2_SO_TIMEOUT, soTimeoutUnk)
-        assertEquals(POOL2_SO_TIMEOUT, soTimeoutNul)
-    }
 }

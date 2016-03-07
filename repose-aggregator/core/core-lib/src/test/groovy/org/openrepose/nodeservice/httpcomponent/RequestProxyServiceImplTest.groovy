@@ -46,10 +46,11 @@ class RequestProxyServiceImplTest extends Specification {
 
     def setup() {
         httpClient = mock(HttpClient)
-        HttpClientContainer httpClientResponse = mock(HttpClientContainer)
-        when(httpClientResponse.getHttpClient()).thenReturn(httpClient)
+        HttpClientContainer httpClientContainer = mock(HttpClientContainer)
+        when(httpClientContainer.getHttpClient()).thenReturn(httpClient)
         HttpClientService httpClientService = mock(HttpClientService)
-        when(httpClientService.getClient(Mockito.any(String))).thenReturn(httpClientResponse)
+        when(httpClientService.getDefaultClient()).thenReturn(httpClientContainer)
+        when(httpClientService.getClient(Mockito.any(String))).thenReturn(httpClientContainer)
         requestProxyService = new RequestProxyServiceImpl(
                 mock(ConfigurationService.class),
                 mock(HealthCheckService.class),
