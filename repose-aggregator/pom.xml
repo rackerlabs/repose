@@ -17,6 +17,10 @@
     </description>
 
     <properties>
+        <scala.major>2</scala.major>
+        <scala.minor>11</scala.minor>
+        <scala.patch>7</scala.patch>
+        <scala.MajDotMin>${scala.major}.${scala.minor}</scala.MajDotMin>
         <org.springframework.version>4.1.4.RELEASE</org.springframework.version>
         <groovy.version>2.1.3</groovy.version>
         <spock.version>0.7-groovy-2.0</spock.version>
@@ -195,7 +199,7 @@
             <!--Akka support-->
             <dependency>
                 <groupId>com.typesafe.akka</groupId>
-                <artifactId>akka-actor_2.10</artifactId>
+                <artifactId>akka-actor_${scala.MajDotMin}</artifactId>
                 <version>${akka.version}</version>
             </dependency>
 
@@ -284,12 +288,12 @@
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-library</artifactId>
-                <version>2.10.3</version>
+                <version>${scala.MajDotMin}.${scala.patch}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.scalatest</groupId>
-                <artifactId>scalatest_2.10</artifactId>
+                <artifactId>scalatest_${scala.MajDotMin}</artifactId>
                 <version>2.2.0</version>
                 <scope>test</scope>
             </dependency>
@@ -297,14 +301,14 @@
             <!-- For Scala Lazy Logging! -->
             <dependency>
                 <groupId>com.typesafe.scala-logging</groupId>
-                <artifactId>scala-logging-slf4j_2.10</artifactId>
+                <artifactId>scala-logging-slf4j_${scala.MajDotMin}</artifactId>
                 <version>2.1.2</version>
             </dependency>
 
             <!-- this gets us the nice play-json support -->
             <dependency>
                 <groupId>com.typesafe.play</groupId>
-                <artifactId>play-json_2.10</artifactId>
+                <artifactId>play-json_${scala.MajDotMin}</artifactId>
                 <version>2.3.4</version>
             </dependency>
 

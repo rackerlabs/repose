@@ -57,7 +57,7 @@
         <!-- Scalatest for testing scala -->
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- MockHttpServletRequest/Response -->

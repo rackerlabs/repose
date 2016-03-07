@@ -42,7 +42,7 @@ Joda Convert                1.7                 org.joda                        
 Joda Time                   2.7                 joda-time                                   Apache License Version 2.0                                              http://joda-time.sourceforge.net/license.html
 SLF4J                       1.7.7               org.slf4j                                   MIT License                                                             http://slf4j.org/license.html
 Saxon                       9.4.0.9             net.sf.saxon                                Mozilla Public License version 2.0                                      http://saxon.sourceforge.net/
-Scala Lang                  2.10.3              org.scala-lang                              Scala Specific License                                                  http://www.scala-lang.org/license.html
+Scala Lang                  2.11.7              org.scala-lang                              Scala Specific License                                                  http://www.scala-lang.org/license.html
 Scopt                       3.2.0               com.github.scopt                            MIT License                                                             https://github.com/scopt/scopt
 Spray JSON                  1.2.6               io.spray                                    Apache License Version 2.0                                              https://github.com/spray/spray-json
 Spring Framework            4.1.4.RELEASE       org.springframework                         Apache License Version 2.0                                              https://github.com/spring-projects/spring-framework
