@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,25 +17,11 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.urinormalization.normalizer;
+package org.openrepose.filters.urinormalization.normalizer
 
-import org.openrepose.commons.utils.http.normal.ParameterFilter;
-import org.openrepose.commons.utils.http.normal.ParameterFilterFactory;
-import org.openrepose.filters.urinormalization.config.HttpUriParameterList;
+import org.openrepose.commons.utils.http.normal.{ParameterFilter, ParameterFilterFactory}
+import org.openrepose.filters.urinormalization.config.HttpUriParameterList
 
-/**
- * @author zinic
- */
-public class MultiInstanceWhiteListFactory implements ParameterFilterFactory {
-
-    private final HttpUriParameterList parameterList;
-
-    public MultiInstanceWhiteListFactory(HttpUriParameterList parameterList) {
-        this.parameterList = parameterList;
-    }
-
-    @Override
-    public ParameterFilter newInstance() {
-        return new MultiInstanceWhiteList(parameterList);
-    }
+class MultiInstanceWhiteListFactory(parameterList: HttpUriParameterList) extends ParameterFilterFactory {
+  def newInstance: ParameterFilter = new MultiInstanceWhiteList(parameterList)
 }
