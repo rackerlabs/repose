@@ -51,7 +51,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/forwardunauthorizedrequests", params)
         repose.start()
         waitUntilReadyToServiceRequests('200')

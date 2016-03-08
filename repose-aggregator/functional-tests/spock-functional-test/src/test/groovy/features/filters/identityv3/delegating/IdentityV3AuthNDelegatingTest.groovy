@@ -49,7 +49,7 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/delegating", params)
         repose.start()
         waitUntilReadyToServiceRequests('200')
