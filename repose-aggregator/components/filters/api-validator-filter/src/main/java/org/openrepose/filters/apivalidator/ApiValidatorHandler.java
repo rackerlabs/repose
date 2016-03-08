@@ -37,26 +37,26 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class ApiValidatorHandler {
-
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandler.class);
     private final List<ValidatorInfo> validators;
     private final ValidatorInfo defaultValidator;
-    private final MetricsService metricsService;
     private Set<String> matchedRoles;
-    private FilterChain chain;
     private boolean multiRoleMatch = false;
     private boolean delegatingMode;
     private MeterByCategorySum mbcsInvalidRequests;
 
-    public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch,
-                               boolean delegatingMode, MetricsService metricsService) {
+    public ApiValidatorHandler(
+            ValidatorInfo defaultValidator,
+            List<ValidatorInfo> validators,
+            boolean multiRoleMatch,
+            boolean delegatingMode,
+            MetricsService metricsService) {
         this.validators = new ArrayList<>(validators.size());
         this.matchedRoles = new HashSet<>();
         this.validators.addAll(validators);
         this.multiRoleMatch = multiRoleMatch;
         this.defaultValidator = defaultValidator;
         this.delegatingMode = delegatingMode;
-        this.metricsService = metricsService;
 
         // TODO replace "api-validator" with filter-id or name-number in sys-model
         if (metricsService != null) {
@@ -65,38 +65,34 @@ public class ApiValidatorHandler {
         }
     }
 
-    public void setFilterChain(FilterChain chain) {
-        this.chain = chain;
-    }
-
     private boolean appendDefaultValidator(List<ValidatorInfo> validatorList) {
         if (defaultValidator != null) {
             if (!multiRoleMatch) {
                 validatorList.add(defaultValidator);
-            }
-
-            if (multiRoleMatch && !validatorList.contains(defaultValidator)) {
+            } else if (!validatorList.contains(defaultValidator)) {
                 validatorList.add(0, defaultValidator);
             }
 
             return true;
         }
+
         return false;
     }
 
-    protected List<ValidatorInfo> getValidatorsForRole(List<String> listRoles) {
-        List<ValidatorInfo> validatorList = new ArrayList<>();
+    protected List<ValidatorInfo> getValidatorsForRoles(List<String> listRoles) {
+        Set<ValidatorInfo> validatorSet = new LinkedHashSet<>();
         Set<String> roles = new HashSet<>(listRoles);
 
         for (ValidatorInfo validator : validators) {
             for (String validatorRoles : validator.getRoles()) {
                 if (roles.contains(validatorRoles)) {
-                    validatorList.add(validator); // TODO Can the same validator be added multiple times?
+                    validatorSet.add(validator);
                     matchedRoles.add(validatorRoles);
                 }
             }
         }
 
+        List<ValidatorInfo> validatorList = new ArrayList<>(validatorSet);
         if (appendDefaultValidator(validatorList)) {
             matchedRoles.addAll(roles);
         }
@@ -112,7 +108,6 @@ public class ApiValidatorHandler {
         return null;
     }
 
-    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
     private void sendMultiMatchErrorResponse(Result result, HttpServletResponse response) {
         try {
             ErrorResult error = getErrorResult(result);
@@ -120,14 +115,13 @@ public class ApiValidatorHandler {
                 response.setStatus(error.code());
                 response.sendError(error.code(), error.message());
             }
-        } catch (Throwable t) {
-            LOG.error("Some error", t);
+        } catch (Exception e) {
+            LOG.error("Some error", e);
             response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         }
     }
 
-    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response) {
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
         HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request);
         List<String> roles = wrappedRequest.getPreferredSplittableHeaders(OpenStackServiceHeader.ROLES.toString());
         if (roles.isEmpty()) {
@@ -138,7 +132,7 @@ public class ApiValidatorHandler {
 
         try {
             matchedRoles.clear();
-            List<ValidatorInfo> matchedValidators = getValidatorsForRole(roles);
+            List<ValidatorInfo> matchedValidators = getValidatorsForRoles(roles);
             if (!matchedValidators.isEmpty()) {
                 for (ValidatorInfo validatorInfo : matchedValidators) {
 
@@ -166,12 +160,10 @@ public class ApiValidatorHandler {
                     }
                 }
             } else {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
-            //TODO: Look back into this to see if we can avoid catching throwable
-        } catch (Throwable t) {
-            LOG.error("Error processing validation", t);
+        } catch (Exception e) {
+            LOG.error("Error processing validation", e);
             response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         }
     }

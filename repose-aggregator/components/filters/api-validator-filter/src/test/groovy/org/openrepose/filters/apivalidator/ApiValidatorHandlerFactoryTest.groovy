@@ -84,7 +84,7 @@ public class ApiValidatorHandlerFactoryTest {
             ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
 
-            List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(roles);
+            List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRoles(roles);
             assertNotNull(validatorsForRole);
 
             for (ValidatorInfo validatorForRole : validatorsForRole) {
@@ -99,7 +99,7 @@ public class ApiValidatorHandlerFactoryTest {
         public void shouldSetDefaultValidator() {
             ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
-            List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(new ArrayList<String>());
+            List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRoles(new ArrayList<String>());
             assertNotNull(validatorsForRole);
             assertEquals("Should get validator for default role", defaultRole, validatorsForRole.get(0).getRoles().get(0));
         }

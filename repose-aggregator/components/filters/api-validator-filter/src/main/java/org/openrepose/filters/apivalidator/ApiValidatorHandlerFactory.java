@@ -57,16 +57,75 @@ public class ApiValidatorHandlerFactory implements UpdateListener<ValidatorConfi
     private boolean multiRoleMatch = false;
     private boolean delegatingMode;
 
-    public ApiValidatorHandlerFactory(ConfigurationService configurationService, String configurationRoot, String config,
-                                      MetricsService metricsService) {
+    public ApiValidatorHandlerFactory(
+            ConfigurationService configurationService,
+            String configurationRoot,
+            String config,
+            MetricsService metricsService) {
         this.configurationService = configurationService;
-        this.wadlListener = new ApiValidatorWadlListener();
         this.configRoot = configurationRoot;
         this.config = config;
         this.metricsService = metricsService;
+        this.wadlListener = new ApiValidatorWadlListener();
     }
 
-    private void unsubscribeAll() {
+    public ApiValidatorHandler buildHandler() {
+        synchronized (configLock) {
+            initialize();
+            if (!initialized) {
+                return null;
+            }
+            return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch, delegatingMode, metricsService);
+        }
+    }
+
+    @Override
+    public void configurationUpdated(ValidatorConfiguration configurationObject) {
+        synchronized (configLock) {
+            validatorConfiguration = configurationObject;
+            unsubscribeAllWadlListeners();
+            initialize();
+            initialized = true;
+        }
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    private void initialize() {
+        synchronized (wadlLock) {
+            if (initialized || validatorConfiguration == null) {
+                return;
+            }
+
+            ValidatorConfigurator validatorConfigurator = new ValidatorConfigurator(validatorConfiguration, configRoot, config);
+
+            multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
+            defaultValidator = validatorConfigurator.getDefaultValidator();
+            validators = validatorConfigurator.getValidators();
+            delegatingMode = validatorConfiguration.getDelegating() != null;
+
+            for (ValidatorInfo validator : validators) {
+                LOG.debug("Adding listener for {} : {}", validator.getName(), validator.getUri());
+                addWadlListener(validator.getUri());
+            }
+
+            initialized = true;
+        }
+    }
+
+    private void addWadlListener(String wadl) {
+        if (wadl == null) {
+            return;
+        }
+        //TODO: what if it's already subscribed? How do we know this?
+        LOG.info("Watching WADL: " + wadl);
+        configurationService.subscribeTo("api-validator", wadl, wadlListener, new GenericResourceConfigurationParser());
+    }
+
+    private void unsubscribeAllWadlListeners() {
         synchronized (wadlLock) {
             initialized = false;
             if (validators == null) {
@@ -93,66 +152,8 @@ public class ApiValidatorHandlerFactory implements UpdateListener<ValidatorConfi
         this.validators = validators;
     }
 
-    private void addListener(String wadl) {
-        if (wadl == null) {
-            return;
-        }
-        //TODO: what if it's already subscribed? How do we know this?
-        //TODO: do we ever unwatch?
-        LOG.info("Watching WADL: " + wadl);
-        configurationService.subscribeTo("api-validator", wadl, wadlListener, new GenericResourceConfigurationParser());
-    }
-
     String getWadlPath(String uri) {
         return new File(configRoot, uri).toURI().toString();
-    }
-
-    private void initialize() {
-        synchronized (wadlLock) {
-            if (initialized || validatorConfiguration == null) {
-                return;
-            }
-
-            ValidatorConfigurator validatorConfigurator = new ValidatorConfigurator(validatorConfiguration, configRoot, config);
-
-            multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
-
-            defaultValidator = validatorConfigurator.getDefaultValidator();
-            validators = validatorConfigurator.getValidators();
-            delegatingMode = validatorConfiguration.getDelegating() != null;
-
-            for (ValidatorInfo validator : validators) {
-                LOG.debug("Adding listener for {} : {}", validator.getName(), validator.getUri());
-                addListener(validator.getUri());
-            }
-
-            initialized = true;
-        }
-    }
-
-    public ApiValidatorHandler buildHandler() {
-        synchronized (configLock) {
-            initialize();
-            if (!initialized) {
-                return null;
-            }
-            return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch, delegatingMode, metricsService);
-        }
-    }
-
-    @Override
-    public void configurationUpdated(ValidatorConfiguration configurationObject) {
-        synchronized (configLock) {
-            validatorConfiguration = configurationObject;
-            unsubscribeAll();
-            initialize();
-            initialized = true;
-        }
-    }
-
-    @Override
-    public boolean isInitialized() {
-        return initialized;
     }
 
     public class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
@@ -176,37 +177,27 @@ public class ApiValidatorHandlerFactory implements UpdateListener<ValidatorConfi
                 if (validators == null) {
                     return;
                 }
-                boolean found = false;
-                boolean loadedWADL = true;
+                boolean validatorForWADLFound = false;
+                boolean allReloadedWADL = true;
 
                 for (ValidatorInfo info : validators) {
                     LOG.debug("Checking config for validator: {}", info.getName());
                     if (info.getUri() != null && getNormalizedPath(info.getUri()).equals(config.name())) {
-                        if (loadedWADL) {
-                            LOG.debug("REINIT validator: {}", info.getName());
-                            loadedWADL = info.reinitValidator();
-                        } else {
-                            LOG.debug("REINIT validator: {}", info.getName());
-                            info.reinitValidator();
-                        }
-                        found = true;
+                        LOG.debug("REINIT validator: {}", info.getName());
+                        allReloadedWADL = info.reinitValidator() && allReloadedWADL;
+                        validatorForWADLFound = true;
                     }
                 }
 
-                if (!found) {
+                if (!validatorForWADLFound) {
                     LOG.debug("Didn't match a particular config, so reinit *all* the validators");
-                    // If we couldn't match the particular config... be safe and clear
-                    // all of the validators
                     for (ValidatorInfo info : validators) {
                         LOG.debug("REINIT valdiator: {}", info.getName());
                         info.reinitValidator();
                     }
                 }
-                if (!loadedWADL) {
-                    isInitialized = false;
-                } else {
-                    isInitialized = true;
-                }
+
+                isInitialized = allReloadedWADL;
             }
         }
 

@@ -92,14 +92,13 @@ public class ApiValidatorHandlerTest {
             validators.add(blowupValidatorInfo);
 
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false, false, null);
-            instance.setFilterChain(chain);
 
             request.setRequestURI("/path/to/resource");
         }
 
         @Test
         public void shouldCallDefaultValidatorWhenNoRoleMatch() {
-            instance.handleRequest(request, response);
+            instance.doFilter(request, response, chain);
             verify(defaultValidator).validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain));
         }
 
@@ -107,7 +106,7 @@ public class ApiValidatorHandlerTest {
         public void shouldCallValidatorForRole() {
             request.addHeader(OpenStackServiceHeader.ROLES.toString(), "junk;q=0.8,role1;q=0.9,bbq;q=0.9,stuff;q=0.7");
 
-            instance.handleRequest(request, response);
+            instance.doFilter(request, response, chain);
             verify(role1Validator).validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain));
         }
 
@@ -115,7 +114,7 @@ public class ApiValidatorHandlerTest {
         public void shouldHandleNullValidators() {
             request.addHeader(OpenStackServiceHeader.ROLES.toString(), "nullValidator");
 
-            instance.handleRequest(request, response);
+            instance.doFilter(request, response, chain);
             verify(nullValidatorInfo).getValidator();
             assertEquals(HttpServletResponse.SC_BAD_GATEWAY, response.getStatus());
         }
@@ -124,7 +123,7 @@ public class ApiValidatorHandlerTest {
         public void shouldHandleExceptionsInValidators() {
             request.addHeader(OpenStackServiceHeader.ROLES.toString(), "blowupValidator");
 
-            instance.handleRequest(request, response);
+            instance.doFilter(request, response, chain);
             verify(blowupValidator).validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain));
             assertEquals(HttpServletResponse.SC_BAD_GATEWAY, response.getStatus());
         }
@@ -138,7 +137,7 @@ public class ApiValidatorHandlerTest {
             validators.add(role2ValidatorInfo);
 
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, false, null);
-            List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRole(roles);
+            List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRoles(roles);
             assertEquals(validatorsForRole.get(0), defaultValidatorInfo);
             assertEquals(validatorsForRole.get(1), role1ValidatorInfo);
         }
@@ -154,7 +153,7 @@ public class ApiValidatorHandlerTest {
 
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, false, null);
 
-            List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRole(roles);
+            List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRoles(roles);
 
             assertEquals(validatorsForRole.get(0), role1ValidatorInfo);
             assertEquals(validatorsForRole.get(1), defaultValidatorInfo);
