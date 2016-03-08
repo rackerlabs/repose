@@ -79,12 +79,13 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
         this.serviceClient = new ServiceClient(connectionPoolId, httpClientService);
         this.configurationService = configurationService;
 
-        configurationService.subscribeTo(HTTP_CONN_POOL_CONFIG_NAME, this, HttpConnectionPoolConfig.class);
-
         Config customConf = ConfigFactory.load();
         Config baseConf = ConfigFactory.defaultReference();
         Config conf = customConf.withFallback(baseConf);
         actorSystem = ActorSystem.create("AuthClientActors", conf);
+
+        configurationService.subscribeTo(HTTP_CONN_POOL_CONFIG_NAME, this, HttpConnectionPoolConfig.class);
+
         quickFutureCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(FUTURE_CACHE_TTL, FUTURE_CACHE_UNIT)
                 .build();
