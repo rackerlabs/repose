@@ -24,7 +24,6 @@ import org.openrepose.commons.config.parser.generic.GenericResourceConfiguration
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
@@ -33,22 +32,21 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class uses the <a href="http://en.wikipedia.org/wiki/Factory_method_pattern">factory pattern</a> to construct
  * a handler from the configuration files.
  * <p/>
- * ApiValidatorWadlListener and ApiValidationConfigurationListener are classes which re-initialize the handler factory
- * when the wadl or configuration files are changed.
+ * This class and ApiValidatorWadlListener are classes which re-initializes this handler factory
+ * when the WADL or configuration files are changed.
  */
-public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ApiValidatorHandler> {
+public class ApiValidatorHandlerFactory implements UpdateListener<ValidatorConfiguration> {
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandlerFactory.class);
     private final ConfigurationService configurationService;
     private final ApiValidatorWadlListener wadlListener;
-    private final Object lock = new Object();
+    private final Object wadlLock = new Object();
+    private final Object configLock = new Object();
     private final String configRoot;
     private final String config;
     private final MetricsService metricsService;
@@ -69,7 +67,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     }
 
     private void unsubscribeAll() {
-        synchronized (lock) {
+        synchronized (wadlLock) {
             initialized = false;
             if (validators == null) {
                 return;
@@ -109,8 +107,8 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         return new File(configRoot, uri).toURI().toString();
     }
 
-    void initialize() {
-        synchronized (lock) {
+    private void initialize() {
+        synchronized (wadlLock) {
             if (initialized || validatorConfiguration == null) {
                 return;
             }
@@ -132,40 +130,29 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         }
     }
 
-    @Override
-    protected ApiValidatorHandler buildHandler() {
-        initialize();
-        if (!initialized || !this.isInitialized()) {
-            return null;
+    public ApiValidatorHandler buildHandler() {
+        synchronized (configLock) {
+            initialize();
+            if (!initialized) {
+                return null;
+            }
+            return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch, delegatingMode, metricsService);
         }
-        return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch, delegatingMode, metricsService);
     }
 
     @Override
-    protected Map<Class, UpdateListener<?>> getListeners() {
-        final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-        ApiValidationConfigurationListener avcl = new ApiValidationConfigurationListener();
-
-        updateListeners.put(ValidatorConfiguration.class, avcl);
-
-        return updateListeners;
-    }
-
-    private class ApiValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
-        private boolean isInitialized = false;
-
-        @Override
-        public void configurationUpdated(ValidatorConfiguration configurationObject) {
+    public void configurationUpdated(ValidatorConfiguration configurationObject) {
+        synchronized (configLock) {
             validatorConfiguration = configurationObject;
             unsubscribeAll();
             initialize();
-            isInitialized = true;
+            initialized = true;
         }
+    }
 
-        @Override
-        public boolean isInitialized() {
-            return isInitialized;
-        }
+    @Override
+    public boolean isInitialized() {
+        return initialized;
     }
 
     public class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
@@ -185,7 +172,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         public void configurationUpdated(ConfigurationResource config) {
             LOG.info("WADL file changed: " + config.name());
 
-            synchronized (lock) {
+            synchronized (wadlLock) {
                 if (validators == null) {
                     return;
                 }
