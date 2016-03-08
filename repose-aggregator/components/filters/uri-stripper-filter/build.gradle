@@ -1,8 +1,9 @@
 dependencies {
     compile project(":repose-aggregator/core/core-service-api")
     compile project(":repose-aggregator/commons/commons-utilities")
-    compile project(":repose-aggregator/core/core-lib") //todo: remove this once the wrapper change has been done
     compile "org.slf4j:slf4j-api"
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"
@@ -10,4 +11,8 @@ dependencies {
     testCompile "junit:junit"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.spockframework:spock-core"
+    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.mockito:mockito-all"
+    testCompile "org.springframework:spring-test"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }
