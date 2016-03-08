@@ -3,10 +3,10 @@ buildscript {
         mavenCentral()
         jcenter()
         maven {
-            url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
+            url "https://plugins.gradle.org/m2/"
         }
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
         }
     }
 
@@ -74,7 +74,7 @@ subprojects {
         description "Runs xml through an xslt transfurm"
         ext.outputDir = "$buildDir/src/generated-xsd"
         //todo: make this work with multiples so i can make these paths better
-        def xsltFile = "$rootDir/repose-aggregator/src/main/resources/xsl/remove-1.1-elements.xsl"
+        def xsltFile = "$rootDir/repose-aggregator/src/config/xsl/remove-1.1-elements.xsl"
         def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
 
         //If they set a property for the jaxbXSLT file override our default
@@ -165,17 +165,17 @@ subprojects {
 
     //todo: remove old location for these files
     checkstyle {
-        configFile = file("$rootDir/repose-aggregator/src/main/resources/styles/checkstyle.xml")
+        configFile = file("$rootDir/repose-aggregator/src/config/styles/checkstyle.xml")
         sourceSets = sourceSets.matching {it.name != 'generated'}
     }
 
     codenarc {
-        configFile = file("$rootDir/repose-aggregator/src/main/resources/styles/codenarc.xml")
+        configFile = file("$rootDir/repose-aggregator/src/config/styles/codenarc.xml")
     }
 
     //todo: write a good one of these plugins, because this is garbage
     scalaStyle {
-        configLocation = "$rootDir/repose-aggregator/src/main/resources/styles/scalastyle_config.xml"
+        configLocation = "$rootDir/repose-aggregator/src/config/styles/scalastyle_config.xml"
         includeTestSourceDirectory = true
         source = "src/main/scala"
         testSource = "src/test/scala"
@@ -185,7 +185,7 @@ subprojects {
     check.dependsOn scalaStyle
 
     license {
-        header file("$rootDir/repose-aggregator/src/main/resources/license/LICENSE.txt")
+        header file("$rootDir/repose-aggregator/src/config/license/LICENSE.txt")
         mapping {
             scala = 'SLASHSTAR_STYLE'
         }
@@ -200,13 +200,13 @@ subprojects {
 
     test {
         jacoco {
-            destinationFile = file("$rootDir/build/jacoco/jacocoTest.exec")
+            destinationFile = file("$rootDir/repose-aggregator/build/jacoco/jacocoTest.exec")
         }
     }
 
     integrationTest {
         jacoco {
-            destinationFile = file("$rootDir/build/jacoco/jacocoIntegrationTest.exec")
+            destinationFile = file("$rootDir/repose-aggregator/build/jacoco/jacocoIntegrationTest.exec")
         }
         systemProperty 'jacocoArguments', jacoco.getAsJvmArg()
     }

@@ -1,4 +1,5 @@
-include 'repose-aggregator/artifacts/cli-utils',
+include 'repose-aggregator',
+        'repose-aggregator/artifacts/cli-utils',
         'repose-aggregator/artifacts/experimental-filter-bundle',
         'repose-aggregator/artifacts/extensions-filter-bundle',
         'repose-aggregator/artifacts/filter-bundle',
