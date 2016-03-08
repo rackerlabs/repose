@@ -38,6 +38,7 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", properties.defaultTemplateParams)
         repose.configurationProvider.applyConfigs(
                 "features/filters/keystonev2/nogroupsendpointsheader",
                 properties.defaultTemplateParams)

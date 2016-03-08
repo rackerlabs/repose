@@ -53,6 +53,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/cacheoffset/common", params)
         repose.configurationProvider.applyConfigs(additionalConfigs, params)
         repose.start()
