@@ -149,7 +149,6 @@ public class ApiValidatorHandler {
                     } else {
                         lastValidatorResult = validator.validate(wrappedRequest, response, chain);
                         isValid = lastValidatorResult.valid();
-                        response.setStatus(response.getStatus());
                         if (isValid) {
                             break;
                         }

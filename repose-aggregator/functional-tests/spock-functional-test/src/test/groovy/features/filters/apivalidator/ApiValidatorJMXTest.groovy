@@ -51,6 +51,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        repose.waitForNon500FromUrl(properties.reposeEndpoint)
     }
 
     static def params
