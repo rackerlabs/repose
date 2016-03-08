@@ -25,16 +25,15 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
-import org.openrepose.commons.utils.http.header.HeaderValue;
-import org.openrepose.commons.utils.http.header.HeaderValueImpl;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
-import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -52,8 +51,8 @@ public class ApiValidatorHandlerTest {
         private Validator role2Validator;
         private ApiValidatorHandler instance;
         private FilterChain chain;
-        private MutableHttpServletRequest request;
-        private MutableHttpServletResponse response;
+        private MockHttpServletRequest request;
+        private MockHttpServletResponse response;
         private ValidatorInfo nullValidatorInfo;
         private ValidatorInfo blowupValidatorInfo;
         private Validator blowupValidator;
@@ -61,8 +60,8 @@ public class ApiValidatorHandlerTest {
         @Before
         public void setup() {
             chain = mock(FilterChain.class);
-            request = mock(MutableHttpServletRequest.class);
-            response = mock(MutableHttpServletResponse.class);
+            request = new MockHttpServletRequest();
+            response = new MockHttpServletResponse();
 
             defaultValidator = mock(Validator.class);
             defaultValidatorInfo = new ValidatorInfo(Arrays.asList("defaultrole"), "defaultwadl", null, null);
@@ -95,53 +94,44 @@ public class ApiValidatorHandlerTest {
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false, false, null);
             instance.setFilterChain(chain);
 
-            when(request.getRequestURI()).thenReturn("/path/to/resource");
-
+            request.setRequestURI("/path/to/resource");
         }
 
         @Test
         public void shouldCallDefaultValidatorWhenNoRoleMatch() {
-
             instance.handleRequest(request, response);
-            verify(defaultValidator).validate(request, response, chain);
+            verify(defaultValidator).validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain));
         }
 
         @Test
         public void shouldCallValidatorForRole() {
-            List<HeaderValue> roles = new ArrayList<HeaderValue>();
-            roles.add(new HeaderValueImpl("junk;q=0.9,role1;q=0.1,stuff;=0.8"));
+            request.addHeader(OpenStackServiceHeader.ROLES.toString(), "junk;q=0.8,role1;q=0.9,bbq;q=0.9,stuff;q=0.7");
 
-            when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
             instance.handleRequest(request, response);
-            verify(role1Validator).validate(request, response, chain);
+            verify(role1Validator).validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain));
         }
 
         @Test
         public void shouldHandleNullValidators() {
-            List<HeaderValue> roles = new ArrayList<HeaderValue>();
-            roles.add(new HeaderValueImpl("nullValidator"));
+            request.addHeader(OpenStackServiceHeader.ROLES.toString(), "nullValidator");
 
-            when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
-            FilterDirector director = instance.handleRequest(request, response);
+            instance.handleRequest(request, response);
             verify(nullValidatorInfo).getValidator();
-            assertEquals(HttpServletResponse.SC_BAD_GATEWAY, director.getResponseStatusCode());
+            assertEquals(HttpServletResponse.SC_BAD_GATEWAY, response.getStatus());
         }
 
         @Test
         public void shouldHandleExceptionsInValidators() {
-            List<HeaderValue> roles = new ArrayList<HeaderValue>();
-            roles.add(new HeaderValueImpl("blowupValidator"));
-            when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
+            request.addHeader(OpenStackServiceHeader.ROLES.toString(), "blowupValidator");
 
-            FilterDirector director = instance.handleRequest(request, response);
-            verify(blowupValidator).validate(request, response, chain);
-            assertEquals(HttpServletResponse.SC_BAD_GATEWAY, director.getResponseStatusCode());
+            instance.handleRequest(request, response);
+            verify(blowupValidator).validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain));
+            assertEquals(HttpServletResponse.SC_BAD_GATEWAY, response.getStatus());
         }
 
         @Test
         public void shouldAddDefaultValidatorAsLeastPriorityWhenMultiMatch() {
-            List<HeaderValue> roles = new ArrayList<HeaderValue>();
-            roles.add(new HeaderValueImpl("role1"));
+            List<String> roles = Collections.singletonList("role1");
 
             List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
             validators.add(role1ValidatorInfo);
@@ -155,10 +145,7 @@ public class ApiValidatorHandlerTest {
 
         @Test
         public void shouldRetainValidatorOrderWhenMultiMatchAndHasDefaultRole() {
-            List<HeaderValue> roles = new ArrayList<HeaderValue>();
-            roles.add(new HeaderValueImpl("role1"));
-            roles.add(new HeaderValueImpl("role2"));
-            roles.add(new HeaderValueImpl("defaultrole"));
+            List<String> roles = Arrays.asList("role1", "role2", "defaultrole");
 
             List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
             validators.add(role1ValidatorInfo);
@@ -173,6 +160,5 @@ public class ApiValidatorHandlerTest {
             assertEquals(validatorsForRole.get(1), defaultValidatorInfo);
             assertEquals(validatorsForRole.get(2), role2ValidatorInfo);
         }
-
     }
 }

@@ -1,7 +1,7 @@
 dependencies {
     compile project(":repose-aggregator/core/core-service-api")
     compile project(":repose-aggregator/commons/commons-utilities")
-    compile project(":repose-aggregator/core/core-lib") //todo: remove this when the wrappers have been brought in
+    compile project(":repose-aggregator/core/core-lib")
     compile "com.rackspace.papi.components.api-checker:checker-core"
     compile "org.slf4j:slf4j-api"
     compile "org.springframework:spring-beans"
@@ -13,4 +13,6 @@ dependencies {
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.mockito:mockito-all"
+    testCompile "org.springframework:spring-test"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }

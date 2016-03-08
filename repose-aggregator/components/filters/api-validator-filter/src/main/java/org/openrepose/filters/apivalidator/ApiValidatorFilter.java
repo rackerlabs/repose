@@ -21,7 +21,6 @@ package org.openrepose.filters.apivalidator;
 
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
 import org.openrepose.core.filter.FilterConfigHelper;
-import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.spring.ReposeSpringProperties;
@@ -32,6 +31,8 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
 
@@ -39,44 +40,52 @@ import java.net.URL;
 public class ApiValidatorFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorFilter.class);
     private static final String DEFAULT_CONFIG = "validator.cfg.xml";
+    private static final String SCHEMA_FILE_NAME = "/META-INF/schema/config/validator-configuration.xsd";
+
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
-    private String config;
+    private String configFileName;
     private ApiValidatorHandlerFactory handlerFactory;
     private String configurationRoot;
 
     @Inject
-    public ApiValidatorFilter(ConfigurationService configurationService,
-                              MetricsService metricsService,
-                              @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configurationRoot) {
+    public ApiValidatorFilter(
+            ConfigurationService configurationService,
+            MetricsService metricsService,
+            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configurationRoot) {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
         this.configurationRoot = configurationRoot;
     }
 
     @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        LOG.trace("API Validator filter initializing...");
+        configFileName = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
+
+        LOG.info("Initializing API Validator filter using config " + configFileName);
+        handlerFactory = new ApiValidatorHandlerFactory(configurationService, configurationRoot, configFileName, metricsService);
+        URL xsdURL = getClass().getResource(SCHEMA_FILE_NAME);
+        configurationService.subscribeTo(filterConfig.getFilterName(), configFileName, xsdURL, handlerFactory, ValidatorConfiguration.class);
+
+        LOG.trace("API Validator filter initialized");
+    }
+
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        ApiValidatorHandler handler = handlerFactory.newHandler();
-        if (handler != null) {
-            handler.setFilterChain(chain);
+        ApiValidatorHandler handler = handlerFactory.buildHandler();
+        if (handler == null) {
+            LOG.error("API Validator filter has not yet initialized... Please check your configuration files and your artifacts directory.");
+            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
-            LOG.error("Unable to build API validator handler");
+            handler.setFilterChain(chain);
+            handler.handleRequest((HttpServletRequest) request, (HttpServletResponse) response);
         }
-        new FilterLogicHandlerDelegate(request, response, chain).doFilter(handler);
     }
 
     @Override
     public void destroy() {
-        configurationService.unsubscribeFrom(config, handlerFactory);
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
-        LOG.info("Initializing filter using config " + config);
-        handlerFactory = new ApiValidatorHandlerFactory(configurationService, configurationRoot, config, metricsService);
-        URL xsdURL = getClass().getResource("/META-INF/schema/config/validator-configuration.xsd");
-        configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, ValidatorConfiguration.class);
+        configurationService.unsubscribeFrom(configFileName, handlerFactory);
     }
 }

@@ -25,8 +25,6 @@ import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser
 import org.openrepose.commons.config.resource.ConfigurationResource
-import org.openrepose.commons.utils.http.header.HeaderValue
-import org.openrepose.commons.utils.http.header.HeaderValueImpl
 import org.openrepose.components.apivalidator.servlet.config.DelegatingType
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem
@@ -50,7 +48,7 @@ public class ApiValidatorHandlerFactoryTest {
         private final String defaultRole = "defaultRole";
         private ConfigurationService configService;
         private ApiValidatorHandlerFactory instance;
-        private List<HeaderValue> roles;
+        private List<String> roles;
         private ValidatorConfiguration config;
 
         @Before
@@ -77,8 +75,7 @@ public class ApiValidatorHandlerFactoryTest {
 
             instance.configurationUpdated(config);
 
-            roles = new ArrayList<HeaderValue>();
-            roles.add(new HeaderValueImpl(role));
+            roles = [role];
 
         }
 
@@ -102,7 +99,7 @@ public class ApiValidatorHandlerFactoryTest {
         public void shouldSetDefaultValidator() {
             ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
-            List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(new ArrayList<HeaderValue>());
+            List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(new ArrayList<String>());
             assertNotNull(validatorsForRole);
             assertEquals("Should get validator for default role", defaultRole, validatorsForRole.get(0).getRoles().get(0));
         }
