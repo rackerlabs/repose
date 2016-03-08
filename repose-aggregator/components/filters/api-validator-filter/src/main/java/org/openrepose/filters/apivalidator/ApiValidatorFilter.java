@@ -75,12 +75,12 @@ public class ApiValidatorFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         ApiValidatorHandler handler = handlerFactory.buildHandler();
+
         if (handler == null) {
             LOG.error("API Validator filter has not yet initialized... Please check your configuration files and your artifacts directory.");
             ((HttpServletResponse) response).sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
-            handler.setFilterChain(chain);
-            handler.handleRequest((HttpServletRequest) request, (HttpServletResponse) response);
+            handler.doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
         }
     }
 
