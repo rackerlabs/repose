@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>filters-support</artifactId>
-        <version>7.3.3.0-SNAPSHOT</version>
+        <version>7.3.3.0</version>
     </parent>
 
     <name>Repose Components - Content Type Stripper</name>

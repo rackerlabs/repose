@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>profile-support</artifactId>
-        <version>7.3.3.0-SNAPSHOT</version>
+        <version>7.3.3.0</version>
     </parent>
 
     <name>Repose - External Library Support</name>
