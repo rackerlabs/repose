@@ -47,6 +47,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
+        repose.configurationProvider.applyConfigs("features/filters/identitybasicauth", params);
         repose.configurationProvider.applyConfigs("features/filters/identitybasicauth/delegating", params);
 
         repose.start()
