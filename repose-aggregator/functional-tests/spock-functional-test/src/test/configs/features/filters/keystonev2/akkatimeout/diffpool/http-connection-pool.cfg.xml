@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
     <pool id="default"
-          default="false"
+          default="true"
           http.conn-manager.max-total="200"
           http.conn-manager.max-per-route="20"
           http.socket.timeout="30000"
@@ -13,7 +13,7 @@
           http.tcp.nodelay="true"
           keepalive.timeout="0"/>
     <pool id="keystone-v2-pool"
-          default="true"
+          default="false"
           http.conn-manager.max-total="200"
           http.conn-manager.max-per-route="20"
           http.socket.timeout="60000"
