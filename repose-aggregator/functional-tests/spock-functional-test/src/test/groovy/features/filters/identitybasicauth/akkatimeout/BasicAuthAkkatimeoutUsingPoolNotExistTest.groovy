@@ -33,7 +33,7 @@ import javax.ws.rs.core.HttpHeaders
 
 /**
  * Created by jennyvo on 11/9/15.
- *  using xsd default socket and http time out
+ *  when identity set pool id not match any pool in config, it's using default pool whatever set as default
  * Update on 01/21/16
  *  - Replace client-auth-n with keystone-v2 filter
  */
@@ -108,7 +108,7 @@ class BasicAuthAkkatimeoutUsingPoolNotExistTest extends ReposeValveTest {
         ]
         "Delay 19 sec"
         fakeIdentityService.with {
-            sleeptime = 32000
+            sleeptime = 42000
         }
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -119,7 +119,7 @@ class BasicAuthAkkatimeoutUsingPoolNotExistTest extends ReposeValveTest {
         mc.handlings.size() == 0
         sleep(1000)
         // should get this error or something else but not something with [41000 milliseconds]
-        reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .41000 milliseconds.").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }
