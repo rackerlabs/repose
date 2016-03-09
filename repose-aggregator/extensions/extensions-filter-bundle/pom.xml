@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>extensions-support</artifactId>
-        <version>7.3.3.0-SNAPSHOT</version>
+        <version>8.0.0.0-SNAPSHOT</version>
     </parent>
 
     <name>Repose Components - Extensions EAR Bundle</name>

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>components-support</artifactId>
-        <version>7.3.3.0-SNAPSHOT</version>
+        <version>8.0.0.0-SNAPSHOT</version>
     </parent>
 
     <name>filters-support</name>
