@@ -96,6 +96,7 @@ class StartWithBadConfigsTest extends Specification {
         "keystone-v2"             | _
         "dist-datastore"          | _
         "uri-user"                | _
+        "header-identity"         | _
         "header-id-mapping"       | _
         "ip-user"                 | _
         "validator"               | _
