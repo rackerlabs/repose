@@ -1,4 +1,7 @@
 dependencies {
+    xjc "org.jvnet.jaxb2_commons:jaxb2-default-value"
+    xjc "org.jvnet.jaxb2_commons:jaxb2-fluent-api"
+
     compile project(":repose-aggregator/commons/commons-configuration")
     compile project(":repose-aggregator/core/core-lib")
     compile project(":repose-aggregator/core/core-service-api")
@@ -14,13 +17,10 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.scalatest:scalatest_2.10"
     testCompile "org.springframework:spring-test"
-
-    xjc "org.jvnet.jaxb2_commons:jaxb2-default-value"
-    xjc "org.jvnet.jaxb2_commons:jaxb2-fluent-api"
 }
 
 jaxb {
     xjc {
-        args = ["-Xfluent-api"]
+        args = ["-Xdefault-value", "-Xfluent-api"]
     }
 }
