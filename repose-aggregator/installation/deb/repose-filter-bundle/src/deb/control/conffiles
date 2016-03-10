@@ -8,6 +8,7 @@
 /etc/repose/versioning.cfg.xml
 /etc/repose/destination-router.cfg.xml
 /etc/repose/header-id-mapping.cfg.xml
+-/etc/repose/header-identity.cfg.xml
 /etc/repose/ip-user.cfg.xml
 /etc/repose/uri-identity.cfg.xml
 /etc/repose/uri-stripper.cfg.xml
