@@ -115,8 +115,9 @@ public class ApiValidatorHandler {
                 response.setStatus(error.code());
                 response.sendError(error.code(), error.message());
             }
-        } catch (Exception e) {
-            LOG.error("Some error", e);
+        } catch (Throwable t) {
+            // API Checker throws exceptions that extend Throwable
+            LOG.error("Some error", t);
             response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         }
     }
@@ -162,8 +163,9 @@ public class ApiValidatorHandler {
             } else {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
-        } catch (Exception e) {
-            LOG.error("Error processing validation", e);
+        } catch (Throwable t) {
+            // API Checker throws exceptions that extend Throwable
+            LOG.error("Error processing validation", t);
             response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         }
     }
