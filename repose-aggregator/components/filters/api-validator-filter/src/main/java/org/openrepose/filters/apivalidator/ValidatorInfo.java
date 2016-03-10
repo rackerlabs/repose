@@ -93,8 +93,10 @@ public class ValidatorInfo {
                 LOG.debug("Calling the validator creation method for {}", name);
                 validator = Validator.apply(name + System.currentTimeMillis(), getSource(), config);
                 return true;
-            } catch (Exception ex) {
-                LOG.warn("Error loading validator for WADL: " + uri, ex);
+            } catch (Throwable t) {
+                // we need to be able to catch WADLException which extends Throwable, and in its infinite wisdom, the
+                // Java compiler doesn't let us catch it directly, so we have to catch Throwable.
+                LOG.warn("Error loading validator for WADL: " + uri, t);
                 return false;
             }
         }
