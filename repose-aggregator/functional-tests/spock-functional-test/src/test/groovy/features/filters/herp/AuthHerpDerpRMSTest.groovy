@@ -55,7 +55,6 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
-
     }
 
     def cleanupSpec() {

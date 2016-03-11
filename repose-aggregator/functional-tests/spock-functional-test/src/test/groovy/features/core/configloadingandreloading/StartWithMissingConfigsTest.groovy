@@ -67,6 +67,7 @@ class StartWithMissingConfigsTest extends Specification {
 
         // set the common configs, but not the component-specific configs
         reposeConfigProvider.cleanConfigDirectory()
+        reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
 
         // start repose

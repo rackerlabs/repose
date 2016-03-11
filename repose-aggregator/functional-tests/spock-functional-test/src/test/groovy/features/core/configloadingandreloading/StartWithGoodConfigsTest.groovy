@@ -72,6 +72,7 @@ class StartWithGoodConfigsTest extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
+        reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
 
@@ -95,19 +96,19 @@ class StartWithGoodConfigsTest extends Specification {
 
 
         where:
-        componentLabel            | expectedResponseCode
-        "system-model"            | 200
-        "container"               | 200
-        "response-messaging"      | 200
-        "rate-limiting"           | 200
-        "versioning"              | 200
-        "translation"             | 200
-        "keystone-v2"             | 200
-        "dist-datastore"          | 200
-        "uri-user"                | 200
-        "header-id-mapping"       | 200
-        "ip-user"                 | 200
-        "validator"               | 200
+        componentLabel       | expectedResponseCode
+        "system-model"       | 200
+        "container"          | 200
+        "response-messaging" | 200
+        "rate-limiting"      | 200
+        "versioning"         | 200
+        "translation"        | 200
+        "keystone-v2"        | 200
+        "dist-datastore"     | 200
+        "uri-user"           | 200
+        "header-id-mapping"  | 200
+        "ip-user"            | 200
+        "validator"          | 200
     }
 
     def cleanup() {

@@ -2,6 +2,11 @@
 
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <delegating quality="0.6"/>
+    <cache>
+        <timeouts>
+            <token>-1</token>
+        </timeouts>
+    </cache>
     <identity-service
             username="admin_username"
             password="password"

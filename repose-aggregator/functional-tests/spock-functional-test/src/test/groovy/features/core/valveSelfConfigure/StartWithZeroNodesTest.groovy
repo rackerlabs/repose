@@ -60,7 +60,7 @@ class StartWithZeroNodesTest extends Specification {
         ]
 
         reposeConfigProvider.cleanConfigDirectory()
-
+        reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/zero-nodes", params)
