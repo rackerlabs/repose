@@ -198,6 +198,7 @@ subprojects {
         sourceSets = sourceSets.matching {it.name != 'generated'}
     }
 
+    //todo: for some reason jacoco freaks when we do clean and build together
     jacoco {
         toolVersion = "0.7.6.201602180812"
     }
