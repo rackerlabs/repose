@@ -43,6 +43,7 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-databind"
     compile "com.google.guava:guava"
     compile "com.typesafe:config"
+    compile "javax.ws.rs:javax.ws.rs-api"
 
     provided "javax.servlet:javax.servlet-api"
 
