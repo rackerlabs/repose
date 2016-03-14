@@ -31,7 +31,7 @@ import spock.lang.Unroll
  */
 @Category(Slow.class)
 class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
-    String intrumentedHandler = '\"com.rackspace.com.papi.components.checker.handler\":*'
+    String intrumentedHandler = 'com.rackspace.com.papi.components.checker:*'
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -64,6 +64,7 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
         i.e. 'GET' method only be available to access by a:observer and a:admin role
         Also with enable-api-coverage set to false there should be NO paths logged to the api-coverage-logger.
     */
+
     @Unroll("enableapicoverage false:headers=#headers")
     def "when enable-api-coverage is false, validate count at state level"() {
         given:
@@ -75,22 +76,27 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/a", method: method, headers: headers)
 
-        def getBeanObj = repose.jmx.quickMBeanNames(intrumentedHandler)
-
-        def validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
-        def checkstrscope = 'scope=\"raxRolesEnabled_'
+        def getBeanObj = repose.jmx.getMBeanNames(intrumentedHandler)
         def check = false
+        def handler = 0
 
-        def getMBeanObj = repose.jmx.getMBeanNames(validatorBeanDomain)
+        getBeanObj.each {
+            println it.toString()
+            def scope = it.getKeyProperty('scope')
+            def name = it.getKeyProperty('name')
+            def type = it.getKeyProperty('type')
+            if (scope.contains("raxRolesEnabled") && name == "checker") {
+                check = true
+            }
 
-        def strIt = getMBeanObj[0].toString()
-        //println(strIt)
-        if (strIt.contains(checkstrscope))
-            check = true
+            if (type.contains("Handler")) {
+                handler = handler + 1
+            }
+        }
 
         then:
         messageChain.getReceivedResponse().getCode().equals(responseCode)
-        getBeanObj.size() == 0      // not using handler
+        handler == 0      // not using handler
         check == true
         reposeLogSearch.searchByString("\\{\"steps\":\\[").size() == 0
 
