@@ -40,7 +40,7 @@ class ApiValidatorJMXTestSwitchMBeanQuickTest extends ReposeValveTest {
     @Shared
     String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"ApiValidator\",scope=\""
 
-    String validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
+    String validatorBeanDomain = 'com.rackspace.com.papi.components.checker:*'
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
 
     def setupSpec() {
