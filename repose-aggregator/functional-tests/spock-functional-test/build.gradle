@@ -125,6 +125,12 @@ if(!hasProperty('runAll')) {
     }
 }
 
+test {
+    useJUnit {
+        excludeCategories "framework.category.Release" //todo: we have one test annotated this way, and i don't think it ever runs, maybe jenny explicitly invokes it post release?
+    }
+}
+
 license {
     excludes(["**/credentials.xsd", "**/atom.xsd", "**/xml.xsd"])
 }
