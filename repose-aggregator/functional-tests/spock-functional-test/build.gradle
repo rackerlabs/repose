@@ -24,6 +24,11 @@ dependencies {
     testBundle project(path: ":repose-aggregator/artifacts/filter-bundle", configuration: "archives")
     testBundle project(path: ":repose-aggregator/artifacts/extensions-filter-bundle", configuration: "archives")
     testBundle project(path: ":repose-aggregator/artifacts/experimental-filter-bundle", configuration: "archives")
+    testBundle "org.openrepose.filters.core.test:classloader-bundle-one"
+    testBundle "org.openrepose.filters.core.test:classloader-bundle-two"
+    testBundle "org.openrepose.filters.core.test:classloader-bundle-three"
+    testBundle "org.openrepose.filters.core.test:classloader-bundle-four"
+    testBundle "org.openrepose.filters.core.test:classloader-bundle-five"
 
 //    testCompile "xerces:xerces-xsd11:2.12.0-rax"
 //    testCompile "org.slf4j:slf4j-api:1.7.7"
