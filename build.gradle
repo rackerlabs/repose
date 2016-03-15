@@ -14,7 +14,7 @@ buildscript {
         classpath 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0'
         classpath 'com.netflix.nebula:nebula-dependency-recommender:3.1.0'
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
-        classpath 'org.openrepose:gradle-jaxb-plugin:2.1.0'
+        classpath 'org.openrepose:gradle-jaxb-plugin:2.2.1'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
         classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:0.8.2' //todo: this will need to be changed when we switch to scala 2.11
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
