@@ -79,6 +79,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("\"currentFilter\":\"add-header\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"keystone-v2\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"openstack-identity-v3\"").size() > 0
+        reposeLogSearch.searchByString("\"currentFilter\":\"header-identity\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"ip-user\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"header-normalization\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"header-translation\"").size() > 0
@@ -100,6 +101,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("null-add-header").size() == 0
         reposeLogSearch.searchByString("null-keystone-v2").size() == 0
         reposeLogSearch.searchByString("null-openstack-identity-v3").size() == 0
+        reposeLogSearch.searchByString("null-header-identity").size() == 0
         reposeLogSearch.searchByString("null-ip-user").size() == 0
         reposeLogSearch.searchByString("null-header-normalization").size() == 0
         reposeLogSearch.searchByString("null-header-translation").size() == 0

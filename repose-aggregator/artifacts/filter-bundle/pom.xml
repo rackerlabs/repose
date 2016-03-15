@@ -38,6 +38,11 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
+            <artifactId>header-identity</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrepose</groupId>
             <artifactId>header-id-mapping-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
