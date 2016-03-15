@@ -54,12 +54,7 @@ public class ValidatorInfo {
         this.config = config;
         this.wadl = null;
         this.systemId = null;
-
-        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && !roles.isEmpty()) {
-            this.name = getNameFromRoles(roles);
-        } else {
-            this.name = name;
-        }
+        this.name = (StringUtilities.isEmpty(name) && !roles.isEmpty()) ? getNameFromRoles(roles) : name;
     }
 
     public ValidatorInfo(List<String> roles, Node wadl, String systemId, Config config, String name) {
@@ -68,11 +63,7 @@ public class ValidatorInfo {
         this.wadl = wadl;
         this.systemId = systemId;
         this.uri = null;
-        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && !roles.isEmpty()) {
-            this.name = getNameFromRoles(roles);
-        } else {
-            this.name = name;
-        }
+        this.name = (StringUtilities.isEmpty(name) && !roles.isEmpty()) ? getNameFromRoles(roles) : name;
     }
 
     private Source getSource() {
@@ -87,7 +78,6 @@ public class ValidatorInfo {
         throw new IllegalArgumentException("WADL Source Not Specified");
     }
 
-    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
     public boolean initValidator() {
         LOG.debug("CALL TO ValidatorInfo#initValidator. Validator is {}. From thread {}", validator, Thread.currentThread().getName());
 
@@ -103,8 +93,10 @@ public class ValidatorInfo {
                 LOG.debug("Calling the validator creation method for {}", name);
                 validator = Validator.apply(name + System.currentTimeMillis(), getSource(), config);
                 return true;
-            } catch (Throwable ex) {
-                LOG.warn("Error loading validator for WADL: " + uri, ex);
+            } catch (Throwable t) {
+                // we need to be able to catch WADLException which extends Throwable, and in its infinite wisdom, the
+                // Java compiler doesn't let us catch it directly, so we have to catch Throwable.
+                LOG.warn("Error loading validator for WADL: " + uri, t);
                 return false;
             }
         }

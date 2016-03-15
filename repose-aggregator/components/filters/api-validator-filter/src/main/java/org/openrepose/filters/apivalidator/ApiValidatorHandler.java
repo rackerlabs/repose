@@ -23,14 +23,7 @@ import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.step.results.ErrorResult;
 import com.rackspace.com.papi.components.checker.step.results.Result;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
-import org.openrepose.commons.utils.http.header.HeaderValue;
-import org.openrepose.commons.utils.http.header.HeaderValueImpl;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.core.filter.logic.FilterAction;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.filters.ApiValidator;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategorySum;
@@ -40,33 +33,30 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class ApiValidatorHandler extends AbstractFilterLogicHandler {
-
+public class ApiValidatorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandler.class);
     private final List<ValidatorInfo> validators;
     private final ValidatorInfo defaultValidator;
-    private final MetricsService metricsService;
     private Set<String> matchedRoles;
-    private FilterChain chain;
     private boolean multiRoleMatch = false;
     private boolean delegatingMode;
     private MeterByCategorySum mbcsInvalidRequests;
 
-    public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch,
-                               boolean delegatingMode, MetricsService metricsService) {
+    public ApiValidatorHandler(
+            ValidatorInfo defaultValidator,
+            List<ValidatorInfo> validators,
+            boolean multiRoleMatch,
+            boolean delegatingMode,
+            MetricsService metricsService) {
         this.validators = new ArrayList<>(validators.size());
         this.matchedRoles = new HashSet<>();
         this.validators.addAll(validators);
         this.multiRoleMatch = multiRoleMatch;
         this.defaultValidator = defaultValidator;
         this.delegatingMode = delegatingMode;
-        this.metricsService = metricsService;
 
         // TODO replace "api-validator" with filter-id or name-number in sys-model
         if (metricsService != null) {
@@ -75,52 +65,34 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         }
     }
 
-    public void setFilterChain(FilterChain chain) {
-        this.chain = chain;
-    }
-
-    private Set<String> getRolesAsSet(List<? extends HeaderValue> listRoles) {
-        Set<String> roles = new HashSet<>();
-
-        for (HeaderValue headerValue : listRoles) {
-            String[] split = headerValue.getValue().split(",");
-            for (String role : split) {
-                String[] value = role.split(";");
-                roles.add(value[0]);
-            }
-        }
-
-        return roles;
-    }
-
     private boolean appendDefaultValidator(List<ValidatorInfo> validatorList) {
         if (defaultValidator != null) {
             if (!multiRoleMatch) {
                 validatorList.add(defaultValidator);
-            }
-
-            if (multiRoleMatch && !validatorList.contains(defaultValidator)) {
+            } else if (!validatorList.contains(defaultValidator)) {
                 validatorList.add(0, defaultValidator);
             }
 
             return true;
         }
+
         return false;
     }
 
-    protected List<ValidatorInfo> getValidatorsForRole(List<? extends HeaderValue> listRoles) {
-        List<ValidatorInfo> validatorList = new ArrayList<>();
-        Set<String> roles = getRolesAsSet(listRoles);
+    protected List<ValidatorInfo> getValidatorsForRoles(List<String> listRoles) {
+        Set<ValidatorInfo> validatorSet = new LinkedHashSet<>();
+        Set<String> roles = new HashSet<>(listRoles);
 
         for (ValidatorInfo validator : validators) {
             for (String validatorRoles : validator.getRoles()) {
                 if (roles.contains(validatorRoles)) {
-                    validatorList.add(validator); // TODO Can the same validator be added multiple times?
+                    validatorSet.add(validator);
                     matchedRoles.add(validatorRoles);
                 }
             }
         }
 
+        List<ValidatorInfo> validatorList = new ArrayList<>(validatorSet);
         if (appendDefaultValidator(validatorList)) {
             matchedRoles.addAll(roles);
         }
@@ -136,46 +108,42 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         return null;
     }
 
-    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
-    private void sendMultiMatchErrorResponse(Result result, final FilterDirector myDirector, HttpServletResponse response) {
+    private void sendMultiMatchErrorResponse(Result result, HttpServletResponse response) {
         try {
             ErrorResult error = getErrorResult(result);
             if (error != null && !delegatingMode) {
-                myDirector.setResponseStatusCode(error.code());
+                response.setStatus(error.code());
                 response.sendError(error.code(), error.message());
             }
         } catch (Throwable t) {
-
+            // API Checker throws exceptions that extend Throwable
             LOG.error("Some error", t);
-            myDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
+            response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         }
     }
 
-    // Until API Validator is updated to not throw the generic Throwable, this method will need to catch it.
-    @Override
-    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-        final FilterDirector myDirector = new FilterDirectorImpl();
-        myDirector.setFilterAction(FilterAction.PASS);
-        MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
-        List<HeaderValue> roles = mutableRequest.getPreferredHeaderValues(OpenStackServiceHeader.ROLES.toString(), new HeaderValueImpl(""));
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
+        HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request);
+        List<String> roles = wrappedRequest.getPreferredSplittableHeaders(OpenStackServiceHeader.ROLES.toString());
+        if (roles.isEmpty()) {
+            roles = Collections.singletonList("");
+        }
         Result lastValidatorResult = null;
         boolean isValid = false;
-        myDirector.setFilterAction(FilterAction.RETURN);
 
         try {
             matchedRoles.clear();
-            List<ValidatorInfo> matchedValidators = getValidatorsForRole(roles);
+            List<ValidatorInfo> matchedValidators = getValidatorsForRoles(roles);
             if (!matchedValidators.isEmpty()) {
                 for (ValidatorInfo validatorInfo : matchedValidators) {
 
                     Validator validator = validatorInfo.getValidator();
                     if (validator == null) {
-                        LOG.warn("Validator not available for request:", validatorInfo.getUri());
-                        myDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
+                        LOG.warn("Validator not available for request: {}", validatorInfo.getUri());
+                        response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
                     } else {
-                        lastValidatorResult = validator.validate(request, response, chain);
+                        lastValidatorResult = validator.validate(wrappedRequest, response, chain);
                         isValid = lastValidatorResult.valid();
-                        myDirector.setResponseStatusCode(response.getStatus());
                         if (isValid) {
                             break;
                         }
@@ -189,19 +157,16 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
                         }
                     }
                     if (multiRoleMatch) {
-                        sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
+                        sendMultiMatchErrorResponse(lastValidatorResult, response);
                     }
                 }
             } else {
-                myDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN);
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
-            //TODO: Look back into this to see if we can avoid catching throwable
         } catch (Throwable t) {
+            // API Checker throws exceptions that extend Throwable
             LOG.error("Error processing validation", t);
-            myDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
+            response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         }
-
-        return myDirector;
     }
 }
