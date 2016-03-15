@@ -127,8 +127,8 @@ test {
         if(!project.hasProperty('runAll')) {
             includeCategories "framework.category.Smoke"
         } else {
-            excludeCategories "framework.category.Release"
-            //todo: we have one test annotated this way, and i don't think it ever runs, maybe jenny explicitly invokes it post release?
+            excludeCategories "framework.category.Release", "framework.category.Bug"
+            //todo: we have one test annotated with release, and i don't think it ever runs, maybe jenny explicitly invokes it post release?
         }
     }
 }
