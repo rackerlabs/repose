@@ -57,6 +57,7 @@ The configuration files to be tested are:
   - openstack-authorization.cfg.xml
   - dist-datastore.cfg.xml
   - uri-user.cfg.xml
+  - header-identity.cfg.xml
   - header-id-mapping.cfg.xml
   - ip-user.cfg.xml
   - validator.cfg.xml
@@ -182,6 +183,14 @@ Test cases for B-29898
     | uri-user.cfg.xml                | Good to Bad    | 200             |
     +---------------------------------+----------------+-----------------+
     | uri-user.cfg.xml                | Bad to Good    | 200             |
+    +---------------------------------+----------------+-----------------+
+    | header-identity.cfg.xml         | Start Good     | 200             |
+    +---------------------------------+----------------+-----------------+
+    | header-identity.cfg.xml         | Start Bad      | 503             |
+    +---------------------------------+----------------+-----------------+
+    | header-identity.cfg.xml         | Good to Bad    | 200             |
+    +---------------------------------+----------------+-----------------+
+    | header-identity.cfg.xml         | Bad to Good    | 200             |
     +---------------------------------+----------------+-----------------+
     | header-id-mapping.cfg.xml       | Start Good     | 200             |
     +---------------------------------+----------------+-----------------+
