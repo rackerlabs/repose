@@ -78,7 +78,7 @@ public class ServiceClient {
 
     }
 
-    private HttpClient getClientWithBasicAuth() throws ServiceClientException {
+    private HttpClient getClientWithBasicAuth() {
         HttpClientContainer clientResponse = null;
 
         try {
@@ -135,8 +135,6 @@ public class ServiceClient {
             }
 
             return new ServiceClientResponse(httpResponse.getStatusLine().getStatusCode(), httpResponse.getAllHeaders(), stream);
-        } catch (ServiceClientException ex) {
-            LOG.error("Failed to obtain an HTTP default client connection", ex);
         } catch (IOException ex) {
             LOG.error("Error executing request", ex);
         } finally {

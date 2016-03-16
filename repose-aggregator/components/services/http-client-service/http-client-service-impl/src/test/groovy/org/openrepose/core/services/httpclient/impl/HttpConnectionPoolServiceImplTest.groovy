@@ -51,7 +51,6 @@ class HttpConnectionPoolServiceImplTest {
     String POOLU_ID = "POOLU_ID"
     // Retrieve the defaults defined in the XSD.
     PoolType poolType = new PoolType()
-    Integer POOLU_SO_TIMEOUT = poolType.getHttpSocketTimeout()
     ConfigurationService configurationService = mock(ConfigurationService)
     HealthCheckService healthCheckService = mock(HealthCheckService)
 
@@ -83,7 +82,6 @@ class HttpConnectionPoolServiceImplTest {
 
     @After
     void destroy() {
-        srv = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService)
         srv.destroy()
     }
 
