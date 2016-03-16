@@ -45,6 +45,8 @@ public class ClusterWrapper {
         }
     }
 
+    // todo: this is buggy for long-running instances of Repose
+    //       the int currentIndex will wrap after serving (a ton of) requests
     public Node getNode(int index) {
         return nodeCount > 0 && index >= 0 ? nodes.get(index % nodeCount) : null;
     }
