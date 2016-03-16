@@ -38,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>header-identity</artifactId>
+            <artifactId>header-user-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

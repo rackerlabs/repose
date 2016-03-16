@@ -12,7 +12,7 @@
         <filters>
             <!--
             <filter name="ip-user"/>
-            <filter name="header-identity"/>
+            <filter name="header-user"/>
             <filter name="header-id-mapping"/>
             <filter name="rate-limiting"/>
             -->

@@ -25,8 +25,8 @@
         <filter-class>org.openrepose.filters.defaultrouter.routing.RoutingFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>header-identity</filter-name>
-        <filter-class>org.openrepose.filters.headeridentity.HeaderIdentityFilter</filter-class>
+        <filter-name>header-user</filter-name>
+        <filter-class>org.openrepose.filters.headeruser.HeaderUserFilter</filter-class>
     </filter>
     <filter>
         <filter-name>header-id-mapping</filter-name>

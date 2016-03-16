@@ -117,7 +117,7 @@ class TransitionGoodToBadConfigsTest extends Specification {
         "keystone-v2"             | 200
         "dist-datastore"          | 200
         "uri-user"                | 200
-        "header-identity"         | 200
+        "header-user"             | 200
         "header-id-mapping"       | 200
         "ip-user"                 | 200
         "validator"               | 200
