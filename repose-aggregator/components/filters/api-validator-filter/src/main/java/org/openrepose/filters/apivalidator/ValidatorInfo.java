@@ -151,7 +151,7 @@ public class ValidatorInfo {
     String getNameFromRoles(List<String> roles) {
         StringBuilder name = new StringBuilder();
         for (String role : roles) {
-            name.append(role + "_");
+            name.append(role.replace(':', '-') + "_");
         }
         return name.toString();
     }
