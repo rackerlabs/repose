@@ -20,11 +20,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>core-lib</artifactId>
-        </dependency>
-
         <!-- servlet filter stuff -->
         <dependency>
             <groupId>org.openrepose</groupId>
