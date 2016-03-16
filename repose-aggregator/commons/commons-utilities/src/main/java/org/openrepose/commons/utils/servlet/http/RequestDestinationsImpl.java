@@ -19,6 +19,8 @@
  */
 package org.openrepose.commons.utils.servlet.http;
 
+import org.openrepose.commons.utils.http.CommonRequestAttributes;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +28,6 @@ import java.util.List;
 
 public class RequestDestinationsImpl implements RequestDestinations {
 
-    private static final String DESTINATION_ATTRIBUTE = "repose.destinations";
     private final List<RouteDestination> destinations;
 
     public RequestDestinationsImpl(HttpServletRequest request) {
@@ -34,10 +35,10 @@ public class RequestDestinationsImpl implements RequestDestinations {
     }
 
     private List<RouteDestination> determineDestinations(HttpServletRequest request) {
-        List<RouteDestination> result = (List<RouteDestination>) request.getAttribute(DESTINATION_ATTRIBUTE);
+        List<RouteDestination> result = (List<RouteDestination>) request.getAttribute(CommonRequestAttributes.DESTINATIONS);
         if (result == null) {
             result = new ArrayList<RouteDestination>();
-            request.setAttribute(DESTINATION_ATTRIBUTE, result);
+            request.setAttribute(CommonRequestAttributes.DESTINATIONS, result);
         }
 
         return result;

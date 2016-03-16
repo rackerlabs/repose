@@ -20,8 +20,8 @@
 package org.openrepose.powerfilter;
 
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.CommonRequestAttributes;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.RequestTimeout;
 import org.openrepose.core.ResponseCode;
@@ -31,8 +31,8 @@ import org.openrepose.core.filter.routing.DestinationLocationBuilder;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategory;
-import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategorySum;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.core.systemmodel.DestinationCluster;
 import org.openrepose.core.systemmodel.DestinationEndpoint;
@@ -48,7 +48,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -112,14 +115,21 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     @Override
-    public void route(MutableHttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
+    public void route(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
         DestinationLocation location = null;
 
+        @SuppressWarnings("unchecked")
+        List<RouteDestination> reqDestinations = Optional.ofNullable(servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS))
+                .map(o -> (List<RouteDestination>) o)
+                .orElseGet(Collections::emptyList);
+
         if (!StringUtilities.isBlank(defaultDestination)) {
-            servletRequest.addDestination(defaultDestination, servletRequest.getRequestURI(), -1);
+            reqDestinations.add(new RouteDestination(defaultDestination, servletRequest.getRequestURI(), -1));
         }
 
-        RouteDestination routingDestination = servletRequest.getDestination();
+        Collections.sort(reqDestinations);
+
+        RouteDestination routingDestination = reqDestinations.isEmpty() ? null : reqDestinations.get(reqDestinations.size() - 1);
         String rootPath = "";
 
         Destination configDestinationElement = null;
