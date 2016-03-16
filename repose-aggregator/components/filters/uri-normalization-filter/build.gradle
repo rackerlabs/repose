@@ -1,5 +1,4 @@
 dependencies {
-    xjc "org.jvnet.jaxb2_commons:jaxb2-default-value"
     xjc "org.jvnet.jaxb2_commons:jaxb2-fluent-api"
     xjc "org.jvnet.jaxb2_commons:jaxb2-basics"
 
@@ -24,6 +23,6 @@ dependencies {
 
 jaxb {
     xjc {
-        args = ["-Xdefault-value", "-Xfluent-api", "-XtoString"]
+        args = ["-Xfluent-api", "-XtoString"]
     }
 }
