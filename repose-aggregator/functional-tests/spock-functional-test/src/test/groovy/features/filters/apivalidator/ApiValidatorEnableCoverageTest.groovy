@@ -30,7 +30,7 @@ import spock.lang.Unroll
  */
 
 class ApiValidatorEnableCoverageTest extends ReposeValveTest {
-    String intrumentedHandler = 'com.rackspace.com.papi.components.checker:*'
+    String intrumentedHandler = 'com.rackspace.com.papi.components.checker:type=handler*,*'
     def static s0_count = 0
     def S0 = 0
     def SA = 0
@@ -69,7 +69,6 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
         i.e. 'GET' method only be available to access by a:observer and a:admin role
         Also with enable-api-coverage set to true there should be paths logged to the api-coverage-logger.
     */
-
     @Unroll("enableapicoverage:headers=#headers,expected S0_a_admin:#S0_a_admin_count, SA:#SA_count")
     def "when enable-api-coverage is true, validate count at state level"() {
         given:
@@ -85,18 +84,13 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
 
         def getBeanObj = repose.jmx.getMBeanNames(intrumentedHandler)
         getBeanObj.each {
-            def strIt = it.toString()
             def name = it.getKeyProperty('name')
             if (name == "S0") {
-                S0 = repose.jmx.getMBeanAttribute(strIt, "Count")
-            }
-
-            if (name == "SA") {
-                SA = repose.jmx.getMBeanAttribute(strIt, "Count")
-            }
-
-            if (name == "S0_a_admin") {
-                S0_a_admin = repose.jmx.getMBeanAttribute(strIt, "Count")
+                S0 = repose.jmx.getMBeanAttribute(it.toString(), "Count")
+            } else if (name == "SA") {
+                SA = repose.jmx.getMBeanAttribute(it.toString(), "Count")
+            } else if (name == "S0_a_admin") {
+                S0_a_admin = repose.jmx.getMBeanAttribute(it.toString(), "Count")
             }
         }
 
@@ -135,10 +129,10 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
         "DELETE" | ["x-roles": "raxRolesEnabled, observer, creator"]   | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
         "DELETE" | null                                                | "403"        | null                                                                                              | 10       | 8//this will not effect config change
         // PUT method is not available in wadl should expect to get 405 to whoever rax-role
-        "PUT" | ["x-roles": "raxRolesEnabled"] | "404" | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}" | 10 | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:bar"] | "404" | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}" | 10 | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:observer, a:bar"] | "405" | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e3MF_a_observer\"\\]\\}" | 10 | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"] | "404" | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}" | 10 | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:admin"] | "405" | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e3MF_a_admin\"\\]\\}" | 10 | 10
+        "PUT"    | ["x-roles": "raxRolesEnabled"]                      | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar"]               | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e3MF_a_observer\"\\]\\}"      | 10       | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]    | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e3MF_a_admin\"\\]\\}"               | 10       | 10
     }
 }
