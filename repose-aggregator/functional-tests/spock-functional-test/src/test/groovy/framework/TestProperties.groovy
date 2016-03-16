@@ -107,7 +107,6 @@ class TestProperties {
             atomPort2 = PortFinder.Singleton.getNextOpenPort()
             phonehomePort = PortFinder.Singleton.getNextOpenPort()
             targetHostname = properties.getProperty("target.hostname")
-            rawConfigDirectory = properties.getProperty("repose.raw.config.directory")
             reposeVersion = properties.getProperty("repose.version")
 
             def reposeVersionMatcher = reposeVersion =~ /\.?(\d)/

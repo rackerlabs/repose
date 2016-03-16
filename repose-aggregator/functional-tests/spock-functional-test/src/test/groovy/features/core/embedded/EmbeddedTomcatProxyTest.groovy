@@ -42,7 +42,7 @@ class EmbeddedTomcatProxyTest extends Specification {
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()
-        def configTemplates = properties.getRawConfigDirectory()
+        def configTemplates = properties.getConfigTemplates()
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
         def mocksWar = properties.getMocksWar()

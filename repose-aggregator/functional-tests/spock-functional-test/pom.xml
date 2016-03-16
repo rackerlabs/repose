@@ -23,7 +23,7 @@
         <!-- this is the version of artifacts to use from the published repose-support project -->
         <test.artifact.version>3.0</test.artifact.version>
 
-        <repose.container>valve</repose.container>
+        <reposeContainer>valve</reposeContainer>
 
         <project.set.dir>${project.basedir}/../..</project.set.dir>
         <project.support.dir>${project.basedir}/../../../repose-support</project.support.dir>
@@ -71,27 +71,26 @@
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
 
-        <target.hostname>localhost</target.hostname>
+        <targetHostname>localhost</targetHostname>
 
-        <repose.home>${project.build.directory}/repose_home</repose.home>
-        <repose.config.directory>${repose.home}/configs</repose.config.directory>
-        <repose.raw.config.directory>${project.basedir}/src/test/configs</repose.raw.config.directory>
-        <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
-        <repose.lint.jar.location>${repose.home}/${repose.lint.jar}</repose.lint.jar.location>
-        <repose.config.templates>${project.build.directory}/configs</repose.config.templates>
+        <projectBuildDirectory>${project.build.directory}</projectBuildDirectory>
+        <reposeHome>${projectBuildDirectory}/repose_home</reposeHome>
+        <valveLocation>${reposeHome}/${repose.valve.jar}</valveLocation>
+        <lintLocation>${reposeHome}/${repose.lint.jar}</lintLocation>
+        <configTemplates>${projectBuildDirectory}/configs</configTemplates>
 
         <repose.root.war.directory>${project.set.dir}/artifacts/web-application/target</repose.root.war.directory>
         <repose.root.war>ROOT.war</repose.root.war>
         <glassfish.jar.dir>${project.set.dir}/functional-tests/test-containers/test-container-glassfish/target</glassfish.jar.dir>
         <glassfish.jar>test-container-glassfish-${project.version}-jar-with-dependencies.jar</glassfish.jar>
-        <repose.glassfish.jar.location>${repose.home}/${glassfish.jar}</repose.glassfish.jar.location>
+        <glassfishLocation>${reposeHome}/${glassfish.jar}</glassfishLocation>
         <tomcat.jar.dir>${project.set.dir}/functional-tests/test-containers/test-container-tomcat/target</tomcat.jar.dir>
         <tomcat.jar>test-container-tomcat-${project.version}-jar-with-dependencies.jar</tomcat.jar>
-        <repose.tomcat.jar.location>${repose.home}/${tomcat.jar}</repose.tomcat.jar.location>
-        <repose.root.war.location>${repose.home}/${repose.root.war}</repose.root.war.location>
+        <tomcatLocation>${reposeHome}/${tomcat.jar}</tomcatLocation>
+        <warLocation>${reposeHome}/${repose.root.war}</warLocation>
         <mocks.war.dir>${project.set.dir}/functional-tests/mocks-servlet/target</mocks.war.dir>
         <mocks.war>mocks-servlet-${project.version}.war</mocks.war>
-        <mocks.war.location>${repose.home}/${mocks.war}</mocks.war.location>
+        <mocksLocation>${reposeHome}/${mocks.war}</mocksLocation>
     </properties>
 
 
@@ -168,7 +167,7 @@
         <profile>
             <id>glassfish</id>
             <properties>
-                <repose.container>glassfish</repose.container>
+                <reposeContainer>glassfish</reposeContainer>
             </properties>
         </profile>
 
@@ -402,13 +401,13 @@
             <testResource>
                 <directory>${project.basedir}/src/test/resources</directory>
                 <filtering>true</filtering>
-                <targetPath>${project.build.directory}/test-classes</targetPath>
+                <targetPath>${projectBuildDirectory}/test-classes</targetPath>
             </testResource>
 
             <testResource>
                 <directory>${project.basedir}/src/test/configs</directory>
                 <filtering>false</filtering>
-                <targetPath>${project.build.directory}/configs</targetPath>
+                <targetPath>${projectBuildDirectory}/configs</targetPath>
             </testResource>
 
             <testResource>
@@ -416,14 +415,14 @@
                 <includes>
                     <include>${filter.ear}</include>
                 </includes>
-                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
+                <targetPath>${projectBuildDirectory}/repose_home/artifacts</targetPath>
             </testResource>
             <testResource>
                 <directory>${filter.extensions.dir}</directory>
                 <includes>
                     <include>${filter.extensions.ear}</include>
                 </includes>
-                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
+                <targetPath>${projectBuildDirectory}/repose_home/artifacts</targetPath>
             </testResource>
 
             <testResource>
@@ -431,7 +430,7 @@
                 <includes>
                     <include>${filter.experimental.ear}</include>
                 </includes>
-                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
+                <targetPath>${projectBuildDirectory}/repose_home/artifacts</targetPath>
             </testResource>
 
             <testResource>
@@ -439,42 +438,42 @@
                 <includes>
                     <include>${repose.valve.jar}</include>
                 </includes>
-                <targetPath>${project.build.directory}/repose_home</targetPath>
+                <targetPath>${projectBuildDirectory}/repose_home</targetPath>
             </testResource>
             <testResource>
                     <directory>${repose.lint.dir}</directory>
                 <includes>
                     <include>${repose.lint.jar}</include>
                 </includes>
-                <targetPath>${project.build.directory}/repose_home</targetPath>
+                <targetPath>${projectBuildDirectory}/repose_home</targetPath>
             </testResource>
             <testResource>
                 <directory>${glassfish.jar.dir}</directory>
                 <includes>
                     <include>${glassfish.jar}</include>
                 </includes>
-                <targetPath>${project.build.directory}/repose_home</targetPath>
+                <targetPath>${projectBuildDirectory}/repose_home</targetPath>
             </testResource>
             <testResource>
                 <directory>${tomcat.jar.dir}</directory>
                 <includes>
                     <include>${tomcat.jar}</include>
                 </includes>
-                <targetPath>${project.build.directory}/repose_home</targetPath>
+                <targetPath>${projectBuildDirectory}/repose_home</targetPath>
             </testResource>
             <testResource>
                 <directory>${repose.root.war.directory}</directory>
                 <includes>
                     <include>${repose.root.war}</include>
                 </includes>
-                <targetPath>${project.build.directory}/repose_home</targetPath>
+                <targetPath>${projectBuildDirectory}/repose_home</targetPath>
             </testResource>
             <testResource>
                 <directory>${mocks.war.dir}</directory>
                 <includes>
                     <include>${mocks.war}</include>
                 </includes>
-                <targetPath>${project.build.directory}/repose_home</targetPath>
+                <targetPath>${projectBuildDirectory}/repose_home</targetPath>
             </testResource>
         </testResources>
 
@@ -523,7 +522,7 @@
                                     <type>ear</type>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.directory}/repose_home/artifacts</outputDirectory>
+                            <outputDirectory>${projectBuildDirectory}/repose_home/artifacts</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>

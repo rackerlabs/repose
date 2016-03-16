@@ -76,7 +76,7 @@ class DistDatastoreServiceContainerTest extends Specification {
         datastoreEndpoint2 = "http://localhost:${dataStorePort2}"
 
         def configDirectory = properties.getConfigDirectory()
-        def configTemplates = properties.getRawConfigDirectory()
+        def configTemplates = properties.getConfigTemplates()
 
         params = properties.getDefaultTemplateParams()
         params += [

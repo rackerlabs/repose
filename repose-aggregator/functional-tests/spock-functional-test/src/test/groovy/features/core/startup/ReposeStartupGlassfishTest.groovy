@@ -46,7 +46,7 @@ class ReposeStartupGlassfishTest extends Specification {
     def setupSpec() {
         def params = properties.getDefaultTemplateParams()
         def configDirectory = properties.getConfigDirectory()
-        def configTemplates = properties.getRawConfigDirectory()
+        def configTemplates = properties.getConfigTemplates()
         def logFile = properties.logFile
 
         rootWar = properties.getReposeRootWar()
