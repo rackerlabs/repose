@@ -20,7 +20,7 @@
 package org.openrepose.filters.headeruser
 
 import java.util.concurrent.atomic.AtomicReference
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -59,6 +59,12 @@ class HeaderUserFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
+    if (!isInitialized) {
+      logger.warn("Header User filter has not yet initialized.")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+      return
+    }
+
     val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
     configuredHeaders.get flatMap { configuredHeader =>
