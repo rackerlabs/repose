@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse
 
 /**
  * Created by jennyvo on 11/9/15.
- *  Verify wrong pool id in the keystone config will take default from xsd
+ *  Verify wrong pool id in the keystone config it will use default pool
  */
 @Category(Slow)
 class DiffPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {

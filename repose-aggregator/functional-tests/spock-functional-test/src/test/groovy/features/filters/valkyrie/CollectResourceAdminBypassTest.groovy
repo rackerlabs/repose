@@ -96,6 +96,7 @@ class CollectResourceAdminBypassTest extends ReposeValveTest {
         params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/collectionresources/adminbypass", params);
 

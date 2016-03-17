@@ -21,24 +21,25 @@
 package org.openrepose.core.services.serviceclient.akka.impl
 
 import org.junit.runner.RunWith
-import org.mockito.AdditionalMatchers._
-import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.openrepose.core.services.httpclient.HttpClientService
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Matchers, FunSpec}
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class AkkaServiceClientFactoryImplTest extends FunSpec with Matchers with MockitoSugar {
 
   val httpClientService = mock[HttpClientService]
+  val httpClientContainer = mock[HttpClientContainer]
+  val configurationService = mock[ConfigurationService]
 
   describe("the factory will return an instance when") {
     List(null, "", "test_conn_pool").foreach { connectionPoolId =>
       it(s"the specified connection pool id is $connectionPoolId") {
-        when(httpClientService.getMaxConnections(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(20)
-        val akkaServiceClientFactoryImpl = new AkkaServiceClientFactoryImpl(httpClientService)
+        when(httpClientService.getClient(connectionPoolId)).thenReturn(httpClientContainer)
+        val akkaServiceClientFactoryImpl = new AkkaServiceClientFactoryImpl(httpClientService, configurationService)
 
         val akkaServiceClient = akkaServiceClientFactoryImpl.newAkkaServiceClient(connectionPoolId)
 
@@ -47,8 +48,8 @@ class AkkaServiceClientFactoryImplTest extends FunSpec with Matchers with Mockit
     }
 
     it("the default method with no connection pool id is called") {
-      when(httpClientService.getMaxConnections(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(20)
-      val akkaServiceClientFactoryImpl = new AkkaServiceClientFactoryImpl(httpClientService)
+      when(httpClientService.getClient(null)).thenReturn(httpClientContainer)
+      val akkaServiceClientFactoryImpl = new AkkaServiceClientFactoryImpl(httpClientService, configurationService)
 
       val akkaServiceClient = akkaServiceClientFactoryImpl.newAkkaServiceClient()
 

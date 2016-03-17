@@ -49,6 +49,7 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/delegating", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/delegating/apivalidator", params)
         repose.start()

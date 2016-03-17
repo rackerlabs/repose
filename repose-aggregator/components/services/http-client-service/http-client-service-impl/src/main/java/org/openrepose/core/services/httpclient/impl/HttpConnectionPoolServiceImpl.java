@@ -21,7 +21,6 @@ package org.openrepose.core.services.httpclient.impl;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.pool.PoolStats;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
@@ -30,8 +29,7 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
-import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
-import org.openrepose.core.services.httpclient.HttpClientResponse;
+import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.slf4j.Logger;
 
@@ -39,7 +37,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,55 +49,42 @@ import static org.openrepose.core.services.httpclient.impl.HttpConnectionPoolPro
 public class HttpConnectionPoolServiceImpl implements HttpClientService {
 
     public static final String DEFAULT_CONFIG_NAME = "http-connection-pool.cfg.xml";
-    private static final String DEFAULT_POOL_ID = "DEFAULT_POOL";
+
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpConnectionPoolServiceImpl.class);
-    private static final String httpConnectionPoolServiceReport = "HttpConnectionPoolServiceReport";
-    private static PoolType DEFAULT_POOL = new PoolType();
+    private static final String HTTP_CONNECTION_POOL_SERVICE_REPORT = "HttpConnectionPoolServiceReport";
+
     private final ConfigurationService configurationService;
     private final HttpClientUserManager httpClientUserManager;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private final ConfigurationListener configurationListener;
-    private Map<String, HttpClient> poolMap;
+
+    private boolean initialized = false;
     private String defaultClientId;
     private ClientDecommissionManager decommissionManager;
+    private Map<String, HttpClient> poolMap;
 
     @Inject
     public HttpConnectionPoolServiceImpl(
             ConfigurationService configurationService,
-            HealthCheckService healthCheckService
-    ) {
+            HealthCheckService healthCheckService) {
+        LOG.debug("Creating New HTTP Connection Pool Service");
+
         this.configurationService = configurationService;
         this.healthCheckServiceProxy = healthCheckService.register();
-        LOG.debug("Creating New HTTP Connection Pool Service");
-        poolMap = new HashMap<>();
-        httpClientUserManager = new HttpClientUserManager();
-
-        configurationListener = new ConfigurationListener();
-        decommissionManager = new ClientDecommissionManager(httpClientUserManager);
-
+        this.poolMap = new HashMap<>();
+        this.httpClientUserManager = new HttpClientUserManager();
+        this.configurationListener = new ConfigurationListener();
+        this.decommissionManager = new ClientDecommissionManager(httpClientUserManager);
     }
 
     @PostConstruct
     public void init() {
         LOG.debug("Initializing HttpConnectionPoolService");
+
         decommissionManager.startThread();
-
-        //Set up the configuration listener
-
-        healthCheckServiceProxy.reportIssue(httpConnectionPoolServiceReport, "Http Client Service Configuration Error", Severity.BROKEN);
+        healthCheckServiceProxy.reportIssue(HTTP_CONNECTION_POOL_SERVICE_REPORT, "Http Client Service Configuration Error", Severity.BROKEN);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/http-connection-pool.xsd");
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, configurationListener, HttpConnectionPoolConfig.class);
-
-        // The Http Connection Pool config is optional so in the case where the configuration listener doesn't mark it iniitalized
-        // and the file doesn't exist, this means that the Http Connection Pool service will load its own default configuration
-        // and the initial health check error should be cleared.
-        try {
-            if (!configurationListener.isInitialized() && !configurationService.getResourceResolver().resolve(DEFAULT_CONFIG_NAME).exists()) {
-                healthCheckServiceProxy.resolveIssue(httpConnectionPoolServiceReport);
-            }
-        } catch (IOException io) {
-            LOG.error("Error attempting to search for {}", DEFAULT_CONFIG_NAME, io);
-        }
     }
 
     @PreDestroy
@@ -110,29 +94,23 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     }
 
     @Override
-    public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
+    public HttpClientContainer getDefaultClient() {
+        return getClient(null);
+    }
 
-        if (poolMap.isEmpty()) {
-            defaultClientId = DEFAULT_POOL_ID;
-            HttpClient httpClient = clientGenerator(DEFAULT_POOL);
-            poolMap.put(defaultClientId, httpClient);
-        }
-
-        if (clientId != null && !clientId.isEmpty() && !isAvailable(clientId)) {
-            HttpClient httpClient = clientGenerator(DEFAULT_POOL);
-            poolMap.put(clientId, httpClient);
-        }
+    @Override
+    public HttpClientContainer getClient(String clientId) {
+        verifyInitialized();
 
         final HttpClient requestedClient;
 
-        if (clientId == null || clientId.isEmpty()) {
+        if (clientId == null) {
+            requestedClient = poolMap.get(defaultClientId);
+        } else if (!isAvailable(clientId)) {
+            LOG.warn("Pool " + clientId + " not available -- returning the default pool");
             requestedClient = poolMap.get(defaultClientId);
         } else {
-            if (isAvailable(clientId)) {
-                requestedClient = poolMap.get(clientId);
-            } else {
-                throw new HttpClientNotFoundException("Pool " + clientId + "not available");
-            }
+            requestedClient = poolMap.get(clientId);
         }
 
         String clientInstanceId = requestedClient.getParams().getParameter(CLIENT_INSTANCE_ID).toString();
@@ -141,19 +119,46 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
         PoolStats poolStats = ((PoolingClientConnectionManager) requestedClient.getConnectionManager()).getTotalStats();
         LOG.trace("Client requested, pool currently leased: {}, available: {}, pending: {}, max: {}", poolStats.getLeased(), poolStats.getAvailable(), poolStats.getPending(), poolStats.getMax());
 
-        return new HttpClientResponseImpl(requestedClient, clientId, clientInstanceId, userId);
+        return new HttpClientContainerImpl(requestedClient,
+                clientInstanceId,
+                userId);
     }
 
     @Override
-    public void releaseClient(HttpClientResponse httpClientResponse) {
-        String clientInstanceId = httpClientResponse.getClientInstanceId();
-        String userId = httpClientResponse.getUserId();
+    public void releaseClient(HttpClientContainer httpClientContainer) {
+        verifyInitialized();
+
+        String clientInstanceId = httpClientContainer.getClientInstanceId();
+        String userId = httpClientContainer.getUserId();
 
         httpClientUserManager.removeUser(clientInstanceId, userId);
     }
 
+    @Override
+    public boolean isAvailable(String clientId) {
+        verifyInitialized();
+
+        return poolMap.containsKey(clientId);
+    }
+
+    @Override
+    public Set<String> getAvailableClients() {
+        verifyInitialized();
+
+        return poolMap.keySet();
+    }
+
+    @Override
+    public void shutdown() {
+        LOG.info("Shutting down HTTP connection pools");
+        for (HttpClient client : poolMap.values()) {
+            client.getConnectionManager().shutdown();
+        }
+        decommissionManager.stopThread();
+    }
+
     public void configure(HttpConnectionPoolConfig config) {
-        HashMap<String, HttpClient> newPoolMap = new HashMap<String, HttpClient>();
+        HashMap<String, HttpClient> newPoolMap = new HashMap<>();
 
         for (PoolType poolType : config.getPool()) {
             if (poolType.isDefault()) {
@@ -169,44 +174,9 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
         poolMap = newPoolMap;
     }
 
-    @Override
-    public boolean isAvailable(String clientId) {
-        return poolMap.containsKey(clientId);
-    }
-
-    @Override
-    public Set<String> getAvailableClients() {
-        return poolMap.keySet();
-    }
-
-    @Override
-    public void shutdown() {
-        LOG.info("Shutting down HTTP connection pools");
-        for (HttpClient client : poolMap.values()) {
-            client.getConnectionManager().shutdown();
-        }
-        decommissionManager.stopThread();
-    }
-
-    @Override
-    public int getMaxConnections(String clientId) {
-        if (poolMap.containsKey(clientId)) {
-            return ((PoolingClientConnectionManager) poolMap.get(clientId).getConnectionManager()).getMaxTotal();
-        } else if (poolMap.containsKey(defaultClientId)) {
-            return ((PoolingClientConnectionManager) poolMap.get(defaultClientId).getConnectionManager()).getMaxTotal();
-        } else {
-            return DEFAULT_POOL.getHttpConnManagerMaxTotal();
-        }
-    }
-
-    @Override
-    public int getSocketTimeout(String clientId) {
-        if (poolMap.containsKey(clientId)) {
-            return poolMap.get(clientId).getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
-        } else if (poolMap.containsKey(defaultClientId)) {
-            return poolMap.get(defaultClientId).getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
-        } else {
-            return DEFAULT_POOL.getHttpSocketTimeout();
+    private void verifyInitialized() {
+        if (!initialized) {
+            throw new IllegalStateException("The HttpConnectionPoolService has not yet been initialized");
         }
     }
 
@@ -215,14 +185,11 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     }
 
     private class ConfigurationListener implements UpdateListener<HttpConnectionPoolConfig> {
-
-        private boolean initialized = false;
-
         @Override
         public void configurationUpdated(HttpConnectionPoolConfig poolConfig) {
             configure(poolConfig);
+            healthCheckServiceProxy.resolveIssue(HTTP_CONNECTION_POOL_SERVICE_REPORT);
             initialized = true;
-            healthCheckServiceProxy.resolveIssue(httpConnectionPoolServiceReport);
         }
 
         @Override
@@ -230,5 +197,4 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
             return initialized;
         }
     }
-
 }

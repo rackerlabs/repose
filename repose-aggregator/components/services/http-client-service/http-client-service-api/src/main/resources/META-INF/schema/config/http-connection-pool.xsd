@@ -20,17 +20,19 @@
   -->
 
 
-<xs:schema xmlns:cp="http://docs.openrepose.org/repose/http-connection-pool/v1.0" xmlns:xerces="http://xerces.apache.org"
+<xs:schema xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0"
            attributeFormDefault="unqualified"
            elementFormDefault="qualified"
            targetNamespace="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
 
+    <xs:element name="http-connection-pools" type="HttpConnectionPoolConfig"/>
 
-    <!-- Enumeration and SimpleType definitions -->
+    <!-- Type definitions -->
     <xs:simpleType name="PositiveInt">
         <xs:restriction base="xs:int">
             <xs:minInclusive value="0"/>
@@ -43,24 +45,21 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <!-- Configuration Schema Definitions -->
-    <xs:element name="http-connection-pools" type="cp:HttpConnectionPoolConfig"/>
-
     <xs:complexType name="HttpConnectionPoolConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Connection Pool Management settings.</html:p>
                 <html:p>
                     Please refer to
-                    <html:a href="http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html">Apache
-                        HttpComponents Connection Management
+                    <html:a href="http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html">
+                        Apache HttpComponents Connection Management
                     </html:a>
                 </html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element type="cp:poolType" name="pool" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="pool" type="PoolType" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
@@ -69,16 +68,13 @@
                    saxon:message="Pools must have unique ids" xpathDefaultNamespace="##targetNamespace"/>
 
         <xs:assert vc:minVersion="1.1"
-                   test="count(cp:pool[xs:boolean(@default)=true()]) = 1"
+                   test="count(pool[xs:boolean(@default)=true()]) = 1"
                    xerces:message="One and only one default pool must be defined"
                    saxon:message="One and only one default pool must be defined"/>
-
     </xs:complexType>
 
-
-    <xs:complexType name="poolType">
-
-        <xs:attribute name="http.conn-manager.max-total" type="cp:PositiveInt" use="optional" default="400">
+    <xs:complexType name="PoolType">
+        <xs:attribute name="http.conn-manager.max-total" type="PositiveInt" use="optional" default="400">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -88,7 +84,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="http.conn-manager.max-per-route" type="cp:PositiveInt" use="optional"
+
+        <xs:attribute name="http.conn-manager.max-per-route" type="PositiveInt" use="optional"
                       default="200">
             <xs:annotation>
                 <xs:documentation>
@@ -99,7 +96,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="http.socket.timeout" type="cp:PositiveInt" use="optional" default="30000">
+
+        <xs:attribute name="http.socket.timeout" type="PositiveInt" use="optional" default="30000">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -113,7 +111,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="http.socket.buffer-size" type="cp:PositiveInt" use="optional" default="8192">
+        <xs:attribute name="http.socket.buffer-size" type="PositiveInt" use="optional" default="8192">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -123,7 +121,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="http.connection.timeout" type="cp:PositiveInt" use="optional" default="30000">
+
+        <xs:attribute name="http.connection.timeout" type="PositiveInt" use="optional" default="30000">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -134,7 +133,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="http.connection.max-line-length" type="cp:PositiveInt" use="optional"
+
+        <xs:attribute name="http.connection.max-line-length" type="PositiveInt" use="optional"
                       default="8192">
             <xs:annotation>
                 <xs:documentation>
@@ -146,7 +146,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="http.connection.max-header-count" type="cp:PositiveInt" use="optional"
+
+        <xs:attribute name="http.connection.max-header-count" type="PositiveInt" use="optional"
                       default="100">
             <xs:annotation>
                 <xs:documentation>
@@ -159,7 +160,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="http.connection.max-status-line-garbage" type="cp:PositiveInt" use="optional" default="100">
+
+        <xs:attribute name="http.connection.max-status-line-garbage" type="PositiveInt" use="optional" default="100">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -173,6 +175,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
         <xs:attribute name="http.tcp.nodelay" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
@@ -187,7 +190,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="keepalive.timeout" type="cp:PositiveInt" use="optional" default="0">
+        <xs:attribute name="keepalive.timeout" type="PositiveInt" use="optional" default="0">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Some HTTP servers use a non-standard Keep-Alive header to communicate to the client the
@@ -220,6 +223,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
         <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
@@ -242,17 +246,13 @@
                         actual content length through reading the ServletInputStream. This will cause some performance
                         degradation as request body is no longer always streamed through.
                     </html:p>
-
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
 
         <xs:assert vc:minVersion="1.1"
                    test="(@http.conn-manager.max-per-route) &lt;= (@http.conn-manager.max-total)"
                    xerces:message="Max connections per route must be less than or equal to total max connections"
                    saxon:message="Max connections per route must be less than or equal to total max connections"/>
-
     </xs:complexType>
-
 </xs:schema>

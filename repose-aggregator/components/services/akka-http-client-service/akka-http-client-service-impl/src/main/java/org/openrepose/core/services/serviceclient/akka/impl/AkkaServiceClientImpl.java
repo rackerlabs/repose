@@ -21,15 +21,22 @@ package org.openrepose.core.services.serviceclient.akka.impl;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
-import akka.routing.RoundRobinRouter;
+import akka.routing.Broadcast;
+import akka.routing.RoundRobinPool;
 import akka.util.Timeout;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.openrepose.commons.config.manager.UpdateFailedException;
+import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
+import org.openrepose.core.service.httpclient.config.PoolType;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
@@ -46,35 +53,47 @@ import java.util.concurrent.TimeUnit;
 import static akka.pattern.Patterns.ask;
 import static akka.routing.ConsistentHashingRouter.ConsistentHashable;
 
-public class AkkaServiceClientImpl implements AkkaServiceClient {
+public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<HttpConnectionPoolConfig> {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaServiceClientImpl.class);
     private static final long FUTURE_CACHE_TTL = 500;
     private static final TimeUnit FUTURE_CACHE_UNIT = TimeUnit.MILLISECONDS;
     private static final int CONNECTION_TIMEOUT_BUFFER_MILLIS = 1000;
+    private static final String HTTP_CONN_POOL_CONFIG_NAME = "http-connection-pool.cfg.xml";
+
+    private final String connectionPoolId;
     private final ServiceClient serviceClient;
+    private final ConfigurationService configurationService;
     private final Cache<Object, Future> quickFutureCache;
+
+    private boolean initialized = false;
+    private int numberOfActors;
+    private int socketTimeout;
     private ActorSystem actorSystem;
     private ActorRef tokenActorRef;
 
-    public AkkaServiceClientImpl(String connectionPoolId, HttpClientService httpClientService) {
+    public AkkaServiceClientImpl(String connectionPoolId,
+                                 HttpClientService httpClientService,
+                                 ConfigurationService configurationService) {
+        this.connectionPoolId = connectionPoolId;
         this.serviceClient = new ServiceClient(connectionPoolId, httpClientService);
-        final int numberOfActors = serviceClient.getPoolSize();
+        this.configurationService = configurationService;
 
         Config customConf = ConfigFactory.load();
         Config baseConf = ConfigFactory.defaultReference();
         Config conf = customConf.withFallback(baseConf);
         actorSystem = ActorSystem.create("AuthClientActors", conf);
+
+        configurationService.subscribeTo(HTTP_CONN_POOL_CONFIG_NAME, this, HttpConnectionPoolConfig.class);
+
         quickFutureCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(FUTURE_CACHE_TTL, FUTURE_CACHE_UNIT)
                 .build();
-
-        tokenActorRef = actorSystem.actorOf(Props.create(AuthTokenFutureActor.class, serviceClient)
-                .withRouter(new RoundRobinRouter(numberOfActors)), "authRequestRouter");
     }
 
-
+    @Override
     public void destroy() {
+        configurationService.unsubscribeFrom(HTTP_CONN_POOL_CONFIG_NAME, this);
         actorSystem.shutdown();
     }
 
@@ -82,7 +101,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers) throws AkkaServiceClientException {
         AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
         try {
-            Timeout timeout = new Timeout(serviceClient.getSocketTimeout() + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
+            Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
             Future<ServiceClientResponse> future = getFuture(authGetRequest, timeout);
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
@@ -96,7 +115,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws AkkaServiceClientException {
         AuthPostRequest authPostRequest = new AuthPostRequest(hashKey, uri, headers, payload, contentMediaType);
         try {
-            Timeout timeout = new Timeout(serviceClient.getSocketTimeout() + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
+            Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
             Future<ServiceClientResponse> future = getFuture(authPostRequest, timeout);
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
@@ -112,12 +131,51 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         //http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/Cache.html#get%28K,%20java.util.concurrent.Callable%29
         // Using this method, according to guava, is the right way to do the "cache pattern"
         return quickFutureCache.get(hashKey, new Callable<Future<Object>>() {
-
             @Override
             public Future<Object> call() throws Exception {
-
                 return ask(tokenActorRef, hashableRequest, timeout);
             }
         });
+    }
+
+    @Override
+    public void configurationUpdated(HttpConnectionPoolConfig configurationObject) throws UpdateFailedException {
+        PoolType defaultPool = configurationObject.getPool().get(0);
+
+        boolean isPoolConfigured = false;
+        for (PoolType pool : configurationObject.getPool()) {
+            if (pool.isDefault()) {
+                defaultPool = pool;
+            }
+
+            if (pool.getId().equals(connectionPoolId)) {
+                numberOfActors = pool.getHttpConnManagerMaxTotal();
+                socketTimeout = pool.getHttpSocketTimeout();
+                isPoolConfigured = true;
+                break;
+            }
+        }
+
+        if (!isPoolConfigured) {
+            LOG.warn("Pool " + connectionPoolId + " not available -- using the default pool settings");
+            numberOfActors = defaultPool.getHttpConnManagerMaxTotal();
+            socketTimeout = defaultPool.getHttpSocketTimeout();
+        }
+
+        // Kill all current actors once they are done processing, allowing the router to die
+        if (tokenActorRef != null) {
+            tokenActorRef.tell(new Broadcast(PoisonPill.getInstance()), ActorRef.noSender());
+        }
+
+        // Create a new router actor
+        tokenActorRef = actorSystem.actorOf(Props.create(AuthTokenFutureActor.class, serviceClient)
+                .withRouter(new RoundRobinPool(numberOfActors)), "authRequestRouter");
+
+        initialized = true;
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return initialized;
     }
 }

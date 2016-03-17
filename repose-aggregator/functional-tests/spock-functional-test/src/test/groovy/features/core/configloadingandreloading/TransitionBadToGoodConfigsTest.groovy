@@ -84,6 +84,7 @@ class TransitionBadToGoodConfigsTest extends Specification {
 
         given:
         // set the component-specific bad configs
+        reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
 
@@ -109,19 +110,19 @@ class TransitionBadToGoodConfigsTest extends Specification {
 
 
         where:
-        componentLabel            | expectedResponseCode
-        "response-messaging"      | 200
-        "rate-limiting"           | 200
-        "versioning"              | 200
-        "translation"             | 200
-        "keystone-v2"             | 200
-        "dist-datastore"          | 200
-        "uri-user"                | 200
-        "header-id-mapping"       | 200
-        "ip-user"                 | 200
-        "validator"               | 200
-        "metrics"                 | 200
-        "connectionPooling"       | 200
+        componentLabel       | expectedResponseCode
+        "response-messaging" | 200
+        "rate-limiting"      | 200
+        "versioning"         | 200
+        "translation"        | 200
+        "keystone-v2"        | 200
+        "dist-datastore"     | 200
+        "uri-user"           | 200
+        "header-id-mapping"  | 200
+        "ip-user"            | 200
+        "validator"          | 200
+        "metrics"            | 200
+        "connectionPooling"  | 200
     }
 
     @Unroll("start with bad #componentLabel configs, change to good (for configs that lead to connection errors)")
@@ -129,6 +130,7 @@ class TransitionBadToGoodConfigsTest extends Specification {
 
         given:
         // set the component-specific bad configs
+        reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
         reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
 

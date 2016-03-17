@@ -39,7 +39,6 @@ import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.commons.utils.logging.TracingKey;
-import org.openrepose.commons.utils.proxy.ProxyRequestException;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.proxy.HttpException;
 import org.openrepose.core.services.RequestProxyService;
@@ -47,8 +46,7 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
-import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
-import org.openrepose.core.services.httpclient.HttpClientResponse;
+import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.ReposeCluster;
@@ -127,21 +125,16 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         throw new HttpException("Invalid target host");
     }
 
-    private HttpClientResponse getClient() {
-        try {
-            return httpClientService.getClient(null);
-        } catch (HttpClientNotFoundException e) {
-            LOG.error("Failed to obtain an HTTP default client connection.");
-            throw new ProxyRequestException("Failed to obtain an HTTP default client connection.", e);
-        }
+    private HttpClientContainer getClient() {
+        return httpClientService.getDefaultClient();
     }
 
     @Override
     public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpClientResponse httpClientResponse = getClient();
+        HttpClientContainer httpClientContainer = getClient();
 
         try {
-            final boolean isChunkedConfigured = httpClientResponse.getHttpClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
+            final boolean isChunkedConfigured = httpClientContainer.getHttpClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
             final HttpHost proxiedHost = getProxiedHost(targetHost);
             final String target = proxiedHost.toURI() + request.getRequestURI();
             final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader, isChunkedConfigured);
@@ -155,7 +148,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         } catch (URISyntaxException | HttpException ex) {
             LOG.error("Error processing request", ex);
         } finally {
-            httpClientService.releaseClient(httpClientResponse);
+            httpClientService.releaseClient(httpClientContainer);
         }
 
         //Something exploded; return a status code that doesn't exist
@@ -163,10 +156,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     private int executeProxyRequest(HttpRequestBase httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
-        HttpClientResponse httpClientResponse = getClient();
+        HttpClientContainer httpClientContainer = getClient();
 
         try {
-            HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(httpMethodProxyRequest);
+            HttpResponse httpResponse = httpClientContainer.getHttpClient().execute(httpMethodProxyRequest);
             int responseCode = httpResponse.getStatusLine().getStatusCode();
             HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
 
@@ -188,7 +181,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
                 return -1;
             }
         } finally {
-            httpClientService.releaseClient(httpClientResponse);
+            httpClientService.releaseClient(httpClientContainer);
         }
         return 1;
 
@@ -212,9 +205,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     private ServiceClientResponse execute(HttpRequestBase base) {
-        HttpClientResponse httpClientResponse = getClient();
+        HttpClientContainer httpClientContainer = getClient();
         try {
-            HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(base);
+            HttpResponse httpResponse = httpClientContainer.getHttpClient().execute(base);
             HttpEntity entity = httpResponse.getEntity();
             int responseCode = httpResponse.getStatusLine().getStatusCode();
 
@@ -229,7 +222,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             LOG.error("Error executing request to {}", base.getURI().toString(), ex);
         } finally {
             base.releaseConnection();
-            httpClientService.releaseClient(httpClientResponse);
+            httpClientService.releaseClient(httpClientContainer);
         }
 
         return new ServiceClientResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null);

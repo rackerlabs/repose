@@ -40,6 +40,7 @@ class NonTenantedAuthZTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/authorizationonly/common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/authorizationonly/nontenanted", params)
         repose.start()

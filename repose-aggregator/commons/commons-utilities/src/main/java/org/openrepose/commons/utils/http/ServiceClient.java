@@ -36,8 +36,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
-import org.openrepose.core.services.httpclient.HttpClientResponse;
+import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,8 +78,8 @@ public class ServiceClient {
 
     }
 
-    private HttpClient getClientWithBasicAuth() throws ServiceClientException {
-        HttpClientResponse clientResponse = null;
+    private HttpClient getClientWithBasicAuth() {
+        HttpClientContainer clientResponse = null;
 
         try {
 
@@ -101,10 +100,6 @@ public class ServiceClient {
             }
 
             return client;
-
-        } catch (HttpClientNotFoundException e) {
-            LOG.error("Failed to obtain an HTTP default client connection");
-            throw new ServiceClientException("Failed to obtain an HTTP default client connection", e);
         } finally {
             if (clientResponse != null) {
                 httpClientService.releaseClient(clientResponse);
@@ -140,8 +135,6 @@ public class ServiceClient {
             }
 
             return new ServiceClientResponse(httpResponse.getStatusLine().getStatusCode(), httpResponse.getAllHeaders(), stream);
-        } catch (ServiceClientException ex) {
-            LOG.error("Failed to obtain an HTTP default client connection", ex);
         } catch (IOException ex) {
             LOG.error("Error executing request", ex);
         } finally {
@@ -208,13 +201,4 @@ public class ServiceClient {
         setHeaders(httpget, headers);
         return execute(httpget);
     }
-
-    public int getPoolSize() {
-        return httpClientService.getMaxConnections(connectionPoolId);
-    }
-
-    public int getSocketTimeout() {
-        return httpClientService.getSocketTimeout(connectionPoolId);
-    }
-
 }

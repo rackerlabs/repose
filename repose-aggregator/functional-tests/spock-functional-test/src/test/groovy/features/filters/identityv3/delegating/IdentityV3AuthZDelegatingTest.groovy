@@ -42,7 +42,7 @@ class IdentityV3AuthZDelegatingTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/delegating/authz", params)
         repose.start()
 

@@ -99,38 +99,6 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="connection-timeout" type="papic:intGTZero" use="optional" default="30000">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The number of milliseconds to wait for a connection to an origin service.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="read-timeout" type="papic:intGTZero" use="optional" default="30000">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The number of milliseconds to wait when reading from an origin service.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="proxy-thread-pool" type="papic:intGTZero" use="optional" default="20">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The number of connection in the thread pool for communicating with end services.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="client-request-logging" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Logs communication between repose and the end service.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
         <xs:attribute name="jmx-reset-time" type="papic:intGTZero" use="optional" default="15">
             <xs:annotation>
                 <xs:documentation>

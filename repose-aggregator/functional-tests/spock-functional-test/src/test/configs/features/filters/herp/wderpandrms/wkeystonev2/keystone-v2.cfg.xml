@@ -7,5 +7,10 @@
             uri="http://localhost:${identityPort}"
             set-groups-in-header="true"
             set-catalog-in-header="false"
-            />
+            connection-pool-id="keystonev2"/>
+    <cache>
+        <timeouts>
+            <token>-1</token>
+        </timeouts>
+    </cache>
 </keystone-v2>

@@ -17,15 +17,40 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.utils.http;
+package org.openrepose.core.services.httpclient.impl;
 
-import org.openrepose.core.services.httpclient.HttpClientNotFoundException;
+import org.apache.http.client.HttpClient;
+import org.openrepose.core.services.httpclient.HttpClientContainer;
 
 /**
- * Custom exception to handle apache http client exceptions in Serviceclient
+ * An HttpClientContainer that generates a unique UUID
  */
-public class ServiceClientException extends Throwable {
-    public ServiceClientException(String message, HttpClientNotFoundException e) {
-        super(message, e.getCause());
+public class HttpClientContainerImpl implements HttpClientContainer {
+
+    private HttpClient httpClient;
+    private String clientInstanceId;
+    private String userId;
+
+    public HttpClientContainerImpl(HttpClient httpClient,
+                                   String clientInstanceId,
+                                   String userId) {
+        this.httpClient = httpClient;
+        this.clientInstanceId = clientInstanceId;
+        this.userId = userId;
+    }
+
+    @Override
+    public HttpClient getHttpClient() {
+        return httpClient;
+    }
+
+    @Override
+    public String getClientInstanceId() {
+        return clientInstanceId;
+    }
+
+    @Override
+    public String getUserId() {
+        return userId;
     }
 }

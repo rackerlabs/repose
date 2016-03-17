@@ -19,13 +19,12 @@
  */
 package org.openrepose.core.services.httpclient;
 
-public class HttpClientNotFoundException extends Exception {
+import org.apache.http.client.HttpClient;
 
-    public HttpClientNotFoundException(String message) {
-        super(message);
-    }
+public interface HttpClientContainer {
+    HttpClient getHttpClient();
 
-    public HttpClientNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    String getClientInstanceId();
+
+    String getUserId();
 }

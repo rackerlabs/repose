@@ -60,7 +60,7 @@ class IdentityV3NoCacheOffSetTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/cacheoffset/" + additionalConfigs, params)
         repose.start()
         waitUntilReadyToServiceRequests('401')

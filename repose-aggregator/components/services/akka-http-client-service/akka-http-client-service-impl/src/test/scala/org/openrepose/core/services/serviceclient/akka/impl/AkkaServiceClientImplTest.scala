@@ -35,10 +35,12 @@ import org.eclipse.jetty.server.handler.AbstractHandler
 import org.eclipse.jetty.server.{Request, Server, ServerConnector}
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers.or
-import org.mockito.Matchers._
-import org.mockito.Mockito.when
+import org.mockito.Matchers.{any, anyString, isNull, same}
+import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.ServiceClientResponse
-import org.openrepose.core.services.httpclient.{HttpClientResponse, HttpClientService}
+import org.openrepose.core.service.httpclient.config.{HttpConnectionPoolConfig, PoolType}
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -54,7 +56,8 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
   val BODY_STRING = "BODY"
   val LIST_APPENDER_REF = "List0"
   val httpClientService = mock[HttpClientService]
-  val httpClientResponse = mock[HttpClientResponse]
+  val httpClientContainer = mock[HttpClientContainer]
+  val configurationService = mock[ConfigurationService]
   val originServer = new Server(0)
   val hashKey = "hashKey"
   var request: HttpGet = _
@@ -101,7 +104,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
 
   describe("The Akka Client") {
     val methods = List("GET", "POST")
-    when(httpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(httpClientResponse)
+    when(httpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(httpClientContainer)
     methods.foreach { method =>
       describe(s"using the HTTP request method $method") {
         def akkaServiceClientImplDo(akkaServiceClientImpl: AkkaServiceClientImpl, headers: Map[String, String]): ServiceClientResponse = method match {
@@ -113,7 +116,8 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
 
           List(null, "", "test_conn_pool").foreach { connectionPoolId =>
             it(s"should validate token with connection pool id $connectionPoolId") {
-              val akkaServiceClientImpl = new AkkaServiceClientImpl(connectionPoolId, httpClientService)
+              val akkaServiceClientImpl = new AkkaServiceClientImpl(connectionPoolId, httpClientService, configurationService)
+              akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true))))
               val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
               serviceClientResponse should not be null
               serviceClientResponse.getStatus shouldBe HttpServletResponse.SC_OK
@@ -121,7 +125,8 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
           }
 
           it("should Reuse Service Response") {
-            val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService)
+            val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService, configurationService)
+            akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true))))
             val serviceClientResponse1 = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
             val serviceClientResponse2 = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
 
@@ -141,7 +146,8 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
         describe("with a log it header") {
           val headers = Map(HEADER_LOG -> true.toString)
           it("should Expire Item In Future Map") {
-            val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService)
+            val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService, configurationService)
+            akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true))))
             akkaServiceClientImplDo(akkaServiceClientImpl, headers)
 
             Thread.sleep(500)
@@ -159,15 +165,14 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
             val httpClientDefault = new DefaultHttpClient
             val params = httpClientDefault.getParams
 
-            when(httpClientService.getMaxConnections(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(20)
-            when(httpClientResponse.getHttpClient).thenReturn(httpClientDefault)
+            when(httpClientContainer.getHttpClient).thenReturn(httpClientDefault)
 
             it("should succeed when the server response time is LESS than the Socket timeout.") {
-              when(httpClientService.getSocketTimeout(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(timeout)
               params.setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout)
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout - 2000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
-              val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService)
+              val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService, configurationService)
+              akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true, socketTimeout = timeout))))
               val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
               serviceClientResponse should not be null
               serviceClientResponse.getStatus shouldBe HttpServletResponse.SC_OK
@@ -178,11 +183,11 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
             }
 
             it("should fail with a logged error when the server response time is MORE than the Socket timeout.") {
-              when(httpClientService.getSocketTimeout(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(timeout)
               params.setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout)
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout + 5000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
-              val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService)
+              val akkaServiceClientImpl = new AkkaServiceClientImpl(null, httpClientService, configurationService)
+              akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true, socketTimeout = timeout))))
               intercept[AkkaServiceClientException] {
                 val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
               }
@@ -193,5 +198,51 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
         }
       }
     }
+  }
+
+  describe("on construction") {
+    it("should register a listener for the http connection pool config") {
+      val akkaServiceClientImpl = new AkkaServiceClientImpl("test-pool-id", httpClientService, configurationService)
+
+      verify(configurationService).subscribeTo(anyString(), same(akkaServiceClientImpl), any[Class[HttpConnectionPoolConfig]])
+    }
+  }
+
+  describe("destroy") {
+    it("should unregister a listener for the http connection pool config") {
+      val akkaServiceClientImpl = new AkkaServiceClientImpl("test-pool-id", httpClientService, configurationService)
+      akkaServiceClientImpl.destroy()
+
+      verify(configurationService).unsubscribeFrom(anyString(), same(akkaServiceClientImpl))
+    }
+  }
+
+  describe("configurationUpdated") {
+    it("should use the default pool settings if a matching pool id is not present") {
+      val akkaServiceClientImpl = new AkkaServiceClientImpl("test-pool-id", httpClientService, configurationService)
+      akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true))))
+
+      val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
+      events.count(_.contains("not available -- using the default pool settings")) shouldBe 1
+    }
+  }
+
+  def createPool(default: Boolean = false, maxConnections: Int = 100, socketTimeout: Int = 30000): PoolType = {
+    val pool = new PoolType
+
+    pool.setDefault(default)
+    pool.setId(java.util.UUID.randomUUID().toString)
+    pool.setHttpConnManagerMaxTotal(maxConnections)
+    pool.setHttpSocketTimeout(socketTimeout)
+
+    pool
+  }
+
+  def createHttpConnectionPoolConfig(pools: Seq[PoolType]): HttpConnectionPoolConfig = {
+    val hcpc = new HttpConnectionPoolConfig()
+
+    pools.foreach(hcpc.getPool.add)
+
+    hcpc
   }
 }
