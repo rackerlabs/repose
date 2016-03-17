@@ -83,7 +83,6 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("\"currentFilter\":\"ip-user\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"header-normalization\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"header-translation\"").size() > 0
-        reposeLogSearch.searchByString("\"currentFilter\":\"header-id-mapping\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"content-type-stripper\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"merge-header\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"slf4j-http-logging\"").size() > 0
@@ -105,7 +104,6 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("null-ip-user").size() == 0
         reposeLogSearch.searchByString("null-header-normalization").size() == 0
         reposeLogSearch.searchByString("null-header-translation").size() == 0
-        reposeLogSearch.searchByString("null-header-id-mapping").size() == 0
         reposeLogSearch.searchByString("null-content-type-stripper").size() == 0
         reposeLogSearch.searchByString("null-merge-header").size() == 0
         reposeLogSearch.searchByString("null-slf4j-http-logging").size() == 0

@@ -33,7 +33,6 @@ FILES=(\
 #/etc/repose/dist-datastore.cfg.xml \
 /etc/repose/fail-404.wadl \
 /etc/repose/header-user.cfg.xml \
-/etc/repose/header-id-mapping.cfg.xml \
 /etc/repose/header-normalization.cfg.xml \
 /etc/repose/header-translation.cfg.xml \
 /etc/repose/ip-user.cfg.xml \

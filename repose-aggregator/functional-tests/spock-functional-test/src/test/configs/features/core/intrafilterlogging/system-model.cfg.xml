@@ -17,7 +17,6 @@
             <filter name="header-user"/>
             <filter name="header-normalization"/>
             <filter name="header-translation"/>
-            <filter name="header-id-mapping" />
             <filter name="merge-header"/>
             <filter name="slf4j-http-logging"/>
             <filter name="uri-user"/>

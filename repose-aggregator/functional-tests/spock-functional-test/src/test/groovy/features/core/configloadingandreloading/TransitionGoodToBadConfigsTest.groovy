@@ -118,7 +118,6 @@ class TransitionGoodToBadConfigsTest extends Specification {
         "dist-datastore"          | 200
         "uri-user"                | 200
         "header-user"             | 200
-        "header-id-mapping"       | 200
         "ip-user"                 | 200
         "validator"               | 200
         "metrics"                 | 200

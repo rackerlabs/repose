@@ -43,11 +43,6 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>header-id-mapping-filter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrepose</groupId>
             <artifactId>uri-user-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
