@@ -41,6 +41,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     static def params

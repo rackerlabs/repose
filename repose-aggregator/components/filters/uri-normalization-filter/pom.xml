@@ -92,6 +92,7 @@
 
                     <args>
                         <arg>-Xfluent-api</arg>
+                        <arg>-XtoString</arg>
                     </args>
 
                     <plugins>
@@ -99,6 +100,11 @@
                             <groupId>org.jvnet.jaxb2_commons</groupId>
                             <artifactId>jaxb2-fluent-api</artifactId>
                             <version>3.0</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-basics</artifactId>
+                            <version>0.6.0</version>
                         </plugin>
                     </plugins>
                 </configuration>
