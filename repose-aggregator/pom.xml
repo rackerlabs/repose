@@ -33,8 +33,6 @@
         <log4j.version>2.3</log4j.version>
         <jetty.version>9.2.0.v20140526</jetty.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
-        <!-- NOTE: the saxon version should match that of API-checker, because there is saxon in core :( -->
-        <saxon.version>9.4.0.9</saxon.version>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.itReportPath>
             ${project.basedir}/repose-aggregator/functional-tests/spock-functional-test/target/jacoco-it.exec
@@ -257,19 +255,6 @@
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>2.0.2-rax</version>
-            </dependency>
-
-            <!-- saxon keeps sneaking into all the things because xml -->
-            <dependency>
-                <groupId>net.sf.saxon</groupId>
-                <artifactId>saxon</artifactId>
-                <version>${saxon.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.sf.saxon</groupId>
-                <artifactId>saxon-ee</artifactId>
-                <version>${saxon.version}</version>
             </dependency>
 
             <dependency>
