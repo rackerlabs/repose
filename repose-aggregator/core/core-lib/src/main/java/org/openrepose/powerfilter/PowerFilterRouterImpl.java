@@ -49,6 +49,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         Object destinationsAttr = servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS);
         List<RouteDestination> reqDestinations;
         if (destinationsAttr == null) {
-            reqDestinations = Collections.emptyList();
+            reqDestinations = new ArrayList<>();
         } else {
             reqDestinations = (List<RouteDestination>) destinationsAttr;
         }
