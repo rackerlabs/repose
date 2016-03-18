@@ -55,7 +55,6 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     private final boolean rewriteHostHeader;
     private final URI targetHost;
 
-    // todo: must any synchronization occur?
     private HttpServletRequest sourceRequest;
     private boolean isConfiguredChunked;
 
