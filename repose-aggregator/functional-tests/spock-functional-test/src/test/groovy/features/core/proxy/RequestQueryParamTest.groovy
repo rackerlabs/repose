@@ -122,6 +122,19 @@ class RequestQueryParamTest extends ReposeValveTest {
         "/path/to/resource?key=value value" | "GET"
     }
 
+    def "when given a query param name that is encoded, repose shouldn't encode it again"() {
+        given: "a path with an encoded query parameter name"
+        def pathWithQuery = "/path/to/resource?foo%5B%5D=bar"
+
+        when: "the client makes a request through Repose"
+        MessageChain messageChain = deproxy.makeRequest(url: "$reposeEndpoint$pathWithQuery", method: "GET")
+
+
+        then: "after passing through Repose, request path should contain the same paramter list"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path.endsWith(pathWithQuery)
+    }
+
     def cleanupSpec() {
 
         if (repose) {
