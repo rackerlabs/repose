@@ -47,7 +47,6 @@
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-json_${scala.MajDotMin}</artifactId>
-            <version>2.3.4</version>
         </dependency>
         <!-- this lets us use a complex json path-->
         <dependency>
