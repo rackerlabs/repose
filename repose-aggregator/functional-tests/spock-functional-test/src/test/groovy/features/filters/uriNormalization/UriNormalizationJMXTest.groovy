@@ -26,7 +26,9 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Ignore
 
+@Ignore
 @Category(Slow.class)
 class UriNormalizationJMXTest extends ReposeValveTest {
 
