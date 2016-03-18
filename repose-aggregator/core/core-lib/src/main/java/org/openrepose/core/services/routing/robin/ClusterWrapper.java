@@ -41,14 +41,16 @@ public class ClusterWrapper {
 
     public Node getNextNode() {
         synchronized (nodes) {
+            // Reset the currentIndex to prevent int overflow
+            if (currentIndex == Integer.MAX_VALUE) {
+                currentIndex = 0;
+            }
+
             return getNode(currentIndex++);
         }
     }
 
-    // todo: this is buggy for long-running instances of Repose
-    //       the int currentIndex will wrap after serving (a ton of) requests
     public Node getNode(int index) {
         return nodeCount > 0 && index >= 0 ? nodes.get(index % nodeCount) : null;
     }
-
 }
