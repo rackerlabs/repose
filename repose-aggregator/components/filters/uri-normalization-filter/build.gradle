@@ -7,7 +7,7 @@ dependencies {
     compile project(":repose-aggregator/core/core-service-api")
     compile project(":repose-aggregator/commons/commons-utilities")
     compile "org.scala-lang:scala-library"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.11"
     compile "org.slf4j:slf4j-api"
 
     generatedCompile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime"
@@ -17,7 +17,7 @@ dependencies {
 
     testCompile "junit:junit"
     testCompile "org.mockito:mockito-all"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_2.11"
     testCompile "org.springframework:spring-test"
 }
 
