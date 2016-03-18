@@ -22,6 +22,7 @@ package org.openrepose.powerfilter;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonRequestAttributes;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.RequestTimeout;
 import org.openrepose.core.ResponseCode;
@@ -51,7 +52,6 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -115,13 +115,21 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     @Override
-    public void route(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
+    public void route(HttpServletRequestWrapper servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
         DestinationLocation location = null;
 
-        @SuppressWarnings("unchecked")
-        List<RouteDestination> reqDestinations = Optional.ofNullable(servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS))
-                .map(o -> (List<RouteDestination>) o)
-                .orElseGet(Collections::emptyList);
+        // todo: use Java8 Optional once the build supports it
+        //        @SuppressWarnings("unchecked")
+        //        List<RouteDestination> reqDestinations = Optional.ofNullable(servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS))
+        //                .map(o -> (List<RouteDestination>) o)
+        //                .orElseGet(Collections::emptyList);
+        Object destinationsAttr = servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS);
+        List<RouteDestination> reqDestinations;
+        if (destinationsAttr == null) {
+            reqDestinations = Collections.emptyList();
+        } else {
+            reqDestinations = (List<RouteDestination>) destinationsAttr;
+        }
 
         if (!StringUtilities.isBlank(defaultDestination)) {
             reqDestinations.add(new RouteDestination(defaultDestination, servletRequest.getRequestURI(), -1));
@@ -159,8 +167,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                 String uri = new DispatchPathBuilder(location.getUri().getPath(), targetContext.getContextPath()).build();
                 final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
 
-                servletRequest.setRequestUrl(new StringBuffer(location.getUrl().toExternalForm()));
-                servletRequest.setRequestUri(location.getUri().getPath()); //TODO: destination location builder is giving back an invalid URI
+                servletRequest.setScheme(location.getUrl().getProtocol());
+                servletRequest.setServerName(location.getUrl().getHost());
+                servletRequest.setServerPort(location.getUrl().getPort());
+                servletRequest.setRequestURI(location.getUri().getPath()); //TODO: destination location builder is giving back an invalid URI
                 requestHeaderService.setVia(servletRequest);
                 requestHeaderService.setXForwardedFor(servletRequest);
                 if (dispatcher != null) {
@@ -247,5 +257,4 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             mbc.mark(endpoint);
         }
     }
-
 }

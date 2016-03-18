@@ -19,6 +19,8 @@
  */
 package org.openrepose.powerfilter;
 
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,5 +29,5 @@ import java.net.URISyntaxException;
 
 public interface PowerFilterRouter {
 
-    void route(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException;
+    void route(HttpServletRequestWrapper servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException;
 }

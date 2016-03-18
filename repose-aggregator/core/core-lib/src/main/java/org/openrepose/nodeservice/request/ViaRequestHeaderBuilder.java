@@ -20,9 +20,9 @@
 package org.openrepose.nodeservice.request;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 
 public class ViaRequestHeaderBuilder extends ViaHeaderBuilder {
 
@@ -37,7 +37,7 @@ public class ViaRequestHeaderBuilder extends ViaHeaderBuilder {
     }
 
     @Override
-    protected String getViaValue(MutableHttpServletRequest request) {
+    protected String getViaValue(HttpServletRequest request) {
         final StringBuilder builder = new StringBuilder(" ");
         final String viaReceivedBy = StringUtilities.isBlank(configuredViaReceivedBy) ? getHostnamePort(request.getLocalPort()) : configuredViaReceivedBy;
 

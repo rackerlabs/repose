@@ -22,7 +22,6 @@ package org.openrepose.core.services.headers.response;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -78,7 +77,7 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
     }
 
     @Override
-    public void setVia(MutableHttpServletRequest request, HttpServletResponse response) {
+    public void setVia(HttpServletRequest request, HttpServletResponse response) {
         final String existingVia = response.getHeader(CommonHttpHeader.VIA.toString());
         final String myVia = viaHeaderBuilder.buildVia(request);
         final String via = StringUtilities.isBlank(existingVia) ? myVia : existingVia + ", " + myVia;

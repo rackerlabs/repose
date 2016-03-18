@@ -25,12 +25,17 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.io.BufferedServletInputStream;
+import org.openrepose.commons.utils.io.RawInputStreamReader;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.proxy.common.AbstractRequestProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -45,11 +50,13 @@ import java.util.Enumeration;
 class HttpComponentRequestProcessor extends AbstractRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpComponentRequestProcessor.class);
-
     private static final String ENCODING = "UTF-8";
-    private final HttpServletRequest sourceRequest;
-    private final URI targetHost;
+
     private final boolean rewriteHostHeader;
+    private final URI targetHost;
+
+    // todo: must any synchronization occur?
+    private HttpServletRequest sourceRequest;
     private boolean isConfiguredChunked;
 
     public HttpComponentRequestProcessor(HttpServletRequest request, URI host, boolean rewriteHostHeader,
@@ -73,11 +80,8 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
             for (String value : values) {
                 try {
                     builder.addParameter(URLDecoder.decode(name, ENCODING), URLDecoder.decode(value, ENCODING));
-                } catch (IllegalArgumentException iae) {
-                    LOG.warn("URL parameter could not be decoded, passing it as-is.", iae);
-                    builder.addParameter(name, value);
-                } catch (UnsupportedEncodingException ex) {
-                    LOG.warn("URL parameter could not be decoded, passing it as-is.", ex);
+                } catch (IllegalArgumentException | UnsupportedEncodingException e) {
+                    LOG.warn("URL parameter could not be decoded, passing it as-is.", e);
                     builder.addParameter(name, value);
                 }
             }
@@ -152,7 +156,9 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
      * @return
      * @throws IOException
      */
-    public HttpRequestBase process(HttpEntityEnclosingRequestBase method) throws IOException {
+    // todo: remove the need for a synchronized method -- this is the only method that needs to be synchronized for now
+    //       since it modifies the sourceRequest
+    public synchronized HttpRequestBase process(HttpEntityEnclosingRequestBase method) throws IOException {
         final int contentLength = getEntityLength();
         setHeaders(method);
         method.setEntity(new InputStreamEntity(sourceRequest.getInputStream(), contentLength));
@@ -160,13 +166,18 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     }
 
     private int getEntityLength() throws IOException {
-
         if (StringUtilities.nullSafeEqualsIgnoreCase(sourceRequest.getHeader("transfer-encoding"), "chunked") ||
                 isConfiguredChunked) {
             return -1;
         } else {
-            return ((MutableHttpServletRequest) sourceRequest).getRealBodyLength();
+            // todo: optimize so subsequent calls to this method do not need to read/copy the entity
+            final ByteArrayOutputStream sourceEntity = new ByteArrayOutputStream();
+            RawInputStreamReader.instance().copyTo(sourceRequest.getInputStream(), sourceEntity);
+
+            final ServletInputStream readableEntity = new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray()));
+            sourceRequest = new HttpServletRequestWrapper(sourceRequest, readableEntity);
+
+            return sourceEntity.size();
         }
     }
-
 }

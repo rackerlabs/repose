@@ -19,11 +19,11 @@
  */
 package org.openrepose.nodeservice.request;
 
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 
 public interface RequestHeaderService {
 
-    void setXForwardedFor(MutableHttpServletRequest request);
+    void setXForwardedFor(HttpServletRequestWrapper request);
 
-    void setVia(MutableHttpServletRequest request);
+    void setVia(HttpServletRequestWrapper request);
 }

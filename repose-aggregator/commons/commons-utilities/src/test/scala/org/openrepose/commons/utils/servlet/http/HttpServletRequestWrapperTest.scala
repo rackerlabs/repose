@@ -879,4 +879,28 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getRequestURL.toString shouldBe "http://localhost/foo"
     }
   }
+
+  describe("setScheme") {
+    it("should allow the scheme to be set") {
+      wrappedRequest.setScheme("ftp")
+
+      wrappedRequest.getScheme shouldBe "ftp"
+    }
+  }
+
+  describe("setServerName") {
+    it("should allow the server name to be set") {
+      wrappedRequest.setServerName("foo.com")
+
+      wrappedRequest.getServerName shouldBe "foo.com"
+    }
+  }
+
+  describe("setServerPort") {
+    it("should allow the server port to be set") {
+      wrappedRequest.setServerPort(12345)
+
+      wrappedRequest.getServerPort shouldBe 12345
+    }
+  }
 }
