@@ -166,7 +166,7 @@ public class ValidatorInfo {
                     .replace('*', '-')
                     .replace('?', '-')
                     .replace(' ', '-')
-                    .replace('\u00A0','-')
+                    .replace('\u00A0', '-')
                     + "_"
             );
         }
