@@ -49,10 +49,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -116,21 +113,13 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void route(HttpServletRequestWrapper servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
         DestinationLocation location = null;
 
-        // todo: use Java8 Optional once the build supports it
-        //        @SuppressWarnings("unchecked")
-        //        List<RouteDestination> reqDestinations = Optional.ofNullable(servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS))
-        //                .map(o -> (List<RouteDestination>) o)
-        //                .orElseGet(Collections::emptyList);
-        Object destinationsAttr = servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS);
-        List<RouteDestination> reqDestinations;
-        if (destinationsAttr == null) {
-            reqDestinations = new ArrayList<>();
-        } else {
-            reqDestinations = (List<RouteDestination>) destinationsAttr;
-        }
+        List<RouteDestination> reqDestinations = Optional.ofNullable(servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS))
+                .map(o -> (List<RouteDestination>) o)
+                .orElseGet(ArrayList::new);
 
         if (!StringUtilities.isBlank(defaultDestination)) {
             reqDestinations.add(new RouteDestination(defaultDestination, servletRequest.getRequestURI(), -1));
