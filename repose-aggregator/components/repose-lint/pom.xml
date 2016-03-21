@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>components-support</artifactId>
-        <version>8.0.0.0-SNAPSHOT</version>
+        <version>7.3.3.2-SNAPSHOT</version>
     </parent>
 
     <name>Repose Components - Repose Lint</name>
