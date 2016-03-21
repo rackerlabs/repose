@@ -25,7 +25,7 @@
     <header original-name="X-MIXEDCASE-C" new-name="x-MIXEDCASE-E" remove-original="false"/>
 
     <!-- CSL headers -->
-    <header original-name="x-pp-user" new-name="x-rax-username"/>
+    <header original-name="x-pp-user" new-name="x-rax-username" quality=".5"/>
     <header original-name="x-tenant-name" new-name="x-rax-tenants"/>
-    <header original-name="x-roles" new-name="x-rax-roles" />
+    <header original-name="x-roles" new-name="x-rax-roles" quality=".2"/>
 </header-translation>
