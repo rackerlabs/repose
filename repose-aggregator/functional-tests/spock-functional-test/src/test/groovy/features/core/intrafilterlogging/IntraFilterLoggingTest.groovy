@@ -79,10 +79,10 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("\"currentFilter\":\"add-header\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"keystone-v2\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"openstack-identity-v3\"").size() > 0
+        reposeLogSearch.searchByString("\"currentFilter\":\"header-user\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"ip-user\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"header-normalization\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"header-translation\"").size() > 0
-        reposeLogSearch.searchByString("\"currentFilter\":\"header-id-mapping\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"content-type-stripper\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"merge-header\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"slf4j-http-logging\"").size() > 0
@@ -100,10 +100,10 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("null-add-header").size() == 0
         reposeLogSearch.searchByString("null-keystone-v2").size() == 0
         reposeLogSearch.searchByString("null-openstack-identity-v3").size() == 0
+        reposeLogSearch.searchByString("null-header-user").size() == 0
         reposeLogSearch.searchByString("null-ip-user").size() == 0
         reposeLogSearch.searchByString("null-header-normalization").size() == 0
         reposeLogSearch.searchByString("null-header-translation").size() == 0
-        reposeLogSearch.searchByString("null-header-id-mapping").size() == 0
         reposeLogSearch.searchByString("null-content-type-stripper").size() == 0
         reposeLogSearch.searchByString("null-merge-header").size() == 0
         reposeLogSearch.searchByString("null-slf4j-http-logging").size() == 0
