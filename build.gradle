@@ -172,6 +172,14 @@ subprojects {
         testCompile.exclude group: 'xerces', module: 'xerces'
     }
 
+    //todo: remove this once gradel fixes the bug with zinc compiler inference
+    //https://discuss.gradle.org/t/default-scala-compilation-doesnt-work-in-gradle-2-12/15328
+    tasks.withType(ScalaCompile) {
+        scalaCompileOptions.with {
+            useAnt = true
+        }
+    }
+
     //todo: remove old location for these files
     checkstyle {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/checkstyle.xml")
