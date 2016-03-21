@@ -95,14 +95,17 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="splittable" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="splittable" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
                         Whether or not the original header should be split.  If the value of the original header can
                         contain commas that are not meant to delimit individual header values (e.g. User-Agent), this
-                        should be set to false.  When set to false, each header entry will be treated as a single value
-                        when it comes to applying the configured quality (if applicable).
+                        should be set to false (or left out since the default is false).  When set to false, each
+                        header entry will be treated as a single value when it comes to applying the configured
+                        quality (if applicable).  It is important to set this attribute to true when configured
+                        to set a new header quality on a splittable header (otherwise, not all of the qualities will
+                        be correctly updated).
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
