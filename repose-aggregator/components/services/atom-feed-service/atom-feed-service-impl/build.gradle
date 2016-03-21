@@ -24,5 +24,5 @@ dependencies {
     testCompile "org.apache.logging.log4j:log4j-core"
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
     testCompile "com.typesafe.akka:akka-testkit_$scalaMajDotMin"
-    testCompile "com.typesafe.akka:akka-http-core-experimental_$scalaMajDotMin:1.0"
+    testCompile "com.typesafe.akka:akka-http-core-experimental_$scalaMajDotMin"
 }

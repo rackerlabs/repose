@@ -18,6 +18,6 @@ dependencies {
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all:1.9.5"
-    testCompile "com.mockrunner:mockrunner-servlet:1.0.0"
+    testCompile "org.mockito:mockito-all"
+    testCompile "com.mockrunner:mockrunner-servlet"
 }
