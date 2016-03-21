@@ -57,7 +57,7 @@ class Slf4jHttpLoggingWTracingHeaderTest extends ReposeValveTest {
 
         then: "Request id from request handling should be the same as Request ID logging"
         logSearch.searchByString("Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method Request ID=$requestid").size() == 1
-        logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.targetPort}//\tRequest Protocol=HTTP/1.1").size() == 1
+        logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.reposePort}/\tRequest Protocol=HTTP/1.1").size() == 1
 
         where:
         method << [
@@ -84,7 +84,7 @@ class Slf4jHttpLoggingWTracingHeaderTest extends ReposeValveTest {
         then:
 
         logSearch.searchByString("Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method Request ID=.+-.+-.+-.+-.+ Response Code=$responseCode").size() == 1
-        logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.targetPort}//\tRequest Protocol=HTTP/1.1").size() == 1
+        logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.reposePort}/\tRequest Protocol=HTTP/1.1").size() == 1
 
         where:
         method   | responseCode
