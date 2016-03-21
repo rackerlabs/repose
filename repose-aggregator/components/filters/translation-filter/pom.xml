@@ -16,6 +16,7 @@
     </description>
 
     <properties>
+        <saxon-ee.version>9.5.1-8</saxon-ee.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
@@ -59,12 +60,8 @@
 
         <dependency>
             <groupId>net.sf.saxon</groupId>
-            <artifactId>saxon-ee</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>saxon</artifactId>
+            <artifactId>Saxon-EE</artifactId>
+            <version>${saxon-ee.version}</version>
         </dependency>
 
         <dependency>
