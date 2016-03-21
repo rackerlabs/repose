@@ -72,7 +72,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
 
             for (String value : values) {
                 try {
-                    builder.addParameter(name, URLDecoder.decode(value, ENCODING));
+                    builder.addParameter(URLDecoder.decode(name, ENCODING), URLDecoder.decode(value, ENCODING));
                 } catch (IllegalArgumentException iae) {
                     LOG.warn("URL parameter could not be decoded, passing it as-is.", iae);
                     builder.addParameter(name, value);
