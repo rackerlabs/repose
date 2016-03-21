@@ -20,16 +20,17 @@
   -->
 
 
-<xs:schema xmlns:header-user="http://docs.openrepose.org/repose/header-user/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified"
+           xmlns="http://docs.openrepose.org/repose/header-user/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/header-user/v1.0">
 
-    <xs:element name="header-user" type="header-user:HeaderUserConfig"/>
+    <xs:element name="header-user" type="HeaderUserConfig"/>
 
     <xs:complexType name="HeaderUserConfig">
         <xs:annotation>
@@ -41,7 +42,7 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="source-headers" type="header-user:HttpHeaderList" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="source-headers" type="HttpHeaderList" minOccurs="1" maxOccurs="1"/>
         </xs:all>
     </xs:complexType>
 
@@ -53,15 +54,13 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="header" type="header-user:HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="header" type="HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
-                   test="count(distinct-values(header-user:header/@id)) = count(header-user:header/@id)"
+                   test="count(distinct-values(header/@id)) = count(header/@id)"
                    xerces:message="Headers must have ids unique within their containing header list"
                    saxon:message="Headers must have ids unique within their containing header list"/>
-
-
     </xs:complexType>
 
 
@@ -82,7 +81,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="quality" type="header-user:doubleBetweenZeroandOne" use="optional" default="0.1">
+        <xs:attribute name="quality" type="doubleBetweenZeroandOne" use="optional" default="0.1">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Quality assigned to users found in the request headers.
@@ -101,7 +100,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
     </xs:complexType>
 
     <xs:simpleType name="doubleBetweenZeroandOne">
