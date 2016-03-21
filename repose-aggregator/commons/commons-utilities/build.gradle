@@ -1,6 +1,6 @@
 dependencies {
     compile project(':repose-aggregator/components/services/http-client-service/http-client-service-api')
-    compile "org.scala-lang:scala-library:$scalaMajDotMin.$scalaPatch"
+    compile "org.scala-lang:scala-library"
     compile "org.slf4j:slf4j-api"
     compile "commons-pool:commons-pool"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
