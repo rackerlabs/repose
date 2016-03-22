@@ -42,12 +42,10 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
   private final val DefaultConfigFileName = "destination-router.cfg.xml"
   private final val SchemaFilePath = "/META-INF/schema/config/destination-router-configuration.xsd"
 
-  private val mbcsRoutedReponse: Option[MeterByCategorySum] = Option(metricsService) flatMap { ms =>
-    Option(ms.newMeterByCategorySum(classOf[DestinationRouter],
-      "destination-router",
-      "Routed Response",
-      TimeUnit.SECONDS))
-  }
+  private val mbcsRoutedReponse = metricsService.newMeterByCategorySum(classOf[DestinationRouter],
+    "destination-router",
+    "Routed Response",
+    TimeUnit.SECONDS)
 
   private var initialized: Boolean = false
   private var configurationFileName: String = _
@@ -100,7 +98,7 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
             logger.error("The destination could not be added -- the destinations attribute was of an unknown type")
         }
 
-        mbcsRoutedReponse.foreach(_.mark(target.getId))
+        mbcsRoutedReponse.mark(target.getId)
       }
 
       chain.doFilter(httpRequest, httpResponse)
