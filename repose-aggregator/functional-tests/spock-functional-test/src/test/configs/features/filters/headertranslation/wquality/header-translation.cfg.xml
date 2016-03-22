@@ -5,6 +5,6 @@
                     xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
 
     <header original-name="x-pp-user" new-name="x-rax-username" quality=".5"/>
-    <header original-name="x-tenant-name" new-name="x-rax-tenants"/>
+    <header original-name="x-tenant-name" new-name="x-rax-tenants" remove-original="true"/>
     <header original-name="x-roles" new-name="x-rax-roles" quality=".2"/>
 </header-translation>
