@@ -21,10 +21,7 @@ package org.openrepose.filters.versioning.util;
 
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.transform.StreamTransform;
-import org.openrepose.commons.utils.transform.Transform;
-import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
 import org.openrepose.commons.utils.transform.jaxb.JaxbToStreamTransform;
-import org.openrepose.commons.utils.transform.xslt.JaxbXsltToStringTransform;
 import org.openrepose.commons.utils.transform.xslt.XsltToStreamTransform;
 import org.openrepose.commons.utils.xslt.LogErrorListener;
 import org.openrepose.commons.utils.xslt.LogTemplatesWrapper;
@@ -52,26 +49,18 @@ public class ContentTransformer {
         XSLT_TRANSFORMER_FACTORY.setErrorListener(new LogErrorListener());
     }
 
-    @Deprecated
-    private final Transform<JAXBElement, String> jsonTransform;
-    @Deprecated
-    private final Transform<JAXBElement, String> xmlTransform;
     private final StreamTransform<JAXBElement, OutputStream> jsonStreamTransform;
     private final StreamTransform<JAXBElement, OutputStream> xmlStreamTransform;
 
     public ContentTransformer() {
         try {
             final JAXBContext context = JAXBContext.newInstance(
-                    org.openrepose.filters.versioning.schema.ObjectFactory.class,
                     org.openrepose.filters.versioning.config.ObjectFactory.class);
             final Templates jsonXsltTemplates =
                     ContentTransformer.parseXslt(new StreamSource(getClass().getResourceAsStream(JSON_XSLT)));
 
-            xmlTransform = new JaxbEntityToXml(context);
-            jsonTransform = new JaxbXsltToStringTransform(jsonXsltTemplates, context);
-
-            xmlStreamTransform = new JaxbToStreamTransform<OutputStream>(context);
-            jsonStreamTransform = new XsltToStreamTransform<OutputStream>(jsonXsltTemplates, context);
+            xmlStreamTransform = new JaxbToStreamTransform<>(context);
+            jsonStreamTransform = new XsltToStreamTransform<>(jsonXsltTemplates, context);
         } catch (Exception ex) {
             throw new PowerApiContextException(
                     "Failed to build transformation processors for response marshalling. Reason: "
@@ -95,19 +84,6 @@ public class ContentTransformer {
             default:
                 jsonStreamTransform.transform(element, outputStream);
                 break;
-        }
-    }
-
-    @Deprecated
-    public String transform(JAXBElement element, MediaType mediaRange) {
-        switch (mediaRange.getMimeType()) {
-            case APPLICATION_XML:
-                return xmlTransform.transform(element);
-
-            case APPLICATION_JSON:
-            case UNKNOWN:
-            default:
-                return jsonTransform.transform(element);
         }
     }
 }

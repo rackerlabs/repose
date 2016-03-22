@@ -19,6 +19,10 @@
  */
 package org.openrepose.filters.versioning;
 
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.servlet.RequestMediaRangeInterrogator;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.filter.logic.FilterAction;
@@ -36,8 +40,6 @@ import org.openrepose.filters.versioning.schema.ObjectFactory;
 import org.openrepose.filters.versioning.schema.VersionChoiceList;
 import org.openrepose.filters.versioning.util.ContentTransformer;
 import org.openrepose.filters.versioning.util.VersionChoiceFactory;
-import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
-import org.openrepose.filters.versioning.util.http.HttpRequestInfoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,13 +56,11 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
     private static final double VERSIONING_DEFAULT_QUALITY = 0.5;
     private final ConfigurationData configurationData;
     private final ContentTransformer transformer;
-    private final MetricsService metricsService;
     private MeterByCategory mbcVersionedRequests;
 
     public VersioningHandler(ConfigurationData configurationData, ContentTransformer transformer, MetricsService metricsService) {
         this.configurationData = configurationData;
         this.transformer = transformer;
-        this.metricsService = metricsService;
 
         // TODO replace "versioning" with filter-id or name-number in sys-model
         if (metricsService != null) {
@@ -72,24 +72,24 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
     @Override
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector filterDirector = new FilterDirectorImpl();
-        final HttpRequestInfo httpRequestInfo = new HttpRequestInfoImpl(request);
+        final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request);
 
         try {
-            final VersionedOriginService targetOriginService = configurationData.getOriginServiceForRequest(httpRequestInfo, filterDirector);
+            final VersionedOriginService targetOriginService = configurationData.getOriginServiceForRequest(wrappedRequest, filterDirector);
 
             if (targetOriginService != null) {
-                final VersionedRequest versionedRequest = new VersionedRequest(httpRequestInfo, targetOriginService.getMapping());
+                final VersionedRequest versionedRequest = new VersionedRequest(wrappedRequest, targetOriginService.getMapping());
                 handleVersionedRequest(versionedRequest, filterDirector, targetOriginService);
                 if (mbcVersionedRequests != null) {
                     mbcVersionedRequests.mark(targetOriginService.getMapping().getId());
                 }
             } else {
-                handleUnversionedRequest(httpRequestInfo, filterDirector);
+                handleUnversionedRequest(wrappedRequest, filterDirector);
                 if (mbcVersionedRequests != null) {
                     mbcVersionedRequests.mark("Unversioned");
                 }
             }
-            filterDirector.responseHeaderManager().appendHeader("Content-Type", httpRequestInfo.getPreferedMediaRange().getMimeType().getMimeType());
+            filterDirector.responseHeaderManager().appendHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType().getMimeType());
         } catch (VersionedHostNotFoundException vhnfe) {
             filterDirector.setResponseStatusCode(HttpServletResponse.SC_BAD_GATEWAY);
             filterDirector.setFilterAction(FilterAction.RETURN);
@@ -104,20 +104,20 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
 
         // This is not a version we recognize - tell the client what's up
         if (filterDirector.getFilterAction() == FilterAction.NOT_SET) {
-            writeMultipleChoices(filterDirector, httpRequestInfo);
+            writeMultipleChoices(filterDirector, wrappedRequest);
         }
 
         return filterDirector;
     }
 
-    private void handleUnversionedRequest(HttpRequestInfo httpRequestInfo, FilterDirector filterDirector) {
+    private void handleUnversionedRequest(HttpServletRequestWrapper request, FilterDirector filterDirector) {
         // Is this a request to the service root to describe the available versions? (e.g. http://api.service.com/)
-        if (configurationData.isRequestForVersions(httpRequestInfo)) {
+        if (configurationData.isRequestForVersions(request)) {
             filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK);
             filterDirector.setFilterAction(FilterAction.RETURN);
 
-            final JAXBElement<VersionChoiceList> versions = VERSIONING_OBJECT_FACTORY.createVersions(configurationData.versionChoicesAsList(httpRequestInfo));
-            transformer.transform(versions, httpRequestInfo.getPreferedMediaRange(), filterDirector.getResponseOutputStream());
+            final JAXBElement<VersionChoiceList> versions = VERSIONING_OBJECT_FACTORY.createVersions(configurationData.versionChoicesAsList(request));
+            transformer.transform(versions, getPreferredMediaRange(request), filterDirector.getResponseOutputStream());
         }
     }
 
@@ -126,7 +126,7 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
         if (versionedRequest.isRequestForRoot() || versionedRequest.requestMatchesVersionMapping()) {
             final JAXBElement versionElement = VERSIONING_OBJECT_FACTORY.createVersion(new VersionChoiceFactory(targetOriginService.getMapping()).create());
 
-            transformer.transform(versionElement, versionedRequest.getRequestInfo().getPreferedMediaRange(), filterDirector.getResponseOutputStream());
+            transformer.transform(versionElement, getPreferredMediaRange(versionedRequest.getRequest()), filterDirector.getResponseOutputStream());
 
             filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK);
             filterDirector.setFilterAction(FilterAction.RETURN);
@@ -137,13 +137,17 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
         }
     }
 
-    private void writeMultipleChoices(FilterDirector filterDirector, HttpRequestInfo httpRequestInfo) {
+    private void writeMultipleChoices(FilterDirector filterDirector, HttpServletRequestWrapper request) {
         filterDirector.setResponseStatusCode(HttpServletResponse.SC_MULTIPLE_CHOICES);
         filterDirector.setFilterAction(FilterAction.RETURN);
 
-        final VersionChoiceList versionChoiceList = configurationData.versionChoicesAsList(httpRequestInfo);
+        final VersionChoiceList versionChoiceList = configurationData.versionChoicesAsList(request);
         JAXBElement<VersionChoiceList> versionChoiceListElement = VERSIONING_OBJECT_FACTORY.createChoices(versionChoiceList);
 
-        transformer.transform(versionChoiceListElement, httpRequestInfo.getPreferedMediaRange(), filterDirector.getResponseOutputStream());
+        transformer.transform(versionChoiceListElement, getPreferredMediaRange(request), filterDirector.getResponseOutputStream());
+    }
+
+    private MediaType getPreferredMediaRange(HttpServletRequestWrapper request) {
+        return RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString())).get(0);
     }
 }

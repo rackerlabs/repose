@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
@@ -12,7 +14,8 @@
     <packaging>jar</packaging>
 
     <description>
-        TODO
+        Provides support for multiple versions of an API. This filter can list API versions,
+        route requests based on API version, and translate the 'Accept' header media type.
     </description>
 
     <properties>
@@ -68,11 +71,13 @@
             <artifactId>jackson-annotations</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -96,7 +101,6 @@
             <artifactId>xalan</artifactId>
             <version>2.7.1</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -105,58 +109,61 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
+
                 <configuration>
                     <transformationSets>
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/versioning</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/versioning</outputDir>
                         </transformationSet>
+
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/config</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/config</outputDir>
                         </transformationSet>
+
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/atom</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/atom</outputDir>
                         </transformationSet>
+
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/xml</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/xml</outputDir>
                         </transformationSet>
                     </transformationSets>
                 </configuration>
             </plugin>
 
-
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
 
                 <configuration>
-
                     <specVersion>2.2</specVersion>
                     <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
 
                     <schemaIncludes>
                         <include>**/*.xsd</include>
                     </schemaIncludes>
+
                     <bindingIncludes>
                         <include>**/*.xjb</include>
                     </bindingIncludes>
 
                     <strict>true</strict>
                     <verbose>false</verbose>
-
                 </configuration>
             </plugin>
-            <!-- this is working now that doxygen is commented out-->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
+
                 <dependencies>
                     <dependency>
                         <groupId>org.codenarc</groupId>
@@ -169,30 +176,41 @@
                             </exclusion>
                         </exclusions>
                     </dependency>
+
                     <dependency>
                         <groupId>org.openrepose</groupId>
                         <artifactId>build-tools</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
+
                 <executions>
                     <execution>
                         <id>codenarc</id>
                         <phase>verify</phase>
+
                         <goals>
                             <goal>run</goal>
                         </goals>
+
                         <configuration>
                             <target>
-                                <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask" classpathref="maven.plugin.classpath" />
-                                <codenarc ruleSetFiles="classpath:repose-style-configs/ruleset.xml" maxPriority1Violations="0" maxPriority2Violations="0" maxPriority3Violations="0">
+                                <taskdef name="codenarc"
+                                         classname="org.codenarc.ant.CodeNarcTask"
+                                         classpathref="maven.plugin.classpath"/>
+
+                                <codenarc ruleSetFiles="classpath:repose-style-configs/ruleset.xml"
+                                          maxPriority1Violations="0"
+                                          maxPriority2Violations="0"
+                                          maxPriority3Violations="0">
                                     <report type="xml">
-                                        <option name="outputFile" value="${basedir}/target/CodeNarc.xml" />
-                                        <option name="title" value="${project.name}" />
+                                        <option name="outputFile" value="${basedir}/target/CodeNarc.xml"/>
+                                        <option name="title" value="${project.name}"/>
                                     </report>
+
                                     <!--fileset dir="${basedir}/src/test/groovy"-->
                                     <fileset dir="${basedir}/src/test/java">
-                                        <include name="**/*.groovy" />
+                                        <include name="**/*.groovy"/>
                                     </fileset>
                                 </codenarc>
                             </target>

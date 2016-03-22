@@ -20,9 +20,9 @@
 package org.openrepose.filters.versioning.util;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +37,7 @@ import org.openrepose.filters.versioning.schema.VersionChoiceList;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
@@ -87,7 +88,9 @@ public class ContentTransformerTest {
 
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(IOUtils.toInputStream(versionXmlFileReader));
-            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1));
+            ByteArrayOutputStream transformStream = new ByteArrayOutputStream();
+            contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1), transformStream);
+            String actual = transformStream.toString();
 
             Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
             Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
@@ -103,7 +106,9 @@ public class ContentTransformerTest {
 
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(IOUtils.toInputStream(versionXmlFileReader));
-            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_XML, -1));
+            ByteArrayOutputStream transformStream = new ByteArrayOutputStream();
+            contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_XML, -1), transformStream);
+            String actual = transformStream.toString();
             Diff diff = new Diff(expected, actual);
             assertTrue("XML Should be equivalent", diff.similar());
         }
@@ -117,7 +122,9 @@ public class ContentTransformerTest {
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(IOUtils.toInputStream(versionXmlFileReader));
 
-            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1));
+            ByteArrayOutputStream transformStream = new ByteArrayOutputStream();
+            contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1), transformStream);
+            String actual = transformStream.toString();
 
             Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
             Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
@@ -135,7 +142,10 @@ public class ContentTransformerTest {
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(IOUtils.toInputStream(choicesXmlFileReader));
 
-            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1));
+            ByteArrayOutputStream transformStream = new ByteArrayOutputStream();
+            contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1), transformStream);
+            String actual = transformStream.toString();
+
             Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
             Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
 

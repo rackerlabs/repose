@@ -142,7 +142,7 @@ public class VersioningHandlerTest {
         configuredMappings.put(version2.getId(), version2);
         configuredMappings.put(version3.getId(), version3);
 
-        configurationData = new ConfigurationData(domain, localHost, configuredHosts, configuredMappings);
+        configurationData = new ConfigurationData(configuredHosts, configuredMappings);
 
         contentTransformer = mock(ContentTransformer.class);
         versioningHandler = new VersioningHandler(configurationData, contentTransformer, null);
