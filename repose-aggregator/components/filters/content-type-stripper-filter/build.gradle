@@ -1,5 +1,5 @@
 dependencies {
-    compile project(":repose-aggregator/commons/commons-utilities")
+    compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.scala-lang:scala-library"
     compile "org.apache.commons:commons-lang3"
     compile "org.apache.httpcomponents:httpcore"

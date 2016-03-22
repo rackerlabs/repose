@@ -1,8 +1,8 @@
 dependencies {
-    compile project(":repose-aggregator/commons/commons-utilities")
-    compile project(":repose-aggregator/core/core-service-api")
-    compile project(":repose-aggregator/components/services/http-client-service/http-client-service-api")
-    compile project(":repose-aggregator/components/services/akka-http-client-service/akka-http-client-service-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile project(":repose-aggregator:core:core-service-api")
+    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-api")
+    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
     compile "org.slf4j:slf4j-api"
     compile "com.typesafe:config"
     compile "commons-io:commons-io"

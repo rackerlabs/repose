@@ -1,6 +1,6 @@
 dependencies {
-    compile project(":repose-aggregator/core/core-service-api")
-    compile project(":repose-aggregator/commons/commons-utilities")
+    compile project(":repose-aggregator:core:core-service-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.springframework:spring-beans"
@@ -17,5 +17,5 @@ dependencies {
     testCompile "org.apache.logging.log4j:log4j-core"
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
     testCompile "org.springframework:spring-test"
-    testCompile project(":repose-aggregator/core/core-lib") //todo: remove this once filter director is gone
+    testCompile project(":repose-aggregator:core:core-lib") //todo: remove this once filter director is gone
 }

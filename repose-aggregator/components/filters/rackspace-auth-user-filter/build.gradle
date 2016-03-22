@@ -1,6 +1,6 @@
 dependencies {
-    compile project(":repose-aggregator/core/core-service-api")
-    compile project(":repose-aggregator/commons/commons-utilities")
+    compile project(":repose-aggregator:core:core-service-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.scala-lang:scala-library"
     compile "org.scala-lang:scala-xml"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"

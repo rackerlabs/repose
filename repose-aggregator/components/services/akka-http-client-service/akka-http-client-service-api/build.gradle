@@ -1,5 +1,5 @@
 dependencies {
-    compile project(":repose-aggregator/commons/commons-utilities")
+    compile project(":repose-aggregator:commons:commons-utilities")
 
     provided "org.glassfish:javax.servlet"
     provided "javax.ws.rs:javax.ws.rs-api"

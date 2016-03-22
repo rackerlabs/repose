@@ -1,9 +1,9 @@
 dependencies {
-    compile project(":repose-aggregator/core/core-service-api")
-    compile project(":repose-aggregator/commons/commons-utilities")
-    compile project(":repose-aggregator/components/services/akka-http-client-service/akka-http-client-service-api")
-    compile project(":repose-aggregator/components/services/http-client-service/http-client-service-api")//todo: why do we need this one also?
-    compile project(":repose-aggregator/components/services/datastore-service/datastore-service-api")
+    compile project(":repose-aggregator:core:core-service-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
+    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-api")//todo: why do we need this one also?
+    compile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.openrepose:http-delegation"

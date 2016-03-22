@@ -1,10 +1,10 @@
 dependencies {
     xjc "org.jvnet.jaxb2_commons:jaxb2-fluent-api"
 
-    compile project(":repose-aggregator/core/core-service-api")
-    compile project(":repose-aggregator/commons/commons-utilities")
-    compile project(":repose-aggregator/components/services/health-check-service/health-check-service-api")
-    compile project(":repose-aggregator/core/core-lib") //todo: try to remove this once filter director is gone
+    compile project(":repose-aggregator:core:core-service-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
+    compile project(":repose-aggregator:core:core-lib") //todo: try to remove this once filter director is gone
     compile "org.slf4j:slf4j-api"
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"

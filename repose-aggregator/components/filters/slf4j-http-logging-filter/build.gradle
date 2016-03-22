@@ -1,6 +1,6 @@
 dependencies {
-    compile project(":repose-aggregator/core/core-service-api")
-    compile project(":repose-aggregator/commons/commons-utilities")
+    compile project(":repose-aggregator:core:core-service-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.scala-lang:scala-library"
     compile "org.slf4j:slf4j-api"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
@@ -17,7 +17,7 @@ dependencies {
     testCompile "com.mockrunner:mockrunner-servlet"
     testCompile "org.mockito:mockito-all"
     testCompile "org.jetbrains:annotations"
-    testCompile project(":repose-aggregator/commons/commons-configuration")
+    testCompile project(":repose-aggregator:commons:commons-configuration")
     testCompile "xerces:xerces-xsd11"
 }
 
