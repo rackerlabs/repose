@@ -1,30 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<header-translation xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
+<header-translation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://docs.openrepose.org/repose/header-translation/v1.0 ../config/header-translation.xsd"
+                    xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
 
-    <header original-name="X-OneToOne-A" new-name="X-OneToOne-C" remove-original="false"/>
-    <header original-name="X-OneToOneRemoval-A" new-name="X-OneToOneRemoval-C" remove-original="true"/>
-    <header original-name="X-OneToMany-A" new-name="X-OneToMany-C X-OneToMany-D" remove-original="false"/>
-    <header original-name="X-OneToManyRemoval-A" new-name="X-OneToManyRemoval-C X-OneToManyRemoval-D"
-            remove-original="true"/>
-
-    <header original-name="X-StripHeader-A" new-name="" remove-original="true"/>
-
-    <header original-name="X-ManyToMany-A" new-name="X-ManyToMany-D" remove-original="false"/>
-    <header original-name="X-ManyToMany-B" new-name="X-ManyToMany-E" remove-original="false"/>
-    <header original-name="X-ManyToMany-C" new-name="X-ManyToMany-F" remove-original="false"/>
-
-    <header original-name="X-ManyToOne-A" new-name="X-ManyToOne-D" remove-original="true"/>
-    <header original-name="X-ManyToOne-B" new-name="X-ManyToOne-D" remove-original="true"/>
-    <header original-name="X-ManyToOne-C" new-name="X-ManyToOne-D" remove-original="true"/>
-
-    <header original-name="X-ToExisting-A" new-name="X-Header-Existing" remove-original="false"/>
-
-    <header original-name="X-mixedcase-A" new-name="X-MIXEDCASE-D" remove-original="false"/>
-    <header original-name="X-Mixedcase-b" new-name="X-Mixedcase-e" remove-original="false"/>
-    <header original-name="X-MIXEDCASE-C" new-name="x-MIXEDCASE-E" remove-original="false"/>
-
-    <!-- CSL headers -->
     <header original-name="x-pp-user" new-name="x-rax-username" quality=".5"/>
     <header original-name="x-tenant-name" new-name="x-rax-tenants"/>
     <header original-name="x-roles" new-name="x-rax-roles" quality=".2"/>
