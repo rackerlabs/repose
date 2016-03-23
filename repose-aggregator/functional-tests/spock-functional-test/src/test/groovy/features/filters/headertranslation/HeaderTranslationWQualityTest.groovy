@@ -27,11 +27,11 @@ import org.rackspace.deproxy.MessageChain
  * Created by jennyvo on 3/22/16.
  *  Header Translation With Quality
  */
-class HeaderTranslationWQualityTest extends ReposeValveTest{
+class HeaderTranslationWQualityTest extends ReposeValveTest {
     def static Map params = [:]
     def static originEndpoint
 
-    def setupSpec () {
+    def setupSpec() {
         deproxy = new Deproxy()
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
 
@@ -52,7 +52,7 @@ class HeaderTranslationWQualityTest extends ReposeValveTest{
         }
     }
 
-    def "When translate header with quality" () {
+    def "When translate header with quality"() {
 
         when: "Send request with headers to translate"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers:
@@ -71,7 +71,7 @@ class HeaderTranslationWQualityTest extends ReposeValveTest{
         reposehandling.request.headers.getFirstValue("x-pp-user") == "a"
     }
 
-    def "the original header is splittable by default, all new translated headers will be added with quality" () {
+    def "the original header is splittable by default, all new translated headers will be added with quality"() {
         when: "client passes a request through repose with headers to be translated"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
                 headers: ["x-pp-user"    : "test, repose",
@@ -88,7 +88,7 @@ class HeaderTranslationWQualityTest extends ReposeValveTest{
         reposehandling.request.getHeaders().getFirstValue("x-roles") == "test"
     }
 
-    def "when translation header quality in config should override quality from header" () {
+    def "when translation header quality in config should override quality from header"() {
 
         when: "client passes a request through repose with headers to be translated"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
@@ -110,7 +110,7 @@ class HeaderTranslationWQualityTest extends ReposeValveTest{
         reposehandling.request.getHeaders().getFirstValue("x-roles") == "c;q=0.3"
     }
 
-    def "when translation header with different quality header" () {
+    def "when translation header with different quality header"() {
 
         when: "client passes a request through repose with headers to be translated"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
@@ -134,10 +134,10 @@ class HeaderTranslationWQualityTest extends ReposeValveTest{
         reposehandling.request.getHeaders().getFirstValue("x-roles") == "test"
     }
 
-    def "Verify splittable option with non split by default header, all new translated headers will be added with quality" () {
+    def "Verify splittable option with non split by default header, all new translated headers will be added with quality"() {
         when: "client passes a request through repose with headers to be translated"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
-                headers: ["test-headers" : "test, repose",
+                headers: ["test-headers"    : "test, repose",
                           "nonsplit-headers": "a, b, c",]
         )
         def reposehandling = mc.getHandlings()[0]
