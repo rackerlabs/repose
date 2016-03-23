@@ -32,7 +32,7 @@ import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filters.DestinationRouter
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.filters.routing.servlet.config.DestinationRouterConfiguration
 
 @Named
@@ -79,9 +79,6 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
     } else {
       val target = configuration.getTarget
 
-      // Set the default quality since XJC won't
-      if (!target.isSetQuality) target.setQuality(0.5)
-
       if (Option(target.getId).forall(_.isEmpty)) {
         logger.warn("No destination configured for routing")
       } else {
@@ -108,7 +105,12 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
   override def isInitialized: Boolean = initialized
 
   override def configurationUpdated(configurationObject: DestinationRouterConfiguration): Unit = {
+    // Set the default quality since XJC won't
+    val target = configurationObject.getTarget
+    if (!target.isSetQuality) target.setQuality(0.5)
+
     configuration = configurationObject
+
     initialized = true
   }
 }
