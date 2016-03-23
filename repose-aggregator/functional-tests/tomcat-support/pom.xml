@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>functional-test-support</artifactId>
-        <version>7.3.3.2-SNAPSHOT</version>
+        <version>7.3.3.2</version>
     </parent>
 
     <name>Repose Test - Testing Repose with Embedded Tomcat</name>
