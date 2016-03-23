@@ -30,3 +30,16 @@ dependencies {
     earlib project(":repose-aggregator:components:filters:valkyrie-authorization-filter")
     earlib project(":repose-aggregator:components:filters:versioning-filter")
 }
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            artifact source: ear, extension: 'ear'
+
+            pom.withXml { XmlProvider xml ->
+                def root = xml.asNode()
+                println root.get("packaging").each { it.replaceNode(new Node(null, "packaging", "ear")) }
+            }
+        }
+    }
+}
