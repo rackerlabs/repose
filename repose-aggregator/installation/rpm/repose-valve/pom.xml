@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>rpm</artifactId>
-        <version>7.3.3.2</version>
+        <version>7.3.3.3-SNAPSHOT</version>
     </parent>
 
     <name>Repose - Installation Valve RPM</name>
