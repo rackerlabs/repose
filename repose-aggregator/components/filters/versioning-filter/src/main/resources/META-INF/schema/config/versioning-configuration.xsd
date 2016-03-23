@@ -41,7 +41,6 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="service-root" type="ServiceRootContext"/>
             <xs:element name="version-mapping" type="ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
@@ -50,27 +49,6 @@
                    xerces:message="Version mapping must have ids unique within their containing filter list"
                    saxon:message="Version mapping must have ids unique within their containing filter list"
                    xpathDefaultNamespace="##targetNamespace"/>
-    </xs:complexType>
-
-    <xs:complexType name="ServiceRootContext">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>The configuration's service root describes the base URL of the
-                    origin service without any versioning informationin the URI variant.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:attribute name="href" type="xs:anyURI" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        This hypertext reference identifies the full URI for the
-                        origin service's root.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="ServiceVersionMapping">
