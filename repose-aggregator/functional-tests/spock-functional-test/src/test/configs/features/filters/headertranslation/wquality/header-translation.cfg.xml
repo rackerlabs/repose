@@ -7,4 +7,6 @@
     <header original-name="x-pp-user" new-name="x-rax-username" quality=".5"/>
     <header original-name="x-tenant-name" new-name="x-rax-tenants" remove-original="true"/>
     <header original-name="x-roles" new-name="x-rax-roles" quality=".2"/>
+    <header original-name="test-headers" new-name="repose-headers" quality=".3" splittable="true"/>
+    <header original-name="nonsplit-headers" new-name="repose-nonsplit" quality=".2" splittable="false"/>
 </header-translation>

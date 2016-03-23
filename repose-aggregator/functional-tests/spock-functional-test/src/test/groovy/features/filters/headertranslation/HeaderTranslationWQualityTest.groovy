@@ -71,7 +71,7 @@ class HeaderTranslationWQualityTest extends ReposeValveTest{
         reposehandling.request.headers.getFirstValue("x-pp-user") == "a"
     }
 
-    def "the original header is splittable, all new translated headers will be added with quality" () {
+    def "the original header is splittable by default, all new translated headers will be added with quality" () {
         when: "client passes a request through repose with headers to be translated"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
                 headers: ["x-pp-user"    : "test, repose",
@@ -132,5 +132,25 @@ class HeaderTranslationWQualityTest extends ReposeValveTest{
         !reposehandling.request.getHeaders().contains("x-tenant-name")
         reposehandling.request.getHeaders().contains("x-roles")
         reposehandling.request.getHeaders().getFirstValue("x-roles") == "test"
+    }
+
+    def "Verify splittable option with non split by default header, all new translated headers will be added with quality" () {
+        when: "client passes a request through repose with headers to be translated"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
+                headers: ["test-headers" : "test, repose",
+                          "nonsplit-headers": "a, b, c",]
+        )
+        def reposehandling = mc.getHandlings()[0]
+
+        then:
+        reposehandling.request.getHeaders().contains("test-headers")
+        reposehandling.request.getHeaders().contains("repose-headers")
+        reposehandling.request.getHeaders().getFirstValue("test-headers") == ("test, repose")
+        reposehandling.request.getHeaders().findAll("repose-headers").contains("test;q=0.3")
+        reposehandling.request.getHeaders().findAll("repose-headers").contains("repose;q=0.3")
+        reposehandling.request.getHeaders().contains("nonsplit-headers")
+        reposehandling.request.getHeaders().contains("repose-nonsplit")
+        reposehandling.request.getHeaders().getFirstValue("nonsplit-headers") == "a, b, c"
+        reposehandling.request.getHeaders().getFirstValue("repose-nonsplit") == "a, b, c;q=0.2"
     }
 }
