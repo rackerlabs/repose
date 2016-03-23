@@ -99,6 +99,10 @@ class BasicAuthAkkatimeoutUsingConnPoolTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
+        // REP-3577 - add header using connection pool
+        mc.orphanedHandlings.get(0).request.headers.contains("auth-proxy")
+        mc.orphanedHandlings.get(0).request.headers.getFirstValue("auth-proxy") == "testing"
+        !mc.handlings[0].request.headers.contains("auth-proxy")
     }
 
     def "akka timeout test, auth response time out is greater than socket connection time out"() {

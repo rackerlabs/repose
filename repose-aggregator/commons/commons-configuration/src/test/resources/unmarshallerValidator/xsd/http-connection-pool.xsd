@@ -247,7 +247,6 @@
             </xs:annotation>
         </xs:attribute>
 
-
         <xs:assert vc:minVersion="1.1"
                    test="(@http.conn-manager.max-per-route) &lt;= (@http.conn-manager.max-total)"
                    xerces:message="Max connections per route must be less than or equal to total max connections"

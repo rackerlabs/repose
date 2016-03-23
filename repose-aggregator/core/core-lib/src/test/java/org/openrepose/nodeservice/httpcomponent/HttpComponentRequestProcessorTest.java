@@ -22,10 +22,8 @@ package org.openrepose.nodeservice.httpcomponent;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -38,8 +36,10 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class HttpComponentRequestProcessorTest {
@@ -51,7 +51,7 @@ public class HttpComponentRequestProcessorTest {
         private String[] headers = {"header1", "header2"};
         private String[] values1 = {"value1"};
         private String[] values2 = {"value21", "value22"};
-        private String[] params = {"param1", "param2"};
+        private String[] params = {"param1%5B%5D", "param2"};
         private String[] params1 = {"value1"};
         private String[] params2 = {"value21", "value22"};
         private ServletInputStream input;
@@ -72,7 +72,7 @@ public class HttpComponentRequestProcessorTest {
             when(request.getHeaders(eq("header1"))).thenReturn(Collections.enumeration(Arrays.asList(values1)));
             when(request.getHeaders(eq("header2"))).thenReturn(Collections.enumeration(Arrays.asList(values2)));
             when(request.getParameterNames()).thenReturn(Collections.enumeration(Arrays.asList(params)));
-            when(request.getParameterValues(eq("param1"))).thenReturn(params1);
+            when(request.getParameterValues(eq("param1%5B%5D"))).thenReturn(params1);
             when(request.getParameterValues(eq("param2"))).thenReturn(params2);
             when(request.getInputStream()).thenReturn(input);
             when(method.getParams()).thenReturn(methodParams);
@@ -100,27 +100,12 @@ public class HttpComponentRequestProcessorTest {
         }
 
         @Test
-        @Ignore
-        public void shouldSetParams() throws IOException {
+        public void shouldSetParams() throws Exception {
 
             when(input.read()).thenReturn(-1);
-            processor.process(method);
+            URI uri = processor.getUri("http://foo.com");
 
-            verify(request).getParameterNames();
-            for (String param : params) {
-                verify(request).getParameterValues(eq(param));
-            }
-
-            verify(method, times(2)).setParams(any(BasicHttpParams.class));
-            /*
-            for (String param: params1) {
-                verify(methodParams).setParameter(eq("param1"), eq(param));
-            }
-
-            for (String param: params2) {
-                verify(methodParams).setParameter(eq("param2"), eq(param));
-            }
-            */
+            assertThat(uri.getRawQuery(), allOf(containsString("param1%5B%5D=value1"), containsString("param2=value21"), containsString("param2=value22")));
         }
 
         @Test

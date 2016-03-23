@@ -74,6 +74,10 @@
     </xs:complexType>
 
     <xs:complexType name="PoolType">
+        <xs:sequence>
+            <xs:element type="headerListType" name="headers" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
         <xs:attribute name="http.conn-manager.max-total" type="PositiveInt" use="optional" default="400">
             <xs:annotation>
                 <xs:documentation>
@@ -255,4 +259,28 @@
                    xerces:message="Max connections per route must be less than or equal to total max connections"
                    saxon:message="Max connections per route must be less than or equal to total max connections"/>
     </xs:complexType>
+
+    <xs:complexType name="headerListType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of headers to add to each request made using this connection pool.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element type="headerType" name="header" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="headerType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Header with a name and a value.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="value" type="xs:string" use="required"/>
+    </xs:complexType>
+
 </xs:schema>
