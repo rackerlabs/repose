@@ -153,7 +153,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
     it("should add a new header with a single value") {
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      getCapturedRequest.getHeaders("X-New-One-One").toSeq should contain theSameElementsAs Seq("valueOne")
+      getCapturedRequest.getHeaders("X-New-One-One").toSeq should contain ("valueOne")
     }
 
     it("should add new headers with multiple values") {
@@ -168,9 +168,9 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
       filter.doFilter(mockRequest, null, mockFilterChain)
 
       val capturedRequest = getCapturedRequest
-      capturedRequest.getHeaders("X-New-One-One").toSeq should contain theSameElementsInOrderAs Seq("valueOne")
-      capturedRequest.getHeaders("X-New-Two-One").toSeq should contain theSameElementsInOrderAs Seq("valueOne", "valueTwo")
-      capturedRequest.getHeaders("X-New-Two-Two").toSeq should contain theSameElementsInOrderAs Seq("valueOne", "valueTwo")
+      capturedRequest.getHeaders("X-New-One-One").toSeq should contain ("valueOne")
+      capturedRequest.getHeaders("X-New-Two-One").toSeq should contain inOrderOnly ("valueOne", "valueTwo")
+      capturedRequest.getHeaders("X-New-Two-Two").toSeq should contain inOrderOnly ("valueOne", "valueTwo")
     }
   }
 
@@ -195,7 +195,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
       filter.doFilter(mockRequest, null, mockFilterChain)
 
       val capturedRequest = getCapturedRequest
-      capturedRequest.getHeaders("X-Three").toSeq should contain theSameElementsAs Seq("valueOne")
+      capturedRequest.getHeaders("X-Three").toSeq should contain ("valueOne")
       capturedRequest.getHeaders("X-Four").toSeq should contain theSameElementsAs Seq("valueOne", "valueTwo")
     }
   }
@@ -216,7 +216,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
 
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      getCapturedRequest.getHeaders("X-New-Five-One").toSeq should contain theSameElementsInOrderAs Seq("mustard", "ketchup", "mayo;q=0.9", "pickles;q=0.1")
+      getCapturedRequest.getHeaders("X-New-Five-One").toSeq should contain inOrderOnly ("mustard", "ketchup", "mayo;q=0.9", "pickles;q=0.1")
     }
 
     it("should correctly handle multiple splittable headers") {
@@ -226,7 +226,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
 
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      getCapturedRequest.getHeaders("X-New-Five-One").toSeq should contain theSameElementsInOrderAs Seq("mustard", "ketchup", "mayo;q=0.9", "pickles;q=0.1", "bacon;q=1.0", "cheese;q=0.8")
+      getCapturedRequest.getHeaders("X-New-Five-One").toSeq should contain inOrderOnly ("mustard", "ketchup", "mayo;q=0.9", "pickles;q=0.1", "bacon;q=1.0", "cheese;q=0.8")
     }
   }
 
@@ -237,7 +237,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
 
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      getCapturedRequest.getHeaders("X-New-Eight-One").toSeq should contain theSameElementsAs Seq("mustard;q=0.82")
+      getCapturedRequest.getHeaders("X-New-Eight-One").toSeq should contain ("mustard;q=0.82")
     }
 
     it("removes the original quality before adding the new header") {
@@ -246,7 +246,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
 
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      getCapturedRequest.getHeaders("X-New-Eight-One").toSeq should contain theSameElementsAs Seq("mayo;q=0.82")
+      getCapturedRequest.getHeaders("X-New-Eight-One").toSeq should contain ("mayo;q=0.82")
     }
 
     it("correctly handles non-splittable headers") {
@@ -255,7 +255,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
 
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      getCapturedRequest.getHeaders("X-New-Eight-One").toSeq should contain theSameElementsAs Seq("mustard,mayo,cheese;q=0.82")
+      getCapturedRequest.getHeaders("X-New-Eight-One").toSeq should contain ("mustard,mayo,cheese;q=0.82")
     }
 
     it("correctly handles splittable headers") {

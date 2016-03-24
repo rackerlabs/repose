@@ -65,10 +65,11 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
 
       sourceHeaders foreach { sourceHeader =>
         val originalHeaderName = sourceHeader.getOriginalName
-        val originalHeaderValues = if (sourceHeader.isSplittable)
-          httpRequest.getSplittableHeaderScala(originalHeaderName) else
-          httpRequest.getHeadersScala(originalHeaderName)
         val quality = Option(sourceHeader.getQuality)
+        val originalHeaderValues = if (sourceHeader.isSplittable)
+          httpRequest.getSplittableHeaderScala(originalHeaderName)
+        else
+          httpRequest.getHeadersScala(originalHeaderName)
 
         if (originalHeaderValues.nonEmpty) {
           sourceHeader.getNewName foreach { newHeaderName =>
@@ -112,5 +113,5 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
 object HeaderTranslationFilter {
   private final val DefaultConfig = "header-translation.cfg.xml"
   private final val SchemaFileName = "/META-INF/schema/config/header-translation.xsd"
-  private final val QualityReqex = ";q=\\d[^;]*".r
+  private final val QualityReqex = """;q=[^;]*""".r
 }
