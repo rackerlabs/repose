@@ -11,7 +11,6 @@
     </media-variants>
 
     <uri-filters>
-        <!-- Modify config to make test pass but will track issue REP-3667
         <target uri-regex="/servers/.*" http-methods="GET" alphabetize="true">
             <whitelist id="pagination-params">
                 <parameter name="a" multiplicity="1" case-sensitive="false"/>
@@ -37,21 +36,6 @@
         </target>
 
         <target uri-regex="/resource/.*" http-methods="POST" alphabetize="true">
-            <whitelist id="pagination-params">
-                <parameter name="a" multiplicity="1" case-sensitive="false"/>
-                <parameter name="r" multiplicity="1" case-sensitive="false"/>
-                <parameter name="n" multiplicity="1" case-sensitive="false"/>
-            </whitelist>
-        </target>
-        -->
-        <target uri-regex="/servers/.*">
-            <whitelist id="pagination-params">
-                <parameter name="a" multiplicity="1" case-sensitive="false"/>
-                <parameter name="r" multiplicity="1" case-sensitive="false"/>
-                <parameter name="n" multiplicity="1" case-sensitive="false"/>
-            </whitelist>
-        </target>
-        <target uri-regex="/resource/.*">
             <whitelist id="pagination-params">
                 <parameter name="a" multiplicity="1" case-sensitive="false"/>
                 <parameter name="r" multiplicity="1" case-sensitive="false"/>

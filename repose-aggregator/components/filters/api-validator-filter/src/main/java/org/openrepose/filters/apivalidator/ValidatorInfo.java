@@ -167,8 +167,7 @@ public class ValidatorInfo {
                     .replace('?', '-')
                     .replace(' ', '-')
                     .replace('\u00A0', '-')
-                    + "_"
-            );
+            ).append('_');
         }
         return name.substring(0, name.length() - 1);
     }
