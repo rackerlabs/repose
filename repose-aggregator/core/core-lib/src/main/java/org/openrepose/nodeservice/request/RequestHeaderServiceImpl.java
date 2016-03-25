@@ -22,7 +22,7 @@ package org.openrepose.nodeservice.request;
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -97,12 +97,12 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     }
 
     @Override
-    public void setXForwardedFor(MutableHttpServletRequest request) {
+    public void setXForwardedFor(HttpServletRequestWrapper request) {
         request.addHeader(CommonHttpHeader.X_FORWARDED_FOR.toString(), request.getRemoteAddr());
     }
 
     @Override
-    public void setVia(MutableHttpServletRequest request) {
+    public void setVia(HttpServletRequestWrapper request) {
         final String via = viaHeaderBuilder.buildVia(request);
         request.addHeader(CommonHttpHeader.VIA.toString(), via);
     }

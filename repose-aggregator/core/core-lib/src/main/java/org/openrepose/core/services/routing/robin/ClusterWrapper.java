@@ -41,6 +41,11 @@ public class ClusterWrapper {
 
     public Node getNextNode() {
         synchronized (nodes) {
+            // Reset the currentIndex to prevent int overflow
+            if (currentIndex == Integer.MAX_VALUE) {
+                currentIndex = 0;
+            }
+
             return getNode(currentIndex++);
         }
     }
@@ -48,5 +53,4 @@ public class ClusterWrapper {
     public Node getNode(int index) {
         return nodeCount > 0 && index >= 0 ? nodes.get(index % nodeCount) : null;
     }
-
 }

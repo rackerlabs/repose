@@ -19,6 +19,7 @@
  */
 package org.openrepose.powerfilter
 
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse
 import org.springframework.mock.web.MockHttpServletRequest
@@ -110,7 +111,7 @@ class PowerFilterChainTest extends Specification {
         def values = headerValues
         def router = new PowerFilterRouter() {
             @Override
-            void route(MutableHttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
+            void route(HttpServletRequestWrapper servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
                 values.each {
                     servletResponse.addHeader(name, it)
                 }

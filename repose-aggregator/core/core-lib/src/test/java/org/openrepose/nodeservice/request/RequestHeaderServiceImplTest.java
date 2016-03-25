@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
@@ -36,12 +36,12 @@ public class RequestHeaderServiceImplTest {
 
     public static class WhenSettingHeaders {
         private RequestHeaderServiceImpl instance;
-        private MutableHttpServletRequest request;
+        private HttpServletRequestWrapper request;
         private ViaHeaderBuilder viaBuilder;
 
         @Before
         public void setup() {
-            request = mock(MutableHttpServletRequest.class);
+            request = mock(HttpServletRequestWrapper.class);
             viaBuilder = mock(ViaHeaderBuilder.class);
             instance = new RequestHeaderServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), "cluster", "node", "1.0");
         }

@@ -20,17 +20,18 @@
 package org.openrepose.core.services.headers.common;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
 
 public abstract class ViaHeaderBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ViaHeaderBuilder.class);
 
-    protected abstract String getViaValue(MutableHttpServletRequest request);
+    protected abstract String getViaValue(HttpServletRequest request);
 
-    public String buildVia(MutableHttpServletRequest request) {
+    public String buildVia(HttpServletRequest request) {
 
         StringBuilder builder = new StringBuilder();
 

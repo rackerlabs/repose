@@ -53,7 +53,7 @@ class Slf4jHttpLoggingTest extends ReposeValveTest {
 
         then:
         logSearch.searchByString("Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method").size() == 1
-        logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.targetPort}//\tRequest Protocol=HTTP/1.1").size() == 1
+        logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.reposePort}/\tRequest Protocol=HTTP/1.1").size() == 1
         logSearch.searchByString("Time Request Received=\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}").size() == 1 // default date format
 
         where:
@@ -74,13 +74,15 @@ class Slf4jHttpLoggingTest extends ReposeValveTest {
         def xmlResp = { request -> return new Response(responseCode) }
         def logSearch = new ReposeLogSearch(properties.logFile)
         logSearch.cleanLog()
+        println properties.reposePort
+        println properties.targetPort
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, defaultHandler: xmlResp)
 
         then:
         logSearch.searchByString("Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method Response Code=$responseCode").size() == 1
-        logSearch.searchByString("Remote User=null\tURL Path Requested=http://localhost:${properties.targetPort}//\tRequest Protocol=HTTP/1.1").size() == 1
+        logSearch.searchByString("my-special-log - Remote User=null\tURL Path Requested=http://localhost:${properties.reposePort}/\tRequest Protocol=HTTP/1.1").size() == 1
 
         where:
         method   | responseCode

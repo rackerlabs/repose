@@ -29,6 +29,7 @@ import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderFieldParser;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.SplittableHeaderUtil;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
@@ -256,7 +257,8 @@ public class PowerFilterChain implements FilterChain {
                 containerFilterChain.doFilter(mutableHttpRequest, httpServletResponseWrapper);
             }
             if (isResponseOk(httpServletResponseWrapper)) {
-                router.route(mutableHttpRequest, httpServletResponseWrapper);
+                // todo: rip out the mutable wrapper
+                router.route(new HttpServletRequestWrapper(mutableHttpRequest), httpServletResponseWrapper);
             }
             splitResponseHeaders(httpServletResponseWrapper);
             httpServletResponseWrapper.commitToResponse();

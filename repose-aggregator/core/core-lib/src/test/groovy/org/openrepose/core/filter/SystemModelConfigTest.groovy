@@ -59,16 +59,28 @@ class SystemModelConfigTest extends Specification {
         validator.validate(sampleSource)
     }
 
-    @Unroll("Validate System-Model with only one Endpoint Destination that has default attribute set to #endpointOneDefault")
     def "Validate System-Model with only one Endpoint Destination"() {
         given:
-        String xml = createXml(endpointOneDefault)
+        String xml = createXml(true)
 
         expect:
         validator.validate(new StreamSource(new StringReader(xml)))
+    }
+
+    @Unroll("InValidate System-Model with only one Endpoint Destination that has default attribute set to #endpointOneDefault")
+    def "InValidate System-Model with only one Endpoint Destination"() {
+        given:
+        String xml = createXml(endpointOneDefault)
+
+        when:
+        validator.validate(new StreamSource(new StringReader(xml)))
+
+        then:
+        def caught = thrown(SAXParseException)
+        caught.getLocalizedMessage().contains('There should only be one default destination')
 
         where:
-        endpointOneDefault << [null, true, false]
+        endpointOneDefault << [null, false]
     }
 
     @Unroll("InValidate System-Model with Endpoint Destinations default1=#endpointOneDefault, default2=#endpointTwoDefault, and default3=#endpointThreeDefault")
