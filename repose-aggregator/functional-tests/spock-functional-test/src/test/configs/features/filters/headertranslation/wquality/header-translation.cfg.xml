@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<header-translation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://docs.openrepose.org/repose/header-translation/v1.0 ../config/header-translation.xsd"
+                    xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
+
+    <header original-name="x-pp-user" new-name="x-rax-username" quality=".5"/>
+    <header original-name="x-tenant-name" new-name="x-rax-tenants" remove-original="true"/>
+    <header original-name="x-roles" new-name="x-rax-roles" quality=".2"/>
+    <header original-name="test-headers" new-name="repose-headers" quality=".3" splittable="true"/>
+    <header original-name="nonsplit-headers" new-name="repose-nonsplit" quality=".2" splittable="false"/>
+</header-translation>

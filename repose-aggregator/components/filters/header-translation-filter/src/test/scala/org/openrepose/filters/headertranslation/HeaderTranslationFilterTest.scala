@@ -72,10 +72,42 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
     headerFour.getNewName.add("X-New-Four-Two")
     headerFour.setRemoveOriginal(false)
 
+    val headerFive = new Header
+    headerFive.setOriginalName("X-Five")
+    headerFive.getNewName.add("X-New-Five-One")
+    headerFive.setRemoveOriginal(false)
+    headerFive.setQuality(null)
+    headerFive.setSplittable(true)
+
+    val headerSix = new Header
+    headerSix.setOriginalName("X-Six")
+    headerSix.getNewName.add("X-New-Six-One")
+    headerSix.setRemoveOriginal(false)
+    headerSix.setQuality(null)
+    headerSix.setSplittable(false)
+
+    val headerSeven = new Header
+    headerSeven.setOriginalName("X-Seven")
+    headerSeven.getNewName.add("X-New-Seven-One")
+    headerSeven.setRemoveOriginal(false)
+    headerSeven.setQuality(0.71)
+    headerSeven.setSplittable(true)
+
+    val headerEight = new Header
+    headerEight.setOriginalName("X-Eight")
+    headerEight.getNewName.add("X-New-Eight-One")
+    headerEight.setRemoveOriginal(false)
+    headerEight.setQuality(0.82)
+    headerEight.setSplittable(false)
+
     config.getHeader.add(headerOne)
     config.getHeader.add(headerTwo)
     config.getHeader.add(headerThree)
     config.getHeader.add(headerFour)
+    config.getHeader.add(headerFive)
+    config.getHeader.add(headerSix)
+    config.getHeader.add(headerSeven)
+    config.getHeader.add(headerEight)
 
     filter.configurationUpdated(config)
   }
@@ -109,40 +141,25 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
 
       filter.doFilter(request, null, mockFilterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(mockFilterChain).doFilter(requestCaptor.capture(), any[ServletResponse])
-
-      val capturedRequest = requestCaptor.getValue
-      capturedRequest.getHeaderNames.toSeq should contain theSameElementsAs request.getHeaderNames.toSeq
+      getCapturedRequest.getHeaderNames.toSeq should contain theSameElementsAs request.getHeaderNames.toSeq
     }
 
     it("should remove the original header") {
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(mockFilterChain).doFilter(requestCaptor.capture(), any[ServletResponse])
-
-      val capturedRequest = requestCaptor.getValue
-      capturedRequest.getHeader("X-One") shouldBe null
+      getCapturedRequest.getHeader("X-One") shouldBe null
     }
 
     it("should add a new header with a single value") {
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(mockFilterChain).doFilter(requestCaptor.capture(), any[ServletResponse])
-
-      val capturedRequest = requestCaptor.getValue
-      capturedRequest.getHeaders("X-New-One-One").toSeq should contain theSameElementsAs Seq("valueOne")
+      getCapturedRequest.getHeaders("X-New-One-One").toSeq should contain ("valueOne")
     }
 
     it("should add new headers with multiple values") {
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(mockFilterChain).doFilter(requestCaptor.capture(), any[ServletResponse])
-
-      val capturedRequest = requestCaptor.getValue
+      val capturedRequest = getCapturedRequest
       capturedRequest.getHeaders("X-New-Two-One").toSeq should contain theSameElementsAs Seq("valueOne", "valueTwo")
       capturedRequest.getHeaders("X-New-Two-Two").toSeq should contain theSameElementsAs Seq("valueOne", "valueTwo")
     }
@@ -150,13 +167,10 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
     it("should preserve header value order") {
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(mockFilterChain).doFilter(requestCaptor.capture(), any[ServletResponse])
-
-      val capturedRequest = requestCaptor.getValue
-      capturedRequest.getHeaders("X-New-One-One").toSeq should contain theSameElementsInOrderAs Seq("valueOne")
-      capturedRequest.getHeaders("X-New-Two-One").toSeq should contain theSameElementsInOrderAs Seq("valueOne", "valueTwo")
-      capturedRequest.getHeaders("X-New-Two-Two").toSeq should contain theSameElementsInOrderAs Seq("valueOne", "valueTwo")
+      val capturedRequest = getCapturedRequest
+      capturedRequest.getHeaders("X-New-One-One").toSeq should contain ("valueOne")
+      capturedRequest.getHeaders("X-New-Two-One").toSeq should contain inOrderOnly ("valueOne", "valueTwo")
+      capturedRequest.getHeaders("X-New-Two-Two").toSeq should contain inOrderOnly ("valueOne", "valueTwo")
     }
   }
 
@@ -174,22 +188,98 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Match
 
       filter.doFilter(request, null, mockFilterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(mockFilterChain).doFilter(requestCaptor.capture(), any[ServletResponse])
-
-      val capturedRequest = requestCaptor.getValue
-      capturedRequest.getHeaderNames.toSeq should contain theSameElementsAs request.getHeaderNames.toSeq
+      getCapturedRequest.getHeaderNames.toSeq should contain theSameElementsAs request.getHeaderNames.toSeq
     }
 
     it("should not remove the original headers") {
       filter.doFilter(mockRequest, null, mockFilterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(mockFilterChain).doFilter(requestCaptor.capture(), any[ServletResponse])
-
-      val capturedRequest = requestCaptor.getValue
-      capturedRequest.getHeaders("X-Three").toSeq should contain theSameElementsAs Seq("valueOne")
+      val capturedRequest = getCapturedRequest
+      capturedRequest.getHeaders("X-Three").toSeq should contain ("valueOne")
       capturedRequest.getHeaders("X-Four").toSeq should contain theSameElementsAs Seq("valueOne", "valueTwo")
     }
+  }
+
+  describe("splittable header configuration") {
+    it("should not split the headers when NOT configured to do so") {
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.addHeader("X-Six", "mustard,ketchup,mayo;q=0.9,pickles;q=0.1")
+
+      filter.doFilter(mockRequest, null, mockFilterChain)
+
+      getCapturedRequest.getHeaders("X-New-Six-One").toSeq should contain theSameElementsAs Seq("mustard,ketchup,mayo;q=0.9,pickles;q=0.1")
+    }
+
+    it("should split the headers when configured") {
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.addHeader("X-Five", "mustard,ketchup,mayo;q=0.9,pickles;q=0.1")
+
+      filter.doFilter(mockRequest, null, mockFilterChain)
+
+      getCapturedRequest.getHeaders("X-New-Five-One").toSeq should contain inOrderOnly ("mustard", "ketchup", "mayo;q=0.9", "pickles;q=0.1")
+    }
+
+    it("should correctly handle multiple splittable headers") {
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.addHeader("X-Five", "mustard,ketchup,mayo;q=0.9,pickles;q=0.1")
+      mockRequest.addHeader("X-Five", "bacon;q=1.0,cheese;q=0.8")
+
+      filter.doFilter(mockRequest, null, mockFilterChain)
+
+      getCapturedRequest.getHeaders("X-New-Five-One").toSeq should contain inOrderOnly ("mustard", "ketchup", "mayo;q=0.9", "pickles;q=0.1", "bacon;q=1.0", "cheese;q=0.8")
+    }
+  }
+
+  describe("when configured to set the header quality") {
+    it("sets the configured quality on the new header") {
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.addHeader("X-Eight", "mustard")
+
+      filter.doFilter(mockRequest, null, mockFilterChain)
+
+      getCapturedRequest.getHeaders("X-New-Eight-One").toSeq should contain ("mustard;q=0.82")
+    }
+
+    it("removes the original quality before adding the new header") {
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.addHeader("X-Eight", "mayo;q=1.0")
+
+      filter.doFilter(mockRequest, null, mockFilterChain)
+
+      getCapturedRequest.getHeaders("X-New-Eight-One").toSeq should contain ("mayo;q=0.82")
+    }
+
+    it("correctly handles non-splittable headers") {
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.addHeader("X-Eight", "mustard,mayo,cheese")
+
+      filter.doFilter(mockRequest, null, mockFilterChain)
+
+      getCapturedRequest.getHeaders("X-New-Eight-One").toSeq should contain ("mustard,mayo,cheese;q=0.82")
+    }
+
+    it("correctly handles splittable headers") {
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.addHeader("X-Seven", "mustard,mayo,cheese")
+
+      filter.doFilter(mockRequest, null, mockFilterChain)
+
+      getCapturedRequest.getHeaders("X-New-Seven-One").toSeq should contain theSameElementsAs Seq("mustard;q=0.71", "mayo;q=0.71", "cheese;q=0.71")
+    }
+
+    it("removes the original quality on splittable headers before adding the new header") {
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.addHeader("X-Seven", "mustard,mayo;q=0.2,cheese")
+
+      filter.doFilter(mockRequest, null, mockFilterChain)
+
+      getCapturedRequest.getHeaders("X-New-Seven-One").toSeq should contain theSameElementsAs Seq("mustard;q=0.71", "mayo;q=0.71", "cheese;q=0.71")
+    }
+  }
+
+  def getCapturedRequest: HttpServletRequest = {
+    val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
+    verify(mockFilterChain).doFilter(requestCaptor.capture(), any[ServletResponse])
+    requestCaptor.getValue
   }
 }

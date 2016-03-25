@@ -36,17 +36,17 @@ import scala.collection.JavaConversions._
 class HeaderTranslationFilter @Inject()(configurationService: ConfigurationService)
   extends Filter with UpdateListener[HeaderTranslationType] with LazyLogging {
 
-  private final val DEFAULT_CONFIG = "header-translation.cfg.xml"
+  import HeaderTranslationFilter._
 
   private var configFilename: String = _
   private var initialized: Boolean = false
   private var sourceHeaders: List[Header] = List.empty
 
   override def init(filterConfig: FilterConfig): Unit = {
-    configFilename = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
+    configFilename = new FilterConfigHelper(filterConfig).getFilterConfig(DefaultConfig)
     logger.info("Initializing filter using config " + configFilename)
 
-    val xsdURL = getClass.getResource("/META-INF/schema/config/header-translation.xsd")
+    val xsdURL = getClass.getResource(SchemaFileName)
     configurationService.subscribeTo(
       filterConfig.getFilterName,
       configFilename,
@@ -65,22 +65,30 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
 
       sourceHeaders foreach { sourceHeader =>
         val originalHeaderName = sourceHeader.getOriginalName
-        val originalHeaderValues = httpRequest.getHeadersScala(originalHeaderName)
+        val quality = Option(sourceHeader.getQuality)
+        val originalHeaderValues = if (sourceHeader.isSplittable)
+          httpRequest.getSplittableHeaderScala(originalHeaderName)
+        else
+          httpRequest.getHeadersScala(originalHeaderName)
 
         if (originalHeaderValues.nonEmpty) {
           sourceHeader.getNewName foreach { newHeaderName =>
             originalHeaderValues foreach { originalHeaderValue =>
-              httpRequest.addHeader(newHeaderName, originalHeaderValue)
+              if (quality.isEmpty) {
+                httpRequest.addHeader(newHeaderName, originalHeaderValue)
+              } else {
+                httpRequest.addHeader(newHeaderName, withoutQuality(originalHeaderValue), quality.get)
+              }
             }
-            logger.trace("Header added: " + newHeaderName)
+            logger.trace("Header added: {}", newHeaderName)
           }
 
           if (sourceHeader.isRemoveOriginal) {
             httpRequest.removeHeader(originalHeaderName)
-            logger.trace("Header removed: " + originalHeaderName)
+            logger.trace("Header removed: {}", originalHeaderName)
           }
         } else {
-          logger.trace("Header for translation not found: " + originalHeaderName)
+          logger.trace("Header for translation not found: {}", originalHeaderName)
         }
       }
 
@@ -88,9 +96,9 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
     }
   }
 
-  override def isInitialized: Boolean = {
-    initialized
-  }
+  private def withoutQuality(headerValue: String): String = QualityReqex.replaceFirstIn(headerValue, "")
+
+  override def isInitialized: Boolean = initialized
 
   override def destroy(): Unit = {
     configurationService.unsubscribeFrom(configFilename, this)
@@ -100,4 +108,10 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
     sourceHeaders = configurationObject.getHeader.toList
     initialized = true
   }
+}
+
+object HeaderTranslationFilter {
+  private final val DefaultConfig = "header-translation.cfg.xml"
+  private final val SchemaFileName = "/META-INF/schema/config/header-translation.xsd"
+  private final val QualityReqex = """;q=[^;]*""".r
 }
