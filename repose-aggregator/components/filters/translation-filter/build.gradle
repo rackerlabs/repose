@@ -10,6 +10,7 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-core"
     compile "commons-pool:commons-pool"
     compile "xalan:xalan"
+    compile "xerces:xerces-xsd11"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"
