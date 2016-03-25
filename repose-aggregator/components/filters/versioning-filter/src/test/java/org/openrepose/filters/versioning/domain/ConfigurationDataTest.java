@@ -120,7 +120,7 @@ public class ConfigurationDataTest {
 
         when(request.getRequestURI()).thenReturn("/v1/service/rs");
 
-        VersionedOriginService destination = configurationData.getOriginServiceForRequest(request, director);
+        VersionedOriginService destination = configurationData.getOriginServiceForRequest(request);
         assertEquals("Should find proper host given a matched uri to a version mapping", localEndpoint, destination.getOriginServiceHost());
     }
 
@@ -132,7 +132,7 @@ public class ConfigurationDataTest {
         when(request.getRequestURI()).thenReturn("/service/rs");
         when(getPreferredMediaRange(request)).thenReturn(preferedMediaRange);
 
-        VersionedOriginService destination = configurationData.getOriginServiceForRequest(request, director);
+        VersionedOriginService destination = configurationData.getOriginServiceForRequest(request);
         assertEquals("Should find proper host given a matched uri to a version mapping", localEndpoint, destination.getOriginServiceHost());
     }
 
@@ -165,7 +165,7 @@ public class ConfigurationDataTest {
         when(request.getRequestURI()).thenReturn("/service/rs");
         when(getPreferredMediaRange(request)).thenReturn(preferedMediaRange);
 
-        assertNull("Should find proper host given a matched uri to a version mapping", configurationData.getOriginServiceForRequest(request, director));
+        assertNull("Should find proper host given a matched uri to a version mapping", configurationData.getOriginServiceForRequest(request));
     }
 
     private MediaType getPreferredMediaRange(HttpServletRequestWrapper request) {

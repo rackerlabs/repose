@@ -62,13 +62,13 @@ public class ConfigurationData {
         final Destination host = configuredHosts.get(mapping.getPpDestId());
 
         if (host == null) {
-            throw new VersionedHostNotFoundException("Endpoin: " + mapping.getPpDestId() + " is not specified in the system model");
+            throw new VersionedHostNotFoundException("Endpoint: " + mapping.getPpDestId() + " is not specified in the system model");
         }
 
         return host;
     }
 
-    public VersionedOriginService getOriginServiceForRequest(HttpServletRequestWrapper request, FilterDirector director) throws VersionedHostNotFoundException {
+    public VersionedOriginService getOriginServiceForRequest(HttpServletRequestWrapper request) throws VersionedHostNotFoundException {
         // Check URI first to see if it matches configured host href
         VersionedOriginService targetOriginService = findOriginServiceByUri(request);
 
@@ -79,7 +79,7 @@ public class ConfigurationData {
 
             if (currentServiceVersion != null) {
                 final Destination destination = getHostForVersionMapping(currentServiceVersion.getServiceVersionMapping());
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), currentServiceVersion.getMediaType().getBase());
+                request.replaceHeader(CommonHttpHeader.ACCEPT.toString(), currentServiceVersion.getMediaType().getBase());
                 targetOriginService = new VersionedOriginService(currentServiceVersion.getServiceVersionMapping(), destination);
             }
         }
