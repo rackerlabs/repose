@@ -30,12 +30,7 @@ import scopt.OptionParser
   */
 object CommandExecutor {
 
-  def execute(in: InputStream, out: PrintStream, err: PrintStream, config: Config, args: Array[String]): Int = {
-    // Attach the actual console output streams to the passed in streams
-    Console.setOut(out)
-    Console.setIn(in)
-    Console.setErr(err)
-
+  def execute(config: Config, args: Array[String]): Int = {
     val lintVer = config.getString("version")
 
     val parser = new OptionParser[LintConfig]("repose-lint") {

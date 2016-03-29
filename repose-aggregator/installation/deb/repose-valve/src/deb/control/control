@@ -6,7 +6,7 @@ Architecture: all
 Maintainer: Repose Development <repose-development@lists.openrepose.org>
 Description: Debian Package for the Repose Valve
 Homepage: http://openrepose.org
-Depends: java7-runtime-headless
+Depends: java8-runtime-headless
 Conflicts: repose-war
 Recommends: repose-filter-bundle (=[[version]])
 Suggests: repose-extensions-filter-bundle (=[[version]]), logrotate

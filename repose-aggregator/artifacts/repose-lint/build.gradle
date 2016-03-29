@@ -6,12 +6,13 @@ configurations {
 
 dependencies {
     compile "org.scala-lang:scala-library"
+    compile "org.scala-lang:scala-xml"
     compile "com.typesafe:config"
-    compile "com.typesafe.play:play-json_2.10"
-    compile "com.github.scopt:scopt_2.10"
+    compile "com.typesafe.play:play-json_$scalaMajDotMin"
+    compile "com.github.scopt:scopt_$scalaMajDotMin"
 
     testCompile "junit:junit"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
 }
 

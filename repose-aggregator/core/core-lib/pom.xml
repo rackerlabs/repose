@@ -280,7 +280,7 @@
 
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -344,7 +344,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.typesafe.akka</groupId>
-                                    <artifactId>akka-actor_2.10</artifactId>
+                                    <artifactId>akka-actor_${scala.MajDotMin}</artifactId>
                                     <type>jar</type>
                                     <includes>reference.conf</includes>
                                     <outputDirectory>${project.build.outputDirectory}/</outputDirectory>

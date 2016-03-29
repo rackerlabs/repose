@@ -28,10 +28,15 @@
             <artifactId>scala-library</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-xml</artifactId>
+        </dependency>
+
         <!-- Scala testing -->
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- Configuration loading -->
@@ -43,13 +48,13 @@
         <!-- Play JSON -->
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-json_2.10</artifactId>
+            <artifactId>play-json_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- Command-line argument parser -->
         <dependency>
             <groupId>com.github.scopt</groupId>
-            <artifactId>scopt_2.10</artifactId>
+            <artifactId>scopt_${scala.MajDotMin}</artifactId>
             <version>3.2.0</version>
         </dependency>
     </dependencies>

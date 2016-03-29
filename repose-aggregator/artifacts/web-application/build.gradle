@@ -11,6 +11,6 @@ dependencies {
 
     testCompile "junit:junit"
     testCompile "org.scala-lang:scala-library"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
 }

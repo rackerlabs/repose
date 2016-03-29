@@ -5,10 +5,10 @@ dependencies {
     compile project(":repose-aggregator/components/services/http-client-service/http-client-service-api")//todo: why do we need this one also?
     compile project(":repose-aggregator/components/services/datastore-service/datastore-service-api")
     compile "org.scala-lang:scala-library"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.openrepose:http-delegation"
     compile "commons-codec:commons-codec"
-    compile "io.spray:spray-json_2.10"
+    compile "io.spray:spray-json_$scalaMajDotMin"
     compile "org.springframework:spring-web"
     compile "joda-time:joda-time"
     compile "org.joda:joda-convert"
@@ -18,7 +18,7 @@ dependencies {
     provided "javax.ws.rs:javax.ws.rs-api"
 
     testCompile "junit:junit"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.mockito:mockito-all"
     testCompile "com.mockrunner:mockrunner-servlet"

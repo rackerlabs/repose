@@ -40,7 +40,7 @@ public class ValidatorInfoTest {
 
     public static class WhenLoadingValidators {
 
-        private final List<String> role = new ArrayList<String>();
+        private final List<String> roles = new ArrayList<String>();
         private final String wadl = "default.wadl";
         private final String name = "testName";
         private Config config;
@@ -61,12 +61,12 @@ public class ValidatorInfoTest {
             config.setCheckWellFormed(true);
             config.setCheckXSDGrammar(true);
             config.setCheckElements(true);
-            role.add("someRole");
-            role.add("someRole2");
+            roles.add("someRole");
+            roles.add("someRole2");
             URL resource = this.getClass().getClassLoader().getResource(wadl);
 
-            this.instance = new ValidatorInfo(role, resource.toExternalForm(), config, null);
-            this.instance2 = new ValidatorInfo(role, resource.toExternalForm(), config, name);
+            this.instance = new ValidatorInfo(roles, resource.toExternalForm(), config, null);
+            this.instance2 = new ValidatorInfo(roles, resource.toExternalForm(), config, name);
         }
 
         @Test
@@ -92,6 +92,27 @@ public class ValidatorInfoTest {
         @Test
         public void shouldGenerateValidatorNameWhenProvided() {
             assertEquals(instance2.getName(), name);
+        }
+
+        @Test
+        public void shouldNotHaveForbiddenCharsInValidatorName() {
+            roles.add("role/with/slashes");
+            roles.add("role,with,commas");
+            roles.add("role=with=equals");
+            roles.add("role:with:colons");
+            roles.add("role*with*asterisks");
+            roles.add("role?with?question?marks");
+            roles.add("role with spaces");
+            roles.add("role\u00A0with\u00A0non-breaking\u00A0spaces");
+            String goodName = instance.getNameFromRoles(roles);
+            assertFalse(goodName.contains("/"));
+            assertFalse(goodName.contains(","));
+            assertFalse(goodName.contains("="));
+            assertFalse(goodName.contains(":"));
+            assertFalse(goodName.contains("*"));
+            assertFalse(goodName.contains("?"));
+            assertFalse(goodName.contains(" "));
+            assertFalse(goodName.contains("\u00A0"));
         }
     }
 }

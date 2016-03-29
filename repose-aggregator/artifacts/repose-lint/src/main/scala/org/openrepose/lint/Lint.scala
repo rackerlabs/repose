@@ -30,7 +30,7 @@ import com.typesafe.config.ConfigFactory
 object Lint extends App {
   val config = ConfigFactory.load("lint")
 
-  val exitCode = CommandExecutor.execute(System.in, System.out, System.err, config, args)
+  val exitCode = Console.withIn(System.in)(Console.withOut(System.out)(Console.withErr(System.err)(CommandExecutor.execute(config, args))))
 
   sys.exit(exitCode)
 }

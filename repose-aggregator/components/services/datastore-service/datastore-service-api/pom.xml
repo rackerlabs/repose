@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
         </dependency>
     </dependencies>
 

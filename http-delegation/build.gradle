@@ -28,8 +28,8 @@ repositories {
 }
 
 dependencies {
-    compile "org.scala-lang:scala-library:2.10.4"
-    testCompile "org.scalatest:scalatest_2.10:2.2.0"
+    compile "org.scala-lang:scala-library:$scalaMajDotMin.$scalaPatch"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin:2.2.0"
 }
 
 tasks.withType(ScalaCompile) {

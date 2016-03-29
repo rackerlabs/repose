@@ -73,7 +73,7 @@ class ValidatorConfiguratorTest {
         vItem.setEnableApiCoverage(true)
 
         DispatchResultHandler handlers = vldtrConfigurator.getHandlers(vItem, false, 0.0, true, "", "")
-        def internalHandlers = JavaConversions.asJavaList(handlers.handlers)
+        def internalHandlers = JavaConversions.seqAsJavaList(handlers.handlers)
         assert internalHandlers.get(0) instanceof InstrumentedHandler
         assert internalHandlers.get(1) instanceof ApiCoverageHandler
     }
@@ -84,7 +84,7 @@ class ValidatorConfiguratorTest {
         ValidatorItem vItem = new ValidatorItem()
 
         DispatchResultHandler handlers = vldtrConfigurator.getHandlers(vItem, true, 0.9, true, "", "")
-        def internalHandlers = JavaConversions.asJavaList(handlers.handlers)
+        def internalHandlers = JavaConversions.seqAsJavaList(handlers.handlers)
         assert internalHandlers.get(0) instanceof MethodLabelHandler
         assert internalHandlers.get(1) instanceof DelegationHandler
     }

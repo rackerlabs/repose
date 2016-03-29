@@ -30,14 +30,11 @@ import spock.lang.Unroll
  */
 
 class ApiValidatorEnableCoverageTest extends ReposeValveTest {
-    String intrumentedHandler = '\"com.rackspace.com.papi.components.checker.handler\":*'
+    String intrumentedHandler = 'com.rackspace.com.papi.components.checker:type=handler*,*'
     def static s0_count = 0
     def S0 = 0
     def SA = 0
     def S0_a_admin = 0
-    String s0str = 'name=\"S0\"'
-    String sastr = 'name=\"SA\"'
-    String s0adminstr = 'name=\"S0_a_admin\"'
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -86,16 +83,15 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
             s0_count = s0_count + 1
 
         def getBeanObj = repose.jmx.getMBeanNames(intrumentedHandler)
-
         getBeanObj.each {
-            //println it.toString()
-            def strIt = it.toString()
-            if (strIt.contains(s0str))
-                S0 = repose.jmx.getMBeanAttribute(strIt, "Count")
-            if (strIt.contains(sastr))
-                SA = repose.jmx.getMBeanAttribute(strIt, "Count")
-            if (strIt.contains(s0adminstr))
-                S0_a_admin = repose.jmx.getMBeanAttribute(strIt, "Count")
+            def name = it.getKeyProperty('name')
+            if (name == "S0") {
+                S0 = repose.jmx.getMBeanAttribute(it.toString(), "Count")
+            } else if (name == "SA") {
+                SA = repose.jmx.getMBeanAttribute(it.toString(), "Count")
+            } else if (name == "S0_a_admin") {
+                S0_a_admin = repose.jmx.getMBeanAttribute(it.toString(), "Count")
+            }
         }
 
         then:
@@ -133,10 +129,10 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
         "DELETE" | ["x-roles": "raxRolesEnabled, observer, creator"]   | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
         "DELETE" | null                                                | "403"        | null                                                                                              | 10       | 8//this will not effect config change
         // PUT method is not available in wadl should expect to get 405 to whoever rax-role
-        "PUT" | ["x-roles": "raxRolesEnabled"]                         | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:bar"]                  | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]      | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e3MF_a_observer\"\\]\\}"      | 10       | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]       | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
-        "PUT" | ["x-roles": "raxRolesEnabled, a:admin"]                | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e3MF_a_admin\"\\]\\}"               | 10       | 10
+        "PUT"    | ["x-roles": "raxRolesEnabled"]                      | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar"]               | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_observer\",\"d58e3_a_observer\",\"d58e3MF_a_observer\"\\]\\}"      | 10       | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]    | "404"        | "\\{\"steps\":\\[\"S0\",\"d58e3UF_a_observer\"\\]\\}"                                             | 10       | 8
+        "PUT"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "405"        | "\\{\"steps\":\\[\"S0\",\"S0_a_admin\",\"d58e3_a_admin\",\"d58e3MF_a_admin\"\\]\\}"               | 10       | 10
     }
 }

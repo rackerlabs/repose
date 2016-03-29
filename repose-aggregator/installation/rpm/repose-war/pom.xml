@@ -242,7 +242,7 @@
                             </mappings>
 
                             <requires>
-                                <require>java &gt;= 1.7.0</require>
+                                <require>java &gt;= 1.8.0</require>
                             </requires>
 
                             <provides>

@@ -35,30 +35,29 @@
 
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.10</artifactId>
+            <artifactId>scala-logging-slf4j_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <!-- going to use play-json, so we can lense, rather than object -->
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-json_2.10</artifactId>
-            <version>2.3.4</version>
+            <artifactId>play-json_${scala.MajDotMin}</artifactId>
         </dependency>
         <!-- this lets us use a complex json path-->
         <dependency>
             <groupId>com.josephpconley</groupId>
-            <artifactId>play-jsonpath_2.10</artifactId>
+            <artifactId>play-jsonpath_${scala.MajDotMin}</artifactId>
             <version>1.1</version>
         </dependency>
         <!-- lets me build a piece meal json path for the transforms -->
         <dependency>
             <groupId>io.gatling</groupId>
-            <artifactId>jsonpath_2.10</artifactId>
+            <artifactId>jsonpath_${scala.MajDotMin}</artifactId>
             <version>0.6.4</version>
         </dependency>
         <!-- i catch an exception from this, really the implementing library should have caught and wrapped -->

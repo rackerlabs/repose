@@ -64,9 +64,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -83,9 +81,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -102,9 +98,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -118,9 +112,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -134,9 +126,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -150,9 +140,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -166,9 +154,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -182,9 +168,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -198,9 +182,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -214,9 +196,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -230,9 +210,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -246,9 +224,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -262,9 +238,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -278,9 +252,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -297,9 +269,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -314,9 +284,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
       val parsedOutput = Json.parse(outputString)
@@ -330,9 +298,7 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
 
       val out = new ByteArrayOutputStream()
 
-      Console.setOut(out)
-
-      VerifyTryItNowCommand.perform(config)
+      Console.withOut(out)(VerifyTryItNowCommand.perform(config))
 
       val outputString = new String(out.toByteArray)
 

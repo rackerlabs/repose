@@ -1,12 +1,12 @@
 dependencies {
     compile "org.scala-lang:scala-library"
     compile "org.openrepose:http-delegation"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.ws.rs:javax.ws.rs-api"
 
     testCompile "junit:junit"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
 }
