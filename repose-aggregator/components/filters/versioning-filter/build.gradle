@@ -7,7 +7,7 @@ dependencies {
     compile project(":repose-aggregator/core/core-lib") //todo: try to remove this once filter director is gone
     compile "org.slf4j:slf4j-api"
     compile "org.scala-lang:scala-library"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "xalan:xalan"
     compile "org.springframework:spring-beans"
     compile "com.google.guava:guava"
@@ -18,7 +18,7 @@ dependencies {
 
     testCompile "junit:junit"
     testCompile "org.mockito:mockito-all"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
     testCompile "xmlunit:xmlunit"
