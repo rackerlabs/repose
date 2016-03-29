@@ -22,18 +22,14 @@ package org.openrepose.filters.versioning.domain;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.media.MediaType;
-import org.openrepose.commons.utils.http.media.MimeType;
-import org.openrepose.commons.utils.http.media.servlet.RequestMediaRangeInterrogator;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.core.systemmodel.*;
 import org.openrepose.filters.versioning.config.MediaTypeList;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.config.ServiceVersionMappingList;
 import org.openrepose.filters.versioning.schema.VersionChoiceList;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,7 +112,6 @@ public class ConfigurationDataTest {
     @Test
     public void shouldReturnVersionedOriginServiceFromURI() throws VersionedHostNotFoundException {
         HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-        FilterDirector director = mock(FilterDirector.class);
 
         when(request.getRequestURI()).thenReturn("/v1/service/rs");
 
@@ -127,10 +122,8 @@ public class ConfigurationDataTest {
     @Test
     public void shouldReturnVersionedOriginServiceFromAcceptHeader() throws VersionedHostNotFoundException {
         HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-        FilterDirector director = new FilterDirectorImpl();
-        MediaType preferedMediaRange = new MediaType("application/vnd.vendor.service-v1+xml", MimeType.APPLICATION_XML);
         when(request.getRequestURI()).thenReturn("/service/rs");
-        when(getPreferredMediaRange(request)).thenReturn(preferedMediaRange);
+        when(request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString())).thenReturn(Collections.singletonList("application/vnd.vendor.service-v1+xml"));
 
         VersionedOriginService destination = configurationData.getOriginServiceForRequest(request);
         assertEquals("Should find proper host given a matched uri to a version mapping", localEndpoint, destination.getOriginServiceHost());
@@ -139,12 +132,11 @@ public class ConfigurationDataTest {
     @Test
     public void shouldReturnVersionChoicesAsList() {
         HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-        MediaType preferedMediaRange = new MediaType("application/vnd.vendor.service-v1+xml", MimeType.APPLICATION_XML, -1);
         when(request.getRequestURI()).thenReturn("/v1");
-        when(getPreferredMediaRange(request)).thenReturn(preferedMediaRange);
+        when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/v1"));
+        when(request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString())).thenReturn(Collections.singletonList("application/vnd.vendor.service-v1+xml"));
 
-        VersionChoiceList versionChoiceList = new VersionChoiceList();
-        versionChoiceList = configurationData.versionChoicesAsList(request);
+        VersionChoiceList versionChoiceList = configurationData.versionChoicesAsList(request);
 
         assertEquals("Should return a version choice list of the two configured versions", versionChoiceList.getVersion().size(), 2);
     }
@@ -160,15 +152,8 @@ public class ConfigurationDataTest {
     @Test
     public void shouldReturnNullIfNoMatchForMediaRangeIsFound() throws VersionedHostNotFoundException {
         HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-        FilterDirector director = new FilterDirectorImpl();
-        MediaType preferedMediaRange = new MediaType("application/vnd.vendor.service-v3+xml", MimeType.APPLICATION_XML, -1);
         when(request.getRequestURI()).thenReturn("/service/rs");
-        when(getPreferredMediaRange(request)).thenReturn(preferedMediaRange);
 
         assertNull("Should find proper host given a matched uri to a version mapping", configurationData.getOriginServiceForRequest(request));
-    }
-
-    private MediaType getPreferredMediaRange(HttpServletRequestWrapper request) {
-        return RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString())).get(0);
     }
 }

@@ -24,6 +24,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
@@ -153,6 +154,8 @@ public class VersionedRequestTest {
         public void shouldBuildAccurateURLs() {
             final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
             when(request.getRequestURI()).thenReturn("/a/requested/resource");
+            when(request.getScheme()).thenReturn("http");
+            when(request.getHeader(CommonHttpHeader.HOST.toString())).thenReturn("localhost");
 
             final String expected = "http://localhost/a/requested/resource";
 
@@ -166,6 +169,7 @@ public class VersionedRequestTest {
         public void shouldHandleExternalRequestsWithContextRoot() {
             final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
             when(request.getRequestURI()).thenReturn("/v1.0/a/requested/resource");
+            when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/a/requested/resource"));
 
             final String expected = "http://localhost/v1.0/a/requested/resource";
 

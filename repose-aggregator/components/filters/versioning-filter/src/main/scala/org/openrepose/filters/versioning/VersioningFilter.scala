@@ -21,7 +21,7 @@ package org.openrepose.filters.versioning
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.bind.JAXBElement
@@ -48,6 +48,7 @@ import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConversions._
 
+@Named
 class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                                  @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
                                  configurationService: ConfigurationService,
