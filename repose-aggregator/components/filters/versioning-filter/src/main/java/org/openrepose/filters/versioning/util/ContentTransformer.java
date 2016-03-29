@@ -55,8 +55,8 @@ public class ContentTransformer {
     public ContentTransformer() {
         try {
             final JAXBContext context = JAXBContext.newInstance(
-                    org.openrepose.filters.versioning.config.ObjectFactory.class,
-                    org.openrepose.filters.versioning.schema.ObjectFactory.class);
+                    org.openrepose.filters.versioning.schema.ObjectFactory.class,
+                    org.openrepose.filters.versioning.config.ObjectFactory.class);
             final Templates jsonXsltTemplates =
                     ContentTransformer.parseXslt(new StreamSource(getClass().getResourceAsStream(JSON_XSLT)));
 
