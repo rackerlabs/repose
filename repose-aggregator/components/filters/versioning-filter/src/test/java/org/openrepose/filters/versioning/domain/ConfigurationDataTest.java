@@ -143,10 +143,10 @@ public class ConfigurationDataTest {
 
     @Test
     public void shouldReturnIfRequestIsForVersions() {
-        HttpServletRequestWrapper uniformResourceInfo = mock(HttpServletRequestWrapper.class);
-        when(uniformResourceInfo.getRequestURI()).thenReturn("/");
+        HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/");
 
-        assertTrue("Should return true that this request is for the service root", configurationData.isRequestForVersions(uniformResourceInfo));
+        assertTrue("Should return true that this request is for the service root", configurationData.isRequestForVersions(request));
     }
 
     @Test
