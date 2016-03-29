@@ -4,7 +4,7 @@
              roles-header-name="X-ROLES"
              mask-rax-roles-403="false">
     <resources>
-/test          GET       ANY
+/test          GET,POST  ANY
 /path/to/this  GET       super,useradmin,admin,user
 /path/to/this  PUT       super,useradmin,admin
 /path/to/this  POST      super,useradmin

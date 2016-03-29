@@ -22,14 +22,6 @@
             </whitelist>
         </target>
 
-        <!-- applies to all POST and PUT requests -->
-        <target http-methods="POST PUT">
-            <whitelist id="modification">
-                <header id="X-THIRD-Filter"/>
-                <header id="x-auth-token"/>
-            </whitelist>
-        </target>
-
         <!-- this blacklist filter only applies if the request does not match one of the previous targets -->
         <!-- since uri-regex and http-methods are not specified in target the blacklist applies to all http requests
              that don't match the previous two targets -->
