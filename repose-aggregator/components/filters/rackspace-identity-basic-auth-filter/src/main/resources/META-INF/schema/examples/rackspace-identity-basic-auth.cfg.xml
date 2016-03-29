@@ -2,7 +2,7 @@
 
 <rackspace-identity-basic-auth
         xmlns="http://docs.openrepose.org/repose/rackspace-identity-basic-auth/v1.0"
-        rackspace-identity-service-uri="http://identity.example.com:8080/v2.0/tokens"
+        rackspace-identity-service-uri="http://identity.example.com:8080"
         token-cache-timeout-millis="600000"
         connection-pool-id="basic-auth-pool"
         secret-type="api-key"/>
