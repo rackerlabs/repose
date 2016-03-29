@@ -6,14 +6,14 @@ dependencies {
     compile "org.slf4j:jcl-over-slf4j"
     compile "org.springframework:spring-beans"
     compile "org.springframework:spring-web"
-    compile "net.sf.saxon:Saxon-HE"
+    compile "net.sf.saxon:Saxon-EE"
     compile "com.fasterxml.jackson.core:jackson-core"
     compile "commons-pool:commons-pool"
     compile "xalan:xalan"
+    compile "xerces:xerces-xsd11"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"
-    provided "net.sf.saxon:Saxon-EE" //todo: figure out how we want to tackle this crazy pile of poop
 
     testCompile "junit:junit"
     testCompile "org.scala-lang:scala-library"
@@ -26,10 +26,6 @@ dependencies {
     testCompile project(":repose-aggregator/core/core-lib") //todo: remove this once the director has been removed
     testCompile "xmlunit:xmlunit"
     testCompile "org.spockframework:spock-core"
-}
-
-configurations {
-    testCompile.exclude group: 'net.sf.saxon', module: 'Saxon-EE'
 }
 
 license {

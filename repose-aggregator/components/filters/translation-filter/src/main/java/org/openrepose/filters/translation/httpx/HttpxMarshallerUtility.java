@@ -24,6 +24,7 @@ import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -39,7 +40,7 @@ import java.net.URL;
  * Helper things for HttpxMarshaller that only need to be created once
  */
 public class HttpxMarshallerUtility {
-    private static final String XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
+    private static final String XERCES_FACTORY_NAME = "org.apache.xerces.jaxp.validation.XMLSchemaFactory";
     private static final String HTTPX_SCHEMA = "/META-INF/schema/httpx/translation-httpx.xsd";
     public static final Schema SCHEMA = getSchemaSource();
     private static final String HTTPX_PACKAGE = "org.openrepose.docs.repose.httpx.v1";
@@ -78,7 +79,7 @@ public class HttpxMarshallerUtility {
     }
 
     private static Schema getSchemaSource() {
-        SchemaFactory factory = SchemaFactory.newInstance(XML_SCHEMA);
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI, XERCES_FACTORY_NAME, HttpxMarshallerUtility.class.getClassLoader());
         InputStream inputStream = HttpxMarshaller.class.getResourceAsStream(HTTPX_SCHEMA);
         URL inputURL = HttpxMarshaller.class.getResource(HTTPX_SCHEMA);
         Source schemaSource = new StreamSource(inputStream, inputURL.toExternalForm());
