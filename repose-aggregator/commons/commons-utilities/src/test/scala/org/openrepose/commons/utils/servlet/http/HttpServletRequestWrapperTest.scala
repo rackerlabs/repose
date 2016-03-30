@@ -503,7 +503,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getPreferredSplittableHeaders("cup") should contain theSameElementsInOrderAs List("red")
     }
 
-    it("should give the highest single value wehn a value had been added, all removed, then another added") {
+    it("should give the highest single value when a value had been added, all removed, then another added") {
       wrappedRequest.addHeader("cup", "purple", 0.7)
       wrappedRequest.removeHeader("cup")
       wrappedRequest.addHeader("cup", "red", 0.1)
@@ -526,6 +526,62 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should give multiple ordered values when multiple values have the same quality") {
       wrappedRequest.getPreferredSplittableHeaders("foo") should contain theSameElementsInOrderAs List("bar", "baz")
+    }
+  }
+
+  describe("the getPreferredSplittableHeadersWithParameters method") {
+    it("Should return value with largest quality value") {
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("cup") should contain theSameElementsAs List("blue")
+    }
+
+    it("Should return the first entity if the quantities are the same") {
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("abc") should contain theSameElementsInOrderAs List("1", "2", "3")
+    }
+
+    it("should give the highest quality even with the added value being highest") {
+      wrappedRequest.addHeader("ornament", "star", 0.95)
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("star;q=0.95")
+    }
+
+    it("should give the highest quality even with an added value being in the middle") {
+      wrappedRequest.addHeader("ornament", "star", 0.85)
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("santa;q=0.9")
+    }
+
+    it("should give the highest value even if the originals were removed and then a new added") {
+      wrappedRequest.removeHeader("cup")
+      wrappedRequest.addHeader("cup", "red", 0.1)
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("cup") should contain theSameElementsInOrderAs List("red;q=0.1")
+    }
+
+    it("should give the highest single value when a value had been added, all removed, then another added") {
+      wrappedRequest.addHeader("cup", "purple", 0.7)
+      wrappedRequest.removeHeader("cup")
+      wrappedRequest.addHeader("cup", "red", 0.1)
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("cup") should contain theSameElementsInOrderAs List("red;q=0.1")
+    }
+
+    it("should give the highest quality even with an appended value being highest") {
+      wrappedRequest.appendHeader("ornament", "star", 0.95)
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("star;q=0.95")
+    }
+
+    it("should give the highest quality even with a replaced value being highest") {
+      wrappedRequest.replaceHeader("ornament", "star", 0.95)
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("star;q=0.95")
+    }
+
+    it("should work with headers that are already split") {
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("santa;q=0.9")
+    }
+
+    it("should give multiple ordered values when multiple values have the same quality") {
+      wrappedRequest.getPreferredSplittableHeadersWithParameters("foo") should contain theSameElementsInOrderAs List("bar", "baz")
+    }
+
+    it("should also return non-quality parameters") {
+      wrappedRequest.addHeader("ornament", "reindeer;foo=bar", 0.95)
+      wrappedRequest.getPreferredHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("reindeer;foo=bar;q=0.95")
     }
   }
 
@@ -609,6 +665,46 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
 
     it("should give multiple ordered values when multiple values have the same quality") {
       wrappedRequest.getPreferredHeaders("foo") should contain theSameElementsInOrderAs List("bar", "baz")
+    }
+  }
+
+  describe("the getPreferredHeadersWithParameters method") {
+    it("Should return value with largest quality value for ornament") {
+      wrappedRequest.getPreferredHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("santa;q=0.9")
+    }
+
+    it("should return added value if quality is larger than original") {
+      wrappedRequest.addHeader("ornament", "reindeer", 0.95)
+      wrappedRequest.getPreferredHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("reindeer;q=0.95")
+    }
+
+    it("should not return added value if quality is smaller than original") {
+      wrappedRequest.addHeader("ornament", "reindeer", 0.85)
+      wrappedRequest.getPreferredHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("santa;q=0.9")
+    }
+
+    it("should throw an exception when quality becomes unreadable in a single line") {
+      wrappedRequest.appendHeader("ornament", "star", 0.95)
+      a[QualityFormatException] should be thrownBy wrappedRequest.getPreferredHeadersWithParameters("ornament")
+    }
+
+    it("should return an added value when it's the only value") {
+      wrappedRequest.addHeader("butts", "butts", 0.5)
+      wrappedRequest.getPreferredHeadersWithParameters("butts") should contain theSameElementsInOrderAs List("butts;q=0.5")
+    }
+
+    it("no quality specified should set quality to 1") {
+      wrappedRequest.addHeader("ornament", "reindeer")
+      wrappedRequest.getPreferredHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("reindeer")
+    }
+
+    it("should give multiple ordered values when multiple values have the same quality") {
+      wrappedRequest.getPreferredHeadersWithParameters("foo") should contain theSameElementsInOrderAs List("bar", "baz")
+    }
+
+    it("should also return non-quality parameters") {
+      wrappedRequest.addHeader("ornament", "reindeer;foo=bar", 0.95)
+      wrappedRequest.getPreferredHeadersWithParameters("ornament") should contain theSameElementsInOrderAs List("reindeer;foo=bar;q=0.95")
     }
   }
 

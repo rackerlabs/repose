@@ -28,7 +28,6 @@ import org.openrepose.commons.utils.http.header.HeaderValueParser;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.servlet.RequestMediaRangeInterrogator;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
-import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.filters.versioning.config.MediaTypeList;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
@@ -74,7 +73,8 @@ public class ConfigurationData {
 
         // If version info not in URI look in accept header
         if (targetOriginService == null) {
-            final MediaType range = RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString())).get(0);
+            final MediaType range = RequestMediaRangeInterrogator.interrogate(request.getRequestURI(),
+                    request.getPreferredSplittableHeadersWithParameters(CommonHttpHeader.ACCEPT.toString())).get(0);
             final VersionedMapType currentServiceVersion = getServiceVersionForMediaRange(range);
 
             if (currentServiceVersion != null) {
