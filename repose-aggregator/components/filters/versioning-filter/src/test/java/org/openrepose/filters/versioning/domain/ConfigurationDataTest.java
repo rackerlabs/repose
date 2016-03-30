@@ -123,7 +123,7 @@ public class ConfigurationDataTest {
     public void shouldReturnVersionedOriginServiceFromAcceptHeader() throws VersionedHostNotFoundException {
         HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
         when(request.getRequestURI()).thenReturn("/service/rs");
-        when(request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString())).thenReturn(Collections.singletonList("application/vnd.vendor.service-v1+xml"));
+        when(request.getPreferredSplittableHeadersWithParameters(CommonHttpHeader.ACCEPT.toString())).thenReturn(Collections.singletonList("application/vnd.vendor.service-v1+xml"));
 
         VersionedOriginService destination = configurationData.getOriginServiceForRequest(request);
         assertEquals("Should find proper host given a matched uri to a version mapping", localEndpoint, destination.getOriginServiceHost());
@@ -134,7 +134,7 @@ public class ConfigurationDataTest {
         HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
         when(request.getRequestURI()).thenReturn("/v1");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/v1"));
-        when(request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString())).thenReturn(Collections.singletonList("application/vnd.vendor.service-v1+xml"));
+        when(request.getPreferredSplittableHeadersWithParameters(CommonHttpHeader.ACCEPT.toString())).thenReturn(Collections.singletonList("application/vnd.vendor.service-v1+xml"));
 
         VersionChoiceList versionChoiceList = configurationData.versionChoicesAsList(request);
 
