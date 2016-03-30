@@ -20,10 +20,12 @@ buildscript {
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:1.2'
         classpath 'com.netflix.nebula:nebula-publishing-plugin:4.4.4'
+        classpath 'com.netflix.nebula:gradle-git-scm-plugin:3.0.1'
     }
 }
 
 apply plugin: 'org.sonarqube'
+apply plugin: 'nebula.gradle-git-scm'
 
 ext {
     reposeCodename = "Ezio?"
@@ -33,9 +35,18 @@ ext {
     scalaMajDotMin = "$scalaMajor.$scalaMinor"
 }
 
+task('tagVersion', description: 'Tag the repository with the current version.', group: 'release') << {
+    scmFactory.create().tag(version)
+}
+
+task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: tagVersion)
+
 allprojects {
     group = 'org.openrepose'
-    version = '8.0.0.0'
+    def baseVersion = '8.0.0.0'
+    gradle.taskGraph.whenReady {
+        version = gradle.taskGraph.hasTask("release") ? baseVersion : "$baseVersion-SNAPSHOT"
+    }
 
     apply plugin: 'idea'
     apply plugin: 'nebula.dependency-recommender'
@@ -244,10 +255,16 @@ subprojects {
         repositories {
             maven {
                 name 'reposeNexus'
-                url 'https://maven.research.rackspacecloud.com/content/repositories/releases'
+                gradle.taskGraph.whenReady {
+                    if (gradle.taskGraph.hasTask("release")) {
+                        url 'https://maven.research.rackspacecloud.com/content/repositories/releases'
+                    } else {
+                        url 'https://maven.research.rackspacecloud.com/content/repositories/snapshots'
+                    }
+                }
                 credentials {
-                    username project.hasProperty('maven.repo.username')?property('maven.repo.username'):'Need to provide an actual username'
-                    password project.hasProperty('maven.repo.password')?property('maven.repo.password'):'Need to provide an actual password'
+                    username project.hasProperty('maven.repo.username') ? property('maven.repo.username') : 'Need to provide an actual username'
+                    password project.hasProperty('maven.repo.password') ? property('maven.repo.password') : 'Need to provide an actual password'
                 }
             }
         }
@@ -271,6 +288,8 @@ subprojects {
         required { gradle.taskGraph.hasTask("publish") }
         sign configurations.archives
     }
+
+    project.tasks.getByPath(':release').dependsOn publish
 }
 
 dependencyRecommendations {
