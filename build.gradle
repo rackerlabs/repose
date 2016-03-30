@@ -63,6 +63,7 @@ subprojects {
     apply plugin: 'com.github.hierynomus.license'
     apply plugin: 'jacoco'
     apply plugin: 'nebula.maven-publish'
+    apply plugin: 'signing'
 
     dependencies {
         jaxb "com.sun.xml.bind:jaxb-xjc"
@@ -250,6 +251,25 @@ subprojects {
                 }
             }
         }
+
+        publications {
+            nebula(MavenPublication) {
+                artifact source: signArchives.singleSignature, extension: 'asc'
+
+                //when we include the signature it tries to switch the packaging in the pom to pom,
+                // i just remove it here, because the default in maven is jar if you don't specify,
+                // so i can go fix it only where it needs it
+                pom.withXml { XmlProvider xml ->
+                    def root = xml.asNode()
+                    root.get("packaging").each { root.remove(it) }
+                }
+            }
+        }
+    }
+
+    signing {
+        required { gradle.taskGraph.hasTask("publish") }
+        sign configurations.archives
     }
 }
 

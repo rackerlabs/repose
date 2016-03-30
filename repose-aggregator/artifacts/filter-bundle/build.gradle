@@ -36,9 +36,8 @@ publishing {
         nebula(MavenPublication) {
             artifact source: ear, extension: 'ear'
 
-            pom.withXml { XmlProvider xml ->
-                def root = xml.asNode()
-                println root.get("packaging").each { it.replaceNode(new Node(null, "packaging", "ear")) }
+            pom.withXml {
+                asNode().appendNode('packaging', 'ear')
             }
         }
     }

@@ -14,3 +14,13 @@ dependencies {
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
 }
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            pom.withXml {
+                asNode().appendNode('packaging', 'war')
+            }
+        }
+    }
+}

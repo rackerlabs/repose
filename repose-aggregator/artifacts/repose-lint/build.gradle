@@ -33,3 +33,17 @@ artifacts {
 }
 
 build.dependsOn shadowJar
+
+signing {
+    required { gradle.taskGraph.hasTask("publish") }
+    sign shadowJar
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            artifact shadowJar
+            artifact source: signShadowJar.singleSignature, extension: 'asc'
+        }
+    }
+}

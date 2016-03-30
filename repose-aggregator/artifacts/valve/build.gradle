@@ -49,3 +49,24 @@ artifacts {
 }
 
 build.dependsOn shadowJar
+
+signing {
+    required { gradle.taskGraph.hasTask("publish") }
+    sign shadowJar
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            artifact shadowJar {
+                //this is neccessary because i changed the archive name in shadow jar,
+                // so i wouldn't have to go hack the crap out of the testing framework
+                groupId project.group
+                artifactId project.name
+                version project.version
+                classifier 'all'
+            }
+            artifact source: signShadowJar.singleSignature, extension: 'asc'
+        }
+    }
+}
