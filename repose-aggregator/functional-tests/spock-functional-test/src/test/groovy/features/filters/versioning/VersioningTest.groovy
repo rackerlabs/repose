@@ -41,9 +41,13 @@ class VersioningTest extends ReposeValveTest {
     def static Map acceptXHtml = ['accept': 'application/xhtml+xml']
     def static Map acceptXMLWQ = ['accept': 'application/xml;q=0.9,*/*;q=0.8']
     def static Map acceptV2VendorJSON = ['accept': 'application/vnd.vendor.service-v2+json']
+    def static Map acceptV2VendorJSON2 = ['accept': 'application/vnd.vendor.service+json; version=2']
     def static Map acceptV2VendorXML = ['accept': 'application/vnd.vendor.service+xml; version=2']
+    def static Map acceptV2VendorXML2 = ['accept': 'application/vnd.vendor.service-v2+xml']
     def static Map acceptV1VendorJSON = ['accept': 'application/vnd.vendor.service-v1+json']
+    def static Map acceptV1VendorJSON2 = ['accept': 'application/vnd.vendor.service+json; version=1']
     def static Map acceptV1VendorXML = ['accept': 'application/vnd.vendor.service+xml; version=1']
+    def static Map acceptV1VendorXML2 = ['accept': 'application/vnd.vendor.service-v1+xml']
 
     def static Map contentXML = ["content-type": "application/xml"]
     def static Map contentJSON = ["content-type": "application/json"]
@@ -66,7 +70,7 @@ class VersioningTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("when retrieving all versions: #reqHeaders")
+    @Unroll ("when retrieving all versions: #reqHeaders")
     def "when retrieving all versions"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url: (String) reposeEndpoint, method: 'GET', headers: reqHeaders)
@@ -86,7 +90,7 @@ class VersioningTest extends ReposeValveTest {
 
     }
 
-    @Unroll("when retrieving version details: #reqHeaders - #requestUri")
+    @Unroll ("when retrieving version details: #reqHeaders - #requestUri")
     def "when retrieving version details"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url: (String) reposeEndpoint + requestUri, method: 'GET', headers: reqHeaders)
@@ -120,7 +124,7 @@ class VersioningTest extends ReposeValveTest {
         acceptJSON   | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/v1xxx/usertest1/ss"
     }
 
-    @Unroll("when retrieving version details with variant uri: #reqHeaders - #requestUri")
+    @Unroll ("when retrieving version details with variant uri: #reqHeaders - #requestUri")
     def "when retrieving version details with variant uri"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url: (String) reposeEndpoint + requestUri, method: 'GET', headers: reqHeaders)
@@ -132,16 +136,20 @@ class VersioningTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("host") == host
 
         where:
-        reqHeaders         | requestUri         | host
-        acceptV2VendorJSON | "/usertest1/ss"    | "localhost:" + properties.targetPort2
-        acceptV2VendorXML  | "/usertest1/ss"    | "localhost:" + properties.targetPort2
-        acceptHtml         | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
-        acceptXHtml        | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
-        acceptXMLWQ        | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
-        acceptV1VendorJSON | "/usertest1/ss"    | "localhost:" + properties.targetPort
-        acceptV1VendorXML  | "/usertest1/ss"    | "localhost:" + properties.targetPort
-        acceptXML          | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
-        acceptJSON         | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
+        reqHeaders          | requestUri         | host
+        acceptV2VendorJSON  | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptV2VendorXML   | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptV2VendorJSON2 | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptV2VendorXML2  | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptHtml          | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXHtml         | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXMLWQ         | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptV1VendorJSON  | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptV1VendorXML   | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptV1VendorJSON2 | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptV1VendorXML2  | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptXML           | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
+        acceptJSON          | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
 
 
     }
@@ -184,7 +192,7 @@ class VersioningTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
-    @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
+    @Unroll ("Requests - headers: #headerName with \"#headerValue\" keep its case")
     def "Requests - headers should keep its case in requests"() {
 
         when: "make a request with the given header and value"
@@ -213,7 +221,7 @@ class VersioningTest extends ReposeValveTest {
         //"Content-Encoding" | "IDENTITY"
     }
 
-    @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
+    @Unroll ("Responses - headers: #headerName with \"#headerValue\" keep its case")
     def "Responses - header keep its case in responses"() {
 
         when: "make a request with the given header and value"
