@@ -68,7 +68,6 @@ public class VersioningSchemaTest {
         public void shouldFailIfMutipleVersionMappingHasSameID() throws Exception {
             String xml =
                     "<versioning xmlns=\"http://docs.openrepose.org/repose/versioning/v2.0\"> " +
-                            "  <service-root href=\"http://localhost:8080/\"/> " +
                             "   <version-mapping id=\"v1\" pp-dest-id=\"service-v0\" status=\"DEPRECATED\"/>" +
                             " <version-mapping id=\"v1\" pp-dest-id=\"service-v1\">" +
                             " <media-types>\n" +
@@ -85,7 +84,6 @@ public class VersioningSchemaTest {
         public void shouldFailIfMediatypeNotUniqueInOneVersionMapping() throws Exception {
             String xml =
                     "<versioning xmlns=\"http://docs.openrepose.org/repose/versioning/v2.0\"> " +
-                            "  <service-root href=\"http://localhost:8080/\"/> " +
                             " <version-mapping id=\"v1\" pp-dest-id=\"service-v1\">" +
                             " <media-types>\n" +
                             " <media-type base=\"application/xml\" type=\"application/vnd.vendor.service-v1+xml\"/>" +

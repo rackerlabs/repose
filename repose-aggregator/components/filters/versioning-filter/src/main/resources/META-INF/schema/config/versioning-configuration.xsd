@@ -19,8 +19,9 @@
   =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
   -->
 
-
-<xs:schema xmlns:vers-config="http://docs.openrepose.org/repose/versioning/v2.0" xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema xmlns="http://docs.openrepose.org/repose/versioning/v2.0"
+           xmlns:vers-config="http://docs.openrepose.org/repose/versioning/v2.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
@@ -31,20 +32,17 @@
            targetNamespace="http://docs.openrepose.org/repose/versioning/v2.0"
            jaxb:version="2.1">
 
-    <xs:element name="versioning" type="vers-config:ServiceVersionMappingList"/>
+    <xs:element name="versioning" type="ServiceVersionMappingList"/>
 
     <xs:complexType name="ServiceVersionMappingList">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Versioning contains a list of version mappings and service root context.
-                </html:p>
+                <html:p>Versioning contains a list of version mappings and service root context.</html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="service-root" type="vers-config:ServiceRootContext"/>
-            <xs:element name="version-mapping" type="vers-config:ServiceVersionMapping" minOccurs="1"
-                        maxOccurs="unbounded"/>
+            <xs:element name="version-mapping" type="ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
@@ -52,28 +50,6 @@
                    xerces:message="Version mapping must have ids unique within their containing filter list"
                    saxon:message="Version mapping must have ids unique within their containing filter list"
                    xpathDefaultNamespace="##targetNamespace"/>
-
-    </xs:complexType>
-
-    <xs:complexType name="ServiceRootContext">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>The configuration's service root describes the base URL of the
-                    origin service without any versioning informationin the URI variant.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:attribute name="href" type="xs:anyURI" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        This hypertext reference identifies the full URI for the
-                        origin service's root.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="ServiceVersionMapping">
@@ -84,9 +60,8 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="media-types" type="vers-config:MediaTypeList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="media-types" type="MediaTypeList" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
-
 
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
@@ -102,7 +77,6 @@
             </xs:annotation>
         </xs:attribute>
 
-
         <xs:attribute name="pp-dest-id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -113,7 +87,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="status" type="vers-config:VersionStatus" use="optional" default="CURRENT">
+        <xs:attribute name="status" type="VersionStatus" use="optional" default="CURRENT">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -121,12 +95,9 @@
                         the given service version. The status described here
                         will be reflected in the service version list response.
                     </html:p>
-
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-
     </xs:complexType>
 
     <!-- Types -->
@@ -158,8 +129,9 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="media-type" type="vers-config:MediaType" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="media-type" type="MediaType" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
+
         <!--<xs:assert vc:minVersion="1.1"-->
         <!--test="count(for $first-pass in media-type,-->
         <!--$second-pass in media-type[ @base = $first-pass/@base and (: base are the same :)-->
@@ -205,7 +177,6 @@
                         This identifier can include a vendor namespace (
                         <html:a href="http://tools.ietf.org/html/rfc2048">See RFC 2048</html:a>)
                         as well as a version suffix.
-
                     </html:p>
                     <html:p>
                         When the filter receives this media type in accept header, it will send

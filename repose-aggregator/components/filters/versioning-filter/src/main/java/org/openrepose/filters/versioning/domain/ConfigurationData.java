@@ -26,18 +26,16 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueParser;
 import org.openrepose.commons.utils.http.media.MediaType;
-import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.commons.utils.http.media.servlet.RequestMediaRangeInterrogator;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.systemmodel.Destination;
-import org.openrepose.core.systemmodel.Node;
-import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.filters.versioning.config.MediaTypeList;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.schema.VersionChoice;
 import org.openrepose.filters.versioning.schema.VersionChoiceList;
 import org.openrepose.filters.versioning.util.VersionChoiceFactory;
-import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
-import org.openrepose.filters.versioning.util.http.UniformResourceInfo;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Map;
 
@@ -45,14 +43,10 @@ public class ConfigurationData {
 
     private final Map<String, ServiceVersionMapping> serviceMappings;
     private final Map<String, Destination> configuredHosts;
-    private final ReposeCluster localDomain;
-    private final Node localHost;
 
-    public ConfigurationData(ReposeCluster localDomain, Node localHost, Map<String, Destination> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
+    public ConfigurationData(Map<String, Destination> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
         this.configuredHosts = configuredHosts;
         this.serviceMappings = serviceMappings;
-        this.localDomain = localDomain;
-        this.localHost = localHost;
     }
 
     public Collection<ServiceVersionMapping> getServiceMappings() {
@@ -67,25 +61,25 @@ public class ConfigurationData {
         final Destination host = configuredHosts.get(mapping.getPpDestId());
 
         if (host == null) {
-            throw new VersionedHostNotFoundException("Endpoin: " + mapping.getPpDestId() + " is not specified in the system model");
+            throw new VersionedHostNotFoundException("Endpoint: " + mapping.getPpDestId() + " is not specified in the system model");
         }
 
         return host;
     }
 
-    public VersionedOriginService getOriginServiceForRequest(HttpRequestInfo requestInfo, FilterDirector director) throws VersionedHostNotFoundException {
+    public VersionedOriginService getOriginServiceForRequest(HttpServletRequestWrapper request) throws VersionedHostNotFoundException {
         // Check URI first to see if it matches configured host href
-        VersionedOriginService targetOriginService = findOriginServiceByUri(requestInfo);
+        VersionedOriginService targetOriginService = findOriginServiceByUri(request);
 
         // If version info not in URI look in accept header
         if (targetOriginService == null) {
-            final MediaType range = requestInfo.getPreferedMediaRange();
+            final MediaType range = RequestMediaRangeInterrogator.interrogate(request.getRequestURI(),
+                    request.getPreferredSplittableHeadersWithParameters(CommonHttpHeader.ACCEPT.toString())).get(0);
             final VersionedMapType currentServiceVersion = getServiceVersionForMediaRange(range);
-
 
             if (currentServiceVersion != null) {
                 final Destination destination = getHostForVersionMapping(currentServiceVersion.getServiceVersionMapping());
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), currentServiceVersion.getMediaType().getBase());
+                request.replaceHeader(CommonHttpHeader.ACCEPT.toString(), currentServiceVersion.getMediaType().getBase());
                 targetOriginService = new VersionedOriginService(currentServiceVersion.getServiceVersionMapping(), destination);
             }
         }
@@ -93,9 +87,9 @@ public class ConfigurationData {
         return targetOriginService;
     }
 
-    public VersionedOriginService findOriginServiceByUri(HttpRequestInfo requestResourceInfo) throws VersionedHostNotFoundException {
+    public VersionedOriginService findOriginServiceByUri(HttpServletRequestWrapper request) throws VersionedHostNotFoundException {
         for (Map.Entry<String, ServiceVersionMapping> entry : serviceMappings.entrySet()) {
-            final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, entry.getValue());
+            final VersionedRequest versionedRequest = new VersionedRequest(request, entry.getValue());
 
             if (versionedRequest.requestBelongsToVersionMapping()) {
                 return new VersionedOriginService(entry.getValue(), getHostForVersionMapping(entry.getValue()));
@@ -105,11 +99,11 @@ public class ConfigurationData {
         return null;
     }
 
-    public VersionChoiceList versionChoicesAsList(HttpRequestInfo requestResourceInfo) {
+    public VersionChoiceList versionChoicesAsList(HttpServletRequestWrapper request) {
         final VersionChoiceList versionChoices = new VersionChoiceList();
 
         for (ServiceVersionMapping mapping : getServiceMappings()) {
-            final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, mapping);
+            final VersionedRequest versionedRequest = new VersionedRequest(request, mapping);
             final VersionChoice choice = new VersionChoiceFactory(mapping).create();
             final Link selfReference = new Link();
 
@@ -126,9 +120,9 @@ public class ConfigurationData {
     public VersionedMapType getServiceVersionForMediaRange(MediaType preferedMediaRange) {
         org.openrepose.filters.versioning.config.MediaType mediaType;
         for (Map.Entry<String, ServiceVersionMapping> serviceMapping : serviceMappings.entrySet()) {
-            mediaType = getMatchingMediaType((ServiceVersionMapping) serviceMapping.getValue(), preferedMediaRange);
+            mediaType = getMatchingMediaType(serviceMapping.getValue(), preferedMediaRange);
             if (mediaType != null) {
-                return new VersionedMapType((ServiceVersionMapping) serviceMapping.getValue(), mediaType);
+                return new VersionedMapType(serviceMapping.getValue(), mediaType);
             }
         }
         return null;
@@ -148,15 +142,7 @@ public class ConfigurationData {
         return null;
     }
 
-    public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {
-        return "/".equals(StringUriUtilities.formatUri(uniformResourceInfo.getUri()));
-    }
-
-    public ReposeCluster getLocalDomain() {
-        return localDomain;
-    }
-
-    public Node getLocalHost() {
-        return localHost;
+    public boolean isRequestForVersions(HttpServletRequest uniformResourceInfo) {
+        return "/".equals(StringUriUtilities.formatUri(uniformResourceInfo.getRequestURI()));
     }
 }

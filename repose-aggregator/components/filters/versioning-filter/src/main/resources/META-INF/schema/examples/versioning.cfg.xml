@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <versioning xmlns="http://docs.openrepose.org/repose/versioning/v2.0">
-    <service-root href="http://localhost:8080/"/>
-
     <version-mapping id="v0" pp-dest-id="service-v0" status="DEPRECATED"/>
 
     <version-mapping id="v1" pp-dest-id="service-v1">
-
         <media-types>
             <media-type base="application/xml" type="application/vnd.vendor.service-v1+xml"/>
             <media-type base="application/json" type="application/vnd.vendor.service-v1+json"/>

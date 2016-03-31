@@ -2,8 +2,6 @@
 
 <!-- http://wiki.openrepose.org/display/REPOSE/Versioning+Filter -->
 <versioning xmlns="http://docs.openrepose.org/repose/versioning/v2.0">
-    <service-root href="http://localhost:8080/"/>
-
     <version-mapping id="v1" pp-dest-id="service-v1" status="DEPRECATED">
         <media-types>
             <media-type base="application/xml" type="application/vnd.vendor.service-v1+xml"/>

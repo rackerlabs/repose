@@ -72,10 +72,32 @@ public interface HeaderInteractor {
     List<String> getPreferredSplittableHeaders(String headerName);
 
     /**
+     * Returns the header value(s) with the highest quality. The default quality is 1.0 if unspecified.
+     * This treats each header entry as if it's one value, should there be multiple values per header entry
+     * exceptions are likely to occur.
+     *
+     * @param headerName the name of the header to get the preferred value for
+     * @return the highest quality value(s) with parameters included
+     * @throws QualityFormatException when quantity exists but cannot be parsed
+     */
+    List<String> getPreferredHeadersWithParameters(String headerName);
+
+    /**
+     * Returns the header value(s) with the highest quality, but will try to split all headers on commas before trying
+     * to evaluate.
+     * The default quality is 1.0 if unspecified.
+     *
+     * @param headerName the name of the header to get the preferred value for
+     * @return the value(s) with the highest quality after headers have been split with parameters included
+     * @throws QualityFormatException when quantity is present but cannot be parsed
+     */
+    List<String> getPreferredSplittableHeadersWithParameters(String headerName);
+
+    /**
      * Adds the specified header with the header name and header value pair.
      * This creates a new header entry under the given name.
      *
-     * @param headerName the name of the header
+     * @param headerName  the name of the header
      * @param headerValue the value of the header
      */
     void addHeader(String headerName, String headerValue);
@@ -85,9 +107,9 @@ public interface HeaderInteractor {
      * The quality is appended to headerValue.
      * This creates a new header entry under the given name.
      *
-     * @param headerName the name of the header
+     * @param headerName  the name of the header
      * @param headerValue the value of the header
-     * @param quality a double from 0.0 to 1.0
+     * @param quality     a double from 0.0 to 1.0
      */
     void addHeader(String headerName, String headerValue, double quality);
 
@@ -95,7 +117,7 @@ public interface HeaderInteractor {
      * Replaces the specified header with the header name and header value pair.
      * This replaces all values of a header with that name.
      *
-     * @param headerName the name of the header
+     * @param headerName  the name of the header
      * @param headerValue the value of the header
      */
     void replaceHeader(String headerName, String headerValue);
@@ -105,9 +127,9 @@ public interface HeaderInteractor {
      * The quality is appended to header value.
      * This replaces all values of a header with that name.
      *
-     * @param headerName the name of the header
+     * @param headerName  the name of the header
      * @param headerValue the value of the header
-     * @param quality a double from 0.0 to 1.0
+     * @param quality     a double from 0.0 to 1.0
      */
     void replaceHeader(String headerName, String headerValue, double quality);
 
@@ -115,7 +137,7 @@ public interface HeaderInteractor {
      * Appends header value to the end of the first header value for the specified header.
      * This is accomplished by adding a comma first, and then the new value.
      *
-     * @param headerName the name of the header
+     * @param headerName  the name of the header
      * @param headerValue the value of the header
      */
     void appendHeader(String headerName, String headerValue);
@@ -125,9 +147,9 @@ public interface HeaderInteractor {
      * The quality is appended to header value.
      * This is accomplished by adding a comma first, and then the new value.
      *
-     * @param headerName the name of the header
+     * @param headerName  the name of the header
      * @param headerValue the value of the header
-     * @param quality a double from 0.0 to 1.0
+     * @param quality     a double from 0.0 to 1.0
      */
     void appendHeader(String headerName, String headerValue, double quality);
 

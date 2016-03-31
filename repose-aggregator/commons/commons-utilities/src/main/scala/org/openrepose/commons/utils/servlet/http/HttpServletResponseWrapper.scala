@@ -33,77 +33,71 @@ import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
 
 /**
- * This class wraps a HttpServletResponse applying further functionality. It allows for varying levels of read
- * and writeability for both headers and body. Both headers and body offer three modes, although in the case of headers
- * two are functionally identical. If either option is set to ResponseMode.MUTABLE, commitToResponse must be called
- * before completion of the doFilter method in the utilizing filter otherwise all values may not be written to the
- * underlying response.
- *
- * When working with headers a mode of ResponseMode.PASSTHROUGH or ResponseMode.READONLY behave the same as the basic
- * HttpServletResponse interface. In other words all read methods are supported, as are those methods that are strictly
- * adds. In either case the headers will be written directly to the underlying response as they are added. A mode of
- * ResponseMode.MUTABLE will enable the append, replace, and remove header methods. In mutable mode commitToResponse
- * must be called when all changes to the response are done otherwise none of the headers will written to the underlying
- * response.
- *
- * When working with the body a mode of ResponseMode.PASSTHROUGH will have all calls go directly to the provided output
- * stream, which in the case of one of the constructors is the original response's output stream. A mode of
- * ResponseMode.READONLY will see us wrapping the provided output stream in one that will record everything that goes
- * through but still passing the data along to the provided stream. This can be accessed by calling
- * getOutputStreamAsInputStream. It should be noted that this will keep a secondary copy of the response in memory,
- * which for large responses could be expensive. If you desire to see the output after it went through a provided output
- * stream you can use our wrapping stream xxxxxxx yourself by first wrapping the original response's output stream in
- * our wrapper and then wrapping our stream with your own, and passing that in and setting the mode to
- * ResponseMode.PASSTHROUGH. ResponseMode.MUTABLE behaves similarly, but will not write to the underlying output stream
- * until commitToResponse is called. Additionally, you can call setOutput with an input stream which we will wrap in an
- * output stream which will be used to write to the underlying output stream when commitToResponse is called. This mode
- * will also break chunked encoding because the response can't be streamed directly through.
- *
- * Note that mutation to the [[HttpServletResponse]] will be treated by this wrapper as permanent. Therefore, mutation
- * should not be performed prior to downstream processing. In practice, mutation should not be performed on the response
- * prior to calling the doFilter() method. The reason is that writing to a [[ServletOutputStream]] or
- * [[PrintWriter]] can not be undone, so for the sake of consistency, headers are handled in the same manner. In
- * fact, headers written prior to wrapping a response will not appear to exist within the wrapped response.
- *
- * @constructor the main constructor to be used for this class
- * @param originalResponse the response to be wrapped
- * @param headerMode the read/write-ability mode of headers
- * @param bodyMode the read/write-ability mode of the body
- * @param desiredOutputStream the underlying output stream to be presented to callers of getOutputStream, maybe wrapped
- *                            depending on mode selection of the body
- */
+  * This class wraps a HttpServletResponse applying further functionality. It allows for varying levels of read
+  * and writeability for both headers and body. Both headers and body offer three modes, although in the case of headers
+  * two are functionally identical. If either option is set to ResponseMode.MUTABLE, commitToResponse must be called
+  * before completion of the doFilter method in the utilizing filter otherwise all values may not be written to the
+  * underlying response.
+  *
+  * When working with headers a mode of ResponseMode.PASSTHROUGH or ResponseMode.READONLY behave the same as the basic
+  * HttpServletResponse interface. In other words all read methods are supported, as are those methods that are strictly
+  * adds. In either case the headers will be written directly to the underlying response as they are added. A mode of
+  * ResponseMode.MUTABLE will enable the append, replace, and remove header methods. In mutable mode commitToResponse
+  * must be called when all changes to the response are done otherwise none of the headers will written to the underlying
+  * response.
+  *
+  * When working with the body a mode of ResponseMode.PASSTHROUGH will have all calls go directly to the provided output
+  * stream, which in the case of one of the constructors is the original response's output stream. A mode of
+  * ResponseMode.READONLY will see us wrapping the provided output stream in one that will record everything that goes
+  * through but still passing the data along to the provided stream. This can be accessed by calling
+  * getOutputStreamAsInputStream. It should be noted that this will keep a secondary copy of the response in memory,
+  * which for large responses could be expensive. If you desire to see the output after it went through a provided output
+  * stream you can use our wrapping stream xxxxxxx yourself by first wrapping the original response's output stream in
+  * our wrapper and then wrapping our stream with your own, and passing that in and setting the mode to
+  * ResponseMode.PASSTHROUGH. ResponseMode.MUTABLE behaves similarly, but will not write to the underlying output stream
+  * until commitToResponse is called. Additionally, you can call setOutput with an input stream which we will wrap in an
+  * output stream which will be used to write to the underlying output stream when commitToResponse is called. This mode
+  * will also break chunked encoding because the response can't be streamed directly through.
+  *
+  * Note that mutation to the [[HttpServletResponse]] will be treated by this wrapper as permanent. Therefore, mutation
+  * should not be performed prior to downstream processing. In practice, mutation should not be performed on the response
+  * prior to calling the doFilter() method. The reason is that writing to a [[ServletOutputStream]] or
+  * [[PrintWriter]] can not be undone, so for the sake of consistency, headers are handled in the same manner. In
+  * fact, headers written prior to wrapping a response will not appear to exist within the wrapped response.
+  *
+  * @constructor the main constructor to be used for this class
+  * @param originalResponse    the response to be wrapped
+  * @param headerMode          the read/write-ability mode of headers
+  * @param bodyMode            the read/write-ability mode of the body
+  * @param desiredOutputStream the underlying output stream to be presented to callers of getOutputStream, maybe wrapped
+  *                            depending on mode selection of the body
+  */
 class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode, desiredOutputStream: ServletOutputStream)
-  extends javax.servlet.http.HttpServletResponseWrapper(originalResponse)
-  with HeaderInteractor {
+  extends javax.servlet.http.HttpServletResponseWrapper(originalResponse) with HeaderInteractor {
 
-  /**
-   * This constructor chains to the main constructor using the original responses output stream  as the last argument.
-   *
-   * @constructor the constructor to use when you don't plan on using a custom stream for processing
-   * @param originalResponse the response to be wrapped
-   * @param headerMode the mode to use for header accessibility
-   * @param bodyMode the mode to use for body accessibility
-   */
-  def this(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode) =
-    this(originalResponse, headerMode, bodyMode, originalResponse.getOutputStream)
-
-  object ResponseBodyType extends Enumeration {
-    val Available, OutputStream, PrintWriter = Value
-  }
-
+  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
   private val bodyOutputStream = bodyMode match {
     case ResponseMode.PASSTHROUGH => new PassthroughServletOutputStream(desiredOutputStream)
     case ResponseMode.READONLY => new ReadOnlyServletOutputStream(desiredOutputStream)
     case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
   }
 
-  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
-
   private var flushedBuffer: Boolean = false
   private var responseBodyType: ResponseBodyType.Value = ResponseBodyType.Available
   private var bodyPrintWriter: PrintWriter = _
   private var characterEncoding: String = StandardCharsets.ISO_8859_1.toString
   private var headerMap: Map[String, Seq[String]] = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
+
+  /**
+    * This constructor chains to the main constructor using the original responses output stream  as the last argument.
+    *
+    * @constructor the constructor to use when you don't plan on using a custom stream for processing
+    * @param originalResponse the response to be wrapped
+    * @param headerMode       the mode to use for header accessibility
+    * @param bodyMode         the mode to use for body accessibility
+    */
+  def this(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode) =
+    this(originalResponse, headerMode, bodyMode, originalResponse.getOutputStream)
 
   override def getResponse: ServletResponse = throw new UnsupportedOperationException("getResponse is not supported")
 
@@ -116,19 +110,46 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def containsHeader(name: String): Boolean = headerMap.contains(name)
 
-  override def getHeader(name: String): String = getHeaderValues(name).headOption.orNull
-
   override def getHeaders(name: String): util.Collection[String] = getHeaderValues(name)
 
-  override def getHeadersList(name: String): util.List[String] = getHeaderValues(name)
+  override def getPreferredHeaders(name: String): util.List[String] =
+    getPreferredHeaderValues(getHeaderValues(name)).map(_.value)
 
-  override def getPreferredHeaders(name: String): util.List[String] = getPreferredHeaderValues(getHeaderValues(name))
+  override def getPreferredHeadersWithParameters(name: String): util.List[String] =
+    getPreferredHeaderValues(getHeaderValues(name)).map(_.headerValue)
 
   override def getPreferredSplittableHeaders(name: String): util.List[String] =
-    getPreferredHeaderValues(getSplittableHeaders(name))
+    getPreferredHeaderValues(getSplittableHeaders(name)).map(_.value)
+
+  override def getPreferredSplittableHeadersWithParameters(name: String): util.List[String] =
+    getPreferredHeaderValues(getSplittableHeaders(name)).map(_.headerValue)
+
+  private def getPreferredHeaderValues(values: Seq[String]): Seq[HeaderValue] = {
+    values match {
+      case Nil => Nil
+      case nonEmptyList =>
+        nonEmptyList.map(HeaderValue) // parse the header value string
+          .groupBy(_.quality) // group by quality
+          .maxBy(_._1) // find the highest quality group
+          ._2 // get the list of highest quality values
+    }
+  }
 
   override def getSplittableHeaders(name: String): util.List[String] =
     getHeaderValues(name).foldLeft(List.empty[String])((list, value) => list ++ value.split(","))
+
+  private def getHeaderValues(name: String): Seq[String] = headerMap.getOrElse(name, Seq.empty[String])
+
+  override def addHeader(name: String, value: String, quality: Double): Unit =
+    addHeader(name, s"$value;q=$quality")
+
+  override def addIntHeader(name: String, value: Int): Unit = addHeader(name, value.toString)
+
+  /**
+    * Formats the input time (as milliseconds since the epoch) to a format defined in RFC2616.
+    */
+  override def addDateHeader(name: String, timeSinceEpoch: Long): Unit =
+    addHeader(name, DateUtils.formatDate(new Date(timeSinceEpoch)))
 
   override def addHeader(name: String, value: String): Unit = {
     headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
@@ -139,20 +160,15 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
-  override def addHeader(name: String, value: String, quality: Double): Unit =
-    addHeader(name, s"$value;q=$quality")
-
-  override def addIntHeader(name: String, value: Int): Unit = addHeader(name, value.toString)
+  /**
+    * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
+    */
+  override def appendHeader(name: String, value: String, quality: Double): Unit =
+    appendHeader(name, s"$value;q=$quality")
 
   /**
-   * Formats the input time (as milliseconds since the epoch) to a format defined in RFC2616.
-   */
-  override def addDateHeader(name: String, timeSinceEpoch: Long): Unit =
-    addHeader(name, DateUtils.formatDate(new Date(timeSinceEpoch)))
-
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
+    * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
+    */
   override def appendHeader(name: String, value: String): Unit = {
     ifMutable(headerMode) {
       val existingValues = getHeadersList(name)
@@ -165,29 +181,23 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
-  /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
-  override def appendHeader(name: String, value: String, quality: Double): Unit =
-    appendHeader(name, s"$value;q=$quality")
+  override def getHeadersList(name: String): util.List[String] = getHeaderValues(name)
 
-  override def setHeader(name: String, value: String): Unit = {
-    headerMap = headerMap + (name -> Seq(value))
-
-    if (headerMode != ResponseMode.MUTABLE) {
-      // Write through to the wrapped response immediately
-      super.setHeader(name, value)
+  private def ifMutable[T](mode: ResponseMode)(processMutable: => T): T = {
+    mode match {
+      case ResponseMode.MUTABLE =>
+        processMutable
+      case _ =>
+        throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
     }
   }
-
-  override def setIntHeader(name: String, value: Int): Unit = setHeader(name, value.toString)
 
   override def setDateHeader(name: String, timeSinceEpoch: Long): Unit =
     setHeader(name, DateUtils.formatDate(new Date(timeSinceEpoch)))
 
   /**
-   * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
-   */
+    * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
+    */
   override def removeHeader(name: String): Unit = {
     ifMutable(headerMode) {
       headerMap = headerMap - name
@@ -198,11 +208,22 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def replaceHeader(name: String, value: String, quality: Double): Unit = setHeader(name, s"$value;q=$quality")
 
+  override def setHeader(name: String, value: String): Unit = {
+    headerMap = headerMap + (name -> Seq(value))
+
+    if (headerMode != ResponseMode.MUTABLE) {
+      // Write through to the wrapped response immediately
+      super.setHeader(name, value)
+    }
+  }
+
   override def setContentLength(contentLength: Int): Unit = {
     if (!isCommitted) {
       setIntHeader(CommonHttpHeader.CONTENT_LENGTH.toString, contentLength)
     }
   }
+
+  override def setIntHeader(name: String, value: Int): Unit = setHeader(name, value.toString)
 
   override def getContentType: String = getHeader(CommonHttpHeader.CONTENT_TYPE.toString)
 
@@ -215,13 +236,6 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       setHeader(CommonHttpHeader.CONTENT_TYPE.toString, modifiedContentType)
       charEnc.foreach(setCharacterEncoding)
     }
-  }
-
-  override def getCharacterEncoding: String = {
-    Option(getHeader(CommonHttpHeader.CONTENT_TYPE.toString)) flatMap { contentType =>
-      val charEncRegex = """;\s*charset\s*=\s*([^;]+)""".r
-      charEncRegex.findFirstMatchIn(contentType).map(_.group(1))
-    } getOrElse characterEncoding
   }
 
   override def setCharacterEncoding(charEncoding: String): Unit = {
@@ -242,13 +256,13 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
   /**
-   * @throws IllegalStateException when bodyMode is ResponseMode.PASSTHROUGH
-   */
+    * @throws IllegalStateException when bodyMode is ResponseMode.PASSTHROUGH
+    */
   def getOutputStreamAsInputStream: InputStream = bodyOutputStream.getOutputStreamAsInputStream
 
   /**
-   * @throws IllegalStateException when bodyMode is anything other than ResponseMode.MUTABLE
-   */
+    * @throws IllegalStateException when bodyMode is anything other than ResponseMode.MUTABLE
+    */
   def setOutput(inputStream: InputStream): Unit = {
     responseBodyType = ResponseBodyType.Available
     bodyOutputStream.setOutput(inputStream)
@@ -266,6 +280,15 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
         bodyPrintWriter
     }
   }
+
+  override def getCharacterEncoding: String = {
+    Option(getHeader(CommonHttpHeader.CONTENT_TYPE.toString)) flatMap { contentType =>
+      val charEncRegex = """;\s*charset\s*=\s*([^;]+)""".r
+      charEncRegex.findFirstMatchIn(contentType).map(_.group(1))
+    } getOrElse characterEncoding
+  }
+
+  override def getHeader(name: String): String = getHeaderValues(name).headOption.orNull
 
   override def getOutputStream: ServletOutputStream = {
     responseBodyType match {
@@ -295,15 +318,6 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     flushedBuffer = true
   }
 
-  override def resetBuffer(): Unit = {
-    if (isCommitted) {
-      throw new IllegalStateException("Cannot call resetBuffer after the response has been committed")
-    } else {
-      super.resetBuffer()
-      bodyOutputStream.resetBuffer()
-    }
-  }
-
   override def reset(): Unit = {
     if (isCommitted) {
       throw new IllegalStateException("Cannot call reset after the response has been committed")
@@ -314,9 +328,18 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
+  override def resetBuffer(): Unit = {
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call resetBuffer after the response has been committed")
+    } else {
+      super.resetBuffer()
+      bodyOutputStream.resetBuffer()
+    }
+  }
+
   /**
-   * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
-   */
+    * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
+    */
   def commitToResponse(): Unit = {
     def writeHeaders(): Unit = {
       headerMap foreach { case (name, values) =>
@@ -347,39 +370,21 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
-  private def getHeaderValues(name: String): Seq[String] = headerMap.getOrElse(name, Seq.empty[String])
-
-  private def getPreferredHeaderValues(values: Seq[String]): Seq[String] = {
-    case class HeaderValue(headerValue: String) {
-      val value = headerValue.split(";").head
-      val quality = {
-        try {
-          val headerParameters: Array[String] = headerValue.split(";").tail
-          val qualityParameter: Option[String] = headerParameters.find(param => "q".equalsIgnoreCase(param.split("=").head.trim))
-          qualityParameter.map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
-        } catch {
-          case e: NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
-        }
+  private case class HeaderValue(headerValue: String) {
+    val value = headerValue.split(";").head
+    val quality = {
+      try {
+        val headerParameters: Array[String] = headerValue.split(";").tail
+        val qualityParameter: Option[String] = headerParameters.find(param => "q".equalsIgnoreCase(param.split("=").head.trim))
+        qualityParameter.map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
+      } catch {
+        case e: NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
       }
     }
-
-    values match {
-      case Nil => Nil
-      case nonEmptyList =>
-        nonEmptyList.map(HeaderValue) // parse the header value string
-          .groupBy(_.quality) // group by quality
-          .maxBy(_._1) // find the highest quality group
-          ._2 // get the list of highest quality values
-          .map(_.value) // return a list of just the values
-    }
   }
 
-  private def ifMutable[T](mode: ResponseMode)(processMutable: => T): T = {
-    mode match {
-      case ResponseMode.MUTABLE =>
-        processMutable
-      case _ =>
-        throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
-    }
+  object ResponseBodyType extends Enumeration {
+    val Available, OutputStream, PrintWriter = Value
   }
+
 }

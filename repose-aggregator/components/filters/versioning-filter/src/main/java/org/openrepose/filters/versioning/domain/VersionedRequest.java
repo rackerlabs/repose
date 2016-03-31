@@ -21,72 +21,70 @@ package org.openrepose.filters.versioning.domain;
 
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.string.JCharSequenceFactory;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
-import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
-import org.openrepose.filters.versioning.util.http.UniformResourceInfo;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static org.openrepose.commons.utils.StringUriUtilities.indexOfUriFragment;
 
 public class VersionedRequest {
 
-    private final HttpRequestInfo requestInfo;
+    private final HttpServletRequestWrapper request;
     private final ServiceVersionMapping mapping;
     private final String clientAddressedHost;
 
-    public VersionedRequest(HttpRequestInfo requestInfo, ServiceVersionMapping mapping) {
-        this.requestInfo = requestInfo;
+    public VersionedRequest(HttpServletRequestWrapper request, ServiceVersionMapping mapping) {
+        this.request = request;
         this.mapping = mapping;
-        this.clientAddressedHost = requestInfo.getHost();
+        this.clientAddressedHost = request.getHeader(CommonHttpHeader.HOST.toString());
     }
 
     public ServiceVersionMapping getMapping() {
         return mapping;
     }
 
-    public HttpRequestInfo getRequestInfo() {
-        return requestInfo;
-    }
-
-    public String getHost() {
-        return clientAddressedHost;
+    public HttpServletRequestWrapper getRequest() {
+        return request;
     }
 
     public boolean isRequestForRoot() {
-        return "/".equals(StringUriUtilities.formatUri(requestInfo.getUri()));
+        return "/".equals(StringUriUtilities.formatUri(request.getRequestURI()));
     }
 
     public boolean requestBelongsToVersionMapping() {
-        final String requestedUri = StringUriUtilities.formatUri(requestInfo.getUri());
+        final String requestedUri = StringUriUtilities.formatUri(request.getRequestURI());
         final String versionUri = StringUriUtilities.formatUri(mapping.getId());
 
         return indexOfUriFragment(JCharSequenceFactory.jchars(requestedUri), versionUri) == 0;
     }
 
     public boolean requestMatchesVersionMapping() {
-        final String requestedUri = StringUriUtilities.formatUri(requestInfo.getUri());
+        final String requestedUri = StringUriUtilities.formatUri(request.getRequestURI());
 
         return requestedUri.equals(StringUriUtilities.formatUri(mapping.getId()));
     }
 
     public String asExternalURL() {
-        return requestInfo.getUrl();
+        return request.getRequestURL().toString();
     }
 
     public String asInternalURL() {
-        return StringUtilities.join(requestInfo.getScheme() + "://", clientAddressedHost, asInternalURI());
+        return StringUtilities.join(request.getScheme() + "://", clientAddressedHost, asInternalURI());
     }
 
     public String asInternalURI() {
-        return removeVersionPrefix(requestInfo, mapping.getId());
+        return removeVersionPrefix(request, mapping.getId());
     }
 
-    private String removeVersionPrefix(UniformResourceInfo requestInfo, String version) {
-        if (requestInfo.getUri().charAt(0) != '/') {
+    private String removeVersionPrefix(HttpServletRequest request, String version) {
+        if (request.getRequestURI().charAt(0) != '/') {
             throw new IllegalArgumentException("Request URI must be a URI with a root reference - i.e. the URI must start with '/'");
         }
 
-        final String uri = StringUriUtilities.formatUri(requestInfo.getUri());
+        final String uri = StringUriUtilities.formatUri(request.getRequestURI());
         final String formattedVersion = StringUriUtilities.formatUri(version);
 
         if (formattedVersion.length() == 1) {

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openrepose</groupId>
@@ -12,7 +14,8 @@
     <packaging>jar</packaging>
 
     <description>
-        TODO
+        Provides support for multiple versions of an API. This filter can list API versions,
+        route requests based on API version, and translate the 'Accept' header media type.
     </description>
 
     <properties>
@@ -31,18 +34,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics-runtime</artifactId>
+            <groupId>org.openrepose</groupId>
+            <artifactId>commons-utilities</artifactId>
         </dependency>
 
         <dependency>
@@ -51,38 +44,45 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Let's use Scala -->
         <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>commons-utilities</artifactId>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.MajDotMin}</artifactId>
+        </dependency>
+
+        <!-- Lazy Logging -->
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging-slf4j_${scala.MajDotMin}</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <scope>test</scope>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
+
+        <!-- Guava findbugs for Scala compatibility -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <scope>test</scope>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>1.3.9</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>test</scope>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+
+        <!-- JAXB -->
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
         </dependency>
 
         <!--Apache Pool Support-->
@@ -97,66 +97,119 @@
             <version>2.7.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>xmlunit</groupId>
+            <artifactId>xmlunit</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- MockHttpServletRequest/Response -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- LogFactory, needed by MockHttpServletRequest/Response -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
+
                 <configuration>
                     <transformationSets>
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/versioning</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/versioning</outputDir>
                         </transformationSet>
+
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/config</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/config</outputDir>
                         </transformationSet>
+
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/atom</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/atom</outputDir>
                         </transformationSet>
+
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/xml</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/xml</outputDir>
                         </transformationSet>
                     </transformationSets>
                 </configuration>
             </plugin>
 
-
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
 
                 <configuration>
-
                     <specVersion>2.2</specVersion>
                     <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
 
                     <schemaIncludes>
                         <include>**/*.xsd</include>
                     </schemaIncludes>
+
                     <bindingIncludes>
                         <include>**/*.xjb</include>
                     </bindingIncludes>
 
                     <strict>true</strict>
                     <verbose>false</verbose>
+                    <extension>true</extension>
 
+                    <args>
+                        <arg>-Xfluent-api</arg>
+                    </args>
+
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-fluent-api</artifactId>
+                            <version>3.0</version>
+                        </plugin>
+                    </plugins>
                 </configuration>
             </plugin>
-            <!-- this is working now that doxygen is commented out-->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
+
                 <dependencies>
                     <dependency>
                         <groupId>org.codenarc</groupId>
@@ -169,30 +222,41 @@
                             </exclusion>
                         </exclusions>
                     </dependency>
+
                     <dependency>
                         <groupId>org.openrepose</groupId>
                         <artifactId>build-tools</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
+
                 <executions>
                     <execution>
                         <id>codenarc</id>
                         <phase>verify</phase>
+
                         <goals>
                             <goal>run</goal>
                         </goals>
+
                         <configuration>
                             <target>
-                                <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask" classpathref="maven.plugin.classpath" />
-                                <codenarc ruleSetFiles="classpath:repose-style-configs/ruleset.xml" maxPriority1Violations="0" maxPriority2Violations="0" maxPriority3Violations="0">
+                                <taskdef name="codenarc"
+                                         classname="org.codenarc.ant.CodeNarcTask"
+                                         classpathref="maven.plugin.classpath"/>
+
+                                <codenarc ruleSetFiles="classpath:repose-style-configs/ruleset.xml"
+                                          maxPriority1Violations="0"
+                                          maxPriority2Violations="0"
+                                          maxPriority3Violations="0">
                                     <report type="xml">
-                                        <option name="outputFile" value="${basedir}/target/CodeNarc.xml" />
-                                        <option name="title" value="${project.name}" />
+                                        <option name="outputFile" value="${basedir}/target/CodeNarc.xml"/>
+                                        <option name="title" value="${project.name}"/>
                                     </report>
+
                                     <!--fileset dir="${basedir}/src/test/groovy"-->
                                     <fileset dir="${basedir}/src/test/java">
-                                        <include name="**/*.groovy" />
+                                        <include name="**/*.groovy"/>
                                     </fileset>
                                 </codenarc>
                             </target>

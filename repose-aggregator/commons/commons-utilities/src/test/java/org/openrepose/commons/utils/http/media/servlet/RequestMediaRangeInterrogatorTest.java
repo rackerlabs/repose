@@ -22,10 +22,10 @@ package org.openrepose.commons.utils.http.media.servlet;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.http.header.HeaderValueImpl;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -36,14 +36,14 @@ public class RequestMediaRangeInterrogatorTest {
 
         @Test
         public void shouldReturnMediaTypeFromVariant() {
-            List<MediaType> mediaRange = RequestMediaRangeInterrogator.interrogate("http://cloudservers/images.json", new HeaderValueImpl(""));
+            List<MediaType> mediaRange = RequestMediaRangeInterrogator.interrogate("http://cloudservers/images.json", Collections.singletonList(""));
 
             assertEquals(MimeType.APPLICATION_JSON, mediaRange.get(0).getMimeType());
         }
 
         @Test
         public void shouldReturnMediaTypeFromAcceptHeader() {
-            List<MediaType> mediaRange = RequestMediaRangeInterrogator.interrogate("http://servers.api.openstack.org/images", new HeaderValueImpl("application/xml"));
+            List<MediaType> mediaRange = RequestMediaRangeInterrogator.interrogate("http://servers.api.openstack.org/images", Collections.singletonList("application/xml"));
 
             assertEquals(MimeType.APPLICATION_XML, mediaRange.get(0).getMimeType());
         }
