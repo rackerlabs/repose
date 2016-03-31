@@ -44,8 +44,9 @@
         <xs:attribute name="rackspace-identity-service-uri" type="xs:anyURI" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The target Rackspace Identity endpoint URI for credential requests including host, port, and
-                        path to service.
+                    <html:p>
+                        The target Rackspace Identity endpoint URI for credential requests including scheme, host,
+                        and port to service.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

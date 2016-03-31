@@ -56,6 +56,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
     with LazyLogging {
 
   private final val DEFAULT_CONFIG = "rackspace-identity-basic-auth.cfg.xml"
+  private final val TOKEN_ENDPOINT = "/v2.0/tokens"
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val X_AUTH_TOKEN = "X-Auth-Token"
   private final val SC_TOO_MANY_REQUESTS = 429
@@ -208,7 +209,7 @@ class RackspaceIdentityBasicAuthFilter @Inject()(configurationService: Configura
         val requestTracingHeader = Option(httpServletRequestWrapper.getHeader(CommonHttpHeader.TRACE_GUID.toString))
           .map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
         val authTokenResponse = Option(akkaServiceClient.post(authValue,
-          identityServiceUri,
+          identityServiceUri + TOKEN_ENDPOINT,
           requestTracingHeader.asJava,
           createAuthRequest(authValue).toString(),
           MediaType.APPLICATION_XML_TYPE))

@@ -288,7 +288,7 @@ class MockIdentityV2Service {
             query = null
             nonQueryPath = path
         }
-        if (isGenerateTokenCallPath(nonQueryPath) || isBasicAuthTokenCallPath(nonQueryPath)) {
+        if (isGenerateTokenCallPath(nonQueryPath)) {
             if (method == "POST") {
                 _generateTokenCount.incrementAndGet()
                 return generateTokenHandler(request, xml);
@@ -412,9 +412,10 @@ class MockIdentityV2Service {
      * @param nonQueryPath
      * @return true/false
      */
-    public static boolean isBasicAuthTokenCallPath(String nonQueryPath) {
-        return nonQueryPath == "/tokens"
-    }
+    //We fix uri for identity call
+    //public static boolean isBasicAuthTokenCallPath(String nonQueryPath) {
+    //    return nonQueryPath == "/v2.0/tokens"
+    //}
 
     /**
      * Check Path start with /v2.0/tokens

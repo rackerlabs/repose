@@ -2,6 +2,6 @@
 
 <rackspace-identity-basic-auth
         xmlns="http://docs.openrepose.org/repose/rackspace-identity-basic-auth/v1.0"
-        rackspace-identity-service-uri="http://localhost:${identityPort}/tokens"
+        rackspace-identity-service-uri="http://localhost:${identityPort}"
         token-cache-timeout-millis="0"
         connection-pool-id="basicauth-pool"/>
