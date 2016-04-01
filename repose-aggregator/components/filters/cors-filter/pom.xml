@@ -73,7 +73,7 @@
         <!-- FilterConfigHelper -->
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>core-lib</artifactId>
+            <artifactId>repose-core</artifactId>
         </dependency>
 
         <!-- LogFactory, needed by MockHttpServletRequest/Response -->

@@ -11,7 +11,7 @@ dependencies {
     testCompile "joda-time:joda-time"
     testCompile project(":repose-aggregator:commons:commons-utilities")
     testCompile project(":repose-aggregator:core:repose-core-api")
-    testCompile project(":repose-aggregator:core:core-lib") //todo: remove this when filter director is gone
+    testCompile project(":repose-aggregator:core:repose-core") //todo: remove this when filter director is gone
     testCompile "javax.ws.rs:javax.ws.rs-api"
     testCompile "org.eclipse.jetty:jetty-server"
     testCompile "org.eclipse.jetty:jetty-servlet"

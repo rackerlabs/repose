@@ -8,7 +8,7 @@
     </parent>
 
     <name>Repose Core - Power API Core Library</name>
-    <artifactId>core-lib</artifactId>
+    <artifactId>repose-core</artifactId>
     <packaging>jar</packaging>
 
     <description>

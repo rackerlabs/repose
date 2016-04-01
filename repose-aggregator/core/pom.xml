@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <description>
-        core-lib: Repose Core
+        repose-core: Repose Core
 
         repose-core-api: Service APIs provided in Repose Core
 
@@ -23,7 +23,7 @@
 
     <modules>
         <module>repose-core-api</module>
-        <module>core-lib</module>
+        <module>repose-core</module>
     </modules>
 
     <dependencyManagement>

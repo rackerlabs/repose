@@ -22,5 +22,5 @@ dependencies {
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.mockito:mockito-all"
     testCompile "com.mockrunner:mockrunner-servlet"
-    testCompile project(":repose-aggregator:core:core-lib") //todo: get rid of this when filter director is dead
+    testCompile project(":repose-aggregator:core:repose-core") //todo: get rid of this when filter director is dead
 }

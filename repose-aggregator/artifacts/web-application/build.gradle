@@ -2,7 +2,7 @@ apply plugin: 'war'
 
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
-    compile project(":repose-aggregator:core:core-lib")
+    compile project(":repose-aggregator:core:repose-core")
     compile "com.typesafe:config"
     compile "org.springframework:spring-web"
     compile "org.springframework:spring-context"

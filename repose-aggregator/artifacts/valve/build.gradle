@@ -7,7 +7,7 @@ configurations {
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:commons:commons-configuration")
-    compile project(":repose-aggregator:core:core-lib")
+    compile project(":repose-aggregator:core:repose-core")
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.slf4j:jcl-over-slf4j"

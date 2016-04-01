@@ -82,7 +82,7 @@
         <!-- These three are required because of our coupling between filters and core -->
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>core-lib</artifactId>
+            <artifactId>repose-core</artifactId>
         </dependency>
 
         <dependency>
