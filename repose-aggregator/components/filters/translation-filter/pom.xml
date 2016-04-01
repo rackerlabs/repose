@@ -28,7 +28,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>core-service-api</artifactId>
+            <artifactId>repose-core-api</artifactId>
         </dependency>
 
         <!-- this one actually uses guts within the configuration package :( -->

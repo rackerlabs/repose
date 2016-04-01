@@ -56,7 +56,7 @@
 
         <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>core-service-api</artifactId>
+            <artifactId>repose-core-api</artifactId>
         </dependency>
 
         <dependency>

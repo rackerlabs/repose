@@ -14,7 +14,7 @@
     <description>
         core-lib: Repose Core
 
-        core-service-api: Service APIs provided in Repose Core
+        repose-core-api: Service APIs provided in Repose Core
 
         valve: Standalone Repose java servlet
 
@@ -22,7 +22,7 @@
     </description>
 
     <modules>
-        <module>core-service-api</module>
+        <module>repose-core-api</module>
         <module>core-lib</module>
     </modules>
 
