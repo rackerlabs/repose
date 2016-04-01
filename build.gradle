@@ -44,9 +44,7 @@ task('release', description: 'Release the project and publish to all repos.', gr
 allprojects {
     group = 'org.openrepose'
     def baseVersion = '8.0.0.0'
-    gradle.taskGraph.whenReady {
-        version = gradle.taskGraph.hasTask("release") ? baseVersion : "$baseVersion-SNAPSHOT"
-    }
+    version = project.hasProperty('release') ? baseVersion : "$baseVersion-SNAPSHOT"
 
     apply plugin: 'idea'
     apply plugin: 'nebula.dependency-recommender'
@@ -255,12 +253,10 @@ subprojects {
         repositories {
             maven {
                 name 'reposeNexus'
-                gradle.taskGraph.whenReady {
-                    if (gradle.taskGraph.hasTask("release")) {
-                        url 'https://maven.research.rackspacecloud.com/content/repositories/releases'
-                    } else {
-                        url 'https://maven.research.rackspacecloud.com/content/repositories/snapshots'
-                    }
+                if (project.hasProperty('release')) {
+                    url 'https://maven.research.rackspacecloud.com/content/repositories/releases'
+                } else {
+                    url 'https://maven.research.rackspacecloud.com/content/repositories/snapshots'
                 }
                 credentials {
                     username project.hasProperty('maven.repo.username') ? property('maven.repo.username') : 'Need to provide an actual username'
