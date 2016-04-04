@@ -22,9 +22,8 @@ package org.openrepose.powerfilter.intrafilterLogging
 import java.io.ByteArrayInputStream
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper
 import org.openrepose.core.systemmodel.Filter
-import org.openrepose.powerfilter.filtercontext.FilterContext
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -34,16 +33,14 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
 
   import org.mockito.Mockito.when
 
-  var mutableHttpServletResponse: MutableHttpServletResponse = _
-  var filterContext: FilterContext = _
+  var httpServletResponseWrapper: HttpServletResponseWrapper = _
   val dummyInputStream = new ByteArrayInputStream(" ".getBytes)
 
   before {
-    mutableHttpServletResponse = mock[MutableHttpServletResponse]
-    filterContext = mock[FilterContext]
+    httpServletResponseWrapper = mock[HttpServletResponseWrapper]
 
     // the code under test makes some static method calls, so we gotta do this mess
-    when(mutableHttpServletResponse.getBufferedOutputAsInputStream).thenReturn(dummyInputStream)
+    when(httpServletResponseWrapper.getOutputStreamAsInputStream).thenReturn(dummyInputStream)
   }
 
   describe("a response log") {
@@ -58,10 +55,8 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new ResponseLog
-        val responseLog = new ResponseLog(mutableHttpServletResponse, filterContext)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
 
         // then the filter description includes both the ID and name
         s"$filterId-$filterName" shouldEqual responseLog.currentFilter
@@ -76,10 +71,8 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new ResponseLog
-        val responseLog = new ResponseLog(mutableHttpServletResponse, filterContext)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
 
         // then the filter description includes just the filter name
         filterName shouldEqual responseLog.currentFilter
@@ -94,10 +87,8 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new ResponseLog
-        val responseLog = new ResponseLog(mutableHttpServletResponse, filterContext)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
 
         // then the filter description includes just the filter name
         filterName shouldEqual responseLog.currentFilter

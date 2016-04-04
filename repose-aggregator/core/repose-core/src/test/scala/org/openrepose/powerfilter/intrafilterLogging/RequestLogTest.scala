@@ -23,9 +23,8 @@ import java.io.ByteArrayInputStream
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.io.BufferedServletInputStream
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.systemmodel.Filter
-import org.openrepose.powerfilter.filtercontext.FilterContext
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
@@ -37,17 +36,15 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
 
   import org.mockito.Mockito.when
 
-  var mutableHttpServletRequest: MutableHttpServletRequest = _
-  var filterContext: FilterContext = _
+  var httpServletRequestWrapper: HttpServletRequestWrapper = _
   val dummyInputStream = new BufferedServletInputStream(new ByteArrayInputStream(" ".getBytes))
 
   before {
-    mutableHttpServletRequest = mock[MutableHttpServletRequest]
-    filterContext = mock[FilterContext]
+    httpServletRequestWrapper = mock[HttpServletRequestWrapper]
 
     // the code under test makes some static method calls, so we gotta do this mess
-    when(mutableHttpServletRequest.getInputStream).thenReturn(dummyInputStream)
-    when(mutableHttpServletRequest.getHeaderNames).thenReturn(Iterator[String]().asJavaEnumeration)
+    when(httpServletRequestWrapper.getInputStream).thenReturn(dummyInputStream)
+    when(httpServletRequestWrapper.getHeaderNames).thenReturn(Iterator[String]().asJavaEnumeration)
   }
 
   describe("a request log") {
@@ -62,10 +59,8 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new RequestLog
-        val requestLog = new RequestLog(mutableHttpServletRequest, filterContext)
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
 
         // then the filter description includes both the ID and name
         s"$filterId-$filterName" shouldEqual requestLog.currentFilter
@@ -80,10 +75,8 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new RequestLog
-        val requestLog = new RequestLog(mutableHttpServletRequest, filterContext)
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
 
         // then the filter description includes just the filter name
         filterName shouldEqual requestLog.currentFilter
@@ -98,10 +91,8 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new RequestLog
-        val requestLog = new RequestLog(mutableHttpServletRequest, filterContext)
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
 
         // then the filter description includes just the filter name
         filterName shouldEqual requestLog.currentFilter

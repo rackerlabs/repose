@@ -22,15 +22,11 @@ package org.openrepose.powerfilter.intrafilterLogging;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.core.systemmodel.Filter;
-import org.openrepose.powerfilter.filtercontext.FilterContext;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class ResponseLog {
 
@@ -39,37 +35,26 @@ public class ResponseLog {
     String currentFilter;
     String httpResponseCode;
     String responseBody;
-    HashMap<String, String> headers;
+    Map<String, String> headers;
 
-    public ResponseLog(MutableHttpServletResponse mutableHttpServletResponse,
-                       FilterContext filterContext) throws IOException {
-
-        Filter filter = filterContext.getFilterConfig();
-
+    public ResponseLog(HttpServletResponseWrapper wrappedServletResponse, Filter filter) throws IOException {
         preamble = "Intrafilter Response Log";
         timestamp = new DateTime().toString();
         currentFilter = StringUtils.isEmpty(filter.getId()) ? filter.getName() : filter.getId() + "-" + filter.getName();
-        httpResponseCode = Integer.toString(mutableHttpServletResponse.getStatus());
-        headers = convertResponseHeadersToMap(mutableHttpServletResponse);
+        httpResponseCode = Integer.toString(wrappedServletResponse.getStatus());
+        headers = convertResponseHeadersToMap(wrappedServletResponse);
 
-        responseBody = IOUtils.toString(mutableHttpServletResponse.getBufferedOutputAsInputStream()); //http://stackoverflow.com/a/309448
-        mutableHttpServletResponse.setInputStream(new ByteArrayInputStream(responseBody.getBytes()));
+        responseBody = IOUtils.toString(wrappedServletResponse.getOutputStreamAsInputStream()); //http://stackoverflow.com/a/309448
     }
 
-    private HashMap<String, String> convertResponseHeadersToMap(
-            MutableHttpServletResponse mutableHttpServletResponse) {
-
+    private Map<String, String> convertResponseHeadersToMap(HttpServletResponseWrapper wrappedServletResponse) {
         HashMap<String, String> headerMap = new LinkedHashMap<>();
-        List<String> headerNames = (List<String>) mutableHttpServletResponse.getHeaderNames();
+        Collection<String> headerNames = wrappedServletResponse.getHeaderNames();
 
         for (String headerName : headerNames) {
-            StringBuilder allHeaderValues = new StringBuilder();
-            for (String value : mutableHttpServletResponse.getHeaders(headerName)) {
-                allHeaderValues.append(value).append(",");
-            }
-            //Clobber the last character
-            allHeaderValues.deleteCharAt(allHeaderValues.length() - 1);
-            headerMap.put(headerName, allHeaderValues.toString());
+            StringJoiner stringJoiner = new StringJoiner(",");
+            wrappedServletResponse.getHeaders(headerName).forEach(stringJoiner::add);
+            headerMap.put(headerName, stringJoiner.toString());
         }
 
         return headerMap;

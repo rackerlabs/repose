@@ -77,10 +77,10 @@ class IntraFilterLoggingResponseBodyTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == "200"
         mc.orphanedHandlings.size() == 0
-        mc.receivedResponse.body == content
         configuredFilters.each { filterName ->
             assert reposeLogSearch.searchByString(logPreString + filterName + logPostStringResponse).size() > 0
         }
+        mc.receivedResponse.body == content
     }
 
     def "verify origin receives request body from client and that it is properly logged"() {
