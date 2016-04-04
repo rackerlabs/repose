@@ -38,6 +38,6 @@
     </filter>
     <filter>
         <filter-name>scripting</filter-name>
-        <filter-class>org.openrepose.filters.scriptingfilter.ScriptingFilter</filter-class>
+        <filter-class>org.openrepose.filters.scripting.ScriptingFilter</filter-class>
     </filter>
 </web-fragment>
