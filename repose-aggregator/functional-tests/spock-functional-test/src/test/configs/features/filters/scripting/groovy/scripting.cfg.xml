@@ -2,7 +2,7 @@
 
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
            language="groovy">
-    request.addHeader("foo", "bar")
+    request.addHeader("language", "groovy")
 
     // Call the next filter in the chain
     filter.doChain(request, response)
