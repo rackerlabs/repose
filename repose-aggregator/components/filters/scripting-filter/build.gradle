@@ -2,7 +2,7 @@ dependencies {
     compile project(":repose-aggregator/core/core-service-api")
     compile project(":repose-aggregator/commons/commons-utilities")
     compile "org.scala-lang:scala-library"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_2.10"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.jruby:jruby-complete"
     compile "org.python:jython"
     compile "org.codehaus.groovy:groovy-all"
@@ -13,7 +13,7 @@ dependencies {
 
     testCompile "junit:junit"
     testCompile "org.mockito:mockito-all"
-    testCompile "org.scalatest:scalatest_2.10"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
 }
