@@ -241,7 +241,8 @@ public class PowerFilterChain implements FilterChain {
 
     private String intrafilterResponseLog(
             HttpServletResponseWrapper wrappedServletResponse,
-            FilterContext filterContext, String uuid) throws IOException {
+            FilterContext filterContext,
+            String uuid) throws IOException {
 
         // if the response doesn't already have a UUID, give it the UUID passed to this method
         if (StringUtils.isEmpty(wrappedServletResponse.getHeader(INTRAFILTER_UUID))) {
