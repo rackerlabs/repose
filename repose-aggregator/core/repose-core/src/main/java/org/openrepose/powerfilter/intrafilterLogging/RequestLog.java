@@ -53,7 +53,7 @@ public class RequestLog {
             requestBody = IOUtils.toString(inputStream); //http://stackoverflow.com/a/309448
             inputStream.reset();
         } else {
-            throw new RuntimeException("Servlet input stream does not support mark/reset: " + inputStream);
+            throw new IllegalArgumentException("Servlet input stream does not support mark/reset: " + inputStream);
         }
     }
 

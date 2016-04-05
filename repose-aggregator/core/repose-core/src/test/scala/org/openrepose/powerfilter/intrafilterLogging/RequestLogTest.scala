@@ -123,7 +123,7 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         when(unsupportedInputStream.markSupported()).thenReturn(false)
         when(httpServletRequestWrapper.getInputStream).thenReturn(unsupportedInputStream)
 
-        a [RuntimeException] should be thrownBy new RequestLog(httpServletRequestWrapper, filter)
+        a [IllegalArgumentException] should be thrownBy new RequestLog(httpServletRequestWrapper, filter)
       }
     }
 
