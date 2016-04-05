@@ -74,7 +74,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         //mc.receivedResponse.code == SC_OK.toString()
         //mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
-        reposeLogSearch.searchByString("\"currentFilter\":\"rackspace-identity-basic-auth\"").size() > 0
+        reposeLogSearch.searchByString("\"currentFilter\":\"keystone-v2-basic-auth\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"herp\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"add-header\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"keystone-v2\"").size() > 0
@@ -95,7 +95,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("\"currentFilter\":\"simple-rbac\"").size() > 0
         reposeLogSearch.searchByString("\"currentFilter\":\"derp\"").size() > 0
 
-        reposeLogSearch.searchByString("null-rackspace-identity-basic-auth").size() == 0
+        reposeLogSearch.searchByString("null-keystone-v2-basic-auth").size() == 0
         reposeLogSearch.searchByString("null-herp").size() == 0
         reposeLogSearch.searchByString("null-add-header").size() == 0
         reposeLogSearch.searchByString("null-keystone-v2").size() == 0

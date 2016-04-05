@@ -19,7 +19,7 @@ dependencies {
     earlib project(":repose-aggregator:components:filters:merge-header-filter")
     earlib project(":repose-aggregator:components:filters:openstack-identity-v3-filter")
     earlib project(":repose-aggregator:components:filters:rackspace-auth-user-filter")
-    earlib project(":repose-aggregator:components:filters:rackspace-identity-basic-auth-filter")
+    earlib project(":repose-aggregator:components:filters:keystone-v2-basic-auth-filter")
     earlib project(":repose-aggregator:components:filters:rate-limiting-filter")
     earlib project(":repose-aggregator:components:filters:slf4j-http-logging-filter")
     earlib project(":repose-aggregator:components:filters:translation-filter")

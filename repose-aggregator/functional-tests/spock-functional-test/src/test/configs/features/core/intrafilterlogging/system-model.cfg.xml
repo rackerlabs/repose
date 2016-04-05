@@ -8,7 +8,7 @@
         </nodes>
 
         <filters>
-            <filter name="rackspace-identity-basic-auth" />
+            <filter name="keystone-v2-basic-auth" />
             <filter name="add-header" />
             <filter name="keystone-v2" />
             <filter name="openstack-identity-v3" />

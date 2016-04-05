@@ -34,7 +34,7 @@
         <module>uri-stripper-filter</module>
         <module>merge-header-filter</module>
         <module>openstack-identity-v3-filter</module>
-        <module>rackspace-identity-basic-auth-filter</module>
+        <module>keystone-v2-basic-auth-filter</module>
         <module>content-type-stripper-filter</module>
         <module>derp-filter</module>
         <module>add-header-filter</module>
