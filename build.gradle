@@ -21,6 +21,7 @@ buildscript {
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:1.2'
         classpath 'com.netflix.nebula:nebula-publishing-plugin:4.4.4'
         classpath 'com.netflix.nebula:gradle-git-scm-plugin:3.0.1'
+        classpath 'com.netflix.nebula:gradle-ospackage-plugin:3.4.0'
     }
 }
 

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<highly-efficient-record-processor xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
+                                   pre-filter-logger-name="org.openrepose.herp.pre.filter"
+                                   post-filter-logger-name="org.openrepose.herp.post.filter"
+                                   service-code="repose" region="USA" data-center="DFW">
+    <template crush="true">
+        <!-- todo: methodLabel -->
+        <![CDATA[
+        <event xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+               xsi:schemaLocation='http://schemas.dmtf.org/cloud/audit/1.0/ user-access-cadf.xsd'
+               xmlns:ua="http://feeds.api.rackspacecloud.com/cadf/user-access-event"
+               xmlns:cadf="http://schemas.dmtf.org/cloud/audit/1.0/"
+               xmlns="http://schemas.dmtf.org/cloud/audit/1.0/"
+               id="{{guid}}"
+               eventType="activity"
+               typeURI="http://schemas.dmtf.org/cloud/audit/1.0/event"
+               eventTime="{{cadfTimestamp timestamp}}"
+               action="{{cadfMethod requestMethod}}"
+               outcome="{{cadfOutcome responseCode}}">
+            <initiator id="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}"
+                       typeURI="network/node" name="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}">
+                <host address="{{requestorIp}}" agent="{{userAgent}}" />
+            </initiator>
+            <target typeURI="service" name="{{serviceCode}}" >
+                <host address="{{targetHost}}" />
+            </target>
+            <attachments>
+                <attachment name="auditData" contentType="ua:auditData">
+                    <content>
+                        <ua:auditData>
+                            <ua:region>{{region}}</ua:region>
+                            <ua:dataCenter>{{dataCenter}}</ua:dataCenter>
+                            <ua:methodLabel>TODO</ua:methodLabel>
+                            <ua:requestURL>{{requestURL}}</ua:requestURL>
+                            <ua:queryString>{{requestQueryString}}</ua:queryString>
+                            <ua:tenantId>{{defaultProjectId}}</ua:tenantId>
+                            <ua:responseMessage>{{responseMessage}}</ua:responseMessage>
+                            <ua:userName>{{userName}}</ua:userName>
+                            <ua:roles>{{#each roles}}{{#if @index}} {{/if}}{{.}}{{/each}}</ua:roles>
+                        </ua:auditData>
+                    </content>
+                </attachment>
+            </attachments>
+            <observer id="{{serviceCode}}-{{clusterId}}-{{nodeId}}" name="repose-7.0.0.1" typeURI="service/security" />
+            <reason reasonCode="{{responseCode}}"
+                    reasonType="http://www.iana.org/assignments/http-status-codes/http-status-codes.xml"/>
+        </event>
+        ]]>
+    </template>
+    <filterOut>
+        <match field="userName" regex=".*[fF]oo.*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
+    <!-- Implicit OR -->
+    <filterOut>
+        <match field="userName" regex=".*[bB]ar.*"/>
+        <!-- Implicit AND -->
+        <match field="parameters.abc" regex="123"/>
+    </filterOut>
+</highly-efficient-record-processor>

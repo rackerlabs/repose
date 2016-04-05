@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- http://wiki.openrepose.org/pages/viewpage.action?pageId=328681 -->
+<header-normalization xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+                      xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'
+                      xsi:schemaLocation='http://docs.openrepose.org/repose/header-normalization/v1.0 ../config/header-normalization-configuration.xsd'>
+
+    <header-filters>
+
+        <!-- applies to all http methods (GET, POST, PUT, etc) that match the uri-regex -->
+        <target uri-regex="/servers/(.*)">
+            <whitelist id="creds">
+                <header id="X-Auth-Key"/>
+                <header id="X-Auth-User"/>
+            </whitelist>
+        </target>
+
+        <!-- applies only to POST and PUT requests for /resource/(.*)-->
+        <target uri-regex="/resource/(.*)" http-methods="POST PUT">
+            <whitelist id="modification">
+                <header id="X-Modify"/>
+            </whitelist>
+        </target>
+
+        <!-- this blacklist filter only applies if the request does not match one of the previous targets -->
+        <!-- since uri-regex and http-methods are not specified in target the blacklist applies to all http requests
+             that don't match the previous two targets -->
+        <target>
+            <blacklist id="rate-limit-headers">
+                <header id="X-PP-User"/>
+                <header id="X-PP-Groups"/>
+            </blacklist>
+        </target>
+
+    </header-filters>
+
+</header-normalization>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <identity-service
+            uri="https://some.identity.com"
+            set-groups-in-header="true"
+            set-catalog-in-header="false"
+            />
+
+    <white-list>
+        <uri-regex>/application\.wadl$</uri-regex>
+    </white-list>
+
+    <cache>
+        <timeouts variability="10">
+            <token>600</token>
+            <group>600</group>
+            <endpoints>600</endpoints>
+        </timeouts>
+    </cache>
+</keystone-v2>

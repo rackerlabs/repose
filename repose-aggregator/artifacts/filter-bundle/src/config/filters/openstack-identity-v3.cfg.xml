@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
+                       token-cache-timeout="300000"
+                       groups-cache-timeout="300000"
+                       cache-offset="10000">
+
+    <white-list>
+        <uri-pattern>/application\.wadl$</uri-pattern>
+    </white-list>
+
+    <openstack-identity-service username="admin_username" password="admin_password" uri="http://identity.example.com"/>
+</openstack-identity-v3>
