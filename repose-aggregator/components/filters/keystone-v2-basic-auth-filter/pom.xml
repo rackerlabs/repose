@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <description>
-        This filter translates user requests from Basic Auth to the a Keystone v2 endpoint.
+        This filter translates user requests from Basic Auth to a Keystone v2 endpoint.
     </description>
 
     <properties>
