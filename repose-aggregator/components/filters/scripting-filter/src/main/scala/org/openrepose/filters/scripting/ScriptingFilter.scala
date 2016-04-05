@@ -93,7 +93,7 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
   override def isInitialized: Boolean = initialized
 
   override def configurationUpdated(configurationObject: ScriptingConfig): Unit = {
-    val scriptEngineManager = new ScriptEngineManager()
+    val scriptEngineManager = new ScriptEngineManager(getClass.getClassLoader)
 
     scriptRunner = Option(scriptEngineManager.getEngineByName(configurationObject.getLanguage)) match {
       case Some(engine) =>
