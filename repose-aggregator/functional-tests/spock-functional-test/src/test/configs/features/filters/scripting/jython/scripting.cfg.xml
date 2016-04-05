@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
-           language="groovy">
-    request.addHeader("language", "groovy")
+           language="jython">
+    request.addHeader("language", "jython")
+    response.addHeader("ya" , "hoo")
 
     // Call the next filter in the chain
     filterChain.doFilter(request, response)

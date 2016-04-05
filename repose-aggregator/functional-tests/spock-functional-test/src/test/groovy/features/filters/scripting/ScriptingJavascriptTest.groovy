@@ -25,9 +25,9 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
 /**
- * Created by jennyvo on 4/1/16.
+ * Created by jennyvo on 4/4/16.
  */
-class ScriptingGroovyTest extends ReposeValveTest {
+class ScriptingJavascriptTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -36,7 +36,7 @@ class ScriptingGroovyTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/scripting", params)
-        repose.configurationProvider.applyConfigs("features/filters/scripting/groovy", params)
+        repose.configurationProvider.applyConfigs("features/filters/scripting/javascript", params)
         repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests("200", true, true)
     }
@@ -51,20 +51,25 @@ class ScriptingGroovyTest extends ReposeValveTest {
         }
     }
 
-    def "Test with groovy scripting" (){
+    def "Test with javascript scripting" (){
+        def headers = ["test": "repose", "foo":"bar"]
         when:"send request"
         MessageChain mc = deproxy.makeRequest(
                 [
                         method        : 'GET',
                         url           : reposeEndpoint,
+                        headers       : headers,
                         defaultHandler: {
-                            new Response(200, null, null, "This should be the body")
+                            new Response(200, null, headers, "This should be the body")
                         }
                 ])
 
         then: "repse response"
-        mc.sentRequest.headers.contains("language")
-        mc.sentRequest.headers.getFirstValue("language") == "groovy"
+        mc.receivedResponse.code == '200'
+        mc.handlings[0].request.headers.contains("language")
+        mc.handlings[0].request.headers.getFirstValue("language") == "javascript"
+        mc.receivedResponse.headers.contains("ya")
+        mc.receivedResponse.headers.getFirstValue("ya") == "hoo"
     }
 
 }
