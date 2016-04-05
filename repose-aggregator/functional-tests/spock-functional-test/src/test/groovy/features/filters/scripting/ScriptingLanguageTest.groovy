@@ -82,6 +82,6 @@ class ScriptingLanguageTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue("ya") == "hoo"
 
         where:
-        language << ["python", "jruby", "javascript", "jython", "scala", "lua"]
+        language << ["python", "jruby", "javascript", "scala", "lua"]
     }
 }

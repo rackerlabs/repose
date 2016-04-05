@@ -2,9 +2,8 @@
 
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
            language="python">
-    request.addHeader("language", "python")
-    response.addHeader("ya" , "hoo")
+request.addHeader("language", "python")
+response.addHeader("ya" , "hoo")
 
-    // Call the next filter in the chain
-    filterChain.doFilter(request, response)
+filterChain.doFilter(request, response)
 </scripting>
