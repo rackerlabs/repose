@@ -20,13 +20,14 @@
 package org.openrepose.powerfilter.intrafilterLogging
 
 import java.io.ByteArrayInputStream
+import javax.servlet.ServletInputStream
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.systemmodel.Filter
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, Matchers, FunSpec}
+import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
 
 import scala.collection.JavaConverters.asJavaEnumerationConverter
@@ -36,8 +37,10 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
 
   import org.mockito.Mockito.when
 
+  val requestBody = "pandas"
+
   var httpServletRequestWrapper: HttpServletRequestWrapper = _
-  val dummyInputStream = new BufferedServletInputStream(new ByteArrayInputStream(" ".getBytes))
+  val dummyInputStream = new BufferedServletInputStream(new ByteArrayInputStream(requestBody.getBytes))
 
   before {
     httpServletRequestWrapper = mock[HttpServletRequestWrapper]
@@ -96,6 +99,31 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
 
         // then the filter description includes just the filter name
         filterName shouldEqual requestLog.currentFilter
+      }
+    }
+
+    describe("input stream") {
+      it("should be readable after being used by this class") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        new RequestLog(httpServletRequestWrapper, filter)
+
+        // try to read from the buffer again
+        val buffer = new Array[Byte](requestBody.length)
+        dummyInputStream.read(buffer, 0, requestBody.length)
+        new String(buffer) shouldEqual requestBody
+      }
+
+      it("should throw an exception if the provided input stream does not support mark/reset") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        val unsupportedInputStream = mock[ServletInputStream]
+        when(unsupportedInputStream.markSupported()).thenReturn(false)
+        when(httpServletRequestWrapper.getInputStream).thenReturn(unsupportedInputStream)
+
+        a [RuntimeException] should be thrownBy new RequestLog(httpServletRequestWrapper, filter)
       }
     }
   }

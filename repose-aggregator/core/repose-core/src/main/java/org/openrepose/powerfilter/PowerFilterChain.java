@@ -29,6 +29,8 @@ import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderFieldParser;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.SplittableHeaderUtil;
+import org.openrepose.commons.utils.io.BufferedServletInputStream;
+import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.servlet.http.*;
 import org.openrepose.core.FilterProcessingTime;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
@@ -39,12 +41,11 @@ import org.openrepose.powerfilter.intrafilterLogging.ResponseLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -182,25 +183,40 @@ public class PowerFilterChain implements FilterChain {
             ServletRequest servletRequest,
             ServletResponse servletResponse,
             FilterContext filterContext) throws IOException, ServletException {
-        HttpServletRequestWrapper wrappedServletRequest = new HttpServletRequestWrapper((HttpServletRequest) servletRequest);
+        HttpServletRequest maybeWrappedServletRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse maybeWrappedServletResponse = (HttpServletResponse) servletResponse;
 
         try {
-            if (INTRAFILTER_LOG.isTraceEnabled()) {
+            // we don't want to handle trace logging being turned on in the middle of a request, so check upfront
+            boolean isIntraFilterLoggingEnabled = INTRAFILTER_LOG.isTraceEnabled();
+
+            if (isIntraFilterLoggingEnabled) {
+                ServletInputStream inputStream = maybeWrappedServletRequest.getInputStream();
+                if (!inputStream.markSupported()) {
+                    // need to put the input stream into something that supports mark/reset so we can log it
+                    ByteArrayOutputStream sourceEntity = new ByteArrayOutputStream();
+                    RawInputStreamReader.instance().copyTo(inputStream, sourceEntity);
+                    inputStream = new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray()));
+                }
+
+                maybeWrappedServletRequest = new HttpServletRequestWrapper(maybeWrappedServletRequest, inputStream);
                 maybeWrappedServletResponse = new HttpServletResponseWrapper(
-                        maybeWrappedServletResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY);
-                // log the request, and give it a new UUID if it doesn't already have one
-                INTRAFILTER_LOG.trace(intrafilterRequestLog(wrappedServletRequest, filterContext));
+                        maybeWrappedServletResponse,
+                        ResponseMode.PASSTHROUGH,
+                        ResponseMode.READONLY);
+
+                INTRAFILTER_LOG.trace(
+                        intrafilterRequestLog((HttpServletRequestWrapper) maybeWrappedServletRequest, filterContext));
             }
 
-            filterContext.getFilter().doFilter(wrappedServletRequest, maybeWrappedServletResponse, this);
+            filterContext.getFilter().doFilter(maybeWrappedServletRequest, maybeWrappedServletResponse, this);
 
-            if (INTRAFILTER_LOG.isTraceEnabled()) {
+            if (isIntraFilterLoggingEnabled) {
                 // log the response, and give it the request's UUID if the response didn't already have one
                 INTRAFILTER_LOG.trace(intrafilterResponseLog(
                         (HttpServletResponseWrapper) maybeWrappedServletResponse,
                         filterContext,
-                        wrappedServletRequest.getHeader(INTRAFILTER_UUID)));
+                        maybeWrappedServletRequest.getHeader(INTRAFILTER_UUID)));
             }
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
