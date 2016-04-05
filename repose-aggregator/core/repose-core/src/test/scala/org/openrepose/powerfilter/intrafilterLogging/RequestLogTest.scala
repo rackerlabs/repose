@@ -30,7 +30,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
 
-import scala.collection.JavaConverters.asJavaEnumerationConverter
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class RequestLogTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
@@ -124,6 +124,46 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         when(httpServletRequestWrapper.getInputStream).thenReturn(unsupportedInputStream)
 
         a [RuntimeException] should be thrownBy new RequestLog(httpServletRequestWrapper, filter)
+      }
+    }
+
+    describe("header names") {
+      it("should grab the headers when there is one") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletRequestWrapper.getHeaderNames).thenReturn(Iterator[String]("header-name").asJavaEnumeration)
+        when(httpServletRequestWrapper.getHeaders("header-name")).thenReturn(Iterator[String]("header-value").asJavaEnumeration)
+
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
+
+        requestLog.headers.asScala should contain ("header-name" -> "header-value")
+      }
+
+      it("should grab the headers when there are two") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletRequestWrapper.getHeaderNames).thenReturn(Iterator[String]("header-name", "Accept").asJavaEnumeration)
+        when(httpServletRequestWrapper.getHeaders("header-name")).thenReturn(Iterator[String]("header-value").asJavaEnumeration)
+        when(httpServletRequestWrapper.getHeaders("Accept")).thenReturn(Iterator[String]("text/html").asJavaEnumeration)
+
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
+
+        requestLog.headers.asScala should contain ("header-name" -> "header-value")
+        requestLog.headers.asScala should contain ("Accept" -> "text/html")
+      }
+
+      it("should grab the headers when a header has multiple values") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletRequestWrapper.getHeaderNames).thenReturn(Iterator[String]("Accept").asJavaEnumeration)
+        when(httpServletRequestWrapper.getHeaders("Accept")).thenReturn(Iterator[String]("text/html", "application/xml").asJavaEnumeration)
+
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
+
+        requestLog.headers.asScala should contain ("Accept" -> "text/html,application/xml")
       }
     }
   }

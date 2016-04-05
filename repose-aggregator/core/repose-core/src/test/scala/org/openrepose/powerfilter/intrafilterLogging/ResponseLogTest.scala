@@ -28,6 +28,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
+import scala.collection.JavaConverters._
+
 @RunWith(classOf[JUnitRunner])
 class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
 
@@ -92,6 +94,46 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
 
         // then the filter description includes just the filter name
         filterName shouldEqual responseLog.currentFilter
+      }
+    }
+
+    describe("header names") {
+      it("should grab the headers when there is one") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletResponseWrapper.getHeaderNames).thenReturn(List("header-name").asJavaCollection)
+        when(httpServletResponseWrapper.getHeaders("header-name")).thenReturn(List("header-value").asJavaCollection)
+
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+
+        responseLog.headers.asScala should contain ("header-name" -> "header-value")
+      }
+
+      it("should grab the headers when there are two") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletResponseWrapper.getHeaderNames).thenReturn(List("header-name", "Accept").asJavaCollection)
+        when(httpServletResponseWrapper.getHeaders("header-name")).thenReturn(List("header-value").asJavaCollection)
+        when(httpServletResponseWrapper.getHeaders("Accept")).thenReturn(List("text/html").asJavaCollection)
+
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+
+        responseLog.headers.asScala should contain ("header-name" -> "header-value")
+        responseLog.headers.asScala should contain ("Accept" -> "text/html")
+      }
+
+      it("should grab the headers when a header has multiple values") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletResponseWrapper.getHeaderNames).thenReturn(List("Accept").asJavaCollection)
+        when(httpServletResponseWrapper.getHeaders("Accept")).thenReturn(List("text/html", "application/xml").asJavaCollection)
+
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+
+        responseLog.headers.asScala should contain ("Accept" -> "text/html,application/xml")
       }
     }
   }
