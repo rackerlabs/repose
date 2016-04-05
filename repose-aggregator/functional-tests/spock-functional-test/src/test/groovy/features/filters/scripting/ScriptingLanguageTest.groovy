@@ -34,7 +34,6 @@ class ScriptingLanguageTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        reposeLogSearch.cleanLog()
         deproxy.addEndpoint(properties.targetPort)
 
         params = properties.getDefaultTemplateParams()
@@ -42,26 +41,30 @@ class ScriptingLanguageTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/scripting", params)
     }
 
+    def setup() {
+        reposeLogSearch.cleanLog()
+    }
+
+    def cleanup() {
+        repose?.stop()
+    }
+
     def cleanupSpec() {
         if (deproxy) {
             deproxy.shutdown()
         }
-
-        if (repose) {
-            repose.stop()
-        }
     }
 
     @Unroll("Test with support language: #language")
-    def "Test with all support languages scripting" (){
-        repose.configurationProvider.applyConfigs("features/filters/scripting/"+language, params)
+    def "Test with all support languages scripting"() {
+        repose.configurationProvider.applyConfigs("features/filters/scripting/" + language, params)
         repose.start([waitOnJmxAfterStarting: false])
         sleep(5000)
         waitUntilReadyToServiceRequests("200", true, true)
         //repose.start()
         //repose.waitForNon500FromUrl(reposeEndpoint)
 
-        when:"send request"
+        when: "send request"
         MessageChain mc = deproxy.makeRequest(
                 [
                         method        : 'GET',
@@ -71,7 +74,7 @@ class ScriptingLanguageTest extends ReposeValveTest {
                         }
                 ])
 
-        then: "repse response"
+        then: "repose response"
         mc.receivedResponse.code == '200'
         mc.handlings[0].request.headers.contains("language")
         mc.handlings[0].request.headers.getFirstValue("language") == language
@@ -79,7 +82,6 @@ class ScriptingLanguageTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue("ya") == "hoo"
 
         where:
-        language    << ["python", "jruby", "javascript", "jython", "scala", "lua"]
+        language << ["python", "jruby", "javascript", "jython", "scala", "lua"]
     }
-
 }
