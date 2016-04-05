@@ -30,7 +30,7 @@ import org.rackspace.deproxy.Response
  * Verifies that the response body sent from the origin service makes it to the client and is logged by the IntraFilter
  * Logger.  Also verifies that the request body from the client makes it to the origin service.
  */
-class IntraFilterLoggingResponseBodyTest extends ReposeValveTest {
+class IntraFilterLoggingRequestResponseBodyTest extends ReposeValveTest {
     def static String content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pretium non mi ac " +
             "malesuada. Integer nec est turpis duis."
     def static logPreString = '"currentFilter":"'
@@ -56,11 +56,6 @@ class IntraFilterLoggingResponseBodyTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort, 'origin service')
 
         repose.waitForNon500FromUrl(reposeEndpoint)
-    }
-
-    def cleanupSpec() {
-        deproxy?.shutdown()
-        repose?.stop()
     }
 
     def "verify client gets the response body from the origin and that it is properly logged"() {
