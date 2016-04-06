@@ -159,6 +159,11 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
     @Override
     public int put(byte[] b, int off, int len) {
+        if (len == 0) {
+            // nothing to do - especially don't change "hasElements"
+            return 0;
+        }
+
         allocate();
         final int remaining = remaining();
 
