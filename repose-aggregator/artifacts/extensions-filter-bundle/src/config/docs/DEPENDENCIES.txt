@@ -1,0 +1,25 @@
+Original files contained with this distribution of Repose are licensed under
+the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0).
+
+You must agree to the terms of this license and abide by them before using,
+modifying, or distributing Repose or the Repose source code contained within
+this distribution.
+
+Repose has a number of dependencies that are covered by separate licenses, listed below.
+
+By using, modifying, or distributing Repose you may also be subject to the
+terms of those licenses.
+
+Below is the full list of dependencies.
+
+By contributing to this project, you agree to abide to the terms and conditions
+outlined in CONTRIBUTORS.txt.
+
+Name                        Dependency version  POM groupId                                 Licenses                                                                Source
+--------------------------  ------------------  -----------------------------------------   --------------------------------------------------------------------    ----------------------------------------------------------------------------------------------------------
+Apache Log4J                2.1                 org.apache.logging.log4j                    Apache License Version 2.0                                              https://logging.apache.org/log4j/2.x/license.html
+API Checker                 1.0.22              com.rackspace.papi.components.api-checker   Apache License Version 2.0                                              https://github.com/rackerlabs/api-checker/blob/master/LICENSE.txt
+Java Binding (JSR 222)      0.6.3               org.jvnet.jaxb2_commons                     CDDL v1.1 and GPL v2                                                    https://jaxb.java.net/
+SLF4J                       1.7.7               org.slf4j                                   MIT License                                                             http://slf4j.org/license.html
+Scala Lang                  2.10.3              org.scala-lang                              Scala Specific License                                                  http://www.scala-lang.org/license.html
+Spring Framework            4.1.4.RELEASE       org.springframework                         Apache License Version 2.0                                              https://github.com/spring-projects/spring-framework

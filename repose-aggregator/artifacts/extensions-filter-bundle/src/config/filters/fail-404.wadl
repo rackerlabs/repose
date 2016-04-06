@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<application
+        xmlns="http://wadl.dev.java.net/2009/02"
+        >
+
+    <grammars>
+    </grammars>
+    <resources base="http://localhost:8080/">
+        <resource path="no-resource">
+        </resource>
+    </resources>
+</application>

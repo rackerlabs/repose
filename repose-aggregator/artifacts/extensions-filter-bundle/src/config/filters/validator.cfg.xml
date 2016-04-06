@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
+    <validator
+            role="default"
+            default="true"
+            wadl="pass.wadl"
+            enable-api-coverage="true"
+            dot-output="/tmp/default.dot"
+            check-well-formed="false"
+            check-grammars="true"
+            check-elements="true"
+            check-plain-params="true"
+            do-xsd-grammar-transform="true"
+            enable-pre-process-extension="true"
+            remove-dups="true"
+            xpath-version="2"
+            xsl-engine="XalanC"
+            join-xpath-checks="false"/>
+    <validator role="other" default="false" wadl="fail-404.wadl"/>
+</validators>
