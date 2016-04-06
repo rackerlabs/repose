@@ -405,6 +405,7 @@ public class PowerFilter extends DelegatingFilterProxy {
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
             if (!mutableHttpResponse.isCommitted()) {
+                mutableHttpResponse.flushWriter();  // total hack because of the old wrapper; remove it when we go to the new wrapper
                 responseMessageService.handle(mutableHttpRequest, mutableHttpResponse);
                 responseHeaderService.setVia(mutableHttpRequest, mutableHttpResponse);
             }

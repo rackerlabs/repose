@@ -52,18 +52,15 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
     private static final String OUTPUT_STREAM_QUEUE_ATTRIBUTE = "repose.response.output.queue";
     private static final String INPUT_STREAM_ATTRIBUTE = "repose.response.input.stream";
     private final HttpServletRequest request;
-    private final Deque<OutputStreamItem> outputQueue;
     private ByteBuffer internalBuffer;
     private ServletOutputStream outputStream;
     private PrintWriter outputStreamWriter;
     private boolean error = false;
-    private Throwable exception;
     private String message;
     private HeaderValues headers;
     private MutableHttpServletResponse(HttpServletRequest request, HttpServletResponse response) {
         super(response);
         this.request = request;
-        this.outputQueue = getOutputQueue();
         if (request.getAttribute(RESPONSE_ID) == null) {
             request.setAttribute(RESPONSE_ID, UUID.randomUUID().toString());
         }
@@ -75,48 +72,6 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         return response instanceof MutableHttpServletResponse
                 ? (MutableHttpServletResponse) response
                 : new MutableHttpServletResponse(request, response);
-    }
-
-    public String getResponseId() {
-        return (String) request.getAttribute(RESPONSE_ID);
-    }
-
-    private Deque<OutputStreamItem> getOutputQueue() {
-        Deque<OutputStreamItem> result = (Deque<OutputStreamItem>) request.getAttribute(OUTPUT_STREAM_QUEUE_ATTRIBUTE);
-
-        if (result == null) {
-            result = new ArrayDeque<OutputStreamItem>();
-            request.setAttribute(OUTPUT_STREAM_QUEUE_ATTRIBUTE, result);
-        }
-
-        return result;
-    }
-
-    public void pushOutputStream() {
-        outputQueue.addFirst(new OutputStreamItem(internalBuffer, outputStream, outputStreamWriter));
-        this.internalBuffer = null;
-        this.outputStream = null;
-        this.outputStreamWriter = null;
-    }
-
-    public void popOutputStream() throws IOException {
-
-        if (bufferedOutput()) {
-            InputStream input = getInputStreamAttribute();
-            if (input != null) {
-                setInputStream(null);
-                input.close();
-            }
-
-            if (internalBuffer != null) {
-                setInputStream(new ByteBufferInputStream(internalBuffer));
-            }
-        }
-
-        OutputStreamItem item = outputQueue.removeFirst();
-        this.internalBuffer = item.internalBuffer;
-        this.outputStream = item.outputStream;
-        this.outputStreamWriter = item.outputStreamWriter;
     }
 
     private void createInternalBuffer() {
@@ -174,6 +129,17 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         commitBufferToServletOutputStream();
 
         super.flushBuffer();
+    }
+
+    /**
+     * Total hack necessary to allow RMS to replace the body using the OutputStream when a filter has already tried to
+     * set the body using the Writer (e.g. to set an error message).  This used to be taken care of when we did the
+     * push/pop of the OutputStreams, but I recently removed that jank.
+     */
+    public void flushWriter() {
+        if (outputStreamWriter != null) {
+            outputStreamWriter.flush();
+        }
     }
 
     public InputStream setInputStream(InputStream input) throws IOException {
@@ -321,13 +287,8 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         return message;
     }
 
-    public Throwable getLastException() {
-        return exception;
-    }
-
     public void setLastException(Throwable exception) {
         this.error = true;
-        this.exception = exception;
     }
 
     public void removeAllHeaders() {
@@ -375,10 +336,6 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         headers.addDateHeader(name, date);
     }
 
-    public HeaderValue getHeaderValue(String name) {
-        return headers.getHeaderValue(name);
-    }
-
     @Override
     public String getHeader(String name) {
         return headers.getHeader(name);
@@ -409,18 +366,5 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         }
 
         return contentType;
-    }
-
-    private static class OutputStreamItem {
-
-        private final ByteBuffer internalBuffer;
-        private final ServletOutputStream outputStream;
-        private final PrintWriter outputStreamWriter;
-
-        public OutputStreamItem(ByteBuffer internalBuffer, ServletOutputStream outputStream, PrintWriter outputStreamWriter) {
-            this.internalBuffer = internalBuffer;
-            this.outputStream = outputStream;
-            this.outputStreamWriter = outputStreamWriter;
-        }
     }
 }
