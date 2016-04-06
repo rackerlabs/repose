@@ -1,4 +1,5 @@
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'nebula.ospackage'
 
 configurations {
     fatJar
@@ -44,6 +45,62 @@ publishing {
         nebula(MavenPublication) {
             artifact shadowJar
             artifact source: signShadowJar.singleSignature, extension: 'asc'
+            artifact source: buildDeb, extension: 'deb'
+            artifact source: buildRpm, extension: 'rpm'
         }
     }
+}
+
+ospackage {
+    packageName = "repose-lint"
+    release = 1
+    os = LINUX
+    packageDescription 'A command-line utility which flags suspicious usage of Repose'
+    priority 'optional'
+    packageGroup 'Applications/Internet'
+    maintainer 'Repose Development <repose-development@lists.openrepose.org>'
+    url 'http://openrepose.org'
+
+    //todo: write and submit a pr to the plugin that does this automatically
+    if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
+        signingKeyId project.getProperty('signing.keyId')
+        signingKeyPassphrase project.getProperty('signing.password')
+        signingKeyRingFile file(project.getProperty('signing.secretKeyRingFile'))
+    }
+
+    into '/usr/share/repose'
+
+    //the jar
+    from(shadowJar.outputs.files) {
+        rename('(.*).jar', 'repose-lint.jar')
+        user 'root'
+        permissionGroup 'root'
+        fileMode 555
+    }
+
+    //todo: remove the old files once the gradle build is the main
+    //the init script
+    from('src/config/scripts') {
+        user 'root'
+        permissionGroup 'root'
+        fileMode 755
+    }
+    link('/usr/bin/repose-lint', '/usr/share/repose/repose-lint')
+
+    //todo: write a Dependencies file
+    //the license info
+    from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", 'src/config/docs/DEPENDENCIES.txt']) {
+        into '/usr/share/doc/repose-lint'
+        user 'root'
+        permissionGroup 'root'
+        fileMode 444
+    }
+}
+
+buildDeb {
+    requires('java8-runtime-headless')
+}
+
+buildRpm {
+    requires('java', '1.8.0', GREATER | EQUAL)
 }
