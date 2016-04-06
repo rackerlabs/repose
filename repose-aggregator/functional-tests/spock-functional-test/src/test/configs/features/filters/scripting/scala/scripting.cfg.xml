@@ -3,8 +3,6 @@
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
            language="scala">
     request.addHeader("language", "scala")
-    response.addHeader("ya" , "hoo")
-
-    // Call the next filter in the chain
+    response.addHeader("ya", "hoo")
     filterChain.doFilter(request, response)
 </scripting>

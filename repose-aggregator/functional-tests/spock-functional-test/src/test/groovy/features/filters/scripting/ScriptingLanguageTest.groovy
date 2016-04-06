@@ -19,56 +19,84 @@
  */
 package features.filters.scripting
 
-import framework.ReposeValveTest
+import framework.ReposeConfigurationProvider
+import framework.ReposeLogSearch
+import framework.ReposeValveLauncher
+import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Specification
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 4/1/16.
  */
-class ScriptingLanguageTest extends ReposeValveTest {
+class ScriptingLanguageTest extends Specification {
 
-    static def params
-
-    def setupSpec() {
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
-
-        params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/scripting", params)
-    }
+    int reposePort
+    int targetPort
+    String url
+    TestProperties properties
+    ReposeConfigurationProvider reposeConfigProvider
+    ReposeLogSearch reposeLogSearch
+    ReposeValveLauncher repose
+    Map params = [:]
+    Deproxy deproxy
 
     def setup() {
-        reposeLogSearch.cleanLog()
+        properties = new TestProperties()
+        this.reposePort = properties.reposePort
+        this.targetPort = properties.targetPort
+        this.url = properties.reposeEndpoint
+
+        params = properties.getDefaultTemplateParams()
+
+        // start a deproxy
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(this.targetPort)
+
+        // setup config provider
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
+
     }
 
     def cleanup() {
-        repose?.stop()
-    }
-
-    def cleanupSpec() {
+        if (repose) {
+            repose.stop()
+        }
         if (deproxy) {
             deproxy.shutdown()
         }
     }
 
-    @Unroll("Test with support language: #language")
+    @Unroll ("Test with support language: #language")
     def "Test with all support languages scripting"() {
-        repose.configurationProvider.applyConfigs("features/filters/scripting/" + language, params)
-        repose.start([waitOnJmxAfterStarting: false])
-        sleep(5000)
-        waitUntilReadyToServiceRequests("200", true, true)
-        //repose.start()
-        //repose.waitForNon500FromUrl(reposeEndpoint)
+        given:
+        reposeConfigProvider.cleanConfigDirectory()
+        reposeConfigProvider.applyConfigs("common", params)
+        reposeConfigProvider.applyConfigs("features/filters/scripting", params)
+        reposeConfigProvider.applyConfigs("features/filters/scripting/" + language, params)
+
+        // start repose
+        repose = new ReposeValveLauncher(
+                reposeConfigProvider,
+                properties.getReposeJar(),
+                url,
+                properties.getConfigDirectory(),
+                reposePort
+        )
+        repose.enableDebug()
+        reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
+        repose.start(killOthersBeforeStarting: false,
+                waitOnJmxAfterStarting: false)
+        repose.waitForNon500FromUrl(url)
 
         when: "send request"
         MessageChain mc = deproxy.makeRequest(
                 [
                         method        : 'GET',
-                        url           : reposeEndpoint,
+                        url           : url,
                         defaultHandler: {
                             new Response(200, null, null, "This should be the body")
                         }
@@ -82,6 +110,7 @@ class ScriptingLanguageTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue("ya") == "hoo"
 
         where:
-        language << ["python", "jruby", "javascript", "scala", "lua"]
+        //language << ["scala"]
+        language << ["python", "ruby", "groovy", "javascript", "scala", "lua"]
     }
 }
