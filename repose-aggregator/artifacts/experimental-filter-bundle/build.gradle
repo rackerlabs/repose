@@ -1,4 +1,5 @@
 apply plugin: 'ear'
+apply plugin: 'nebula.ospackage'
 
 dependencies {
     earlib project(":repose-aggregator:components:filters:servlet-contract-filter")
@@ -11,10 +12,68 @@ publishing {
     publications {
         nebula(MavenPublication) {
             artifact source: ear, extension: 'ear'
+            artifact source: buildDeb, extension: 'deb'
+            artifact source: buildRpm, extension: 'rpm'
 
             pom.withXml {
                 asNode().appendNode('packaging', 'ear')
             }
         }
     }
+}
+
+ospackage {
+    packageName = "repose-experimental-filter-bundle"
+    release = 1
+    os = LINUX
+    packageDescription 'Package for the Repose Experimental Filter Bundle'
+    priority 'optional'
+    packageGroup 'Applications/Internet'
+    maintainer 'Repose Development <repose-development@lists.openrepose.org>'
+    url 'http://openrepose.org'
+
+    //todo: write and submit a pr to the plugin that does this automatically
+    if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
+        signingKeyId project.getProperty('signing.keyId')
+        signingKeyPassphrase project.getProperty('signing.password')
+        signingKeyRingFile file(project.getProperty('signing.secretKeyRingFile'))
+    }
+
+    into '/usr/share/repose/filters'
+
+    //the bundle
+    from(ear.outputs.files) {
+        user 'root'
+        permissionGroup 'root'
+        fileMode 555
+    }
+
+    //todo: we don't have any maybe we should add some
+    //the configs
+    from('src/config/filters') {
+        into '/etc/repose'
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 640
+        fileType CONFIG | NOREPLACE
+    }
+
+    //todo: need a Dependencies file
+    //the license info
+    from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", 'src/config/docs/DEPENDENCIES.txt']) {
+        into '/usr/share/doc/repose-experimental-filter-bundle'
+        user 'root'
+        permissionGroup 'root'
+        fileMode 444
+    }
+
+    requires('repose', project.version, EQUAL)
+}
+
+buildDeb {
+    requires('java8-runtime-headless')
+}
+
+buildRpm {
+    requires('java', '1.8.0', GREATER | EQUAL)
 }
