@@ -1,0 +1,25 @@
+[Unit]
+Description=The Repose reverse proxy server in the stand-alone Valve configuration
+After=network.target
+
+[Service]
+# We must fork the Java process since setting the User property doesn't work as expected.
+Type=forking
+PIDFile=/run/repose-valve.pid
+# The /usr/bin/su workaround is used to execute things as USER_REPOSE.
+# The /bin/sh workaround is used to prevent erroneous exit status and to allow for empty JAVA_OPTS.
+ExecStartPre=/usr/bin/su -s /bin/sh -c '${JAVA_CHECK} ${JAVA_REPOSE} /etc/sysconfig/repose' ${USER_REPOSE}
+# The PID File has to be created with the correct permissions every execution because SystemD will:
+#     "remove the file after the service has shut down if it still exists."
+ExecStartPre=/usr/bin/touch /run/repose-valve.pid
+ExecStartPre=/usr/bin/chmod 664 /run/repose-valve.pid
+ExecStartPre=/usr/bin/chown ${USER_REPOSE}:${USER_REPOSE} /run/repose-valve.pid
+ExecStart=/usr/bin/su -s /bin/sh -c '${JAVA_REPOSE} ${JAVA_OPTS} -jar ${REPOSE_JAR} ${RUN_OPTS} & echo $! > /run/repose-valve.pid' ${USER_REPOSE}
+TimeoutSec=60
+# SIGHUP causes a Java process to exit with status code 128+1=129
+SuccessExitStatus=129
+ExecStop=/bin/kill -s SIGHUP $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
