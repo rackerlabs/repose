@@ -33,6 +33,7 @@ class ReposeLintLauncher {
     String reposeLintJar
     String configDir
     String reposeVer
+    String roleName
     String logFileLocation
 
     ReposeConfigurationProvider configurationProvider
@@ -50,6 +51,7 @@ class ReposeLintLauncher {
                 properties.reposeLintJar,
                 properties.configDirectory,
                 properties.reposeVersion,
+                properties.userRole,
                 properties.reposeLintLogFile
         )
     }
@@ -58,12 +60,14 @@ class ReposeLintLauncher {
                        String reposeLintJar,
                        String configDir,
                        String reposeVer,
+                       String userRole,
                        String logFileLocation) {
         TestProperties
         this.configurationProvider = configurationProvider
         this.reposeLintJar = reposeLintJar
         this.configDir = configDir
         this.reposeVer = reposeVer
+        this.roleName = userRole
         this.logFileLocation = logFileLocation
     }
 
@@ -101,8 +105,8 @@ class ReposeLintLauncher {
         }
         if (reposeVer.contains("-SNAPSHOT"))
             reposeVer = reposeVer - "-SNAPSHOT"
-        
-        def cmd = "java $debugProps -jar $reposeLintJar $command -r $reposeVer -c $configDir -v"
+
+        def cmd = "java $debugProps -jar $reposeLintJar $command -r $reposeVer -c $configDir -v --role $roleName"
         println("Running repose-lint with the following command:")
         println(cmd)
 
