@@ -96,6 +96,12 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
     val scriptEngineManager = new ScriptEngineManager(getClass.getClassLoader)
 
     scriptRunner = Option(scriptEngineManager.getEngineByName(configurationObject.getLanguage)) match {
+      case Some(engine: scala.tools.nsc.interpreter.IMain) =>
+        // http://stackoverflow.com/a/25883401
+        val settings = engine.settings
+        settings.embeddedDefaults[ScriptingFilter]
+        settings.usejavacp.value = true
+        ScriptRunner(configurationObject.getValue, engine)
       case Some(engine) =>
         ScriptRunner(configurationObject.getValue, engine)
       case None =>
