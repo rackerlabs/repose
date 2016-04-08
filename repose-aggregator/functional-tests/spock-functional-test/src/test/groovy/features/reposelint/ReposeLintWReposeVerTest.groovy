@@ -111,17 +111,17 @@ class ReposeLintWReposeVerTest extends Specification {
         }
 
         where:
-        configdir                                            | checktype         | filtername               | checktenantedmode | tenantmode | roleignore  | status                        | desc
-        "features/reposelint/keystonev2/tenanted"            | "keystoneV2Check" | "keystone-v2"            | "yes"             | true       | false       | "NotAllowed"                  | notAllowedDesc
-        "features/reposelint/keystonev2/tenanted/wfoyerrole" | "keystoneV2Check" | "keystone-v2"            | "yes"             | true       | true        | "NotAllowed"                  | notAllowedDesc
-        "features/reposelint/keystonev2/tenanted/wconfigrole"| "keystoneV2Check" | "keystone-v2"            | "yes"             | true       | false       | "NotAllowed"                  | notAllowedDesc
-        "features/reposelint/keystonev2/authz"               | "keystoneV2Check" | "keystone-v2"            | "no"              | false      | false       | "NotAllowed"                  | notAllowedDesc
-        "features/reposelint/keystonev2/authzwconfigrole"    | "keystoneV2Check" | "keystone-v2"            | "no"              | false      | false       | "NotAllowed"                  | notAllowedDesc
-        "features/reposelint/keystonev2/authzwfoyerrole"     | "keystoneV2Check" | "keystone-v2"            | "no"              | false      | true        | "NotAllowed"                  | notAllowedDesc
-        "features/reposelint/clientauthn"                    | "authNCheck"      | "client-auth"            | "yes"             | false      | false       | "Allowed"                     | allowedDesc
-        "features/reposelint/clientauthn/tenanted"           | "authNCheck"      | "client-auth"            | "yes"             | true       | false       | "NotAllowed"                  | notAllowedDesc
-        "features/reposelint/clientauthn/tenantedwfoyerrole" | "authNCheck"      | "client-auth"            | "yes"             | true       | true        | "Allowed"                     | allowedDesc
-        "features/reposelint/clientauthz"                    | "authZCheck"      | "client-authorization"   | "no"              | false      | false       | "AllowedWithAuthorization"    | allowedWithAuthorizationDesc
-        "features/reposelint/clientauthz/wfoyerrole"         | "authZCheck"      | "client-authorization"   | "no"              | false      | true        | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
+        configdir                                             | checktype         | filtername             | checktenantedmode | tenantmode | roleignore | status                        | desc
+        "features/reposelint/keystonev2/tenanted"             | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | false      | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/keystonev2/tenanted/wfoyerrole"  | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | true       | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/keystonev2/tenanted/wconfigrole" | "keystoneV2Check" | "keystone-v2"          | "yes"             | true       | false      | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/keystonev2/authz"                | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | false      | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/keystonev2/authzwconfigrole"     | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | false      | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/keystonev2/authzwfoyerrole"      | "keystoneV2Check" | "keystone-v2"          | "no"              | false      | true       | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/clientauthn"                     | "authNCheck"      | "client-auth"          | "yes"             | false      | false      | "Allowed"                     | allowedDesc
+        "features/reposelint/clientauthn/tenanted"            | "authNCheck"      | "client-auth"          | "yes"             | true       | false      | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/clientauthn/tenantedwfoyerrole"  | "authNCheck"      | "client-auth"          | "yes"             | true       | true       | "Allowed"                     | allowedDesc
+        "features/reposelint/clientauthz"                     | "authZCheck"      | "client-authorization" | "no"              | false      | false      | "AllowedWithAuthorization"    | allowedWithAuthorizationDesc
+        "features/reposelint/clientauthz/wfoyerrole"          | "authZCheck"      | "client-authorization" | "no"              | false      | true       | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
     }
 }
