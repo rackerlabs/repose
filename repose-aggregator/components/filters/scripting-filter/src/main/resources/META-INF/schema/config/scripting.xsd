@@ -38,9 +38,23 @@
         </xs:annotation>
 
         <xs:simpleContent>
-            <xs:extension base="xs:string">
+            <xs:extension base="ScriptingLanguages">
                 <xs:attribute name="language" type="xs:string" use="required"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
+    <xs:simpleType name="ScriptingLanguages">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="lua"/>
+            <xs:enumeration value="luaj"/>
+            <xs:enumeration value="python"/>
+            <xs:enumeration value="jython"/>
+            <xs:enumeration value="ruby"/>
+            <xs:enumeration value="jruby"/>
+            <xs:enumeration value="javascript"/>
+            <xs:enumeration value="groovy"/>
+            <!--<xs:enumeration value="scala"/>-->
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
