@@ -1,4 +1,5 @@
 apply plugin: 'war'
+apply plugin: 'nebula.ospackage'
 
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
@@ -18,9 +19,130 @@ dependencies {
 publishing {
     publications {
         nebula(MavenPublication) {
+            artifact source: buildDeb, extension: 'deb'
+            artifact source: buildRpm, extension: 'rpm'
+
             pom.withXml {
                 asNode().appendNode('packaging', 'war')
             }
         }
     }
+}
+
+ospackage {
+    packageName = "repose-war"
+    release = 1
+    os = LINUX
+    packageDescription 'Package for the Repose WAR Deployment'
+    priority 'optional'
+    packageGroup 'Applications/Internet'
+    maintainer 'Repose Development <repose-development@lists.openrepose.org>'
+    url 'http://openrepose.org'
+
+    //todo: write and submit a pr to the plugin that does this automatically
+    if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
+        signingKeyId project.getProperty('signing.keyId')
+        signingKeyPassphrase project.getProperty('signing.password')
+        signingKeyRingFile file(project.getProperty('signing.secretKeyRingFile'))
+    }
+
+    into '/usr/share/repose'
+
+    //todo: maybe enhance the plugin so that directory commands can take owners, not just file modes
+    //the main directory
+    from('../src/config/DELETE-ME') {
+        createDirectoryEntry true
+        user 'root'
+        permissionGroup 'root'
+        fileMode 555
+    }
+
+    //the web app
+    from(war.outputs.files) {
+        rename('(.*).war', 'ROOT.war')
+        user 'root'
+        permissionGroup 'root'
+        fileMode 555
+    }
+
+    //the filter bundle directory
+    from('../src/config/DELETE-ME') {
+        into '/usr/share/repose/filters'
+        createDirectoryEntry true
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 755
+    }
+
+    //the artifact exploding directory
+    from('../src/config/DELETE-ME') {
+        into '/var/repose'
+        createDirectoryEntry true
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 750
+    }
+
+    //the log directory
+    from('../src/config/DELETE-ME') {
+        into '/var/log/repose'
+        createDirectoryEntry true
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 750
+    }
+
+    //the log rotate settings
+    from('../src/config/logrotate.d') {
+        into '/etc/logrotate.d'
+        createDirectoryEntry false
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 644
+    }
+
+    //the configs directory
+    from('../src/config/DELETE-ME') {
+        into '/etc/repose'
+        createDirectoryEntry true
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 770
+    }
+
+    //the basic configs
+    from('../src/config/filters') { //not really filter config, but it's where the bundles are putting them for now, so i'm maintaining consistency
+        into '/etc/repose'
+        createDirectoryEntry true
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 640
+        fileType CONFIG | NOREPLACE
+    }
+
+    //todo: remove the old Dependencies file after the move from maven
+    //the license info
+    from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", '../src/config/docs/DEPENDENCIES.txt']) {
+        into '/usr/share/doc/repose-war'
+        user 'root'
+        permissionGroup 'root'
+        fileMode 444
+    }
+
+    //todo: consider submitting enhancements to this plugin that allow version numbers
+    provides('repose')
+    conflicts('repose-valve')
+    recommends('repose-filter-bundle')
+    suggests('repose-extensions-bundle')
+    suggests('logrotate')
+}
+
+buildDeb {
+    requires('java8-runtime-headless')
+    preInstall file('../src/config/scripts/preinst-deb')
+}
+
+buildRpm {
+    requires('java', '1.8.0', GREATER | EQUAL)
+    preInstall file('../src/config/scripts/preinst-rpm')
 }
