@@ -47,11 +47,6 @@
             <artifactId>scala-library</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-compiler</artifactId>
-        </dependency>
-
         <!-- ScalaTest -->
         <dependency>
             <groupId>org.scalatest</groupId>
