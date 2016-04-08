@@ -111,6 +111,6 @@ class ScriptingLanguageTest extends Specification {
 
         where:
         //language << ["scala"]
-        language << ["python", "ruby", "groovy", "javascript", "scala", "lua"]
+        language << ["python", "ruby", "groovy", "javascript", "lua"]
     }
 }
