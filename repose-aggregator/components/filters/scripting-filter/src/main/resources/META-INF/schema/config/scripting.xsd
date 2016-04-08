@@ -38,8 +38,8 @@
         </xs:annotation>
 
         <xs:simpleContent>
-            <xs:extension base="ScriptingLanguages">
-                <xs:attribute name="language" type="xs:string" use="required"/>
+            <xs:extension base="xs:string">
+                <xs:attribute name="language" type="ScriptingLanguages" use="required"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

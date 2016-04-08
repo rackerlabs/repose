@@ -27,7 +27,7 @@ import org.mockito.Matchers.{any, anyString, same}
 import org.mockito.Mockito.verify
 import org.openrepose.commons.config.manager.UpdateFailedException
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.scripting.config.ScriptingConfig
+import org.openrepose.filters.scripting.config.{ScriptingConfig, ScriptingLanguages}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
@@ -66,20 +66,6 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     verify(configurationService).unsubscribeFrom(anyString(), same(filter))
   }
 
-  it("should throw an exception if the configuration is updated with an unsupported language") {
-    val filter = new ScriptingFilter(null)
-
-    val scriptingConfig = new ScriptingConfig()
-    scriptingConfig.setValue(
-      """
-        |request.addHeader("lol", "butts")
-        |filterChain.doFilter(request, response)
-      """.stripMargin)
-    scriptingConfig.setLanguage("foo")
-
-    an[UpdateFailedException] should be thrownBy filter.configurationUpdated(scriptingConfig)
-  }
-
   it("can parse some javascript to add a request header with static value") {
     val fakeConfigService = new FakeConfigService()
     val filter = new ScriptingFilter(fakeConfigService)
@@ -91,7 +77,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
         |request.addHeader("lol", "butts")
         |filterChain.doFilter(request, response)
       """.stripMargin)
-    scriptingConfig.setLanguage("javascript")
+    scriptingConfig.setLanguage(ScriptingLanguages.JAVASCRIPT)
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -113,7 +99,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
         |filterChain.doFilter(request, response)
         |response.addHeader("foo", "bar")
       """.stripMargin)
-    scriptingConfig.setLanguage("javascript")
+    scriptingConfig.setLanguage(ScriptingLanguages.JAVASCRIPT)
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -135,7 +121,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
         |request.addHeader("lol", "butts")
         |filterChain.doFilter(request, response)
       """.stripMargin)
-    scriptingConfig.setLanguage("groovy")
+    scriptingConfig.setLanguage(ScriptingLanguages.GROOVY)
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -156,7 +142,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
         |$request.addHeader("lol", "butts")
         |$filterChain.doFilter($request, $response)
       """.stripMargin)
-    scriptingConfig.setLanguage("jruby")
+    scriptingConfig.setLanguage(ScriptingLanguages.RUBY)
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -177,7 +163,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
         |request.addHeader("lol", "butts")
         |filterChain.doFilter(request, response)
       """.stripMargin)
-    scriptingConfig.setLanguage("python")
+    scriptingConfig.setLanguage(ScriptingLanguages.PYTHON)
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -196,7 +182,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
         |request:addHeader("lol", "butts")
         |filterChain:doFilter(request, response)
       """.stripMargin)
-    scriptingConfig.setLanguage("lua")
+    scriptingConfig.setLanguage(ScriptingLanguages.LUA)
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -215,7 +201,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
         |request.addHeader("lol", "butts")
         |filterChain.doFilter(request, response)
       """.stripMargin)
-    scriptingConfig.setLanguage("scala")
+    scriptingConfig.setLanguage(ScriptingLanguages.fromValue("scala"))
 
     filter.configurationUpdated(scriptingConfig)
 
@@ -232,7 +218,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
       """
         |throw "EXCEPTION"
       """.stripMargin)
-    scriptingConfig.setLanguage("javascript")
+    scriptingConfig.setLanguage(ScriptingLanguages.JAVASCRIPT)
 
     filter.configurationUpdated(scriptingConfig)
 
