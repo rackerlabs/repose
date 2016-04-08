@@ -88,7 +88,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose.rackspace</groupId>
-            <artifactId>rackspace-identity-basic-auth-filter</artifactId>
+            <artifactId>keystone-v2-basic-auth-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -85,8 +85,8 @@
         <filter-class>org.openrepose.filters.rackspaceauthuser.RackspaceAuthUserFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>rackspace-identity-basic-auth</filter-name>
-        <filter-class>org.openrepose.filters.rackspaceidentitybasicauth.RackspaceIdentityBasicAuthFilter</filter-class>
+        <filter-name>keystone-v2-basic-auth</filter-name>
+        <filter-class>org.openrepose.filters.keystonev2basicauth.KeystoneV2BasicAuthFilter</filter-class>
     </filter>
     <filter>
         <filter-name>content-type-stripper</filter-name>
