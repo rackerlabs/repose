@@ -535,6 +535,26 @@ class RateLimitingTest extends ReposeValveTest {
         rlmu.checkAbsoluteLimitJsonResponse(json, allsmalllimit)
     }
 
+    /*
+        REP-3528
+     */
+
+    @Unroll("Verify lowerbound limit #method")
+    def "Verify lowerbound limit"() {
+        given: "the ratelimits config at lowerbound 0"
+
+        when: "the user send their request"
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/repose/test", method: method,
+                headers: userHeaderDefault + ['X-PP-Groups': 'no-limit'],
+                defaultHandler: { return new Response(200, "Redirect") })
+
+        then: "the response as hit limit"
+        messageChain.receivedResponse.code.equals("413")
+        messageChain.handlings.size() == 0
+
+        where:
+        method << ["GET", "POST", "PUT", "HEAD", "DELETE", "PATCH"]
+    }
 
     final static List<Map> allsmalllimit = [
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'ALL', 'value': 3]

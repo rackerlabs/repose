@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
+    <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
+    <global-limit-group>
+        <!-- The first one tests for the default http-methods of ALL. -->
+        <limit id="globallimit" uri="all" uri-regex="/service/.*" value="5" unit="MINUTE"/>
+    </global-limit-group>
+    <limit-group id="fluffybunny" groups="customer" default="true">
+        <limit id="one" uri="/*" uri-regex="/service/.*" http-methods="GET" unit="MINUTE" value="2"/>
+        <limit id="two" uri="/*" uri-regex="/service/.*" http-methods="PUT" unit="MINUTE" value="0"/>
+    </limit-group>
+</rate-limiting>

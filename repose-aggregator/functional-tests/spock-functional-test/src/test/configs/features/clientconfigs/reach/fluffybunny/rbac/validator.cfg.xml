@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators multi-role-match="false" xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
+
+    <validator role="fluffybunny" default="true" enable-rax-roles="false">
+        <application xmlns="http://wadl.dev.java.net/2009/02">
+            <resources base="http://localhost:${targetPort}">
+                <resource path="/service/test" >
+                    <method name="GET">
+                        <request/>
+                        <response status="200">
+                            <representation mediaType="application/xml"/>
+                            <representation mediaType="application/json"/>
+                        </response>
+                        <response status="404">
+                            <representation mediaType="application/xml"/>
+                            <representation mediaType="application/json"/>
+                        </response>
+                        <response status="400 401 403 409 413 415 500 503">
+                            <representation mediaType="application/xml"/>
+                            <representation mediaType="application/json"/>
+                        </response>
+                    </method>
+                    <method name="PUT">
+                        <request/>
+                        <response status="200">
+                            <representation mediaType="application/xml"/>
+                            <representation mediaType="application/json"/>
+                        </response>
+                        <response status="404">
+                            <representation mediaType="application/xml"/>
+                            <representation mediaType="application/json"/>
+                        </response>
+                        <response status="400 401 403 409 413 415 500 503">
+                            <representation mediaType="application/xml"/>
+                            <representation mediaType="application/json"/>
+                        </response>
+                    </method>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+</validators>
