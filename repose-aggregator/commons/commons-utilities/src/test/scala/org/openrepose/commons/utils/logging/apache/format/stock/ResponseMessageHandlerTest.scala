@@ -24,7 +24,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatterState
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse
+import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, ResponseMode}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -32,12 +32,11 @@ import org.scalatest.mock.MockitoSugar
 @RunWith(classOf[JUnitRunner])
 class ResponseMessageHandlerTest extends FunSpec with BeforeAndAfter with GivenWhenThen with Matchers with MockitoSugar {
   val escapeThis = "\b\n\t\f\r\\\"'/&<>"
-  val mockRequest = mock[HttpServletRequest]
   val mockResponse = mock[HttpServletResponse]
-  var response: MutableHttpServletResponse = _
+  var response: HttpServletResponseWrapper = _
 
   before {
-    response = MutableHttpServletResponse.wrap(mockRequest, mockResponse)
+    response = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
     response.sendError(0, escapeThis)
   }
 
@@ -52,7 +51,7 @@ class ResponseMessageHandlerTest extends FunSpec with BeforeAndAfter with GivenW
         val responseMessageHandler = new ResponseMessageHandler(state)
 
         When(s"the Java String is $name encoded")
-        val result = responseMessageHandler.handle(mockRequest, response)
+        val result = responseMessageHandler.handle(mock[HttpServletRequest], response)
 
         Then(s"the result should be $name compatible")
         result shouldBe expected

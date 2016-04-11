@@ -22,12 +22,14 @@ package org.openrepose.core.services.rms;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.header.HeaderValue;
+import org.openrepose.commons.utils.http.header.HeaderValueParser;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatter;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.thread.KeyedStackLock;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.rms.config.Message;
@@ -46,6 +48,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Named
 public class ResponseMessageServiceImpl implements ResponseMessageService {
@@ -93,10 +96,19 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     }
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void handle(HttpServletRequest request, HttpServletResponseWrapper response) throws IOException {
         final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
-        final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
-        MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaders("Accept", DEFAULT_TYPE));
+        final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request);
+
+        List<HeaderValue> preferredAcceptTypes = wrappedRequest.getPreferredHeaders("Accept").stream()
+                .map(s -> new HeaderValueParser(s).parse())
+                .collect(Collectors.toList());
+
+        if (preferredAcceptTypes.isEmpty()) {
+            preferredAcceptTypes.add(DEFAULT_TYPE);
+        }
+
+        MediaRangeProcessor processor = new MediaRangeProcessor(preferredAcceptTypes);
 
         if (!isInitialized()) {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating Response Messaging service.");
@@ -172,7 +184,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), contentType);
 
         // TODO:Enhancement - Update formatter logic for streaming
-        // TODO:Enhancement - Update getBytes(...) to use requested content encoding
+        // TODO:Enhancement - Update getBytes(...) to use requested content encoding AND Content-Type to reflect that encoding
         response.getOutputStream().write(formattedOutput.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -180,10 +192,10 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         return StringUtilities.nullSafeEqualsIgnoreCase(matchedCode.getOverwrite().value(), OverwriteType.IF_EMPTY.value());
     }
 
-    private boolean hasBody(HttpServletResponse response) {
+    private boolean hasBody(HttpServletResponseWrapper response) {
         boolean hasBody = false;
         try {
-            hasBody = ((MutableHttpServletResponse) response).getBufferedOutputAsInputStream().available() > 0;
+            hasBody = response.getOutputStreamAsInputStream().available() > 0;
         } catch (IOException e) {
             LOG.warn("Unable to retrieve response body input stream", e);
         }

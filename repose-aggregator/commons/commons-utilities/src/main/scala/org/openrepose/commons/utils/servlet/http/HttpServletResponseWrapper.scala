@@ -107,6 +107,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     super.setStatus(i, s)
   }
 
+  // todo: how does this affect the container processing invoked by sendError? should we track that this method was
+  // called? should commitToResponse take a parameter indicating if an error should bubble up?
   override def sendError(i: Int): Unit = {
     committed = true
     if (headerMode == ResponseMode.MUTABLE || bodyMode == ResponseMode.MUTABLE) {
@@ -350,7 +352,16 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     committed = true
   }
 
-  // todo: unlock method
+  /**
+    * @throws IllegalStateException when the wrapped response has already been committed
+    */
+  def uncommit(): Unit = {
+    if (originalResponse.isCommitted) {
+      throw new IllegalStateException("the wrapped response has already been committed")
+    }
+
+    committed = false
+  }
 
   override def reset(): Unit = {
     if (isCommitted) {

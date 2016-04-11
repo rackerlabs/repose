@@ -24,13 +24,14 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.logging.apache.format.FormatArgumentHandler;
 import org.openrepose.commons.utils.logging.apache.format.LogArgumentFormatter;
 import org.openrepose.commons.utils.logging.apache.format.stock.*;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
+import org.openrepose.commons.utils.servlet.http.ResponseMode;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
@@ -375,13 +376,14 @@ public class HttpLogFormatterTest {
     public static class WhenEscapingTheMessage {
         private final String escapeThis = "\b\n\t\f\r\\\"'/&<>";
         private final HttpServletRequest request = mock(HttpServletRequest.class);
-        private final MutableHttpServletResponse response = MutableHttpServletResponse.wrap(
-                request,
-                mock(HttpServletResponse.class)
+        private final HttpServletResponseWrapper response = new HttpServletResponseWrapper(
+                mock(HttpServletResponse.class),
+                ResponseMode.PASSTHROUGH,
+                ResponseMode.PASSTHROUGH
         );
 
         @Before
-        public void setup() {
+        public void setup() throws IOException {
             response.sendError(0, escapeThis);
         }
 

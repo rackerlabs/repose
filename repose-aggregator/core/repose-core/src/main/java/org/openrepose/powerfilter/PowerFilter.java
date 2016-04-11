@@ -23,10 +23,13 @@ import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.io.BufferedServletInputStream;
+import org.openrepose.commons.utils.io.stream.LimitedReadInputStream;
 import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.commons.utils.logging.TracingKey;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
+import org.openrepose.commons.utils.servlet.http.ResponseMode;
 import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.proxy.ServletContextWrapper;
@@ -311,7 +314,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
     }
 
-    private PowerFilterChain getRequestFilterChain(MutableHttpServletResponse mutableHttpResponse, FilterChain chain) throws ServletException {
+    private PowerFilterChain getRequestFilterChain(HttpServletResponse httpResponse, FilterChain chain) throws ServletException, IOException {
         PowerFilterChain requestFilterChain = null;
         try {
             boolean healthy = healthCheckService.isHealthy();
@@ -326,7 +329,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 LOG.debug("{}:{} -- Current filter chain: {}", clusterId, nodeId, filterChain);
                 LOG.debug("{}:{} -- Power Filter Router: {}", clusterId, nodeId, router);
 
-                mutableHttpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Currently unable to serve requests");
+                httpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Currently unable to serve requests");
 
                 //Update the JMX bean with our status
                 configurationInformation.updateNodeStatus(clusterId, nodeId, false);
@@ -335,8 +338,7 @@ public class PowerFilter extends DelegatingFilterProxy {
             }
         } catch (PowerFilterChainException ex) {
             LOG.warn("{}:{} -- Error creating filter chain", clusterId, nodeId, ex);
-            mutableHttpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating filter chain");
-            mutableHttpResponse.setLastException(ex);
+            httpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating filter chain");
 
             //Update the JMX bean with our status
             configurationInformation.updateNodeStatus(clusterId, nodeId, false);
@@ -350,72 +352,67 @@ public class PowerFilter extends DelegatingFilterProxy {
         final long startTime = System.currentTimeMillis();
         long streamLimit = containerConfigurationService.getContentBodyReadLimit();
 
-        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
-        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
+        final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request,
+                new BufferedServletInputStream(new LimitedReadInputStream(streamLimit, request.getInputStream())));
+        final HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper((HttpServletResponse) response,
+                ResponseMode.PASSTHROUGH,
+                ResponseMode.MUTABLE);
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
-            mutableHttpRequest.removeHeader(CommonHttpHeader.TRACE_GUID.toString());
+            wrappedRequest.removeHeader(CommonHttpHeader.TRACE_GUID.toString());
         }
 
         //Grab the traceGUID from the request if there is one, else create one
         String traceGUID;
-        if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
+        if (StringUtilities.isBlank(wrappedRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
             traceGUID = UUID.randomUUID().toString();
         } else {
             traceGUID = TracingHeaderHelper.getTraceGuid(
-                    mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
+                    wrappedRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
         }
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
         try {
             try {
                 // ensures that the method name exists
-                HttpComponentFactory.valueOf(mutableHttpRequest.getMethod().toUpperCase());
+                HttpComponentFactory.valueOf(wrappedRequest.getMethod().toUpperCase());
             } catch (IllegalArgumentException iae) {
                 throw new InvalidMethodException("Request contained an unknown method.", iae);
             }
             // ensures that the request URI is a valid URI
-            new URI(mutableHttpRequest.getRequestURI());
-            final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
+            new URI(wrappedRequest.getRequestURI());
+            final PowerFilterChain requestFilterChain = getRequestFilterChain(wrappedResponse, chain);
             if (requestFilterChain != null) {
                 if (currentSystemModel.get().getTracingHeader() == null || currentSystemModel.get().getTracingHeader().isEnabled()) {
-                    if (StringUtilities.isBlank(mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
-                        mutableHttpRequest.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
-                                TracingHeaderHelper.createTracingHeader(traceGUID, mutableHttpRequest.getHeader(CommonHttpHeader.VIA.toString())));
+                    if (StringUtilities.isBlank(wrappedRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
+                        wrappedRequest.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
+                                TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(CommonHttpHeader.VIA.toString())));
                     }
-                    String tracingHeader = mutableHttpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString());
+                    String tracingHeader = wrappedRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString());
                     LOG.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader));
-                    mutableHttpResponse.addHeader(CommonHttpHeader.TRACE_GUID.toString(), tracingHeader);
+                    wrappedResponse.addHeader(CommonHttpHeader.TRACE_GUID.toString(), tracingHeader);
                 }
-                requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
+                requestFilterChain.startFilterChain(wrappedRequest, wrappedResponse);
             }
         } catch (InvalidMethodException ime) {
-            LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, mutableHttpRequest.getMethod(), ime);
-            mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
-            mutableHttpResponse.setLastException(ime);
+            LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, wrappedRequest.getMethod(), ime);
+            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (URISyntaxException use) {
-            LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, mutableHttpRequest.getRequestURI(), use);
-            mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
-            mutableHttpResponse.setLastException(use);
+            LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
+            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (Exception ex) {
             LOG.error("{}:{} -- Exception encountered while processing filter chain.", clusterId, nodeId, ex);
-            mutableHttpResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
-            mutableHttpResponse.setLastException(ex);
+            wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
         } finally {
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
-            if (!mutableHttpResponse.isCommitted()) {
-                mutableHttpResponse.flushWriter();  // total hack because of the old wrapper; remove it when we go to the new wrapper
-                responseMessageService.handle(mutableHttpRequest, mutableHttpResponse);
-                responseHeaderService.setVia(mutableHttpRequest, mutableHttpResponse);
+            if (!wrappedResponse.isCommitted()) {
+                responseMessageService.handle(wrappedRequest, wrappedResponse);
+                responseHeaderService.setVia(wrappedRequest, wrappedResponse);
             }
 
-            try {
-                mutableHttpResponse.writeHeadersToResponse();
-                mutableHttpResponse.commitBufferToServletOutputStream();
-            } catch (IOException ex) {
-                LOG.error("{}:{} -- Error committing output stream", clusterId, nodeId, ex);
-            }
+            wrappedResponse.commitToResponse();
+
             final long stopTime = System.currentTimeMillis();
 
             markResponseCodeHelper(mbcResponseCodes, ((HttpServletResponse) response).getStatus(), LOG, null);

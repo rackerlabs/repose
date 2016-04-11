@@ -31,9 +31,9 @@ class SplittableHeaderUtilTest {
 
         SplittableHeaderUtil splitable = new SplittableHeaderUtil();
 
-        assert splitable.isSplitable("accept")
-        assert splitable.isSplitable("ACCEPT")
-        assert splitable.isSplitable("Accept")
+        assert splitable.isSplittable("accept")
+        assert splitable.isSplittable("ACCEPT")
+        assert splitable.isSplittable("Accept")
 
     }
 
@@ -42,8 +42,8 @@ class SplittableHeaderUtilTest {
 
         SplittableHeaderUtil splitable = new SplittableHeaderUtil();
 
-        assert !splitable.isSplitable("unsplitable")
-        assert !splitable.isSplitable("user-agent")
+        assert !splitable.isSplittable("unsplitable")
+        assert !splitable.isSplittable("user-agent")
     }
 
     @Test
@@ -51,7 +51,7 @@ class SplittableHeaderUtilTest {
 
         SplittableHeaderUtil splitable = new SplittableHeaderUtil(PowerApiHeader.values())
 
-        assert splitable.isSplitable("x-pp-user")
+        assert splitable.isSplittable("x-pp-user")
 
     }
 
@@ -60,7 +60,7 @@ class SplittableHeaderUtilTest {
 
         SplittableHeaderUtil splitable = new SplittableHeaderUtil(PowerApiHeader.USER)
 
-        assert splitable.isSplitable("x-pp-user")
+        assert splitable.isSplittable("x-pp-user")
 
     }
 
@@ -70,10 +70,10 @@ class SplittableHeaderUtilTest {
         SplittableHeaderUtil splitable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
                 ExtendedHttpHeader.values())
 
-        assert splitable.isSplitable("x-pp-user")
-        assert splitable.isSplitable("X-Tenant-Name")
-        assert splitable.isSplitable("x-tTl")
-        assert !splitable.isSplitable("some-other-header")
+        assert splitable.isSplittable("x-pp-user")
+        assert splitable.isSplittable("X-Tenant-Name")
+        assert splitable.isSplittable("x-tTl")
+        assert !splitable.isSplittable("some-other-header")
 
 
     }
@@ -82,6 +82,6 @@ class SplittableHeaderUtilTest {
     public void testWWWAuthenticateNotSplit() throws Exception {
         SplittableHeaderUtil splitable = new SplittableHeaderUtil()
 
-        assert !splitable.isSplitable("www-authenticate")
+        assert !splitable.isSplittable("www-authenticate")
     }
 }

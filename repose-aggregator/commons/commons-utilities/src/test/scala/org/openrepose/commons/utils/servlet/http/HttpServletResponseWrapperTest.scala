@@ -2113,4 +2113,25 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.isCommitted shouldBe true
     }
   }
+
+  describe("uncommit") {
+    it("should throw an exception if the wrapped response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      an [IllegalArgumentException] should be thrownBy wrappedResponse.uncommit()
+    }
+
+    it ("should enable calling methods normally blocked by committing") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+      wrappedResponse.uncommit()
+
+      // should not throw an exception
+      wrappedResponse.resetBuffer()
+    }
+  }
 }
