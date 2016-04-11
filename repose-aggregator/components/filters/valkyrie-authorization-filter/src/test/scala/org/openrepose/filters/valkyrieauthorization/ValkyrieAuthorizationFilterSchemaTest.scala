@@ -65,7 +65,7 @@ class ValkyrieAuthorizationFilterSchemaTest extends FunSpec with Matchers {
           validateConfigString(config)
       }
     }
-    it(s"should successfully validate if the HTTP Methods list is empty") {
+    it(s"should fail to validate if the HTTP Methods list is empty") {
       val config =
         s"""<valkyrie-authorization
             |        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
