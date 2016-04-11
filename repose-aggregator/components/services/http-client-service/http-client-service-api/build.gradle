@@ -1,4 +1,8 @@
 
 dependencies {
     compile "org.apache.httpcomponents:httpclient"
+
+    testCompile project(":repose-aggregator:commons:commons-test")
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
 }
