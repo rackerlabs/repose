@@ -291,6 +291,23 @@ subprojects {
         }
     }
 
+    jar {
+        manifest {
+            attributes(
+                    "Specification-Title": "Repose Components - $project.name",
+                    "Specification-Vendor": "Rackspace US, Inc.",
+                    "Specification-Version": version,
+                    "Implementation-Title": "Repose Components - $project.name",
+                    "Implementation-Version": version,
+                    "Implementation-Vendor": "Rackspace US, Inc.",
+                    "Implementation-Vendor-Id": project.group,
+                    "Built-By": System.getProperty('user.name'),
+                    "Build-Jdk": org.gradle.internal.jvm.Jvm.current(),
+                    "Created-By": "Gradle $project.gradle.gradleVersion",
+            )
+        }
+    }
+
     publishing {
         repositories {
             maven {

@@ -47,7 +47,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.6</version>
 
                 <extensions>true</extensions>
 
@@ -65,7 +65,12 @@
 
                 <configuration>
                     <generateApplicationXml>false</generateApplicationXml>
-
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
                     <modules>
                         <jarModule>
                             <groupId>org.openrepose</groupId>
@@ -82,7 +87,6 @@
                     </modules>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 </project>
