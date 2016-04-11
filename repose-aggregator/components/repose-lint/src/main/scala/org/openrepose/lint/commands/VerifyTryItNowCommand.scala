@@ -40,8 +40,6 @@ object VerifyTryItNowCommand extends Command {
   private final val DEFAULT_KEYSTONEV2_FILENAME = "keystone-v2.cfg.xml"
   private final val IDENTITYV3_FILTER_NAME = "openstack-identity-v3"
   private final val DEFAULT_IDENTITYV3_FILENAME = "openstack-identity-v3.cfg.xml"
-  private final val FOYER_STATUS = "foyerStatus"
-  private final val FOYER_STATUS_DESCRIPTION = "foyerStatusDescription"
 
   override def getCommandToken: String = {
     "verify-try-it-now"
@@ -53,6 +51,9 @@ object VerifyTryItNowCommand extends Command {
 
   override def perform(lintConfig: LintConfig): Unit = {
     val reposeVersion = lintConfig.reposeVersion
+    val roleName = lintConfig.roleName
+    val roleStatus = s"${roleName}Status"
+    val roleStatusDescription = s"${roleName}StatusDescription"
 
     def versionGreaterThanOrEqualTo(otherVersion: String): Boolean = {
       val reposeVersionSplit = reposeVersion.split('.').map(_.toInt)
@@ -93,6 +94,39 @@ object VerifyTryItNowCommand extends Command {
       filters.filter(filter => (filter \ "@name").text.equals(filterName))
     }
 
+    def determineRoleStatus(roleStatuses: Seq[RoleStatus.RoleStatus]): RoleStatus.RoleStatus = {
+      if (roleStatuses.contains(RoleStatus.NotAllowed)) {
+        RoleStatus.NotAllowed
+      } else if (roleStatuses.contains(RoleStatus.Unknown)) {
+        RoleStatus.Unknown
+      } else if (roleStatuses.contains(RoleStatus.AllowedWithAuthorization)) {
+        RoleStatus.AllowedWithAuthorization
+      } else if (roleStatuses.contains(RoleStatus.AllowedWithoutAuthorization)) {
+        RoleStatus.AllowedWithoutAuthorization
+      } else if (roleStatuses.contains(RoleStatus.Allowed)) {
+        RoleStatus.Allowed
+      } else {
+        RoleStatus.Unknown
+      }
+    }
+
+    def describeRoleStatus(roleStatus: RoleStatus.RoleStatus): String = {
+      roleStatus match {
+        case RoleStatus.Allowed =>
+          s"Users with the '$roleName' Identity role WILL pass through this component"
+        case RoleStatus.AllowedWithAuthorization =>
+          s"Users with the '$roleName' Identity role WILL pass through this component IF AND ONLY IF their Identity " +
+            "service catalog contains an endpoint required by the authorization component"
+        case RoleStatus.AllowedWithoutAuthorization =>
+          s"Users with the '$roleName' Identity role WILL pass through this component BUT authorization checks will not " +
+            "be performed"
+        case RoleStatus.NotAllowed =>
+          s"Users with the '$roleName' Identity role WILL NOT pass through this component"
+        case RoleStatus.Unknown =>
+          s"Users with the '$roleName' Identity role MAY OR MAY NOT pass through this component"
+      }
+    }
+
     def checkAuthN(filters: NodeSeq): JsValue = {
       // These case classes are intermediate storage for data before it is transformed into JSON.
       // Defaults are provided to reduce unnecessary code. The default value for each individual check is set to the
@@ -100,38 +134,38 @@ object VerifyTryItNowCommand extends Command {
       case class AuthNFilterCheck(filteredByUriRegex: Boolean = true,
                                   missingConfiguration: Boolean = true,
                                   inTenantedMode: Boolean = false,
-                                  foyerAsServiceAdmin: Boolean = false,
-                                  foyerAsIgnoreTenant: Boolean = false,
-                                  foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
+                                  roleAsServiceAdmin: Boolean = false,
+                                  roleAsIgnoreTenant: Boolean = false,
+                                  roleStatus: RoleStatus.RoleStatus = RoleStatus.Unknown)
 
       case class AuthNCheck(listedInSystemModel: Boolean = false,
                             authNFilterChecks: Seq[AuthNFilterCheck] = Seq.empty,
-                            foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
+                            roleStatus: RoleStatus.RoleStatus = RoleStatus.Unknown)
 
       // These Writes define the transformation from the above case classes into Play JSON objects which in turn can
       // be written as strings.
       implicit val AuthNFilterCheckWrites = new Writes[AuthNFilterCheck] {
         override def writes(anfc: AuthNFilterCheck): JsValue = Json.obj(
-          FOYER_STATUS -> anfc.foyerStatus.toString,
-          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(anfc.foyerStatus),
+          roleStatus -> anfc.roleStatus.toString,
+          roleStatusDescription -> describeRoleStatus(anfc.roleStatus),
           "filteredByUriRegex" -> anfc.filteredByUriRegex,
           "missingConfiguration" -> anfc.missingConfiguration,
           "inTenantedMode" -> anfc.inTenantedMode,
-          "foyerAsServiceAdmin" -> anfc.foyerAsServiceAdmin,
-          "foyerAsIgnoreTenant" -> anfc.foyerAsIgnoreTenant
+          s"${roleName}AsServiceAdmin" -> anfc.roleAsServiceAdmin,
+          s"${roleName}AsIgnoreTenant" -> anfc.roleAsIgnoreTenant
         )
       }
 
       implicit val AuthNCheckWrites = new Writes[AuthNCheck] {
         override def writes(anc: AuthNCheck): JsValue = Json.obj(
-          FOYER_STATUS -> anc.foyerStatus.toString,
-          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(anc.foyerStatus),
+          roleStatus -> anc.roleStatus.toString,
+          roleStatusDescription -> describeRoleStatus(anc.roleStatus),
           "filterName" -> AUTH_N_FILTER_NAME,
           "filters" -> anc.authNFilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r)
         )
       }
 
-      var check = AuthNCheck(foyerStatus = FoyerStatus.Allowed)
+      var check = AuthNCheck(roleStatus = RoleStatus.Allowed)
       val authNFilters = getFiltersNamed(AUTH_N_FILTER_NAME)(filters)
 
       // If we have filters, perform a set of checks on their respective configurations.
@@ -155,32 +189,32 @@ object VerifyTryItNowCommand extends Command {
               filterCheck = filterCheck.copy(inTenantedMode = true)
             }
 
-            val isFoyerServiceAdmin = (configRoot \ "openstack-auth" \ "service-admin-roles" \ "role").exists(node => node.text.equals("foyer"))
-            if (isFoyerServiceAdmin) {
-              filterCheck = filterCheck.copy(foyerAsServiceAdmin = true)
+            val isRoleServiceAdmin = (configRoot \ "openstack-auth" \ "service-admin-roles" \ "role").exists(node => node.text.equals(roleName))
+            if (isRoleServiceAdmin) {
+              filterCheck = filterCheck.copy(roleAsServiceAdmin = true)
             }
 
-            val isFoyerIgnoreTenant = (configRoot \ "openstack-auth" \ "ignore-tenant-roles" \ "role").exists(node => node.text.equals("foyer"))
-            if (isFoyerIgnoreTenant) {
-              filterCheck = filterCheck.copy(foyerAsIgnoreTenant = true)
+            val isRoleIgnoreTenant = (configRoot \ "openstack-auth" \ "ignore-tenant-roles" \ "role").exists(node => node.text.equals(roleName))
+            if (isRoleIgnoreTenant) {
+              filterCheck = filterCheck.copy(roleAsIgnoreTenant = true)
             }
           }
 
           // This is our truth table, defining "good" and "bad" states across versions.
           if (filterCheck.filteredByUriRegex) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.Unknown)
           } else if (filterCheck.missingConfiguration) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.NotAllowed)
           } else if (!filterCheck.inTenantedMode) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
-          } else if (versionLessThan("4.1.0") && filterCheck.foyerAsServiceAdmin) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
-          } else if (versionGreaterThanOrEqualTo("4.1.0") && versionLessThan("7.1.4.0") && filterCheck.foyerAsServiceAdmin && filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
-          } else if (versionGreaterThanOrEqualTo("7.1.4.0") && filterCheck.foyerAsServiceAdmin || filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Allowed)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.Allowed)
+          } else if (versionLessThan("4.1.0") && filterCheck.roleAsServiceAdmin) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.Allowed)
+          } else if (versionGreaterThanOrEqualTo("4.1.0") && versionLessThan("7.1.4.0") && filterCheck.roleAsServiceAdmin && filterCheck.roleAsIgnoreTenant) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.Allowed)
+          } else if (versionGreaterThanOrEqualTo("7.1.4.0") && filterCheck.roleAsServiceAdmin || filterCheck.roleAsIgnoreTenant) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.Allowed)
           } else {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.NotAllowed)
           }
 
           filterCheck
@@ -188,9 +222,9 @@ object VerifyTryItNowCommand extends Command {
 
         // This provides a status for the component (i.e., client-auth-n) as a whole, while the status for each
         // filter is provided above.
-        val checkFoyerStatus = determineFoyerStatus(authNFilterChecks.map(_.foyerStatus))
+        val checkRoleStatus = determineRoleStatus(authNFilterChecks.map(_.roleStatus))
 
-        check = check.copy(authNFilterChecks = authNFilterChecks, foyerStatus = checkFoyerStatus)
+        check = check.copy(authNFilterChecks = authNFilterChecks, roleStatus = checkRoleStatus)
       }
 
       // Transform the data into JSON.
@@ -200,33 +234,33 @@ object VerifyTryItNowCommand extends Command {
     def checkAuthZ(filters: NodeSeq): JsValue = {
       case class AuthZFilterCheck(filteredByUriRegex: Boolean = true,
                                   missingConfiguration: Boolean = true,
-                                  foyerAsIgnoreTenant: Boolean = false,
-                                  foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
+                                  roleAsIgnoreTenant: Boolean = false,
+                                  roleStatus: RoleStatus.RoleStatus = RoleStatus.Unknown)
 
       case class AuthZCheck(listedInSystemModel: Boolean = false,
                             authZFilterChecks: Seq[AuthZFilterCheck] = Seq.empty,
-                            foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
+                            roleStatus: RoleStatus.RoleStatus = RoleStatus.Unknown)
 
       implicit val AuthZFilterCheckWrites = new Writes[AuthZFilterCheck] {
         override def writes(azfc: AuthZFilterCheck): JsValue = Json.obj(
-          FOYER_STATUS -> azfc.foyerStatus.toString,
-          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(azfc.foyerStatus),
+          roleStatus -> azfc.roleStatus.toString,
+          roleStatusDescription -> describeRoleStatus(azfc.roleStatus),
           "filteredByUriRegex" -> azfc.filteredByUriRegex,
           "missingConfiguration" -> azfc.missingConfiguration,
-          "foyerAsIgnoreTenant" -> azfc.foyerAsIgnoreTenant
+          s"${roleName}AsIgnoreTenant" -> azfc.roleAsIgnoreTenant
         )
       }
 
       implicit val AuthZCheckWrites = new Writes[AuthZCheck] {
         override def writes(azc: AuthZCheck): JsValue = Json.obj(
-          FOYER_STATUS -> azc.foyerStatus.toString,
-          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(azc.foyerStatus),
+          roleStatus -> azc.roleStatus.toString,
+          roleStatusDescription -> describeRoleStatus(azc.roleStatus),
           "filterName" -> AUTH_Z_FILTER_NAME,
           "filters" -> azc.authZFilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r)
         )
       }
 
-      var check = AuthZCheck(foyerStatus = FoyerStatus.Allowed)
+      var check = AuthZCheck(roleStatus = RoleStatus.Allowed)
       val authZFilters = getFiltersNamed(AUTH_Z_FILTER_NAME)(filters)
 
       if (authZFilters.nonEmpty) {
@@ -245,29 +279,29 @@ object VerifyTryItNowCommand extends Command {
             filterCheck = filterCheck.copy(missingConfiguration = false)
 
             val ignoreTenantRoles = (configRoot \ "ignore-tenant-roles" \ "role") ++ (configRoot \ "ignore-tenant-roles" \ "ignore-tenant-role")
-            if (ignoreTenantRoles.exists(node => node.text.equals("foyer"))) {
-              filterCheck = filterCheck.copy(foyerAsIgnoreTenant = true)
+            if (ignoreTenantRoles.exists(node => node.text.equals(roleName))) {
+              filterCheck = filterCheck.copy(roleAsIgnoreTenant = true)
             }
           }
 
           if (filterCheck.filteredByUriRegex) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.Unknown)
           } else if (filterCheck.missingConfiguration) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.NotAllowed)
           } else if (versionLessThan("4.1.0")) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithAuthorization)
-          } else if (filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
-          } else if (!filterCheck.foyerAsIgnoreTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithAuthorization)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.AllowedWithAuthorization)
+          } else if (filterCheck.roleAsIgnoreTenant) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.AllowedWithoutAuthorization)
+          } else if (!filterCheck.roleAsIgnoreTenant) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.AllowedWithAuthorization)
           }
 
           filterCheck
         }
 
-        val checkFoyerStatus = determineFoyerStatus(authZFilterChecks.map(_.foyerStatus))
+        val checkRoleStatus = determineRoleStatus(authZFilterChecks.map(_.roleStatus))
 
-        check = check.copy(authZFilterChecks = authZFilterChecks, foyerStatus = checkFoyerStatus)
+        check = check.copy(authZFilterChecks = authZFilterChecks, roleStatus = checkRoleStatus)
       }
 
       Json.toJson(check)
@@ -277,36 +311,36 @@ object VerifyTryItNowCommand extends Command {
       case class KeystoneV2FilterCheck(filteredByUriRegex: Boolean = true,
                                        missingConfiguration: Boolean = true,
                                        inTenantedMode: Boolean = false,
-                                       foyerAsPreAuth: Boolean = false,
+                                       roleAsPreAuth: Boolean = false,
                                        catalogAuthorization: Boolean = false,
-                                       foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
+                                       roleStatus: RoleStatus.RoleStatus = RoleStatus.Unknown)
 
       case class KeystoneV2Check(listedInSystemModel: Boolean = false,
                                  keystoneV2FilterChecks: Seq[KeystoneV2FilterCheck] = Seq.empty,
-                                 foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
+                                 roleStatus: RoleStatus.RoleStatus = RoleStatus.Unknown)
 
       implicit val KeystoneV2FilterCheckWrites = new Writes[KeystoneV2FilterCheck] {
         override def writes(kfc: KeystoneV2FilterCheck): JsValue = Json.obj(
-          FOYER_STATUS -> kfc.foyerStatus.toString,
-          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(kfc.foyerStatus),
+          roleStatus -> kfc.roleStatus.toString,
+          roleStatusDescription -> describeRoleStatus(kfc.roleStatus),
           "filteredByUriRegex" -> kfc.filteredByUriRegex,
           "missingConfiguration" -> kfc.missingConfiguration,
           "inTenantedMode" -> kfc.inTenantedMode,
-          "foyerAsPreAuthorized" -> kfc.foyerAsPreAuth,
+          s"${roleName}AsPreAuthorized" -> kfc.roleAsPreAuth,
           "catalogAuthorization" -> kfc.catalogAuthorization
         )
       }
 
       implicit val KeystoneV2CheckWrites = new Writes[KeystoneV2Check] {
         override def writes(kc: KeystoneV2Check): JsValue = Json.obj(
-          FOYER_STATUS -> kc.foyerStatus.toString,
-          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(kc.foyerStatus),
+          roleStatus -> kc.roleStatus.toString,
+          roleStatusDescription -> describeRoleStatus(kc.roleStatus),
           "filterName" -> KEYSTONEV2_FILTER_NAME,
           "filters" -> kc.keystoneV2FilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r)
         )
       }
 
-      var check = KeystoneV2Check(foyerStatus = FoyerStatus.Allowed)
+      var check = KeystoneV2Check(roleStatus = RoleStatus.Allowed)
       val keystoneV2Filters = getFiltersNamed(KEYSTONEV2_FILTER_NAME)(filters)
 
       if (keystoneV2Filters.nonEmpty) {
@@ -328,8 +362,8 @@ object VerifyTryItNowCommand extends Command {
               filterCheck = filterCheck.copy(inTenantedMode = true)
             }
 
-            if ((configRoot \ "pre-authorized-roles" \ "role").exists(node => node.text.equals("foyer"))) {
-              filterCheck = filterCheck.copy(foyerAsPreAuth = true)
+            if ((configRoot \ "pre-authorized-roles" \ "role").exists(node => node.text.equals(roleName))) {
+              filterCheck = filterCheck.copy(roleAsPreAuth = true)
             }
 
             if ((configRoot \ "require-service-endpoint").nonEmpty) {
@@ -338,25 +372,25 @@ object VerifyTryItNowCommand extends Command {
           }
 
           if (filterCheck.filteredByUriRegex) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.Unknown)
           } else if (filterCheck.missingConfiguration || versionLessThan("7.1.5.1")) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.NotAllowed)
           } else if (!filterCheck.inTenantedMode && !filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
-          } else if (filterCheck.foyerAsPreAuth) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
-          } else if (filterCheck.inTenantedMode && !filterCheck.foyerAsPreAuth) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
-          } else if (!filterCheck.inTenantedMode && !filterCheck.foyerAsPreAuth) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithAuthorization)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.AllowedWithoutAuthorization)
+          } else if (filterCheck.roleAsPreAuth) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.AllowedWithoutAuthorization)
+          } else if (filterCheck.inTenantedMode && !filterCheck.roleAsPreAuth) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.NotAllowed)
+          } else if (!filterCheck.inTenantedMode && !filterCheck.roleAsPreAuth) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.AllowedWithAuthorization)
           }
 
           filterCheck
         }
 
-        val checkFoyerStatus = determineFoyerStatus(keystoneV2FilterChecks.map(_.foyerStatus))
+        val checkRoleStatus = determineRoleStatus(keystoneV2FilterChecks.map(_.roleStatus))
 
-        check = check.copy(keystoneV2FilterChecks = keystoneV2FilterChecks, foyerStatus = checkFoyerStatus)
+        check = check.copy(keystoneV2FilterChecks = keystoneV2FilterChecks, roleStatus = checkRoleStatus)
       }
 
       Json.toJson(check)
@@ -366,36 +400,36 @@ object VerifyTryItNowCommand extends Command {
       case class IdentityV3FilterCheck(filteredByUriRegex: Boolean = true,
                                        missingConfiguration: Boolean = true,
                                        inTenantedMode: Boolean = false,
-                                       foyerAsBypassTenant: Boolean = false,
+                                       roleAsBypassTenant: Boolean = false,
                                        catalogAuthorization: Boolean = false,
-                                       foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
+                                       roleStatus: RoleStatus.RoleStatus = RoleStatus.Unknown)
 
       case class IdentityV3Check(listedInSystemModel: Boolean = false,
                                  identityV3FilterChecks: Seq[IdentityV3FilterCheck] = Seq.empty,
-                                 foyerStatus: FoyerStatus.FoyerStatus = FoyerStatus.Unknown)
+                                 roleStatus: RoleStatus.RoleStatus = RoleStatus.Unknown)
 
       implicit val IdentityV3FilterCheckWrites = new Writes[IdentityV3FilterCheck] {
         override def writes(ifc: IdentityV3FilterCheck): JsValue = Json.obj(
-          FOYER_STATUS -> ifc.foyerStatus.toString,
-          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(ifc.foyerStatus),
+          roleStatus -> ifc.roleStatus.toString,
+          roleStatusDescription -> describeRoleStatus(ifc.roleStatus),
           "filteredByUriRegex" -> ifc.filteredByUriRegex,
           "missingConfiguration" -> ifc.missingConfiguration,
           "inTenantedMode" -> ifc.inTenantedMode,
-          "foyerAsBypassTenant" -> ifc.foyerAsBypassTenant,
+          s"${roleName}AsBypassTenant" -> ifc.roleAsBypassTenant,
           "catalogAuthorization" -> ifc.catalogAuthorization
         )
       }
 
       implicit val IdentityV3CheckWrites = new Writes[IdentityV3Check] {
         override def writes(ic: IdentityV3Check): JsValue = Json.obj(
-          FOYER_STATUS -> ic.foyerStatus.toString,
-          FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(ic.foyerStatus),
+          roleStatus -> ic.roleStatus.toString,
+          roleStatusDescription -> describeRoleStatus(ic.roleStatus),
           "filterName" -> IDENTITYV3_FILTER_NAME,
           "filters" -> ic.identityV3FilterChecks.map(anfc => Json.arr(Json.toJson(anfc))).fold(JsArray())((l, r) => l ++ r)
         )
       }
 
-      var check = IdentityV3Check(foyerStatus = FoyerStatus.Allowed)
+      var check = IdentityV3Check(roleStatus = RoleStatus.Allowed)
       val identityV3Filters = getFiltersNamed(IDENTITYV3_FILTER_NAME)(filters)
 
       if (identityV3Filters.nonEmpty) {
@@ -417,8 +451,8 @@ object VerifyTryItNowCommand extends Command {
               filterCheck = filterCheck.copy(inTenantedMode = true)
             }
 
-            if ((configRoot \ "roles-which-bypass-project-id-check" \ "role").exists(node => node.text.equals("foyer"))) {
-              filterCheck = filterCheck.copy(foyerAsBypassTenant = true)
+            if ((configRoot \ "roles-which-bypass-project-id-check" \ "role").exists(node => node.text.equals(roleName))) {
+              filterCheck = filterCheck.copy(roleAsBypassTenant = true)
             }
 
             if ((configRoot \ "service-endpoint").nonEmpty) {
@@ -427,25 +461,25 @@ object VerifyTryItNowCommand extends Command {
           }
 
           if (filterCheck.filteredByUriRegex) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.Unknown)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.Unknown)
           } else if (filterCheck.missingConfiguration || versionLessThan("7.0.0.0")) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.NotAllowed)
           } else if (!filterCheck.inTenantedMode && !filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
-          } else if (!filterCheck.foyerAsBypassTenant) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.NotAllowed)
-          } else if (filterCheck.foyerAsBypassTenant && !filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithoutAuthorization)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.AllowedWithoutAuthorization)
+          } else if (!filterCheck.roleAsBypassTenant) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.NotAllowed)
+          } else if (filterCheck.roleAsBypassTenant && !filterCheck.catalogAuthorization) {
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.AllowedWithoutAuthorization)
           } else if (filterCheck.catalogAuthorization) {
-            filterCheck = filterCheck.copy(foyerStatus = FoyerStatus.AllowedWithAuthorization)
+            filterCheck = filterCheck.copy(roleStatus = RoleStatus.AllowedWithAuthorization)
           }
 
           filterCheck
         }
 
-        val checkFoyerStatus = determineFoyerStatus(identityV3FilterChecks.map(_.foyerStatus))
+        val checkRoleStatus = determineRoleStatus(identityV3FilterChecks.map(_.roleStatus))
 
-        check = check.copy(identityV3FilterChecks = identityV3FilterChecks, foyerStatus = checkFoyerStatus)
+        check = check.copy(identityV3FilterChecks = identityV3FilterChecks, roleStatus = checkRoleStatus)
       }
 
       Json.toJson(check)
@@ -463,16 +497,16 @@ object VerifyTryItNowCommand extends Command {
       val authZCheckResult = checkAuthZ(filters)
       val keystoneV2CheckResult = checkKeystoneV2(filters)
       val identityV3CheckResult = checkIdentityV3(filters)
-      val clusterFoyerStatus = determineFoyerStatus(Seq(
-        FoyerStatus.withName((authNCheckResult \ FOYER_STATUS).as[String]),
-        FoyerStatus.withName((authZCheckResult \ FOYER_STATUS).as[String]),
-        FoyerStatus.withName((keystoneV2CheckResult \ FOYER_STATUS).as[String]),
-        FoyerStatus.withName((identityV3CheckResult \ FOYER_STATUS).as[String])
+      val clusterRoleStatus = determineRoleStatus(Seq(
+        RoleStatus.withName((authNCheckResult \ roleStatus).as[String]),
+        RoleStatus.withName((authZCheckResult \ roleStatus).as[String]),
+        RoleStatus.withName((keystoneV2CheckResult \ roleStatus).as[String]),
+        RoleStatus.withName((identityV3CheckResult \ roleStatus).as[String])
       ))
 
       Json.obj("clusterId" -> (cluster \ "@id").head.text,
-        FOYER_STATUS -> clusterFoyerStatus.toString,
-        FOYER_STATUS_DESCRIPTION -> describeFoyerStatus(clusterFoyerStatus),
+        roleStatus -> clusterRoleStatus.toString,
+        roleStatusDescription -> describeRoleStatus(clusterRoleStatus),
         "authNCheck" -> authNCheckResult,
         "authZCheck" -> authZCheckResult,
         "keystoneV2Check" -> keystoneV2CheckResult,
@@ -480,57 +514,24 @@ object VerifyTryItNowCommand extends Command {
       )
     }
     val clustersArray = clusterJsonObjects.foldLeft(Json.arr())((arr, obj) => arr :+ obj)
-    val fullSystemFoyerStatus = determineFoyerStatus(clusterJsonObjects.map(cluster =>
-      FoyerStatus.withName((cluster \ FOYER_STATUS).as[String])))
-    val fullSystemFoyerStatusDescription = describeFoyerStatus(fullSystemFoyerStatus)
+    val fullSystemRoleStatus = determineRoleStatus(clusterJsonObjects.map(cluster =>
+      RoleStatus.withName((cluster \ roleStatus).as[String])))
+    val fullSystemRoleStatusDescription = describeRoleStatus(fullSystemRoleStatus)
     val fullSystemJson = Json.obj(
-      FOYER_STATUS -> fullSystemFoyerStatus.toString,
-      FOYER_STATUS_DESCRIPTION -> fullSystemFoyerStatusDescription,
+      roleStatus -> fullSystemRoleStatus.toString,
+      roleStatusDescription -> fullSystemRoleStatusDescription,
       "clusters" -> clustersArray
     )
 
     if (lintConfig.verbose) {
       println(Json.prettyPrint(fullSystemJson))
     } else {
-      println(fullSystemFoyerStatusDescription)
+      println(fullSystemRoleStatusDescription)
     }
   }
 
-  private def determineFoyerStatus(foyerStatuses: Seq[FoyerStatus.FoyerStatus]): FoyerStatus.FoyerStatus = {
-    if (foyerStatuses.contains(FoyerStatus.NotAllowed)) {
-      FoyerStatus.NotAllowed
-    } else if (foyerStatuses.contains(FoyerStatus.Unknown)) {
-      FoyerStatus.Unknown
-    } else if (foyerStatuses.contains(FoyerStatus.AllowedWithAuthorization)) {
-      FoyerStatus.AllowedWithAuthorization
-    } else if (foyerStatuses.contains(FoyerStatus.AllowedWithoutAuthorization)) {
-      FoyerStatus.AllowedWithoutAuthorization
-    } else if (foyerStatuses.contains(FoyerStatus.Allowed)) {
-      FoyerStatus.Allowed
-    } else {
-      FoyerStatus.Unknown
-    }
-  }
-
-  private def describeFoyerStatus(foyerStatus: FoyerStatus.FoyerStatus): String = {
-    foyerStatus match {
-      case FoyerStatus.Allowed =>
-        "Users with the 'foyer' Identity role WILL pass through this component"
-      case FoyerStatus.AllowedWithAuthorization =>
-        "Users with the 'foyer' Identity role WILL pass through this component IF AND ONLY IF their Identity " +
-          "service catalog contains an endpoint required by the authorization component"
-      case FoyerStatus.AllowedWithoutAuthorization =>
-        "Users with the 'foyer' Identity role WILL pass through this component BUT authorization checks will not " +
-          "be performed"
-      case FoyerStatus.NotAllowed =>
-        "Users with the 'foyer' Identity role WILL NOT pass through this component"
-      case FoyerStatus.Unknown =>
-        "Users with the 'foyer' Identity role MAY OR MAY NOT pass through this component"
-    }
-  }
-
-  object FoyerStatus extends Enumeration {
-    type FoyerStatus = Value
+  object RoleStatus extends Enumeration {
+    type RoleStatus = Value
     val Allowed, AllowedWithAuthorization, AllowedWithoutAuthorization, NotAllowed, Unknown = Value
   }
 

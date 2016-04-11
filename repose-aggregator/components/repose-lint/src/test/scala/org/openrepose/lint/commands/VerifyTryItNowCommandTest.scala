@@ -339,5 +339,37 @@ class VerifyTryItNowCommandTest extends FunSpec with Matchers {
       a[JsonParseException] should be thrownBy Json.parse(outputString)
       outputString should include("WILL pass")
     }
+
+    it("should report the status for a configured role (matching)") {
+      val configDir = new File(getClass.getResource("/configs/customrole/").toURI)
+      val config = new LintConfig(configDir = configDir, verbose = true, reposeVersion = "7.3.4.0", roleName = "foo")
+
+      val out = new ByteArrayOutputStream()
+
+      Console.setOut(out)
+
+      VerifyTryItNowCommand.perform(config)
+
+      val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
+
+      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \\ "fooAsPreAuthorized").head.as[Boolean] shouldBe true
+    }
+
+    it("should report the status for a configured role (non-matching)") {
+      val configDir = new File(getClass.getResource("/configs/customrole/").toURI)
+      val config = new LintConfig(configDir = configDir, verbose = true, reposeVersion = "7.3.4.0", roleName = "bar")
+
+      val out = new ByteArrayOutputStream()
+
+      Console.setOut(out)
+
+      VerifyTryItNowCommand.perform(config)
+
+      val outputString = new String(out.toByteArray)
+      val parsedOutput = Json.parse(outputString)
+
+      ((parsedOutput \ "clusters") (0) \ "keystoneV2Check" \\ "barAsPreAuthorized").head.as[Boolean] shouldBe false
+    }
   }
 }
