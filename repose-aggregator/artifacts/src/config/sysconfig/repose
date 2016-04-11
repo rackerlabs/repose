@@ -1,0 +1,17 @@
+# Set sensible defaults
+LOG_PATH=/var/log/repose # NOTE: RPM Only
+JAVA=$(which java)
+CONFIG_DIRECTORY=/etc/repose
+USER=repose
+NAME=repose-valve
+DAEMON_HOME=/usr/share/repose
+PID_FILE=/var/run/${NAME}.pid
+REPOSE_JAR=${DAEMON_HOME}/${NAME}.jar
+# .deb
+#START_ARGS="--start --quiet --oknodo --make-pidfile --pidfile ${PID_FILE} --background"
+# .rpm
+#START_ARGS="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
+JAVA_OPTS=""
+RUN_OPTS="-c $CONFIG_DIRECTORY"
+CLEAN=/usr/bin/clean-repose-deploy
+#daemonize=/usr/sbin/daemonize # NOTE: RPM Only
