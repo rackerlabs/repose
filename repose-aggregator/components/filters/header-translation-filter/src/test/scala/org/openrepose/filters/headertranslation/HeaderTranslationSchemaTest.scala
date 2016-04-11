@@ -22,12 +22,12 @@ package org.openrepose.filters.headertranslation
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class HeaderTranslationSchemaTest extends FunSpec with BeforeAndAfter with Matchers {
+class HeaderTranslationSchemaTest extends FunSpec with Matchers {
   val validator = ConfigValidator("/META-INF/schema/config/header-translation.xsd")
 
   describe("schema validation") {
