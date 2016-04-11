@@ -31,6 +31,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
+import scala.util.Try
 
 /**
   * This class wraps a HttpServletResponse applying further functionality. It allows for varying levels of read
@@ -82,6 +83,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
   }
 
+  private var message: String = _
+  private var committed: Boolean = false
   private var flushedBuffer: Boolean = false
   private var responseBodyType: ResponseBodyType.Value = ResponseBodyType.Available
   private var bodyPrintWriter: PrintWriter = _
@@ -98,6 +101,34 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     */
   def this(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode) =
     this(originalResponse, headerMode, bodyMode, originalResponse.getOutputStream)
+
+  override def setStatus(i: Int, s: String): Unit = {
+    message = s
+    super.setStatus(i, s)
+  }
+
+  override def sendError(i: Int): Unit = {
+    committed = true
+    if (headerMode == ResponseMode.MUTABLE || bodyMode == ResponseMode.MUTABLE) {
+      super.setStatus(i)
+    } else {
+      super.sendError(i)
+    }
+  }
+
+  override def sendError(i: Int, s: String): Unit = {
+    committed = true
+    message = s
+    if (headerMode == ResponseMode.MUTABLE || bodyMode == ResponseMode.MUTABLE) {
+      super.setStatus(i)
+    } else {
+      super.sendError(i, s)
+    }
+  }
+
+  def getMessage: String = message
+
+  override def isCommitted: Boolean = super.isCommitted || committed
 
   override def getResponse: ServletResponse = throw new UnsupportedOperationException("getResponse is not supported")
 
@@ -316,7 +347,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
     // Track that the user intended to commit the response.
     flushedBuffer = true
+    committed = true
   }
+
+  // todo: unlock method
 
   override def reset(): Unit = {
     if (isCommitted) {
@@ -333,6 +367,16 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       throw new IllegalStateException("Cannot call resetBuffer after the response has been committed")
     } else {
       super.resetBuffer()
+      // try to remove the content-type and content-length headers (best-effort)
+      Try {
+        removeHeader(CommonHttpHeader.CONTENT_TYPE.toString)
+        removeHeader(CommonHttpHeader.CONTENT_LENGTH.toString)
+      }
+      Try {
+        setHeader(CommonHttpHeader.CONTENT_TYPE.toString, null)
+        setHeader(CommonHttpHeader.CONTENT_LENGTH.toString, null)
+      }
+      responseBodyType = ResponseBodyType.Available
       bodyOutputStream.resetBuffer()
     }
   }
@@ -347,6 +391,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
 
     def writeBody(): Unit = {
+      setContentLength(bodyOutputStream.getOutputStreamAsInputStream.available())
       bodyOutputStream.commit()
     }
 
@@ -365,6 +410,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     if (flushedBuffer) {
       originalResponse.flushBuffer()
     }
+
+    committed = true
   }
 
   private case class HeaderValue(headerValue: String) {

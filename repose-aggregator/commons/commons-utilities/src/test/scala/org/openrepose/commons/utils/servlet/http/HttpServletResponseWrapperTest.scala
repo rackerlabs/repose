@@ -39,7 +39,7 @@ import scala.io.Source
 @RunWith(classOf[JUnitRunner])
 class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
 
-  var originalResponse: HttpServletResponse = _
+  var originalResponse: MockHttpServletResponse = _
 
   before {
     originalResponse = new MockHttpServletResponse()
@@ -1900,6 +1900,29 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.getHeader("foo") shouldEqual "foo"
       postFlushBody shouldEqual ""
     }
+
+    it("should reset the content-length and content-type") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.setContentType("text/plain")
+      wrappedResponse.setContentLength(100)
+
+      wrappedResponse.resetBuffer()
+
+      wrappedResponse.getContentType shouldBe null
+      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString) shouldBe null
+    }
+
+    it("should reset the response body type") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.getWriter
+
+      wrappedResponse.resetBuffer()
+
+      // no exception should be thrown
+      wrappedResponse.getOutputStream
+    }
   }
 
   describe("reset") {
@@ -1976,6 +1999,117 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.commitToResponse()
 
       mockResponse.isCommitted shouldBe true
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should write the content-length header") {
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE, out)
+
+      val body = "foo"
+      wrappedResponse.getOutputStream.print(body)
+
+      wrappedResponse.commitToResponse()
+
+      originalResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString) shouldEqual "3"
+    }
+
+    it("should mark the wrapped response as committed") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.commitToResponse()
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+  }
+
+  describe("setStatus") {
+    it("should set the status code and message") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setStatus(418, "TEAPOT")
+
+      wrappedResponse.getStatus shouldBe 418
+      wrappedResponse.getMessage shouldEqual "TEAPOT"
+    }
+  }
+
+  describe("sendError") {
+    it("should set the status code and message") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      // A hack to make this test work -- the original response /should/ set the status when sendError is called, but
+      // this mock doesn't. So I set it here. If sendError overwrites it like it should, great, if not, fine.
+      originalResponse.setStatus(418)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      wrappedResponse.getStatus shouldBe 418
+      wrappedResponse.getMessage shouldEqual "TEAPOT"
+    }
+
+    it("should mark the wrapped as committed when given a single argument") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418)
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should mark the wrapper as committed when given two arguments") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should not commit the underlying response if not in a mutable header mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      originalResponse.wasErrorSent() shouldBe true
+    }
+
+    it("should not commit the underlying response if in a mutable header mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      originalResponse.wasErrorSent() shouldBe false
+    }
+
+    it("should not commit the underlying response if not in a mutable body mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      originalResponse.wasErrorSent() shouldBe true
+    }
+
+    it("should not commit the underlying response if in a mutable body mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      originalResponse.wasErrorSent() shouldBe false
+    }
+  }
+
+  describe("isCommitted") {
+    it("should return false if nothing has been committed") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.isCommitted shouldBe false
+    }
+
+    it("should return true if the underlying response has been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
       wrappedResponse.isCommitted shouldBe true
     }
   }
