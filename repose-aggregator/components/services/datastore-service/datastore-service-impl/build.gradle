@@ -14,10 +14,11 @@ dependencies {
     provided "javax.inject:javax.inject"
     provided "javax.servlet:javax.servlet-api"
 
+    testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.hamcrest:hamcrest-all"
-    testCompile "xerces:xerces-xsd11"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
 }
