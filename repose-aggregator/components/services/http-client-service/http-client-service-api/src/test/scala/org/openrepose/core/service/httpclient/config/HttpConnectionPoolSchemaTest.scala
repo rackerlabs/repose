@@ -50,10 +50,9 @@ class HttpConnectionPoolSchemaTest extends FunSpec with Matchers {
                      |    <pool id="banana" default="false"/>
                      |    <pool id="apple"/>
                      |</http-connection-pools>""".stripMargin
-      val exception = intercept[SAXParseException] {
+      intercept[SAXParseException] {
         validator.validateConfigString(config)
-      }
-      exception.getLocalizedMessage should include ("Pools must have unique ids")
+      }.getLocalizedMessage should include ("Pools must have unique ids")
     }
 
     it("should reject config if there are no default pools") {
@@ -62,10 +61,9 @@ class HttpConnectionPoolSchemaTest extends FunSpec with Matchers {
                      |    <pool id="banana" default="false"/>
                      |    <pool id="orange"/>
                      |</http-connection-pools>""".stripMargin
-      val exception = intercept[SAXParseException] {
+      intercept[SAXParseException] {
         validator.validateConfigString(config)
-      }
-      exception.getLocalizedMessage should include ("One and only one default pool must be defined")
+      }.getLocalizedMessage should include ("One and only one default pool must be defined")
     }
 
     it("should reject config if there is more than one default pool") {
@@ -74,10 +72,41 @@ class HttpConnectionPoolSchemaTest extends FunSpec with Matchers {
                      |    <pool id="banana" default="true"/>
                      |    <pool id="orange"/>
                      |</http-connection-pools>""".stripMargin
-      val exception = intercept[SAXParseException] {
+      intercept[SAXParseException] {
         validator.validateConfigString(config)
-      }
-      exception.getLocalizedMessage should include ("One and only one default pool must be defined")
+      }.getLocalizedMessage should include ("One and only one default pool must be defined")
+    }
+
+    it("should successfully validate config with max connections per route set to less than total max connections") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple"
+                     |        default="true"
+                     |        http.conn-manager.max-per-route="8"
+                     |        http.conn-manager.max-total="10"/>
+                     |</http-connection-pools>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate config with max connections per route set to the same as total max connections") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple"
+                     |        default="true"
+                     |        http.conn-manager.max-per-route="10"
+                     |        http.conn-manager.max-total="10"/>
+                     |</http-connection-pools>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should reject config with max connections per route set to more than total max connections") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple"
+                     |        default="true"
+                     |        http.conn-manager.max-per-route="12"
+                     |        http.conn-manager.max-total="10"/>
+                     |</http-connection-pools>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include ("Max connections per route must be less than or equal to total max connections")
     }
   }
 }
