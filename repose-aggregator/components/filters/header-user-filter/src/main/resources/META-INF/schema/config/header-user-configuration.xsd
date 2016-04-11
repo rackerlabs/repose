@@ -59,6 +59,7 @@
 
         <xs:assert vc:minVersion="1.1"
                    test="count(distinct-values(header/@id)) = count(header/@id)"
+                   xpathDefaultNamespace="##targetNamespace"
                    xerces:message="Headers must have ids unique within their containing header list"
                    saxon:message="Headers must have ids unique within their containing header list"/>
     </xs:complexType>
