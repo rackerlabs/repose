@@ -84,7 +84,7 @@ class ContentCompressionSchemaTest extends FunSpec with Matchers {
       val exception = intercept[SAXParseException] {
         validator.validateConfigString(config)
       }
-      exception.getLocalizedMessage should include ("Enumerating include-content-type and exclude-content-type is not allowed.")
+      exception.getLocalizedMessage should include ("Enumerating include-user-agent-patterns and exclude-user-agent-patterns is not allowed.")
     }
   }
 
