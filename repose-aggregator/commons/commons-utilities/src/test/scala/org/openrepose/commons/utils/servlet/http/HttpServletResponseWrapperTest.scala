@@ -2121,7 +2121,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       when(mockResponse.isCommitted).thenReturn(true)
 
-      an [IllegalArgumentException] should be thrownBy wrappedResponse.uncommit()
+      an [IllegalStateException] should be thrownBy wrappedResponse.uncommit()
     }
 
     it ("should enable calling methods normally blocked by committing") {

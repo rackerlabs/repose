@@ -109,6 +109,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   // todo: how does this affect the container processing invoked by sendError? should we track that this method was
   // called? should commitToResponse take a parameter indicating if an error should bubble up?
+  /** Sets a status code and message on the first line of the HTTP response. The container may do additional processing
+    * to, for example, generate an error page as the response entity.
+    *
+    * Note that in any mutable mode, this method will call through to the [[sendError(i)]] method of the wrapped
+    * response. As a result, the container will not have an opportunity to perform additional processing.
+    *
+    * @param i the status code to set
+    */
   override def sendError(i: Int): Unit = {
     committed = true
     if (headerMode == ResponseMode.MUTABLE || bodyMode == ResponseMode.MUTABLE) {
@@ -118,6 +126,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
+  /** See [[sendError(i)]].
+    *
+    * @param i the status code to set
+    */
   override def sendError(i: Int, s: String): Unit = {
     committed = true
     message = s
