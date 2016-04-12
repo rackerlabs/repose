@@ -20,34 +20,34 @@
 package org.openrepose.powerfilter.intrafilterLogging
 
 import java.io.ByteArrayInputStream
+import javax.servlet.ServletInputStream
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.io.BufferedServletInputStream
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.systemmodel.Filter
-import org.openrepose.powerfilter.filtercontext.FilterContext
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, Matchers, FunSpec}
+import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
 
-import scala.collection.JavaConverters.asJavaEnumerationConverter
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class RequestLogTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
 
   import org.mockito.Mockito.when
 
-  var mutableHttpServletRequest: MutableHttpServletRequest = _
-  var filterContext: FilterContext = _
-  val dummyInputStream = new BufferedServletInputStream(new ByteArrayInputStream(" ".getBytes))
+  val requestBody = "pandas"
+
+  var httpServletRequestWrapper: HttpServletRequestWrapper = _
+  val dummyInputStream = new BufferedServletInputStream(new ByteArrayInputStream(requestBody.getBytes))
 
   before {
-    mutableHttpServletRequest = mock[MutableHttpServletRequest]
-    filterContext = mock[FilterContext]
+    httpServletRequestWrapper = mock[HttpServletRequestWrapper]
 
     // the code under test makes some static method calls, so we gotta do this mess
-    when(mutableHttpServletRequest.getInputStream).thenReturn(dummyInputStream)
-    when(mutableHttpServletRequest.getHeaderNames).thenReturn(Iterator[String]().asJavaEnumeration)
+    when(httpServletRequestWrapper.getInputStream).thenReturn(dummyInputStream)
+    when(httpServletRequestWrapper.getHeaderNames).thenReturn(Iterator[String]().asJavaEnumeration)
   }
 
   describe("a request log") {
@@ -62,10 +62,8 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new RequestLog
-        val requestLog = new RequestLog(mutableHttpServletRequest, filterContext)
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
 
         // then the filter description includes both the ID and name
         s"$filterId-$filterName" shouldEqual requestLog.currentFilter
@@ -80,10 +78,8 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new RequestLog
-        val requestLog = new RequestLog(mutableHttpServletRequest, filterContext)
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
 
         // then the filter description includes just the filter name
         filterName shouldEqual requestLog.currentFilter
@@ -98,13 +94,76 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new RequestLog
-        val requestLog = new RequestLog(mutableHttpServletRequest, filterContext)
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
 
         // then the filter description includes just the filter name
         filterName shouldEqual requestLog.currentFilter
+      }
+    }
+
+    describe("input stream") {
+      it("should be readable after being used by this class") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        new RequestLog(httpServletRequestWrapper, filter)
+
+        // try to read from the buffer again
+        val buffer = new Array[Byte](requestBody.length)
+        dummyInputStream.read(buffer, 0, requestBody.length)
+        new String(buffer) shouldEqual requestBody
+      }
+
+      it("should throw an exception if the provided input stream does not support mark/reset") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        val unsupportedInputStream = mock[ServletInputStream]
+        when(unsupportedInputStream.markSupported()).thenReturn(false)
+        when(httpServletRequestWrapper.getInputStream).thenReturn(unsupportedInputStream)
+
+        a [IllegalArgumentException] should be thrownBy new RequestLog(httpServletRequestWrapper, filter)
+      }
+    }
+
+    describe("header names") {
+      it("should grab the headers when there is one") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletRequestWrapper.getHeaderNames).thenReturn(Iterator[String]("header-name").asJavaEnumeration)
+        when(httpServletRequestWrapper.getHeaders("header-name")).thenReturn(Iterator[String]("header-value").asJavaEnumeration)
+
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
+
+        requestLog.headers.asScala should contain ("header-name" -> "header-value")
+      }
+
+      it("should grab the headers when there are two") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletRequestWrapper.getHeaderNames).thenReturn(Iterator[String]("header-name", "Accept").asJavaEnumeration)
+        when(httpServletRequestWrapper.getHeaders("header-name")).thenReturn(Iterator[String]("header-value").asJavaEnumeration)
+        when(httpServletRequestWrapper.getHeaders("Accept")).thenReturn(Iterator[String]("text/html").asJavaEnumeration)
+
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
+
+        requestLog.headers.asScala should contain ("header-name" -> "header-value")
+        requestLog.headers.asScala should contain ("Accept" -> "text/html")
+      }
+
+      it("should grab the headers when a header has multiple values") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletRequestWrapper.getHeaderNames).thenReturn(Iterator[String]("Accept").asJavaEnumeration)
+        when(httpServletRequestWrapper.getHeaders("Accept")).thenReturn(Iterator[String]("text/html", "application/xml").asJavaEnumeration)
+
+        val requestLog = new RequestLog(httpServletRequestWrapper, filter)
+
+        requestLog.headers.asScala should contain ("Accept" -> "text/html,application/xml")
       }
     }
   }

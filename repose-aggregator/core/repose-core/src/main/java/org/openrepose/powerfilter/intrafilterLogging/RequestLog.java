@@ -22,11 +22,10 @@ package org.openrepose.powerfilter.intrafilterLogging;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.core.systemmodel.Filter;
-import org.openrepose.powerfilter.filtercontext.FilterContext;
 
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 
@@ -38,41 +37,34 @@ public class RequestLog {
     String httpMethod;
     String requestURI;
     String requestBody;
-    HashMap<String, String> headers;
+    Map<String, String> headers;
 
-    public RequestLog(MutableHttpServletRequest mutableHttpServletRequest,
-                      FilterContext filterContext) throws IOException {
-
-        Filter filter = filterContext.getFilterConfig();
-
+    public RequestLog(HttpServletRequest httpServletRequest, Filter filter) throws IOException {
         preamble = "Intrafilter Request Log";
         timestamp = new DateTime().toString();
         currentFilter = StringUtils.isEmpty(filter.getId()) ? filter.getName() : filter.getId() + "-" + filter.getName();
-        httpMethod = mutableHttpServletRequest.getMethod();
-        requestURI = mutableHttpServletRequest.getRequestURI();
-        headers = convertRequestHeadersToMap(mutableHttpServletRequest);
+        httpMethod = httpServletRequest.getMethod();
+        requestURI = httpServletRequest.getRequestURI();
+        headers = convertRequestHeadersToMap(httpServletRequest);
 
-        //Have to wrap the input stream in something that can be buffered, as well as reset.
-        ServletInputStream bin = mutableHttpServletRequest.getInputStream();
-        bin.mark(Integer.MAX_VALUE); //Something doesn't support mark reset
-        requestBody = IOUtils.toString(bin); //http://stackoverflow.com/a/309448
-        bin.reset();
+        ServletInputStream inputStream = httpServletRequest.getInputStream();
+        if (inputStream.markSupported()) {
+            inputStream.mark(Integer.MAX_VALUE);
+            requestBody = IOUtils.toString(inputStream); //http://stackoverflow.com/a/309448
+            inputStream.reset();
+        } else {
+            throw new IllegalArgumentException("Servlet input stream does not support mark/reset: " + inputStream);
+        }
     }
 
-    private HashMap<String, String> convertRequestHeadersToMap(
-            MutableHttpServletRequest mutableHttpServletRequest) {
-
-        HashMap<String, String> headerMap = new LinkedHashMap<>();
-        List<String> headerNames = Collections.list(mutableHttpServletRequest.getHeaderNames());
+    private Map<String, String> convertRequestHeadersToMap(HttpServletRequest httpServletRequest) {
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        List<String> headerNames = Collections.list(httpServletRequest.getHeaderNames());
 
         for (String headerName : headerNames) {
-            StringBuilder allHeaderValues = new StringBuilder();
-            for (String value : Collections.list(mutableHttpServletRequest.getHeaders(headerName))) {
-                allHeaderValues.append(value).append(",");
-            }
-            //Clobber the last character
-            allHeaderValues.deleteCharAt(allHeaderValues.length() - 1);
-            headerMap.put(headerName, allHeaderValues.toString());
+            StringJoiner stringJoiner = new StringJoiner(",");
+            Collections.list(httpServletRequest.getHeaders(headerName)).forEach(stringJoiner::add);
+            headerMap.put(headerName, stringJoiner.toString());
         }
 
         return headerMap;

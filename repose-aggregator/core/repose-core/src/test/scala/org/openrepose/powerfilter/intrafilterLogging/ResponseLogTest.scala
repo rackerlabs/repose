@@ -22,28 +22,27 @@ package org.openrepose.powerfilter.intrafilterLogging
 import java.io.ByteArrayInputStream
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper
 import org.openrepose.core.systemmodel.Filter
-import org.openrepose.powerfilter.filtercontext.FilterContext
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
 
   import org.mockito.Mockito.when
 
-  var mutableHttpServletResponse: MutableHttpServletResponse = _
-  var filterContext: FilterContext = _
+  var httpServletResponseWrapper: HttpServletResponseWrapper = _
   val dummyInputStream = new ByteArrayInputStream(" ".getBytes)
 
   before {
-    mutableHttpServletResponse = mock[MutableHttpServletResponse]
-    filterContext = mock[FilterContext]
+    httpServletResponseWrapper = mock[HttpServletResponseWrapper]
 
     // the code under test makes some static method calls, so we gotta do this mess
-    when(mutableHttpServletResponse.getBufferedOutputAsInputStream).thenReturn(dummyInputStream)
+    when(httpServletResponseWrapper.getOutputStreamAsInputStream).thenReturn(dummyInputStream)
   }
 
   describe("a response log") {
@@ -58,10 +57,8 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new ResponseLog
-        val responseLog = new ResponseLog(mutableHttpServletResponse, filterContext)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
 
         // then the filter description includes both the ID and name
         s"$filterId-$filterName" shouldEqual responseLog.currentFilter
@@ -76,10 +73,8 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new ResponseLog
-        val responseLog = new ResponseLog(mutableHttpServletResponse, filterContext)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
 
         // then the filter description includes just the filter name
         filterName shouldEqual responseLog.currentFilter
@@ -94,13 +89,51 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
         filter.setId(filterId)
         filter.setName(filterName)
 
-        when(filterContext.getFilterConfig).thenReturn(filter)
-
         // when we create a new ResponseLog
-        val responseLog = new ResponseLog(mutableHttpServletResponse, filterContext)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
 
         // then the filter description includes just the filter name
         filterName shouldEqual responseLog.currentFilter
+      }
+    }
+
+    describe("header names") {
+      it("should grab the headers when there is one") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletResponseWrapper.getHeaderNames).thenReturn(List("header-name").asJavaCollection)
+        when(httpServletResponseWrapper.getHeaders("header-name")).thenReturn(List("header-value").asJavaCollection)
+
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+
+        responseLog.headers.asScala should contain ("header-name" -> "header-value")
+      }
+
+      it("should grab the headers when there are two") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletResponseWrapper.getHeaderNames).thenReturn(List("header-name", "Accept").asJavaCollection)
+        when(httpServletResponseWrapper.getHeaders("header-name")).thenReturn(List("header-value").asJavaCollection)
+        when(httpServletResponseWrapper.getHeaders("Accept")).thenReturn(List("text/html").asJavaCollection)
+
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+
+        responseLog.headers.asScala should contain ("header-name" -> "header-value")
+        responseLog.headers.asScala should contain ("Accept" -> "text/html")
+      }
+
+      it("should grab the headers when a header has multiple values") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        when(httpServletResponseWrapper.getHeaderNames).thenReturn(List("Accept").asJavaCollection)
+        when(httpServletResponseWrapper.getHeaders("Accept")).thenReturn(List("text/html", "application/xml").asJavaCollection)
+
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+
+        responseLog.headers.asScala should contain ("Accept" -> "text/html,application/xml")
       }
     }
   }

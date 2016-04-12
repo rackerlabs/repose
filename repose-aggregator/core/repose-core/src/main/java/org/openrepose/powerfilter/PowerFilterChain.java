@@ -29,10 +29,9 @@ import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderFieldParser;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.SplittableHeaderUtil;
-import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
-import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.io.BufferedServletInputStream;
+import org.openrepose.commons.utils.io.RawInputStreamReader;
+import org.openrepose.commons.utils.servlet.http.*;
 import org.openrepose.core.FilterProcessingTime;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.TimerByCategory;
@@ -42,12 +41,11 @@ import org.openrepose.powerfilter.intrafilterLogging.ResponseLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -181,58 +179,77 @@ public class PowerFilterChain implements FilterChain {
         return response.getStatus() < HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
     }
 
-    private void doReposeFilter(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse,
-                                FilterContext filterContext) throws IOException, ServletException {
-        final MutableHttpServletResponse mutableHttpResponse =
-                MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
-
-        mutableHttpResponse.pushOutputStream();
+    private void doReposeFilter(
+            ServletRequest servletRequest,
+            ServletResponse servletResponse,
+            FilterContext filterContext) throws IOException, ServletException {
+        HttpServletRequest maybeWrappedServletRequest = (HttpServletRequest) servletRequest;
+        HttpServletResponse maybeWrappedServletResponse = (HttpServletResponse) servletResponse;
 
         try {
-            if (INTRAFILTER_LOG.isTraceEnabled()) {
-                // log the request, and give it a new UUID if it doesn't already have one
-                UUID intrafilterUuid = UUID.randomUUID();
-                INTRAFILTER_LOG.trace(intrafilterRequestLog(mutableHttpRequest, filterContext, intrafilterUuid));
+            // we don't want to handle trace logging being turned on in the middle of a request, so check upfront
+            boolean isIntraFilterLoggingEnabled = INTRAFILTER_LOG.isTraceEnabled();
+
+            if (isIntraFilterLoggingEnabled) {
+                ServletInputStream inputStream = maybeWrappedServletRequest.getInputStream();
+                if (!inputStream.markSupported()) {
+                    // need to put the input stream into something that supports mark/reset so we can log it
+                    ByteArrayOutputStream sourceEntity = new ByteArrayOutputStream();
+                    RawInputStreamReader.instance().copyTo(inputStream, sourceEntity);
+                    inputStream = new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray()));
+                }
+
+                maybeWrappedServletRequest = new HttpServletRequestWrapper(maybeWrappedServletRequest, inputStream);
+                maybeWrappedServletResponse = new HttpServletResponseWrapper(
+                        maybeWrappedServletResponse,
+                        ResponseMode.PASSTHROUGH,
+                        ResponseMode.READONLY);
+
+                INTRAFILTER_LOG.trace(
+                        intrafilterRequestLog((HttpServletRequestWrapper) maybeWrappedServletRequest, filterContext));
             }
 
-            filterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
+            filterContext.getFilter().doFilter(maybeWrappedServletRequest, maybeWrappedServletResponse, this);
 
-            if (INTRAFILTER_LOG.isTraceEnabled()) {
+            if (isIntraFilterLoggingEnabled) {
                 // log the response, and give it the request's UUID if the response didn't already have one
-                INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext,
-                        mutableHttpRequest.getHeader(INTRAFILTER_UUID)));
+                INTRAFILTER_LOG.trace(intrafilterResponseLog(
+                        (HttpServletResponseWrapper) maybeWrappedServletResponse,
+                        filterContext,
+                        maybeWrappedServletRequest.getHeader(INTRAFILTER_UUID)));
             }
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
             LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
-            mutableHttpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        } finally {
-            mutableHttpResponse.popOutputStream();
+            maybeWrappedServletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
-    private String intrafilterRequestLog(MutableHttpServletRequest mutableHttpRequest,
-                                         FilterContext filterContext, UUID uuid) throws IOException {
+    private String intrafilterRequestLog(
+            HttpServletRequestWrapper wrappedServletRequest,
+            FilterContext filterContext) throws IOException {
 
-        // if the request doesn't already have a UUID, give it the UUID passed to this method
-        if (StringUtils.isEmpty(mutableHttpRequest.getHeader(INTRAFILTER_UUID))) {
-            mutableHttpRequest.addHeader(INTRAFILTER_UUID, uuid.toString());
+        // if the request doesn't already have a UUID, give it a new UUID
+        if (StringUtils.isEmpty(wrappedServletRequest.getHeader(INTRAFILTER_UUID))) {
+            wrappedServletRequest.addHeader(INTRAFILTER_UUID, UUID.randomUUID().toString());
         }
 
-        RequestLog requestLog = new RequestLog(mutableHttpRequest, filterContext);
+        RequestLog requestLog = new RequestLog(wrappedServletRequest, filterContext.getFilterConfig());
 
         return convertPojoToJsonString(requestLog);
     }
 
-    private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
-                                          FilterContext filterContext, String uuid) throws IOException {
+    private String intrafilterResponseLog(
+            HttpServletResponseWrapper wrappedServletResponse,
+            FilterContext filterContext,
+            String uuid) throws IOException {
 
         // if the response doesn't already have a UUID, give it the UUID passed to this method
-        if (StringUtils.isEmpty(mutableHttpResponse.getHeader(INTRAFILTER_UUID))) {
-            mutableHttpResponse.addHeader(INTRAFILTER_UUID, uuid);
+        if (StringUtils.isEmpty(wrappedServletResponse.getHeader(INTRAFILTER_UUID))) {
+            wrappedServletResponse.addHeader(INTRAFILTER_UUID, uuid);
         }
 
-        ResponseLog responseLog = new ResponseLog(mutableHttpResponse, filterContext);
+        ResponseLog responseLog = new ResponseLog(wrappedServletResponse, filterContext.getFilterConfig());
 
         return convertPojoToJsonString(responseLog);
     }

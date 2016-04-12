@@ -131,18 +131,6 @@ public class MutableHttpServletResponseTest {
 
             assertNotNull(actual.getWriter());
         }
-
-        @Test
-        public void shouldGetOutputQueue() {
-            HttpServletResponse response = mock(HttpServletResponse.class);
-            HttpServletRequest request = mock(HttpServletRequest.class);
-            MutableHttpServletResponse actual;
-
-            actual = MutableHttpServletResponse.wrap(request, response);
-            verify(request).getAttribute(eq("repose.response.output.queue"));
-            verify(request).setAttribute(eq("repose.response.output.queue"), anyObject());
-
-        }
     }
 
     public static class WhenGettingAndSettingInputStream {
