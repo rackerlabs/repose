@@ -167,8 +167,8 @@
 
         <xs:assert vc:minVersion="1.1"
                    test="if (@include-user-agent-patterns) then not (@exclude-user-agent-patterns) else true()"
-                   xerces:message="Enumerating include-content-type and exclude-content-type is not allowed."
-                   saxon:message="Enumerating include-content-type and exclude-content-type is not allowed"/>
+                   xerces:message="Enumerating include-user-agent-patterns and exclude-user-agent-patterns is not allowed."
+                   saxon:message="Enumerating include-user-agent-patterns and exclude-user-agent-patterns is not allowed"/>
 
 
     </xs:complexType>
