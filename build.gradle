@@ -241,6 +241,12 @@ subprojects {
         systemProperty 'jacocoArguments', jacoco.getAsJvmArg()
     }
 
+    if(project.hasProperty('sonarBuild')) {
+        tasks.withType(Test) {
+            it.ignoreFailures = true
+        }
+    }
+
     idea {
         module {
             generatedSourceDirs += file("$generatedDir")
