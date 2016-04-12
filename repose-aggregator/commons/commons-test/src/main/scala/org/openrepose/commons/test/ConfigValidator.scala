@@ -20,6 +20,7 @@
 package org.openrepose.commons.test
 
 import java.io.ByteArrayInputStream
+import javax.xml.transform.Source
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.{SchemaFactory, Validator}
 
@@ -34,10 +35,14 @@ class ConfigValidator(validator: Validator) {
 }
 
 object ConfigValidator {
-  def apply(schemaFileName: String): ConfigValidator = {
+  def apply(schemaFileName: String): ConfigValidator = apply(Array(schemaFileName))
+
+  def apply(schemaFileNames: Array[String]): ConfigValidator = {
     val factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
     factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
-    new ConfigValidator(
-      factory.newSchema(new StreamSource(classOf[ConfigValidator].getResourceAsStream(schemaFileName))).newValidator())
+    new ConfigValidator(factory.newSchema(
+      schemaFileNames.map(fileName => new StreamSource(classOf[ConfigValidator].getResourceAsStream(fileName)))
+        .asInstanceOf[Array[Source]])
+      .newValidator())
   }
 }
