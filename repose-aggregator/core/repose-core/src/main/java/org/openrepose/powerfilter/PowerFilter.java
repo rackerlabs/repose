@@ -404,6 +404,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             LOG.error("{}:{} -- Exception encountered while processing filter chain.", clusterId, nodeId, ex);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
         } finally {
+            wrappedResponse.uncommit();
+
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
             if (!wrappedResponse.isCommitted()) {
