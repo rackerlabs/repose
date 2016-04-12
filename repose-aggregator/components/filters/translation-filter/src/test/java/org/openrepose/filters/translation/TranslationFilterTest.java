@@ -50,7 +50,6 @@ import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.openrepose.core.filter.logic.FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE;
 
 @RunWith(Enclosed.class)
 public class TranslationFilterTest {
@@ -215,12 +214,12 @@ public class TranslationFilterTest {
                     return null;
                 }
             });
-            when(mockedResponse.getStatus()).thenReturn(SC_UNSUPPORTED_RESPONSE_CODE);
+            when(mockedResponse.getStatus()).thenReturn(-1);
             httpServletRequestWrapper = new HttpServletRequestWrapper(mockedRequest);
             httpServletResponseWrapper = new HttpServletResponseWrapper(mockedResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
 
             filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
-            assertEquals("Must return the received response status code", SC_UNSUPPORTED_RESPONSE_CODE, httpServletResponseWrapper.getStatus());
+            assertEquals("Must return the received response status code", -1, httpServletResponseWrapper.getStatus());
         }
     }
 

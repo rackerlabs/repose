@@ -24,9 +24,9 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 
 import static org.mockito.Mockito.*;
@@ -37,13 +37,13 @@ public class LocationHeaderBuilderTest {
     public static class WhenRewritingLocationHeaders {
         private LocationHeaderBuilder instance;
         private HttpServletRequest originalRequest;
-        private MutableHttpServletResponse response;
+        private HttpServletResponse response;
 
         @Before
         public void setUp() {
             instance = new LocationHeaderBuilder();
             originalRequest = mock(HttpServletRequest.class);
-            response = mock(MutableHttpServletResponse.class);
+            response = mock(HttpServletResponse.class);
 
             when(originalRequest.getScheme()).thenReturn("http");
         }

@@ -29,7 +29,8 @@ import org.openrepose.commons.utils.io.ByteBufferInputStream;
 import org.openrepose.commons.utils.io.ByteBufferServletOutputStream;
 import org.openrepose.commons.utils.io.buffer.ByteBuffer;
 import org.openrepose.commons.utils.io.buffer.CyclicByteBuffer;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
+import org.openrepose.commons.utils.servlet.http.ResponseMode;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.rms.config.Message;
 import org.openrepose.core.services.rms.config.OverwriteType;
@@ -62,7 +63,7 @@ public class ResponseMessageServiceImplTest {
         private final Vector<String> acceptValues = new Vector<String>(1);
         private Enumeration<String> headerValueEnumeration = null;
         private HttpServletRequest mockedRequest = mock(HttpServletRequest.class);
-        private MutableHttpServletResponse mockedResponse = mock(MutableHttpServletResponse.class);
+        private HttpServletResponseWrapper mockedResponse = mock(HttpServletResponseWrapper.class);
 
         @Before
         public void setup() {
@@ -98,14 +99,12 @@ public class ResponseMessageServiceImplTest {
 
         @Test
         public void shouldWriteIfEmptyAndNoBody() throws IOException {
-            when(mockedResponse.hasBody()).thenReturn(false);
-
             // Hook up response body stream to mocked response
             final ByteBuffer internalBuffer = new CyclicByteBuffer();
             final ServletOutputStream outputStream = new ByteBufferServletOutputStream(internalBuffer);
             final ByteBufferInputStream inputStream = new ByteBufferInputStream(internalBuffer);
             when(mockedResponse.getOutputStream()).thenReturn(outputStream);
-            when(mockedResponse.getBufferedOutputAsInputStream()).thenReturn(inputStream);
+            when(mockedResponse.getOutputStreamAsInputStream()).thenReturn(inputStream);
 
 
             rmsImpl.handle(mockedRequest, mockedResponse);
@@ -116,14 +115,12 @@ public class ResponseMessageServiceImplTest {
 
         @Test
         public void shouldPreserveIfEmptyAndBody() throws IOException {
-            when(mockedResponse.hasBody()).thenReturn(true);
-
             // Hook up response body stream to mocked response
             final ByteBuffer internalBuffer = new CyclicByteBuffer();
             internalBuffer.put("hello there".getBytes());
             final ServletOutputStream outputStream = new ByteBufferServletOutputStream(internalBuffer);
             final ByteBufferInputStream inputStream = new ByteBufferInputStream(internalBuffer);
-            when(mockedResponse.getBufferedOutputAsInputStream()).thenReturn(inputStream);
+            when(mockedResponse.getOutputStreamAsInputStream()).thenReturn(inputStream);
             when(mockedResponse.getOutputStream()).thenReturn(outputStream);
 
             rmsImpl.handle(mockedRequest, mockedResponse);
@@ -142,10 +139,10 @@ public class ResponseMessageServiceImplTest {
         private ResponseMessagingConfiguration responseMessagingConfiguration = new ResponseMessagingConfiguration();
         private ResponseMessageServiceImpl responseMessageServiceImpl = new ResponseMessageServiceImpl(mock(ConfigurationService.class));
         private HttpServletRequest mockedRequest = mock(HttpServletRequest.class);
-        private MutableHttpServletResponse response = MutableHttpServletResponse.wrap(
-                mockedRequest,
-                new MockHttpServletResponse()
-        );
+        private HttpServletResponseWrapper response = new HttpServletResponseWrapper(
+                new MockHttpServletResponse(),
+                ResponseMode.PASSTHROUGH,
+                ResponseMode.MUTABLE);
 
         @Before
         public void setup() {
@@ -161,6 +158,7 @@ public class ResponseMessageServiceImplTest {
             responseMessageServiceImpl.updateConfiguration(responseMessagingConfiguration.getStatusCode());
             when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.singletonList("Accept")));
             response.sendError(I_AM_A_TEAPOT.value(), ESCAPE_THIS);
+            response.uncommit();
         }
 
         @Test
@@ -171,7 +169,7 @@ public class ResponseMessageServiceImplTest {
 
             assertEquals(
                     ESCAPE_THIS.trim(),
-                    streamToString(response.getBufferedOutputAsInputStream())
+                    streamToString(response.getOutputStreamAsInputStream())
             );
         }
 
@@ -183,7 +181,7 @@ public class ResponseMessageServiceImplTest {
 
             assertEquals(
                     "\\b\\n\\t\\f\\r\\\\\\\"'\\/&<>".trim(),
-                    streamToString(response.getBufferedOutputAsInputStream())
+                    streamToString(response.getOutputStreamAsInputStream())
             );
         }
 
@@ -195,7 +193,7 @@ public class ResponseMessageServiceImplTest {
 
             assertEquals(
                     "\n\t\r\\&quot;&apos;/&amp;&lt;&gt;".trim(),
-                    streamToString(response.getBufferedOutputAsInputStream())
+                    streamToString(response.getOutputStreamAsInputStream())
             );
         }
 

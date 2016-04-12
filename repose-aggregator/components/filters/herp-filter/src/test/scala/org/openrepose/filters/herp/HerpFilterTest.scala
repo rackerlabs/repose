@@ -25,7 +25,6 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
-import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.filters.herp.config.{FilterOut, HerpConfig, Match, Template}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -456,7 +455,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     }
     it("should extract and log the response message of an invalid response code") {
       // given:
-      servletResponse.setStatus(FilterDirector.SC_UNSUPPORTED_RESPONSE_CODE)
+      servletResponse.setStatus(-1)
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
