@@ -24,11 +24,14 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
-@Category(Slow.class)
+@Category (Slow.class)
 class ValidatorConfiguratorTest extends ReposeValveTest {
+    def static params = [:]
 
     def setupSpec() {
+        params = properties.getDefaultTemplateParams()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
     }
@@ -54,7 +57,6 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
     def "when loading validators on startup, should work with local uri path"() {
 
         given: "repose is started using a non-uri path for the wadl, in this case the path generic_pass.wadl"
-        def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/wadlpath/good", params)
@@ -74,7 +76,6 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
     def "when loading validators on startup, should fail bad local uri path"() {
 
         given: "repose is started using a non-uri path for the wadl, in this case the path does_not_exist.wadl"
-        def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/wadlpath/bad", params)
@@ -88,5 +89,50 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
 
         then: "wadl error is thrown"
         wadlError.size() == 2
+    }
+
+    def "Verify dot output file not unique for each validator"() {
+        given: "config"
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/badconfig/dotoutputnotunique", params)
+
+        when: "repose start"
+        repose.start()
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['x-roles': 'default']])
+
+        then:
+        reposeLogSearch.searchByString("Assertion failed for schema type 'ValidatorConfiguration'. Dot output files must be unique").size() > 0
+        mc.receivedResponse.code == "503"
+    }
+
+    def "Verify validator name not unique"() {
+        given: "config"
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/badconfig/validatornamenotunique", params)
+
+        when: "repose start"
+        repose.start()
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['x-roles': 'default']])
+
+        then:
+        reposeLogSearch.searchByString("Assertion failed for schema type 'ValidatorConfiguration'. Validator names must be unique.").size() > 0
+        mc.receivedResponse.code == "503"
+    }
+
+    def "Verify only one default validator is defined"() {
+        given: "config"
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/badconfig/morethanonetruedefined", params)
+
+        when: "repose start"
+        repose.start()
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['x-roles': 'default']])
+
+        then:
+        reposeLogSearch.searchByString("Assertion failed for schema type 'ValidatorConfiguration'. Only one default validator may be defined.").size() > 0
+        mc.receivedResponse.code == "503"
     }
 }

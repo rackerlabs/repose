@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators xmlns="http://docs.openrepose.org/repose/validator/v1.0" multi-role-match="true">
+    <validator role="default"
+        default="true"
+        validator-name="defaultValidator"
+        wadl="file://my/wadl/file.wadl"
+        dot-output="/tmp/default.dot"
+    />
+    <validator role="notDefault"
+        default="false"
+        validator-name="notDefaultValidator"
+        wadl="file://my/wadl/file.wadl"
+        dot-output="/tmp/default.dot"
+    />
+</validators>
