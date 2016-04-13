@@ -28,6 +28,7 @@ import org.rackspace.deproxy.MessageChain
  */
 class UriUserSchemaTest extends ReposeValveTest {
     def static params = [:]
+
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -45,7 +46,7 @@ class UriUserSchemaTest extends ReposeValveTest {
         }
     }
 
-    def "Verif id must be unique if it's defined" () {
+    def "Verif id must be unique if it's defined"() {
         given:
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/uriuser", params)
