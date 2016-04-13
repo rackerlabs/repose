@@ -34,8 +34,8 @@
 #Getting Started#
 
 1. Build Repose locally to generate the war and ear artifacts. E.g. run `mvn -DskipTests=true clean install` on the root pom file.
-2. Enable the spock-regression-tests maven profile (for IDE awareness of the test/spock-functional-tests module)
-3. Run `mvn test` in the spock-functional-tests module
+2. Enable the spock-regression-tests maven profile (for IDE awareness of the test/functional-tests module)
+3. Run `mvn test` in the functional-tests module
 
 # Test Organization #
 
@@ -184,7 +184,7 @@ The framework contains a few mock servers for various purposes:
 
 JUnit categories (http://junit.org/javadoc/4.9/org/junit/experimental/categories/Categories.html) are used to organize
 Repose's functional tests. These categories enable the user to run a select subset of all tests provided. To run a test
-category, execute 'mvn test -P <your-category>' in the spock-functional-tests module (e.g., mvn test -P bug). Note that
+category, execute 'mvn test -P <your-category>' in the functional-tests module (e.g., mvn test -P bug). Note that
 the -P flag is immediately followed by the selected category name in all lower-case letters. To run multiple profiles,
 use a list of -P flags (e.g., mvn test -P bug -P slow).
 

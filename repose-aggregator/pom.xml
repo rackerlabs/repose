@@ -35,7 +35,7 @@
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.itReportPath>
-            ${project.basedir}/repose-aggregator/tests/spock-functional-test/target/jacoco-it.exec
+            ${project.basedir}/repose-aggregator/tests/functional-tests/target/jacoco-it.exec
         </sonar.jacoco.itReportPath>
         <api.checker.version>2.0.0-SNAPSHOT</api.checker.version>
     </properties>

@@ -68,7 +68,7 @@ import java.util.concurrent.TimeUnit;
  * <p/>
  * <h1>Functional Tests for instrumented filters</h1>
  * The functional tests contained in
- * repose/repose-aggregator/tests/spock-functional-test/src/test/groovy/features/core/powerfilter/ResponseCodeJMXTest.groovy
+ * repose/repose-aggregator/tests/functional-tests/src/test/groovy/features/core/powerfilter/ResponseCodeJMXTest.groovy
  * provide an example on how you might verify your instrumentation.
  */
 @Named
