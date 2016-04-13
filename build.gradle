@@ -285,14 +285,6 @@ subprojects {
         }
     }
 
-    idea {
-        module {
-            generatedSourceDirs += file("$generatedDir")
-            testSourceDirs += project.sourceSets.integrationTest.allSource.srcDirs.flatten()
-            scopes.TEST.plus += [configurations.integrationTestCompile]
-        }
-    }
-
     publishing {
         repositories {
             maven {
