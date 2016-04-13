@@ -20,13 +20,12 @@
 package org.openrepose.commons.test
 
 import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class ConfigValidatorTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class ConfigValidatorTest extends FunSpec with Matchers {
 
   describe("validating a config string") {
     it("should return normally if the config string is valid against the schema") {

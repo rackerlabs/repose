@@ -28,9 +28,9 @@ import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
 class RateLimitingSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator(Array(
+  val validator = ConfigValidator(
     "/META-INF/schema/limits/limits.xsd",
-    "/META-INF/schema/config/rate-limiting-configuration.xsd"))
+    "/META-INF/schema/config/rate-limiting-configuration.xsd")
 
   describe("schema validation") {
     it("should successfully validate the sample config") {

@@ -35,9 +35,7 @@ class ConfigValidator(validator: Validator) {
 }
 
 object ConfigValidator {
-  def apply(schemaFileName: String): ConfigValidator = apply(Array(schemaFileName))
-
-  def apply(schemaFileNames: Array[String]): ConfigValidator = {
+  def apply(schemaFileNames: String*): ConfigValidator = {
     val factory = SchemaFactory.newInstance(
       "http://www.w3.org/XML/XMLSchema/v1.1",
       classOf[org.apache.xerces.jaxp.validation.XMLSchema11Factory].getCanonicalName,
@@ -45,7 +43,7 @@ object ConfigValidator {
     factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
     new ConfigValidator(factory.newSchema(
       schemaFileNames.map(fileName => new StreamSource(classOf[ConfigValidator].getResourceAsStream(fileName)))
-        .asInstanceOf[Array[Source]])
+        .toArray[Source])
       .newValidator())
   }
 }
