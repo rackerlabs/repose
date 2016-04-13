@@ -19,9 +19,11 @@
  */
 package org.openrepose.core.services.context.container;
 
+import java.util.Optional;
+
 public interface ContainerConfigurationService {
 
     String getVia();
 
-    Long getContentBodyReadLimit();
+    Optional<Long> getContentBodyReadLimit();
 }

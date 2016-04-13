@@ -71,6 +71,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -350,10 +351,20 @@ public class PowerFilter extends DelegatingFilterProxy {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final long startTime = System.currentTimeMillis();
-        long streamLimit = containerConfigurationService.getContentBodyReadLimit();
+
+        // todo: Once we drop Guava Optionals, import Java Optional
+        final java.util.Optional<Long> contentBodyReadLimit = containerConfigurationService.getContentBodyReadLimit();
+        final InputStream requestBodyInputStream = contentBodyReadLimit.isPresent() ?
+                new LimitedReadInputStream(contentBodyReadLimit.get(), request.getInputStream()) :
+                request.getInputStream();
+
+        // todo: Use the Java 8 functional interfaces once they support rethrowing exceptions
+        // final InputStream requestBodyInputStream = containerConfigurationService.getContentBodyReadLimit()
+        //        .map(l -> new LimitedReadInputStream(l, request.getInputStream()))
+        //        .orElseGet(request.getInputStream());
 
         final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request,
-                new BufferedServletInputStream(new LimitedReadInputStream(streamLimit, request.getInputStream())));
+                new BufferedServletInputStream(requestBodyInputStream));
         final HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper((HttpServletResponse) response,
                 ResponseMode.PASSTHROUGH,
                 ResponseMode.MUTABLE);
