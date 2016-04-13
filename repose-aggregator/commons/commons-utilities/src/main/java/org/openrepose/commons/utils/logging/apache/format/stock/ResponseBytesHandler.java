@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.logging.apache.format.stock;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.logging.apache.format.FormatterLogic;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class ResponseBytesHandler implements FormatterLogic {
         String contentLength = "-1";
         String contentLengthHeader = response.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString());
 
-        if (StringUtilities.isNotBlank(contentLengthHeader)) {
+        if (StringUtils.isNotBlank(contentLengthHeader)) {
             try {
                 contentLength = String.valueOf(Integer.parseInt(contentLengthHeader));
             } catch (NumberFormatException nfe) {
