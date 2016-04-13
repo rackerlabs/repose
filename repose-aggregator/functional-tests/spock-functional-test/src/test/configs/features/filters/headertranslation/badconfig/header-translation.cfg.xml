@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<header-translation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://docs.openrepose.org/repose/header-translation/v1.0"
+        xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
+    <!--headers not unigue-->
+    <header original-name="Content-type" new-name="rax-content-type" quality="0.9" splittable="true"/>
+    <header original-name="Content-Type" new-name="rax-content-length"/>
+</header-translation>
