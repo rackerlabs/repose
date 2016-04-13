@@ -20,70 +20,27 @@
 package features.core.manifest
 
 import framework.ReposeValveTest
-import org.apache.commons.io.FileUtils
-import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 
-import java.util.concurrent.TimeoutException
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 import java.util.jar.Manifest
 
 /**
  * Created by jennyvo on 4/12/16.
+ *  Verify Repose Version added to Jar Manifest
+ *  Don't need start repose to verify manifest as long as package build and jar available.
  */
 class VersionAddedManifestTest extends ReposeValveTest {
 
-    def setupSpec() {
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
-    }
-
-    def cleanupSpec() {
-        deproxy.shutdown()
-    }
-
-    static def params
-
     def "Verify Version added to manifest"() {
-        setup: "starts repose with installation configs"
-        def params = properties.getDefaultTemplateParams()
-        def nextPort = PortFinder.Singleton.getNextOpenPort()
-
-        //note: Order matters here. The common directory overwrites some of the configs from the core directory.
-        //      This means that the core configs we provide may not get tested, but due to the structure of our tests,
-        //      this is currently "hard" to fix.
-        repose.configurationProvider.applyConfigs("../../../../installation/configs/core", params)
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("../../../../installation/configs/extensions", params)
-        repose.configurationProvider.applyConfigs("../../../../installation/configs/filters", params)
-        String systemModelTemp = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml.${nextPort}"
-        String systemModelSource = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml"
-        new File(systemModelTemp).withWriter {
-            out ->
-                new File(systemModelSource).eachLine {
-                    line ->
-                        out << line.replaceAll("http-port=\"8080\"", "http-port=\"${nextPort}\"")
-                }
-        }
-        FileUtils.copyFile(new File(systemModelTemp), new File(systemModelSource))
-
-        repose.start()
+        when:
         // get jar and war
-        def reposeJar = repose.reposeJar
+        def reposeJar = properties.reposeJar
         def reposeWar = properties.reposeRootWar
 
-        when: "start with installation configs"
-        //todo: use a dynamic port (will require tinkering with [a copy of] the installation system-model).
-        repose.waitForNon500FromUrl("http://localhost:${nextPort}")
-
         then:
-        notThrown(TimeoutException)
         verifyVersionFromWar(reposeWar, properties.reposeVersion)
         verifyVersion(reposeJar, properties.reposeVersion)
-
-        cleanup:
-        repose.stop([throwExceptionOnKill: false])
     }
 
     private boolean verifyVersionFromWar(String reposeWar, String version) {
