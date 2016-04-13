@@ -112,8 +112,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   /** Sets a status code and message on the first line of the HTTP response. The container may do additional processing
     * to, for example, generate an error page as the response entity.
     *
-    * Note that in any mutable mode, this method will call through to the [[sendError(i)]] method of the wrapped
+    * Note that in any mutable mode, this method will not call through to the [[sendError(i)]] method of the wrapped
     * response. As a result, the container will not have an opportunity to perform additional processing.
+    *
+    * In any permutation of non-mutable modes, this method will call through to the [[sendError(i)]] method of the
+    * wrapped response.
     *
     * @param i the status code to set
     */
