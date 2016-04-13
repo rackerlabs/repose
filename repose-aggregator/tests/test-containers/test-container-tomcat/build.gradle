@@ -5,7 +5,7 @@ configurations {
 }
 
 dependencies {
-    compile project(":repose-aggregator:functional-tests:test-containers:test-container-api")
+    compile project(":repose-aggregator:tests:test-containers:test-container-api")
     compile "org.apache.tomcat.embed:tomcat-embed-core"
     compile "org.apache.tomcat:tomcat-jsp-api"
     compile "org.apache.tomcat:tomcat-jasper"

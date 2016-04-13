@@ -81,14 +81,14 @@
 
         <repose.root.war.directory>${project.set.dir}/artifacts/web-application/target</repose.root.war.directory>
         <repose.root.war>ROOT.war</repose.root.war>
-        <glassfish.jar.dir>${project.set.dir}/functional-tests/test-containers/test-container-glassfish/target</glassfish.jar.dir>
+        <glassfish.jar.dir>${project.set.dir}/tests/test-containers/test-container-glassfish/target</glassfish.jar.dir>
         <glassfish.jar>test-container-glassfish-${project.version}-jar-with-dependencies.jar</glassfish.jar>
         <glassfishLocation>${reposeHome}/${glassfish.jar}</glassfishLocation>
-        <tomcat.jar.dir>${project.set.dir}/functional-tests/test-containers/test-container-tomcat/target</tomcat.jar.dir>
+        <tomcat.jar.dir>${project.set.dir}/tests/test-containers/test-container-tomcat/target</tomcat.jar.dir>
         <tomcat.jar>test-container-tomcat-${project.version}-jar-with-dependencies.jar</tomcat.jar>
         <tomcatLocation>${reposeHome}/${tomcat.jar}</tomcatLocation>
         <warLocation>${reposeHome}/${repose.root.war}</warLocation>
-        <mocks.war.dir>${project.set.dir}/functional-tests/mocks-servlet/target</mocks.war.dir>
+        <mocks.war.dir>${project.set.dir}/tests/mocks-servlet/target</mocks.war.dir>
         <mocks.war>mocks-servlet-${project.version}.war</mocks.war>
         <mocksLocation>${reposeHome}/${mocks.war}</mocksLocation>
     </properties>

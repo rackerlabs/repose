@@ -58,8 +58,8 @@ include 'repose-aggregator',
         'repose-aggregator:core:repose-core-api',
         'repose-aggregator:external:jee6-schemas',
         'repose-aggregator:external:pjl-compressing-filter',
-        'repose-aggregator:functional-tests:mocks-servlet',
-        'repose-aggregator:functional-tests:spock-functional-test',
-        'repose-aggregator:functional-tests:test-containers:test-container-api',
-        'repose-aggregator:functional-tests:test-containers:test-container-glassfish',
-        'repose-aggregator:functional-tests:test-containers:test-container-tomcat'
+        'repose-aggregator:tests:mocks-servlet',
+        'repose-aggregator:tests:spock-functional-test',
+        'repose-aggregator:tests:test-containers:test-container-api',
+        'repose-aggregator:tests:test-containers:test-container-glassfish',
+        'repose-aggregator:tests:test-containers:test-container-tomcat'

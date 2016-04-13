@@ -40,8 +40,8 @@ class ClassLoaderTest extends ReposeValveTest {
     def splodeDate = new GregorianCalendar(2016, Calendar.JULY, 5)
 
     /**
-     * copy the bundle from /repose-aggregator/functional-tests/test-bundles/bundle-one/target/
-     * and copy the bundle from /repose-aggregator/functional-tests/test-bundles/bundle-two/target/
+     * copy the bundle from /repose-aggregator/tests/test-bundles/bundle-one/target/
+     * and copy the bundle from /repose-aggregator/tests/test-bundles/bundle-two/target/
      * to artifacts directory
      *
      * set up config that has in system model:
@@ -121,8 +121,8 @@ class ClassLoaderTest extends ReposeValveTest {
     }
 
     /**
-     * copy the bundle from /repose-aggregator/functional-tests/test-bundles/bundle-one/target/
-     * and copy the bundle from /repose-aggregator/functional-tests/test-bundles/bundle-three/target/
+     * copy the bundle from /repose-aggregator/tests/test-bundles/bundle-one/target/
+     * and copy the bundle from /repose-aggregator/tests/test-bundles/bundle-three/target/
      * to artifacts directory
      *
      * set up config that has in system model:
@@ -175,8 +175,8 @@ class ClassLoaderTest extends ReposeValveTest {
     }
 
     /**
-     * copy the bundle from /repose-aggregator/functional-tests/test-bundles/bundle-four/target/
-     * and copy the bundle from /repose-aggregator/functional-tests/test-bundles/bundle-five/target/
+     * copy the bundle from /repose-aggregator/tests/test-bundles/bundle-four/target/
+     * and copy the bundle from /repose-aggregator/tests/test-bundles/bundle-five/target/
      * to artifacts directory
      *
      * set up config that has in system model:
