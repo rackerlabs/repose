@@ -5,8 +5,8 @@
           xsi:schemaLocation='http://docs.openrepose.org/repose/uri-user/v1.0 ../config/uri-user-configuration.xsd'>
 
     <identification-mappings>
-        <mapping identification-regex=".*/service/(\w*)?/.*"/>
-        <mapping identification-regex=".*/resource/(\w*)?"/>
+        <mapping id="test" identification-regex=".*/service/(\w*)?/.*"/>
+        <mapping id="test" identification-regex=".*/resource/(\w*)?"/>
     </identification-mappings>
 
     <group>User_Default</group>
