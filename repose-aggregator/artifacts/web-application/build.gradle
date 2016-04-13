@@ -140,6 +140,12 @@ ospackage {
 buildDeb {
     requires('java8-runtime-headless')
     preInstall file('../src/config/scripts/preinst-deb')
+    //todo: enhance the plugin so that filetype is properly respected
+    //todo: remove the old once we are on the gradle build
+    configurationFile '/etc/repose/container.cfg.xml'
+    configurationFile '/etc/repose/system-model.cfg.xml'
+    configurationFile '/etc/repose/response-messaging.cfg.xml'
+    configurationFile '/etc/repose/log4j2.xml'
 }
 
 buildRpm {

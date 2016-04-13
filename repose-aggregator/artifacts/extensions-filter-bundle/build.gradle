@@ -72,6 +72,9 @@ ospackage {
 
 buildDeb {
     requires('java8-runtime-headless')
+    //todo: enhance the plugin so that filetype is properly respected
+    //todo: remove the old once we are on the gradle build
+    configurationFile '/etc/repose/validator.cfg.xml'
 }
 
 buildRpm {

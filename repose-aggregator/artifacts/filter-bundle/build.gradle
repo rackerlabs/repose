@@ -98,6 +98,25 @@ ospackage {
 
 buildDeb {
     requires('java8-runtime-headless')
+    //todo: enhance the plugin so that filetype is properly respected
+    //todo: remove the old once we are on the gradle build
+    configurationFile '/etc/repose/client-auth-n.cfg.xml'
+    configurationFile '/etc/repose/keystone-v2.cfg.xml'
+    configurationFile '/etc/repose/openstack-authorization.cfg.xml'
+    configurationFile '/etc/repose/uri-normalization.cfg.xml'
+    configurationFile '/etc/repose/header-normalization.cfg.xml'
+    configurationFile '/etc/repose/rate-limiting.cfg.xml'
+    configurationFile '/etc/repose/root-context-router.cfg.xml'
+    configurationFile '/etc/repose/versioning.cfg.xml'
+    configurationFile '/etc/repose/destination-router.cfg.xml'
+    configurationFile '/etc/repose/header-user.cfg.xml'
+    configurationFile '/etc/repose/ip-user.cfg.xml'
+    configurationFile '/etc/repose/uri-identity.cfg.xml'
+    configurationFile '/etc/repose/uri-stripper.cfg.xml'
+    configurationFile '/etc/repose/header-translation.cfg.xml'
+    configurationFile '/etc/repose/openstack-identity-v3.cfg.xml'
+    configurationFile '/etc/repose/add-header.cfg.xml'
+    configurationFile '/etc/repose/highly-efficient-record-processor.cfg.xml'
 }
 
 buildRpm {
