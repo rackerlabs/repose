@@ -94,6 +94,12 @@ allprojects {
             url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
         }
     }
+
+    sonarqube {
+        properties {
+            property "sonar.projectKey", "repose-gradle:${project.name}"
+        }
+    }
 }
 
 subprojects {
