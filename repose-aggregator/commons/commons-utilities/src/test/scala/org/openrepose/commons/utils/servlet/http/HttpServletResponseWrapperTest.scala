@@ -2064,7 +2064,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.isCommitted shouldBe true
     }
 
-    it("should not commit the underlying response if not in a mutable header mode") {
+    it("should commit the underlying response if not in a mutable header mode") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.sendError(418, "TEAPOT")
@@ -2080,7 +2080,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       originalResponse.wasErrorSent() shouldBe false
     }
 
-    it("should not commit the underlying response if not in a mutable body mode") {
+    it("should commit the underlying response if not in a mutable body mode") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.sendError(418, "TEAPOT")
