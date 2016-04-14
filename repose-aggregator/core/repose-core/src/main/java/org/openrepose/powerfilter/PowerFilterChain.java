@@ -266,6 +266,8 @@ public class PowerFilterChain implements FilterChain {
         try {
             if (isResponseOk(wrappedResponse)) {
                 containerFilterChain.doFilter(httpRequest, wrappedResponse);
+            }
+            if (isResponseOk(wrappedResponse)) {
                 router.route(new HttpServletRequestWrapper(httpRequest), wrappedResponse);
             }
             splitResponseHeaders(wrappedResponse);
