@@ -88,8 +88,7 @@ class ScriptingLanguageTest extends Specification {
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
-        repose.start(killOthersBeforeStarting: false,
-                waitOnJmxAfterStarting: false)
+        repose.start()
         repose.waitForNon500FromUrl(url)
 
         when: "send request"
