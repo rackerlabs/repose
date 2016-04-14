@@ -415,6 +415,9 @@ public class PowerFilter extends DelegatingFilterProxy {
             LOG.error("{}:{} -- Exception encountered while processing filter chain.", clusterId, nodeId, ex);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
         } finally {
+            // We must call this method here so that the response messaging service can potentially mutate the body of
+            // the response. The method itself enables the wrapper to report a committed response as being so, while
+            // still allowing the component which wrapped the response to mutate the response.
             wrappedResponse.uncommit();
 
             // In the case where we pass/route the request, there is a chance that
