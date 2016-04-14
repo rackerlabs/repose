@@ -46,7 +46,7 @@ class UriUserSchemaTest extends ReposeValveTest {
         }
     }
 
-    def "Verif id must be unique if it's defined"() {
+    def "Verify id must be unique if it's defined"() {
         given:
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/uriuser", params)
