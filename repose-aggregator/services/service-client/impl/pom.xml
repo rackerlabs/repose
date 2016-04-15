@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>service-client-support</artifactId>
-        <version>8.0.0.0-SNAPSHOT</version>
+        <version>7.3.4.0</version>
     </parent>
 
     <name>Repose Services - AuthClient Akka Impl</name>
