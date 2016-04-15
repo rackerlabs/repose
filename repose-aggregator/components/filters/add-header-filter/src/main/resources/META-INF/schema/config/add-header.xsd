@@ -37,6 +37,7 @@
             <xs:element name="response" type="HttpMessage" minOccurs="0"/>
         </xs:all>
         <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
                    test="count(*)>=1"
                    xerces:message="At least one header must be defined."
                    saxon:message="At least one header must be defined."/>

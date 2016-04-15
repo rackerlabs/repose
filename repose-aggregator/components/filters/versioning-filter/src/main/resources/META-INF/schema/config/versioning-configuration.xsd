@@ -20,7 +20,6 @@
   -->
 
 <xs:schema xmlns="http://docs.openrepose.org/repose/versioning/v2.0"
-           xmlns:vers-config="http://docs.openrepose.org/repose/versioning/v2.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
@@ -46,7 +45,7 @@
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
-                   test="count(distinct-values(vers-config:version-mapping/@id)) = count(vers-config:version-mapping/@id)"
+                   test="count(distinct-values(version-mapping/@id)) = count(version-mapping/@id)"
                    xerces:message="Version mapping must have ids unique within their containing filter list"
                    saxon:message="Version mapping must have ids unique within their containing filter list"
                    xpathDefaultNamespace="##targetNamespace"/>

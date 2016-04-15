@@ -23,6 +23,8 @@
 <xs:schema xmlns:slf4jlog="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified"
            targetNamespace="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
@@ -82,19 +84,10 @@
         </xs:attribute>
 
         <!-- http://stackoverflow.com/a/16674043/423218 -->
-        <xs:assert vc:minVersion="1.1" test="count((@format, ./slf4jlog:format)) = 1">
-            <xs:annotation>
-                <xs:appinfo>
-                    Exactly one of the format attribute or format element can be specified. Not both.
-                </xs:appinfo>
-                <xs:documentation>
-                    According to stuff I've read on the internet, the above error message should be used when the
-                    assertion fails.
-                    It's not used :(
-                    This stuff: http://www.ibm.com/developerworks/library/x-xml11pt2/
-                </xs:documentation>
-            </xs:annotation>
-        </xs:assert>
+        <xs:assert vc:minVersion="1.1"
+                   test="count((@format, ./slf4jlog:format)) = 1"
+                   xerces:message="Cannot define format as both an attribute and as an element"
+                   saxon:message="Cannot define format as both an attribute and as an element"/>
     </xs:complexType>
 
     <xs:complexType name="format-element">

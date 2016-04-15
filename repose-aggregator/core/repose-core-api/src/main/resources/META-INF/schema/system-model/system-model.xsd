@@ -202,11 +202,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:assert vc:minVersion="1.1" test="if (not(@https-port)) then @http-port else true()"
-                   xerces:message="You must specify an http-port and/or an https-port"
-                   saxon:message="You must specify an http-port and/or an https-port">
-        </xs:assert>
-        <xs:assert vc:minVersion="1.1" test="if (not(@http-port)) then @https-port else true()"
+        <xs:assert vc:minVersion="1.1" test="@https-port > 0 or @http-port > 0"
                    xerces:message="You must specify an http-port and/or an https-port"
                    saxon:message="You must specify an http-port and/or an https-port">
         </xs:assert>

@@ -17,6 +17,7 @@ dependencies {
     provided "javax.inject:javax.inject"
     provided "com.google.code.findbugs:jsr305" //i hate this hack
 
+    testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"

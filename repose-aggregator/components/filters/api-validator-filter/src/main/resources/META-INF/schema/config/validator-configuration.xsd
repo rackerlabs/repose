@@ -449,19 +449,11 @@
                    xerces:message="Roles list must contain unique roles"
                    saxon:message="Roles list must contain unique roles"/>
 
-        <xs:assert vc:minVersion="1.1" test="if (count(./*)>0) then not (@wadl) else true()"
-                   xerces:message="Cannot define wadl file and embedded wadl"
-                   saxon:message="Cannot define wadl file and embedded wadl"/>
-
         <xs:assert vc:minVersion="1.1" test="if (@wadl) then not (count(./*)>0) else true()"
                    xerces:message="Cannot define wadl file and embedded wadl"
                    saxon:message="Cannot define wadl file and embedded wadl"/>
 
         <xs:assert vc:minVersion="1.1" test="if (not(@wadl)) then (count(./*)>0) else true()"
-                   xerces:message="Must define a wadl file OR an embedded wadl"
-                   saxon:message="Must define a wadl file OR an embedded wadl"/>
-
-        <xs:assert vc:minVersion="1.1" test="if (not(count(./*)>0)) then (@wadl) else true()"
                    xerces:message="Must define a wadl file OR an embedded wadl"
                    saxon:message="Must define a wadl file OR an embedded wadl"/>
     </xs:complexType>

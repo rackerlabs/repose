@@ -23,8 +23,7 @@
            targetNamespace="http://docs.openrepose.org/repose/atom-feed-service/v1.0"
            xmlns="http://docs.openrepose.org/repose/atom-feed-service/v1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:html="http://www.w3.org/1999/xhtml"
->
+           xmlns:html="http://www.w3.org/1999/xhtml">
 
     <xs:element name="atom-feed-service" type="AtomFeedServiceConfigType"/>
 

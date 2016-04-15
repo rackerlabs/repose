@@ -20,7 +20,8 @@
   -->
 
 
-<xs:schema xmlns:uri-user="http://docs.openrepose.org/repose/uri-user/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema xmlns="http://docs.openrepose.org/repose/uri-user/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
@@ -30,7 +31,7 @@
            targetNamespace="http://docs.openrepose.org/repose/uri-user/v1.0">
 
     <!-- Client User Identity Configuration -->
-    <xs:element name="uri-user" type="uri-user:UriUserConfig"/>
+    <xs:element name="uri-user" type="UriUserConfig"/>
 
     <xs:complexType name="UriUserConfig">
         <xs:annotation>
@@ -43,7 +44,7 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="identification-mappings" type="uri-user:IdentificationMappingList" minOccurs="1"
+            <xs:element name="identification-mappings" type="IdentificationMappingList" minOccurs="1"
                         maxOccurs="1"/>
             <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="User_Standard">
                 <xs:annotation>
@@ -55,7 +56,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="quality" type="uri-user:doubleBetweenZeroandOne" minOccurs="0" maxOccurs="1"
+            <xs:element name="quality" type="doubleBetweenZeroandOne" minOccurs="0" maxOccurs="1"
                         default="0.5">
                 <xs:annotation>
                     <xs:documentation>
@@ -92,10 +93,12 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="mapping" type="uri-user:IdentificationMapping" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="mapping" type="IdentificationMapping" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:assert vc:minVersion="1.1" test="count(distinct-values(uri-user:*/@id)) = count(uri-user:*/@id)"
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count(distinct-values(*/@id)) = count(*/@id)"
                    xerces:message="Mappings ids must be unique if specified"
                    saxon:message="Mappings ids must be unique if specified">
         </xs:assert>

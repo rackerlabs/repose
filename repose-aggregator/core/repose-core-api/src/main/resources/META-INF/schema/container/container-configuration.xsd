@@ -264,8 +264,8 @@
             <xs:element name="cipher" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <!-- TODO: validate that this does indeed work -->
-        <xs:assert vc:minVersion="1.1" test="count(distinct-values(cipher)) = count(cipher/@id)"
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(cipher)) = count(cipher)"
+                   xpathDefaultNamespace="##targetNamespace"
                    xerces:message="Don't duplicate ciphers"
                    saxon:message="Don't duplicate ciphers">
         </xs:assert>

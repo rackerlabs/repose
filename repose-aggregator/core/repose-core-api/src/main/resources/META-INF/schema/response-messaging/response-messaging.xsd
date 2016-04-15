@@ -209,9 +209,6 @@
                 <xs:assert vc:minVersion="1.1" test="if (text()) then not (@href) else true()"
                            xerces:message="Cannot define message inline and reference to external message file"
                            saxon:message="Cannot define message inline and reference to external message file"/>
-                <xs:assert vc:minVersion="1.1" test="if (@href) then not (text()) else true()"
-                           xerces:message="Cannot define message inline and reference to external message file"
-                           saxon:message="Cannot define message inline and reference to external message file"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
