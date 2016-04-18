@@ -32,7 +32,6 @@ import org.openrepose.commons.utils.http.media.MimeType
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
-import scala.util.Try
 
 /**
   * This class wraps a HttpServletResponse applying further functionality. It allows for varying levels of read
@@ -414,15 +413,6 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       throw new IllegalStateException("Cannot call resetBuffer after the response has been committed")
     } else {
       super.resetBuffer()
-      // try to remove the content-type and content-length headers (best-effort)
-      Try {
-        removeHeader(CommonHttpHeader.CONTENT_TYPE.toString)
-        removeHeader(CommonHttpHeader.CONTENT_LENGTH.toString)
-      }
-      Try {
-        setHeader(CommonHttpHeader.CONTENT_TYPE.toString, null)
-        setHeader(CommonHttpHeader.CONTENT_LENGTH.toString, null)
-      }
       responseBodyType = ResponseBodyType.Available
       bodyOutputStream.resetBuffer()
     }

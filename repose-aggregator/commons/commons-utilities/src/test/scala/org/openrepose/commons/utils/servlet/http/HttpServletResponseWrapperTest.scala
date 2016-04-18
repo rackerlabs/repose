@@ -1901,18 +1901,6 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       postFlushBody shouldEqual ""
     }
 
-    it("should reset the content-length and content-type") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
-
-      wrappedResponse.setContentType("text/plain")
-      wrappedResponse.setContentLength(100)
-
-      wrappedResponse.resetBuffer()
-
-      wrappedResponse.getContentType shouldBe null
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString) shouldBe null
-    }
-
     it("should reset the response body type") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
 
