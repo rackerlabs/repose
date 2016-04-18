@@ -266,7 +266,7 @@
                                     then
                                     # Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file.
                                     # If the filter is an active component then this installation will fail.
-                                    if cat $SYSTEM_MODEL | sed '/<!--.*-->/d'| sed '/<!--/,/-->/d' | \
+                                    if cat $SYSTEM_MODEL | sed '/&lt;!--.*--&gt;/d'| sed '/&lt;!--/,/--&gt;/d' | \
                                     grep 'filter.*dist-datastore'
                                     then
                                     echo "Unable to upgrade. system-model.cfg.xml file contains the deprecated \
