@@ -2179,10 +2179,10 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       when(mockResponse.isCommitted).thenReturn(true)
 
-      an [IllegalStateException] should be thrownBy wrappedResponse.uncommit()
+      an[IllegalStateException] should be thrownBy wrappedResponse.uncommit()
     }
 
-    it ("should enable calling methods normally blocked by committing") {
+    it("should enable calling methods normally blocked by committing") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.flushBuffer()
