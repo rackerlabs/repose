@@ -2024,19 +2024,53 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("setStatus") {
-    it("should set the status code and message") {
+    it("should throw an exception if the wrapped response has already been committed (one argument)") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.setStatus(418)
+    }
+
+    it("should throw an exception if the wrapped response has already been committed (two arguments)") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.setStatus(418, "TEAPOT")
+    }
+
+    it("should set the status code and message") {
+      val mockResponse = mock[HttpServletResponse]
+      when(mockResponse.isCommitted).thenReturn(false)
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.setStatus(418, "TEAPOT")
 
-      wrappedResponse.getStatus shouldBe 418
-      wrappedResponse.getMessage shouldEqual "TEAPOT"
+      verify(mockResponse).setStatus(418, "TEAPOT")
     }
   }
 
   describe("sendError") {
-    it("should set the status code and message") {
+    it("should throw an exception if the wrapped response has already been committed (one argument)") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.sendError(418)
+    }
+
+    it("should throw an exception if the wrapped response has already been committed (two arguments)") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.sendError(418, "TEAPOT")
+    }
+
+    it("should set the status code and body") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
 
       // A hack to make this test work -- the original response /should/ set the status when sendError is called, but
       // this mock doesn't. So I set it here. If sendError overwrites it like it should, great, if not, fine.
@@ -2045,7 +2079,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.sendError(418, "TEAPOT")
 
       wrappedResponse.getStatus shouldBe 418
-      wrappedResponse.getMessage shouldEqual "TEAPOT"
+      Source.fromInputStream(wrappedResponse.getOutputStreamAsInputStream).mkString shouldEqual "TEAPOT"
     }
 
     it("should mark the wrapped as committed when given a single argument") {
@@ -2064,36 +2098,60 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.isCommitted shouldBe true
     }
 
-    it("should commit the underlying response if not in a mutable header mode") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    it("should write and commit the underlying response if not in a mutable header mode") {
+      val mockResponse = mock[HttpServletResponse]
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
+        ResponseMode.PASSTHROUGH,
+        ResponseMode.PASSTHROUGH,
+        out)
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      originalResponse.wasErrorSent() shouldBe true
+      out.baos.toString() shouldEqual "TEAPOT"
+      verify(mockResponse).flushBuffer()
     }
 
-    it("should not commit the underlying response if in a mutable header mode") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+    it("should write, not commit the underlying response if in a mutable header mode") {
+      val mockResponse = mock[HttpServletResponse]
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
+        ResponseMode.MUTABLE,
+        ResponseMode.PASSTHROUGH,
+        out)
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      originalResponse.wasErrorSent() shouldBe false
+      out.baos.toString() shouldEqual "TEAPOT"
+      verify(mockResponse, never()).flushBuffer()
     }
 
-    it("should commit the underlying response if not in a mutable body mode") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    it("should write and commit the underlying response if not in a mutable body mode") {
+      val mockResponse = mock[HttpServletResponse]
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
+        ResponseMode.PASSTHROUGH,
+        ResponseMode.PASSTHROUGH,
+        out)
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      originalResponse.wasErrorSent() shouldBe true
+      out.baos.toString() shouldEqual "TEAPOT"
+      verify(mockResponse).flushBuffer()
     }
 
-    it("should not commit the underlying response if in a mutable body mode") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+    it("should not write, not commit the underlying response if in a mutable body mode") {
+      val mockResponse = mock[HttpServletResponse]
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
+        ResponseMode.PASSTHROUGH,
+        ResponseMode.MUTABLE,
+        out)
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      originalResponse.wasErrorSent() shouldBe false
+      out.baos.toString() shouldEqual ""
+      verify(mockResponse, never()).flushBuffer()
     }
   }
 

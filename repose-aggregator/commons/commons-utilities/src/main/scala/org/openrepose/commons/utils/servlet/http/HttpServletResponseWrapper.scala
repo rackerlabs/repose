@@ -28,6 +28,7 @@ import javax.servlet.{ServletOutputStream, ServletResponse}
 
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.media.MimeType
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
@@ -83,7 +84,6 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
   }
 
-  private var message: String = _
   private var committed: Boolean = false
   private var flushedBuffer: Boolean = false
   private var responseBodyType: ResponseBodyType.Value = ResponseBodyType.Available
@@ -102,48 +102,69 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   def this(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode) =
     this(originalResponse, headerMode, bodyMode, originalResponse.getOutputStream)
 
-  override def setStatus(i: Int, s: String): Unit = {
-    message = s
-    super.setStatus(i, s)
+  override def setStatus(i: Int): Unit = {
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call setStatus after the response has been committed")
+    } else {
+      super.setStatus(i)
+    }
   }
 
-  // todo: how does this affect the container processing invoked by sendError? should we track that this method was
-  // called? should commitToResponse take a parameter indicating if an error should bubble up?
-  /** Sets a status code and message on the first line of the HTTP response. The container may do additional processing
-    * to, for example, generate an error page as the response entity.
+  override def setStatus(i: Int, s: String): Unit = {
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call setStatus after the response has been committed")
+    } else {
+      super.setStatus(i, s)
+    }
+  }
+
+  /** Sets a status code and message on the first line of the HTTP response. Also writes the message to the response
+    * body.
     *
-    * Note that in any mutable mode, this method will not call through to the [[sendError(i)]] method of the wrapped
-    * response. As a result, the container will not have an opportunity to perform additional processing.
-    *
-    * In any permutation of non-mutable modes, this method will call through to the [[sendError(i)]] method of the
-    * wrapped response.
+    * Note that this method will not call through to the [[sendError(i)]] method of the wrapped response.
+    * As a result, the container will not have an opportunity to perform additional processing.
     *
     * @param i the status code to set
     */
   override def sendError(i: Int): Unit = {
-    committed = true
-    if (headerMode == ResponseMode.MUTABLE || bodyMode == ResponseMode.MUTABLE) {
-      super.setStatus(i)
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call sendError after the response has been committed")
     } else {
-      super.sendError(i)
+      setStatus(i)
+
+      // Writes the response data and marks the response as committed.
+      flushBuffer()
     }
   }
 
   /** See [[sendError(i)]].
     *
     * @param i the status code to set
+    * @param s the string used to populate the response body
     */
   override def sendError(i: Int, s: String): Unit = {
-    committed = true
-    message = s
-    if (headerMode == ResponseMode.MUTABLE || bodyMode == ResponseMode.MUTABLE) {
-      super.setStatus(i)
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call sendError after the response has been committed")
     } else {
-      super.sendError(i, s)
+      // Set the status.
+      setStatus(i)
+
+      // Call resetBuffer() so that we can write directly to a clean output stream, even if the client has previously
+      // written to the output stream.
+      resetBuffer()
+
+      // Set the Content-Type to text/plain so that any message can be read.
+      setContentType(MimeType.TEXT_PLAIN.getMimeType)
+
+      // Write the body. getBytes(...) may throw an UnsupportedEncodingException if the character encoding is not
+      // supported. This should only happen if the Content-Type header is set external to this class, and the value is
+      // not a JVM supported encoding.
+      bodyOutputStream.write(s.getBytes(StandardCharsets.ISO_8859_1.toString))
+
+      // Writes the response data and marks the response as committed.
+      flushBuffer()
     }
   }
-
-  def getMessage: String = message
 
   override def isCommitted: Boolean = super.isCommitted || committed
 
