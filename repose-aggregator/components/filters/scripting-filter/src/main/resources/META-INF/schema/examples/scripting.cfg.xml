@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    request.addHeader("foo", "bar")
+
+    // Call the next filter in the chain
+    filter.doChain(request, response)
+</scripting>

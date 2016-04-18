@@ -1531,18 +1531,6 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("setOutput") {
-    it("should throw an IllegalStateException if the header mode is set to PASSTHROUGH") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
-
-      an[IllegalStateException] should be thrownBy wrappedResponse.setOutput(new ByteArrayInputStream("test body".getBytes))
-    }
-
-    it("should throw an IllegalStateException if the header mode is set to READONLY") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
-
-      an[IllegalStateException] should be thrownBy wrappedResponse.setOutput(new ByteArrayInputStream("test body".getBytes))
-    }
-
     it("should set the output") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
 
@@ -1941,19 +1929,6 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("commitToResponse") {
-    Seq(
-      (ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH),
-      (ResponseMode.PASSTHROUGH, ResponseMode.READONLY),
-      (ResponseMode.READONLY, ResponseMode.PASSTHROUGH),
-      (ResponseMode.READONLY, ResponseMode.READONLY)
-    ) foreach { case (headerMode, bodyMode) =>
-      it(s"should throw an IllegalStateException if the header mode is set to ${headerMode.name()} and body mode is set to ${bodyMode.name()}") {
-        val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
-
-        an[IllegalStateException] should be thrownBy wrappedResponse.commitToResponse()
-      }
-    }
-
     it("should not alter pre-existing headers in the wrapped response") {
       originalResponse.addHeader("a", "a")
 

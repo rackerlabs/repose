@@ -337,9 +337,6 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
-  /**
-    * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
-    */
   def commitToResponse(): Unit = {
     def writeHeaders(): Unit = {
       headerMap foreach { case (name, values) =>
@@ -362,7 +359,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       case (_, ResponseMode.MUTABLE) =>
         writeBody()
       case (_, _) =>
-        throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
+        // do nothing
     }
 
     if (flushedBuffer) {

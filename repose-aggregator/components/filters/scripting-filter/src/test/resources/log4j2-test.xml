@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="STDOUT">
+            <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
+        </Console>
+        <List name="List0"/>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="List0"/>
+        </Root>
+        <Logger name="com.sun.jersey" level="off"/>
+        <Logger name="net.sf.ehcache" level="error"/>
+        <Logger name="org.apache" level="warn"/>
+        <Logger name="org.eclipse.jetty" level="off"/>
+        <Logger name="org.openrepose" level="debug"/>
+        <Logger name="org.springframework" level="warn"/>
+        <Logger name="intrafilter-logging" level="info"/>
+    </Loggers>
+</Configuration>
