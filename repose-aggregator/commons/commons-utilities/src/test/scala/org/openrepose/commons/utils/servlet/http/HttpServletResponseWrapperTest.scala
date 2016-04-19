@@ -2046,7 +2046,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should mark the wrapped response as committed") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
 
       wrappedResponse.commitToResponse()
 
