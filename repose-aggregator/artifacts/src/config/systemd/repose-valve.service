@@ -1,0 +1,16 @@
+[Unit]
+Description=The Repose reverse proxy server in the stand-alone Valve configuration
+After=network.target
+
+[Service]
+ExecStart=/usr/share/repose/repose-valve
+# Java processes exit with status code 128+SIG
+# SIGHUP  =  1
+# SIGINT  =  2
+# SIGTERM = 13
+# SIGPIPE = 15
+SuccessExitStatus=129 130 141 143
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
