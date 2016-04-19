@@ -159,7 +159,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       // Write the body. getBytes(...) may throw an UnsupportedEncodingException if the character encoding is not
       // supported. This should only happen if the Content-Type header is set external to this class, and the value is
       // not a JVM supported encoding.
-      bodyOutputStream.write(s.getBytes(StandardCharsets.ISO_8859_1.toString))
+      bodyOutputStream.write(s.getBytes(StandardCharsets.ISO_8859_1))
 
       // Writes the response data and marks the response as committed.
       flushBuffer()
@@ -333,7 +333,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @throws IllegalStateException when bodyMode is ResponseMode.PASSTHROUGH
     */
   def getOutputStreamAsString: String =
-    Source.fromInputStream(getOutputStreamAsInputStream, getCharacterEncoding).getLines().mkString
+    Source.fromInputStream(getOutputStreamAsInputStream, getCharacterEncoding).mkString
 
   /**
     * @throws IllegalStateException when bodyMode is anything other than ResponseMode.MUTABLE

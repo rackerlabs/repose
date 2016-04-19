@@ -20,14 +20,20 @@
 package org.openrepose.commons.utils.logging.apache.format.stock;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatterState;
 import org.openrepose.commons.utils.logging.apache.format.FormatterLogic;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.UnsupportedCharsetException;
 
 public class ResponseMessageHandler implements FormatterLogic {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ResponseMessageHandler.class);
 
     private HttpLogFormatterState state = HttpLogFormatterState.PLAIN;
 
@@ -40,17 +46,23 @@ public class ResponseMessageHandler implements FormatterLogic {
         String message = "";
 
         if (response instanceof HttpServletResponseWrapper) {
-            message = ((HttpServletResponseWrapper) response).getMessage();
+            try {
+                message = ((HttpServletResponseWrapper) response).getOutputStreamAsString();
+            } catch (IllegalStateException ise) {
+                LOG.error("The wrapped response does not enable reading the response body", ise);
+            } catch (UnsupportedCharsetException uce) {
+                LOG.error("The response body is encoded with an unsupported character set", uce);
+            }
+        }
 
-            if (message != null) {
-                switch (state) {
-                    case JSON:
-                        message = StringEscapeUtils.escapeJson(message);
-                        break;
-                    case XML:
-                        message = StringEscapeUtils.escapeXml10(message);
-                        break;
-                }
+        if (message != null) {
+            switch (state) {
+                case JSON:
+                    message = StringEscapeUtils.escapeJson(message);
+                    break;
+                case XML:
+                    message = StringEscapeUtils.escapeXml10(message);
+                    break;
             }
         }
 

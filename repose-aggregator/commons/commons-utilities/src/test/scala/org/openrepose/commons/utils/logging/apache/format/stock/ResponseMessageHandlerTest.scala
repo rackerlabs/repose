@@ -20,9 +20,11 @@
 
 package org.openrepose.commons.utils.logging.apache.format.stock
 
+import javax.servlet.ServletOutputStream
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatterState
 import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, ResponseMode}
 import org.scalatest._
@@ -35,8 +37,12 @@ class ResponseMessageHandlerTest extends FunSpec with BeforeAndAfter with GivenW
   val mockResponse = mock[HttpServletResponse]
   var response: HttpServletResponseWrapper = _
 
+  Mockito.when(mockResponse.getOutputStream).thenReturn(new ServletOutputStream {
+    override def write(b: Int): Unit = {}
+  })
+
   before {
-    response = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+    response = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
     response.sendError(0, escapeThis)
   }
 
