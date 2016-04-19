@@ -48,7 +48,7 @@ ospackage {
     from(ear.outputs.files) {
         user 'root'
         permissionGroup 'root'
-        fileMode 555
+        fileMode 0555
     }
 
     //todo: we don't have any maybe we should add some
@@ -57,7 +57,7 @@ ospackage {
         into '/etc/repose'
         user 'repose'
         permissionGroup 'repose'
-        fileMode 640
+        fileMode 0640
         fileType CONFIG | NOREPLACE
     }
 
@@ -67,7 +67,7 @@ ospackage {
         into '/usr/share/doc/repose-experimental-filter-bundle'
         user 'root'
         permissionGroup 'root'
-        fileMode 444
+        fileMode 0444
     }
 
     requires('repose', project.version, EQUAL)

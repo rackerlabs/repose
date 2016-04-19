@@ -77,14 +77,14 @@ ospackage {
         rename('(.*).jar', 'repose-lint.jar')
         user 'root'
         permissionGroup 'root'
-        fileMode 555
+        fileMode 0555
     }
 
     //the init script
     from('src/config/scripts') {
         user 'root'
         permissionGroup 'root'
-        fileMode 755
+        fileMode 0755
     }
     link('/usr/bin/repose-lint', '/usr/share/repose/repose-lint')
 
@@ -94,7 +94,7 @@ ospackage {
         into '/usr/share/doc/repose-lint'
         user 'root'
         permissionGroup 'root'
-        fileMode 444
+        fileMode 0444
     }
 }
 

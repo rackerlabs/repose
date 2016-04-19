@@ -75,14 +75,14 @@ ospackage {
         rename('(.*).jar', 'repose-cli.jar')
         user 'root'
         permissionGroup 'root'
-        fileMode 555
+        fileMode 0555
     }
 
     //the scripts
     from('src/config/scripts') {
         user 'repose'
         permissionGroup 'repose'
-        fileMode 640
+        fileMode 0640
     }
     link('/usr/bin/clean-repose-deploy', '/usr/share/repose/clean-repose-deploy')
     link('/usr/bin/dd-remove', '/usr/share/repose/dd-remove')
@@ -93,7 +93,7 @@ ospackage {
         into '/usr/share/doc/repose-cli-utils'
         user 'root'
         permissionGroup 'root'
-        fileMode 444
+        fileMode 0444
     }
 
     requires('repose', project.version, EQUAL)
