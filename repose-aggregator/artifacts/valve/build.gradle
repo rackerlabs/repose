@@ -214,7 +214,7 @@ ospackage {
 
     //the license info
     from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", '../src/config/docs/DEPENDENCIES.txt']) {
-        into '/usr/share/doc/repose-war'
+        into '/usr/share/doc/repose-valve'
         user 'root'
         permissionGroup 'root'
         fileMode 0444
