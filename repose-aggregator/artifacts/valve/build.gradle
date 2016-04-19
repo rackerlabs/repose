@@ -175,15 +175,6 @@ ospackage {
         fileMode 0644
     }
 
-    //the systemd local overrides
-    from('../src/config/systemd/local.conf') {
-        into '/etc/systemd/system/repose-valve.service.d'
-        createDirectoryEntry true
-        user 'root'
-        permissionGroup 'root'
-        fileMode 0644
-    }
-
     //the systemd wrapper script
     from('../src/config/scripts/repose-valve-systemd') {
         rename('repose-valve-systemd', 'repose-valve')
