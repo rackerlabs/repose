@@ -32,6 +32,7 @@ import org.openrepose.commons.utils.http.media.MimeType
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
+import scala.io.Source
 
 /**
   * This class wraps a HttpServletResponse applying further functionality. It allows for varying levels of read
@@ -327,6 +328,12 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @throws IllegalStateException when bodyMode is ResponseMode.PASSTHROUGH
     */
   def getOutputStreamAsInputStream: InputStream = bodyOutputStream.getOutputStreamAsInputStream
+
+  /**
+    * @throws IllegalStateException when bodyMode is ResponseMode.PASSTHROUGH
+    */
+  def getOutputStreamAsString: String =
+    Source.fromInputStream(getOutputStreamAsInputStream, getCharacterEncoding).getLines().mkString
 
   /**
     * @throws IllegalStateException when bodyMode is anything other than ResponseMode.MUTABLE

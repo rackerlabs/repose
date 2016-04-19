@@ -1530,6 +1530,36 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
   }
 
+  describe("getOutputStreamAsString") {
+    it("should throw an IllegalStateException if the body mode is set to PASSTHROUGH") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.getOutputStreamAsString
+    }
+
+    it("should return a string containing the contents of the output stream if the body mode is set to READONLY") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
+
+      val body = "test body"
+      wrappedResponse.getOutputStream.print(body)
+
+      val wrappedBody = wrappedResponse.getOutputStreamAsString
+
+      wrappedBody shouldEqual body
+    }
+
+    it("should return a string containing the contents of the output stream if the body mode is set to MUTABLE") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      val body = "test body"
+      wrappedResponse.getOutputStream.print(body)
+
+      val wrappedBody = wrappedResponse.getOutputStreamAsString
+
+      wrappedBody shouldEqual body
+    }
+  }
+
   describe("setOutput") {
     it("should set the output") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
