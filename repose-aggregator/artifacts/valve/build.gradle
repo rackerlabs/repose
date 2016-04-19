@@ -166,6 +166,35 @@ ospackage {
         fileType CONFIG | NOREPLACE
     }
 
+    //the systemd service
+    from('../src/config/systemd/repose-valve.service') {
+        into '/lib/systemd/system'
+        createDirectoryEntry false
+        user 'root'
+        permissionGroup 'root'
+        fileMode 644
+    }
+
+    //the systemd local overrides
+    from('../src/config/systemd/local.conf') {
+        into '/etc/systemd/system/repose-valve.service.d'
+        createDirectoryEntry true
+        user 'root'
+        permissionGroup 'root'
+        fileMode 644
+    }
+
+    //the systemd wrapper script
+    from('../src/config/scripts/repose-valve-systemd') {
+        rename('repose-valve-systemd', 'repose-valve')
+        into '/usr/share/repose'
+        createDirectoryEntry false
+        user 'root'
+        permissionGroup 'root'
+        fileMode 755
+    }
+
+    //todo: remove the old once we are pure gradle
     //the sysconfig
     from('../src/config/sysconfig') {
         into '/etc/sysconfig'
