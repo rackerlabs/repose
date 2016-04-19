@@ -92,7 +92,7 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
 
   override def configurationUpdated(configurationObject: UriNormalizationConfig): Unit = {
     synchronized {
-      val newNormalizers = mutable.Map.empty[String, QueryParameterNormalizer]
+      val newNormalizers = mutable.LinkedHashMap.empty[String, QueryParameterNormalizer]
 
       Option(configurationObject.getUriFilters).foreach(_.getTarget foreach { target =>
         val alphabetize = target.isAlphabetize
