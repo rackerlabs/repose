@@ -2201,6 +2201,47 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       wrappedResponse.isCommitted shouldBe true
     }
+
+    it("should return true after sendError(i) is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND)
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should return true after sendError(i, s) is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Stuff was not found")
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should return true after flushBuffer is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should return true after commitToResponse is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.commitToResponse()
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should return false after uncommit is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND)
+      wrappedResponse.uncommit()
+
+      wrappedResponse.isCommitted shouldBe false
+    }
   }
 
   describe("uncommit") {
