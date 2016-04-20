@@ -366,7 +366,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request,
                 new BufferedServletInputStream(requestBodyInputStream));
         final HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper((HttpServletResponse) response,
-                ResponseMode.PASSTHROUGH,
+                ResponseMode.MUTABLE,
                 ResponseMode.MUTABLE);
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
