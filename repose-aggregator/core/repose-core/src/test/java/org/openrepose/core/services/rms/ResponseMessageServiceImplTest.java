@@ -42,6 +42,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.*;
 
 import static junit.framework.Assert.assertTrue;
@@ -102,10 +104,11 @@ public class ResponseMessageServiceImplTest {
             // Hook up response body stream to mocked response
             final ByteBuffer internalBuffer = new CyclicByteBuffer();
             final ServletOutputStream outputStream = new ByteBufferServletOutputStream(internalBuffer);
+            final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(outputStream));
             final ByteBufferInputStream inputStream = new ByteBufferInputStream(internalBuffer);
             when(mockedResponse.getOutputStream()).thenReturn(outputStream);
             when(mockedResponse.getOutputStreamAsInputStream()).thenReturn(inputStream);
-
+            when(mockedResponse.getWriter()).thenReturn(printWriter);
 
             rmsImpl.handle(mockedRequest, mockedResponse);
 
@@ -149,7 +152,7 @@ public class ResponseMessageServiceImplTest {
             StatusCodeMatcher matcher = new StatusCodeMatcher();
             matcher.setId(I_AM_A_TEAPOT_VALUE_STRING);
             matcher.setCodeRegex(I_AM_A_TEAPOT_VALUE_STRING);
-            matcher.setOverwrite(OverwriteType.IF_EMPTY);
+            matcher.setOverwrite(OverwriteType.ALWAYS);
             matcher.getMessage().add(createMessage(MEDIA_TYPE_TEXT_PLAIN));
             matcher.getMessage().add(createMessage(MEDIA_TYPE_APPLICATION_JSON));
             matcher.getMessage().add(createMessage(MEDIA_TYPE_APPLICATION_XML));
@@ -169,7 +172,7 @@ public class ResponseMessageServiceImplTest {
 
             assertEquals(
                     ESCAPE_THIS.trim(),
-                    streamToString(response.getOutputStreamAsInputStream())
+                    response.getOutputStreamAsString()
             );
         }
 
@@ -181,7 +184,7 @@ public class ResponseMessageServiceImplTest {
 
             assertEquals(
                     "\\b\\n\\t\\f\\r\\\\\\\"'\\/&<>".trim(),
-                    streamToString(response.getOutputStreamAsInputStream())
+                    response.getOutputStreamAsString()
             );
         }
 
@@ -193,7 +196,7 @@ public class ResponseMessageServiceImplTest {
 
             assertEquals(
                     "\n\t\r\\&quot;&apos;/&amp;&lt;&gt;".trim(),
-                    streamToString(response.getOutputStreamAsInputStream())
+                    response.getOutputStreamAsString()
             );
         }
 
@@ -203,14 +206,6 @@ public class ResponseMessageServiceImplTest {
             message.setContentType(mediaType);
             message.setValue("%M");
             return message;
-        }
-
-        private String streamToString(InputStream is) throws Exception {
-            final StringBuilder stringBuilder = new StringBuilder();
-            for (int i = is.read(); i != -1; i = is.read()) {
-                stringBuilder.append((char) i);
-            }
-            return stringBuilder.toString();
         }
     }
 }

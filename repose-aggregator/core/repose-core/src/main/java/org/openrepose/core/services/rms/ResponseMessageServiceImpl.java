@@ -180,12 +180,13 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     private void overwriteResponseBody(HttpServletResponse response, final String formattedOutput, String contentType) throws IOException {
         response.resetBuffer();
-        response.setContentLength(formattedOutput.length());
         response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), contentType);
+        response.setContentLength(formattedOutput.length());
 
         // TODO:Enhancement - Update formatter logic for streaming
         // TODO:Enhancement - Update getBytes(...) to use requested content encoding AND Content-Type to reflect that encoding
-        response.getOutputStream().write(formattedOutput.getBytes(StandardCharsets.UTF_8));
+        response.getWriter().write(formattedOutput);
+        response.getWriter().flush();
     }
 
     private boolean configSetToIfEmpty(StatusCodeMatcher matchedCode) {
