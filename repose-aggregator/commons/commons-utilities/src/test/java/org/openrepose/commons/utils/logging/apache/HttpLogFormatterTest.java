@@ -29,6 +29,7 @@ import org.openrepose.commons.utils.logging.apache.format.stock.*;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.ResponseMode;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -376,11 +377,21 @@ public class HttpLogFormatterTest {
     public static class WhenEscapingTheMessage {
         private final String escapeThis = "\b\n\t\f\r\\\"'/&<>";
         private final HttpServletRequest request = mock(HttpServletRequest.class);
-        private final HttpServletResponseWrapper response = new HttpServletResponseWrapper(
-                mock(HttpServletResponse.class),
-                ResponseMode.PASSTHROUGH,
-                ResponseMode.PASSTHROUGH
-        );
+        private final HttpServletResponse mockResponse = mock(HttpServletResponse.class);
+        private final HttpServletResponseWrapper response;
+
+        public WhenEscapingTheMessage() throws IOException {
+            when(mockResponse.getOutputStream()).thenReturn(new ServletOutputStream() {
+                @Override
+                public void write(int b) throws IOException {}
+            });
+
+            response = new HttpServletResponseWrapper(
+                    mockResponse,
+                    ResponseMode.PASSTHROUGH,
+                    ResponseMode.READONLY
+            );
+        }
 
         @Before
         public void setup() throws IOException {
