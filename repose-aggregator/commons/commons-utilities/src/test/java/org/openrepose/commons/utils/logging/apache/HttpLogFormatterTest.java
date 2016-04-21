@@ -357,7 +357,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void ResponseMessageHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_MESSAGE.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_REASON.toString());
 
             httpLogFormatter.setLogic(extractor, formatter);
 

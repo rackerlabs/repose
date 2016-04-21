@@ -43,7 +43,7 @@ public enum LogFormatArgument {
     REQUEST_PROTOCOL("H"),
     RESPONSE_HEADER("o"),
     STRING("STRING"),
-    RESPONSE_MESSAGE("M"),
+    RESPONSE_REASON("M"),
     RESPONSE_TIME_MICROSECONDS("D"),
     RESPONSE_TIME_SECONDS("T");
 

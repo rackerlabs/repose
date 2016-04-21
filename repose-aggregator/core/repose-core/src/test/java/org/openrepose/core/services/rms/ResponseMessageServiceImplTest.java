@@ -152,7 +152,7 @@ public class ResponseMessageServiceImplTest {
             StatusCodeMatcher matcher = new StatusCodeMatcher();
             matcher.setId(I_AM_A_TEAPOT_VALUE_STRING);
             matcher.setCodeRegex(I_AM_A_TEAPOT_VALUE_STRING);
-            matcher.setOverwrite(OverwriteType.ALWAYS);
+            matcher.setOverwrite(OverwriteType.IF_EMPTY);
             matcher.getMessage().add(createMessage(MEDIA_TYPE_TEXT_PLAIN));
             matcher.getMessage().add(createMessage(MEDIA_TYPE_APPLICATION_JSON));
             matcher.getMessage().add(createMessage(MEDIA_TYPE_APPLICATION_XML));

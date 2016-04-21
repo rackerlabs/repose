@@ -2071,7 +2071,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       an[IllegalStateException] should be thrownBy wrappedResponse.setStatus(418, "TEAPOT")
     }
 
-    it("should set the status code and message") {
+    it("should set the status code and reason") {
       val mockResponse = mock[HttpServletResponse]
       when(mockResponse.isCommitted).thenReturn(false)
 
@@ -2080,6 +2080,21 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.setStatus(418, "TEAPOT")
 
       verify(mockResponse).setStatus(418, "TEAPOT")
+      wrappedResponse.getReason shouldEqual "TEAPOT"
+    }
+
+    it("should reset the reason on subsequent calls with no reason") {
+      val mockResponse = mock[HttpServletResponse]
+      when(mockResponse.isCommitted).thenReturn(false)
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setStatus(418, "TEAPOT")
+      wrappedResponse.setStatus(200)
+
+      verify(mockResponse).setStatus(418, "TEAPOT")
+      verify(mockResponse).setStatus(200)
+      wrappedResponse.getReason shouldBe null
     }
   }
 
@@ -2100,7 +2115,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       an[IllegalStateException] should be thrownBy wrappedResponse.sendError(418, "TEAPOT")
     }
 
-    it("should set the status code and body") {
+    it("should set the status code and reason") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
 
       // A hack to make this test work -- the original response /should/ set the status when sendError is called, but
@@ -2110,7 +2125,21 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.sendError(418, "TEAPOT")
 
       wrappedResponse.getStatus shouldBe 418
-      Source.fromInputStream(wrappedResponse.getOutputStreamAsInputStream).mkString shouldEqual "TEAPOT"
+      wrappedResponse.getReason shouldEqual "TEAPOT"
+    }
+
+    it("should reset the reason on subsequent calls with no reason") {
+      val mockResponse = mock[HttpServletResponse]
+      when(mockResponse.isCommitted).thenReturn(false)
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setStatus(418, "TEAPOT")
+      wrappedResponse.sendError(404)
+
+      verify(mockResponse).setStatus(418, "TEAPOT")
+      verify(mockResponse).setStatus(404)
+      wrappedResponse.getReason shouldBe null
     }
 
     it("should mark the wrapped as committed when given a single argument") {
@@ -2129,60 +2158,72 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.isCommitted shouldBe true
     }
 
-    it("should write and commit the underlying response if not in a mutable header mode") {
+    it("should commit the underlying response if not in a mutable header mode") {
       val mockResponse = mock[HttpServletResponse]
-      val out = new ByteArrayServletOutputStream()
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
         ResponseMode.PASSTHROUGH,
-        ResponseMode.PASSTHROUGH,
-        out)
+        ResponseMode.PASSTHROUGH)
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      out.baos.toString() shouldEqual "TEAPOT"
       verify(mockResponse).flushBuffer()
     }
 
-    it("should write, not commit the underlying response if in a mutable header mode") {
+    it("should not commit the underlying response if in a mutable header mode") {
       val mockResponse = mock[HttpServletResponse]
-      val out = new ByteArrayServletOutputStream()
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
         ResponseMode.MUTABLE,
-        ResponseMode.PASSTHROUGH,
-        out)
+        ResponseMode.PASSTHROUGH)
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      out.baos.toString() shouldEqual "TEAPOT"
       verify(mockResponse, never()).flushBuffer()
     }
 
-    it("should write and commit the underlying response if not in a mutable body mode") {
+    it("should commit the underlying response if not in a mutable body mode") {
       val mockResponse = mock[HttpServletResponse]
-      val out = new ByteArrayServletOutputStream()
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
         ResponseMode.PASSTHROUGH,
-        ResponseMode.PASSTHROUGH,
-        out)
+        ResponseMode.PASSTHROUGH)
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      out.baos.toString() shouldEqual "TEAPOT"
       verify(mockResponse).flushBuffer()
     }
 
     it("should not write, not commit the underlying response if in a mutable body mode") {
       val mockResponse = mock[HttpServletResponse]
-      val out = new ByteArrayServletOutputStream()
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
         ResponseMode.PASSTHROUGH,
-        ResponseMode.MUTABLE,
-        out)
+        ResponseMode.MUTABLE)
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      out.baos.toString() shouldEqual ""
       verify(mockResponse, never()).flushBuffer()
+    }
+  }
+
+  describe("getReason") {
+    it("should return null if it has not been set") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.getReason shouldBe null
+    }
+
+    it("should return the reason string if it has been set by setStatus") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setStatus(418, "TEAPOT")
+
+      wrappedResponse.getReason shouldEqual "TEAPOT"
+    }
+
+    it("should return the reason string if it has been set by sendError") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      wrappedResponse.getReason shouldEqual "TEAPOT"
     }
   }
 

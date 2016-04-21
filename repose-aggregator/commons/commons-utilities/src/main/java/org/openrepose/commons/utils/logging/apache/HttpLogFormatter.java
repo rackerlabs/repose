@@ -121,7 +121,7 @@ public class HttpLogFormatter {
             case STRING:
                 formatter.setLogic(new StringHandler(extractor.getVariable()));
                 break;
-            case RESPONSE_MESSAGE:
+            case RESPONSE_REASON:
                 formatter.setLogic(new ResponseMessageHandler(httpLogFormatterState));
                 break;
             case TRACE_GUID:

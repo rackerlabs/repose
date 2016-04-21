@@ -261,7 +261,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
         formParameterMap = Option(updatedParameterMap.toMap)
     }
 
-    // All all new query parameters to the parameter map with query parameters preceding form parameters
+    // Add all new query parameters to the parameter map with query parameters preceding form parameters
     newQueryMap foreach { case (key, values) =>
       updatedParameterMap += (key -> (values ++ updatedParameterMap.getOrElse(key, Array.empty[String])))
     }

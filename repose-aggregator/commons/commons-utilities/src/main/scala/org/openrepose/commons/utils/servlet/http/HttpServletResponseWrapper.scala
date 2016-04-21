@@ -28,7 +28,6 @@ import javax.servlet.{ServletOutputStream, ServletResponse}
 
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.http.media.MimeType
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
@@ -84,6 +83,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
   }
 
+  private var reason: Option[String] = None
   private var committed: Boolean = false
   private var flushedBuffer: Boolean = false
   private var responseBodyType: ResponseBodyType.Value = ResponseBodyType.Available
@@ -104,9 +104,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def setStatus(i: Int): Unit = {
     if (isCommitted) {
-      throw new IllegalStateException("Cannot call setStatus after the response has been committed")
+      throw new IllegalStateException("Cannot call sendError or setStatus after the response has been committed")
     } else {
       super.setStatus(i)
+      reason = None
     }
   }
 
@@ -115,6 +116,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       throw new IllegalStateException("Cannot call setStatus after the response has been committed")
     } else {
       super.setStatus(i, s)
+      reason = Option(s)
     }
   }
 
@@ -127,14 +129,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @param i the status code to set
     */
   override def sendError(i: Int): Unit = {
-    if (isCommitted) {
-      throw new IllegalStateException("Cannot call sendError after the response has been committed")
-    } else {
-      setStatus(i)
+    // Set that status.
+    setStatus(i)
 
-      // Writes the response data and marks the response as committed.
-      flushBuffer()
-    }
+    // Writes the response data and marks the response as committed.
+    flushBuffer()
   }
 
   /** See [[sendError(i)]].
@@ -143,28 +142,21 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @param s the string used to populate the response body
     */
   override def sendError(i: Int, s: String): Unit = {
-    if (isCommitted) {
-      throw new IllegalStateException("Cannot call sendError after the response has been committed")
-    } else {
-      // Set the status.
-      setStatus(i)
+    // Set the status.
+    setStatus(i)
 
-      // Call resetBuffer() so that we can write directly to a clean output stream, even if the client has previously
-      // written to the output stream.
-      resetBuffer()
+    // Set the reason phrase.
+    reason = Option(s)
 
-      // Set the Content-Type to text/plain so that any message can be read.
-      setContentType(MimeType.TEXT_PLAIN.getMimeType)
+    // Call resetBuffer() so that we can write directly to a clean output stream, even if the client has previously
+    // written to the output stream.
+    resetBuffer()
 
-      // Write the body. getBytes(...) may throw an UnsupportedEncodingException if the character encoding is not
-      // supported. This should only happen if the Content-Type header is set external to this class, and the value is
-      // not a JVM supported encoding.
-      bodyOutputStream.write(s.getBytes(StandardCharsets.ISO_8859_1))
-
-      // Writes the response data and marks the response as committed.
-      flushBuffer()
-    }
+    // Writes the response data and marks the response as committed.
+    flushBuffer()
   }
+
+  def getReason: String = reason.orNull
 
   override def isCommitted: Boolean = super.isCommitted || committed
 
