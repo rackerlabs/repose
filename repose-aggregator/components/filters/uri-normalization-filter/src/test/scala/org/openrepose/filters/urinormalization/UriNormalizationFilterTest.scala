@@ -34,6 +34,8 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
+import scala.collection.JavaConversions._
+
 @RunWith(classOf[JUnitRunner])
 class UriNormalizationFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
 
@@ -175,6 +177,22 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfter with Matche
       val wrappedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
 
       wrappedRequest.getHeader(CommonHttpHeader.ACCEPT.toString) shouldBe "application/xml"
+    }
+  }
+
+  describe("config") {
+    // this consistently triggers the undependable ordering of scala.collection.mutable.HashMap, so test it
+    it("should load it in order resulting in the ALL target being used") {
+      filter.configurationUpdated(createConfig(uriFilterTargets = Iterable(
+        (new Target).withHttpMethods(List(HttpMethod.ALL))
+          .withWhitelist((new HttpUriParameterList).withParameter((new UriParameter).withName("a"))),
+        (new Target).withHttpMethods(List(HttpMethod.GET))
+          .withWhitelist((new HttpUriParameterList).withParameter((new UriParameter).withName("b")))
+      )))
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getQueryString shouldBe "a=1"
     }
   }
 
