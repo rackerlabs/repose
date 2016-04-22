@@ -19,8 +19,8 @@ then
         exit 1
     fi
 else
-    getent group repose &gt;&gt; /dev/null 2&gt;&amp;1 || groupadd -r repose
-    getent passwd repose &gt;&gt; /dev/null 2&gt;&amp;1 || useradd -r -g repose -s \
+    getent group repose >> /dev/null 2>&1 || groupadd -r repose
+    getent passwd repose >> /dev/null 2>&1 || useradd -r -g repose -s \
     /sbin/nologin -d /usr/share/repose -c "Repose" repose
 fi
 exit 0
