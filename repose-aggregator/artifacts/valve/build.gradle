@@ -162,7 +162,6 @@ ospackage {
         fileType CONFIG | NOREPLACE
     }
 
-    //todo: remove the old once we are pure gradle
     //the sysconfig
     from('../src/config/sysconfig') {
         into '/etc/sysconfig'
@@ -172,7 +171,6 @@ ospackage {
         fileMode 644
     }
 
-    //todo: remove the old once we are pure gradle
     //clean up script
     from('../src/config/scripts/clean-repose-deploy') {
         user 'root'
@@ -181,7 +179,6 @@ ospackage {
     }
     link('/usr/bin/clean-repose-deploy', '/usr/share/repose/clean-repose-deploy')
 
-    //todo: remove the old Dependencies file after the move from maven
     //the license info
     from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", '../src/config/docs/DEPENDENCIES.txt']) {
         into '/usr/share/doc/repose-war'
@@ -199,7 +196,6 @@ ospackage {
 }
 
 buildDeb {
-    //todo: remove the old once we are pure gradle
     //the init.d
     from('../src/config/scripts/repose-valve-deb') {
         rename('repose-valve-deb', 'repose-valve')
@@ -213,7 +209,6 @@ buildDeb {
     requires('java8-runtime-headless')
     preInstall file('../src/config/scripts/preinst-deb')
     //todo: enhance the plugin so that filetype is properly respected
-    //todo: remove the old once we are on the gradle build
     configurationFile '/etc/repose/container.cfg.xml'
     configurationFile '/etc/repose/system-model.cfg.xml'
     configurationFile '/etc/repose/response-messaging.cfg.xml'
@@ -222,7 +217,6 @@ buildDeb {
 }
 
 buildRpm {
-    //todo: remove the old once we are pure gradle
     //the init.d
     from('../src/config/scripts/repose-valve-rpm') {
         rename('repose-valve-rpm', 'repose-valve')

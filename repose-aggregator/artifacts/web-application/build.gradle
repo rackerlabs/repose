@@ -120,7 +120,6 @@ ospackage {
         fileType CONFIG | NOREPLACE
     }
 
-    //todo: remove the old Dependencies file after the move from maven
     //the license info
     from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", '../src/config/docs/DEPENDENCIES.txt']) {
         into '/usr/share/doc/repose-war'
@@ -141,7 +140,6 @@ buildDeb {
     requires('java8-runtime-headless')
     preInstall file('../src/config/scripts/preinst-deb')
     //todo: enhance the plugin so that filetype is properly respected
-    //todo: remove the old once we are on the gradle build
     configurationFile '/etc/repose/container.cfg.xml'
     configurationFile '/etc/repose/system-model.cfg.xml'
     configurationFile '/etc/repose/response-messaging.cfg.xml'

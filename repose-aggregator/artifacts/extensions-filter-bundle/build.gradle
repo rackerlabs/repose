@@ -46,7 +46,6 @@ ospackage {
         fileMode 555
     }
 
-    //todo: remove the old files once the gradle build is the main
     //the configs
     from('src/config/filters') {
         into '/etc/repose'
@@ -56,7 +55,6 @@ ospackage {
         fileType CONFIG | NOREPLACE
     }
 
-    //todo: remove the old Dependencies file after the move from maven
     //the license info
     from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", 'src/config/docs/DEPENDENCIES.txt']) {
         into '/usr/share/doc/repose-extensions-filter-bundle'

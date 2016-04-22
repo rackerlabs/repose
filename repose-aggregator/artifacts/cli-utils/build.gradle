@@ -76,7 +76,6 @@ ospackage {
         fileMode 555
     }
 
-    //todo: remove the old files once the gradle build is the main
     //the scripts
     from('src/config/scripts') {
         user 'repose'

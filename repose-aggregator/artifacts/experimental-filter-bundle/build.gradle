@@ -75,7 +75,6 @@ buildDeb {
     requires('java8-runtime-headless')
     //todo: write one once we have some example configs
     //todo: enhance the plugin so that filetype is properly respected
-    //todo: remove the old once we are on the gradle build
     configurationFile '/etc/repose/butts.cfg.xml'
 }
 
