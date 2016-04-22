@@ -881,6 +881,21 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       localWrappedRequest.getParameterMap should contain key "a"
       localWrappedRequest.getParameterMap.get("a") should contain inOrderOnly("a", "b", "c")
     }
+
+    it("should store decoded keys and values") {
+      val localRequest = new MockHttpServletRequest()
+      localRequest.addParameter("a b", "a b")
+      localRequest.setQueryString("a+b=a+b")
+
+      val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
+
+      localWrappedRequest.setQueryString("A+B=A+B")
+
+      localWrappedRequest.getQueryString shouldBe "A+B=A+B"
+      localWrappedRequest.getParameterMap should have size 1
+      localWrappedRequest.getParameterMap should contain key "A B"
+      localWrappedRequest.getParameterMap.get("A B") should contain only "A B"
+    }
   }
 
   describe("getParameter") {

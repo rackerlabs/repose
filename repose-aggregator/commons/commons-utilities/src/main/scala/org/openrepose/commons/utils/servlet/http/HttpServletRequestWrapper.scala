@@ -20,6 +20,8 @@
 package org.openrepose.commons.utils.servlet.http
 
 import java.io.{BufferedReader, InputStreamReader}
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.util
 import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
@@ -230,12 +232,16 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
       s.split(QueryPairDelimiter) foreach { queryPair =>
         val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
 
+        /**
+          * Note: Decoding using UTF-8 is consistent with the processing performed by [[HttpComponentRequestProcessor]]
+          * on request parameters. However, if the JVM default encoding is not UTF-8, decoding may not work as expected.
+          * Perhaps the default JVM encoding should be used instead?
+          */
+        val key = URLDecoder.decode(keyValuePair(0), StandardCharsets.UTF_8.toString)
         if (keyValuePair.length == 2) {
-          val key = keyValuePair(0)
-          val value = keyValuePair(1)
+          val value = URLDecoder.decode(keyValuePair(1), StandardCharsets.UTF_8.toString)
           parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(value))
         } else {
-          val key = keyValuePair(0)
           parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(""))
         }
       }
