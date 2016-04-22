@@ -13,8 +13,10 @@ publishing {
     publications {
         nebula(MavenPublication) {
             artifact source: ear, extension: 'ear'
-            artifact source: buildDeb, extension: 'deb'
-            artifact source: buildRpm, extension: 'rpm'
+            if(project.hasProperty('release')) {
+                artifact source: buildDeb, extension: 'deb'
+                artifact source: buildRpm, extension: 'rpm'
+            }
 
             pom.withXml {
                 asNode().appendNode('packaging', 'ear')

@@ -44,9 +44,11 @@ publishing {
     publications {
         nebula(MavenPublication) {
             artifact shadowJar
-            artifact source: signShadowJar.singleSignature, extension: 'asc'
-            artifact source: buildDeb, extension: 'deb'
-            artifact source: buildRpm, extension: 'rpm'
+            if(project.hasProperty('release')) {
+                artifact source: signShadowJar.singleSignature, extension: 'asc'
+                artifact source: buildDeb, extension: 'deb'
+                artifact source: buildRpm, extension: 'rpm'
+            }
         }
     }
 }
