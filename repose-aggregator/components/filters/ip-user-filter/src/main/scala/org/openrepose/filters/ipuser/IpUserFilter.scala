@@ -28,6 +28,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import edazdarevic.commons.net.CIDRUtils
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -78,7 +79,9 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
       }
 
       //Always set the user header name to the current IP address
-      request.addHeader(userHeaderName, servletRequest.getRemoteAddr, userHeaderQuality)
+      val clientIpAddress = request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_FOR.toString)
+        .headOption.getOrElse(servletRequest.getRemoteAddr)
+      request.addHeader(userHeaderName, clientIpAddress, userHeaderQuality)
 
       logger.trace("IP User filter passing request...")
       filterChain.doFilter(request, servletResponse)
