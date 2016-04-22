@@ -195,7 +195,7 @@ public class TranslationResult {
 
         if (headers.getRequest() != null) {
             for (String header : request.getHeaderNamesList()) {
-                response.removeHeader(header);
+                request.removeHeader(header);
             }
 
             for (QualityNameValuePair header : headers.getRequest().getHeader()) {
