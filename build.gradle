@@ -236,7 +236,6 @@ subprojects {
         }
     }
 
-    //todo: remove old location for these files
     checkstyle {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/checkstyle.xml")
         sourceSets = sourceSets.matching {it.name != 'generated'}
