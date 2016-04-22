@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -117,15 +119,32 @@ public class TranslationResult {
         }
 
         if (StringUtilities.isNotBlank(requestInfo.getUri())) {
-            // TODO: DO NOT MERGE IF THE NEXT LINE IS STILL COMMENTED OUT!!!
-            //request.setRequestUri(requestInfo.getUri());
+            request.setRequestURI(requestInfo.getUri());
         }
 
         if (StringUtilities.isNotBlank(requestInfo.getUrl())) {
-            // TODO: DO NOT MERGE IF THE NEXT LINE IS STILL COMMENTED OUT!!!
-            //request.setRequestUrl(new StringBuffer(requestInfo.getUrl()));
+            try {
+                URL url = new URL(requestInfo.getUrl());
+                if (StringUtilities.isNotBlank(url.getProtocol())) {
+                    request.setScheme(url.getProtocol());
+                }
+                if (StringUtilities.isNotBlank(url.getHost())) {
+                    request.setServerName(url.getHost());
+                }
+                if (url.getPort() > 0) {
+                    request.setServerPort(url.getPort());
+                }
+                if (StringUtilities.isNotBlank(url.getPath())) {
+                    request.setRequestURI(url.getPath());
+                }
+                if (StringUtilities.isNotBlank(url.getQuery())) {
+                    request.setQueryString(url.getQuery());
+                }
+            } catch (MalformedURLException e) {
+                LOG.info("Failed to parse the translated URL: {}", requestInfo.getUrl());
+                LOG.trace("", e);
+            }
         }
-
     }
 
     public QueryParameters getQueryParameters() {
@@ -162,8 +181,7 @@ public class TranslationResult {
                 sb.append(param.getName()).append("=").append(param.getValue() != null ? param.getValue() : "");
             }
 
-            // TODO: DO NOT MERGE IF THE NEXT LINE IS STILL COMMENTED OUT!!!
-            //request.setRequestUriQuery(sb.toString());
+            request.setQueryString(sb.toString());
         }
     }
 
