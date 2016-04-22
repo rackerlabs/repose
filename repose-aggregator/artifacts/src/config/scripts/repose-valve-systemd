@@ -14,8 +14,6 @@ if [ "$JAVA_MINOR" -lt "8" ]; then
     echo 'Repose requires a Java version of at least 8 to function.'
     echo 'Please install a JRE 1.8 or greater.'
     exit 2
-else
-    echo 'Java is at JRE 1.8 or greater.'
 fi
 
 if [ ! -d "$REPOSE_CFG" ]; then
