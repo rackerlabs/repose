@@ -138,7 +138,6 @@ subprojects {
     task transformXSDs() {
         description "Runs xml through an xslt transfurm"
         ext.outputDir = "$buildDir/src/generated-xsd"
-        //todo: make this work with multiples so i can make these paths better
         def xsltFile = "$rootDir/repose-aggregator/src/config/xsl/remove-1.1-elements.xsl"
         def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
 
