@@ -223,7 +223,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   override def getQueryString: String = queryString
 
   /**
-    * @param newQueryString the desired query string for this request
+    * @param newQueryString the desired raw (i.e., already encoded where necessary) query string for this request
     */
   def setQueryString(newQueryString: String): Unit = {
     def parseQueryString(s: String): Map[String, Array[String]] = {
