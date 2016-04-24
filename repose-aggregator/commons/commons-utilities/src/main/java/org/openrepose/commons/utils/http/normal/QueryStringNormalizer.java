@@ -53,9 +53,7 @@ public class QueryStringNormalizer implements Normalizer<String> {
 
         final StringBuilder queryStringBuilder = new StringBuilder();
 
-        for (Iterator<QueryParameter> paramIterator = queryParameters.iterator(); paramIterator.hasNext(); ) {
-            final QueryParameter nextParameter = paramIterator.next();
-
+        for (QueryParameter nextParameter : queryParameters) {
             writeParameter(queryStringBuilder, nextParameter);
         }
 
@@ -65,9 +63,7 @@ public class QueryStringNormalizer implements Normalizer<String> {
     // TODO:Refactor - Consider returning a string value
     public void writeParameter(StringBuilder queryStringBuilder, QueryParameter queryParameter) {
         final ParameterFilter parameterFilter = parameterFilterFactory.newInstance();
-        for (Iterator<String> valueIterator = queryParameter.getValues().iterator(); valueIterator.hasNext(); ) {
-            final String value = valueIterator.next();
-
+        for (final String value : queryParameter.getValues()) {
             if (parameterFilter.shouldAccept(queryParameter.getName())) {
 
                 if (!queryStringBuilder.toString().isEmpty() && !queryStringBuilder.toString().endsWith("&")) {
