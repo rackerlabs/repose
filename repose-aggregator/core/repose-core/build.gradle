@@ -94,7 +94,7 @@ processResources {
 }
 
 processTestResources {
-    expand(earDirectory: copyEars.outputDir, earVersion: 2.1) //todo: this number is also in our version properties, i wonder if i can pull it out?
+    expand(earDirectory: copyEars.outputDir, earVersion: versionProperties.get('testEarVersion'))
 }
 
 //todo: do the unpack

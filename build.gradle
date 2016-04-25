@@ -351,6 +351,10 @@ dependencyRecommendations {
     propertiesFile file: file('versions.properties')
 }
 
+//this will let us access the a couple of the versions while still keeping a single source of truth
+project.ext.versionProperties = new Properties()
+project.ext.versionProperties.load(new FileInputStream("$rootDir/versions.properties"))
+
 sonarqube {
     properties {
         property "sonar.dynamicAnalysis", "reuseReports"

@@ -28,7 +28,7 @@ dependencies {
 }
 
 processResources {
-    expand(reposeVersion: version, jettyVersion: '9.2.0.v20140526') //todo: try to reuse this from the version properties
+    expand(reposeVersion: version, jettyVersion: versionProperties.get('jettyVersion'))
 }
 
 jar {
