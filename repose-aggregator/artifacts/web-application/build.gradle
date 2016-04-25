@@ -58,7 +58,6 @@ ospackage {
     maintainer 'Repose Development <repose-development@lists.openrepose.org>'
     url 'http://openrepose.org'
 
-    //todo: write and submit a pr to the plugin that does this automatically
     if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
         signingKeyId project.getProperty('signing.keyId')
         signingKeyPassphrase project.getProperty('signing.password')
@@ -67,7 +66,6 @@ ospackage {
 
     into '/usr/share/repose'
 
-    //todo: maybe enhance the plugin so that directory commands can take owners, not just file modes
     //the main directory
     from('../src/config/DELETE-ME') {
         createDirectoryEntry true
@@ -147,7 +145,6 @@ ospackage {
         fileMode 0444
     }
 
-    //todo: consider submitting enhancements to this plugin that allow version numbers
     provides('repose')
     conflicts('repose-valve')
     recommends('repose-filter-bundle')
@@ -158,7 +155,6 @@ ospackage {
 buildDeb {
     requires('java8-runtime-headless')
     preInstall file('../src/config/scripts/preinst-deb')
-    //todo: enhance the plugin so that filetype is properly respected
     configurationFile '/etc/repose/container.cfg.xml'
     configurationFile '/etc/repose/system-model.cfg.xml'
     configurationFile '/etc/repose/response-messaging.cfg.xml'

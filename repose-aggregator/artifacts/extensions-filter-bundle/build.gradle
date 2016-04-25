@@ -49,7 +49,6 @@ ospackage {
     maintainer 'Repose Development <repose-development@lists.openrepose.org>'
     url 'http://openrepose.org'
 
-    //todo: write and submit a pr to the plugin that does this automatically
     if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
         signingKeyId project.getProperty('signing.keyId')
         signingKeyPassphrase project.getProperty('signing.password')
@@ -89,7 +88,6 @@ ospackage {
 
 buildDeb {
     requires('java8-runtime-headless')
-    //todo: enhance the plugin so that filetype is properly respected
     //todo: remove the old once we are on the gradle build
     configurationFile '/etc/repose/validator.cfg.xml'
 }
