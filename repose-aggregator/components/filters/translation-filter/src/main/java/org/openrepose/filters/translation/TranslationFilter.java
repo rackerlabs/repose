@@ -258,9 +258,9 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
             filterAction = PROCESS_RESPONSE;
         } else {
             try {
-                ServletInputStream in = rtnRequest.getInputStream();
                 TranslationResult result = null;
                 for (XmlChainPool pool : pools) {
+                    final ServletInputStream in = rtnRequest.getInputStream();
                     final ByteBuffer internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
                     result = pool.executePool(
                             new TranslationPreProcessor(in, contentType, true).getBodyStream(),
