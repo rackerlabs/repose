@@ -304,32 +304,29 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
 
         if (!pools.isEmpty()) {
             try {
-                InputStream in = response.getOutputStreamAsInputStream();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                if (in != null) {
+                TranslationResult result = null;
+                for (XmlChainPool pool : pools) {
+                    final InputStream in = response.getOutputStreamAsInputStream();
+                    if (in != null && in.available() > 0) {
+                        result = pool.executePool(
+                                new TranslationPreProcessor(in, contentType, true).getBodyStream(),
+                                baos,
+                                getInputParameters(request, response, result)
+                        );
 
-                    TranslationResult result = null;
-                    for (XmlChainPool pool : pools) {
-                        if (in.available() > 0) {
-                            result = pool.executePool(
-                                    new TranslationPreProcessor(in, contentType, true).getBodyStream(),
-                                    baos,
-                                    getInputParameters(request, response, result)
-                            );
-
-                            if (result.isSuccess()) {
-                                result.applyResults(request, response);
-                                if (StringUtilities.isNotBlank(pool.getResultContentType())) {
-                                    contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
-                                    response.replaceHeader(CONTENT_TYPE, contentType.getValue());
-                                }
-                                response.setOutput(new ByteArrayInputStream(baos.toByteArray()));
-                            } else {
-                                response.setStatus(SC_INTERNAL_SERVER_ERROR);
-                                response.setContentLength(0);
-                                response.removeHeader(CONTENT_LENGTH);
-                                break;
+                        if (result.isSuccess()) {
+                            result.applyResults(request, response);
+                            if (StringUtilities.isNotBlank(pool.getResultContentType())) {
+                                contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
+                                response.replaceHeader(CONTENT_TYPE, contentType.getValue());
                             }
+                            response.setOutput(new ByteArrayInputStream(baos.toByteArray()));
+                        } else {
+                            response.setStatus(SC_INTERNAL_SERVER_ERROR);
+                            response.setContentLength(0);
+                            response.removeHeader(CONTENT_LENGTH);
+                            break;
                         }
                     }
                 }
