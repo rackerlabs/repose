@@ -1,0 +1,34 @@
+################################################################################
+#
+# NOTE: This file is not intended to be edited.
+#       IF you need to override any property (e.g. Environment, User, Group),
+#       THEN create and/or edit: /etc/systemd/system/repose-valve.service.d/local.conf
+#
+# NOTE: Refer to the following for more detailed information:
+#        - https://www.freedesktop.org/software/systemd/man/systemd.unit.html
+#
+################################################################################
+
+[Unit]
+Description=The Repose reverse proxy server in the stand-alone Valve configuration
+After=network.target
+
+[Service]
+Environment="JAVA_CMD=/usr/bin/java"
+Environment="JAVA_OPTS="
+Environment="REPOSE_JAR=/usr/share/repose/repose-valve.jar"
+Environment="REPOSE_CFG=/etc/repose"
+Environment="REPOSE_OPTS="
+User=repose
+Group=repose
+ExecStart=/usr/share/repose/repose-valve
+# Java processes exit with status code 128+SIG
+# SIGHUP  =  1
+# SIGINT  =  2
+# SIGTERM = 13
+# SIGPIPE = 15
+SuccessExitStatus=129 130 141 143
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

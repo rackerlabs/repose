@@ -73,7 +73,7 @@ ospackage {
         createDirectoryEntry true
         user 'root'
         permissionGroup 'root'
-        fileMode 555
+        fileMode 0555
     }
 
     //the web app
@@ -81,7 +81,7 @@ ospackage {
         rename('(.*).war', 'ROOT.war')
         user 'root'
         permissionGroup 'root'
-        fileMode 555
+        fileMode 0555
     }
 
     //the filter bundle directory
@@ -90,7 +90,7 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 755
+        fileMode 0755
     }
 
     //the artifact exploding directory
@@ -99,7 +99,7 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 750
+        fileMode 0750
     }
 
     //the log directory
@@ -108,7 +108,7 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 750
+        fileMode 0750
     }
 
     //the log rotate settings
@@ -117,7 +117,7 @@ ospackage {
         createDirectoryEntry false
         user 'repose'
         permissionGroup 'repose'
-        fileMode 644
+        fileMode 0644
     }
 
     //the configs directory
@@ -126,7 +126,7 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 770
+        fileMode 0770
     }
 
     //the basic configs
@@ -135,7 +135,7 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 640
+        fileMode 0640
         fileType CONFIG | NOREPLACE
     }
 
@@ -144,7 +144,7 @@ ospackage {
         into '/usr/share/doc/repose-war'
         user 'root'
         permissionGroup 'root'
-        fileMode 444
+        fileMode 0444
     }
 
     //todo: consider submitting enhancements to this plugin that allow version numbers

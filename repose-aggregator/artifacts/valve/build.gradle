@@ -101,14 +101,14 @@ ospackage {
         createDirectoryEntry true
         user 'root'
         permissionGroup 'root'
-        fileMode 555
+        fileMode 0555
     }
 
     //the web app
     from(shadowJar.outputs.files) {
         user 'root'
         permissionGroup 'root'
-        fileMode 555
+        fileMode 0555
     }
 
     //the filter bundle directory
@@ -117,7 +117,7 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 755
+        fileMode 0755
     }
 
     //the artifact exploding directory
@@ -126,7 +126,7 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 750
+        fileMode 0750
     }
 
     //the log directory
@@ -135,7 +135,7 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 750
+        fileMode 0750
     }
 
     //the log rotate settings
@@ -144,7 +144,7 @@ ospackage {
         createDirectoryEntry false
         user 'repose'
         permissionGroup 'repose'
-        fileMode 644
+        fileMode 0644
     }
 
     //the configs directory
@@ -153,7 +153,7 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 770
+        fileMode 0770
     }
 
     //the basic configs
@@ -162,33 +162,53 @@ ospackage {
         createDirectoryEntry true
         user 'repose'
         permissionGroup 'repose'
-        fileMode 640
+        fileMode 0640
         fileType CONFIG | NOREPLACE
     }
 
+    //the systemd service
+    from('../src/config/systemd/repose-valve.service') {
+        into '/lib/systemd/system'
+        createDirectoryEntry false
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0644
+    }
+
+    //the systemd wrapper script
+    from('../src/config/scripts/repose-valve-systemd') {
+        rename('repose-valve-systemd', 'repose-valve')
+        into '/usr/share/repose'
+        createDirectoryEntry false
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0755
+    }
+
+    //todo: remove the old once we are pure gradle
     //the sysconfig
     from('../src/config/sysconfig') {
         into '/etc/sysconfig'
         createDirectoryEntry false
         user 'root'
         permissionGroup 'root'
-        fileMode 644
+        fileMode 0644
     }
 
     //clean up script
     from('../src/config/scripts/clean-repose-deploy') {
         user 'root'
         permissionGroup 'root'
-        fileMode 755
+        fileMode 0755
     }
     link('/usr/bin/clean-repose-deploy', '/usr/share/repose/clean-repose-deploy')
 
     //the license info
     from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", '../src/config/docs/DEPENDENCIES.txt']) {
-        into '/usr/share/doc/repose-war'
+        into '/usr/share/doc/repose-valve'
         user 'root'
         permissionGroup 'root'
-        fileMode 444
+        fileMode 0444
     }
 
     //todo: consider submitting enhancements to this plugin that allow version numbers
@@ -207,7 +227,7 @@ buildDeb {
         createDirectoryEntry false
         user 'root'
         permissionGroup 'root'
-        fileMode 755
+        fileMode 0755
     }
 
     requires('java8-runtime-headless')
@@ -228,7 +248,7 @@ buildRpm {
         createDirectoryEntry false
         user 'root'
         permissionGroup 'root'
-        fileMode 755
+        fileMode 0755
     }
 
     requires('java', '1.8.0', GREATER | EQUAL)
