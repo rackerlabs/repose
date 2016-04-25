@@ -60,10 +60,10 @@ class ReposeStartupTest extends ReposeValveTest {
         //note: Order matters here. The common directory overwrites some of the configs from the core directory.
         //      This means that the core configs we provide may not get tested, but due to the structure of our tests,
         //      this is currently "hard" to fix.
-        repose.configurationProvider.applyConfigs("../../../../installation/configs/core", params)
+        repose.configurationProvider.applyConfigs("../../../../artifacts/src/config/filters", params)
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("../../../../installation/configs/extensions", params)
-        repose.configurationProvider.applyConfigs("../../../../installation/configs/filters", params)
+        repose.configurationProvider.applyConfigs("../../../../artifacts/extensions-filter-bundle/src/config/filters", params)
+        repose.configurationProvider.applyConfigs("../../../../artifacts/filter-bundle/src/config/filters", params)
         String systemModelTemp = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml.${nextPort}"
         String systemModelSource = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml"
         new File(systemModelTemp).withWriter {
