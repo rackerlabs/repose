@@ -69,6 +69,9 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
         String queryString = sourceRequest.getQueryString();
         if (StringUtils.isNotBlank(queryString)) {
             builder.setQuery(queryString);
+            if (builder.getQueryParams().isEmpty()) {
+                builder.removeQuery();
+            }
         }
     }
 
