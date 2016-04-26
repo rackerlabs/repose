@@ -22,6 +22,7 @@ package features.filters.ipuser
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+
 /**
  * Created by jennyvo on 4/26/16.
  *  REP-3838 fix using x-forward-for as x-pp-user
@@ -46,6 +47,7 @@ class IpUserWXForwardedForHeaderTest extends ReposeValveTest {
             repose.stop()
         }
     }
+
     def "classifying a request by its IP"() {
         when: "Request is sent through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get')
