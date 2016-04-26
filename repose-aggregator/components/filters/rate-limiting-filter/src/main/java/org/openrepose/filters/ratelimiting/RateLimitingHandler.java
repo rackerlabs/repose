@@ -98,7 +98,6 @@ public class RateLimitingHandler {
 
             // Auto return a 401 if the request does not meet expectations
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentLength(0);
             filterAction = FilterAction.RETURN;
         }
 

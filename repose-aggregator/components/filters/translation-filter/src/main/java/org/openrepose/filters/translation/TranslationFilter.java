@@ -61,7 +61,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.apache.http.HttpHeaders.CONTENT_LENGTH;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.openrepose.commons.utils.servlet.filter.FilterAction.PROCESS_RESPONSE;
 import static org.openrepose.commons.utils.servlet.filter.FilterAction.RETURN;
@@ -329,8 +328,6 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
                             response.setOutput(new ByteArrayInputStream(baos.toByteArray()));
                         } else {
                             response.setStatus(SC_INTERNAL_SERVER_ERROR);
-                            response.setContentLength(0);
-                            response.removeHeader(CONTENT_LENGTH);
                             break;
                         }
                     }
@@ -338,7 +335,6 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
             } catch (IOException ex) {
                 LOG.error("Error executing response transformer chain", ex);
                 response.setStatus(SC_INTERNAL_SERVER_ERROR);
-                response.setContentLength(0);
             }
         }
     }
