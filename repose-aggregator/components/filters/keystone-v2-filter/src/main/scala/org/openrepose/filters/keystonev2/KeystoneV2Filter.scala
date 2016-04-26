@@ -100,455 +100,451 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
-      doFilterGuarded(servletRequest, servletResponse, chain)
-    }
-  }
+      /**
+        * STATIC REFERENCE TO CONFIG
+        */
+      val config = keystoneV2Config
 
-  private def doFilterGuarded(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
-    /**
-      * STATIC REFERENCE TO CONFIG
-      */
-    val config = keystoneV2Config
+      /**
+        * DECLARE COMMON VALUES
+        */
+      lazy val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+      // Not using the mutable wrapper because it doesn't work properly at the moment, and
+      // we don't need to modify the response from further down the chain
+      lazy val response = servletResponse.asInstanceOf[HttpServletResponse]
+      lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
+      lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
+      lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
+        Option(config.getIdentityService.getPassword).isEmpty
 
-    /**
-      * DECLARE COMMON VALUES
-      */
-    lazy val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-    // Not using the mutable wrapper because it doesn't work properly at the moment, and
-    // we don't need to modify the response from further down the chain
-    lazy val response = servletResponse.asInstanceOf[HttpServletResponse]
-    lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
-    lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
-    lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
-      Option(config.getIdentityService.getPassword).isEmpty
+      /**
+        * BEGIN PROCESSING
+        */
+      if (!isInitialized) {
+        logger.error("Keystone v2 filter has not yet initialized")
+        response.sendError(SC_INTERNAL_SERVER_ERROR)
+      } else {
+        logger.debug("Keystone v2 filter processing request...")
 
-    /**
-      * BEGIN PROCESSING
-      */
-    if (!isInitialized) {
-      logger.error("Keystone v2 filter has not yet initialized")
-      response.sendError(SC_INTERNAL_SERVER_ERROR)
-    } else {
-      logger.debug("Keystone v2 filter processing request...")
+        val keystoneAuthenticateHeader = s"Keystone uri=${keystoneV2Config.getIdentityService.getUri}"
 
-      val keystoneAuthenticateHeader = s"Keystone uri=${keystoneV2Config.getIdentityService.getUri}"
-
-      val filterResult =
-        if (isWhitelisted(request.getRequestURI)) {
-          Pass
-        } else {
-          val processingResult =
-            getAuthToken flatMap { authToken =>
-              validateToken(authToken) flatMap { validToken =>
-                val doTenantCheck = doAuthorizeTenant(validToken)
-                val matchedUriTenant = getMatchingUriTenant(doTenantCheck, validToken)
-                addTokenHeaders(validToken, matchedUriTenant.getOrElse(None))
-                authorizeTenant(doTenantCheck, matchedUriTenant) flatMap { _ =>
-                  lazy val endpoints = getEndpoints(authToken, validToken) // Prevents making call if its not needed
-                  addCatalogHeader(endpoints) flatMap { _ =>
-                    authorizeEndpoints(validToken, endpoints) flatMap { _ =>
-                      addGroupsHeader(getGroups(authToken, validToken))
+        val filterResult =
+          if (isWhitelisted(request.getRequestURI)) {
+            Pass
+          } else {
+            val processingResult =
+              getAuthToken flatMap { authToken =>
+                validateToken(authToken) flatMap { validToken =>
+                  val doTenantCheck = doAuthorizeTenant(validToken)
+                  val matchedUriTenant = getMatchingUriTenant(doTenantCheck, validToken)
+                  addTokenHeaders(validToken, matchedUriTenant.getOrElse(None))
+                  authorizeTenant(doTenantCheck, matchedUriTenant) flatMap { _ =>
+                    lazy val endpoints = getEndpoints(authToken, validToken) // Prevents making call if its not needed
+                    addCatalogHeader(endpoints) flatMap { _ =>
+                      authorizeEndpoints(validToken, endpoints) flatMap { _ =>
+                        addGroupsHeader(getGroups(authToken, validToken))
+                      }
                     }
                   }
                 }
               }
-            }
 
-          processingResult match {
-            case Success(_) => Pass
-            case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-            case Failure(e: NotFoundException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-            case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-            case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-            case Failure(e: IdentityCommunicationException) => Reject(SC_BAD_GATEWAY, Some(e.getMessage))
-            case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
-            case Failure(e: OverLimitException) =>
-              response.addHeader(HttpHeaders.RETRY_AFTER, e.retryAfter)
-              if (isSelfValidating) {
-                Reject(e.statusCode, Some(e.getMessage))
-              } else {
-                Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
-              }
-            case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
-              Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
-            case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
-          }
-        }
-
-      filterResult match {
-        case Pass =>
-          logger.trace("Processing completed, passing to next filter or service")
-          addIdentityStatusHeader(confirmed = true)
-          chain.doFilter(request, response)
-        case Reject(statusCode, message) =>
-          Option(config.getDelegating) match {
-            case Some(delegating) =>
-              logger.debug(s"Delegating with status $statusCode caused by: ${message.getOrElse("unspecified")}")
-
-              val delegationHeaders = buildDelegationHeaders(statusCode,
-                "keystone-v2",
-                message.getOrElse("Failure in the Keystone v2 filter").replace("\n", " "),
-                delegating.getQuality)
-
-              addIdentityStatusHeader(confirmed = false)
-              delegationHeaders foreach { case (key, values) =>
-                values foreach { value =>
-                  request.addHeader(key, value)
+            processingResult match {
+              case Success(_) => Pass
+              case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+              case Failure(e: NotFoundException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+              case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+              case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+              case Failure(e: IdentityCommunicationException) => Reject(SC_BAD_GATEWAY, Some(e.getMessage))
+              case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
+              case Failure(e: OverLimitException) =>
+                response.addHeader(HttpHeaders.RETRY_AFTER, e.retryAfter)
+                if (isSelfValidating) {
+                  Reject(e.statusCode, Some(e.getMessage))
+                } else {
+                  Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
                 }
-              }
-
-              chain.doFilter(request, response)
-
-              logger.trace(s"Processing response with status code: $statusCode")
-
-              if (response.getStatus == SC_UNAUTHORIZED) {
-                response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
-              }
-            case None =>
-              logger.debug(s"Rejecting with status $statusCode")
-
-              if (statusCode == SC_UNAUTHORIZED) {
-                response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
-              }
-
-              message match {
-                case Some(m) =>
-                  logger.debug(s"Rejection message: $m")
-                  response.sendError(statusCode, m)
-                case None => response.sendError(statusCode)
-              }
-          }
-      }
-    }
-
-    /**
-      * DEFINING FUNCTIONS IN SCOPE
-      */
-    def tenantFromUri: Try[Option[String]] = {
-      Try(
-        Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
-          Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegex =>
-            val regex = uriExtractionRegex.r
-            request.getRequestURI match {
-              case regex(tenantId, _*) => Some(tenantId)
-              case _ => throw UnparseableTenantException("Could not parse tenant from the URI")
+              case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
+                Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
+              case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
             }
           }
+
+        filterResult match {
+          case Pass =>
+            logger.trace("Processing completed, passing to next filter or service")
+            addIdentityStatusHeader(confirmed = true)
+            chain.doFilter(request, response)
+          case Reject(statusCode, message) =>
+            Option(config.getDelegating) match {
+              case Some(delegating) =>
+                logger.debug(s"Delegating with status $statusCode caused by: ${message.getOrElse("unspecified")}")
+
+                val delegationHeaders = buildDelegationHeaders(statusCode,
+                  "keystone-v2",
+                  message.getOrElse("Failure in the Keystone v2 filter").replace("\n", " "),
+                  delegating.getQuality)
+
+                addIdentityStatusHeader(confirmed = false)
+                delegationHeaders foreach { case (key, values) =>
+                  values foreach { value =>
+                    request.addHeader(key, value)
+                  }
+                }
+
+                chain.doFilter(request, response)
+
+                logger.trace(s"Processing response with status code: $statusCode")
+
+                if (response.getStatus == SC_UNAUTHORIZED) {
+                  response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
+                }
+              case None =>
+                logger.debug(s"Rejecting with status $statusCode")
+
+                if (statusCode == SC_UNAUTHORIZED) {
+                  response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
+                }
+
+                message match {
+                  case Some(m) =>
+                    logger.debug(s"Rejection message: $m")
+                    response.sendError(statusCode, m)
+                  case None => response.sendError(statusCode)
+                }
+            }
         }
-      )
-    }
-
-    def isWhitelisted(requestUri: String): Boolean = {
-      logger.trace("Comparing request URI to whitelisted URIs")
-
-      val whiteListUris: List[String] = config.getWhiteList.getUriRegex.asScala.toList
-
-      whiteListUris exists { pattern =>
-        logger.debug(s"checking $requestUri against $pattern")
-        requestUri.matches(pattern)
       }
-    }
 
-    def getAuthToken: Try[String] = {
-      logger.trace("Getting the x-auth-token header value")
-
-      Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN)) match {
-        case Some(token) => Success(token)
-        case None => Failure(MissingAuthTokenException("X-Auth-Token header not found"))
-      }
-    }
-
-    def getValidatingToken(authToken: String, force: Boolean): Try[String] = {
-      logger.trace("Getting the validating token")
-
-      if (isSelfValidating) {
-        Success(authToken)
-      } else {
-        getAdminToken(config.getIdentityService.getUsername, config.getIdentityService.getPassword, force)
-      }
-    }
-
-    def getAdminToken(username: String, password: String, force: Boolean): Try[String] = {
-      logger.trace("Getting an admin token with the configured credentials")
-
-      // If force is true, clear the cache and acquire a new token
-      if (force) datastore.remove(ADMIN_TOKEN_KEY)
-
-      Option(datastore.get(ADMIN_TOKEN_KEY).asInstanceOf[String]) match {
-        case Some(cachedAdminToken) => Success(cachedAdminToken)
-        case None =>
-          requestHandler.getAdminToken(username, password) match {
-            case Success(adminToken) =>
-              datastore.put(ADMIN_TOKEN_KEY, adminToken)
-              Success(adminToken)
-            case f: Failure[_] => f
-          }
-      }
-    }
-
-    def validateToken(authToken: String): Try[ValidToken] = {
-      logger.trace(s"Validating token: $authToken")
-
-      Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[ValidToken]) map { validationResult =>
-        Success(validationResult)
-      } getOrElse {
-        getValidatingToken(authToken, force = false) flatMap { validatingToken =>
-          requestHandler.validateToken(validatingToken, authToken) recoverWith {
-            case _: AdminTokenUnauthorizedException =>
-              // Force acquiring of the admin token, and call the validation function again (retry once)
-              getValidatingToken(authToken, force = true) match {
-                case Success(newValidatingToken) => requestHandler.validateToken(newValidatingToken, authToken)
-                case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+      /**
+        * DEFINING FUNCTIONS IN SCOPE
+        */
+      def tenantFromUri: Try[Option[String]] = {
+        Try(
+          Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
+            Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegex =>
+              val regex = uriExtractionRegex.r
+              request.getRequestURI match {
+                case regex(tenantId, _*) => Some(tenantId)
+                case _ => throw UnparseableTenantException("Could not parse tenant from the URI")
               }
-          } cacheOnSuccess { validToken =>
-            val cacheSettings = config.getCache.getTimeouts
-            val timeToLive = getTtl(cacheSettings.getToken,
-              cacheSettings.getVariability,
-              Some(validToken))
-
-            timeToLive foreach { ttl =>
-              datastore.patch(s"$USER_ID_KEY_PREFIX${validToken.userId}", new SetPatch(authToken), ttl, TimeUnit.SECONDS)
-              datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, ttl, TimeUnit.SECONDS)
             }
           }
+        )
+      }
+
+      def isWhitelisted(requestUri: String): Boolean = {
+        logger.trace("Comparing request URI to whitelisted URIs")
+
+        val whiteListUris: List[String] = config.getWhiteList.getUriRegex.asScala.toList
+
+        whiteListUris exists { pattern =>
+          logger.debug(s"checking $requestUri against $pattern")
+          requestUri.matches(pattern)
         }
       }
-    }
 
-    def doAuthorizeTenant(validToken: ValidToken): Boolean = {
-      Option(config.getTenantHandling.getValidateTenant) exists { validateTenant =>
-        Option(config.getPreAuthorizedRoles) forall {
-          _.getRole.asScala.intersect(validToken.roles).isEmpty
+      def getAuthToken: Try[String] = {
+        logger.trace("Getting the x-auth-token header value")
+
+        Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN)) match {
+          case Some(token) => Success(token)
+          case None => Failure(MissingAuthTokenException("X-Auth-Token header not found"))
         }
       }
-    }
 
-    def getMatchingUriTenant(doTenantCheck: Boolean, validToken: ValidToken): Try[Option[String]] = {
-      if (doTenantCheck) {
-        tenantFromUri map {
-          _ flatMap { uriTenant =>
-            val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-            val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-            tokenTenants find { tokenTenant =>
-              tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
-                tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)
-              )
+      def getValidatingToken(authToken: String, force: Boolean): Try[String] = {
+        logger.trace("Getting the validating token")
+
+        if (isSelfValidating) {
+          Success(authToken)
+        } else {
+          getAdminToken(config.getIdentityService.getUsername, config.getIdentityService.getPassword, force)
+        }
+      }
+
+      def getAdminToken(username: String, password: String, force: Boolean): Try[String] = {
+        logger.trace("Getting an admin token with the configured credentials")
+
+        // If force is true, clear the cache and acquire a new token
+        if (force) datastore.remove(ADMIN_TOKEN_KEY)
+
+        Option(datastore.get(ADMIN_TOKEN_KEY).asInstanceOf[String]) match {
+          case Some(cachedAdminToken) => Success(cachedAdminToken)
+          case None =>
+            requestHandler.getAdminToken(username, password) match {
+              case Success(adminToken) =>
+                datastore.put(ADMIN_TOKEN_KEY, adminToken)
+                Success(adminToken)
+              case f: Failure[_] => f
             }
-          }
         }
-      } else {
-        Success(None)
       }
-    }
 
-    def authorizeTenant(doTenantCheck: Boolean, matchedUriTenant: Try[Option[String]]): Try[Unit.type] = {
-      logger.trace("Validating tenant")
+      def validateToken(authToken: String): Try[ValidToken] = {
+        logger.trace(s"Validating token: $authToken")
 
-      if (doTenantCheck) {
-        matchedUriTenant flatMap { uriTenant =>
-          if (uriTenant.isDefined) Success(Unit)
-          else Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
-        }
-      } else {
-        Success(Unit)
-      }
-    }
-
-    def getEndpoints(authToken: String, validToken: ValidToken): Try[EndpointsData] = {
-      logger.trace(s"Getting endpoints for: $authToken")
-
-      // todo: extract the "make call with admin token and retry" logic since that pattern is used elsewhere
-      Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[EndpointsData]) match {
-        case Some(endpointsData) => Success(endpointsData)
-        case None =>
-          getValidatingToken(authToken, force = false) flatMap { adminToken =>
-            requestHandler.getEndpointsForToken(adminToken, authToken) recoverWith {
+        Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[ValidToken]) map { validationResult =>
+          Success(validationResult)
+        } getOrElse {
+          getValidatingToken(authToken, force = false) flatMap { validatingToken =>
+            requestHandler.validateToken(validatingToken, authToken) recoverWith {
               case _: AdminTokenUnauthorizedException =>
-                // Force acquiring of the admin token, and call the endpoints function again (retry once)
+                // Force acquiring of the admin token, and call the validation function again (retry once)
                 getValidatingToken(authToken, force = true) match {
-                  case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken)
+                  case Success(newValidatingToken) => requestHandler.validateToken(newValidatingToken, authToken)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
-            } cacheOnSuccess { endpointsJson =>
+            } cacheOnSuccess { validToken =>
               val cacheSettings = config.getCache.getTimeouts
-              val timeToLive = getTtl(cacheSettings.getEndpoints, cacheSettings.getVariability)
+              val timeToLive = getTtl(cacheSettings.getToken,
+                cacheSettings.getVariability,
+                Some(validToken))
+
               timeToLive foreach { ttl =>
-                datastore.put(s"$ENDPOINTS_KEY_PREFIX$authToken", endpointsJson, ttl, TimeUnit.SECONDS)
+                datastore.patch(s"$USER_ID_KEY_PREFIX${validToken.userId}", new SetPatch(authToken), ttl, TimeUnit.SECONDS)
+                datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, ttl, TimeUnit.SECONDS)
               }
             }
           }
+        }
       }
-    }
 
-    def authorizeEndpoints(validToken: ValidToken, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
-      Option(config.getRequireServiceEndpoint) match {
-        case Some(configuredEndpoint) =>
-          logger.trace(s"Authorizing endpoints")
-
-          maybeEndpoints flatMap { endpoints =>
-            lazy val requiredEndpoint =
-              Endpoint(
-                publicURL = configuredEndpoint.getPublicUrl,
-                name = Option(configuredEndpoint.getName),
-                endpointType = Option(configuredEndpoint.getType),
-                region = Option(configuredEndpoint.getRegion)
-              )
-
-            val preAuthRoles = Option(config.getPreAuthorizedRoles)
-              .map(_.getRole.asScala)
-              .getOrElse(List.empty)
-
-            if (preAuthRoles.intersect(validToken.roles).nonEmpty || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
-            else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
+      def doAuthorizeTenant(validToken: ValidToken): Boolean = {
+        Option(config.getTenantHandling.getValidateTenant) exists { validateTenant =>
+          Option(config.getPreAuthorizedRoles) forall {
+            _.getRole.asScala.intersect(validToken.roles).isEmpty
           }
-        case None => Success(Unit)
+        }
       }
-    }
 
-    def getGroups(authToken: String, validToken: ValidToken): Try[Vector[String]] = {
-      logger.trace(s"Getting groups for: $authToken")
+      def getMatchingUriTenant(doTenantCheck: Boolean, validToken: ValidToken): Try[Option[String]] = {
+        if (doTenantCheck) {
+          tenantFromUri map {
+            _ flatMap { uriTenant =>
+              val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
+              val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
+              tokenTenants find { tokenTenant =>
+                tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
+                  tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)
+                )
+              }
+            }
+          }
+        } else {
+          Success(None)
+        }
+      }
 
-      Option(datastore.get(s"$GROUPS_KEY_PREFIX$authToken").asInstanceOf[Vector[String]]) match {
-        case Some(groups) => Success(groups)
-        case None =>
-          getValidatingToken(authToken, force = false) flatMap { adminToken =>
-            requestHandler.getGroups(adminToken, validToken.userId) recoverWith {
-              case _: AdminTokenUnauthorizedException =>
-                // Force acquiring of the admin token, and call the endpoints function again (retry once)
-                getValidatingToken(authToken, force = true) match {
-                  case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId)
-                  case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+      def authorizeTenant(doTenantCheck: Boolean, matchedUriTenant: Try[Option[String]]): Try[Unit.type] = {
+        logger.trace("Validating tenant")
+
+        if (doTenantCheck) {
+          matchedUriTenant flatMap { uriTenant =>
+            if (uriTenant.isDefined) Success(Unit)
+            else Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
+          }
+        } else {
+          Success(Unit)
+        }
+      }
+
+      def getEndpoints(authToken: String, validToken: ValidToken): Try[EndpointsData] = {
+        logger.trace(s"Getting endpoints for: $authToken")
+
+        // todo: extract the "make call with admin token and retry" logic since that pattern is used elsewhere
+        Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[EndpointsData]) match {
+          case Some(endpointsData) => Success(endpointsData)
+          case None =>
+            getValidatingToken(authToken, force = false) flatMap { adminToken =>
+              requestHandler.getEndpointsForToken(adminToken, authToken) recoverWith {
+                case _: AdminTokenUnauthorizedException =>
+                  // Force acquiring of the admin token, and call the endpoints function again (retry once)
+                  getValidatingToken(authToken, force = true) match {
+                    case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken)
+                    case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+                  }
+              } cacheOnSuccess { endpointsJson =>
+                val cacheSettings = config.getCache.getTimeouts
+                val timeToLive = getTtl(cacheSettings.getEndpoints, cacheSettings.getVariability)
+                timeToLive foreach { ttl =>
+                  datastore.put(s"$ENDPOINTS_KEY_PREFIX$authToken", endpointsJson, ttl, TimeUnit.SECONDS)
                 }
-              case _: NotFoundException =>
-                Success(Vector.empty)
-            } cacheOnSuccess { groups =>
-              val cacheSettings = config.getCache.getTimeouts
-              val timeToLive = getTtl(cacheSettings.getGroup, cacheSettings.getVariability)
-              timeToLive foreach { ttl =>
-                datastore.put(s"$GROUPS_KEY_PREFIX$authToken", groups, ttl, TimeUnit.SECONDS)
               }
             }
-          }
-      }
-    }
-
-    def buildTenantHeader(defaultTenant: Option[String],
-                          roleTenants: Seq[String],
-                          matchedUriTenant: Option[String]): Vector[String] = {
-      val sendAllTenants = config.getTenantHandling.isSendAllTenantIds
-      val sendTenantIdQuality = Option(config.getTenantHandling.getSendTenantIdQuality)
-      val sendQuality = sendTenantIdQuality.isDefined
-      val defaultTenantQuality = sendTenantIdQuality.map(_.getDefaultTenantQuality).getOrElse(0.0)
-      val uriTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
-      val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
-
-      case class PreferredTenant(id: String, quality: Double)
-
-      val preferredTenant = (defaultTenant, matchedUriTenant) match {
-        case (Some(default), Some(uri)) =>
-          val quality = if (default.equals(uri)) {
-            math.max(defaultTenantQuality, uriTenantQuality)
-          } else {
-            uriTenantQuality
-          }
-          Some(PreferredTenant(uri, quality))
-        case (None, Some(uri)) =>
-          Some(PreferredTenant(uri, uriTenantQuality))
-        case (Some(default), None) =>
-          Some(PreferredTenant(default, defaultTenantQuality))
-        case (None, None) =>
-          if (roleTenants.nonEmpty) Some(PreferredTenant(roleTenants.head, rolesTenantQuality))
-          else None
-      }
-
-      if (sendAllTenants && sendQuality) {
-        val priorityTenants = (defaultTenant, matchedUriTenant) match {
-          case (Some(default), Some(uri)) => Vector(s"$default;q=$defaultTenantQuality", s"$uri;q=$uriTenantQuality")
-          case (Some(default), None) => Vector(s"$defaultTenant;q=$defaultTenantQuality")
-          case (None, Some(uri)) => Vector(s"$uri;q=$uriTenantQuality")
-          case (None, None) => Vector.empty[String]
         }
-        priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
-      } else if (sendAllTenants && !sendQuality) {
-        (defaultTenant.toSet ++ roleTenants).toVector
-      } else if (!sendAllTenants && sendQuality) {
-        preferredTenant.map(tenant => Vector(s"${tenant.id};q=${tenant.quality}")).getOrElse(Vector.empty)
-      } else {
-        preferredTenant.map(tenant => Vector(s"${tenant.id}")).getOrElse(Vector.empty)
-      }
-    }
-
-    def addTokenHeaders(token: ValidToken, matchedUriTenant: Option[String]): Unit = {
-      // Add standard headers
-      request.addHeader(OpenStackServiceHeader.USER_ID.toString, token.userId)
-      request.addHeader(OpenStackServiceHeader.X_EXPIRATION.toString, token.expirationDate)
-      token.username.foreach(request.addHeader(PowerApiHeader.USER.toString, _))
-      token.username.foreach(request.addHeader(OpenStackServiceHeader.USER_NAME.toString, _))
-      token.tenantName.foreach(request.addHeader(OpenStackServiceHeader.TENANT_NAME.toString, _))
-      token.defaultRegion.foreach(request.addHeader(OpenStackServiceHeader.DEFAULT_REGION.toString, _))
-      token.contactId.foreach(request.addHeader(OpenStackServiceHeader.CONTACT_ID.toString, _))
-      token.impersonatorId.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString, _))
-      token.impersonatorName.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString, _))
-
-      // Construct and add impersonator roles, if available
-      val impersonatorRoles = token.impersonatorRoles
-      if (impersonatorRoles.nonEmpty) {
-        request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString, impersonatorRoles.mkString(","))
       }
 
-      // Construct and add the tenant id header
-      val tenantsToPass = buildTenantHeader(token.defaultTenantId, token.tenantIds, matchedUriTenant)
-      if (tenantsToPass.nonEmpty) {
-        request.addHeader(OpenStackServiceHeader.TENANT_ID.toString, tenantsToPass.mkString(","))
-      }
+      def authorizeEndpoints(validToken: ValidToken, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
+        Option(config.getRequireServiceEndpoint) match {
+          case Some(configuredEndpoint) =>
+            logger.trace(s"Authorizing endpoints")
 
-      // If configured, add roles header
-      if (config.getIdentityService.isSetRolesInHeader) {
-        request.addHeader(OpenStackServiceHeader.ROLES.toString, token.roles.mkString(","))
-      }
+            maybeEndpoints flatMap { endpoints =>
+              lazy val requiredEndpoint =
+                Endpoint(
+                  publicURL = configuredEndpoint.getPublicUrl,
+                  name = Option(configuredEndpoint.getName),
+                  endpointType = Option(configuredEndpoint.getType),
+                  region = Option(configuredEndpoint.getRegion)
+                )
 
-      // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
-      matchedUriTenant match {
-        case Some(uriTenant) =>
-          request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $uriTenant")
-        case None =>
-          token.defaultTenantId match {
-            case Some(tenant) =>
-              request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $tenant")
-            case None =>
-              request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, X_AUTH_PROXY)
-          }
-      }
-    }
+              val preAuthRoles = Option(config.getPreAuthorizedRoles)
+                .map(_.getRole.asScala)
+                .getOrElse(List.empty)
 
-    def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
-      if (config.getIdentityService.isSetCatalogInHeader) {
-        maybeEndpoints map { endpoints =>
-          request.addHeader(PowerApiHeader.X_CATALOG.toString, Base64.encodeBase64String(endpoints.json.getBytes))
-          Unit
+              if (preAuthRoles.intersect(validToken.roles).nonEmpty || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
+              else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
+            }
+          case None => Success(Unit)
         }
-      } else {
-        Success(Unit)
       }
-    }
 
-    def addGroupsHeader(maybeGroups: => Try[Vector[String]]): Try[Unit.type] = {
-      if (config.getIdentityService.isSetGroupsInHeader) {
-        maybeGroups map { groups =>
-          if (groups.nonEmpty) {
-            request.addHeader(PowerApiHeader.GROUPS, groups.mkString(","))
-          }
-          Unit
+      def getGroups(authToken: String, validToken: ValidToken): Try[Vector[String]] = {
+        logger.trace(s"Getting groups for: $authToken")
+
+        Option(datastore.get(s"$GROUPS_KEY_PREFIX$authToken").asInstanceOf[Vector[String]]) match {
+          case Some(groups) => Success(groups)
+          case None =>
+            getValidatingToken(authToken, force = false) flatMap { adminToken =>
+              requestHandler.getGroups(adminToken, validToken.userId) recoverWith {
+                case _: AdminTokenUnauthorizedException =>
+                  // Force acquiring of the admin token, and call the endpoints function again (retry once)
+                  getValidatingToken(authToken, force = true) match {
+                    case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId)
+                    case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
+                  }
+                case _: NotFoundException =>
+                  Success(Vector.empty)
+              } cacheOnSuccess { groups =>
+                val cacheSettings = config.getCache.getTimeouts
+                val timeToLive = getTtl(cacheSettings.getGroup, cacheSettings.getVariability)
+                timeToLive foreach { ttl =>
+                  datastore.put(s"$GROUPS_KEY_PREFIX$authToken", groups, ttl, TimeUnit.SECONDS)
+                }
+              }
+            }
         }
-      } else {
-        Success(Unit)
       }
-    }
 
-    def addIdentityStatusHeader(confirmed: Boolean): Unit = {
-      if (Option(config.getDelegating).isDefined) {
-        if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Confirmed.toString)
-        else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Indeterminate.toString)
+      def buildTenantHeader(defaultTenant: Option[String],
+                            roleTenants: Seq[String],
+                            matchedUriTenant: Option[String]): Vector[String] = {
+        val sendAllTenants = config.getTenantHandling.isSendAllTenantIds
+        val sendTenantIdQuality = Option(config.getTenantHandling.getSendTenantIdQuality)
+        val sendQuality = sendTenantIdQuality.isDefined
+        val defaultTenantQuality = sendTenantIdQuality.map(_.getDefaultTenantQuality).getOrElse(0.0)
+        val uriTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
+        val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
+
+        case class PreferredTenant(id: String, quality: Double)
+
+        val preferredTenant = (defaultTenant, matchedUriTenant) match {
+          case (Some(default), Some(uri)) =>
+            val quality = if (default.equals(uri)) {
+              math.max(defaultTenantQuality, uriTenantQuality)
+            } else {
+              uriTenantQuality
+            }
+            Some(PreferredTenant(uri, quality))
+          case (None, Some(uri)) =>
+            Some(PreferredTenant(uri, uriTenantQuality))
+          case (Some(default), None) =>
+            Some(PreferredTenant(default, defaultTenantQuality))
+          case (None, None) =>
+            if (roleTenants.nonEmpty) Some(PreferredTenant(roleTenants.head, rolesTenantQuality))
+            else None
+        }
+
+        if (sendAllTenants && sendQuality) {
+          val priorityTenants = (defaultTenant, matchedUriTenant) match {
+            case (Some(default), Some(uri)) => Vector(s"$default;q=$defaultTenantQuality", s"$uri;q=$uriTenantQuality")
+            case (Some(default), None) => Vector(s"$defaultTenant;q=$defaultTenantQuality")
+            case (None, Some(uri)) => Vector(s"$uri;q=$uriTenantQuality")
+            case (None, None) => Vector.empty[String]
+          }
+          priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
+        } else if (sendAllTenants && !sendQuality) {
+          (defaultTenant.toSet ++ roleTenants).toVector
+        } else if (!sendAllTenants && sendQuality) {
+          preferredTenant.map(tenant => Vector(s"${tenant.id};q=${tenant.quality}")).getOrElse(Vector.empty)
+        } else {
+          preferredTenant.map(tenant => Vector(s"${tenant.id}")).getOrElse(Vector.empty)
+        }
+      }
+
+      def addTokenHeaders(token: ValidToken, matchedUriTenant: Option[String]): Unit = {
+        // Add standard headers
+        request.addHeader(OpenStackServiceHeader.USER_ID.toString, token.userId)
+        request.addHeader(OpenStackServiceHeader.X_EXPIRATION.toString, token.expirationDate)
+        token.username.foreach(request.addHeader(PowerApiHeader.USER.toString, _))
+        token.username.foreach(request.addHeader(OpenStackServiceHeader.USER_NAME.toString, _))
+        token.tenantName.foreach(request.addHeader(OpenStackServiceHeader.TENANT_NAME.toString, _))
+        token.defaultRegion.foreach(request.addHeader(OpenStackServiceHeader.DEFAULT_REGION.toString, _))
+        token.contactId.foreach(request.addHeader(OpenStackServiceHeader.CONTACT_ID.toString, _))
+        token.impersonatorId.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString, _))
+        token.impersonatorName.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString, _))
+
+        // Construct and add impersonator roles, if available
+        val impersonatorRoles = token.impersonatorRoles
+        if (impersonatorRoles.nonEmpty) {
+          request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString, impersonatorRoles.mkString(","))
+        }
+
+        // Construct and add the tenant id header
+        val tenantsToPass = buildTenantHeader(token.defaultTenantId, token.tenantIds, matchedUriTenant)
+        if (tenantsToPass.nonEmpty) {
+          request.addHeader(OpenStackServiceHeader.TENANT_ID.toString, tenantsToPass.mkString(","))
+        }
+
+        // If configured, add roles header
+        if (config.getIdentityService.isSetRolesInHeader) {
+          request.addHeader(OpenStackServiceHeader.ROLES.toString, token.roles.mkString(","))
+        }
+
+        // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
+        matchedUriTenant match {
+          case Some(uriTenant) =>
+            request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $uriTenant")
+          case None =>
+            token.defaultTenantId match {
+              case Some(tenant) =>
+                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $tenant")
+              case None =>
+                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, X_AUTH_PROXY)
+            }
+        }
+      }
+
+      def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
+        if (config.getIdentityService.isSetCatalogInHeader) {
+          maybeEndpoints map { endpoints =>
+            request.addHeader(PowerApiHeader.X_CATALOG.toString, Base64.encodeBase64String(endpoints.json.getBytes))
+            Unit
+          }
+        } else {
+          Success(Unit)
+        }
+      }
+
+      def addGroupsHeader(maybeGroups: => Try[Vector[String]]): Try[Unit.type] = {
+        if (config.getIdentityService.isSetGroupsInHeader) {
+          maybeGroups map { groups =>
+            if (groups.nonEmpty) {
+              request.addHeader(PowerApiHeader.GROUPS, groups.mkString(","))
+            }
+            Unit
+          }
+        } else {
+          Success(Unit)
+        }
+      }
+
+      def addIdentityStatusHeader(confirmed: Boolean): Unit = {
+        if (Option(config.getDelegating).isDefined) {
+          if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Confirmed.toString)
+          else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.Indeterminate.toString)
+        }
       }
     }
   }
