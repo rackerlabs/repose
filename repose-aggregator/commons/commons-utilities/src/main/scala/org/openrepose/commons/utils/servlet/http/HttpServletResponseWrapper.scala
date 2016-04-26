@@ -443,8 +443,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
     (headerMode, bodyMode) match {
       case (ResponseMode.MUTABLE, ResponseMode.MUTABLE) =>
-        writeHeaders()
         writeBody()
+        writeHeaders()
       case (ResponseMode.MUTABLE, _) =>
         writeHeaders()
       case (_, ResponseMode.MUTABLE) =>
