@@ -7,7 +7,7 @@ configurations {
 
 dependencies {
     compile "org.scala-lang:scala-library"
-    compile "org.scala-lang:scala-xml"
+    compile "org.scala-lang.modules:scala-xml_2.11"
     compile "com.typesafe:config"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "com.github.scopt:scopt_$scalaMajDotMin"
