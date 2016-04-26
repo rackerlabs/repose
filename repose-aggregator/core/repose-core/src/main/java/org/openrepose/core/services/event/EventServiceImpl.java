@@ -19,12 +19,6 @@
  */
 package org.openrepose.core.services.event;
 
-import org.openrepose.core.services.event.common.Event;
-import org.openrepose.core.services.event.common.EventDispatcher;
-import org.openrepose.core.services.event.common.EventListener;
-import org.openrepose.core.services.event.common.EventService;
-import org.openrepose.core.services.event.common.impl.EventDispatcherImpl;
-import org.openrepose.core.services.event.common.impl.EventListenerDescriptor;
 import org.openrepose.core.services.event.impl.SimpleEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

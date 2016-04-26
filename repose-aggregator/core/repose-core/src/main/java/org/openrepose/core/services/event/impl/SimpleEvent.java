@@ -19,8 +19,8 @@
  */
 package org.openrepose.core.services.event.impl;
 
-import org.openrepose.core.services.event.common.Event;
-import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.event.Event;
+import org.openrepose.core.services.event.EventService;
 
 public class SimpleEvent<T extends Enum, P> implements Event<T, P> {
 

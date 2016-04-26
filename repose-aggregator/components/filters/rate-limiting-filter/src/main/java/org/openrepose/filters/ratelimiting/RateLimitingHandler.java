@@ -29,7 +29,7 @@ import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.filter.FilterAction;
 import org.openrepose.commons.utils.servlet.http.*;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
-import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.event.EventService;
 import org.openrepose.core.services.ratelimit.OverLimitData;
 import org.openrepose.core.services.ratelimit.RateLimitFilterEvent;
 import org.openrepose.core.services.ratelimit.RateLimitingServiceImpl;

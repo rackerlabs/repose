@@ -20,7 +20,7 @@
 package org.openrepose.core.services.deploy;
 
 import org.openrepose.commons.utils.Destroyable;
-import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.event.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

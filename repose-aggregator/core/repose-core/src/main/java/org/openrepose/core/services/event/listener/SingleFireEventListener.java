@@ -19,8 +19,8 @@
  */
 package org.openrepose.core.services.event.listener;
 
-import org.openrepose.core.services.event.common.Event;
-import org.openrepose.core.services.event.common.EventListener;
+import org.openrepose.core.services.event.Event;
+import org.openrepose.core.services.event.EventListener;
 
 public abstract class SingleFireEventListener<T extends Enum, P> implements EventListener<T, P> {
 

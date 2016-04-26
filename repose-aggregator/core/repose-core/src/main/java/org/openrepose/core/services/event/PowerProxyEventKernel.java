@@ -21,8 +21,6 @@ package org.openrepose.core.services.event;
 
 import org.openrepose.commons.utils.Destroyable;
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
-import org.openrepose.core.services.event.common.EventDispatcher;
-import org.openrepose.core.services.event.common.EventService;
 import org.openrepose.core.services.threading.ThreadingService;
 import org.openrepose.core.services.threading.impl.ThreadingServiceImpl;
 import org.slf4j.Logger;

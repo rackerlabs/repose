@@ -17,13 +17,20 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.event.common;
+package org.openrepose.core.services.event;
 
-public interface Event<T extends Enum, P> {
 
-    T type();
+public interface EventService {
 
-    P payload();
+    void newEvent(Enum e, Object payload);
 
-    EventService eventManager();
+    EventDispatcher nextDispatcher() throws InterruptedException;
+
+    <T extends Enum> void listen(EventListener<T, ?> el, Class<T> events);
+
+    <T extends Enum> void listen(EventListener<T, ?> el, T... events);
+
+    <T extends Enum> void squelch(EventListener<T, ?> el, Class<T> events);
+
+    <T extends Enum> void squelch(EventListener<T, ?> el, T... events);
 }

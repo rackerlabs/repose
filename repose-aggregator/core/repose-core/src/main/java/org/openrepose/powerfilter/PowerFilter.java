@@ -39,9 +39,9 @@ import org.openrepose.core.services.context.container.ContainerConfigurationServ
 import org.openrepose.core.services.deploy.ApplicationDeploymentEvent;
 import org.openrepose.core.services.deploy.ArtifactManager;
 import org.openrepose.core.services.event.PowerFilterEvent;
-import org.openrepose.core.services.event.common.Event;
-import org.openrepose.core.services.event.common.EventListener;
-import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.event.Event;
+import org.openrepose.core.services.event.EventListener;
+import org.openrepose.core.services.event.EventService;
 import org.openrepose.core.services.headers.response.ResponseHeaderService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;

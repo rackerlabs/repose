@@ -17,12 +17,31 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.event.common;
+package org.openrepose.core.services.event;
 
-public interface EventDispatcher {
+import java.util.Set;
 
-    void dispatch();
+public class EventDispatcherImpl implements EventDispatcher {
 
-    Event getEvent();
+    private final Set<EventListenerDescriptor> listeners;
+    private final Event e;
 
+    public EventDispatcherImpl(Event e, Set<EventListenerDescriptor> listeners) {
+        this.listeners = listeners;
+        this.e = e;
+    }
+
+    @Override
+    public Event getEvent() {
+        return e;
+    }
+
+    @Override
+    public void dispatch() {
+        for (EventListenerDescriptor eventListenerWrapper : listeners) {
+            if (eventListenerWrapper.answersTo(e.type())) {
+                eventListenerWrapper.getListener().onEvent(e);
+            }
+        }
+    }
 }
