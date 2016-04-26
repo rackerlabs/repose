@@ -791,6 +791,11 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getSplittableHeaders("abc").asScala.toList shouldBe empty
     }
 
+    it("should trim the space around the comma") {
+      wrappedRequest.addHeader("A", "a , b")
+      wrappedRequest.getSplittableHeaders("A") should contain only("a", "b")
+    }
+
     it("should throw an exception when quality is garbage") {
       wrappedRequest.addHeader("cup", "butts;q=butts")
       a[QualityFormatException] should be thrownBy wrappedRequest.getPreferredSplittableHeaders("cup")

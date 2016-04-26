@@ -447,6 +447,14 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.getSplittableHeaders("a") should be('empty)
     }
 
+    it("should trim the space around the comma") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("A", "a , b")
+
+      wrappedResponse.getSplittableHeaders("A") should contain only("a", "b")
+    }
+
     it("should return the full header values, with query parameters included") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 

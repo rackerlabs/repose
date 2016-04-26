@@ -198,6 +198,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def getSplittableHeaders(name: String): util.List[String] =
     getHeaderValues(name).foldLeft(List.empty[String])((list, value) => list ++ value.split(","))
+      .map(_.trim)
 
   private def getHeaderValues(name: String): Seq[String] = headerMap.getOrElse(name, Seq.empty[String])
 

@@ -125,7 +125,9 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     }
   }
 
-  def getSplittableHeaderScala(headerName: String): List[String] = getHeadersScala(headerName).foldLeft(List.empty[String])((list, s) => list ++ s.split(","))
+  def getSplittableHeaderScala(headerName: String): List[String] =
+    getHeadersScala(headerName).foldLeft(List.empty[String])((list, s) => list ++ s.split(","))
+      .map(_.trim)
 
   def getHeadersScala(headerName: String): List[String] = {
     if (removedHeaders.contains(headerName)) {
