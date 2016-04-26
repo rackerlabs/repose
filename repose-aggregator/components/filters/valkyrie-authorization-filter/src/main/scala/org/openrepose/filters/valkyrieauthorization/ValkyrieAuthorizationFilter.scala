@@ -466,7 +466,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     response.setStatus(statusCode)
     response.setOutput(null)
     response.setContentType(MediaType.TEXT_PLAIN)
-    response.setContentLength(message.length)
     response.getOutputStream.print(message)
   }
 

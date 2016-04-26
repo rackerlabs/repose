@@ -192,7 +192,6 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
     contentTransformer.transform(elementToMarshal, preferredMediaType, baos)
 
-    response.setContentLength(baos.size)
     RawInputStreamReader.instance.copyTo(new ByteArrayInputStream(baos.toByteArray), response.getOutputStream)
   }
 
