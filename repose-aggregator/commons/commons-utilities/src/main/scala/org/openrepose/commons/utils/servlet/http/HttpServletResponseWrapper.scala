@@ -341,6 +341,13 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
         throw new IllegalStateException("Cannot call getWriter after calling getOutputStream")
       case ResponseBodyType.Available =>
         responseBodyType = ResponseBodyType.PrintWriter
+        /** TODO: Should we wrap this with our own writer? The data a user writes to a PrintWriter may be buffered.
+          * Buffered content must be flushed from the PrintWriter to make it to the output stream, however,
+          * flushing the PrintWriter poses two potential problems:
+          * 1. It commits the response. Must the user commit the response if they want to write to the body?
+          * 2. How does this wrapper know if the PrintWriter has been flushed? How can this wrapper report
+          * being committed if the PrintWriter is flushed?
+          */
         bodyPrintWriter = new PrintWriter(new OutputStreamWriter(bodyOutputStream, getCharacterEncoding))
         bodyPrintWriter
       case ResponseBodyType.PrintWriter =>
