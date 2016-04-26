@@ -22,7 +22,7 @@ package features.filters.keystonev2basicauth.wpassword
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
-import org.apache.commons.lang.RandomStringUtils
+import org.apache.commons.lang3.RandomStringUtils
 import org.openrepose.commons.utils.http.HttpDate
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain

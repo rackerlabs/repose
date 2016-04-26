@@ -22,7 +22,7 @@ package features.filters.herp
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.apache.commons.codec.binary.Base64
-import org.apache.commons.lang.RandomStringUtils
+import org.apache.commons.lang3.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
