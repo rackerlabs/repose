@@ -103,7 +103,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
     if (!isInitialized) {
       logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
-      servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       val wrappedHttpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
       val httpResponse = servletResponse.asInstanceOf[HttpServletResponse]

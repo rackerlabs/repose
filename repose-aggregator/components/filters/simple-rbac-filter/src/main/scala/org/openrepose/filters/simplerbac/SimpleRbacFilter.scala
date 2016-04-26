@@ -80,7 +80,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!initialized) {
       logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
-      servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       logger.trace("Simple RBAC filter processing request...")
       validator.validate(
