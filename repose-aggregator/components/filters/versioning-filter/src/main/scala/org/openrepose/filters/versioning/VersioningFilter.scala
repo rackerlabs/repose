@@ -109,7 +109,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
     val httpResponse = response.asInstanceOf[HttpServletResponse]
 
     if (!isInitialized) {
-      logger.error("Versioning Filter has not yet initialized")
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       httpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       val configurationData = new ConfigurationData(destinations, serviceVersionMappings)

@@ -61,6 +61,15 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
+    } else {
+      doFilterGuarded(servletRequest, servletResponse, filterChain)
+    }
+  }
+
+  private def doFilterGuarded(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
     val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
     val isOptions = httpServletRequest.getMethod == HttpMethod.OPTIONS

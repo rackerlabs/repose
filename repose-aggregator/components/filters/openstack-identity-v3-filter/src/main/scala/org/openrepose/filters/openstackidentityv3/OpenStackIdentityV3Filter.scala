@@ -63,7 +63,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
     if (!isInitialized) {
-      logger.error("OpenStack Identity v3 filter has not yet initialized...")
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       val requestWrapper = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])

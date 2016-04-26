@@ -83,8 +83,8 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    if (!initialized) {
-      logger.error("HERP filter has not yet initialized...")
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
     } else {
       logger.trace("HERP filter passing request...")

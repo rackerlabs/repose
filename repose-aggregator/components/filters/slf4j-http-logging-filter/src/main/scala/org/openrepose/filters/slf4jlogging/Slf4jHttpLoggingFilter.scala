@@ -58,7 +58,7 @@ class Slf4jHttpLoggingFilter @Inject()(configurationService: ConfigurationServic
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!isInitialized) {
-      logger.error("SLF4JHttpLogging filter has not yet initialized...")
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]

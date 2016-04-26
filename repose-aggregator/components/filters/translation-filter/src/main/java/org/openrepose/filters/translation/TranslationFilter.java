@@ -160,33 +160,38 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper((HttpServletRequest) request);
-        HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(
-                (HttpServletResponse) response,
-                MUTABLE,
-                MUTABLE,
-                response.getOutputStream()
-        );
+        if (!isInitialized) {
+            LOG.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.");
+            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        } else {
+            HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper((HttpServletRequest) request);
+            HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(
+                    (HttpServletResponse) response,
+                    MUTABLE,
+                    MUTABLE,
+                    response.getOutputStream()
+            );
 
-        final HandleRequestResult handleRequestResult = handleRequest(requestWrapper, responseWrapper);
-        HttpServletRequestWrapper handleRequestWrapper = handleRequestResult.getRequest();
-        HttpServletResponseWrapper handleResponseWrapper = handleRequestResult.getResponse();
+            final HandleRequestResult handleRequestResult = handleRequest(requestWrapper, responseWrapper);
+            HttpServletRequestWrapper handleRequestWrapper = handleRequestResult.getRequest();
+            HttpServletResponseWrapper handleResponseWrapper = handleRequestResult.getResponse();
 
-        switch (handleRequestResult.getFilterAction()) {
-            case NOT_SET:
-                chain.doFilter(request, response);
-                break;
-            case PASS:
-                chain.doFilter(handleRequestWrapper, handleResponseWrapper);
-                handleResponseWrapper.commitToResponse();
-                break;
-            case PROCESS_RESPONSE:
-                chain.doFilter(handleRequestWrapper, handleResponseWrapper);
-                handleResponse(handleRequestWrapper, handleResponseWrapper);
-                handleResponseWrapper.commitToResponse();
-                break;
-            case RETURN:
-                break;
+            switch (handleRequestResult.getFilterAction()) {
+                case NOT_SET:
+                    chain.doFilter(request, response);
+                    break;
+                case PASS:
+                    chain.doFilter(handleRequestWrapper, handleResponseWrapper);
+                    handleResponseWrapper.commitToResponse();
+                    break;
+                case PROCESS_RESPONSE:
+                    chain.doFilter(handleRequestWrapper, handleResponseWrapper);
+                    handleResponse(handleRequestWrapper, handleResponseWrapper);
+                    handleResponseWrapper.commitToResponse();
+                    break;
+                case RETURN:
+                    break;
+            }
         }
     }
 

@@ -66,8 +66,8 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
   override def destroy(): Unit = configurationService.unsubscribeFrom(configName, this.asInstanceOf[UpdateListener[_]])
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    if (!initialized) {
-      logger.error("IP User filter has not yet initialized...")
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(500)
     } else {
       logger.trace("IP User filter handling request...")
