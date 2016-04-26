@@ -10,11 +10,15 @@ dependencies {
     testCompile "org.rackspace:deproxy"
     testCompile "joda-time:joda-time"
     testCompile project(":repose-aggregator:commons:commons-utilities")
+    testCompile project(":repose-aggregator:commons:commons-configuration")
     testCompile project(":repose-aggregator:core:repose-core-api")
-    testCompile project(":repose-aggregator:core:repose-core") //todo: remove this when filter director is gone
+    testCompile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
     testCompile "javax.ws.rs:javax.ws.rs-api"
     testCompile "org.eclipse.jetty:jetty-server"
     testCompile "org.eclipse.jetty:jetty-servlet"
+    testCompile "org.apache.commons:commons-lang3"
+    testCompile "org.springframework:spring-web"
+    testCompile "org.slf4j:jcl-over-slf4j"
 
     testRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
     testRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
