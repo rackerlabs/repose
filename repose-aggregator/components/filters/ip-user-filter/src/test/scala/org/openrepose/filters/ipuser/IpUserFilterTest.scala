@@ -42,11 +42,12 @@ class IpUserFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
+
+    ipUserFilter.configurationUpdated(createConfig())
   }
 
   describe("setting the request x-pp-user header") {
     it("should use the value of the remote IP address of the request when no X-Forwarded-For header is included") {
-      ipUserFilter.configurationUpdated(createConfig())
       servletRequest.setRemoteAddr("10.1.2.3")
 
       ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
@@ -55,7 +56,6 @@ class IpUserFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     }
 
     it("should use the value of the X-Forwarded-For header when it is included") {
-      ipUserFilter.configurationUpdated(createConfig())
       servletRequest.setRemoteAddr("10.1.2.3")
       servletRequest.addHeader("X-Forwarded-For", "10.55.66.77")
 
@@ -65,7 +65,6 @@ class IpUserFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     }
 
     it("should use the first value of the X-Forwarded-For header when there are multiple non-split values") {
-      ipUserFilter.configurationUpdated(createConfig())
       servletRequest.setRemoteAddr("10.1.2.3")
       servletRequest.addHeader("X-Forwarded-For", "10.123.123.123")
       servletRequest.addHeader("X-Forwarded-For", "10.55.66.77")
@@ -76,7 +75,6 @@ class IpUserFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     }
 
     it("should use the first value of the X-Forwarded-For header when there are multiple splittable values") {
-      ipUserFilter.configurationUpdated(createConfig())
       servletRequest.setRemoteAddr("10.1.2.3")
       servletRequest.addHeader("X-Forwarded-For", "10.233.10.67,10.55.66.77")
 
