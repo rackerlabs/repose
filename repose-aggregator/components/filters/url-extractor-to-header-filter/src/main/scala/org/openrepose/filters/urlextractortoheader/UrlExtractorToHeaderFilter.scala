@@ -22,7 +22,7 @@ package org.openrepose.filters.urlextractortoheader
 import java.net.URL
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -56,17 +56,22 @@ class UrlExtractorToHeaderFilter @Inject()(configurationService: ConfigurationSe
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+    } else {
+      val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
-    extractions.foreach { extraction =>
-      (extraction.urlRegex.findFirstIn(httpRequest.getRequestURI), extraction.defaultValue) match {
-        case (Some(extraction.urlRegex(headerValue)), _) => httpRequest.addHeader(extraction.headerName, headerValue)
-        case (None, Some(defaultValue)) => httpRequest.addHeader(extraction.headerName, defaultValue)
-        case (None, None) => // don't add a header
+      extractions.foreach { extraction =>
+        (extraction.urlRegex.findFirstIn(httpRequest.getRequestURI), extraction.defaultValue) match {
+          case (Some(extraction.urlRegex(headerValue)), _) => httpRequest.addHeader(extraction.headerName, headerValue)
+          case (None, Some(defaultValue)) => httpRequest.addHeader(extraction.headerName, defaultValue)
+          case (None, None) => // don't add a header
+        }
       }
-    }
 
-    filterChain.doFilter(httpRequest, servletResponse)
+      filterChain.doFilter(httpRequest, servletResponse)
+    }
   }
 
   override def destroy(): Unit = {

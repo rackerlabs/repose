@@ -54,23 +54,22 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!isInitialized) {
-      logger.warn("Rackspace Auth User filter has not yet initialized.")
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
-      return
-    }
-
-    val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
-    if (httpServletRequest.getMethod != "POST") {
-      // this filter only operates on POST requests that have a body to parse
-      filterChain.doFilter(servletRequest, servletResponse)
     } else {
-      val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest)
-      handler.get.parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType) foreach { rackspaceAuthUserGroup =>
-        wrappedRequest.addHeader(PowerApiHeader.USER.toString, rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.quality)
-        wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
-      }
+      val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
+      if (httpServletRequest.getMethod != "POST") {
+        // this filter only operates on POST requests that have a body to parse
+        filterChain.doFilter(servletRequest, servletResponse)
+      } else {
+        val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest)
+        handler.get.parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType) foreach { rackspaceAuthUserGroup =>
+          wrappedRequest.addHeader(PowerApiHeader.USER.toString, rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.quality)
+          wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
+        }
 
-      filterChain.doFilter(wrappedRequest, servletResponse)
+        filterChain.doFilter(wrappedRequest, servletResponse)
+      }
     }
   }
 

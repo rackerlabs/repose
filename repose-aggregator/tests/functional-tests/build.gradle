@@ -117,6 +117,12 @@ test {
             //todo: Maybe reevaluate whether we still want these tests and categories
         }
     }
+
+    if (project.hasProperty('showLog')) {
+        testLogging {
+            showStandardStreams = true
+        }
+    }
 }
 
 license {

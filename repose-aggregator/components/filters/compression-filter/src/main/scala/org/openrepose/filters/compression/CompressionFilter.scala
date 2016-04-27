@@ -67,25 +67,30 @@ class CompressionFilter @Inject()(configurationService: ConfigurationService, co
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, filterChain: FilterChain): Unit = {
-    val httpResponse = response.asInstanceOf[HttpServletResponse]
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
+      response.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+    } else {
+      val httpResponse = response.asInstanceOf[HttpServletResponse]
 
-    val filterResult: ActualFilterResult = Try(actualFilter.doFilter(request, httpResponse, filterChain)) match {
-      case Success(_) => Pass
-      case Failure(ioe: IOException) if "Not in GZIP format".equalsIgnoreCase(ioe.getMessage) => BadRequest(ioe)
-      case Failure(ioe: IOException) if classOf[EOFException] == ioe.getClass => BadRequest(ioe)
-      case Failure(ioe: IOException) => InternalError(ioe)
-      case Failure(e: Exception) => InternalError(e)
-    }
+      val filterResult: ActualFilterResult = Try(actualFilter.doFilter(request, httpResponse, filterChain)) match {
+        case Success(_) => Pass
+        case Failure(ioe: IOException) if "Not in GZIP format".equalsIgnoreCase(ioe.getMessage) => BadRequest(ioe)
+        case Failure(ioe: IOException) if classOf[EOFException] == ioe.getClass => BadRequest(ioe)
+        case Failure(ioe: IOException) => InternalError(ioe)
+        case Failure(e: Exception) => InternalError(e)
+      }
 
-    filterResult match {
-      case Pass => // do nothing
-      case BadRequest(e: Exception) =>
-        logger.warn("Unable to decompress message. Bad request body or content-encoding")
-        logger.debug("Exception: ", e)
-        httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST)
-      case InternalError(e: Exception) =>
-        logger.error("Error with the CompressingFilter", e)
-        httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+      filterResult match {
+        case Pass => // do nothing
+        case BadRequest(e: Exception) =>
+          logger.warn("Unable to decompress message. Bad request body or content-encoding")
+          logger.debug("Exception: ", e)
+          httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+        case InternalError(e: Exception) =>
+          logger.error("Error with the CompressingFilter", e)
+          httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+      }
     }
   }
 

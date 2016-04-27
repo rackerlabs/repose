@@ -53,16 +53,22 @@ class AddHeaderFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
-    val requestWrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest])
-    val responseWrapper: HttpServletResponseWrapper = new HttpServletResponseWrapper(
-      response.asInstanceOf[HttpServletResponse], MUTABLE, READONLY, response.getOutputStream)
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
+      response.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+    } else {
+      val requestWrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest])
 
-    addHeaders(requestWrapper, config.getRequest)
+      val responseWrapper: HttpServletResponseWrapper = new HttpServletResponseWrapper(
+        response.asInstanceOf[HttpServletResponse], MUTABLE, READONLY, response.getOutputStream)
 
-    chain.doFilter(requestWrapper, responseWrapper)
+      addHeaders(requestWrapper, config.getRequest)
 
-    addHeaders(responseWrapper, config.getResponse)
-    responseWrapper.commitToResponse()
+      chain.doFilter(requestWrapper, responseWrapper)
+
+      addHeaders(responseWrapper, config.getResponse)
+      responseWrapper.commitToResponse()
+    }
   }
 
   def addHeaders(wrapper: HeaderInteractor, configuredHeaders: HttpMessage): Unit = {

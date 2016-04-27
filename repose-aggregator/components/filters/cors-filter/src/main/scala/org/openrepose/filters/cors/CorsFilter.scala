@@ -61,68 +61,76 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
-    val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
-    val isOptions = httpServletRequest.getMethod == HttpMethod.OPTIONS
-    val origin = httpServletRequest.getHeader(CorsHttpHeader.ORIGIN)
-    val requestMethodHeader = httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
-    lazy val validMethods = getValidMethodsForResource(httpServletRequest.getRequestURI)
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+    } else {
+      val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
+      val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
+      val isOptions = httpServletRequest.getMethod == HttpMethod.OPTIONS
+      val origin = httpServletRequest.getHeader(CorsHttpHeader.ORIGIN)
+      val requestMethodHeader = httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
+      lazy val validMethods = getValidMethodsForResource(httpServletRequest.getRequestURI)
 
-    val requestType = (Option(origin), isOptions, Option(requestMethodHeader)) match {
+      val requestType = (Option(origin), isOptions, Option(requestMethodHeader)) match {
         case (Some(_), true, Some(_)) => PreflightRequest
         case (Some(_), _, None) => ActualRequest
         case _ => NonCorsRequest
-    }
+      }
 
-    val requestedMethod = requestType match {
-      case PreflightRequest => requestMethodHeader
-      case _ => httpServletRequest.getMethod
-    }
+      val requestedMethod = requestType match {
+        case PreflightRequest => requestMethodHeader
+        case _ => httpServletRequest.getMethod
+      }
 
-    val validationResult = requestType match {
-      case NonCorsRequest => Pass
-      case _ =>
-        (isOriginAllowed(origin), validMethods.exists(requestedMethod == _)) match {
-          case (true, true) => Pass
-          case (false, _) => OriginNotAllowed
-          case (true, false) => MethodNotAllowed
-        }
-    }
+      val validationResult = requestType match {
+        case NonCorsRequest => Pass
+        case _ =>
+          (isOriginAllowed(origin), validMethods.exists(requestedMethod == _)) match {
+            case (true, true) => Pass
+            case (false, _) => OriginNotAllowed
+            case (true, false) => MethodNotAllowed
+          }
+      }
 
-    validationResult match {
-      case Pass =>
-        requestType match {
-          case NonCorsRequest => filterChain.doFilter(httpServletRequest, httpServletResponse)
-          case PreflightRequest =>
-            httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
-            httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
-            Option(httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)).foreach {
-              httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS, _)}
-            validMethods.foreach {httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)}
-            httpServletResponse.setStatus(HttpServletResponse.SC_OK)
-          case ActualRequest =>
-            filterChain.doFilter(httpServletRequest, httpServletResponse)
-            httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
-            httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
+      validationResult match {
+        case Pass =>
+          requestType match {
+            case NonCorsRequest => filterChain.doFilter(httpServletRequest, httpServletResponse)
+            case PreflightRequest =>
+              httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
+              httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
+              Option(httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)).foreach {
+                httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS, _)
+              }
+              validMethods.foreach {
+                httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)
+              }
+              httpServletResponse.setStatus(HttpServletResponse.SC_OK)
+            case ActualRequest =>
+              filterChain.doFilter(httpServletRequest, httpServletResponse)
+              httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
+              httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
 
-            // clone the list of header names so we can add headers while we iterate through it
-            (List.empty ++ httpServletResponse.getHeaderNames.asScala).foreach {
-              httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
-            }
-        }
-      case OriginNotAllowed =>
-        httpServletResponse.setHeader(CorsHttpHeader.ORIGIN, "null")
-        httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
-      case MethodNotAllowed =>
-        httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
-        httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
-    }
+              // clone the list of header names so we can add headers while we iterate through it
+              (List.empty ++ httpServletResponse.getHeaderNames.asScala).foreach {
+                httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
+              }
+          }
+        case OriginNotAllowed =>
+          httpServletResponse.setHeader(CorsHttpHeader.ORIGIN, "null")
+          httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
+        case MethodNotAllowed =>
+          httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
+          httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
+      }
 
-    // always add the Vary header
-    httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ORIGIN)
-    if (isOptions) {
-      httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)
-      httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
+      // always add the Vary header
+      httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ORIGIN)
+      if (isOptions) {
+        httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)
+        httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
+      }
     }
   }
 

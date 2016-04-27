@@ -58,7 +58,7 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
     if (!isInitialized) {
-      logger.error("Filter has not yet initialized...")
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       response.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       val httpRequest = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest])

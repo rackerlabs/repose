@@ -59,59 +59,64 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-    val wrappedResponse = new HttpServletResponseWrapper(
-      servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+    } else {
+      val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+      val wrappedResponse = new HttpServletResponseWrapper(
+        servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
-    val uriTokens = splitUriIntoTokens(wrappedRequest.getRequestURI)
-    var previousToken: Option[String] = None
-    var nextToken: Option[String] = None
-    var token: Option[String] = None
+      val uriTokens = splitUriIntoTokens(wrappedRequest.getRequestURI)
+      var previousToken: Option[String] = None
+      var nextToken: Option[String] = None
+      var token: Option[String] = None
 
-    if (uriTokens.length > config.getTokenIndex) {
-      if (config.getTokenIndex != 0) {
-        previousToken = Option(uriTokens(config.getTokenIndex - 1)).filterNot(_.trim.isEmpty)
+      if (uriTokens.length > config.getTokenIndex) {
+        if (config.getTokenIndex != 0) {
+          previousToken = Option(uriTokens(config.getTokenIndex - 1)).filterNot(_.trim.isEmpty)
+        }
+
+        if (uriTokens.length > config.getTokenIndex + 1) {
+          nextToken = Option(uriTokens(config.getTokenIndex + 1)).filterNot(_.trim.isEmpty)
+        }
+
+        token = Some(uriTokens.remove(config.getTokenIndex))
+        wrappedRequest.setRequestURI(joinTokensIntoUri(uriTokens))
       }
 
-      if (uriTokens.length > config.getTokenIndex + 1) {
-        nextToken = Option(uriTokens(config.getTokenIndex + 1)).filterNot(_.trim.isEmpty)
-      }
+      filterChain.doFilter(wrappedRequest, wrappedResponse)
 
-      token = Some(uriTokens.remove(config.getTokenIndex))
-      wrappedRequest.setRequestURI(joinTokensIntoUri(uriTokens))
-    }
+      val originalLocation = wrappedResponse.getHeader(CommonHttpHeader.LOCATION.toString)
+      if (config.isRewriteLocation && token.isDefined && !Option(originalLocation).forall(_.trim.isEmpty) && (previousToken.isDefined || nextToken.isDefined)) {
 
-    filterChain.doFilter(wrappedRequest, wrappedResponse)
+        if (originalLocation.contains(previousToken.getOrElse("") + UriDelimiter + token.get + UriDelimiter + nextToken.getOrElse(""))) {
+          logger.debug("Stripped token already present in Location Header")
+        } else {
+          Try(new URI(originalLocation)) match {
+            case Failure(exception) =>
+              logger.warn("Unable to parse Location header. Location header is malformed URI", exception)
+            case Success(uri) =>
+              val locationTokens = splitUriIntoTokens(uri.getPath)
 
-    val originalLocation = wrappedResponse.getHeader(CommonHttpHeader.LOCATION.toString)
-    if (config.isRewriteLocation && token.isDefined && !Option(originalLocation).forall(_.trim.isEmpty) && (previousToken.isDefined || nextToken.isDefined)) {
+              // figure out where to add the token if we can
+              ((previousToken.filter(locationTokens.contains), nextToken.filter(locationTokens.contains)) match {
+                case (Some(foundToken), _) => Some(locationTokens.indexOf(foundToken) + 1)
+                case (_, Some(foundToken)) => Some(locationTokens.indexOf(foundToken))
+                case _ => None
+              }).foreach(locationTokens.insert(_, token.get))
 
-      if (originalLocation.contains(previousToken.getOrElse("") + UriDelimiter + token.get + UriDelimiter + nextToken.getOrElse(""))) {
-        logger.debug("Stripped token already present in Location Header")
-      } else {
-        Try(new URI(originalLocation)) match {
-          case Failure(exception) =>
-            logger.warn("Unable to parse Location header. Location header is malformed URI", exception)
-          case Success(uri) =>
-            val locationTokens = splitUriIntoTokens(uri.getPath)
-
-            // figure out where to add the token if we can
-            ((previousToken.filter(locationTokens.contains), nextToken.filter(locationTokens.contains)) match {
-              case (Some(foundToken), _) => Some(locationTokens.indexOf(foundToken) + 1)
-              case (_, Some(foundToken)) => Some(locationTokens.indexOf(foundToken))
-              case _ => None
-            }).foreach(locationTokens.insert(_, token.get))
-
-            val preUri = Option(uri.getScheme).map(_ + "://" + uri.getHost + (if (uri.getPort != -1) ":" + uri.getPort else ""))
-            val postUri = Option(uri.getQuery).filterNot(_.trim.isEmpty).map(QueryParamIndicator +)
-            wrappedResponse.replaceHeader(
-              CommonHttpHeader.LOCATION.toString,
-              preUri.getOrElse("") + joinTokensIntoUri(locationTokens) + postUri.getOrElse(""))
+              val preUri = Option(uri.getScheme).map(_ + "://" + uri.getHost + (if (uri.getPort != -1) ":" + uri.getPort else ""))
+              val postUri = Option(uri.getQuery).filterNot(_.trim.isEmpty).map(QueryParamIndicator +)
+              wrappedResponse.replaceHeader(
+                CommonHttpHeader.LOCATION.toString,
+                preUri.getOrElse("") + joinTokensIntoUri(locationTokens) + postUri.getOrElse(""))
+          }
         }
       }
-    }
 
-    wrappedResponse.commitToResponse()
+      wrappedResponse.commitToResponse()
+    }
   }
 
   private def splitUriIntoTokens(uri: String): mutable.Buffer[String] =

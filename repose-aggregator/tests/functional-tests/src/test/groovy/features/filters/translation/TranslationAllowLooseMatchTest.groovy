@@ -78,30 +78,24 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
         !mc.receivedResponse.body.toString().contains("httpx:unknown-content")
 
         where:
-        contenttype                            | response_from_origin | response_to_client
-        "application/atom+xml"                 | xmlPayLoad           | "<a>somebody</a>"
-        "application/atom+xml; type=event"     | xmlPayLoad           | "<a>somebody</a>"
-        "application/atom+xml; v=1"            | xmlPayLoad           | "<a>somebody</a>"
-        "application/xml; v=1"                 | xmlPayLoad           | "<a>somebody</a>"
-        "application/xml;"                     | xmlPayLoad           | "<a>somebody</a>"
-        "application/xml"                      | xmlPayLoad           | "<a>somebody</a>"
-        "application/xml;v=1,text/plain;v=1.1" | xmlPayLoad           | "<a>somebody</a>"
-        "application/xml;v=1,foo/a,v=1.1"      | xmlPayLoad           | "<a>somebody</a>"
-        "application/json"                     | xmlPayLoad           | xmlPayLoad
-        "text/plain; v=1"                      | xmlPayLoad           | xmlPayLoad
-        "text/plain;v=1.1,application/xml;v=1" | xmlPayLoad           | xmlPayLoad
-        //this case invalid since content-type take single type and subtype
-        //"foo/bar;v=1.1,application/xml;v=1"     | xmlPayLoad           | "<a>somebody</a>"
-        "html/text; v=1" | xmlPayLoad | xmlPayLoad
-        "foo/plain; v=1" | xmlPayLoad | xmlPayLoad
-        "text/*; v=1" | xmlPayLoad | xmlPayLoad
-        "*/*; v=1" | xmlPayLoad | xmlPayLoad
-        "application/atom" | xmlPayLoad | xmlPayLoad
-        "foo/a" | xmlPayLoad | xmlPayLoad
-        "foo/x;" | xmlPayLoad | xmlPayLoad
-        "foo/x;foo=bar,bar=foo,type=foo" | xmlPayLoad | xmlPayLoad
-        "foo=bar;foo/x" | xmlPayLoad | xmlPayLoad
-        "foo/x;foo=bar,text/plain;v=1.1" | xmlPayLoad | xmlPayLoad
+        contenttype                        | response_from_origin | response_to_client
+        "application/atom+xml"             | xmlPayLoad           | "<a>somebody</a>"
+        "application/atom+xml; type=event" | xmlPayLoad           | "<a>somebody</a>"
+        "application/atom+xml; v=1"        | xmlPayLoad           | "<a>somebody</a>"
+        "application/xml; v=1"             | xmlPayLoad           | "<a>somebody</a>"
+        "application/xml;"                 | xmlPayLoad           | "<a>somebody</a>"
+        "application/xml"                  | xmlPayLoad           | "<a>somebody</a>"
+        "application/json"                 | xmlPayLoad           | xmlPayLoad
+        "text/plain; v=1"                  | xmlPayLoad           | xmlPayLoad
+        "html/text; v=1"                   | xmlPayLoad           | xmlPayLoad
+        "foo/plain; v=1"                   | xmlPayLoad           | xmlPayLoad
+        "text/*; v=1"                      | xmlPayLoad           | xmlPayLoad
+        "*/*; v=1"                         | xmlPayLoad           | xmlPayLoad
+        "application/atom"                 | xmlPayLoad           | xmlPayLoad
+        "foo/a"                            | xmlPayLoad           | xmlPayLoad
+        "foo/x;"                           | xmlPayLoad           | xmlPayLoad
+        "foo/x;foo=bar"                    | xmlPayLoad           | xmlPayLoad
+        "foo=bar;foo/x"                    | xmlPayLoad           | xmlPayLoad
     }
 
     @Unroll("When req with content-type: #contenttype is retained")

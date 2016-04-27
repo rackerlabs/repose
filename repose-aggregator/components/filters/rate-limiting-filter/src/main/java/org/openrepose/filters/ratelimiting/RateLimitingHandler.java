@@ -98,7 +98,6 @@ public class RateLimitingHandler {
 
             // Auto return a 401 if the request does not meet expectations
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentLength(0);
             filterAction = FilterAction.RETURN;
         }
 
@@ -131,7 +130,6 @@ public class RateLimitingHandler {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, originalPreferredAccept, outputStream);
             response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
-            response.setContentLength(outputStream.size());
             response.setContentType(mimeType.toString());
             response.setStatus(HttpServletResponse.SC_OK);
         } catch (Exception e) {
@@ -203,7 +201,6 @@ public class RateLimitingHandler {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, outputStream);
                 response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
-                response.setContentLength(outputStream.size());
                 response.setContentType(mimeType.toString());
             } else {
                 LOG.warn("NO DATA RECEIVED FROM UPSTREAM limits, only sending regular rate limits!");

@@ -87,217 +87,222 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-    val httpResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
-
-    def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(!"".equals(_))
-
-    val requestedTenantId = nullOrWhitespace(Option(httpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
-    val requestedDeviceId = nullOrWhitespace(Option(httpRequest.getHeader("X-Device-Id")))
-    val requestedContactId = nullOrWhitespace(Option(httpRequest.getHeader("X-Contact-Id")))
-    val tracingHeader = nullOrWhitespace(Option(httpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
-    val urlPath: String = new URL(httpRequest.getRequestURL.toString).getPath
-    val matchingResources: Seq[Resource] = Option(configuration.getCollectionResources)
-      .map(_.getResource.asScala.filter(resource => {
-        val pathRegex = resource.getPathRegex
-        pathRegex.getValue.r.pattern.matcher(urlPath).matches() && {
-          val httpMethods = pathRegex.getHttpMethods
-          httpMethods.isEmpty ||
-            httpMethods.contains(HttpMethod.ALL) ||
-            httpMethods.contains(HttpMethod.fromValue(httpRequest.getMethod))
-        }
-      })).getOrElse(Seq.empty[Resource])
-    val translateAccountPermissions: Option[AnyRef] = Option(configuration.getTranslatePermissionsToRoles)
-
-    def checkHeaders(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
-      (requestedTenantId, requestedContactId) match {
-        case (None, _) => ResponseResult(401, "No tenant ID specified")
-        case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(403, "Not Authorized")
-        case (_, None) => ResponseResult(401, "No contact ID specified")
-        case (Some(tenant), Some(contact)) => UserInfo(tenant.substring(tenant.indexOf(":") + 1), contact)
-      }
-
-    }
-
-    def getPermissions(headerResult: ValkyrieResult): ValkyrieResult = {
-      def parsePermissions(inputStream: InputStream): Try[UserPermissions] = {
-
-        @tailrec
-        def parseJson(permissionName: List[String], deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): UserPermissions = {
-          if (values.isEmpty) {
-            UserPermissions(permissionName.toVector, deviceToPermissions.toVector)
-          } else {
-            val currentPermission: JsValue = values.head
-            (currentPermission \ "item_type_name").as[String] match {
-              case "accounts" =>
-                parseJson((currentPermission \ "permission_name").as[String] +: permissionName, deviceToPermissions, values.tail)
-              case "devices" =>
-                parseJson(permissionName,
-                  DeviceToPermission((currentPermission \ "item_id").as[Int], (currentPermission \ "permission_name").as[String]) +: deviceToPermissions, values.tail)
-              case _ => parseJson(permissionName, deviceToPermissions, values.tail)
-            }
-          }
-        }
-
-        val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
-        try {
-          val json = Json.parse(input)
-          val permissions: List[JsValue] = (json \ "contact_permissions").as[List[JsValue]]
-          Success(parseJson(List.empty[String], List.empty[DeviceToPermission], permissions))
-        } catch {
-          case e: Exception =>
-            logger.error(s"Invalid Json response from Valkyrie: $input", e)
-            Failure(new Exception("Invalid Json response from Valkyrie", e))
-        }
-      }
-
-      headerResult match {
-        case UserInfo(tenant, contact) =>
-          //  authorize device            || cull list                  || translate account permissions
-          if (requestedDeviceId.isDefined || matchingResources.nonEmpty || translateAccountPermissions.isDefined) {
-            datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
-          } else {
-            ResponseResult(200)
-          }
-        case _ => headerResult
-      }
-    }
-
-    def getInventory(userPermissions: ValkyrieResult, checkHeader: ValkyrieResult): ValkyrieResult = {
-      def parseInventory(inputStream: InputStream): Try[DevicePermissions] = {
-
-        @tailrec
-        def parseJson(deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): DevicePermissions = {
-          if (values.isEmpty) {
-            DevicePermissions(deviceToPermissions.toVector)
-          } else {
-            val currentItem: JsValue = values.head
-            (currentItem \ "id").as[Int] match {
-              case id if id > 0 =>
-                parseJson(DeviceToPermission(id, ACCOUNT_ADMIN) +: deviceToPermissions, values.tail)
-              case _ => parseJson(deviceToPermissions, values.tail)
-            }
-          }
-        }
-
-        val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
-        try {
-          val json = Json.parse(input)
-          val inventory: List[JsValue] = (json \ "inventory").as[List[JsValue]]
-          Success(parseJson(List.empty[DeviceToPermission], inventory))
-        } catch {
-          case e: Exception =>
-            logger.error(s"Invalid Json response from Valkyrie: $input", e)
-            Failure(new Exception("Invalid Json response from Valkyrie", e))
-        }
-      }
-
-      userPermissions match {
-        case UserPermissions(deviceRoles, devicePermissions) =>
-          if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(ACCOUNT_ADMIN)) {
-            val inventoryResult = checkHeader match {
-              case UserInfo(tenant, contact) =>
-                datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, _.asInstanceOf[DevicePermissions], parseInventory, tracingHeader)
-              case _ => userPermissions
-            }
-            inventoryResult match {
-              case DevicePermissions(adminPermissions) =>
-                UserPermissions(deviceRoles, devicePermissions ++ adminPermissions)
-              case _ => inventoryResult
-            }
-          } else {
-            userPermissions
-          }
-        case _ => userPermissions
-      }
-    }
-
-    def authorizeDevice(valkyrieCallResult: ValkyrieResult, deviceIdHeader: Option[String]): ValkyrieResult = {
-      def authorize(deviceId: String, permissions: UserPermissions, method: String): ValkyrieResult = {
-        val deviceBasedResult: ValkyrieResult = permissions.devices.find(_.device.toString == deviceId).map { deviceToPermission =>
-          lazy val permissionsWithDevicePermissions = permissions.copy(roles = permissions.roles :+ deviceToPermission.permission)
-          deviceToPermission.permission match {
-            case "view_product" if List("GET", "HEAD").contains(method) => permissionsWithDevicePermissions
-            case "edit_product" => permissionsWithDevicePermissions
-            case "admin_product" => permissionsWithDevicePermissions
-            case ACCOUNT_ADMIN => permissionsWithDevicePermissions
-            case _ => ResponseResult(403, "Not Authorized")
-          }
-        } getOrElse {
-          ResponseResult(403, "Not Authorized")
-        }
-
-        deviceBasedResult match {
-          case ResponseResult(403, _) =>
-            if (permissions.roles.contains(ACCOUNT_ADMIN) && configuration.isEnableBypassAccountAdmin) {
-              permissions
-            } else {
-              deviceBasedResult
-            }
-          case _ => deviceBasedResult
-        }
-      }
-
-      (valkyrieCallResult, deviceIdHeader) match {
-        case (permissions: UserPermissions, Some(deviceId)) => authorize(deviceId, permissions, httpRequest.getMethod)
-        case (result, _) => result
-      }
-    }
-
-    def addRoles(result: ValkyrieResult): ResponseResult = {
-      (result, translateAccountPermissions) match {
-        case (UserPermissions(roles, _), Some(_)) =>
-          roles.foreach(httpRequest.addHeader("X-Roles", _))
-          ResponseResult(200)
-        case (UserPermissions(_, _), None) => ResponseResult(200)
-        case (responseResult: ResponseResult, _) => responseResult
-      }
-    }
-
-    def mask403s(valkyrieResponse: ResponseResult): ResponseResult = {
-      valkyrieResponse match {
-        case ResponseResult(403, _) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
-        case result => result
-      }
-    }
-
-    val preAuthRoles = Option(configuration.getPreAuthorizedRoles)
-      .map(_.getRole.asScala)
-      .getOrElse(List.empty)
-    val reqAuthRoles = httpRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toSeq
-      .foldLeft(List.empty[String])((list: List[String], value: String) => list ++ value.split(","))
-
-    if (preAuthRoles.intersect(reqAuthRoles).nonEmpty) {
-      filterChain.doFilter(httpRequest, httpResponse)
+    if (!isInitialized) {
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
-      val checkHeader = checkHeaders(requestedTenantId, requestedContactId)
-      val userPermissions = getPermissions(checkHeader)
-      val allPermissions = getInventory(userPermissions, checkHeader)
-      val authPermissions = authorizeDevice(allPermissions, requestedDeviceId)
-      mask403s(addRoles(authPermissions)) match {
-        case ResponseResult(200, _) =>
-          filterChain.doFilter(httpRequest, httpResponse)
-          val status = httpResponse.getStatus
-          if (SC_OK <= status && status < SC_MULTIPLE_CHOICES) {
-            try {
-              cullResponse(httpResponse, authPermissions, matchingResources)
-            } catch {
-              case rce: ResponseCullingException =>
-                logger.debug("Failed to cull response, wiping out response.", rce)
-                sendError(httpResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.getMessage)
+      val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+      val httpResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(!"".equals(_))
+
+      val requestedTenantId = nullOrWhitespace(Option(httpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
+      val requestedDeviceId = nullOrWhitespace(Option(httpRequest.getHeader("X-Device-Id")))
+      val requestedContactId = nullOrWhitespace(Option(httpRequest.getHeader("X-Contact-Id")))
+      val tracingHeader = nullOrWhitespace(Option(httpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
+      val urlPath: String = new URL(httpRequest.getRequestURL.toString).getPath
+      val matchingResources: Seq[Resource] = Option(configuration.getCollectionResources)
+        .map(_.getResource.asScala.filter(resource => {
+          val pathRegex = resource.getPathRegex
+          pathRegex.getValue.r.pattern.matcher(urlPath).matches() && {
+            val httpMethods = pathRegex.getHttpMethods
+            httpMethods.isEmpty ||
+              httpMethods.contains(HttpMethod.ALL) ||
+              httpMethods.contains(HttpMethod.fromValue(httpRequest.getMethod))
+          }
+        })).getOrElse(Seq.empty[Resource])
+      val translateAccountPermissions: Option[AnyRef] = Option(configuration.getTranslatePermissionsToRoles)
+
+      def checkHeaders(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
+        (requestedTenantId, requestedContactId) match {
+          case (None, _) => ResponseResult(401, "No tenant ID specified")
+          case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(403, "Not Authorized")
+          case (_, None) => ResponseResult(401, "No contact ID specified")
+          case (Some(tenant), Some(contact)) => UserInfo(tenant.substring(tenant.indexOf(":") + 1), contact)
+        }
+
+      }
+
+      def getPermissions(headerResult: ValkyrieResult): ValkyrieResult = {
+        def parsePermissions(inputStream: InputStream): Try[UserPermissions] = {
+
+          @tailrec
+          def parseJson(permissionName: List[String], deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): UserPermissions = {
+            if (values.isEmpty) {
+              UserPermissions(permissionName.toVector, deviceToPermissions.toVector)
+            } else {
+              val currentPermission: JsValue = values.head
+              (currentPermission \ "item_type_name").as[String] match {
+                case "accounts" =>
+                  parseJson((currentPermission \ "permission_name").as[String] +: permissionName, deviceToPermissions, values.tail)
+                case "devices" =>
+                  parseJson(permissionName,
+                    DeviceToPermission((currentPermission \ "item_id").as[Int], (currentPermission \ "permission_name").as[String]) +: deviceToPermissions, values.tail)
+                case _ => parseJson(permissionName, deviceToPermissions, values.tail)
+              }
             }
           }
-        case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
-          buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
-            values.foreach { value => httpRequest.addHeader(key, value) }
-          }
-          filterChain.doFilter(httpRequest, httpResponse)
-        case ResponseResult(code, message) =>
-          sendError(httpResponse, code, message)
-      }
-    }
 
-    httpResponse.commitToResponse()
+          val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
+          try {
+            val json = Json.parse(input)
+            val permissions: List[JsValue] = (json \ "contact_permissions").as[List[JsValue]]
+            Success(parseJson(List.empty[String], List.empty[DeviceToPermission], permissions))
+          } catch {
+            case e: Exception =>
+              logger.error(s"Invalid Json response from Valkyrie: $input", e)
+              Failure(new Exception("Invalid Json response from Valkyrie", e))
+          }
+        }
+
+        headerResult match {
+          case UserInfo(tenant, contact) =>
+            //  authorize device            || cull list                  || translate account permissions
+            if (requestedDeviceId.isDefined || matchingResources.nonEmpty || translateAccountPermissions.isDefined) {
+              datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
+            } else {
+              ResponseResult(200)
+            }
+          case _ => headerResult
+        }
+      }
+
+      def getInventory(userPermissions: ValkyrieResult, checkHeader: ValkyrieResult): ValkyrieResult = {
+        def parseInventory(inputStream: InputStream): Try[DevicePermissions] = {
+
+          @tailrec
+          def parseJson(deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): DevicePermissions = {
+            if (values.isEmpty) {
+              DevicePermissions(deviceToPermissions.toVector)
+            } else {
+              val currentItem: JsValue = values.head
+              (currentItem \ "id").as[Int] match {
+                case id if id > 0 =>
+                  parseJson(DeviceToPermission(id, ACCOUNT_ADMIN) +: deviceToPermissions, values.tail)
+                case _ => parseJson(deviceToPermissions, values.tail)
+              }
+            }
+          }
+
+          val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
+          try {
+            val json = Json.parse(input)
+            val inventory: List[JsValue] = (json \ "inventory").as[List[JsValue]]
+            Success(parseJson(List.empty[DeviceToPermission], inventory))
+          } catch {
+            case e: Exception =>
+              logger.error(s"Invalid Json response from Valkyrie: $input", e)
+              Failure(new Exception("Invalid Json response from Valkyrie", e))
+          }
+        }
+
+        userPermissions match {
+          case UserPermissions(deviceRoles, devicePermissions) =>
+            if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(ACCOUNT_ADMIN)) {
+              val inventoryResult = checkHeader match {
+                case UserInfo(tenant, contact) =>
+                  datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, _.asInstanceOf[DevicePermissions], parseInventory, tracingHeader)
+                case _ => userPermissions
+              }
+              inventoryResult match {
+                case DevicePermissions(adminPermissions) =>
+                  UserPermissions(deviceRoles, devicePermissions ++ adminPermissions)
+                case _ => inventoryResult
+              }
+            } else {
+              userPermissions
+            }
+          case _ => userPermissions
+        }
+      }
+
+      def authorizeDevice(valkyrieCallResult: ValkyrieResult, deviceIdHeader: Option[String]): ValkyrieResult = {
+        def authorize(deviceId: String, permissions: UserPermissions, method: String): ValkyrieResult = {
+          val deviceBasedResult: ValkyrieResult = permissions.devices.find(_.device.toString == deviceId).map { deviceToPermission =>
+            lazy val permissionsWithDevicePermissions = permissions.copy(roles = permissions.roles :+ deviceToPermission.permission)
+            deviceToPermission.permission match {
+              case "view_product" if List("GET", "HEAD").contains(method) => permissionsWithDevicePermissions
+              case "edit_product" => permissionsWithDevicePermissions
+              case "admin_product" => permissionsWithDevicePermissions
+              case ACCOUNT_ADMIN => permissionsWithDevicePermissions
+              case _ => ResponseResult(403, "Not Authorized")
+            }
+          } getOrElse {
+            ResponseResult(403, "Not Authorized")
+          }
+
+          deviceBasedResult match {
+            case ResponseResult(403, _) =>
+              if (permissions.roles.contains(ACCOUNT_ADMIN) && configuration.isEnableBypassAccountAdmin) {
+                permissions
+              } else {
+                deviceBasedResult
+              }
+            case _ => deviceBasedResult
+          }
+        }
+
+        (valkyrieCallResult, deviceIdHeader) match {
+          case (permissions: UserPermissions, Some(deviceId)) => authorize(deviceId, permissions, httpRequest.getMethod)
+          case (result, _) => result
+        }
+      }
+
+      def addRoles(result: ValkyrieResult): ResponseResult = {
+        (result, translateAccountPermissions) match {
+          case (UserPermissions(roles, _), Some(_)) =>
+            roles.foreach(httpRequest.addHeader("X-Roles", _))
+            ResponseResult(200)
+          case (UserPermissions(_, _), None) => ResponseResult(200)
+          case (responseResult: ResponseResult, _) => responseResult
+        }
+      }
+
+      def mask403s(valkyrieResponse: ResponseResult): ResponseResult = {
+        valkyrieResponse match {
+          case ResponseResult(403, _) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
+          case result => result
+        }
+      }
+
+      val preAuthRoles = Option(configuration.getPreAuthorizedRoles)
+        .map(_.getRole.asScala)
+        .getOrElse(List.empty)
+      val reqAuthRoles = httpRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toSeq
+        .foldLeft(List.empty[String])((list: List[String], value: String) => list ++ value.split(","))
+
+      if (preAuthRoles.intersect(reqAuthRoles).nonEmpty) {
+        filterChain.doFilter(httpRequest, httpResponse)
+      } else {
+        val checkHeader = checkHeaders(requestedTenantId, requestedContactId)
+        val userPermissions = getPermissions(checkHeader)
+        val allPermissions = getInventory(userPermissions, checkHeader)
+        val authPermissions = authorizeDevice(allPermissions, requestedDeviceId)
+        mask403s(addRoles(authPermissions)) match {
+          case ResponseResult(200, _) =>
+            filterChain.doFilter(httpRequest, httpResponse)
+            val status = httpResponse.getStatus
+            if (SC_OK <= status && status < SC_MULTIPLE_CHOICES) {
+              try {
+                cullResponse(httpResponse, authPermissions, matchingResources)
+              } catch {
+                case rce: ResponseCullingException =>
+                  logger.debug("Failed to cull response, wiping out response.", rce)
+                  sendError(httpResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.getMessage)
+              }
+            }
+          case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
+            buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
+              values.foreach { value => httpRequest.addHeader(key, value) }
+            }
+            filterChain.doFilter(httpRequest, httpResponse)
+          case ResponseResult(code, message) =>
+            sendError(httpResponse, code, message)
+        }
+      }
+
+      httpResponse.commitToResponse()
+    }
   }
 
   def datastoreValue(transformedTenant: String,
@@ -461,7 +466,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     response.setStatus(statusCode)
     response.setOutput(null)
     response.setContentType(MediaType.TEXT_PLAIN)
-    response.setContentLength(message.length)
     response.getOutputStream.print(message)
   }
 

@@ -61,7 +61,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.apache.http.HttpHeaders.CONTENT_LENGTH;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.openrepose.commons.utils.servlet.filter.FilterAction.PROCESS_RESPONSE;
 import static org.openrepose.commons.utils.servlet.filter.FilterAction.RETURN;
@@ -160,33 +159,38 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper((HttpServletRequest) request);
-        HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(
-                (HttpServletResponse) response,
-                MUTABLE,
-                MUTABLE,
-                response.getOutputStream()
-        );
+        if (!isInitialized) {
+            LOG.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.");
+            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        } else {
+            HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper((HttpServletRequest) request);
+            HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(
+                    (HttpServletResponse) response,
+                    MUTABLE,
+                    MUTABLE,
+                    response.getOutputStream()
+            );
 
-        final HandleRequestResult handleRequestResult = handleRequest(requestWrapper, responseWrapper);
-        HttpServletRequestWrapper handleRequestWrapper = handleRequestResult.getRequest();
-        HttpServletResponseWrapper handleResponseWrapper = handleRequestResult.getResponse();
+            final HandleRequestResult handleRequestResult = handleRequest(requestWrapper, responseWrapper);
+            HttpServletRequestWrapper handleRequestWrapper = handleRequestResult.getRequest();
+            HttpServletResponseWrapper handleResponseWrapper = handleRequestResult.getResponse();
 
-        switch (handleRequestResult.getFilterAction()) {
-            case NOT_SET:
-                chain.doFilter(request, response);
-                break;
-            case PASS:
-                chain.doFilter(handleRequestWrapper, handleResponseWrapper);
-                handleResponseWrapper.commitToResponse();
-                break;
-            case PROCESS_RESPONSE:
-                chain.doFilter(handleRequestWrapper, handleResponseWrapper);
-                handleResponse(handleRequestWrapper, handleResponseWrapper);
-                handleResponseWrapper.commitToResponse();
-                break;
-            case RETURN:
-                break;
+            switch (handleRequestResult.getFilterAction()) {
+                case NOT_SET:
+                    chain.doFilter(request, response);
+                    break;
+                case PASS:
+                    chain.doFilter(handleRequestWrapper, handleResponseWrapper);
+                    handleResponseWrapper.commitToResponse();
+                    break;
+                case PROCESS_RESPONSE:
+                    chain.doFilter(handleRequestWrapper, handleResponseWrapper);
+                    handleResponse(handleRequestWrapper, handleResponseWrapper);
+                    handleResponseWrapper.commitToResponse();
+                    break;
+                case RETURN:
+                    break;
+            }
         }
     }
 
@@ -258,9 +262,9 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
             filterAction = PROCESS_RESPONSE;
         } else {
             try {
-                ServletInputStream in = rtnRequest.getInputStream();
                 TranslationResult result = null;
                 for (XmlChainPool pool : pools) {
+                    final ServletInputStream in = rtnRequest.getInputStream();
                     final ByteBuffer internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
                     result = pool.executePool(
                             new TranslationPreProcessor(in, contentType, true).getBodyStream(),
@@ -304,39 +308,33 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
 
         if (!pools.isEmpty()) {
             try {
-                InputStream in = response.getOutputStreamAsInputStream();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                if (in != null) {
+                TranslationResult result = null;
+                for (XmlChainPool pool : pools) {
+                    final InputStream in = response.getOutputStreamAsInputStream();
+                    if (in != null && in.available() > 0) {
+                        result = pool.executePool(
+                                new TranslationPreProcessor(in, contentType, true).getBodyStream(),
+                                baos,
+                                getInputParameters(request, response, result)
+                        );
 
-                    TranslationResult result = null;
-                    for (XmlChainPool pool : pools) {
-                        if (in.available() > 0) {
-                            result = pool.executePool(
-                                    new TranslationPreProcessor(in, contentType, true).getBodyStream(),
-                                    baos,
-                                    getInputParameters(request, response, result)
-                            );
-
-                            if (result.isSuccess()) {
-                                result.applyResults(request, response);
-                                if (StringUtilities.isNotBlank(pool.getResultContentType())) {
-                                    contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
-                                    response.replaceHeader(CONTENT_TYPE, contentType.getValue());
-                                }
-                                response.setOutput(new ByteArrayInputStream(baos.toByteArray()));
-                            } else {
-                                response.setStatus(SC_INTERNAL_SERVER_ERROR);
-                                response.setContentLength(0);
-                                response.removeHeader(CONTENT_LENGTH);
-                                break;
+                        if (result.isSuccess()) {
+                            result.applyResults(request, response);
+                            if (StringUtilities.isNotBlank(pool.getResultContentType())) {
+                                contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
+                                response.replaceHeader(CONTENT_TYPE, contentType.getValue());
                             }
+                            response.setOutput(new ByteArrayInputStream(baos.toByteArray()));
+                        } else {
+                            response.setStatus(SC_INTERNAL_SERVER_ERROR);
+                            break;
                         }
                     }
                 }
             } catch (IOException ex) {
                 LOG.error("Error executing response transformer chain", ex);
                 response.setStatus(SC_INTERNAL_SERVER_ERROR);
-                response.setContentLength(0);
             }
         }
     }

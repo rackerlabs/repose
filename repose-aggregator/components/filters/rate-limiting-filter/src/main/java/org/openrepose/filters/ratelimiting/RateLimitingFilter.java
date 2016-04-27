@@ -94,7 +94,7 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (!initialized) {
-            LOG.error("Rate Limiting filter has not yet initialized... Please check your configuration files and your artifacts directory.");
+            LOG.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.");
             ((HttpServletResponse) response).sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
             HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request);

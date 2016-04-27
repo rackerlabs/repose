@@ -77,7 +77,6 @@ public class TightlyCoupledFilter implements Filter {
         //Make the changes to the body you want to do here, then commit it.
         String extra = "<extra> Added by TestFilter, should also see the rest of the content </extra>";
         mutableResponse.getOutputStream().print(extra);
-        mutableResponse.setContentLength(content.length() + extra.length());
         mutableResponse.commitToResponse(); //THIS MUST BE CALLED HERE TO GET THE THINGS INTO THE BODY
     }
 

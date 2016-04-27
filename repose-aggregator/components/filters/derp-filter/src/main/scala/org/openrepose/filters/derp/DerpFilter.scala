@@ -76,7 +76,6 @@ class DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
   }
 
   def sendError(httpServletResponse: HttpServletResponse, statusCode: Int, responseBody: String, responseContentType: String): Unit = {
-    httpServletResponse.setContentLength(responseBody.length)
     httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
     httpServletResponse.getWriter.write(responseBody)
     httpServletResponse.sendError(statusCode, responseBody)

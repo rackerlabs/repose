@@ -74,7 +74,7 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
     val httpResponse = response.asInstanceOf[HttpServletResponse]
 
     if (!isInitialized) {
-      logger.error("Destination Router Filter has not yet initialized")
+      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       httpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       val target = configuration.getTarget
