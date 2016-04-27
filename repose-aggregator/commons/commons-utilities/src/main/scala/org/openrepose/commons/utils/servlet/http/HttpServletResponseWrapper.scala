@@ -453,6 +453,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       case (ResponseMode.MUTABLE, _) =>
         writeHeaders()
       case (_, ResponseMode.MUTABLE) =>
+        setContentLength(bodyOutputStream.getOutputStreamAsInputStream.available())
         writeBody()
       case (_, _) =>
         throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
