@@ -438,22 +438,21 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
 
     def writeBody(): Unit = {
+      // Since headers may have already been written, we set the content length on the wrapped response directly.
+      super.setContentLength(bodyOutputStream.getOutputStreamAsInputStream.available())
       bodyOutputStream.commit()
     }
 
     (headerMode, bodyMode) match {
       case (ResponseMode.MUTABLE, ResponseMode.MUTABLE) =>
-        // Note: The headers are being written first so that they are available for processing by upstream
+        // The headers are being written first so that they are available for processing by upstream
         // output streams. The Compressing filter output stream, for example, depends on the content-type header
-        // being set before the output stream is written to. Since we still want to set the content-length, we
-        // do so explicitly before writing the headers to the wrapped response.
-        setContentLength(bodyOutputStream.getOutputStreamAsInputStream.available())
+        // being set before the output stream is written to.
         writeHeaders()
         writeBody()
       case (ResponseMode.MUTABLE, _) =>
         writeHeaders()
       case (_, ResponseMode.MUTABLE) =>
-        setContentLength(bodyOutputStream.getOutputStreamAsInputStream.available())
         writeBody()
       case (_, _) =>
         throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
