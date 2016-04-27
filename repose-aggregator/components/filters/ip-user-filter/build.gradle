@@ -12,4 +12,6 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile project(":repose-aggregator:commons:commons-configuration")
     testCompile "xerces:xerces-xsd11"
+    testCompile "org.springframework:spring-test"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }

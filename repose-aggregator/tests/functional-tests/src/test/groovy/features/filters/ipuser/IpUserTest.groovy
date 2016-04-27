@@ -44,29 +44,6 @@ class IpUserTest extends ReposeValveTest {
         }
     }
 
-    def "classifying a request by its IP"() {
-        def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/ipuser", params)
-        repose.start()
-
-        when: "Request is sent through repose"
-        def mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get')
-        def sentRequest = ((MessageChain) mc).handlings[0]
-
-        then: "Repose will send x-pp-group with the configured value"
-        mc.handlings.size() == 1
-
-        and: "Repose will send x-pp-user based on requestor ip"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
-        def user = sentRequest.request.headers.getFirstValue("x-pp-user")
-        // The possible IPv4/6 addresses.
-        user == "127.0.0.1;q=0.4" || user == "0:0:0:0:0:0:0:1;q=0.4" || user == "::1;q=0.4"
-
-        and: "Repose will send x-pp-groups with the configured value"
-        ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("local-group;q=0.4")
-    }
-
     def "verify classifying with other config"() {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
@@ -117,4 +94,5 @@ class IpUserTest extends ReposeValveTest {
         !group.contains("local-group;q=0.6")
         !group.contains("local-lan-ip;q=0.6")
     }
+
 }
