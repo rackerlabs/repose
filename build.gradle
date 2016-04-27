@@ -300,6 +300,13 @@ subprojects {
         }
     }
 
+    idea {
+        module {
+            sourceDirs += file("$generatedDir")
+            generatedSourceDirs += file("$generatedDir")
+        }
+    }
+
     publishing {
         repositories {
             maven {
