@@ -74,5 +74,17 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="nullValue" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The value to use when the JPath matches the Body, but the value is JSON <html:code>null</html:code>.
+                        If no default attribute is supplied, the header will not be added in the event of match that is
+                        null.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 </xs:schema>
