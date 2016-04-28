@@ -24,6 +24,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
+import com.jayway.jsonpath.{Configuration, JsonPath, Option => JsonOption}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
@@ -32,6 +33,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodyextractortoheader.config.BodyExtractorToHeaderConfig
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 @Named
 class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationService)
@@ -42,6 +44,8 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized = false
   private var extractions: Iterable[Extraction] = _
+  val jsonPathConfiguration = Configuration.defaultConfiguration()
+  jsonPathConfiguration.addOptions(JsonOption.DEFAULT_PATH_LEAF_TO_NULL)
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Body Extractor to Header filter initializing...")
@@ -57,16 +61,24 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
 
-    def doExtraction(extraction: Extraction): Option[String] = {
-      // TODO: Do the JPath extraction.
-      throw new UnsupportedOperationException("doExtraction is not yet implemented")
-    }
-
     extractions.foreach { extraction =>
-      (doExtraction(extraction), extraction.defaultValue) match {
-        case (Some(headerValue), _) => mutableHttpRequest.addHeader(extraction.headerName, headerValue)
-        case (None, Some(defaultValue)) => mutableHttpRequest.addHeader(extraction.headerName, defaultValue)
-        case (None, None) => // don't add a header
+      val extracted = Try(
+        JsonPath.using(jsonPathConfiguration)
+          .parse(mutableHttpRequest.getInputStream)
+          .read[Any](extraction.jsonPath)
+      )
+
+      (extracted, extraction.defaultValue, extraction.nullValue) match {
+        // JSONPath value was extracted AND is NOT Null
+        case (Success(headerValue), _, _) if Option(headerValue).isDefined =>
+          mutableHttpRequest.addHeader(extraction.headerName, headerValue.toString)
+        // JSONPath value was extracted AND is Null AND NullValue is defined
+        case (Success(headerValue), _, Some(nullValue)) =>
+          mutableHttpRequest.addHeader(extraction.headerName, nullValue)
+        // JSONPath value was NOT extracted AND DefaultValue is defined
+        case (Failure(e), Some(defaultValue), _) =>
+          mutableHttpRequest.addHeader(extraction.headerName, defaultValue)
+        case (_, _, _) => // don't add a header
       }
     }
 
@@ -81,7 +93,7 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
 
   override def configurationUpdated(config: BodyExtractorToHeaderConfig): Unit = {
     extractions = config.getExtraction.asScala.map { extraction =>
-      Extraction(extraction.getHeader, extraction.getBodyJpath, Option(extraction.getDefault))
+      Extraction(extraction.getHeader, extraction.getBodyJpath, Option(extraction.getDefault), Option(extraction.getNullValue))
     }
     initialized = true
   }
@@ -93,6 +105,6 @@ object BodyExtractorToHeaderFilter {
   private final val DEFAULT_CONFIG = "body-extractor-to-header.cfg.xml"
   private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/body-extractor-to-header.xsd"
 
-  case class Extraction(headerName: String, jsonPath: String, defaultValue: Option[String])
+  case class Extraction(headerName: String, jsonPath: String, defaultValue: Option[String], nullValue: Option[String])
 
 }
