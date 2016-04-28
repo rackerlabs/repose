@@ -120,8 +120,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
-  /** Sets a status code and message on the first line of the HTTP response. Also writes the message to the response
-    * body.
+  /** Sets a status code on the first line of the HTTP response. Also sets the error message to be retrieved and used
+    * later.
     *
     * Note that this method will not call through to the [[sendError(i)]] method of the wrapped response.
     * As a result, the container will not have an opportunity to perform additional processing.
