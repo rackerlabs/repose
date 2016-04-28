@@ -2150,6 +2150,16 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.getReason shouldBe null
     }
 
+    it("should reset the buffer") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.getWriter.write("foo")
+      wrappedResponse.getWriter.flush()
+      wrappedResponse.sendError(404)
+
+      wrappedResponse.getOutputStreamAsString shouldEqual ""
+    }
+
     it("should mark the wrapped as committed when given a single argument") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 

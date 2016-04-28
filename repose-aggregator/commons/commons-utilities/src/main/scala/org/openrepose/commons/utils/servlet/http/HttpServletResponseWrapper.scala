@@ -132,6 +132,9 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     // Set that status.
     setStatus(i)
 
+    // Reset the buffered output.
+    resetBuffer()
+
     // Writes the response data and marks the response as committed.
     flushBuffer()
   }
