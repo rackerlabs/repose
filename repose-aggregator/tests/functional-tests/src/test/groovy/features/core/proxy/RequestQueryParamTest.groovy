@@ -87,11 +87,9 @@ class RequestQueryParamTest extends ReposeValveTest {
 
         where:
         uriSuffixGiven                             | uriSuffixExpected                          | method
-        // todo: The '%' character breaks Jetty -- getQueryString returns the raw character while all of the
-        // getParameter methods return garbage. What do we want to do about this?
-        // "/path/to/resource?key=value@%"            | "/path/to/resource?key=value%40%25"        | "GET"
-        // "/path/to/resource?key=va%lu@e"            | "/path/to/resource?key=va%25lu%40e"        | "GET"
-        // "/path/to/resource?key=value%2Bvalue"      | "/path/to/resource?key=value%2Bvalue"      | "GET"
+        "/path/to/resource?key=value@%"            | "/path/to/resource?key=value%40%25"        | "GET"
+        "/path/to/resource?key=va%lu@e"            | "/path/to/resource?key=va%25lu%40e"        | "GET"
+        "/path/to/resource?key=value%2Bvalue"      | "/path/to/resource?key=value%2Bvalue"      | "GET"
         "/path/to/resource?key=value/othervalue"   | "/path/to/resource?key=value%2Fothervalue" | "GET"
         "/path/to/resource?key=value:value"        | "/path/to/resource?key=value%3Avalue"      | "GET"
         "/path/to/resource?key=value@value"        | "/path/to/resource?key=value%40value"      | "GET"
