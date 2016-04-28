@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openrepose</groupId>
+        <artifactId>filters-support</artifactId>
+        <version>7.3.5.0-SNAPSHOT</version>
+    </parent>
+
+    <name>Repose Components - Munging Filter</name>
+    <artifactId>munging-filter</artifactId>
+    <packaging>jar</packaging>
+
+    <description>
+        The munging filter allows the application of json (future xml) patches
+        to both the request and response based on requested path.
+    </description>
+
+    <properties>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
+
+    <dependencies>
+    </dependencies>
+</project>
