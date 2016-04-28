@@ -183,6 +183,11 @@
         </dependency>
         <dependency>
             <groupId>org.openrepose</groupId>
+            <artifactId>body-extractor-to-header</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrepose</groupId>
             <artifactId>ip-user</artifactId>
             <version>${project.version}</version>
         </dependency>
