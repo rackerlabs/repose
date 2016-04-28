@@ -132,7 +132,6 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Content-Type")
         mc.receivedResponse.body.contains(msgBody)
         mc.handlings.size() == 0
-        mc.getOrphanedHandlings().size() == 2
 
         where:
         authRespCode | responseCode | msgBody

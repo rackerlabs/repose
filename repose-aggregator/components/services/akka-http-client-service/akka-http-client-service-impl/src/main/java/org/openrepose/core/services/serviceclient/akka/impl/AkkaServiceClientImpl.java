@@ -127,12 +127,14 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
 
     private Future getFuture(final ConsistentHashable hashableRequest, final Timeout timeout) throws ExecutionException {
         Object hashKey = hashableRequest.consistentHashKey();
+        LOG.trace("Getting future for: {}", hashKey);
 
         //http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/Cache.html#get%28K,%20java.util.concurrent.Callable%29
         // Using this method, according to guava, is the right way to do the "cache pattern"
         return quickFutureCache.get(hashKey, new Callable<Future<Object>>() {
             @Override
             public Future<Object> call() throws Exception {
+                LOG.trace("Call for: {}", hashKey);
                 return ask(tokenActorRef, hashableRequest, timeout);
             }
         });
