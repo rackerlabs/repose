@@ -25,6 +25,7 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 import static org.junit.Assert.*;
+
 /**
  * Created by jennyvo on 4/28/16.
  */
@@ -35,7 +36,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("common", params) i
         repose.configurationProvider.applyConfigs("features/filters/bodyextractortoheader", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
@@ -54,7 +55,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
     }
 
     @Unroll()
-    def "When request with match config jpath will add to header as config" () {
+    def "When request with match config jpath will add to header as config"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", requestBody: reqbody)
 
@@ -69,9 +70,9 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         }
 
         where:
-        reqbody             | expectedheaders       | headervalue
-        matchDevideBody     | "x-device-id"         | "12345"
-        matchServerBody     | "x-server-id"         | "abc123"
-        noNatchBody         | ""                    | ""
+        reqbody         | expectedheaders | headervalue
+        matchDevideBody | "x-device-id"   | "12345"
+        matchServerBody | "x-server-id"   | "abc123"
+        noNatchBody     | ""              | ""
     }
 }
