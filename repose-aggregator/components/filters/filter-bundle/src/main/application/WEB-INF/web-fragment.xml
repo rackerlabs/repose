@@ -140,4 +140,8 @@
         <filter-name>ip-user</filter-name>
         <filter-class>org.openrepose.filters.ipuser.IpUserFilter</filter-class>
     </filter>
+    <filter>
+        <filter-name>munging</filter-name>
+        <filter-class>org.openrepose.filters.munging.MungingFilter</filter-class>
+    </filter>
 </web-fragment>
