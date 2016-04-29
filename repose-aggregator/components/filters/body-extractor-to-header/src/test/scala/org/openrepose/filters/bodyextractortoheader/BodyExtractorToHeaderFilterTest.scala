@@ -44,10 +44,12 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
   var filterChain: FilterChain = _
-  // From: http://goessner.net/articles/JsonPath/
   val defaultValue = "no-value"
   val nullValue = "null-value"
   val matchValue = "red"
+  val stringValue = "String"
+  val numberValue = "19.99"
+  // From: http://goessner.net/articles/JsonPath/
   val contentBody =
     s"""{ "store": {
         |    "book": [
@@ -79,8 +81,8 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
         |      "price": 19.95
         |    },
         |    "types": {
-        |      "string": "String",
-        |      "number": 19.95,
+        |      "string": "$stringValue",
+        |      "number": $numberValue,
         |      "object": {
         |        "val1": "1",
         |        "val2": 2
@@ -169,7 +171,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe "String"
+      requestCaptor.getValue.getHeader(extractedHeader) shouldBe stringValue
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a number") {
@@ -179,7 +181,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe "19.95"
+      requestCaptor.getValue.getHeader(extractedHeader) shouldBe numberValue
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a object") {
@@ -254,7 +256,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should NOT overwrite the header when the Body matches the configured JPath and Overwrite is FALSE") {
-      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None, overwrite = false, None))
       filter.configurationUpdated(config)
       val headerValue = "Ima-Gun Di"
       servletRequest.addHeader(extractedHeader, headerValue)
@@ -325,7 +327,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
                             defaultValue: Option[String],
                             nullValue: Option[String]
                            ): Extractor = {
-    createConfigExtractor(headerName, bodyJpath, defaultValue, nullValue, overwrite = false, None)
+    createConfigExtractor(headerName, bodyJpath, defaultValue, nullValue, overwrite = true, None)
   }
 
   def createConfigExtractor(headerName: String,
