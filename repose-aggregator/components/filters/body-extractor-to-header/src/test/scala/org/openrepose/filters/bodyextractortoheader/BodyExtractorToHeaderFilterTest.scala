@@ -293,7 +293,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
   def createConfigExtractor(headerName: String, bodyJpath: String, defaultValue: Option[String], nullValue: Option[String]): Extractor = {
     val extractor = new Extractor
     extractor.setHeader(headerName)
-    extractor.setBodyJpath(bodyJpath)
+    extractor.setJsonpath(bodyJpath)
     extractor.setDefault(defaultValue match {
       case Some(default) => default
       case None => null

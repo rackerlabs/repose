@@ -33,7 +33,6 @@
                 <html:p>The root config type for the Body Extractor to Header filter configuration file.</html:p>
             </xs:documentation>
         </xs:annotation>
-
         <xs:sequence>
             <xs:element name="extraction" type="Extractor" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
@@ -45,7 +44,6 @@
                 <html:p>Config type for a Body extraction to a header value.</html:p>
             </xs:documentation>
         </xs:annotation>
-
         <xs:attribute name="header" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -53,8 +51,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="body-jpath" type="xs:string" use="required">
+        <xs:attribute name="jsonpath" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -63,7 +60,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
         <xs:attribute name="default" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -74,7 +70,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
         <xs:attribute name="nullValue" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
