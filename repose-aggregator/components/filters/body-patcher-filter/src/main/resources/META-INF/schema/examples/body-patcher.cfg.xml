@@ -15,14 +15,15 @@
                     }
                 ]
             </json>
-            <xml>
-                <![CDATA[
-                <diff>
-                    <replace sel="example/patchTool/@url">https://tools.ietf.org/html/rfc5261</replace>
-                    <add pos="before" sel="example/greeting"><valediction>Goodbye sorrow</valediction></add>
-                </diff>
-                ]]>
-            </xml>
+            <!-- todo: when we add xml support revert the commit this was added in -->
+            <!--<xml>-->
+                <!--<![CDATA[-->
+                <!--<diff>-->
+                    <!--<replace sel="example/patchTool/@url">https://tools.ietf.org/html/rfc5261</replace>-->
+                    <!--<add pos="before" sel="example/greeting"><valediction>Goodbye sorrow</valediction></add>-->
+                <!--</diff>-->
+                <!--]]>-->
+            <!--</xml>-->
         </request>
         <response>
             <json>
@@ -38,13 +39,14 @@
                     }
                 ]
             </json>
-            <xml>
-                <![CDATA[
-                <diff>
-                    <replace sel="example/greeting/text()">Hello XML patch</replace>
-                </diff>
-                ]]>
-            </xml>
+            <!-- todo: when we add xml support revert the commit this was added in -->
+            <!--<xml>-->
+                <!--<![CDATA[-->
+                <!--<diff>-->
+                    <!--<replace sel="example/greeting/text()">Hello XML patch</replace>-->
+                <!--</diff>-->
+                <!--]]>-->
+            <!--</xml>-->
         </response>
     </change>
     <change path="/foo/bar/.*">
