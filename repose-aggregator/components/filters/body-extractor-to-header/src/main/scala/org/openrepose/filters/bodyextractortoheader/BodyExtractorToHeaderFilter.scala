@@ -65,7 +65,11 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
       if (overwrite) {
         mutableHttpRequest.removeHeader(name)
       }
-      mutableHttpRequest.addHeader(name, value)
+      val hdrValue = quality match {
+        case Some(qual) => s"$value;q=$qual"
+        case None => value
+      }
+      mutableHttpRequest.addHeader(name, hdrValue)
     }
 
     extractions.foreach { extraction =>
