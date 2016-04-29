@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>experimental-support</artifactId>
-        <version>8.0.0.0-SNAPSHOT</version>
+        <version>7.3.5.0-SNAPSHOT</version>
     </parent>
 
     <name>Exception Filter</name>
