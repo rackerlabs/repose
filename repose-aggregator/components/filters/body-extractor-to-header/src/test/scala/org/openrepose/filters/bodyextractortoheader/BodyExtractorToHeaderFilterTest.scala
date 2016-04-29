@@ -31,6 +31,7 @@ import org.openrepose.filters.bodyextractortoheader.config.{BodyExtractorToHeade
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers {
@@ -249,6 +250,34 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
     }
+
+    it("should NOT overwrite the header when the Body matches the configured JPath and Overwrite is FALSE") {
+      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None))
+      filter.configurationUpdated(config)
+      val headerValue = "Ima-Gun Di"
+      servletRequest.addHeader(extractedHeader, headerValue)
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 2
+      requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue)
+      requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue)
+    }
+
+    it("should overwrite the header when the Body matches the configured JPath and Overwrite is TRUE") {
+      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None, overwrite = true, None))
+      filter.configurationUpdated(config)
+      val headerValue = "Barriss Offee"
+      servletRequest.addHeader(extractedHeader, headerValue)
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 1
+      !requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue)
+      requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue)
+    }
   }
 
   describe("configuration") {
@@ -263,7 +292,21 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
     }
   }
 
-  def createConfigExtractor(headerName: String, bodyJpath: String, defaultValue: Option[String], nullValue: Option[String]): Extractor = {
+  def createConfigExtractor(headerName: String,
+                            bodyJpath: String,
+                            defaultValue: Option[String],
+                            nullValue: Option[String]
+                           ): Extractor = {
+    createConfigExtractor(headerName, bodyJpath, defaultValue, nullValue, overwrite = false, None)
+  }
+
+  def createConfigExtractor(headerName: String,
+                            bodyJpath: String,
+                            defaultValue: Option[String],
+                            nullValue: Option[String],
+                            overwrite: Boolean,
+                            quality: Option[Double]
+                           ): Extractor = {
     val extractor = new Extractor
     extractor.setHeader(headerName)
     extractor.setJsonpath(bodyJpath)
@@ -273,6 +316,11 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
     })
     extractor.setNullValue(nullValue match {
       case Some(valueNull) => valueNull
+      case None => null
+    })
+    extractor.setOverwrite(overwrite)
+    extractor.setQuality(quality match {
+      case Some(qual) => qual
       case None => null
     })
 
