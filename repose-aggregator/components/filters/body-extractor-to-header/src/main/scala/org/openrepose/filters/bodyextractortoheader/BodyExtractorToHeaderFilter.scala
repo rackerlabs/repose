@@ -24,7 +24,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
-import com.jayway.jsonpath.{Configuration, JsonPath, Option => JsonOption}
+import com.jayway.jsonpath.{Configuration => JsonConfiguration, JsonPath, Option => JsonOption}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
@@ -44,7 +44,7 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized = false
   private var extractions: Iterable[Extraction] = _
-  val jsonPathConfiguration = Configuration.defaultConfiguration()
+  val jsonPathConfiguration = JsonConfiguration.defaultConfiguration()
   jsonPathConfiguration.addOptions(JsonOption.DEFAULT_PATH_LEAF_TO_NULL)
 
   override def init(filterConfig: FilterConfig): Unit = {
@@ -62,23 +62,25 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
 
     extractions.foreach { extraction =>
-      val extracted = Try(
-        JsonPath.using(jsonPathConfiguration)
-          .parse(mutableHttpRequest.getInputStream)
-          .read[Any](extraction.jsonPath)
-      )
+      if (mutableHttpRequest.getContentType.toLowerCase.contains("json")) {
+        val extracted = Try(
+          JsonPath.using(jsonPathConfiguration)
+            .parse(mutableHttpRequest.getInputStream)
+            .read[Any](extraction.jsonPath)
+        )
 
-      (extracted, extraction.defaultValue, extraction.nullValue) match {
-        // JSONPath value was extracted AND is NOT Null
-        case (Success(headerValue), _, _) if Option(headerValue).isDefined =>
-          mutableHttpRequest.addHeader(extraction.headerName, headerValue.toString)
-        // JSONPath value was extracted AND is Null AND NullValue is defined
-        case (Success(headerValue), _, Some(nullValue)) =>
-          mutableHttpRequest.addHeader(extraction.headerName, nullValue)
-        // JSONPath value was NOT extracted AND DefaultValue is defined
-        case (Failure(e), Some(defaultValue), _) =>
-          mutableHttpRequest.addHeader(extraction.headerName, defaultValue)
-        case (_, _, _) => // don't add a header
+        (extracted, extraction.defaultValue, extraction.nullValue) match {
+          // JSONPath value was extracted AND is NOT Null
+          case (Success(headerValue), _, _) if Option(headerValue).isDefined =>
+            mutableHttpRequest.addHeader(extraction.headerName, headerValue.toString)
+          // JSONPath value was extracted AND is Null AND NullValue is defined
+          case (Success(headerValue), _, Some(nullValue)) =>
+            mutableHttpRequest.addHeader(extraction.headerName, nullValue)
+          // JSONPath value was NOT extracted AND DefaultValue is defined
+          case (Failure(e), Some(defaultValue), _) =>
+            mutableHttpRequest.addHeader(extraction.headerName, defaultValue)
+          case (_, _, _) => // don't add a header
+        }
       }
     }
 
