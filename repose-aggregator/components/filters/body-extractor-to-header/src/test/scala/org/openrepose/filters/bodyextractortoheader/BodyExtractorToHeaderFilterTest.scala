@@ -35,6 +35,9 @@ import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResp
 @RunWith(classOf[JUnitRunner])
 class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
+  var config: BodyExtractorToHeaderConfig = _
+  var filter: BodyExtractorToHeaderFilter = _
+  var requestCaptor: ArgumentCaptor[MutableHttpServletRequest] = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
   var filterChain: FilterChain = _
@@ -94,6 +97,9 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
   val extractedHeader = "X-Extracted-Id"
 
   before {
+    config = new BodyExtractorToHeaderConfig
+    filter = new BodyExtractorToHeaderFilter(null)
+    requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = mock(classOf[FilterChain])
@@ -102,171 +108,132 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
   describe("doFilter") {
     it("should add the header with the JPath value when the Body matches the configured JPath and a default is specified") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, Some(defaultValue), None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe matchValue
     }
 
     it("should add the header with the default value when the Body does NOT match the configured JPath and a default is specified") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, badPath, Some(defaultValue), None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe defaultValue
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and a default is NOT specified") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe matchValue
     }
 
     it("should NOT add the header when the Body does NOT match the configured JPath and a default is NOT specified") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, badPath, None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
     }
 
     it("should add a header for an extractor even if another extractor doesn't add a header") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None))
       config.getExtraction.add(createConfigExtractor("X-Server-Id", "$.bodyData.servers", None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe matchValue
       requestCaptor.getValue.getHeader("X-Server-Id") shouldBe null
     }
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a string") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.string", None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe "String"
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a number") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.number", None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe "19.95"
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a object") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.object", None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe "{val1=1, val2=2}"
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a array") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.array", None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe """[{"element1":"val1"},{"element2":"val2"}]"""
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a true") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.true", None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe "true"
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a false") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.false", None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe "false"
     }
 
     it("should add the header with the null value when the Body matches the configured JPath and the value is JSON null") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.null", None, Some(nullValue)))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe nullValue
     }
 
     it("should NOT add the header when the Body matches the configured JPath and a null value is NOT specified") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.null", None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      val requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
     }
@@ -274,18 +241,12 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
   describe("configuration") {
     it("can be loaded when a default value is specified") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, Some(defaultValue), None))
-      val filter = new BodyExtractorToHeaderFilter(null)
-
       filter.configurationUpdated(config)
     }
 
     it("can be loaded when a default value is NOT specified") {
-      val config = new BodyExtractorToHeaderConfig
       config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None))
-      val filter = new BodyExtractorToHeaderFilter(null)
-
       filter.configurationUpdated(config)
     }
   }
