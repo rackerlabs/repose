@@ -308,6 +308,24 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
       requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 1
       assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(s"$matchValue;q=0.5"))
     }
+
+    it("should add multiple headers if multiple extractions are satisfied") {
+      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath,              None,               None,            overwrite = false, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, badPath,                Some(defaultValue), None,            overwrite = false, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.string", None,               None,            overwrite = false, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.number", None,               None,            overwrite = false, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.null",   None,               Some(nullValue), overwrite = false, None))
+      filter.configurationUpdated(config)
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue))
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(defaultValue))
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(stringValue))
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(numberValue))
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(nullValue))
+    }
   }
 
   describe("configuration") {
