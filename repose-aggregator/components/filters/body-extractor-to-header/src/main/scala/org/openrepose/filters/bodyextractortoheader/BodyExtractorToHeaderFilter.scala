@@ -73,7 +73,7 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
     }
 
     val jsonDoc: Try[DocumentContext] = {
-      if (mutableHttpRequest.getContentType.toLowerCase.contains("json")) {
+      if (Option(mutableHttpRequest.getContentType).getOrElse("").toLowerCase.contains("json")) {
         Try(JsonPath.using(jsonPathConfiguration).parse(mutableHttpRequest.getInputStream))
       } else {
         new Failure(new Exception)
