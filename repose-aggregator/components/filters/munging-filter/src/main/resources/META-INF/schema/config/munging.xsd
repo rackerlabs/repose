@@ -142,7 +142,9 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="json" type="xs:string" minOccurs="0" maxOccurs="1">
+            <!-- todo: when we add xml support revert the commit this was added in -->
+            <xs:element name="json" type="xs:string" minOccurs="1" maxOccurs="1">
+            <!--<xs:element name="json" type="xs:string" minOccurs="0" maxOccurs="1">-->
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
@@ -151,22 +153,24 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="xml" type="xs:string" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>
-                            A XML Patch as specified by RFC-5261.
-                        </html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
+            <!-- todo: when we add xml support revert the commit this was added in -->
+            <!--<xs:element name="xml" type="xs:string" minOccurs="0" maxOccurs="1">-->
+                <!--<xs:annotation>-->
+                    <!--<xs:documentation>-->
+                        <!--<html:p>-->
+                            <!--A XML Patch as specified by RFC-5261.-->
+                        <!--</html:p>-->
+                    <!--</xs:documentation>-->
+                <!--</xs:annotation>-->
+            <!--</xs:element>-->
         </xs:sequence>
 
-        <xs:assert vc:minVersion="1.1"
-                   xpathDefaultNamespace="##targetNamespace"
-                   test="json or xml"
-                   xerces:message="You must specify a json and/or xml patch"
-                   saxon:message="You must specify a json and/or xml patch"/>
+        <!-- todo: when we add xml support revert the commit this was added in -->
+        <!--<xs:assert vc:minVersion="1.1"-->
+                   <!--xpathDefaultNamespace="##targetNamespace"-->
+                   <!--test="json or xml"-->
+                   <!--xerces:message="You must specify a json and/or xml patch"-->
+                   <!--saxon:message="You must specify a json and/or xml patch"/>-->
     </xs:complexType>
 
 </xs:schema>

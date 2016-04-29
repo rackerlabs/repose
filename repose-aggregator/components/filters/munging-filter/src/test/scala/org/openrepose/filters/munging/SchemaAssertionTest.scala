@@ -120,8 +120,9 @@ class SchemaAssertionTest extends FunSpec with Matchers {
     }
   }
 
+  //todo: when we add xml support revert the commit this was added in
   describe("request") {
-    it("should require at least json or xml") {
+    ignore("should require at least json or xml") {
       val config =
         """<munging xmlns="http://docs.openrepose.org/repose/munging/v1.0">
           |    <change>
@@ -135,7 +136,7 @@ class SchemaAssertionTest extends FunSpec with Matchers {
       exception.getLocalizedMessage should include ("You must specify a json and/or xml patch")
     }
 
-    it("should allow both json and xml") {
+    ignore("should allow both json and xml") {
       val config =
         """<munging xmlns="http://docs.openrepose.org/repose/munging/v1.0">
           |    <change>
@@ -163,7 +164,7 @@ class SchemaAssertionTest extends FunSpec with Matchers {
       validator.validateConfigString(config)
     }
 
-    it("should allow just json") {
+    ignore("should allow just json") {
       val config =
         """<munging xmlns="http://docs.openrepose.org/repose/munging/v1.0">
           |    <change>
@@ -184,7 +185,7 @@ class SchemaAssertionTest extends FunSpec with Matchers {
       validator.validateConfigString(config)
     }
 
-    it("should allow just xml") {
+    ignore("should allow just xml") {
       val config =
         """<munging xmlns="http://docs.openrepose.org/repose/munging/v1.0">
           |    <change>
@@ -205,7 +206,7 @@ class SchemaAssertionTest extends FunSpec with Matchers {
   }
 
   describe("response") {
-    it("should require at least json or xml") {
+    ignore("should require at least json or xml") {
       val config =
         """<munging xmlns="http://docs.openrepose.org/repose/munging/v1.0">
           |    <change>
@@ -219,7 +220,7 @@ class SchemaAssertionTest extends FunSpec with Matchers {
       exception.getLocalizedMessage should include ("You must specify a json and/or xml patch")
     }
 
-    it("should allow both json and xml") {
+    ignore("should allow both json and xml") {
       val config =
         """<munging xmlns="http://docs.openrepose.org/repose/munging/v1.0">
           |    <change>
@@ -247,7 +248,7 @@ class SchemaAssertionTest extends FunSpec with Matchers {
       validator.validateConfigString(config)
     }
 
-    it("should allow just json") {
+    ignore("should allow just json") {
       val config =
         """<munging xmlns="http://docs.openrepose.org/repose/munging/v1.0">
           |    <change>
@@ -268,7 +269,7 @@ class SchemaAssertionTest extends FunSpec with Matchers {
       validator.validateConfigString(config)
     }
 
-    it("should allow just xml") {
+    ignore("should allow just xml") {
       val config =
         """<munging xmlns="http://docs.openrepose.org/repose/munging/v1.0">
           |    <change>
