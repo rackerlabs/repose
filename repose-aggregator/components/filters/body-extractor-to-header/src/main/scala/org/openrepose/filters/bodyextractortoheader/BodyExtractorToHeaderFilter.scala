@@ -24,7 +24,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
-import com.jayway.jsonpath.{Configuration => JsonConfiguration, JsonPath, Option => JsonOption}
+import com.jayway.jsonpath.{JsonPath, Configuration => JsonConfiguration, Option => JsonOption}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
@@ -61,6 +61,13 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val mutableHttpRequest = MutableHttpServletRequest.wrap(servletRequest.asInstanceOf[HttpServletRequest])
 
+    def addHeader(name: String, value: String, quality: Option[java.lang.Double], overwrite: Boolean): Unit = {
+      if (overwrite) {
+        mutableHttpRequest.removeHeader(name)
+      }
+      mutableHttpRequest.addHeader(name, value)
+    }
+
     extractions.foreach { extraction =>
       if (mutableHttpRequest.getContentType.toLowerCase.contains("json")) {
         val extracted = Try(
@@ -72,13 +79,13 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
         (extracted, extraction.defaultValue, extraction.nullValue) match {
           // JSONPath value was extracted AND is NOT Null
           case (Success(headerValue), _, _) if Option(headerValue).isDefined =>
-            mutableHttpRequest.addHeader(extraction.headerName, headerValue.toString)
+            addHeader(extraction.headerName, headerValue.toString, extraction.quality, extraction.overwrite)
           // JSONPath value was extracted AND is Null AND NullValue is defined
           case (Success(headerValue), _, Some(nullValue)) =>
-            mutableHttpRequest.addHeader(extraction.headerName, nullValue)
+            addHeader(extraction.headerName, nullValue, extraction.quality, extraction.overwrite)
           // JSONPath value was NOT extracted AND DefaultValue is defined
           case (Failure(e), Some(defaultValue), _) =>
-            mutableHttpRequest.addHeader(extraction.headerName, defaultValue)
+            addHeader(extraction.headerName, defaultValue, extraction.quality, extraction.overwrite)
           case (_, _, _) => // don't add a header
         }
       }
@@ -95,7 +102,13 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
 
   override def configurationUpdated(config: BodyExtractorToHeaderConfig): Unit = {
     extractions = config.getExtraction.asScala.map { extraction =>
-      Extraction(extraction.getHeader, extraction.getJsonpath, Option(extraction.getDefault), Option(extraction.getNullValue))
+      Extraction(extraction.getHeader,
+        extraction.getJsonpath,
+        Option(extraction.getDefault),
+        Option(extraction.getNullValue),
+        extraction.isOverwrite,
+        Option(extraction.getQuality)
+      )
     }
     initialized = true
   }
@@ -107,6 +120,12 @@ object BodyExtractorToHeaderFilter {
   private final val DEFAULT_CONFIG = "body-extractor-to-header.cfg.xml"
   private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/body-extractor-to-header.xsd"
 
-  case class Extraction(headerName: String, jsonPath: String, defaultValue: Option[String], nullValue: Option[String])
+  case class Extraction(headerName: String,
+                        jsonPath: String,
+                        defaultValue: Option[String],
+                        nullValue: Option[String],
+                        overwrite: Boolean,
+                        quality: Option[java.lang.Double]
+                       )
 
 }
