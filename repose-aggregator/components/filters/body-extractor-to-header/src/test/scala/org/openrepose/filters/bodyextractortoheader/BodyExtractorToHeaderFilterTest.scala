@@ -103,6 +103,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = mock(classOf[FilterChain])
+    servletRequest.setContentType("application/json")
     servletRequest.setContent(contentBody)
   }
 
@@ -231,6 +232,17 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
     it("should NOT add the header when the Body matches the configured JPath and a null value is NOT specified") {
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.null", None, None))
       filter.configurationUpdated(config)
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
+    }
+
+    it("should NOT add the header when the Body matches the configured JPath and the Content-Type is not JSON") {
+      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None))
+      filter.configurationUpdated(config)
+      servletRequest.setContentType("application/xml")
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
