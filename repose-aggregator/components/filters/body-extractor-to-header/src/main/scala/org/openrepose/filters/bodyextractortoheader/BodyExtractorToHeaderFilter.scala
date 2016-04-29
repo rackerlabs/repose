@@ -24,7 +24,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
-import com.jayway.jsonpath.{JsonPath, Configuration => JsonConfiguration, Option => JsonOption}
+import com.jayway.jsonpath.{DocumentContext, JsonPath, Configuration => JsonConfiguration, Option => JsonOption}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
@@ -72,13 +72,19 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
       mutableHttpRequest.addHeader(name, hdrValue)
     }
 
-    extractions.foreach { extraction =>
+    val jsonDoc: Try[DocumentContext] = {
       if (mutableHttpRequest.getContentType.toLowerCase.contains("json")) {
-        val extracted = Try(
-          JsonPath.using(jsonPathConfiguration)
-            .parse(mutableHttpRequest.getInputStream)
-            .read[Any](extraction.jsonPath)
-        )
+        Try(JsonPath.using(jsonPathConfiguration).parse(mutableHttpRequest.getInputStream))
+      } else {
+        new Failure(new Exception)
+      }
+    }
+
+    extractions.foreach { extraction =>
+      if (jsonDoc.isSuccess) {
+        val extracted = jsonDoc match {
+          case Success(doc) => Try(doc.read[Any](extraction.jsonPath))
+        }
 
         (extracted, extraction.defaultValue, extraction.nullValue) match {
           // JSONPath value was extracted AND is NOT Null
