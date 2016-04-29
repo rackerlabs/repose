@@ -32,6 +32,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import scala.collection.JavaConverters._
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 
 @RunWith(classOf[JUnitRunner])
 class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers {
@@ -261,8 +263,21 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 2
-      requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue)
-      requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue)
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue))
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue))
+    }
+
+    it("should NOT overwrite the header when the Body does NOT match the configured JPath and Overwrite is TRUE") {
+      config.getExtraction.add(createConfigExtractor(extractedHeader, badPath, None, None, overwrite = true, None))
+      filter.configurationUpdated(config)
+      val headerValue = "Eeth Koth"
+      servletRequest.addHeader(extractedHeader, headerValue)
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 1
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue))
     }
 
     it("should overwrite the header when the Body matches the configured JPath and Overwrite is TRUE") {
@@ -275,8 +290,21 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 1
-      !requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue)
-      requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue)
+      assertFalse(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue))
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue))
+    }
+
+    it("should append a quality to the header value when the Body matches and one is configured") {
+      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None, overwrite = true, None))
+      filter.configurationUpdated(config)
+      val headerValue = "Aayla Secura"
+      servletRequest.addHeader(extractedHeader, headerValue)
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 1
+      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(s"$matchValue;q=0.5"))
     }
   }
 
