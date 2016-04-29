@@ -1,0 +1,8 @@
+dependencies {
+    compile "org.scala-lang:scala-library"
+
+    testCompile project(':repose-aggregator:commons:commons-test')
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "xerces:xerces-xsd11"
+}
