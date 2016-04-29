@@ -24,10 +24,11 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.*
 
 /**
  * Created by jennyvo on 4/28/16.
+ *  Verify body extractor to headers
  */
 class BodyExtractorToHeaderTest extends ReposeValveTest {
     def setupSpec() {
