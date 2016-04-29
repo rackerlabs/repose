@@ -81,5 +81,35 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="overwrite" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="quality" type="DoubleBetweenZeroAndOne" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Quality assigned this request header.
+                        If no quality is set, then no quality will be assigned to this header.
+                    </html:p>
+                    <html:p>
+                        Quality factors are defined in the
+                        <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">
+                            HTTP RFC - Section-3.9
+                        </html:a>
+                        (for usage examples, see
+                        <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">
+                            HTTP RFC - Section 14.1
+                        </html:a>)
+                        as a mechanism for weighting values in multi-value headers.
+                        Possible values for quality are 0 to 1.0.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
+
+    <xs:simpleType name="DoubleBetweenZeroAndOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
