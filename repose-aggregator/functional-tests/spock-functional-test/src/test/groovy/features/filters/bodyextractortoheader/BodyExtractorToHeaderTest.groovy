@@ -36,7 +36,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigs("common", params) i
+        repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/bodyextractortoheader", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)

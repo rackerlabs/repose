@@ -22,11 +22,11 @@
 
 <body-extractor-to-header xmlns="http://docs.openrepose.org/repose/body-extractor-to-header/v1.0">
     <!-- Grab the Device ID from the 'entities' element; default to an empty header -->
-    <extraction header="X-Device-Id" body-jpath="device" default=""/>
+    <extraction header="X-Device-Id" jsonpath="$.bodydata.device" overwrite="true" default=""/>
 
     <!-- Grab the Server ID from the 'servers' element; don't include header if Body doesn't match -->
-    <extraction header="X-Server-Id" body-jpath="server"/>
+    <extraction header="X-Server-Id" jsonpath="$.bodydata.server" overwrite="false"/>
 
     <!-- Grab the Parameter from 'parameter' element; default to 'none' if a parameter wasn't supplied -->
-    <extraction header="X-Filter-Param" body-jpath="parameter" default="none"/>
+    <extraction header="X-Filter-Param" jsonpath="$.bodydata.parameter" default="none"/>
 </body-extractor-to-header>
