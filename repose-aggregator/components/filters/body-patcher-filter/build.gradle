@@ -1,5 +1,8 @@
 dependencies {
+    compile project(':repose-aggregator:core:repose-core-api')
     compile "org.scala-lang:scala-library"
+
+    provided "javax.servlet:javax.servlet-api"
 
     testCompile project(':repose-aggregator:commons:commons-test')
     testCompile "junit:junit"
