@@ -295,7 +295,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
     }
 
     it("should append a quality to the header value when the Body matches and one is configured") {
-      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None, overwrite = true, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None, overwrite = true, Some(0.5)))
       filter.configurationUpdated(config)
       val headerValue = "Aayla Secura"
       servletRequest.addHeader(extractedHeader, headerValue)
