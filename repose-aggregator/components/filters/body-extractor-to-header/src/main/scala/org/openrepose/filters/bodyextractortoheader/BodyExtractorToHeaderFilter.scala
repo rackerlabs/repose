@@ -33,6 +33,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodyextractortoheader.config.BodyExtractorToHeaderConfig
 
 import scala.collection.JavaConverters._
+import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 @Named
@@ -76,7 +77,12 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
       Option(mutableHttpRequest.getContentType) match {
         case Some(contentType) =>
           if (contentType.toLowerCase.contains("json")) {
-            Try(JsonPath.using(jsonPathConfiguration).parse(mutableHttpRequest.getInputStream))
+            val is = mutableHttpRequest.getInputStream
+            if (is.markSupported()) is.mark(0)
+            val jsonString = Source.fromInputStream(is).mkString
+            if (is.markSupported()) is.reset()
+            logger.trace(s"is.available = ${is.available()}")
+            Try(JsonPath.using(jsonPathConfiguration).parse(jsonString))
           } else {
             new Failure(new Exception)
           }
