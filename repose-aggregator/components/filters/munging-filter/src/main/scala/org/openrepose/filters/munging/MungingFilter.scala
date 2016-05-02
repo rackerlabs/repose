@@ -21,14 +21,22 @@ package org.openrepose.filters.munging
 
 import javax.servlet._
 
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.filters.munging.config.MungingConfig
+
 /**
   * Created by adrian on 4/29/16.
   */
-class MungingFilter extends Filter {
-  override def init(filterConfig: FilterConfig): Unit = ???
+class MungingFilter(configurationService: ConfigurationService) extends AbstractConfiguredFilter[MungingConfig](configurationService) {
+  override val DEFAULT_CONFIG: String = _
+  override val SCHEMA_LOCATION: String = _
 
-  override def destroy(): Unit = ???
-
-  override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = ???
-
+  /**
+    * Where the concrete class does it's work. This method is the equivalent doFilter in a normal filter.
+    *
+    * @param request
+    * @param response
+    * @param chain
+    */
+  override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = ???
 }
