@@ -142,6 +142,18 @@ class AbstractConfiguredFilterTest
       filter.getInitialized shouldBe true
     }
   }
+
+  describe("isInitialized method") {
+    it("should return false before initial config update") {
+      filter.isInitialized shouldBe false
+    }
+
+    it("should return true after config update") {
+      filter.configurationUpdated("baz")
+
+      filter.isInitialized shouldBe true
+    }
+  }
 }
 
 class StubbedFilter(configurationService: ConfigurationService) extends AbstractConfiguredFilter[String](configurationService) {
@@ -154,6 +166,4 @@ class StubbedFilter(configurationService: ConfigurationService) extends Abstract
   def getInitialized(): Boolean = initialized
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
-
-  override def isInitialized: Boolean = ???
 }
