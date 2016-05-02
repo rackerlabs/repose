@@ -29,15 +29,8 @@ import org.openrepose.filters.bodypatcher.config.BodyPatcherConfig
   * Created by adrian on 4/29/16.
   */
 class BodyPatcherFilter(configurationService: ConfigurationService) extends AbstractConfiguredFilter[BodyPatcherConfig](configurationService) {
-  override val DEFAULT_CONFIG: String = null
-  override val SCHEMA_LOCATION: String = null
+  override val DEFAULT_CONFIG: String = "body-patcher.cfg.xml"
+  override val SCHEMA_LOCATION: String = "/META-INF/schema/config/body-patcher.xsd"
 
-  /**
-    * Where the concrete class does it's work. This method is the equivalent doFilter in a normal filter.
-    *
-    * @param request
-    * @param response
-    * @param chain
-    */
   override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = ???
 }
