@@ -43,7 +43,7 @@ class AbstractConfiguredFilterTest
     with MockitoSugar
     with BeforeAndAfter {
 
-  var filter: AbstractConfiguredFilter[String] = _
+  var filter: StubbedFilter = _
   var configurationService: ConfigurationService = _
 
   before {
@@ -127,6 +127,21 @@ class AbstractConfiguredFilterTest
       verify(configurationService).unsubscribeFrom(anyString(), same(filter))
     }
   }
+
+  describe("configurationUpdated method") {
+    it("should save the configuration") {
+      val testConfig: String = "foo"
+      filter.configurationUpdated(testConfig)
+
+      filter.getConfig should be theSameInstanceAs testConfig
+    }
+
+    it("should set initialized") {
+      filter.configurationUpdated("bar")
+
+      filter.getInitialized shouldBe true
+    }
+  }
 }
 
 class StubbedFilter(configurationService: ConfigurationService) extends AbstractConfiguredFilter[String](configurationService) {
@@ -134,9 +149,11 @@ class StubbedFilter(configurationService: ConfigurationService) extends Abstract
   override val DEFAULT_CONFIG: String = "stubbed.cfg.xml"
   override val SCHEMA_LOCATION: String = "/stubbed.xsd"
 
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
+  def getConfig(): String = configuration
 
-  override def configurationUpdated(configurationObject: String): Unit = ???
+  def getInitialized(): Boolean = initialized
+
+  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
 
   override def isInitialized: Boolean = ???
 }
