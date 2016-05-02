@@ -19,15 +19,14 @@
  */
 package org.openrepose.filters.ratelimiting;
 
-import com.google.common.base.Optional;
-
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.filter.FilterAction;
-import org.openrepose.commons.utils.servlet.http.*;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.event.EventService;
 import org.openrepose.core.services.ratelimit.OverLimitData;
@@ -45,6 +44,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /* Responsible for handling requests and responses to rate limiting, also tracks and provides limits */

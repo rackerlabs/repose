@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.ratelimiting;
 
-import com.google.common.base.Optional;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.core.services.event.EventService;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
@@ -30,10 +29,7 @@ import org.openrepose.core.services.ratelimit.config.*;
 import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
 import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public abstract class RateLimitingTestSupport {
@@ -46,7 +42,7 @@ public abstract class RateLimitingTestSupport {
         RateLimitingService rateLimitingService = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject);
         Optional<Pattern> describeLimitsUriRegex = configurationObject.getRequestEndpoint() != null ?
                 Optional.of(Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex())) :
-                Optional.<Pattern>absent();
+                Optional.empty();
         boolean includeAbsoluteLimits = configurationObject.getRequestEndpoint() != null &&
                 configurationObject.getRequestEndpoint().isIncludeAbsoluteLimits();
 

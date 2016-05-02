@@ -43,8 +43,6 @@ import org.openrepose.core.services.ratelimit.config.HttpMethod;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import com.google.common.base.Optional;
-
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
