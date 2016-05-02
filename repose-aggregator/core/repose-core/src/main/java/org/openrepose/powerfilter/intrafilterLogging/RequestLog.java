@@ -23,6 +23,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.openrepose.core.systemmodel.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +32,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class RequestLog {
+    private static final Logger LOG = LoggerFactory.getLogger(RequestLog.class);
 
     String preamble;
     String timestamp;
@@ -47,13 +50,17 @@ public class RequestLog {
         requestURI = httpServletRequest.getRequestURI();
         headers = convertRequestHeadersToMap(httpServletRequest);
 
-        ServletInputStream inputStream = httpServletRequest.getInputStream();
-        if (inputStream.markSupported()) {
-            inputStream.mark(Integer.MAX_VALUE);
-            requestBody = IOUtils.toString(inputStream); //http://stackoverflow.com/a/309448
-            inputStream.reset();
-        } else {
-            throw new IllegalArgumentException("Servlet input stream does not support mark/reset: " + inputStream);
+        try {
+            ServletInputStream inputStream = httpServletRequest.getInputStream();
+            if (inputStream.markSupported()) {
+                inputStream.mark(Integer.MAX_VALUE);
+                requestBody = IOUtils.toString(inputStream); //http://stackoverflow.com/a/309448
+                inputStream.reset();
+            } else {
+                LOG.warn("Unable to populate request body - {} does not support mark/reset.", inputStream);
+            }
+        } catch (IOException e) {
+            LOG.warn("Unable to populate request body.", e);
         }
     }
 

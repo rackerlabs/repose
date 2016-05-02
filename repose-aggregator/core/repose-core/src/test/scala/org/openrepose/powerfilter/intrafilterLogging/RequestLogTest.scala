@@ -19,7 +19,7 @@
  */
 package org.openrepose.powerfilter.intrafilterLogging
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, IOException}
 import javax.servlet.ServletInputStream
 
 import org.junit.runner.RunWith
@@ -115,7 +115,7 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         new String(buffer) shouldEqual requestBody
       }
 
-      it("should throw an exception if the provided input stream does not support mark/reset") {
+      it("should not throw an exception if the provided input stream does not support mark/reset") {
         val filter = new Filter
         filter.setName("test-filter")
 
@@ -123,7 +123,21 @@ class RequestLogTest extends FunSpec with Matchers with MockitoSugar with Before
         when(unsupportedInputStream.markSupported()).thenReturn(false)
         when(httpServletRequestWrapper.getInputStream).thenReturn(unsupportedInputStream)
 
-        a [IllegalArgumentException] should be thrownBy new RequestLog(httpServletRequestWrapper, filter)
+        // no exception should be thrown
+        new RequestLog(httpServletRequestWrapper, filter)
+      }
+
+      it("should not throw an exception if the provided input stream is already closed") {
+        val filter = new Filter
+        filter.setName("test-filter")
+
+        val closedInputStream = mock[ServletInputStream]
+        when(closedInputStream.markSupported()).thenReturn(true)
+        when(closedInputStream.read()).thenThrow(new IOException("Stream closed"))
+        when(httpServletRequestWrapper.getInputStream).thenReturn(closedInputStream)
+
+        // no exception should be thrown
+        new RequestLog(httpServletRequestWrapper, filter)
       }
     }
 
