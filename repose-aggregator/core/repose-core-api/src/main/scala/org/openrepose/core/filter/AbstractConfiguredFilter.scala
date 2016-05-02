@@ -38,6 +38,8 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   val SCHEMA_LOCATION: String
 
   private var configFile: String = _
+  var configuration: T = _
+  var initialized: Boolean = false
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("{} initializing ...", this.getClass.getSimpleName)
@@ -60,5 +62,12 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
     logger.trace("{} destroying ...", this.getClass.getSimpleName)
     configurationService.unsubscribeFrom(configFile, this)
     logger.trace("{} destroyed.", this.getClass.getSimpleName)
+  }
+
+  override def configurationUpdated(configurationObject: T): Unit = {
+    logger.trace("{} received a configuration update", this.getClass.getSimpleName)
+    configuration = configurationObject
+
+    initialized = true
   }
 }
