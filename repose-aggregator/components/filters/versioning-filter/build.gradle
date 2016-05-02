@@ -10,7 +10,6 @@ dependencies {
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "xalan:xalan"
     compile "org.springframework:spring-beans"
-    compile "com.google.guava:guava"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"

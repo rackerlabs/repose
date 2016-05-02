@@ -1,6 +1,5 @@
 dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
-    compile "com.google.guava:guava"
     compile "com.yammer.metrics:metrics-core"
 
     provided "org.glassfish:javax.servlet"
