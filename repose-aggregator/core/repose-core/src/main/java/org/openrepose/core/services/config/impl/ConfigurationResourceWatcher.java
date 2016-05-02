@@ -21,7 +21,7 @@ package org.openrepose.core.services.config.impl;
 
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.thread.RecurringTask;
-import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.event.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

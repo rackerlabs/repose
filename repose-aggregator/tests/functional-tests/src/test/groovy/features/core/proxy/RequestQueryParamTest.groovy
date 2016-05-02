@@ -89,6 +89,7 @@ class RequestQueryParamTest extends ReposeValveTest {
         uriSuffixGiven                             | uriSuffixExpected                          | method
         "/path/to/resource?key=value@%"            | "/path/to/resource?key=value%40%25"        | "GET"
         "/path/to/resource?key=va%lu@e"            | "/path/to/resource?key=va%25lu%40e"        | "GET"
+        "/path/to/resource?key=value%2Bvalue"      | "/path/to/resource?key=value%2Bvalue"      | "GET"
         "/path/to/resource?key=value/othervalue"   | "/path/to/resource?key=value%2Fothervalue" | "GET"
         "/path/to/resource?key=value:value"        | "/path/to/resource?key=value%3Avalue"      | "GET"
         "/path/to/resource?key=value@value"        | "/path/to/resource?key=value%40value"      | "GET"
@@ -103,7 +104,6 @@ class RequestQueryParamTest extends ReposeValveTest {
         "/path/to/resource?key=value%5Dvalue"      | "/path/to/resource?key=value%5Dvalue"      | "GET"
         "/path/to/resource?key=value%20value"      | "/path/to/resource?key=value+value"        | "GET"
         "/path/to/resource?key=value+value"        | "/path/to/resource?key=value+value"        | "GET"
-        "/path/to/resource?key=value%2Bvalue"      | "/path/to/resource?key=value%2Bvalue"      | "GET"
     }
 
     @Unroll("when given a URI that contains space, Repose should reject the request with a 400 - #uriSuffixGiven")

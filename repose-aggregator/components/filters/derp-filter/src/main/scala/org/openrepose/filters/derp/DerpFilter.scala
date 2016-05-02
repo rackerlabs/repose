@@ -56,10 +56,10 @@ class DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
       sortedErrors match {
         case Seq() =>
           logger.warn("No delegation header could be parsed, returning a 500 response")
-          sendError(httpServletResponse, 500, "Delegation header found but could not be parsed", MediaType.TEXT_PLAIN)
+          httpServletResponse.sendError(500, "Delegation header found but could not be parsed")
         case Seq(preferredValue, _*) =>
           logger.debug(s"Delegation header(s) present, returning a ${preferredValue.statusCode} response")
-          sendError(httpServletResponse, preferredValue.statusCode, preferredValue.message, MediaType.TEXT_PLAIN)
+          httpServletResponse.sendError(preferredValue.statusCode, preferredValue.message)
       }
     }
   }
@@ -73,12 +73,6 @@ class DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
           None
       }
     }
-  }
-
-  def sendError(httpServletResponse: HttpServletResponse, statusCode: Int, responseBody: String, responseContentType: String): Unit = {
-    httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
-    httpServletResponse.getWriter.write(responseBody)
-    httpServletResponse.sendError(statusCode, responseBody)
   }
 
   override def destroy(): Unit = {

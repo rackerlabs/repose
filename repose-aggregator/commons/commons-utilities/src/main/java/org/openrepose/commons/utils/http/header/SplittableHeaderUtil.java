@@ -43,11 +43,11 @@ public class SplittableHeaderUtil {
     private Set<String> splittableHeaders;
 
     public SplittableHeaderUtil() {
-        setDefaultSplitable();
+        setDefaultSplittable();
     }
 
     public SplittableHeaderUtil(HeaderConstant... constant) {
-        setDefaultSplitable();
+        setDefaultSplittable();
 
         for (HeaderConstant ct : constant) {
             splittableHeaders.add(ct.toString());
@@ -55,7 +55,7 @@ public class SplittableHeaderUtil {
     }
 
     public SplittableHeaderUtil(HeaderConstant[]... constant) {
-        setDefaultSplitable();
+        setDefaultSplittable();
 
         for (HeaderConstant[] cts : constant) {
             for (HeaderConstant ct : cts) {
@@ -64,13 +64,13 @@ public class SplittableHeaderUtil {
         }
     }
 
-    private void setDefaultSplitable() {
+    private void setDefaultSplittable() {
         // Using a set which us so as to pass a comparator
         splittableHeaders = new TreeSet<>(CASE_INSENSITIVE_COMPARE);
         splittableHeaders.addAll(Arrays.asList(DEFAULT_SPLIT));
     }
 
-    public boolean isSplitable(String st) {
+    public boolean isSplittable(String st) {
         return splittableHeaders.contains(st.toLowerCase());
     }
 }

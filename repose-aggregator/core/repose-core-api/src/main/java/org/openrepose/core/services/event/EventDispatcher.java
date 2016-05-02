@@ -17,26 +17,12 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.utils.servlet.http;
+package org.openrepose.core.services.event;
 
-import java.util.Enumeration;
-import java.util.Map;
+public interface EventDispatcher {
 
-public interface RequestQueryParameters {
+    void dispatch();
 
-    String getParameter(String name);
+    Event getEvent();
 
-    String[] removeParameter(String name);
-
-    void clearParameters();
-
-    Map<String, String[]> getParameterMap();
-
-    Enumeration<String> getParameterNames();
-
-    String[] getParameterValues(String name);
-
-    String getQueryString();
-
-    void setQueryString(String query);
 }

@@ -20,8 +20,9 @@
 package org.openrepose.core.filter;
 
 import org.junit.Test;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.powerfilter.RequestTracer;
+
+import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.*;
  */
 public class RequestTracerTest {
 
-    MutableHttpServletResponse response;
+    HttpServletResponse response;
 
     @Test
     public void shouldReturnTimeSinceInitialization() {
@@ -103,7 +104,7 @@ public class RequestTracerTest {
         long time;
         RequestTracer rt;
 
-        response = mock(MutableHttpServletResponse.class);
+        response = mock(HttpServletResponse.class);
 
         rt = new RequestTracer(trace, addHeader);
         rt.traceEnter();
@@ -126,7 +127,7 @@ public class RequestTracerTest {
         long time;
         RequestTracer rt;
 
-        response = mock(MutableHttpServletResponse.class);
+        response = mock(HttpServletResponse.class);
 
         rt = new RequestTracer(trace, addHeader);
         rt.traceEnter();
@@ -149,7 +150,7 @@ public class RequestTracerTest {
         long time;
         RequestTracer rt;
 
-        response = mock(MutableHttpServletResponse.class);
+        response = mock(HttpServletResponse.class);
 
         rt = new RequestTracer(trace, addHeader);
         rt.traceEnter();
@@ -166,7 +167,7 @@ public class RequestTracerTest {
         trace = false;
         addHeader = false;
 
-        response = mock(MutableHttpServletResponse.class);
+        response = mock(HttpServletResponse.class);
 
         rt = new RequestTracer(trace, addHeader);
         rt.traceEnter();

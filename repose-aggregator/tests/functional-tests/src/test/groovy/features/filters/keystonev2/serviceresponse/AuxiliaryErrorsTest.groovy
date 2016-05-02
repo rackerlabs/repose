@@ -31,10 +31,9 @@ import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
-import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
+import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 
 class AuxiliaryErrorsTest extends ReposeValveTest {
-
     def static originEndpoint
     def static identityEndpoint
 

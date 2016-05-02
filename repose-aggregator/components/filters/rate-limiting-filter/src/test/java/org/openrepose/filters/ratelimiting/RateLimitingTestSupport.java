@@ -21,7 +21,7 @@ package org.openrepose.filters.ratelimiting;
 
 import com.google.common.base.Optional;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
-import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.event.EventService;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
 import org.openrepose.core.services.ratelimit.RateLimitingServiceFactory;
 import org.openrepose.core.services.ratelimit.cache.ManagedRateLimitCache;

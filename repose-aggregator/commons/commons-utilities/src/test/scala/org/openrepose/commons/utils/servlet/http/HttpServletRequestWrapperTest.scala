@@ -791,6 +791,11 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       wrappedRequest.getSplittableHeaders("abc").asScala.toList shouldBe empty
     }
 
+    it("should trim the space around the comma") {
+      wrappedRequest.addHeader("A", "a , b")
+      wrappedRequest.getSplittableHeaders("A") should contain only("a", "b")
+    }
+
     it("should throw an exception when quality is garbage") {
       wrappedRequest.addHeader("cup", "butts;q=butts")
       a[QualityFormatException] should be thrownBy wrappedRequest.getPreferredSplittableHeaders("cup")
@@ -880,6 +885,21 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
       localWrappedRequest.getParameterMap should have size 1
       localWrappedRequest.getParameterMap should contain key "a"
       localWrappedRequest.getParameterMap.get("a") should contain inOrderOnly("a", "b", "c")
+    }
+
+    it("should store decoded keys and values") {
+      val localRequest = new MockHttpServletRequest()
+      localRequest.addParameter("a b", "a b")
+      localRequest.setQueryString("a+b=a+b")
+
+      val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
+
+      localWrappedRequest.setQueryString("A+B=A+B")
+
+      localWrappedRequest.getQueryString shouldBe "A+B=A+B"
+      localWrappedRequest.getParameterMap should have size 1
+      localWrappedRequest.getParameterMap should contain key "A B"
+      localWrappedRequest.getParameterMap.get("A B") should contain only "A B"
     }
   }
 

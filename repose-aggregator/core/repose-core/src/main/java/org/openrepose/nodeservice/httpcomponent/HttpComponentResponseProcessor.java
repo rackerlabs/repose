@@ -24,7 +24,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.core.proxy.HttpException;
 
 import javax.servlet.http.HttpServletResponse;
@@ -35,8 +34,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.openrepose.commons.utils.http.CommonHttpHeader.CONTENT_LENGTH;
-import static org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE;
-import static org.openrepose.commons.utils.servlet.http.ResponseMode.READONLY;
 
 public class HttpComponentResponseProcessor {
     private static final String[] EXCLUDE_HEADERS = {"connection", "transfer-encoding", "server"};
@@ -81,18 +78,10 @@ public class HttpComponentResponseProcessor {
     private void setResponseBody() throws IOException {
         HttpEntity entity = httpResponse.getEntity();
         if (entity != null) {
-            if (response instanceof HttpServletResponseWrapper) {
-                HttpServletResponseWrapper httpServletResponseWrapper = (HttpServletResponseWrapper) response;
-                entity.writeTo(httpServletResponseWrapper.getOutputStream());
-            } else if (response instanceof MutableHttpServletResponse) {
-                MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse) response;
-                mutableResponse.setInputStream(new HttpComponentInputStream(entity));
-            } else {
-                final OutputStream clientOut = response.getOutputStream();
-                entity.writeTo(clientOut);
-                clientOut.flush();
-                EntityUtils.consume(entity);
-            }
+            final OutputStream clientOut = response.getOutputStream();
+            entity.writeTo(clientOut);
+            clientOut.flush();
+            EntityUtils.consume(entity);
         }
     }
 }

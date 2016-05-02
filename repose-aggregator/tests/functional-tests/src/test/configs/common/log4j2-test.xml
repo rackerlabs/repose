@@ -22,6 +22,7 @@
         <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
+        <!--<Logger name="org.openrepose.core.services.serviceclient.akka.impl.AkkaServiceClientImpl" level="trace"/>-->
 
         <!-- I need debug info from JMX! -->
         <!-- useful: http://docs.oracle.com/javase/1.5.0/docs/guide/jmx/logging.html -->
@@ -32,6 +33,5 @@
 
         <!-- because adding the JUL bridge, I need to silence a bunch of internal sun stuff -->
         <Logger name="com.sun.xml.internal" level="warn"/>
-
     </Loggers>
 </Configuration>

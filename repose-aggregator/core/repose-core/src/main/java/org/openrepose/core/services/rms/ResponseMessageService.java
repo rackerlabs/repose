@@ -35,10 +35,10 @@
  */
 package org.openrepose.core.services.rms;
 
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.core.services.rms.config.StatusCodeMatcher;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -48,7 +48,7 @@ public interface ResponseMessageService {
 
     boolean isInitialized();
 
-    void handle(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    void handle(HttpServletRequest request, HttpServletResponseWrapper response) throws IOException;
 
     void updateConfiguration(List<StatusCodeMatcher> statusCodeMatchers);
 }

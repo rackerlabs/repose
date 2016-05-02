@@ -39,7 +39,7 @@ import scala.io.Source
 @RunWith(classOf[JUnitRunner])
 class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
 
-  var originalResponse: HttpServletResponse = _
+  var originalResponse: MockHttpServletResponse = _
 
   before {
     originalResponse = new MockHttpServletResponse()
@@ -445,6 +445,14 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.removeHeader("a")
 
       wrappedResponse.getSplittableHeaders("a") should be('empty)
+    }
+
+    it("should trim the space around the comma") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.addHeader("A", "a , b")
+
+      wrappedResponse.getSplittableHeaders("A") should contain only("a", "b")
     }
 
     it("should return the full header values, with query parameters included") {
@@ -1530,6 +1538,36 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
     }
   }
 
+  describe("getOutputStreamAsString") {
+    it("should throw an IllegalStateException if the body mode is set to PASSTHROUGH") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.getOutputStreamAsString
+    }
+
+    it("should return a string containing the contents of the output stream if the body mode is set to READONLY") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
+
+      val body = "test body"
+      wrappedResponse.getOutputStream.print(body)
+
+      val wrappedBody = wrappedResponse.getOutputStreamAsString
+
+      wrappedBody shouldEqual body
+    }
+
+    it("should return a string containing the contents of the output stream if the body mode is set to MUTABLE") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      val body = "test body"
+      wrappedResponse.getOutputStream.print(body)
+
+      val wrappedBody = wrappedResponse.getOutputStreamAsString
+
+      wrappedBody shouldEqual body
+    }
+  }
+
   describe("setOutput") {
     it("should set the output") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
@@ -1900,6 +1938,17 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
       wrappedResponse.getHeader("foo") shouldEqual "foo"
       postFlushBody shouldEqual ""
     }
+
+    it("should reset the response body type") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.getWriter
+
+      wrappedResponse.resetBuffer()
+
+      // no exception should be thrown
+      wrappedResponse.getOutputStream
+    }
   }
 
   describe("reset") {
@@ -1929,6 +1978,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("commitToResponse") {
+    Seq(
+      (ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH),
+      (ResponseMode.PASSTHROUGH, ResponseMode.READONLY),
+      (ResponseMode.READONLY, ResponseMode.PASSTHROUGH),
+      (ResponseMode.READONLY, ResponseMode.READONLY)
+    ) foreach { case (headerMode, bodyMode) =>
+      it(s"should throw an IllegalStateException if the header mode is set to ${headerMode.name()} and body mode is set to ${bodyMode.name()}") {
+        val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
+
+        an[IllegalStateException] should be thrownBy wrappedResponse.commitToResponse()
+      }
+    }
+
     it("should not alter pre-existing headers in the wrapped response") {
       originalResponse.addHeader("a", "a")
 
@@ -1977,6 +2039,288 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Ma
 
       mockResponse.isCommitted shouldBe true
       wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should write the content-length header") {
+      val out = new ByteArrayServletOutputStream()
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE, out)
+
+      val body = "foo"
+      wrappedResponse.getOutputStream.print(body)
+
+      wrappedResponse.commitToResponse()
+
+      originalResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString) shouldEqual "3"
+    }
+
+    it("should mark the wrapped response as committed") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
+
+      wrappedResponse.commitToResponse()
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+  }
+
+  describe("setStatus") {
+    it("should throw an exception if the wrapped response has already been committed (one argument)") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.setStatus(418)
+    }
+
+    it("should throw an exception if the wrapped response has already been committed (two arguments)") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.setStatus(418, "TEAPOT")
+    }
+
+    it("should set the status code and reason") {
+      val mockResponse = mock[HttpServletResponse]
+      when(mockResponse.isCommitted).thenReturn(false)
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setStatus(418, "TEAPOT")
+
+      verify(mockResponse).setStatus(418, "TEAPOT")
+      wrappedResponse.getReason shouldEqual "TEAPOT"
+    }
+
+    it("should reset the reason on subsequent calls with no reason") {
+      val mockResponse = mock[HttpServletResponse]
+      when(mockResponse.isCommitted).thenReturn(false)
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setStatus(418, "TEAPOT")
+      wrappedResponse.setStatus(200)
+
+      verify(mockResponse).setStatus(418, "TEAPOT")
+      verify(mockResponse).setStatus(200)
+      wrappedResponse.getReason shouldBe null
+    }
+  }
+
+  describe("sendError") {
+    it("should throw an exception if the wrapped response has already been committed (one argument)") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.sendError(418)
+    }
+
+    it("should throw an exception if the wrapped response has already been committed (two arguments)") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.sendError(418, "TEAPOT")
+    }
+
+    it("should set the status code and reason") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
+
+      // A hack to make this test work -- the original response /should/ set the status when sendError is called, but
+      // this mock doesn't. So I set it here. If sendError overwrites it like it should, great, if not, fine.
+      originalResponse.setStatus(418)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      wrappedResponse.getStatus shouldBe 418
+      wrappedResponse.getReason shouldEqual "TEAPOT"
+    }
+
+    it("should reset the reason on subsequent calls with no reason") {
+      val mockResponse = mock[HttpServletResponse]
+      when(mockResponse.isCommitted).thenReturn(false)
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setStatus(418, "TEAPOT")
+      wrappedResponse.sendError(404)
+
+      verify(mockResponse).setStatus(418, "TEAPOT")
+      verify(mockResponse).setStatus(404)
+      wrappedResponse.getReason shouldBe null
+    }
+
+    it("should reset the buffer") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+
+      wrappedResponse.getWriter.write("foo")
+      wrappedResponse.getWriter.flush()
+      wrappedResponse.sendError(404)
+
+      wrappedResponse.getOutputStreamAsString shouldEqual ""
+    }
+
+    it("should mark the wrapped as committed when given a single argument") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418)
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should mark the wrapper as committed when given two arguments") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should commit the underlying response if not in a mutable header mode") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
+        ResponseMode.PASSTHROUGH,
+        ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      verify(mockResponse).flushBuffer()
+    }
+
+    it("should not commit the underlying response if in a mutable header mode") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
+        ResponseMode.MUTABLE,
+        ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      verify(mockResponse, never()).flushBuffer()
+    }
+
+    it("should commit the underlying response if not in a mutable body mode") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
+        ResponseMode.PASSTHROUGH,
+        ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      verify(mockResponse).flushBuffer()
+    }
+
+    it("should not write, not commit the underlying response if in a mutable body mode") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
+        ResponseMode.PASSTHROUGH,
+        ResponseMode.MUTABLE)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      verify(mockResponse, never()).flushBuffer()
+    }
+  }
+
+  describe("getReason") {
+    it("should return null if it has not been set") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.getReason shouldBe null
+    }
+
+    it("should return the reason string if it has been set by setStatus") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.setStatus(418, "TEAPOT")
+
+      wrappedResponse.getReason shouldEqual "TEAPOT"
+    }
+
+    it("should return the reason string if it has been set by sendError") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418, "TEAPOT")
+
+      wrappedResponse.getReason shouldEqual "TEAPOT"
+    }
+  }
+
+  describe("isCommitted") {
+    it("should return false if nothing has been committed") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.isCommitted shouldBe false
+    }
+
+    it("should return true if the underlying response has been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should return true after sendError(i) is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND)
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should return true after sendError(i, s) is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Stuff was not found")
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should return true after flushBuffer is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should return true after commitToResponse is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.commitToResponse()
+
+      wrappedResponse.isCommitted shouldBe true
+    }
+
+    it("should return false after uncommit is called") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND)
+      wrappedResponse.uncommit()
+
+      wrappedResponse.isCommitted shouldBe false
+    }
+  }
+
+  describe("uncommit") {
+    it("should throw an exception if the wrapped response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.uncommit()
+    }
+
+    it("should enable calling methods normally blocked by committing") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.flushBuffer()
+      wrappedResponse.uncommit()
+
+      // should not throw an exception
+      wrappedResponse.resetBuffer()
     }
   }
 }

@@ -17,9 +17,9 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.event.common.impl;
+package org.openrepose.core.services.event;
 
-import org.openrepose.core.services.event.common.EventListener;
+import org.openrepose.core.services.event.EventListener;
 
 import java.util.*;
 

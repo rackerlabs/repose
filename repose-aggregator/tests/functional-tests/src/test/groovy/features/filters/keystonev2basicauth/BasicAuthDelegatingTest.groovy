@@ -30,7 +30,7 @@ import spock.lang.Unroll
 import javax.ws.rs.core.HttpHeaders
 
 import static javax.servlet.http.HttpServletResponse.*
-import static org.openrepose.core.filter.logic.FilterDirector.SC_TOO_MANY_REQUESTS
+import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 
 /**
  * Created by jennyvo on 11/12/14.

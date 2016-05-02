@@ -26,12 +26,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.header.HeaderFieldParser;
-import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.SplittableHeaderUtil;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.commons.utils.servlet.http.*;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
+import org.openrepose.commons.utils.servlet.http.ResponseMode;
 import org.openrepose.core.FilterProcessingTime;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.TimerByCategory;
@@ -50,8 +50,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.openrepose.commons.utils.servlet.http.ResponseMode.PASSTHROUGH;
 import static org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE;
+import static org.openrepose.commons.utils.servlet.http.ResponseMode.PASSTHROUGH;
 
 /**
  * @author fran
@@ -72,12 +72,12 @@ public class PowerFilterChain implements FilterChain {
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
     private final PowerFilterRouter router;
+    private final SplittableHeaderUtil splittabelHeaderUtil;
     private List<FilterContext> currentFilters;
     private int position;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
     private TimerByCategory filterTimer;
-    private final SplittableHeaderUtil splittabelHeaderUtil;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy,
                             FilterChain containerFilterChain,
@@ -96,47 +96,41 @@ public class PowerFilterChain implements FilterChain {
                 ExtendedHttpHeader.values());
     }
 
-    public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse)
+    public void startFilterChain(HttpServletRequestWrapper wrappedRequest, HttpServletResponseWrapper wrappedResponse)
             throws IOException, ServletException {
 
-        final HttpServletRequest request = (HttpServletRequest) servletRequest;
-
-        boolean addTraceHeader = traceRequest(request);
+        boolean addTraceHeader = traceRequest(wrappedRequest);
         boolean useTrace = addTraceHeader || (filterTimer != null);
 
         tracer = new RequestTracer(useTrace, addTraceHeader);
-        currentFilters = getFilterChainForRequest(request.getRequestURI());
+        currentFilters = getFilterChainForRequest(wrappedRequest.getRequestURI());
         filterChainAvailable = isCurrentFilterChainAvailable();
-        servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
-        servletRequest.setAttribute("http://openrepose.org/requestUrl", ((HttpServletRequest) servletRequest).getRequestURL().toString());
-        servletRequest.setAttribute("http://openrepose.org/queryParams", servletRequest.getParameterMap());
-        MutableHttpServletRequest wrappedRequest = MutableHttpServletRequest.wrap((HttpServletRequest) servletRequest);
+        wrappedRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
+        wrappedRequest.setAttribute("http://openrepose.org/requestUrl", wrappedRequest.getRequestURL().toString());
+        wrappedRequest.setAttribute("http://openrepose.org/queryParams", wrappedRequest.getParameterMap());
+
         splitRequestHeaders(wrappedRequest);
 
-        doFilter(wrappedRequest, servletResponse);
+        doFilter(wrappedRequest, wrappedResponse);
     }
 
-    private void splitRequestHeaders(MutableHttpServletRequest request) {
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            if (splittabelHeaderUtil.isSplitable(headerName)) {
-                List<HeaderValue> splitValues = splitRequestHeaderValues(headerName, request.getHeaders(headerName));
-                List<HeaderValue> headerValuesList = request.getRequestValues().getHeaders().getHeaderValues(headerName);
-                headerValuesList.clear();
-                headerValuesList.addAll(splitValues);
-            }
-        }
+    private void splitRequestHeaders(HttpServletRequestWrapper request) {
+        Collections.list(request.getHeaderNames()).stream()
+                .filter(splittabelHeaderUtil::isSplittable)
+                .forEach(headerName -> {
+                    Enumeration<String> headerValues = request.getHeaders(headerName);
+                    request.removeHeader(headerName);
+                    splitRequestHeaderValues(headerValues)
+                            .forEach(headerValue -> request.addHeader(headerName, headerValue));
+                });
     }
 
-    private List<HeaderValue> splitRequestHeaderValues(String headerName, Enumeration<String> headerValues) {
-        List<HeaderValue> splitHeaders = new ArrayList<>();
+    private List<String> splitRequestHeaderValues(Enumeration<String> headerValues) {
+        List<String> splitHeaders = new ArrayList<>();
         while (headerValues.hasMoreElements()) {
             String headerValue = headerValues.nextElement();
             String[] splitValues = headerValue.split(",");
-            for (String splitValue : splitValues) {
-                splitHeaders.addAll(new HeaderFieldParser(splitValue, headerName).parse());
-            }
+            Collections.addAll(splitHeaders, splitValues);
         }
         return splitHeaders;
     }
@@ -180,11 +174,11 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private void doReposeFilter(
-            ServletRequest servletRequest,
-            ServletResponse servletResponse,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse,
             FilterContext filterContext) throws IOException, ServletException {
-        HttpServletRequest maybeWrappedServletRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse maybeWrappedServletResponse = (HttpServletResponse) servletResponse;
+        HttpServletRequest maybeWrappedServletRequest = httpRequest;
+        HttpServletResponse maybeWrappedServletResponse =  httpResponse;
 
         try {
             // we don't want to handle trace logging being turned on in the middle of a request, so check upfront
@@ -261,33 +255,32 @@ public class PowerFilterChain implements FilterChain {
         return objectMapper.writeValueAsString(object);
     }
 
-    private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse)
+    private void doRouting(HttpServletRequest httpRequest, ServletResponse servletResponse)
             throws IOException, ServletException {
-        final HttpServletResponseWrapper httpServletResponseWrapper = new HttpServletResponseWrapper(
+        final HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper(
                 (HttpServletResponse) servletResponse,
                 MUTABLE,
                 PASSTHROUGH
         );
 
         try {
-            if (isResponseOk(httpServletResponseWrapper)) {
-                containerFilterChain.doFilter(mutableHttpRequest, httpServletResponseWrapper);
+            if (isResponseOk(wrappedResponse)) {
+                containerFilterChain.doFilter(httpRequest, wrappedResponse);
             }
-            if (isResponseOk(httpServletResponseWrapper)) {
-                // todo: rip out the mutable wrapper
-                router.route(new HttpServletRequestWrapper(mutableHttpRequest), httpServletResponseWrapper);
+            if (isResponseOk(wrappedResponse)) {
+                router.route(new HttpServletRequestWrapper(httpRequest), wrappedResponse);
             }
-            splitResponseHeaders(httpServletResponseWrapper);
-            httpServletResponseWrapper.commitToResponse();
+            splitResponseHeaders(wrappedResponse);
+            wrappedResponse.commitToResponse();
         } catch (Exception ex) {
             LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
-            httpServletResponseWrapper.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            wrappedResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
     private void splitResponseHeaders(HttpServletResponseWrapper httpServletResponseWrapper) {
         for (String headerName : httpServletResponseWrapper.getHeaderNames()) {
-            if (splittabelHeaderUtil.isSplitable(headerName)) {
+            if (splittabelHeaderUtil.isSplittable(headerName)) {
                 Collection<String> splitValues = splitResponseHeaderValues(httpServletResponseWrapper.getHeaders(headerName));
                 httpServletResponseWrapper.removeHeader(headerName);
                 for (String splitValue : splitValues) {
@@ -308,33 +301,33 @@ public class PowerFilterChain implements FilterChain {
         return finalValues;
     }
 
-    private void setStartTimeForHttpLogger(long startTime, MutableHttpServletRequest mutableHttpRequest) {
+    private void setStartTimeForHttpLogger(long startTime, HttpServletRequest httpRequest) {
         long start = startTime;
 
         if (startTime == 0) {
             start = System.currentTimeMillis();
         }
-        mutableHttpRequest.setAttribute(START_TIME_ATTRIBUTE, start);
+        httpRequest.setAttribute(START_TIME_ATTRIBUTE, start);
     }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
             throws IOException, ServletException {
-        final MutableHttpServletRequest mutableHttpRequest =
-                MutableHttpServletRequest.wrap((HttpServletRequest) servletRequest);
+        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
+        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
         if (filterChainAvailable && position < currentFilters.size()) {
             FilterContext filter = currentFilters.get(position++);
             long start = tracer.traceEnter();
-            setStartTimeForHttpLogger(start, mutableHttpRequest);
-            doReposeFilter(mutableHttpRequest, servletResponse, filter);
+            setStartTimeForHttpLogger(start, httpRequest);
+            doReposeFilter(httpRequest, httpResponse, filter);
             long delay = tracer.traceExit((HttpServletResponse) servletResponse, filter.getFilterConfig().getName());
             if (filterTimer != null) {
                 filterTimer.update(filter.getFilterConfig().getName(), delay, TimeUnit.MILLISECONDS);
             }
         } else {
             tracer.traceEnter();
-            doRouting(mutableHttpRequest, servletResponse);
+            doRouting(httpRequest, servletResponse);
             long delay = tracer.traceExit((HttpServletResponse) servletResponse, "route");
             if (filterTimer != null) {
                 filterTimer.update("route", delay, TimeUnit.MILLISECONDS);

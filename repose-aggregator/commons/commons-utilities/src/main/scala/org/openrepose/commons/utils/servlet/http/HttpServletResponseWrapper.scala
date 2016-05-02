@@ -31,6 +31,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
+import scala.io.Source
 
 /**
   * This class wraps a HttpServletResponse applying further functionality. It allows for varying levels of read
@@ -82,6 +83,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
   }
 
+  private var reason: Option[String] = None
+  private var committed: Boolean = false
   private var flushedBuffer: Boolean = false
   private var responseBodyType: ResponseBodyType.Value = ResponseBodyType.Available
   private var bodyPrintWriter: PrintWriter = _
@@ -98,6 +101,67 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     */
   def this(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode) =
     this(originalResponse, headerMode, bodyMode, originalResponse.getOutputStream)
+
+  override def setStatus(i: Int): Unit = {
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call sendError or setStatus after the response has been committed")
+    } else {
+      super.setStatus(i)
+      reason = None
+    }
+  }
+
+  override def setStatus(i: Int, s: String): Unit = {
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call setStatus after the response has been committed")
+    } else {
+      super.setStatus(i, s)
+      reason = Option(s)
+    }
+  }
+
+  /** Sets a status code on the first line of the HTTP response. Also sets the error message to be retrieved and used
+    * later.
+    *
+    * Note that this method will not call through to the [[sendError(i)]] method of the wrapped response.
+    * As a result, the container will not have an opportunity to perform additional processing.
+    *
+    * @param i the status code to set
+    */
+  override def sendError(i: Int): Unit = {
+    // Set that status.
+    setStatus(i)
+
+    // Reset the buffered output.
+    resetBuffer()
+
+    // Writes the response data and marks the response as committed.
+    flushBuffer()
+  }
+
+  /** See [[sendError(i)]].
+    *
+    * @param i the status code to set
+    * @param s the string used to populate the response body
+    */
+  override def sendError(i: Int, s: String): Unit = {
+    // Set the status.
+    setStatus(i)
+
+    // Set the reason phrase.
+    reason = Option(s)
+
+    // Call resetBuffer() so that we can write directly to a clean output stream, even if the client has previously
+    // written to the output stream.
+    resetBuffer()
+
+    // Writes the response data and marks the response as committed.
+    flushBuffer()
+  }
+
+  def getReason: String = reason.orNull
+
+  override def isCommitted: Boolean = super.isCommitted || committed
 
   override def getResponse: ServletResponse = throw new UnsupportedOperationException("getResponse is not supported")
 
@@ -137,6 +201,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def getSplittableHeaders(name: String): util.List[String] =
     getHeaderValues(name).foldLeft(List.empty[String])((list, value) => list ++ value.split(","))
+      .map(_.trim)
 
   private def getHeaderValues(name: String): Seq[String] = headerMap.getOrElse(name, Seq.empty[String])
 
@@ -261,6 +326,12 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   def getOutputStreamAsInputStream: InputStream = bodyOutputStream.getOutputStreamAsInputStream
 
   /**
+    * @throws IllegalStateException when bodyMode is ResponseMode.PASSTHROUGH
+    */
+  def getOutputStreamAsString: String =
+    Source.fromInputStream(getOutputStreamAsInputStream, getCharacterEncoding).mkString
+
+  /**
     * @throws IllegalStateException when bodyMode is anything other than ResponseMode.MUTABLE
     */
   def setOutput(inputStream: InputStream): Unit = {
@@ -274,6 +345,13 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
         throw new IllegalStateException("Cannot call getWriter after calling getOutputStream")
       case ResponseBodyType.Available =>
         responseBodyType = ResponseBodyType.PrintWriter
+        /** TODO: Should we wrap this with our own writer? The data a user writes to a PrintWriter may be buffered.
+          * Buffered content must be flushed from the PrintWriter to make it to the output stream, however,
+          * flushing the PrintWriter poses two potential problems:
+          * 1. It commits the response. Must the user commit the response if they want to write to the body?
+          * 2. How does this wrapper know if the PrintWriter has been flushed? How can this wrapper report
+          * being committed if the PrintWriter is flushed?
+          */
         bodyPrintWriter = new PrintWriter(new OutputStreamWriter(bodyOutputStream, getCharacterEncoding))
         bodyPrintWriter
       case ResponseBodyType.PrintWriter =>
@@ -316,6 +394,18 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
     // Track that the user intended to commit the response.
     flushedBuffer = true
+    committed = true
+  }
+
+  /**
+    * @throws IllegalStateException when the wrapped response has already been committed
+    */
+  def uncommit(): Unit = {
+    if (originalResponse.isCommitted) {
+      throw new IllegalStateException("the wrapped response has already been committed")
+    }
+
+    committed = false
   }
 
   override def reset(): Unit = {
@@ -333,10 +423,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       throw new IllegalStateException("Cannot call resetBuffer after the response has been committed")
     } else {
       super.resetBuffer()
+      responseBodyType = ResponseBodyType.Available
       bodyOutputStream.resetBuffer()
     }
   }
 
+  /**
+    * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
+    */
   def commitToResponse(): Unit = {
     def writeHeaders(): Unit = {
       headerMap foreach { case (name, values) =>
@@ -347,11 +441,16 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
 
     def writeBody(): Unit = {
+      // Since headers may have already been written, we set the content length on the wrapped response directly.
+      super.setContentLength(bodyOutputStream.getOutputStreamAsInputStream.available())
       bodyOutputStream.commit()
     }
 
     (headerMode, bodyMode) match {
       case (ResponseMode.MUTABLE, ResponseMode.MUTABLE) =>
+        // The headers are being written first so that they are available for processing by upstream
+        // output streams. The Compressing filter output stream, for example, depends on the content-type header
+        // being set before the output stream is written to.
         writeHeaders()
         writeBody()
       case (ResponseMode.MUTABLE, _) =>
@@ -359,12 +458,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       case (_, ResponseMode.MUTABLE) =>
         writeBody()
       case (_, _) =>
-        // do nothing
+        throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
     }
 
     if (flushedBuffer) {
       originalResponse.flushBuffer()
     }
+
+    committed = true
   }
 
   private case class HeaderValue(headerValue: String) {

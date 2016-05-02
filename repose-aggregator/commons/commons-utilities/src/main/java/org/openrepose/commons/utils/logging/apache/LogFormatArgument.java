@@ -43,13 +43,13 @@ public enum LogFormatArgument {
     REQUEST_PROTOCOL("H"),
     RESPONSE_HEADER("o"),
     STRING("STRING"),
-    ERROR_MESSAGE("M"),
+    RESPONSE_REASON("M"),
     RESPONSE_TIME_MICROSECONDS("D"),
     RESPONSE_TIME_SECONDS("T");
 
     private final String argument;
 
-    private LogFormatArgument(String argument) {
+    LogFormatArgument(String argument) {
         this.argument = argument;
 
         ReverseLookup.addLookup(argument, this);

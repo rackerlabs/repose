@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@ package org.openrepose.commons.utils.logging.apache.format.stock;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatterState;
 import org.openrepose.commons.utils.logging.apache.format.FormatterLogic;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +37,12 @@ public class ResponseMessageHandler implements FormatterLogic {
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
-        String message = MutableHttpServletResponse.wrap(request, response).getMessage();
+        String message = null;
+
+        if (response instanceof HttpServletResponseWrapper) {
+            message = ((HttpServletResponseWrapper) response).getReason();
+        }
+
         if (message == null) {
             message = "";
         } else {
@@ -50,6 +55,7 @@ public class ResponseMessageHandler implements FormatterLogic {
                     break;
             }
         }
+
         return message;
     }
 }

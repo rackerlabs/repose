@@ -29,6 +29,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
+import java.util.Optional;
 
 @Named
 public class ContainerConfigurationServiceImpl implements ContainerConfigurationService {
@@ -64,20 +65,8 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
     }
 
     @Override
-    public Long getContentBodyReadLimit() {
-        if (contentBodyReadLimit == null) {
-            return (long) 0;
-        } else {
-            return contentBodyReadLimit;
-        }
-    }
-
-    private void setContentBodyReadLimit(Long readLimit) {
-        contentBodyReadLimit = readLimit;
-    }
-
-    private void setViaValue(String via) {
-        viaValue = via;
+    public Optional<Long> getContentBodyReadLimit() {
+        return Optional.ofNullable(contentBodyReadLimit);
     }
 
     /**
@@ -92,8 +81,8 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
         public void configurationUpdated(ContainerConfiguration configurationObject) {
             DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
 
-            setViaValue(deployConfig.getVia());
-            setContentBodyReadLimit(deployConfig.getContentBodyReadLimit());
+            viaValue = deployConfig.getVia();
+            contentBodyReadLimit = deployConfig.getContentBodyReadLimit();
 
             isInitialized = true;
         }

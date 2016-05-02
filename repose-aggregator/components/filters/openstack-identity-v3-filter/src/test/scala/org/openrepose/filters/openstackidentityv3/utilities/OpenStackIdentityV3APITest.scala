@@ -33,8 +33,8 @@ import org.joda.time.format.ISODateTimeFormat
 import org.junit.runner.RunWith
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes
 import org.openrepose.commons.utils.http.{HttpDate, ServiceClientResponse}
-import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
@@ -147,7 +147,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       identityV3API.getAdminToken(None, true).failed.get shouldBe a[InvalidAdminCredentialsException]
     }
 
-    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, ExtendedStatusCodes.SC_TOO_MANY_REQUESTS)
     statusCodes.foreach { statusCode =>
       describe(s"should return an Exception when receiving $statusCode and") {
         it("not having headers while retrieving admin token") {
@@ -368,7 +368,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:TOKEN:test-subject-token")), any[Serializable], intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), any[TimeUnit])
     }
 
-    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, ExtendedStatusCodes.SC_TOO_MANY_REQUESTS)
     statusCodes.foreach { statusCode =>
       describe(s"should return an Exception when receiving $statusCode and") {
         it("not having headers while retrieving admin token") {
@@ -429,7 +429,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       identityV3API invokePrivate getGroups("test-user-id", None, true) shouldBe a[Failure[_]]
     }
 
-    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, FilterDirector.SC_TOO_MANY_REQUESTS)
+    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, ExtendedStatusCodes.SC_TOO_MANY_REQUESTS)
     statusCodes.foreach { statusCode =>
       describe(s"should return an Exception when receiving $statusCode and") {
         it("not having headers while retrieving admin token") {

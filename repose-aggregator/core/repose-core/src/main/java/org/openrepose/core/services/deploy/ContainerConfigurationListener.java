@@ -24,7 +24,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.core.container.config.ArtifactDirectory;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.container.config.DeploymentDirectory;
-import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.event.EventService;
 
 import java.io.File;
 

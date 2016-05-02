@@ -17,13 +17,11 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.utils.servlet.http;
+package org.openrepose.commons.utils.http.normal;
 
-public interface RequestDestinations {
-
-    void addDestination(String id, String uri, float quality);
-
-    void addDestination(RouteDestination dest);
-
-    RouteDestination getDestination();
+/**
+ * A set of HTTP status codes which are not included in {@link javax.servlet.http.HttpServletResponse}.
+ */
+public class ExtendedStatusCodes {
+    public static final int SC_TOO_MANY_REQUESTS = 429;
 }

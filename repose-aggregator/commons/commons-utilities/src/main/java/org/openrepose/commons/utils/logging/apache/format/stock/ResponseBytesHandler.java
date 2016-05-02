@@ -19,17 +19,32 @@
  */
 package org.openrepose.commons.utils.logging.apache.format.stock;
 
+import org.apache.commons.lang3.StringUtils;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.logging.apache.format.FormatterLogic;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ResponseBytesHandler implements FormatterLogic {
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ResponseBytesHandler.class);
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
-        MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(request, response);
-        return String.valueOf(mutableResponse.getResponseSize());
+        String contentLength = "-1";
+        String contentLengthHeader = response.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString());
+
+        if (StringUtils.isNotBlank(contentLengthHeader)) {
+            try {
+                contentLength = String.valueOf(Integer.parseInt(contentLengthHeader));
+            } catch (NumberFormatException nfe) {
+                LOG.warn("Unparsable integer value in Content-Length header. Value: " + contentLengthHeader, nfe);
+            }
+        } else {
+            LOG.debug("No Content-Length header could be found");
+        }
+
+        return contentLength;
     }
 }

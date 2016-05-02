@@ -24,10 +24,10 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.core.services.event.EventServiceImpl;
-import org.openrepose.core.services.event.common.Event;
-import org.openrepose.core.services.event.common.EventDispatcher;
-import org.openrepose.core.services.event.common.EventListener;
-import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.event.Event;
+import org.openrepose.core.services.event.EventDispatcher;
+import org.openrepose.core.services.event.EventListener;
+import org.openrepose.core.services.event.EventService;
 
 import static org.junit.Assert.*;
 

@@ -19,6 +19,7 @@
  */
 package org.openrepose.nodeservice.httpcomponent;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
@@ -37,10 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.Enumeration;
 
 /**
@@ -66,30 +65,19 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
         this.isConfiguredChunked = isConfiguredChunked;
     }
 
-    private void setRequestParameters(URIBuilder builder) throws URISyntaxException {
-        Enumeration<String> names = sourceRequest.getParameterNames();
-
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            if (StringUtilities.isBlank(name)) {
-                continue;
-            }
-            String[] values = sourceRequest.getParameterValues(name);
-
-            for (String value : values) {
-                try {
-                    builder.addParameter(URLDecoder.decode(name, ENCODING), URLDecoder.decode(value, ENCODING));
-                } catch (IllegalArgumentException | UnsupportedEncodingException e) {
-                    LOG.warn("URL parameter could not be decoded, passing it as-is.", e);
-                    builder.addParameter(name, value);
-                }
+    private void setQueryString(URIBuilder builder) throws URISyntaxException {
+        String queryString = sourceRequest.getQueryString();
+        if (StringUtils.isNotBlank(queryString)) {
+            builder.setQuery(queryString);
+            if (builder.getQueryParams().isEmpty()) {
+                builder.removeQuery();
             }
         }
     }
 
     public URI getUri(String target) throws URISyntaxException {
         URIBuilder builder = new URIBuilder(target);
-        setRequestParameters(builder);
+        setQueryString(builder);
         return builder.build();
     }
 

@@ -24,7 +24,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -46,12 +47,12 @@ public class ViaResponseHeaderBuilderTest {
     public static abstract class TestParent {
 
         protected ViaResponseHeaderBuilder builder;
-        protected MutableHttpServletRequest request;
+        protected HttpServletRequest request;
 
         @Before
         public final void beforeAll() {
             builder = new ViaResponseHeaderBuilder("2.4.0", getVia());
-            request = mock(MutableHttpServletRequest.class);
+            request = mock(HttpServletRequest.class);
 
 
         }

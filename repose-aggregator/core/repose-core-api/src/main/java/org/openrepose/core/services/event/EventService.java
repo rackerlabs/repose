@@ -17,34 +17,20 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.event.common.impl;
+package org.openrepose.core.services.event;
 
-import org.openrepose.core.services.event.common.Event;
-import org.openrepose.core.services.event.common.EventDispatcher;
 
-import java.util.Set;
+public interface EventService {
 
-public class EventDispatcherImpl implements EventDispatcher {
+    void newEvent(Enum e, Object payload);
 
-    private final Set<EventListenerDescriptor> listeners;
-    private final Event e;
+    EventDispatcher nextDispatcher() throws InterruptedException;
 
-    public EventDispatcherImpl(Event e, Set<EventListenerDescriptor> listeners) {
-        this.listeners = listeners;
-        this.e = e;
-    }
+    <T extends Enum> void listen(EventListener<T, ?> el, Class<T> events);
 
-    @Override
-    public Event getEvent() {
-        return e;
-    }
+    <T extends Enum> void listen(EventListener<T, ?> el, T... events);
 
-    @Override
-    public void dispatch() {
-        for (EventListenerDescriptor eventListenerWrapper : listeners) {
-            if (eventListenerWrapper.answersTo(e.type())) {
-                eventListenerWrapper.getListener().onEvent(e);
-            }
-        }
-    }
+    <T extends Enum> void squelch(EventListener<T, ?> el, Class<T> events);
+
+    <T extends Enum> void squelch(EventListener<T, ?> el, T... events);
 }

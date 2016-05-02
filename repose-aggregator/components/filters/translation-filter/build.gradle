@@ -23,7 +23,6 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "com.mockrunner:mockrunner-servlet"
     testCompile "commons-io:commons-io"
-    testCompile project(":repose-aggregator:core:repose-core") //todo: remove this once the director has been removed
     testCompile "xmlunit:xmlunit"
     testCompile "org.spockframework:spock-core"
 }

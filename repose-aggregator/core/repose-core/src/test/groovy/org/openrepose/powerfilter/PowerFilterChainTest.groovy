@@ -20,8 +20,6 @@
 package org.openrepose.powerfilter
 
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import spock.lang.Specification
@@ -54,7 +52,7 @@ class PowerFilterChainTest extends Specification {
                 resultRequest = (HttpServletRequest) servletRequest
             }
         }
-        def mockRequest = new MockHttpServletRequest()
+        def mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
         headerValues.each {
             mockRequest.addHeader(headerName, it)
         }
@@ -121,11 +119,11 @@ class PowerFilterChainTest extends Specification {
         def mockRequest = new MockHttpServletRequest()
         //NOTE: The PowerFilterChain only works if the initial response it is given is one of our
         // MutableHttpServletResponses, because it never writes changes down into the response
-        def response = MutableHttpServletResponse.wrap(mockRequest, new MockHttpServletResponse())
+        def response = new MockHttpServletResponse()
         response.setStatus(200)
 
         when:
-        powerFilterChain.doRouting(MutableHttpServletRequest.wrap(mockRequest), response)
+        powerFilterChain.doRouting(mockRequest, response)
 
         then:
         response.getHeaders(headerName).size() == expectedNumber

@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -116,7 +115,7 @@ public class HttpComponentResponseProcessorTest {
     public static class WhenProcessingMutableHttpResponses {
 
         private HttpResponse response;
-        private MutableHttpServletResponse servletResponse;
+        private HttpServletResponse servletResponse;
         private HttpComponentResponseProcessor processor;
         private Map<String, String> headerValues;
         private List<Header> headers;
@@ -133,7 +132,7 @@ public class HttpComponentResponseProcessorTest {
             entity = mock(HttpEntity.class);
             out = mock(ServletOutputStream.class);
             response = mock(HttpResponse.class);
-            servletResponse = mock(MutableHttpServletResponse.class);
+            servletResponse = mock(HttpServletResponse.class);
             when(response.getAllHeaders()).thenReturn(headers.toArray(new Header[headers.size()]));
             when(response.getEntity()).thenReturn(entity);
             when(servletResponse.getOutputStream()).thenReturn(out);
@@ -166,7 +165,8 @@ public class HttpComponentResponseProcessorTest {
                 verify(servletResponse).addHeader(header.getName(), header.getValue());
             }
 
-            verify(servletResponse).setInputStream(any(HttpComponentInputStream.class));
+            verify(servletResponse).getOutputStream();
+            verify(out).flush();
         }
     }
 }

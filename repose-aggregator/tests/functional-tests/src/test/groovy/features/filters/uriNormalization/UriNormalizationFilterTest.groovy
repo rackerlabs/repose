@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -161,7 +161,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
         where:
         method | matchingUriRegex               | qpBeforeRepose                                             | qpAfterRepose                                              | behaviorExpected
-        "POST" | "uri_normalization_with_media" | "filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space" | "filter_me=true&a=1&a=4&a=2&a=Add+Space&r=1241.212&n=test" | "Should not filter any query parameters"
+        "POST" | "uri_normalization_with_media" | "filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space" | "filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space" | "Should not filter or alphabetize any query parameters"
         "GET"  | "uri_normalization_with_media" | "a=3&b=4&a=4&A=0&c=6&d=7"                                  | "A=0&a=3&a=4&b=4&c=6"                                      | "Should allow whitelisted query parameters"
         "GET"  | "uri_normalization_with_media" | "a=3&b=4&a=4&A=0&c=6&d=7&B=8&b=9"                          | "A=0&B=8&a=3&a=4&b=4&c=6"                                  | "Should allow whitelisted query parameters up to multiplicity coun"
         "GET"  | "uri_normalization_with_media" | "a=3&b=4&a=4&A=0&c=6&C=8&c=10&C=9&c=11"                    | "A=0&a=3&a=4&b=4&c=6&c=10"                                 | "Should allow whitelisted case sensitive query parameters up to multiplicity count"
@@ -239,7 +239,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
         where:
         method | matchingUriRegex     | qpBeforeRepose                                             | qpAfterRepose                                              | behaviorExpected
-        "GET"  | "only_media_variant" | "filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space" | "filter_me=true&a=1&a=4&a=2&a=Add+Space&r=1241.212&n=test" | "Should not filter any query parameters"
+        "GET"  | "only_media_variant" | "filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space" | "filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space" | "Should not filter or alphabetize any query parameters"
 
     }
 

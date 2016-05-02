@@ -17,9 +17,13 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.event.common;
+package org.openrepose.core.services.event;
 
-public interface EventListener<T extends Enum, P> {
+public interface Event<T extends Enum, P> {
 
-    void onEvent(Event<T, P> e);
+    T type();
+
+    P payload();
+
+    EventService eventManager();
 }
