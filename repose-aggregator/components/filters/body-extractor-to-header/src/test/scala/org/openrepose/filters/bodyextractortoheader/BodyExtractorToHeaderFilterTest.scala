@@ -255,6 +255,17 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
     }
 
+    it("should NOT add the header when the Body matches the configured JPath and the Content-Type is not set at all") {
+      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None))
+      filter.configurationUpdated(config)
+      servletRequest = new MockHttpServletRequest
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
+    }
+
     it("should NOT overwrite the header when the Body matches the configured JPath and Overwrite is FALSE") {
       config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None, overwrite = false, None))
       filter.configurationUpdated(config)
