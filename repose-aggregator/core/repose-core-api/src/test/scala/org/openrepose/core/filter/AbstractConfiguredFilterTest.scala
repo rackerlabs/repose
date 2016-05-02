@@ -100,14 +100,39 @@ class AbstractConfiguredFilterTest
         any(classOf[UpdateListener[String]]), any(classOf[Class[String]]))
     }
   }
+
+  describe("destroy method") {
+    it("should unsubscribe with the default config file") {
+      filter.init(mock[FilterConfig])
+
+      filter.destroy()
+
+      verify(configurationService).unsubscribeFrom(eql("stubbed.cfg.xml"), any(classOf[UpdateListener[String]]))
+    }
+
+    it("should unsubscribe with the configured config file") {
+      val filterConfig = mock[FilterConfig]
+      when(filterConfig.getInitParameter("filter-config")).thenReturn("banana.cfg.xml")
+      filter.init(filterConfig)
+
+      filter.destroy()
+
+      verify(configurationService).unsubscribeFrom(eql("banana.cfg.xml"), any(classOf[UpdateListener[String]]))
+    }
+
+    it("should unsubscribe with the correct listener") {
+
+      filter.destroy()
+
+      verify(configurationService).unsubscribeFrom(anyString(), same(filter))
+    }
+  }
 }
 
 class StubbedFilter(configurationService: ConfigurationService) extends AbstractConfiguredFilter[String](configurationService) {
 
   override val DEFAULT_CONFIG: String = "stubbed.cfg.xml"
   override val SCHEMA_LOCATION: String = "/stubbed.xsd"
-
-  override def destroy(): Unit = ???
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
 
