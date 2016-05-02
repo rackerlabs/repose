@@ -111,7 +111,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         mc.handlings.size() == 1
         assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
         assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "54321")
+        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "test")
         assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("reposetest123"))
         // not override but add header extracted from body
         assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("abc123"))
