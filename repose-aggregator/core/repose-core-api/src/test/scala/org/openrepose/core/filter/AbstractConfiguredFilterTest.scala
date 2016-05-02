@@ -20,6 +20,7 @@
 package org.openrepose.core.filter
 
 import java.net.URL
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, FilterConfig, ServletRequest, ServletResponse}
 
 import org.junit.runner.RunWith
@@ -32,6 +33,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.hamcrest.Matchers.hasProperty
 import org.hamcrest.Matchers.endsWith
+import org.springframework.mock.web.MockHttpServletResponse
 
 /**
   * Created by adrian on 4/29/16.
@@ -154,6 +156,30 @@ class AbstractConfiguredFilterTest
       filter.isInitialized shouldBe true
     }
   }
+
+  describe("doFilter method") {
+    it("should 500 if uninitialized") {
+      val response: MockHttpServletResponse = new MockHttpServletResponse
+
+      filter.doFilter(mock[HttpServletRequest], response, mock[FilterChain])
+
+      response.getStatus shouldBe 500
+      response.getErrorMessage shouldBe "Filter not initialized"
+    }
+
+    it("should call doWork when initialized") {
+      val request: HttpServletRequest = mock[HttpServletRequest]
+      val response: HttpServletResponse = mock[HttpServletResponse]
+      val chain: FilterChain = mock[FilterChain]
+      filter.configurationUpdated("banana")
+
+      filter.doFilter(request, response, chain)
+
+      filter.passedObjects.request should be theSameInstanceAs request
+      filter.passedObjects.response should be theSameInstanceAs response
+      filter.passedObjects.chain should be theSameInstanceAs chain
+    }
+  }
 }
 
 class StubbedFilter(configurationService: ConfigurationService) extends AbstractConfiguredFilter[String](configurationService) {
@@ -161,9 +187,14 @@ class StubbedFilter(configurationService: ConfigurationService) extends Abstract
   override val DEFAULT_CONFIG: String = "stubbed.cfg.xml"
   override val SCHEMA_LOCATION: String = "/stubbed.xsd"
 
+  var passedObjects: PassedObjects = _
+
   def getConfig(): String = configuration
 
   def getInitialized(): Boolean = initialized
 
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = ???
+  override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit =
+    passedObjects = new PassedObjects(request.asInstanceOf[HttpServletRequest], response.asInstanceOf[HttpServletResponse], chain)
+
+  case class PassedObjects(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain)
 }
