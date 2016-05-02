@@ -21,14 +21,14 @@ package org.openrepose.filters.munging
 
 import java.net.URL
 import javax.servlet._
+import javax.servlet.http.HttpServletResponse
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 
-import scala.reflect.ClassTag
-import scala.reflect._
+import scala.reflect.{ClassTag, _}
 
 /**
   * Created by adrian on 4/29/16.
@@ -74,4 +74,18 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   }
 
   override def isInitialized: Boolean = initialized
+
+  override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
+    if (!initialized) {
+      logger.error("{} has not yet initialized...", this.getClass.getSimpleName)
+      response.asInstanceOf[HttpServletResponse].sendError(500, "Filter not initialized")
+    } else {
+      logger.trace("{} processing request...", this.getClass.getSimpleName)
+      doWork(request, response, chain)
+      logger.trace("{} returning response...", this.getClass.getSimpleName)
+    }
+
+  }
+
+  def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit
 }
