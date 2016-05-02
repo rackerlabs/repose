@@ -28,15 +28,8 @@ import org.openrepose.filters.munging.config.MungingConfig
   * Created by adrian on 4/29/16.
   */
 class MungingFilter(configurationService: ConfigurationService) extends AbstractConfiguredFilter[MungingConfig](configurationService) {
-  override val DEFAULT_CONFIG: String = _
-  override val SCHEMA_LOCATION: String = _
+  override val DEFAULT_CONFIG: String = "munging.cfg.xml"
+  override val SCHEMA_LOCATION: String = "/META-INF/schema/config/munging.xsd"
 
-  /**
-    * Where the concrete class does it's work. This method is the equivalent doFilter in a normal filter.
-    *
-    * @param request
-    * @param response
-    * @param chain
-    */
   override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = ???
 }
