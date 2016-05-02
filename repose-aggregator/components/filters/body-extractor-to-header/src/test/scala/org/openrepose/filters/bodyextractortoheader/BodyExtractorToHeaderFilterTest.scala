@@ -99,6 +99,9 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
         |      "true": true,
         |      "false": false,
         |      "null": null
+        |    },
+        |    "regex": {
+        |      "group": "hybrid:123456"
         |    }
         |  }
         |}""".stripMargin.getBytes(StandardCharsets.UTF_8)
@@ -342,6 +345,18 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
       assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(stringValue))
       assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(numberValue))
       assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(nullValue))
+    }
+
+    ignore("The JSON Path library currently doesn't support applying a REGEX capture group expression to a value before returning it.") {
+      it("should add the header with the partial JPath value when the Body matches the configured JPath containing a REGEX capture group.") {
+        config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.regex.group(^.*:(.*$))", None, None))
+        filter.configurationUpdated(config)
+
+        filter.doFilter(servletRequest, servletResponse, filterChain)
+
+        verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+        requestCaptor.getValue.getHeader(extractedHeader) shouldBe "123456"
+      }
     }
   }
 
