@@ -73,10 +73,16 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
     }
 
     val jsonDoc: Try[DocumentContext] = {
-      if (Option(mutableHttpRequest.getContentType).getOrElse("").toLowerCase.contains("json")) {
-        Try(JsonPath.using(jsonPathConfiguration).parse(mutableHttpRequest.getInputStream))
-      } else {
-        new Failure(new Exception)
+      Option(mutableHttpRequest.getContentType) match {
+        case Some(contentType) =>
+          if (contentType.toLowerCase.contains("json")) {
+            Try(JsonPath.using(jsonPathConfiguration).parse(mutableHttpRequest.getInputStream))
+          } else {
+            new Failure(new Exception)
+          }
+        case _ =>
+          logger.debug("Content-Type was not defined.")
+          new Failure(new Exception)
       }
     }
 
@@ -137,5 +143,4 @@ object BodyExtractorToHeaderFilter {
                         overwrite: Boolean,
                         quality: Option[java.lang.Double]
                        )
-
 }
