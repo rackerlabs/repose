@@ -70,4 +70,6 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
 
     initialized = true
   }
+
+  override def isInitialized: Boolean = initialized
 }
