@@ -8,4 +8,6 @@ dependencies {
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "xerces:xerces-xsd11"
+    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.mockito:mockito-all"
 }
