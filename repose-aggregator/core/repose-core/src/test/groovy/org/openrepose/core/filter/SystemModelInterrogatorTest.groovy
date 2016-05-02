@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.filter
 
-import com.google.common.base.Optional
 import org.intellij.lang.annotations.Language
 import org.junit.Before
 import org.junit.Test

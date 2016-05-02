@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.jmx;
 
-import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -39,10 +38,11 @@ import javax.inject.Named;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
 
 @Named("reposeConfigurationInformation")
 @ManagedResource(objectName = "org.openrepose.core.services.jmx:type=ConfigurationInformation", description = "Repose configuration information MBean.")

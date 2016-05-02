@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.filter;
 
-import com.google.common.base.Optional;
 import org.openrepose.core.systemmodel.*;
 
 import java.util.*;
@@ -72,7 +71,7 @@ public class SystemModelInterrogator {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     /**
@@ -82,7 +81,7 @@ public class SystemModelInterrogator {
      * @return
      */
     public Optional<Node> getLocalNode(Cluster cluster) {
-        Optional<Node> localNode = Optional.absent();
+        Optional<Node> localNode = Optional.empty();
         for (Node node : cluster.getNodes().getNode()) {
             if (node.getId().equals(nodeId)) {
                 localNode = Optional.of(node);
@@ -98,7 +97,7 @@ public class SystemModelInterrogator {
      * @return the Node jaxb element from the systemmodel
      */
     public Optional<Node> getLocalNode(SystemModel systemModel) {
-        Optional<Node> localNode = Optional.absent();
+        Optional<Node> localNode = Optional.empty();
         for (Cluster reposeCluster : systemModel.getReposeCluster()) {
             if (reposeCluster.getId().equals(clusterId)) {
                 localNode = getLocalNode(reposeCluster);
@@ -117,7 +116,7 @@ public class SystemModelInterrogator {
      */
     public Optional<Service> getServiceForCluster(SystemModel systemModel, String serviceName) {
         Optional<ReposeCluster> cluster = getLocalCluster(systemModel);
-        Optional<Service> found = Optional.absent();
+        Optional<Service> found = Optional.empty();
         if (cluster.isPresent()) {
             if (cluster.get().getServices() != null) {
                 for (Service service : cluster.get().getServices().getService()) {
@@ -137,7 +136,7 @@ public class SystemModelInterrogator {
         Optional<ReposeCluster> cluster = getLocalCluster(systemModel);
 
         if (!cluster.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return getDefaultDestination(cluster);
@@ -145,7 +144,7 @@ public class SystemModelInterrogator {
 
 
     private Optional<Destination> getDefaultDestination(Optional<ReposeCluster> cluster) {
-        Optional<Destination> dest = Optional.absent();
+        Optional<Destination> dest = Optional.empty();
         if (cluster.isPresent()) {
             List<Destination> destinations = new ArrayList<Destination>();
 
