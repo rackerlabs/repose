@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.spring;
 
-import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
