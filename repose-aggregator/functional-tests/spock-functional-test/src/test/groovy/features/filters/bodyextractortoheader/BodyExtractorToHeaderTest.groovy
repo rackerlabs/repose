@@ -57,8 +57,9 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
 
     @Unroll
     def "When request with match config jsonpath will add header as config and its value"() {
+        Map headers = ["content-type": "application/json"]
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", requestBody: reqbody)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers, requestBody: reqbody)
 
         then:
         mc.handlings.size() == 1
@@ -86,7 +87,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
 
     def "Override exist header if override=true"() {
         given: "request with previous set of headers"
-        Map headers = ["x-device-id": "54321", "x-server-id": "reposetest123"]
+        Map headers = ["content-type": "application/json", "x-device-id": "54321", "x-server-id": "reposetest123"]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers, requestBody: matchDevideBody)
@@ -101,7 +102,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
 
     def "Not override exist header if override=false"() {
         given: "request with previous set of headers"
-        Map headers = ["x-device-id": "54321", "x-server-id": "reposetest123"]
+        Map headers = ["content-type": "application/json", "x-device-id": "54321", "x-server-id": "reposetest123"]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers, requestBody: matchServerBody)
