@@ -55,4 +55,10 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
 
     logger.trace("{} initialized.", this.getClass.getSimpleName)
   }
+
+  override def destroy(): Unit = {
+    logger.trace("{} destroying ...", this.getClass.getSimpleName)
+    configurationService.unsubscribeFrom(configFile, this)
+    logger.trace("{} destroyed.", this.getClass.getSimpleName)
+  }
 }
