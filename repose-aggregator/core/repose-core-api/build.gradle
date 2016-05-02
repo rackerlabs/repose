@@ -1,12 +1,16 @@
 dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "com.yammer.metrics:metrics-core"
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
     provided "org.glassfish:javax.servlet"
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.mockito:mockito-all"
 }
 
 //todo: remove the local xslt
