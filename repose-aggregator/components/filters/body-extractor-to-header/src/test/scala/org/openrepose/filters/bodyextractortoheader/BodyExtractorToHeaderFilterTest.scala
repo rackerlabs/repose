@@ -19,25 +19,30 @@
  */
 package org.openrepose.filters.bodyextractortoheader
 
+import java.net.URL
 import java.nio.charset.StandardCharsets
 import javax.servlet.{FilterChain, ServletResponse}
 
+import com.mockrunner.mock.web.MockFilterConfig
+import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodyextractortoheader.config.{BodyExtractorToHeaderConfig, Extractor}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
+
 import scala.collection.JavaConverters._
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 
 @RunWith(classOf[JUnitRunner])
 class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers {
 
+  val mockConfigurationService = mock(classOf[ConfigurationService])
+  val mockFilterConfig = new MockFilterConfig
   var config: BodyExtractorToHeaderConfig = _
   var filter: BodyExtractorToHeaderFilter = _
   var requestCaptor: ArgumentCaptor[MutableHttpServletRequest] = _
@@ -102,8 +107,9 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
   val extractedHeader = "X-Extracted-Id"
 
   before {
+    reset(mockConfigurationService)
     config = new BodyExtractorToHeaderConfig
-    filter = new BodyExtractorToHeaderFilter(null)
+    filter = new BodyExtractorToHeaderFilter(mockConfigurationService)
     requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
@@ -336,6 +342,39 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
       assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(stringValue))
       assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(numberValue))
       assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(nullValue))
+    }
+  }
+
+  describe("init") {
+    it("should subscribe a listener to the configuration service on init") {
+      filter.init(mockFilterConfig)
+
+      verify(mockConfigurationService).subscribeTo(
+        anyString(),
+        anyString(),
+        any[URL],
+        any(),
+        any[Class[BodyExtractorToHeaderConfig]]
+      )
+    }
+  }
+
+  describe("destroy") {
+    it("should unsubscribe a listener to the configuration service on destroy") {
+      filter.destroy()
+
+      verify(mockConfigurationService).unsubscribeFrom(
+        anyString(),
+        any()
+      )
+    }
+  }
+
+  describe("initialized") {
+    it("should be uninitialized until the configuration is updated") {
+      assertFalse(filter.isInitialized)
+      filter.configurationUpdated(config)
+      assertTrue(filter.isInitialized)
     }
   }
 
