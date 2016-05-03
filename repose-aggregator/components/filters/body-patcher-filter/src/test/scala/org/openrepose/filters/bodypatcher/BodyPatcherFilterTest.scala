@@ -27,10 +27,12 @@ import org.mockito.Matchers.{any, anyString, argThat, eq => eql}
 import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.filters.bodypatcher.config.ChangeDetails
 import org.openrepose.filters.bodypatcher.config.BodyPatcherConfig
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.springframework.mock.web.MockHttpServletRequest
 
 /**
   * Created by adrian on 5/2/16.
@@ -59,4 +61,22 @@ class BodyPatcherFilterTest
         any(classOf[UpdateListener[BodyPatcherConfig]]), any(classOf[Class[BodyPatcherConfig]]))
     }
   }
+
+  describe("filterChanges method") {
+    it("should select the correct changes based on path regex") {
+      filter.configurationUpdated(basicConfig)
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setRequestURI("http://rackspace.com/bars")
+
+      val changes: List[ChangeDetails] = filter.filterChanges(request)
+
+      changes.length shouldBe 2
+      changes should contain allOf (allChange, barChange)
+    }
+  }
+
+  val allChange: ChangeDetails = new ChangeDetails()
+  val fooChange: ChangeDetails = new ChangeDetails().withPath("/foo")
+  val barChange: ChangeDetails = new ChangeDetails().withPath("/bar.*")
+  val basicConfig: BodyPatcherConfig = new BodyPatcherConfig().withChange(allChange, fooChange, barChange)
 }
