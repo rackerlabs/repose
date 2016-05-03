@@ -27,6 +27,7 @@ import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodypatcher.config.ChangeDetails
 import org.openrepose.filters.bodypatcher.config.BodyPatcherConfig
+import org.openrepose.filters.bodypatcher.config.Patch
 
 import scala.collection.JavaConverters._
 
@@ -43,5 +44,13 @@ class BodyPatcherFilter(configurationService: ConfigurationService) extends Abst
     val urlPath: String = new URL(request.getRequestURL.toString).getPath
     configuration.getChange.asScala.toList
         .filter(_.getPath.r.findFirstIn(urlPath).isDefined)
+  }
+
+  def filterRequestChanges(changes: List[ChangeDetails]): List[Patch] = {
+    changes.flatMap(change => Option(change.getRequest()))
+  }
+
+  def filterResponseChanges(changes: List[ChangeDetails]): List[Patch] = {
+    changes.flatMap(change => Option(change.getResponse()))
   }
 }
