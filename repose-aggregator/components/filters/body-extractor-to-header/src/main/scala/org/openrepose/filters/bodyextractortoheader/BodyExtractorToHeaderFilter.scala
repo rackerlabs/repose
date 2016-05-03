@@ -126,8 +126,8 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
     extractions = config.getExtraction.asScala.map { extraction =>
       Extraction(extraction.getHeader,
         extraction.getJsonpath,
-        Option(extraction.getDefault),
-        Option(extraction.getNullValue),
+        Option(extraction.getDefaultIfMiss),
+        Option(extraction.getDefaultIfNull),
         extraction.isOverwrite,
         Option(extraction.getQuality)
       )

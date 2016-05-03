@@ -60,34 +60,47 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="default" type="xs:string" use="optional">
+        <xs:attribute name="defaultIfMiss" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        The default value to use when the JPath doesn't match the Body.  If no default attribute is
+                        The default value to use when the JPath doesn't match the Body. If no default attribute is
                         supplied, the header will not be added in the event of no match.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="nullValue" type="xs:string" use="optional">
+        <xs:attribute name="defaultIfNull" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        The value to use when the JPath matches the Body, but the value is JSON <html:code>null</html:code>.
-                        If no default attribute is supplied, the header will not be added in the event of match that is
-                        null.
+                        The value to use when the JPath matches the Body, but the value is JSON
+                        <html:code>null</html:code>. If no default attribute is supplied, the header will not be added
+                        in the event of match that is null.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="overwrite" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="overwrite" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Indicates to not add a new header if a match occurs, but rather to remove and replace the
+                        existing header. If a match does NOT occur and a
+                        <html:code>defaultIfMiss</html:code>
+                        value is provided, then the
+                        <html:code>defaultIfMiss</html:code>
+                        value will overwrite if one previously existed.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="quality" type="DoubleBetweenZeroAndOne" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Quality assigned this request header.
-                        If no quality is set, then no quality will be assigned to this header.
+                        Quality assigned this request header if a new value is added or an original value is replaced.
+                        If no quality is set, then no quality will be assigned to the new header(s).
                     </html:p>
                     <html:p>
                         Quality factors are defined in the

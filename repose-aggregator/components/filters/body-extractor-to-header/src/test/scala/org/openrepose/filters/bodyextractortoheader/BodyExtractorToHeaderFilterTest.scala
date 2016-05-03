@@ -423,11 +423,11 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
     val extractor = new Extractor
     extractor.setHeader(headerName)
     extractor.setJsonpath(bodyJpath)
-    extractor.setDefault(defaultValue match {
+    extractor.setDefaultIfMiss(defaultValue match {
       case Some(default) => default
       case None => null
     })
-    extractor.setNullValue(nullValue match {
+    extractor.setDefaultIfNull(nullValue match {
       case Some(valueNull) => valueNull
       case None => null
     })
