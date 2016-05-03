@@ -243,6 +243,16 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
       requestCaptor.getValue.getHeader(extractedHeader) shouldBe nullValue
     }
 
+    it("should add the header with the value null when the Body matches the configured JPath and the value is JSON null") {
+      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.null", None, None))
+      filter.configurationUpdated(config)
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      assertFalse(requestCaptor.getValue.getHeaders(extractedHeader).hasMoreElements)
+    }
+
     it("should NOT add the header when the Body matches the configured JPath and a null value is NOT specified") {
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.null", None, None))
       filter.configurationUpdated(config)
