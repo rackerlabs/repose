@@ -19,11 +19,16 @@
  */
 package org.openrepose.filters.bodypatcher
 
+import java.net.URL
 import javax.servlet._
+import javax.servlet.http.HttpServletRequest
 
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.filters.bodypatcher.config.ChangeDetails
 import org.openrepose.filters.bodypatcher.config.BodyPatcherConfig
+
+import scala.collection.JavaConverters._
 
 /**
   * Created by adrian on 4/29/16.
@@ -33,4 +38,10 @@ class BodyPatcherFilter(configurationService: ConfigurationService) extends Abst
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/body-patcher.xsd"
 
   override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = ???
+
+  def filterChanges(request: HttpServletRequest): List[ChangeDetails] = {
+    val urlPath: String = new URL(request.getRequestURL.toString).getPath
+    configuration.getChange.asScala.toList
+        .filter(_.getPath.r.findFirstIn(urlPath).isDefined)
+  }
 }
