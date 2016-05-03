@@ -24,7 +24,7 @@ import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.munging.config.{ChangeDetails, MungingConfig}
+import org.openrepose.filters.munging.config.{ChangeDetails, MungingConfig, Patch}
 
 import scala.collection.JavaConverters._
 
@@ -51,5 +51,13 @@ class MungingFilter(configurationService: ConfigurationService) extends Abstract
             case None => true
           }
         })
+  }
+
+  def filterRequestChanges(changes: List[ChangeDetails]): List[Patch] = {
+    changes.flatMap(change => Option(change.getRequest()))
+  }
+
+  def filterResponseChanges(changes: List[ChangeDetails]): List[Patch] = {
+    changes.flatMap(change => Option(change.getResponse()))
   }
 }

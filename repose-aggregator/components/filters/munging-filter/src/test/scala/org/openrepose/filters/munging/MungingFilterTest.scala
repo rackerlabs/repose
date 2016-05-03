@@ -27,7 +27,7 @@ import org.mockito.Matchers.{any, anyString, argThat, eq => eql}
 import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.munging.config.{ChangeDetails, HeaderFilter, MungingConfig}
+import org.openrepose.filters.munging.config.{ChangeDetails, HeaderFilter, MungingConfig, Patch}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -109,9 +109,35 @@ class MungingFilterTest
     }
   }
 
+  describe("filterRequestChanges method") {
+    it("should select those patches that apply to the request") {
+      val patches: List[Patch] = filter.filterRequestChanges(List(allChange, fooChange, barChange))
+
+      patches.length shouldBe 2
+      patches should contain allOf (allRequestPatch, fooPatch)
+    }
+  }
+
+  describe("filterResponseChanges method") {
+    it("should select those patches that apply to the response") {
+      val patches: List[Patch] = filter.filterResponseChanges(List(allChange, fooChange, barChange))
+
+      patches.length shouldBe 2
+      patches should contain allOf (allResponsePatch, barPatch)
+    }
+  }
+
+  val allRequestPatch: Patch = new Patch()
+  val allResponsePatch: Patch = new Patch()
+  val fooPatch: Patch = new Patch()
+  val barPatch: Patch = new Patch()
   val allChange: ChangeDetails = new ChangeDetails()
+                                        .withRequest(allRequestPatch)
+                                        .withResponse(allResponsePatch)
   val fooChange: ChangeDetails = new ChangeDetails().withPath("/foo")
                                         .withHeaderFilter(new HeaderFilter().withName("banana").withValue("phon.*"))
+                                        .withRequest(fooPatch)
   val barChange: ChangeDetails = new ChangeDetails().withPath("/bar.*")
+                                        .withResponse(barPatch)
   val basicConfig: MungingConfig = new MungingConfig().withChange(allChange, fooChange, barChange)
 }
