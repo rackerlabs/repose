@@ -23,8 +23,10 @@ import java.net.URL
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
+import gnieh.diffson.JsonPatch
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.munging.config.{ChangeDetails, MungingConfig, Patch}
+import spray.json.JsValue
 
 import scala.collection.JavaConverters._
 
@@ -59,5 +61,13 @@ class MungingFilter(configurationService: ConfigurationService) extends Abstract
 
   def filterResponseChanges(changes: List[ChangeDetails]): List[Patch] = {
     changes.flatMap(change => Option(change.getResponse()))
+  }
+
+  //todo: fix the imports when we move over to repose 8 and get scala 2.11 and can use play instead of spray
+  def applyJsonPatches(body: JsValue, patches: List[String]): JsValue = {
+    patches.foldLeft(body)((content: JsValue, patch: String) => {
+      val jsPatch: JsonPatch = JsonPatch.parse(patch)
+      jsPatch(content)
+    })
   }
 }
