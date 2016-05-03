@@ -46,9 +46,9 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
     def static params
     def static matchDeviceBody = """{"bodydata": {"name":"test", "device": "12345", "something": "foo"}}"""
     def static matchServerBody = """{"bodydata": {"name":"test", "server": "abc123", "something": "foo"}}"""
-    def static noNatchBody = """{"bodydata": {"name":"test", "something": "foo"}}"""
+    def static noMatchBody = """{"bodydata": {"name":"test", "something": "foo"}}"""
     def static notNullNatchBody = """{"bodydata": {"name":"test", "xyz": "rst987", "something": "foo"}}"""
-    def static nullNatchBody = """{"bodydata": {"name":"test", "xyz": null, "something": "foo"}}"""
+    def static nullMatchBody = """{"bodydata": {"name":"test", "xyz": null, "something": "foo"}}"""
     def static malformJson = """{"bodydata": {"name":"test", "server": "abc123", "something": "foo"}"""
     def static malformJson2 = """{"bodydata"{"name":"test", "device": "12345", "something": "foo"}}"""
 
@@ -87,13 +87,13 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         reqbody         | matchedheaders | headervalue | unmatchedheaders | contentheader
         matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/json"
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "application/json"
-        noNatchBody     | ""             | ""          | ""               | "application/json"
+        noMatchBody     | ""             | ""          | ""               | "application/json"
         matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/atpm+json"
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "application/atpm+json"
-        noNatchBody     | ""             | ""          | ""               | "application/atpm+json"
+        noMatchBody     | ""             | ""          | ""               | "application/atpm+json"
         matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | "json"
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "json"
-        noNatchBody     | ""             | ""          | ""               | "json"
+        noMatchBody     | ""             | ""          | ""               | "json"
     }
 
     def "Override exist header if override=true"() {
@@ -134,7 +134,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         given: "request with proper Content-Type header and body with a JSON Null value"
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["content-type": "application/json"], requestBody: nullNatchBody)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["content-type": "application/json"], requestBody: nullMatchBody)
 
         then:
         mc.handlings.size() == 1
@@ -180,16 +180,16 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         reqbody         | matchedheaders | headervalue | unmatchedheaders | reqheaders
         matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | ["content-type": "application/xml"]
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | ["content-type": "application/xml"]
-        noNatchBody     | ""             | ""          | ""               | ["content-type": "application/xml"]
+        noMatchBody     | ""             | ""          | ""               | ["content-type": "application/xml"]
         matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | ["content-type": "text/plain"]
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | ["content-type": "text/plain"]
-        noNatchBody     | ""             | ""          | ""               | ["content-type": "text/plain"]
+        noMatchBody     | ""             | ""          | ""               | ["content-type": "text/plain"]
         matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | ["content-type": ""]
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | ["content-type": ""]
-        noNatchBody     | ""             | ""          | ""               | ["content-type": ""]
+        noMatchBody     | ""             | ""          | ""               | ["content-type": ""]
         matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | null
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | null
-        noNatchBody     | ""             | ""          | ""               | null
+        noMatchBody     | ""             | ""          | ""               | null
     }
 
     @Unroll
