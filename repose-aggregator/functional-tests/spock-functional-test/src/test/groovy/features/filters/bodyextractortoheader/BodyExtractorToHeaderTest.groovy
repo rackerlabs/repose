@@ -44,9 +44,11 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
     }
 
     def static params
-    def static matchDevideBody = """{"bodydata": {"name":"test", "device": "12345", "something": "foo"}}"""
+    def static matchDeviceBody = """{"bodydata": {"name":"test", "device": "12345", "something": "foo"}}"""
     def static matchServerBody = """{"bodydata": {"name":"test", "server": "abc123", "something": "foo"}}"""
     def static noNatchBody = """{"bodydata": {"name":"test", "something": "foo"}}"""
+    def static notNullNatchBody = """{"bodydata": {"name":"test", "xyz": "rst987", "something": "foo"}}"""
+    def static nullNatchBody = """{"bodydata": {"name":"test", "xyz": null, "something": "foo"}}"""
     def static malformJson = """{"bodydata": {"name":"test", "server": "abc123", "something": "foo"}"""
     def static malformJson2 = """{"bodydata"{"name":"test", "device": "12345", "something": "foo"}}"""
 
@@ -83,13 +85,13 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
 
         where:
         reqbody         | matchedheaders | headervalue | unmatchedheaders | contentheader
-        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/json"
+        matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/json"
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "application/json"
         noNatchBody     | ""             | ""          | ""               | "application/json"
-        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/atpm+json"
+        matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/atpm+json"
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "application/atpm+json"
         noNatchBody     | ""             | ""          | ""               | "application/atpm+json"
-        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "json"
+        matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | "json"
         matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "json"
         noNatchBody     | ""             | ""          | ""               | "json"
     }
@@ -99,7 +101,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         Map headers = ["content-type": "application/json", "x-device-id": "54321", "x-server-id": "reposetest123"]
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers, requestBody: matchDevideBody)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers, requestBody: matchDeviceBody)
 
         then:
         mc.handlings.size() == 1
@@ -128,10 +130,44 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("abc123"))
     }
 
+    def "Replace JSON null value and add the defaults"() {
+        given: "request with proper Content-Type header and body with a JSON Null value"
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["content-type": "application/json"], requestBody: nullNatchBody)
+
+        then:
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
+        assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
+        assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
+        assertTrue(mc.handlings[0].request.headers.contains("x-null-param"))
+        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "test")
+        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-server-id"), "test")
+        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-null-param"), "987zyx")
+    }
+
+    def "Do NOT replace JSON value that is NOT null and add the defaults"() {
+        given: "request with proper Content-Type header and body with a JSON Null value"
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["content-type": "application/json"], requestBody: notNullNatchBody)
+
+        then:
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
+        assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
+        assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
+        assertTrue(mc.handlings[0].request.headers.contains("x-null-param"))
+        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "test")
+        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-server-id"), "test")
+        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-null-param"), "rst987")
+    }
+
     @Unroll
     def "Missing content-type or wrong content-type"() {
         when: "send request without content-type header or wrong content-type"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["content-type": contentheader], requestBody: reqbody)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: reqheaders, requestBody: reqbody)
 
         then:
         mc.handlings.size() == 1
@@ -141,16 +177,19 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         mc.handlings[0].request.headers.findAll("x-test-param").size() == 0
 
         where:
-        reqbody         | matchedheaders | headervalue | unmatchedheaders | contentheader
-        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/xml"
-        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "application/xml"
-        noNatchBody     | ""             | ""          | ""               | "application/xml"
-        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "text/plain"
-        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "text/plain"
-        noNatchBody     | ""             | ""          | ""               | "text/plain"
-        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | ""
-        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | ""
-        noNatchBody     | ""             | ""          | ""               | ""
+        reqbody         | matchedheaders | headervalue | unmatchedheaders | reqheaders
+        matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | ["content-type": "application/xml"]
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | ["content-type": "application/xml"]
+        noNatchBody     | ""             | ""          | ""               | ["content-type": "application/xml"]
+        matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | ["content-type": "text/plain"]
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | ["content-type": "text/plain"]
+        noNatchBody     | ""             | ""          | ""               | ["content-type": "text/plain"]
+        matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | ["content-type": ""]
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | ["content-type": ""]
+        noNatchBody     | ""             | ""          | ""               | ["content-type": ""]
+        matchDeviceBody | "x-device-id"  | "12345"     | "x-server-id"    | null
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | null
+        noNatchBody     | ""             | ""          | ""               | null
     }
 
     @Unroll
@@ -165,6 +204,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         // do nothing
         assertFalse(mc.handlings[0].request.headers.contains("x-device-id"))
         assertFalse(mc.handlings[0].request.headers.contains("x-server-id"))
+        assertFalse(mc.handlings[0].request.headers.contains("x-null-param"))
         assertFalse(mc.handlings[0].request.headers.contains("x-test-param"))
 
         where:

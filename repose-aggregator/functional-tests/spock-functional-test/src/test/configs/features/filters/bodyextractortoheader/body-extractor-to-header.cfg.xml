@@ -21,11 +21,12 @@
   -->
 
 <body-extractor-to-header xmlns="http://docs.openrepose.org/repose/body-extractor-to-header/v1.0">
-    <!-- Grab the Device ID from the 'entities' element; default to test -->
+    <!-- Grab the Device ID from the 'device' element; default to test -->
     <extraction header="X-Device-Id" jsonpath="$.bodydata.device" overwrite="true" defaultIfMiss="test"/>
-
+    <!-- Grab the Server ID from the 'server' element; default to test -->
     <extraction header="X-Server-Id" jsonpath="$.bodydata.server" overwrite="false" defaultIfMiss="test"/>
-
+    <!-- Attempt to grab the Null parameter from the 'xyz' element; if value is JSON null then set to test -->
+    <extraction header="X-Null-Param" jsonpath="$.bodydata.xyz" overwrite="false" defaultIfNull="987zyx"/>
     <!-- don't include header if Body doesn't match -->
     <extraction header="X-Test-Param" jsonpath="$.bodydata.parameter"/>
 </body-extractor-to-header>
