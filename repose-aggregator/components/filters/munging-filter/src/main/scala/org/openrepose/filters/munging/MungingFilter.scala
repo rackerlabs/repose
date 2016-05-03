@@ -19,10 +19,14 @@
  */
 package org.openrepose.filters.munging
 
+import java.net.URL
 import javax.servlet._
+import javax.servlet.http.HttpServletRequest
 
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.munging.config.MungingConfig
+import org.openrepose.filters.munging.config.{ChangeDetails, MungingConfig}
+
+import scala.collection.JavaConverters._
 
 /**
   * Created by adrian on 4/29/16.
@@ -32,4 +36,20 @@ class MungingFilter(configurationService: ConfigurationService) extends Abstract
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/munging.xsd"
 
   override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = ???
+
+  def filterChanges(request: HttpServletRequest): List[ChangeDetails] = {
+    val urlPath: String = new URL(request.getRequestURL.toString).getPath
+    configuration.getChange.asScala.toList
+        .filter(_.getPath.r.findFirstIn(urlPath).isDefined)
+        .filter(change => {
+          Option(change.getHeaderFilter) match {
+            case Some(headerFilter) =>
+              Option(request.getHeaders(headerFilter.getName)) match {
+                case Some(values) => values.asScala.exists(headerFilter.getValue.r.findFirstIn(_).isDefined)
+                case None => false
+              }
+            case None => true
+          }
+        })
+  }
 }

@@ -27,10 +27,11 @@ import org.mockito.Matchers.{any, anyString, argThat, eq => eql}
 import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.munging.config.MungingConfig
+import org.openrepose.filters.munging.config.{ChangeDetails, HeaderFilter, MungingConfig}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.springframework.mock.web.MockHttpServletRequest
 
 /**
   * Created by adrian on 5/2/16.
@@ -59,4 +60,58 @@ class MungingFilterTest
         any(classOf[UpdateListener[MungingConfig]]), any(classOf[Class[MungingConfig]]))
     }
   }
+
+  describe("filterChanges method") {
+    it("should select the correct changes based on path regex") {
+      filter.configurationUpdated(basicConfig)
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setRequestURI("http://rackspace.com/bars")
+
+      val changes: List[ChangeDetails] = filter.filterChanges(request)
+
+      changes.length shouldBe 2
+      changes should contain allOf (allChange, barChange)
+    }
+
+    it("should select the correct changes based on headers with correct value present") {
+      filter.configurationUpdated(basicConfig)
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setRequestURI("http://rackspace.com/foo")
+      request.addHeader("banana", "phone")
+
+      val changes: List[ChangeDetails] = filter.filterChanges(request)
+
+      changes.length shouldBe 2
+      changes should contain allOf (allChange, fooChange)
+    }
+
+    it("should select the correct changes based on headers with incorrect value present") {
+      filter.configurationUpdated(basicConfig)
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setRequestURI("http://rackspace.com/foo")
+      request.addHeader("banana", "fiend")
+
+      val changes: List[ChangeDetails] = filter.filterChanges(request)
+
+      changes.length shouldBe 1
+      changes should contain (allChange)
+    }
+
+    it("should select the correct changes based on headers when not present") {
+      filter.configurationUpdated(basicConfig)
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setRequestURI("http://rackspace.com/foo")
+
+      val changes: List[ChangeDetails] = filter.filterChanges(request)
+
+      changes.length shouldBe 1
+      changes should contain (allChange)
+    }
+  }
+
+  val allChange: ChangeDetails = new ChangeDetails()
+  val fooChange: ChangeDetails = new ChangeDetails().withPath("/foo")
+                                        .withHeaderFilter(new HeaderFilter().withName("banana").withValue("phon.*"))
+  val barChange: ChangeDetails = new ChangeDetails().withPath("/bar.*")
+  val basicConfig: MungingConfig = new MungingConfig().withChange(allChange, fooChange, barChange)
 }
