@@ -47,6 +47,8 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
     def static matchDevideBody = """{"bodydata": {"name":"test", "device": "12345", "something": "foo"}}"""
     def static matchServerBody = """{"bodydata": {"name":"test", "server": "abc123", "something": "foo"}}"""
     def static noNatchBody = """{"bodydata": {"name":"test", "something": "foo"}}"""
+    def static malformJson = """{"bodydata": {"name":"test", "server": "abc123", "something": "foo"}"""
+    def static malformJson2 = """{"bodydata"{"name":"test", "device": "12345", "something": "foo"}}"""
 
     def cleanupSpec() {
         if (repose)
@@ -57,12 +59,13 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
 
     @Unroll
     def "When request with match config jsonpath will add header as config and its value"() {
-        Map headers = ["content-type": "application/json"]
+        Map headers = ["content-type": contentheader]
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers, requestBody: reqbody)
 
         then:
         mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
         // x-test-param will not added to req since not match request body jsonpath and default not set
         assertFalse(mc.handlings[0].request.headers.contains("x-test-param"))
         if (matchedheaders == "") {
@@ -79,10 +82,16 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         }
 
         where:
-        reqbody         | matchedheaders | headervalue | unmatchedheaders
-        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"
-        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"
-        noNatchBody     | ""             | ""          | ""
+        reqbody         | matchedheaders | headervalue | unmatchedheaders | contentheader
+        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/json"
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "application/json"
+        noNatchBody     | ""             | ""          | ""               | "application/json"
+        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/atpm+json"
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "application/atpm+json"
+        noNatchBody     | ""             | ""          | ""               | "application/atpm+json"
+        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "json"
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "json"
+        noNatchBody     | ""             | ""          | ""               | "json"
     }
 
     def "Override exist header if override=true"() {
@@ -94,6 +103,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
 
         then:
         mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
         assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
         assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
         assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "12345")
@@ -109,11 +119,55 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
 
         then:
         mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
         assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
         assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
         assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "test")
         assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("reposetest123"))
         // not override but add header extracted from body
         assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("abc123"))
+    }
+
+    @Unroll
+    def "Missing content-type or wrong content-type"() {
+        when: "send request without content-type header or wrong content-type"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["content-type": contentheader], requestBody: reqbody)
+
+        then:
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
+        mc.handlings[0].request.headers.findAll("x-server-id").size() == 0
+        mc.handlings[0].request.headers.findAll("x-device-id").size() == 0
+        mc.handlings[0].request.headers.findAll("x-test-param").size() == 0
+
+        where:
+        reqbody         | matchedheaders | headervalue | unmatchedheaders | contentheader
+        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "application/xml"
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "application/xml"
+        noNatchBody     | ""             | ""          | ""               | "application/xml"
+        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | "text/plain"
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | "text/plain"
+        noNatchBody     | ""             | ""          | ""               | "text/plain"
+        matchDevideBody | "x-device-id"  | "12345"     | "x-server-id"    | ""
+        matchServerBody | "x-server-id"  | "abc123"    | "x-device-id"    | ""
+        noNatchBody     | ""             | ""          | ""               | ""
+    }
+
+    @Unroll
+    def "When request with Malform json body filter will not add config header to request"() {
+        Map headers = ["content-type": "application/json"]
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", header: headers, requestBody: malformJson)
+
+        then:
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
+        // do nothing
+        assertFalse(mc.handlings[0].request.headers.contains("x-device-id"))
+        assertFalse(mc.handlings[0].request.headers.contains("x-server-id"))
+        assertFalse(mc.handlings[0].request.headers.contains("x-test-param"))
+
+        where:
+        reqbody << [malformJson, malformJson2]
     }
 }
