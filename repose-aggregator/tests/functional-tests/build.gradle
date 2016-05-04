@@ -72,20 +72,20 @@ task copyArtifacts() {
 
 task copyConfigs() {
     ext.outputDir = "$buildDir/configs"
-    inputs.dir "$projectDir/src/test/configs"
+    inputs.dir "$projectDir/src/integrationTest/configs"
     outputs.dir outputDir
 
     doLast {
         //copy the configs
         file(outputDir).mkdirs()
         copy {
-            from "$projectDir/src/test/configs"
+            from "$projectDir/src/integrationTest/configs"
             into outputDir
         }
     }
 }
 
-test.dependsOn copyArtifacts, copyConfigs
+integrationTest.dependsOn copyArtifacts, copyConfigs
 
 def container = "valve"
 def targetHostName = "localhost"
