@@ -1,6 +1,6 @@
 configurations {
-    testRunnable
-    testBundle
+    integrationTestRunnable
+    integrationTestBundle
 }
 
 dependencies {
@@ -20,21 +20,21 @@ dependencies {
     integrationTestCompile "org.springframework:spring-web"
     integrationTestCompile "org.slf4j:jcl-over-slf4j"
 
-    testRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
-    testRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
-    testRunnable project(path: ":repose-aggregator:artifacts:web-application", configuration: "archives")
-    testRunnable project(path: ":repose-aggregator:tests:mocks-servlet", configuration: "archives")
-    testRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-glassfish", configuration: "fatJar")
-    testRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-tomcat", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:artifacts:web-application", configuration: "archives")
+    integrationTestRunnable project(path: ":repose-aggregator:tests:mocks-servlet", configuration: "archives")
+    integrationTestRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-glassfish", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-tomcat", configuration: "fatJar")
 
-    testBundle project(path: ":repose-aggregator:artifacts:filter-bundle", configuration: "archives")
-    testBundle project(path: ":repose-aggregator:artifacts:extensions-filter-bundle", configuration: "archives")
-    testBundle project(path: ":repose-aggregator:artifacts:experimental-filter-bundle", configuration: "archives")
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-one"
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-two"
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-three"
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-four"
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-five"
+    integrationTestBundle project(path: ":repose-aggregator:artifacts:filter-bundle", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:artifacts:extensions-filter-bundle", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:artifacts:experimental-filter-bundle", configuration: "archives")
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-one"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-two"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-three"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-four"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-five"
 }
 
 task copyArtifacts() {
@@ -49,22 +49,22 @@ task copyArtifacts() {
               ":repose-aggregator:artifacts:extensions-filter-bundle:ear",
               ":repose-aggregator:artifacts:experimental-filter-bundle:ear")
     ext.outputDir = "$buildDir/repose_home"
-    inputs.files(configurations.testRunnable.files,
-                 configurations.testBundle.files)
+    inputs.files(configurations.integrationTestRunnable.files,
+                 configurations.integrationTestBundle.files)
     outputs.dir outputDir
 
     doLast {
         //copy the runnables
         file(outputDir).mkdirs()
         copy {
-            from configurations.testRunnable.files
+            from configurations.integrationTestRunnable.files
             into outputDir
         }
 
         //copy the bundles
         file("$outputDir/artifacts").mkdirs()
         copy {
-            from configurations.testBundle.files
+            from configurations.integrationTestBundle.files
             into "$outputDir/artifacts"
         }
     }
