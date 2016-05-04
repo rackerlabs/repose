@@ -128,6 +128,17 @@ class MungingFilterTest
     }
   }
 
+  describe("filterJsonPatches method") {
+    it("should select only where there is a json element") {
+      val patches: List[String] = filter.filterJsonPatches(List(allRequestPatch, allResponsePatch, new Patch()))
+
+      patches.length shouldBe 2
+      patches should contain allOf (allRequestPatch.getJson, allResponsePatch.getJson)
+    }
+  }
+
+  describe("filterXmlPatches method") (pending)
+
   describe("applyJsonPatches method") {
     val body: String =
       """

@@ -56,11 +56,15 @@ class MungingFilter(configurationService: ConfigurationService) extends Abstract
   }
 
   def filterRequestChanges(changes: List[ChangeDetails]): List[Patch] = {
-    changes.flatMap(change => Option(change.getRequest()))
+    changes.flatMap(change => Option(change.getRequest))
   }
 
   def filterResponseChanges(changes: List[ChangeDetails]): List[Patch] = {
-    changes.flatMap(change => Option(change.getResponse()))
+    changes.flatMap(change => Option(change.getResponse))
+  }
+
+  def filterJsonPatches(patches: List[Patch]): List[String] = {
+    patches.flatMap(patch => Option(patch.getJson))
   }
 
   //todo: fix the imports when we move over to repose 8 and get scala 2.11 and can use play instead of spray
