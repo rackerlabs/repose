@@ -50,6 +50,7 @@ class MungingFilterTest
   before {
     configurationService= mock[ConfigurationService]
     filter = new MungingFilter(configurationService)
+    filter.configurationUpdated(basicConfig)
   }
 
   describe("init method") {
@@ -64,7 +65,6 @@ class MungingFilterTest
 
   describe("filterChanges method") {
     it("should select the correct changes based on path regex") {
-      filter.configurationUpdated(basicConfig)
       val request: MockHttpServletRequest = new MockHttpServletRequest()
       request.setRequestURI("http://rackspace.com/bars")
 
@@ -75,7 +75,6 @@ class MungingFilterTest
     }
 
     it("should select the correct changes based on headers with correct value present") {
-      filter.configurationUpdated(basicConfig)
       val request: MockHttpServletRequest = new MockHttpServletRequest()
       request.setRequestURI("http://rackspace.com/foo")
       request.addHeader("banana", "phone")
@@ -87,7 +86,6 @@ class MungingFilterTest
     }
 
     it("should select the correct changes based on headers with incorrect value present") {
-      filter.configurationUpdated(basicConfig)
       val request: MockHttpServletRequest = new MockHttpServletRequest()
       request.setRequestURI("http://rackspace.com/foo")
       request.addHeader("banana", "fiend")
@@ -99,7 +97,6 @@ class MungingFilterTest
     }
 
     it("should select the correct changes based on headers when not present") {
-      filter.configurationUpdated(basicConfig)
       val request: MockHttpServletRequest = new MockHttpServletRequest()
       request.setRequestURI("http://rackspace.com/foo")
 
