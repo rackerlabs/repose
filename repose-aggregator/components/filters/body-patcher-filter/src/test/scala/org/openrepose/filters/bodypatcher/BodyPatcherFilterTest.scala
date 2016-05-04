@@ -52,6 +52,7 @@ class BodyPatcherFilterTest
   before {
     configurationService= mock[ConfigurationService]
     filter = new BodyPatcherFilter(configurationService)
+    filter.configurationUpdated(basicConfig)
   }
 
   describe("init method") {
@@ -66,7 +67,6 @@ class BodyPatcherFilterTest
 
   describe("filterChanges method") {
     it("should select the correct changes based on path regex") {
-      filter.configurationUpdated(basicConfig)
       val request: MockHttpServletRequest = new MockHttpServletRequest()
       request.setRequestURI("http://rackspace.com/bars")
 
