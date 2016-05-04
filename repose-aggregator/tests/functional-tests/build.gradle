@@ -4,21 +4,21 @@ configurations {
 }
 
 dependencies {
-    testCompile "junit:junit"
-    testCompile "org.codehaus.groovy:groovy-all"
-    testCompile "org.spockframework:spock-core"
-    testCompile "org.rackspace:deproxy"
-    testCompile "joda-time:joda-time"
-    testCompile project(":repose-aggregator:commons:commons-utilities")
-    testCompile project(":repose-aggregator:commons:commons-configuration")
-    testCompile project(":repose-aggregator:core:repose-core-api")
-    testCompile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
-    testCompile "javax.ws.rs:javax.ws.rs-api"
-    testCompile "org.eclipse.jetty:jetty-server"
-    testCompile "org.eclipse.jetty:jetty-servlet"
-    testCompile "org.apache.commons:commons-lang3"
-    testCompile "org.springframework:spring-web"
-    testCompile "org.slf4j:jcl-over-slf4j"
+    integrationTestCompile "junit:junit"
+    integrationTestCompile "org.codehaus.groovy:groovy-all"
+    integrationTestCompile "org.spockframework:spock-core"
+    integrationTestCompile "org.rackspace:deproxy"
+    integrationTestCompile "joda-time:joda-time"
+    integrationTestCompile project(":repose-aggregator:commons:commons-utilities")
+    integrationTestCompile project(":repose-aggregator:commons:commons-configuration")
+    integrationTestCompile project(":repose-aggregator:core:repose-core-api")
+    integrationTestCompile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
+    integrationTestCompile "javax.ws.rs:javax.ws.rs-api"
+    integrationTestCompile "org.eclipse.jetty:jetty-server"
+    integrationTestCompile "org.eclipse.jetty:jetty-servlet"
+    integrationTestCompile "org.apache.commons:commons-lang3"
+    integrationTestCompile "org.springframework:spring-web"
+    integrationTestCompile "org.slf4j:jcl-over-slf4j"
 
     testRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
     testRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
@@ -96,7 +96,7 @@ def glassfishFileName = tasks.getByPath(":repose-aggregator:tests:test-container
 def tomcatFileName = tasks.getByPath(":repose-aggregator:tests:test-containers:test-container-tomcat:shadowJar").archiveName.split("/").last()
 def mocksFileName = tasks.getByPath(":repose-aggregator:tests:mocks-servlet:war").archiveName.split("/").last()
 
-processTestResources {
+processIntegrationTestResources {
     expand( reposeHome: copyArtifacts.outputDir,
             version: version,
             projectBuildDirectory: buildDir,
@@ -111,7 +111,7 @@ processTestResources {
             targetHostname: targetHostName)
 }
 
-test {
+integrationTest {
     useJUnit {
         if (!project.hasProperty('runAll')) {
             includeCategories "framework.category.Smoke"
