@@ -24,11 +24,12 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 class ApiValidatorDelegatingWAuditingTest extends ReposeValveTest {
+    def static originEndpoint
 
     def setupSpec() {
         reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
@@ -45,6 +46,9 @@ class ApiValidatorDelegatingWAuditingTest extends ReposeValveTest {
         then:
         reposeLogSearch.searchByString("Unable to populate request body").size() != 0
         reposeLogSearch.searchByString("java.io.IOException: Stream closed").size() != 0
+        //if request make to origin service
+        mc.handlings[0].endpoint == originEndpoint
+        mc.handlings[0].request.body == "horrible input"
         mc.receivedResponse.code == "400"
         mc.receivedResponse.message == "Bad Request"
 
