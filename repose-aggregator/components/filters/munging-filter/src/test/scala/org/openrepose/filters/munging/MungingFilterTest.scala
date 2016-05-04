@@ -128,6 +128,29 @@ class MungingFilterTest
     }
   }
 
+  describe("determineContentType method") {
+    it("should match json based on a regex") {
+      filter.determineContentType("application/json+butts") shouldBe Json
+    }
+
+    it("should match xml based on a regex") {
+      filter.determineContentType("application/xml+butts") shouldBe Xml
+    }
+
+    it("should match other for random") {
+      filter.determineContentType("foo/bar+butts") shouldBe Other
+    }
+
+    it("should match other when absent") {
+      filter.determineContentType(null) shouldBe Other
+      filter.determineContentType("") shouldBe Other
+    }
+
+    it("should match despite casing") {
+      filter.determineContentType("application/JsOn+butts") shouldBe Json
+    }
+  }
+
   describe("filterJsonPatches method") {
     it("should select only where there is a json element") {
       val patches: List[String] = filter.filterJsonPatches(List(allRequestPatch, allResponsePatch, new Patch()))
@@ -167,6 +190,8 @@ class MungingFilterTest
     }
 
   }
+
+  describe("applyXmlPatches method") (pending)
 
   val allRequestPatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"request"}]""")
   val allResponsePatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"response"}]""")
