@@ -34,7 +34,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json => PJson}
 
 /**
   * Created by adrian on 5/2/16.
@@ -95,6 +95,29 @@ class BodyPatcherFilterTest
     }
   }
 
+  describe("determineContentType method") {
+    it("should match json based on a regex") {
+      filter.determineContentType("application/json+butts") shouldBe Json
+    }
+
+    it("should match xml based on a regex") {
+      filter.determineContentType("application/xml+butts") shouldBe Xml
+    }
+
+    it("should match other for random") {
+      filter.determineContentType("foo/bar+butts") shouldBe Other
+    }
+
+    it("should match other when absent") {
+      filter.determineContentType(null) shouldBe Other
+      filter.determineContentType("") shouldBe Other
+    }
+
+    it("should match despite casing") {
+      filter.determineContentType("application/JsOn+butts") shouldBe Json
+    }
+  }
+
   describe("filterJsonPatches method") {
     it("should select only where there is a json element") {
       val patches: List[String] = filter.filterJsonPatches(List(allRequestPatch, allResponsePatch, new Patch()))
@@ -118,12 +141,14 @@ class BodyPatcherFilterTest
       """.stripMargin
 
     it("should apply patches") {
-      val patched: JsValue = filter.applyJsonPatches(Json.parse(body), List(allRequestPatch.getJson, fooPatch.getJson))
+      val patched: JsValue = filter.applyJsonPatches(PJson.parse(body), List(allRequestPatch.getJson, fooPatch.getJson))
 
       (patched \ "all").as[String] shouldBe "request"
       (patched \ "foo").as[String] shouldBe "request"
     }
   }
+
+  describe("applyXmlPatches method") (pending)
 
   val allRequestPatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"request"}]""")
   val allResponsePatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"response"}]""")

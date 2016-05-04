@@ -56,6 +56,19 @@ class BodyPatcherFilter(configurationService: ConfigurationService) extends Abst
     changes.flatMap(change => Option(change.getResponse))
   }
 
+  def determineContentType(contentType: String): ContentType = {
+    //magic code from stack overflow, i'm a terrible person, http://stackoverflow.com/questions/4636610/how-to-pattern-match-using-regular-expression-in-scala
+    implicit class Regex(sc: StringContext) {
+      def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
+    }
+
+    Option(contentType).getOrElse("").toLowerCase match {
+      case r".*json.*" => Json
+      case r".*xml.*" => Xml
+      case _ => Other
+    }
+  }
+
   def filterJsonPatches(patches: List[Patch]): List[String] = {
     patches.flatMap(patch => Option(patch.getJson))
   }
@@ -67,3 +80,8 @@ class BodyPatcherFilter(configurationService: ConfigurationService) extends Abst
     })
   }
 }
+
+sealed trait ContentType
+case object Json extends ContentType
+case object Xml extends ContentType
+case object Other extends ContentType
