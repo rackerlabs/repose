@@ -44,13 +44,13 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
     }
 
     def static params
-    def static matchDeviceBody = """{"bodydata": {"name":"test", "device": "12345", "something": "foo"}}"""
-    def static matchServerBody = """{"bodydata": {"name":"test", "server": "abc123", "something": "foo"}}"""
-    def static noMatchBody = """{"bodydata": {"name":"test", "something": "foo"}}"""
-    def static notNullNatchBody = """{"bodydata": {"name":"test", "xyz": "rst987", "something": "foo"}}"""
-    def static nullMatchBody = """{"bodydata": {"name":"test", "xyz": null, "something": "foo"}}"""
-    def static malformJson = """{"bodydata": {"name":"test", "server": "abc123", "something": "foo"}"""
-    def static malformJson2 = """{"bodydata"{"name":"test", "device": "12345", "something": "foo"}}"""
+    def static matchDeviceBody = """{"bodyData": {"name":"test", "device": "12345", "something": "foo"}}"""
+    def static matchServerBody = """{"bodyData": {"name":"test", "server": "abc123", "something": "foo"}}"""
+    def static noMatchBody = """{"bodyData": {"name":"test", "something": "foo"}}"""
+    def static notNullNatchBody = """{"bodyData": {"name":"test", "xyz": "rst987", "something": "foo"}}"""
+    def static nullMatchBody = """{"bodyData": {"name":"test", "xyz": null, "something": "foo"}}"""
+    def static malformedJson = """{"bodyData": {"name":"test", "server": "abc123", "something": "foo"}"""
+    def static malformedJson2 = """{"bodyData"{"name":"test", "device": "12345", "something": "foo"}}"""
 
     def cleanupSpec() {
         if (repose)
@@ -98,7 +98,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
 
     def "Override exist header if override=true"() {
         given: "request with previous set of headers"
-        Map headers = ["content-type": "application/json", "x-device-id": "54321", "x-server-id": "reposetest123"]
+        Map headers = ["content-type": "application/json", "x-device-id": "54321", "x-server-id": "reposeTest123"]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers, requestBody: matchDeviceBody)
@@ -109,12 +109,12 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
         assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
         assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "12345")
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-server-id"), "reposetest123")
+        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-server-id"), "reposeTest123")
     }
 
     def "Not override exist header if override=false"() {
         given: "request with previous set of headers"
-        Map headers = ["content-type": "application/json", "x-device-id": "54321", "x-server-id": "reposetest123"]
+        Map headers = ["content-type": "application/json", "x-device-id": "54321", "x-server-id": "reposeTest123"]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers, requestBody: matchServerBody)
@@ -125,7 +125,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
         assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
         assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "test")
-        assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("reposetest123"))
+        assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("reposeTest123"))
         // not override but add header extracted from body
         assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("abc123"))
     }
@@ -193,10 +193,10 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "When request with Malform json body filter will not add config header to request"() {
+    def "When request with Malformed json body filter will not add config header to request"() {
         Map headers = ["content-type": "application/json"]
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", header: headers, requestBody: malformJson)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", header: headers, requestBody: malformedJson)
 
         then:
         mc.handlings.size() == 1
@@ -208,6 +208,6 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         assertFalse(mc.handlings[0].request.headers.contains("x-test-param"))
 
         where:
-        reqbody << [malformJson, malformJson2]
+        reqbody << [malformedJson, malformedJson2]
     }
 }
