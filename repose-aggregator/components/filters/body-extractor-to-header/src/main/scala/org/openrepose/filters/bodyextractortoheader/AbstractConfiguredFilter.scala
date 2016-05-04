@@ -63,6 +63,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   /**
     * Subscribes with the configuration service. If the filter config doesn't have a custom file name,
     * it uses the name provided by DEFAULT_CONFIG. It tries to load and use the schema provided by SCHEMA_LOCATION.
+    *
     * @param filterConfig
     */
   override def init(filterConfig: FilterConfig): Unit = {
@@ -93,6 +94,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
 
   /**
     * Stores the configuration and marks the filter as initialized.
+    *
     * @param configurationObject
     */
   override def configurationUpdated(configurationObject: T): Unit = {
@@ -104,12 +106,14 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
 
   /**
     * Returns true once configurationUpdated successfully completes.
+    *
     * @return
     */
   override def isInitialized: Boolean = initialized
 
   /**
     * Does an intitialization check. Will return 500 if not yet initialized, otherwise calls through to doWork.
+    *
     * @param request
     * @param response
     * @param chain
@@ -128,6 +132,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
 
   /**
     * Where the concrete class does it's work. This method is the equivalent doFilter in a normal filter.
+    *
     * @param request
     * @param response
     * @param chain

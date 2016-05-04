@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.bodyextractortoheader
 
+import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
@@ -31,7 +32,8 @@ import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
-class BodyExtractorToHeaderFilter(configurationService: ConfigurationService)
+@Named
+class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationService)
   extends AbstractConfiguredFilter[BodyExtractorToHeaderConfig](configurationService) {
   override val DEFAULT_CONFIG: String = "body-extractor-to-header.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/body-extractor-to-header.xsd"
@@ -47,52 +49,50 @@ class BodyExtractorToHeaderFilter(configurationService: ConfigurationService)
       if (overwrite) {
         mutableHttpRequest.removeHeader(name)
       }
-      //////////
+      ////////////////////////////////////////////////////////////////////////////////
       // @TODO: Replace this with the new wrapper way on repose 8 branch.
-      val hdrValue = quality match {
-        case Some(qual) => s"$value;q=$qual"
-        case None => value
+      quality match {
+        case Some(qual) => mutableHttpRequest.addHeader(name, s"$value;q=$qual")
+        //case Some(qual) => mutableHttpRequest.addHeader(name, value, qual)
+        case None => mutableHttpRequest.addHeader(name, value)
       }
-      mutableHttpRequest.addHeader(name, hdrValue)
-      //val hdrValue = quality match {
-      //  case Some(qual) => mutableHttpRequest.addHeader(name, hdrValue, qual)
-      //  case None => mutableHttpRequest.addHeader(name, hdrValue)
-      //}
-      //////////
+      ////////////////////////////////////////////////////////////////////////////////
     }
 
     val jsonDoc: Option[Try[DocumentContext]] = {
       Option(mutableHttpRequest.getContentType) filter { contentType =>
         contentType.toLowerCase.contains("json")
       } map { contentType =>
-            //////////
-            // @TODO: Update this to wrap the stream if it doesn't support mark/reset when on repose 8 branch.
-            // see: https://github.com/rackerlabs/repose/blob/REP-3843_BodyExtractorToHeader/repose-aggregator/commons/utilities/src/main/java/org/openrepose/commons/utils/servlet/http/MutableHttpServletRequest.java#L124-L125
-            val is = mutableHttpRequest.getInputStream
-            if (is.markSupported()) is.mark(Integer.MAX_VALUE)
-            val jsonString = Source.fromInputStream(is).mkString
-            if (is.markSupported()) is.reset()
-            //////////
-            Try(JsonPath.using(jsonPathConfiguration).parse(jsonString))
+        ////////////////////////////////////////////////////////////////////////////////
+        // @TODO: Update this to wrap the stream if it doesn't support mark/reset when on repose 8 branch.
+        // see: https://github.com/rackerlabs/repose/blob/REP-3843_BodyExtractorToHeader/repose-aggregator/commons/utilities/src/main/java/org/openrepose/commons/utils/servlet/http/MutableHttpServletRequest.java#L124-L125
+        val is = mutableHttpRequest.getInputStream
+        if (is.markSupported()) is.mark(Integer.MAX_VALUE)
+        val jsonString = Source.fromInputStream(is).mkString
+        if (is.markSupported()) is.reset()
+        ////////////////////////////////////////////////////////////////////////////////
+        Try(JsonPath.using(jsonPathConfiguration).parse(jsonString))
       }
     }
 
     extractions foreach { extraction =>
-      if (jsonDoc.isDefined && jsonDoc.get.isSuccess) {
-        val extracted = Try(jsonDoc.get.get.read[Any](extraction.jsonPath))
+      jsonDoc match {
+        case Some(Success(doc)) =>
+          val extracted = Try(doc.read[Any](extraction.jsonPath))
 
-        (extracted, extraction.defaultValue, extraction.nullValue) match {
-          // JSONPath value was extracted AND is NOT Null
-          case (Success(headerValue), _, _) if Option(headerValue).isDefined =>
-            addHeader(extraction.headerName, headerValue.toString, extraction.quality, extraction.overwrite)
-          // JSONPath value was extracted AND is Null AND NullValue is defined
-          case (Success(headerValue), _, Some(nullValue)) =>
-            addHeader(extraction.headerName, nullValue, extraction.quality, extraction.overwrite)
-          // JSONPath value was NOT extracted AND DefaultValue is defined
-          case (Failure(e), Some(defaultValue), _) =>
-            addHeader(extraction.headerName, defaultValue, extraction.quality, extraction.overwrite)
-          case (_, _, _) => // don't add a header
-        }
+          (extracted, extraction.defaultValue, extraction.nullValue) match {
+            // JSONPath value was extracted AND is NOT Null
+            case (Success(headerValue), _, _) if Option(headerValue).isDefined =>
+              addHeader(extraction.headerName, headerValue.toString, extraction.quality, extraction.overwrite)
+            // JSONPath value was extracted AND is Null AND NullValue is defined
+            case (Success(headerValue), _, Some(nullValue)) =>
+              addHeader(extraction.headerName, nullValue, extraction.quality, extraction.overwrite)
+            // JSONPath value was NOT extracted AND DefaultValue is defined
+            case (Failure(e), Some(defaultValue), _) =>
+              addHeader(extraction.headerName, defaultValue, extraction.quality, extraction.overwrite)
+            case (_, _, _) => // don't add a header
+          }
+        case _ => // do nothing
       }
     }
 
@@ -100,15 +100,16 @@ class BodyExtractorToHeaderFilter(configurationService: ConfigurationService)
   }
 
   override def configurationUpdated(configurationObject: BodyExtractorToHeaderConfig): Unit = {
-    super.configurationUpdated(configurationObject)
-    extractions = configuration.getExtraction.asScala map { extraction =>
-      Extraction(extraction.getHeader,
-        extraction.getJsonpath,
-        Option(extraction.getDefaultIfMiss),
-        Option(extraction.getDefaultIfNull),
-        extraction.isOverwrite,
-        Option(extraction.getQuality))
+    extractions = configurationObject.getExtraction.asScala map {
+      extraction =>
+        Extraction(extraction.getHeader,
+          extraction.getJsonpath,
+          Option(extraction.getDefaultIfMiss),
+          Option(extraction.getDefaultIfNull),
+          extraction.isOverwrite,
+          Option(extraction.getQuality))
     }
+    super.configurationUpdated(configurationObject)
   }
 
   case class Extraction(headerName: String,
