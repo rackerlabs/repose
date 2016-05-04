@@ -49,11 +49,15 @@ class BodyPatcherFilter(configurationService: ConfigurationService) extends Abst
   }
 
   def filterRequestChanges(changes: List[ChangeDetails]): List[Patch] = {
-    changes.flatMap(change => Option(change.getRequest()))
+    changes.flatMap(change => Option(change.getRequest))
   }
 
   def filterResponseChanges(changes: List[ChangeDetails]): List[Patch] = {
-    changes.flatMap(change => Option(change.getResponse()))
+    changes.flatMap(change => Option(change.getResponse))
+  }
+
+  def filterJsonPatches(patches: List[Patch]): List[String] = {
+    patches.flatMap(patch => Option(patch.getJson))
   }
 
   def applyJsonPatches(body: JsValue, patches: List[String]): JsValue = {
