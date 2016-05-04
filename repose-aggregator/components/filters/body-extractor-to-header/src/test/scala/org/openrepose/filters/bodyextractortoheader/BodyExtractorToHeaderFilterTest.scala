@@ -21,20 +21,18 @@ package org.openrepose.filters.bodyextractortoheader
 
 import java.net.URL
 import java.nio.charset.StandardCharsets
-import javax.servlet.{FilterChain, ServletResponse}
+import javax.servlet.http.HttpServletRequest
 
 import com.mockrunner.mock.web.MockFilterConfig
 import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodyextractortoheader.config.{BodyExtractorToHeaderConfig, Extractor}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
-import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
 
@@ -43,12 +41,6 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
   val mockConfigurationService = mock(classOf[ConfigurationService])
   val mockFilterConfig = new MockFilterConfig
-  var config: BodyExtractorToHeaderConfig = _
-  var filter: BodyExtractorToHeaderFilter = _
-  var requestCaptor: ArgumentCaptor[MutableHttpServletRequest] = _
-  var servletRequest: MockHttpServletRequest = _
-  var servletResponse: MockHttpServletResponse = _
-  var filterChain: FilterChain = _
   val defaultValue = "no-value"
   val nullValue = "null-value"
   val matchValue = "red"
@@ -104,19 +96,24 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
         |      "group": "hybrid:123456"
         |    }
         |  }
-        |}""".stripMargin.getBytes(StandardCharsets.UTF_8)
+        |}""".stripMargin.getBytes(StandardCharsets.ISO_8859_1)
   val matchPath = "$.store.bicycle.color"
   val badPath = "$.store.bicycle.height"
   val extractedHeader = "X-Extracted-Id"
+
+  var config: BodyExtractorToHeaderConfig = _
+  var filter: BodyExtractorToHeaderFilter = _
+  var servletRequest: MockHttpServletRequest = _
+  var servletResponse: MockHttpServletResponse = _
+  var filterChain: MockFilterChain = _
 
   before {
     reset(mockConfigurationService)
     config = new BodyExtractorToHeaderConfig
     filter = new BodyExtractorToHeaderFilter(mockConfigurationService)
-    requestCaptor = ArgumentCaptor.forClass(classOf[MutableHttpServletRequest])
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
-    filterChain = mock(classOf[FilterChain])
+    filterChain = new MockFilterChain
     servletRequest.setContentType("application/json")
     servletRequest.setContent(contentBody)
   }
@@ -128,8 +125,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe matchValue
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe matchValue
     }
 
     it("should add the header with the default value when the Body does NOT match the configured JPath and a default is specified") {
@@ -138,8 +134,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe defaultValue
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe defaultValue
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and a default is NOT specified") {
@@ -148,8 +143,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe matchValue
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe matchValue
     }
 
     it("should NOT add the header when the Body does NOT match the configured JPath and a default is NOT specified") {
@@ -158,8 +152,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe null
     }
 
     it("should add a header for an extractor even if another extractor doesn't add a header") {
@@ -169,9 +162,8 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe matchValue
-      requestCaptor.getValue.getHeader("X-Server-Id") shouldBe null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe matchValue
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("X-Server-Id") shouldBe null
     }
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a string") {
       config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.string", None, None))
@@ -179,8 +171,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe stringValue
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe stringValue
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a number") {
@@ -189,8 +180,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe numberValue
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe numberValue
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a object") {
@@ -199,8 +189,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe "{val1=1, val2=2}"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe "{val1=1, val2=2}"
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a array") {
@@ -209,8 +198,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe """[{"element1":"val1"},{"element2":"val2"}]"""
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe """[{"element1":"val1"},{"element2":"val2"}]"""
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a true") {
@@ -219,8 +207,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe "true"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe "true"
     }
 
     it("should add the header with the JPath value when the Body matches the configured JPath and the value is a false") {
@@ -229,8 +216,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe "false"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe "false"
     }
 
     it("should add the header with the null value when the Body matches the configured JPath and the value is JSON null") {
@@ -239,8 +225,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe nullValue
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe nullValue
     }
 
     it("should add the header with the value null when the Body matches the configured JPath and the value is JSON null") {
@@ -249,8 +234,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      assertFalse(requestCaptor.getValue.getHeaders(extractedHeader).hasMoreElements)
+      assertFalse(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).hasMoreElements)
     }
 
     it("should NOT add the header when the Body matches the configured JPath and a null value is NOT specified") {
@@ -259,8 +243,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe null
     }
 
     it("should NOT add the header when the Body matches the configured JPath and the Content-Type is not JSON") {
@@ -270,8 +253,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe null
     }
 
     it("should NOT add the header when the Body matches the configured JPath and the Content-Type is not set at all") {
@@ -281,8 +263,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeader(extractedHeader) shouldBe null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe null
     }
 
     it("should NOT overwrite the header when the Body matches the configured JPath and Overwrite is FALSE") {
@@ -293,10 +274,9 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 2
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue))
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue))
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.size shouldBe 2
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(headerValue))
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(matchValue))
     }
 
     it("should NOT overwrite the header when the Body does NOT match the configured JPath and Overwrite is TRUE") {
@@ -307,9 +287,8 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 1
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue))
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.size shouldBe 1
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(headerValue))
     }
 
     it("should overwrite the header when the Body matches the configured JPath and Overwrite is TRUE") {
@@ -320,10 +299,9 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 1
-      assertFalse(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(headerValue))
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue))
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.size shouldBe 1
+      assertFalse(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(headerValue))
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(matchValue))
     }
 
     it("should append a quality to the header value when the Body matches and one is configured") {
@@ -334,27 +312,25 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      requestCaptor.getValue.getHeaders(extractedHeader).asScala.size shouldBe 1
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(s"$matchValue;q=0.5"))
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.size shouldBe 1
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(s"$matchValue;q=0.5"))
     }
 
     it("should add multiple headers if multiple extractions are satisfied") {
-      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath,              None,               None,            overwrite = false, None))
-      config.getExtraction.add(createConfigExtractor(extractedHeader, badPath,                Some(defaultValue), None,            overwrite = false, None))
-      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.string", None,               None,            overwrite = false, None))
-      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.number", None,               None,            overwrite = false, None))
-      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.null",   None,               Some(nullValue), overwrite = false, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, matchPath, None, None, overwrite = false, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, badPath, Some(defaultValue), None, overwrite = false, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.string", None, None, overwrite = false, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.number", None, None, overwrite = false, None))
+      config.getExtraction.add(createConfigExtractor(extractedHeader, "$.store.types.null", None, Some(nullValue), overwrite = false, None))
       filter.configurationUpdated(config)
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(matchValue))
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(defaultValue))
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(stringValue))
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(numberValue))
-      assertTrue(requestCaptor.getValue.getHeaders(extractedHeader).asScala.contains(nullValue))
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(matchValue))
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(defaultValue))
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(stringValue))
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(numberValue))
+      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(nullValue))
     }
 
     ignore("The JSON Path library currently doesn't support applying a REGEX capture group expression to a value before returning it.") {
@@ -364,8 +340,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
-        requestCaptor.getValue.getHeader(extractedHeader) shouldBe "123456"
+        filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(extractedHeader) shouldBe "123456"
       }
     }
   }
