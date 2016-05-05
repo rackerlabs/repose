@@ -20,6 +20,7 @@
 package org.openrepose.filters.munging
 
 import java.net.URL
+import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
@@ -33,7 +34,8 @@ import scala.collection.JavaConverters._
 /**
   * Created by adrian on 4/29/16.
   */
-class MungingFilter(configurationService: ConfigurationService) extends AbstractConfiguredFilter[MungingConfig](configurationService) {
+@Named
+class MungingFilter @Inject()(configurationService: ConfigurationService) extends AbstractConfiguredFilter[MungingConfig](configurationService) {
   override val DEFAULT_CONFIG: String = "munging.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/munging.xsd"
 

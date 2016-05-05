@@ -20,6 +20,7 @@
 package org.openrepose.filters.munging
 
 import javax.servlet.FilterConfig
+import javax.servlet.http.HttpServletResponse
 
 import org.hamcrest.Matchers.{endsWith, hasProperty}
 import org.junit.runner.RunWith
@@ -31,8 +32,10 @@ import org.openrepose.filters.munging.config.{ChangeDetails, HeaderFilter, Mungi
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
-import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest}
 import spray.json._
+
+import scala.io.Source
 
 /**
   * Created by adrian on 5/2/16.
@@ -160,26 +163,16 @@ class MungingFilterTest
   describe("filterXmlPatches method") (pending)
 
   describe("applyJsonPatches method") {
-    val body: String =
-      """
-        |{
-        |   "some": "json",
-        |   "nested": {
-        |       "json": "object"
-        |   }
-        |}
-      """.stripMargin
-
     //todo: bring this back when we get to repose 8 and we can use play instead of spray
 //    it("should apply patches") {
-//      val patched: JsValue = filter.applyJsonPatches(Json.parse(body), List(allRequestPatch.getJson, fooPatch.getJson))
+//      val patched: JsValue = filter.applyJsonPatches(Json.parse(testBody), List(allRequestPatch.getJson, fooPatch.getJson))
 //
 //      (patched \ "all").as[String] shouldBe "request"
 //      (patched \ "foo").as[String] shouldBe "request"
 //    }
 
     it("should apply patches") {
-      val patched: JsValue = filter.applyJsonPatches(body.parseJson, List(allRequestPatch.getJson, fooPatch.getJson))
+      val patched: JsValue = filter.applyJsonPatches(testBody.parseJson, List(allRequestPatch.getJson, fooPatch.getJson))
        val json: String = patched.prettyPrint
 
       json should include (""""all": "request"""")
@@ -189,6 +182,26 @@ class MungingFilterTest
   }
 
   describe("applyXmlPatches method") (pending)
+
+  describe("doWork method") {
+    it("should apply the appropriate patches to the request with simple path match") {
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setContentType("banana/json")
+      request.setRequestURI("http://rackspace.com/phone")
+      request.setContent(testBody.getBytes)
+      val chain: MockFilterChain = new MockFilterChain()
+
+      filter.doWork(request, mock[HttpServletResponse], chain)
+
+      val body: String = Source.fromInputStream(chain.getRequest.getInputStream).mkString
+    }
+
+    it("should apply the appropriate patches to the request with header match") (pending)
+    it("should apply the appropriate patches to the request without header match") (pending)
+    it("should apply nothing to the body when content type on the request is wrong") (pending)
+    it("should apply the appropriate patches to the response with simple path match") (pending)
+    it("should apply nothing to the body when content type on the response is wrong") (pending)
+  }
 
   val allRequestPatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"request"}]""")
   val allResponsePatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"response"}]""")
@@ -203,4 +216,14 @@ class MungingFilterTest
   val barChange: ChangeDetails = new ChangeDetails().withPath("/bar.*")
                                         .withResponse(barPatch)
   val basicConfig: MungingConfig = new MungingConfig().withChange(allChange, fooChange, barChange)
+
+  val testBody: String =
+    """
+      |{
+      |   "some": "json",
+      |   "nested": {
+      |       "json": "object"
+      |   }
+      |}
+    """.stripMargin
 }
