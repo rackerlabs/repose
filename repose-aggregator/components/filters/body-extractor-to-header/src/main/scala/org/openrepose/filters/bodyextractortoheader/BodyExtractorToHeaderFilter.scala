@@ -100,8 +100,9 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
   }
 
   override def configurationUpdated(configurationObject: BodyExtractorToHeaderConfig): Unit = {
-    extractions = configurationObject.getExtraction.asScala map {
-      extraction => Extraction(extraction.getHeader,
+    extractions = configurationObject.getExtraction.asScala map { extraction =>
+      Extraction(
+        extraction.getHeader,
         extraction.getJsonpath,
         Option(extraction.getDefaultIfMiss),
         Option(extraction.getDefaultIfNull),
