@@ -1,40 +1,40 @@
 configurations {
-    testRunnable
-    testBundle
+    integrationTestRunnable
+    integrationTestBundle
 }
 
 dependencies {
-    testCompile "junit:junit"
-    testCompile "org.codehaus.groovy:groovy-all"
-    testCompile "org.spockframework:spock-core"
-    testCompile "org.rackspace:deproxy"
-    testCompile "joda-time:joda-time"
-    testCompile project(":repose-aggregator:commons:commons-utilities")
-    testCompile project(":repose-aggregator:commons:commons-configuration")
-    testCompile project(":repose-aggregator:core:repose-core-api")
-    testCompile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
-    testCompile "javax.ws.rs:javax.ws.rs-api"
-    testCompile "org.eclipse.jetty:jetty-server"
-    testCompile "org.eclipse.jetty:jetty-servlet"
-    testCompile "org.apache.commons:commons-lang3"
-    testCompile "org.springframework:spring-web"
-    testCompile "org.slf4j:jcl-over-slf4j"
+    integrationTestCompile "junit:junit"
+    integrationTestCompile "org.codehaus.groovy:groovy-all"
+    integrationTestCompile "org.spockframework:spock-core"
+    integrationTestCompile "org.rackspace:deproxy"
+    integrationTestCompile "joda-time:joda-time"
+    integrationTestCompile project(":repose-aggregator:commons:commons-utilities")
+    integrationTestCompile project(":repose-aggregator:commons:commons-configuration")
+    integrationTestCompile project(":repose-aggregator:core:repose-core-api")
+    integrationTestCompile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
+    integrationTestCompile "javax.ws.rs:javax.ws.rs-api"
+    integrationTestCompile "org.eclipse.jetty:jetty-server"
+    integrationTestCompile "org.eclipse.jetty:jetty-servlet"
+    integrationTestCompile "org.apache.commons:commons-lang3"
+    integrationTestCompile "org.springframework:spring-web"
+    integrationTestCompile "org.slf4j:jcl-over-slf4j"
 
-    testRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
-    testRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
-    testRunnable project(path: ":repose-aggregator:artifacts:web-application", configuration: "archives")
-    testRunnable project(path: ":repose-aggregator:tests:mocks-servlet", configuration: "archives")
-    testRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-glassfish", configuration: "fatJar")
-    testRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-tomcat", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:artifacts:web-application", configuration: "archives")
+    integrationTestRunnable project(path: ":repose-aggregator:tests:mocks-servlet", configuration: "archives")
+    integrationTestRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-glassfish", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-tomcat", configuration: "fatJar")
 
-    testBundle project(path: ":repose-aggregator:artifacts:filter-bundle", configuration: "archives")
-    testBundle project(path: ":repose-aggregator:artifacts:extensions-filter-bundle", configuration: "archives")
-    testBundle project(path: ":repose-aggregator:artifacts:experimental-filter-bundle", configuration: "archives")
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-one"
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-two"
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-three"
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-four"
-    testBundle "org.openrepose.filters.core.test:classloader-bundle-five"
+    integrationTestBundle project(path: ":repose-aggregator:artifacts:filter-bundle", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:artifacts:extensions-filter-bundle", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:artifacts:experimental-filter-bundle", configuration: "archives")
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-one"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-two"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-three"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-four"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-five"
 }
 
 task copyArtifacts() {
@@ -49,22 +49,22 @@ task copyArtifacts() {
               ":repose-aggregator:artifacts:extensions-filter-bundle:ear",
               ":repose-aggregator:artifacts:experimental-filter-bundle:ear")
     ext.outputDir = "$buildDir/repose_home"
-    inputs.files(configurations.testRunnable.files,
-                 configurations.testBundle.files)
+    inputs.files(configurations.integrationTestRunnable.files,
+                 configurations.integrationTestBundle.files)
     outputs.dir outputDir
 
     doLast {
         //copy the runnables
         file(outputDir).mkdirs()
         copy {
-            from configurations.testRunnable.files
+            from configurations.integrationTestRunnable.files
             into outputDir
         }
 
         //copy the bundles
         file("$outputDir/artifacts").mkdirs()
         copy {
-            from configurations.testBundle.files
+            from configurations.integrationTestBundle.files
             into "$outputDir/artifacts"
         }
     }
@@ -72,20 +72,20 @@ task copyArtifacts() {
 
 task copyConfigs() {
     ext.outputDir = "$buildDir/configs"
-    inputs.dir "$projectDir/src/test/configs"
+    inputs.dir "$projectDir/src/integrationTest/configs"
     outputs.dir outputDir
 
     doLast {
         //copy the configs
         file(outputDir).mkdirs()
         copy {
-            from "$projectDir/src/test/configs"
+            from "$projectDir/src/integrationTest/configs"
             into outputDir
         }
     }
 }
 
-test.dependsOn copyArtifacts, copyConfigs
+integrationTest.dependsOn copyArtifacts, copyConfigs
 
 def container = "valve"
 def targetHostName = "localhost"
@@ -96,7 +96,7 @@ def glassfishFileName = tasks.getByPath(":repose-aggregator:tests:test-container
 def tomcatFileName = tasks.getByPath(":repose-aggregator:tests:test-containers:test-container-tomcat:shadowJar").archiveName.split("/").last()
 def mocksFileName = tasks.getByPath(":repose-aggregator:tests:mocks-servlet:war").archiveName.split("/").last()
 
-processTestResources {
+processIntegrationTestResources {
     expand( reposeHome: copyArtifacts.outputDir,
             version: version,
             projectBuildDirectory: buildDir,
@@ -111,7 +111,7 @@ processTestResources {
             targetHostname: targetHostName)
 }
 
-test {
+integrationTest {
     useJUnit {
         if (!project.hasProperty('runAll')) {
             includeCategories "framework.category.Smoke"
