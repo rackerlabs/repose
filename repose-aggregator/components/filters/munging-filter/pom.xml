@@ -7,12 +7,13 @@
         <version>7.3.5.0-SNAPSHOT</version>
     </parent>
 
-    <name>Repose Components - OpenStack Identity V3</name>
-    <artifactId>openstack-identity-v3</artifactId>
+    <name>Repose Components - Munging Filter</name>
+    <artifactId>munging-filter</artifactId>
     <packaging>jar</packaging>
 
     <description>
-        This filter authenticates user requests against an OpenStack Identity v3 implementation.
+        The munging filter allows the application of json (future xml) patches
+        to both the request and response based on requested path.
     </description>
 
     <properties>
@@ -20,69 +21,21 @@
     </properties>
 
     <dependencies>
-        <!-- Let's use Scala -->
+        <!-- JAXB -->
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.10</artifactId>
-        </dependency>
-
-        <!-- Lazy logging -->
-        <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging-slf4j_2.10</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.spray</groupId>
-            <artifactId>spray-json_2.10</artifactId>
-            <version>1.3.2</version>
-        </dependency>
-
-        <!-- Joda-Time for parsing times -->
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.joda</groupId>
-            <artifactId>joda-convert</artifactId>
-            <version>1.7</version>
-        </dependency>
-
-        <!-- Http Delegation Library for delegating requests -->
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>http-delegation</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>datastoreservice-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>httpclient-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>service-client-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- These three are required because of our coupling between filters and core -->
-        <dependency>
-            <groupId>org.openrepose</groupId>
-            <artifactId>core-lib</artifactId>
+            <version>2.1.2</version>
         </dependency>
 
         <dependency>
@@ -91,30 +44,43 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics-runtime</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.openrepose</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>core-lib</artifactId>
+        </dependency>
+
+        <!-- todo: bring this back when we back move to repose 8 and we can use it instead of spray -->
+        <!--<dependency>-->
+            <!--<groupId>com.typesafe.play</groupId>-->
+            <!--<artifactId>play-json_2.10</artifactId>-->
+            <!--<version>2.3.4</version>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-json_2.10</artifactId>
+            <version>1.3.2</version>
         </dependency>
 
         <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.0.1</version>
+          <groupId>org.gnieh</groupId>
+          <artifactId>diffson_2.10</artifactId>
+          <version>1.1.0</version>    <!-- todo: upgrade this to 2.0.0 when we merge into 8 -->
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.10</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xerces-xsd11</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <scope>test</scope>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
         </dependency>
     </dependencies>
 
@@ -152,6 +118,17 @@
 
                     <strict>true</strict>
                     <verbose>false</verbose>
+                    <extension>true</extension>
+                    <args>
+                        <arg>-Xfluent-api</arg>
+                    </args>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-fluent-api</artifactId>
+                            <version>3.0</version>
+                        </plugin>
+                    </plugins>
                 </configuration>
             </plugin>
         </plugins>
