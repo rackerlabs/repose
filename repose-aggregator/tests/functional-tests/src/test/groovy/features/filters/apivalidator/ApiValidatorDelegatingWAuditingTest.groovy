@@ -20,6 +20,7 @@
 package features.filters.apivalidator
 
 import framework.ReposeValveTest
+import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
@@ -43,14 +44,21 @@ class ApiValidatorDelegatingWAuditingTest extends ReposeValveTest {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/audit", method: method, headers: headers, requestBody: "horrible input")
 
+        String logLine = reposeLogSearch.searchByString("TRACE intrafilter-logging - .*\"currentFilter\":\"derp\",\"httpMethod\":\"POST\"")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        println(jsonpart)
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
+
         then:
-        reposeLogSearch.searchByString("Unable to populate request body").size() != 0
+        reposeLogSearch.searchByString("intrafilterLogging.RequestLog - Unable to populate request body").size() != 0
         reposeLogSearch.searchByString("java.io.IOException: Stream closed").size() != 0
-        //if request make to origin service
-        mc.handlings[0].endpoint == originEndpoint
-        mc.handlings[0].request.body == "horrible input"
         mc.receivedResponse.code == "400"
         mc.receivedResponse.message == "Bad Request"
+        result.httpMethod == method
+        result.headers["Host"] == reposeEndpoint - "http://"
+        result.headers["User-Agent"].contains("deproxy")
+
 
         where:
         method | headers
