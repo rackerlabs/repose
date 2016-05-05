@@ -19,8 +19,6 @@
  */
 package org.openrepose.filters.ratelimiting;
 
-import com.google.common.base.Optional;
-
 import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
@@ -47,9 +45,9 @@ import javax.inject.Named;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
@@ -136,7 +134,7 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
                 new ManagedRateLimitCache(getDatastore(configurationObject.getDatastore())), configurationObject);
         newConfig.describeLimitsUriRegex = configurationObject.getRequestEndpoint() != null ?
                 Optional.of(Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex())) :
-                Optional.<Pattern>absent();
+                Optional.empty();
         newConfig.includeAbsoluteLimits = configurationObject.getRequestEndpoint() != null &&
                 configurationObject.getRequestEndpoint().isIncludeAbsoluteLimits();
         newConfig.isOverLimit429ResponseCode = configurationObject.isOverLimit429ResponseCode();

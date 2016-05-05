@@ -19,7 +19,6 @@
  */
 package org.openrepose.nodeservice.httpcomponent;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -69,6 +68,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Named

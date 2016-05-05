@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.context.impl
 
-import com.google.common.base.Optional
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -110,7 +109,7 @@ class RequestProxyServiceHealthCheckTest extends Specification {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false)
         ListAppender app = ((ListAppender) (ctx.getConfiguration().getAppender("List0"))).clear()
 
-        when(systemModelInterrogator.getLocalCluster(any(SystemModel.class))).thenReturn(Optional.absent())
+        when(systemModelInterrogator.getLocalCluster(any(SystemModel.class))).thenReturn(Optional.empty())
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
         requestProxyService.init()

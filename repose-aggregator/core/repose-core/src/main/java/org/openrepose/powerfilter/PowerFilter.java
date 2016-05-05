@@ -19,7 +19,6 @@
  */
 package org.openrepose.powerfilter;
 
-import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;

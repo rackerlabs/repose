@@ -19,7 +19,6 @@
  */
 package org.openrepose.nodeservice.request;
 
-import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
@@ -42,6 +41,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
+import java.util.Optional;
 
 @Named
 public class RequestHeaderServiceImpl implements RequestHeaderService {

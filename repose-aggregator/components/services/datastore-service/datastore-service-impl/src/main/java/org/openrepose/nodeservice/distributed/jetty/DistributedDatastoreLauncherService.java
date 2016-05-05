@@ -19,7 +19,6 @@
  */
 package org.openrepose.nodeservice.distributed.jetty;
 
-import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.core.filter.SystemModelInterrogator;
@@ -49,6 +48,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Named
@@ -66,7 +66,7 @@ public class DistributedDatastoreLauncherService {
     private final AtomicReference<DistributedDatastoreConfiguration> currentDDConfig = new AtomicReference<>();
     private final String DD_CONFIG_ISSUE = "dist-datastore-config-issue";
     private volatile boolean isRunning = false;
-    private Optional<DistributedDatastoreServer> ddServer = Optional.absent();
+    private Optional<DistributedDatastoreServer> ddServer = Optional.empty();
     private DistributedDatastoreServlet ddServlet = null;
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private DistributedDatastoreConfigurationListener ddConfigListener;
@@ -121,7 +121,7 @@ public class DistributedDatastoreLauncherService {
                 } catch (Exception e) {
                     LOG.error("Unable to stop Distributed Datastore listener at port {}", server.getPort(), e);
                 }
-                ddServer = Optional.absent();
+                ddServer = Optional.empty();
             }
         }
         //Clear any healthcheck problems -- if it's off, it's not a problem any more!
