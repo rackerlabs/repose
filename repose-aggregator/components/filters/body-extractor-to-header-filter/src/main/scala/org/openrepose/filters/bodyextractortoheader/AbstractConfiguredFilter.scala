@@ -31,7 +31,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import scala.reflect.{ClassTag, _}
 
 /**
-  * todo: remove this once we merge in the repose 8 branch, i didn't what to replicate the functionality so i just copy pasta'd
+  * TODO: remove this once repose-8-staging branch has this in the right place.
   */
 /**
   * An abstract class for the easy construction of repose filters that take a configuration file.
@@ -40,7 +40,9 @@ import scala.reflect.{ClassTag, _}
   * @tparam T the config class
   */
 abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: ConfigurationService)
-  extends Filter with LazyLogging with UpdateListener[T] {
+  extends Filter
+    with LazyLogging
+    with UpdateListener[T] {
 
   private var configFile: String = _
 
@@ -114,17 +116,17 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   /**
     * Does an intitialization check. Will return 500 if not yet initialized, otherwise calls through to doWork.
     *
-    * @param request
-    * @param response
-    * @param chain
+    * @param servletRequest
+    * @param servletResponse
+    * @param filterChain
     */
-  override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
+  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!initialized) {
       logger.error("{} has not yet initialized...", this.getClass.getSimpleName)
-      response.asInstanceOf[HttpServletResponse].sendError(500, "Filter not initialized")
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(500, "Filter not initialized")
     } else {
       logger.trace("{} processing request...", this.getClass.getSimpleName)
-      doWork(request, response, chain)
+      doWork(servletRequest, servletResponse, filterChain)
       logger.trace("{} returning response...", this.getClass.getSimpleName)
     }
 
@@ -133,9 +135,9 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   /**
     * Where the concrete class does it's work. This method is the equivalent doFilter in a normal filter.
     *
-    * @param request
-    * @param response
-    * @param chain
+    * @param servletRequest
+    * @param servletResponse
+    * @param filterChain
     */
-  def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit
+  def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit
 }

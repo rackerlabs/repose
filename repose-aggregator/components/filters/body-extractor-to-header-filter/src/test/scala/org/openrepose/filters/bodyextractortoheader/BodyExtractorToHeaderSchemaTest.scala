@@ -20,6 +20,7 @@
 package org.openrepose.filters.bodyextractortoheader
 
 import org.junit.runner.RunWith
+import org.openrepose.commons.test.ConfigValidator
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 

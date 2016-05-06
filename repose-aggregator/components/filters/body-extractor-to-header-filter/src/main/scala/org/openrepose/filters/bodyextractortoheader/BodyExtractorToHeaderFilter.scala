@@ -19,12 +19,14 @@
  */
 package org.openrepose.filters.bodyextractortoheader
 
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
 import com.jayway.jsonpath.{DocumentContext, JsonPath, Configuration => JsonConfiguration, Option => JsonOption}
-import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest
+import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodyextractortoheader.config.BodyExtractorToHeaderConfig
 
@@ -42,35 +44,38 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
   private val jsonPathConfiguration = JsonConfiguration.defaultConfiguration()
   jsonPathConfiguration.addOptions(JsonOption.DEFAULT_PATH_LEAF_TO_NULL)
 
-  override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
-    val mutableHttpRequest = MutableHttpServletRequest.wrap(request.asInstanceOf[HttpServletRequest])
+  override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
+    var httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
     def addHeader(name: String, value: String, quality: Option[java.lang.Double], overwrite: Boolean): Unit = {
       if (overwrite) {
-        mutableHttpRequest.removeHeader(name)
+        httpRequest.removeHeader(name)
       }
-      ////////////////////////////////////////////////////////////////////////////////
-      // @TODO: Replace this with the new wrapper way on repose 8 branch.
       quality match {
-        case Some(qual) => mutableHttpRequest.addHeader(name, s"$value;q=$qual")
-        //case Some(qual) => mutableHttpRequest.addHeader(name, value, qual)
-        case None => mutableHttpRequest.addHeader(name, value)
+        case Some(qual) => httpRequest.addHeader(name, value, qual)
+        case None => httpRequest.addHeader(name, value)
       }
-      ////////////////////////////////////////////////////////////////////////////////
     }
 
     val jsonDoc: Option[Try[DocumentContext]] = {
-      Option(mutableHttpRequest.getContentType) filter { contentType =>
+      Option(httpRequest.getContentType) filter { contentType =>
         contentType.toLowerCase.contains("json")
       } map { contentType =>
-        ////////////////////////////////////////////////////////////////////////////////
-        // @TODO: Update this to wrap the stream if it doesn't support mark/reset when on repose 8 branch.
-        // see: https://github.com/rackerlabs/repose/blob/REP-3843_BodyExtractorToHeader/repose-aggregator/commons/utilities/src/main/java/org/openrepose/commons/utils/servlet/http/MutableHttpServletRequest.java#L124-L125
-        val is = mutableHttpRequest.getInputStream
-        if (is.markSupported()) is.mark(Integer.MAX_VALUE)
+        val is = {
+          httpRequest.getInputStream match {
+            case inputStream if inputStream.markSupported => inputStream
+            case inputStream =>
+              val sourceEntity: ByteArrayOutputStream = new ByteArrayOutputStream
+              RawInputStreamReader.instance.copyTo(inputStream, sourceEntity)
+              httpRequest = new HttpServletRequestWrapper(
+                httpRequest,
+                new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray)))
+              httpRequest.getInputStream
+          }
+        }
+        is.mark(Integer.MAX_VALUE)
         val jsonString = Source.fromInputStream(is).mkString
-        if (is.markSupported()) is.reset()
-        ////////////////////////////////////////////////////////////////////////////////
+        is.reset()
         Try(JsonPath.using(jsonPathConfiguration).parse(jsonString))
       }
     }
@@ -96,7 +101,7 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    chain.doFilter(mutableHttpRequest, response)
+    filterChain.doFilter(httpRequest, servletResponse)
   }
 
   override def configurationUpdated(configurationObject: BodyExtractorToHeaderConfig): Unit = {
