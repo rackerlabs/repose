@@ -24,10 +24,12 @@ import javax.servlet._
 import javax.servlet.http.HttpServletRequest
 
 import org.openrepose.core.filter.AbstractConfiguredFilter
+import gnieh.diffson.playJson._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodypatcher.config.ChangeDetails
 import org.openrepose.filters.bodypatcher.config.BodyPatcherConfig
 import org.openrepose.filters.bodypatcher.config.Patch
+import play.api.libs.json.JsValue
 
 import scala.collection.JavaConverters._
 
@@ -52,5 +54,12 @@ class BodyPatcherFilter(configurationService: ConfigurationService) extends Abst
 
   def filterResponseChanges(changes: List[ChangeDetails]): List[Patch] = {
     changes.flatMap(change => Option(change.getResponse()))
+  }
+
+  def applyJsonPatches(body: JsValue, patches: List[String]): JsValue = {
+    patches.foldLeft(body)((content: JsValue, patch: String) => {
+      val jsPatch: JsonPatch = JsonPatch.parse(patch)
+      jsPatch(content)
+    })
   }
 }
