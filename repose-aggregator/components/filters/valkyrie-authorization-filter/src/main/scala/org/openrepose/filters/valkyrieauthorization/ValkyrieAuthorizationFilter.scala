@@ -34,6 +34,7 @@ import com.josephpconley.jsonpath.JSONPath
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
+import io.gatling.jsonpath.Parser
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
@@ -358,7 +359,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                    matchingResources: Seq[Resource]): Unit = {
 
     def getJsPathFromString(jsonPath: String): JsPath = {
-      val pathTokens: List[PathToken] = JSONPath.parser.compile(jsonPath).getOrElse({
+      val pathTokens: List[PathToken] = (new Parser).compile(jsonPath).getOrElse({
         throw MalformedJsonPathException(s"Unable to parse JsonPath: $jsonPath")
       })
       pathTokens.foldLeft(new JsPath) { (path, token) =>
@@ -371,15 +372,17 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     def cullJsonArray(jsonArray: Seq[JsValue], devicePath: DevicePath, devicePermissions: Vector[DeviceToPermission]): Seq[JsValue] = {
       def extractDeviceIdFieldValue(jsValue: JsValue): Try[String] = {
-        JSONPath.query(devicePath.getPath, jsValue) match {
-          case jsValue: JsNumber =>
-            Success(jsValue.value.toString())
-          case jsValue: JsString =>
-            Success(jsValue.value)
-          case _: JsUndefined =>
-            Failure(InvalidJsonPathException(s"Invalid path specified for device id: ${devicePath.getPath}"))
-          case _ =>
-            Failure(InvalidJsonTypeException(s"Invalid JSON type in: ${devicePath.getPath}"))
+        Try(JSONPath.query(devicePath.getPath, jsValue)) match {
+          case Success(value) => value match {
+            case jsValue: JsNumber =>
+              Success(jsValue.value.toString())
+            case jsValue: JsString =>
+              Success(jsValue.value)
+            case _ =>
+              Failure(InvalidJsonTypeException(s"Invalid JSON type in: ${devicePath.getPath}"))
+          }
+          case Failure(e) =>
+            Failure(InvalidJsonPathException(s"Invalid path specified for device id: ${devicePath.getPath}", e))
         }
       }
 
@@ -416,13 +419,13 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     def updateItemCount(json: JsObject, pathToItemCount: String, newCount: Int): JsObject = {
       Option(pathToItemCount) match {
         case Some(path) =>
-          JSONPath.query(path, json) match {
-            case undefined: JsUndefined => throw InvalidJsonPathException(s"Invalid path specified for item count: $path")
-            case _ =>
+          Try(JSONPath.query(path, json)) match {
+            case Success(v) =>
               val countTransform: Reads[JsObject] = getJsPathFromString(path).json.update(__.read[JsNumber].map { _ => new JsNumber(newCount) })
               json.transform(countTransform).getOrElse {
                 throw TransformException("Unable to transform json while updating the count.")
               }
+            case Failure(e) => throw InvalidJsonPathException(s"Invalid path specified for item count: $path", e)
           }
         case None => json
       }
@@ -439,7 +442,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
             val finalJson = matchingResources.foldLeft(initialJson) { (resourceJson, resource) =>
               resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
                 val array: Seq[JsValue] = Try(JSONPath.query(collection.getJson.getPathToCollection, collectionJson).as[Seq[JsValue]])
-                  .recover({ case jre: JsResultException => throw InvalidJsonPathException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", jre) })
+                  .recover({ case e: Exception if e.getMessage.equals("Bad JSONPath query Couldn't find field") =>
+                    throw InvalidJsonPathException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", e) })
                   .get
 
                 val culledArray: Seq[JsValue] = cullJsonArray(array, collection.getJson.getPathToDeviceId, devicePermissions)
