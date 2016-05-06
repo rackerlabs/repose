@@ -34,6 +34,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
+import play.api.libs.json.{JsValue, Json}
 
 /**
   * Created by adrian on 5/2/16.
@@ -94,10 +95,29 @@ class BodyPatcherFilterTest
     }
   }
 
-  val allRequestPatch: Patch = new Patch()
-  val allResponsePatch: Patch = new Patch()
-  val fooPatch: Patch = new Patch()
-  val barPatch: Patch = new Patch()
+  describe("applyJsonPatches method") {
+    val body: String =
+      """
+        |{
+        |   "some": "json",
+        |   "nested": {
+        |       "json": "object"
+        |   }
+        |}
+      """.stripMargin
+
+    it("should apply patches") {
+      val patched: JsValue = filter.applyJsonPatches(Json.parse(body), List(allRequestPatch.getJson, fooPatch.getJson))
+
+      (patched \ "all").as[String] shouldBe "request"
+      (patched \ "foo").as[String] shouldBe "request"
+    }
+  }
+
+  val allRequestPatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"request"}]""")
+  val allResponsePatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"response"}]""")
+  val fooPatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/foo", "value":"request"}]""")
+  val barPatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/bar", "value":"response"}]""")
   val allChange: ChangeDetails = new ChangeDetails()
                                         .withRequest(allRequestPatch)
                                         .withResponse(allResponsePatch)
