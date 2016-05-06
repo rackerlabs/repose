@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>rpm</artifactId>
-        <version>7.3.5.0</version>
+        <version>7.3.5.1-SNAPSHOT</version>
     </parent>
 
     <name>Repose - Installation Cloud Integration CLI-Utilities RPM</name>
