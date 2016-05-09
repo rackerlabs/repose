@@ -13,7 +13,6 @@
             <filter name="client-authentication"/>
             <filter name="client-authorization"/>
             <filter name="rate-limiting"/>
-            <filter name="default-router"/>
         </filters>
 
         <services>

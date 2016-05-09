@@ -10,7 +10,6 @@
         <filters>
             <filter name="client-authentication"/>
             <filter name="client-authorization"/>
-            <filter name="default-router"/>
         </filters>
 
         <destinations>
@@ -26,7 +25,6 @@
 
         <filters>
             <filter name="rate-limiting"/>
-            <filter name="default-router"/>
         </filters>
 
         <services>

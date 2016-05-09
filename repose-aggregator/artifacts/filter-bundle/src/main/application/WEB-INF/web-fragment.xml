@@ -21,10 +21,6 @@
 
 <web-fragment xmlns="http://java.sun.com/xml/ns/javaee">
     <filter>
-        <filter-name>default-router</filter-name>
-        <filter-class>org.openrepose.filters.defaultrouter.routing.RoutingFilter</filter-class>
-    </filter>
-    <filter>
         <filter-name>header-user</filter-name>
         <filter-class>org.openrepose.filters.headeruser.HeaderUserFilter</filter-class>
     </filter>

@@ -33,7 +33,6 @@
 
         <filters>
             <filter name="translation"/>
-            <filter name="default-router"/>
         </filters>
 
         <!-- only destination available is rate limiting -->
@@ -51,7 +50,6 @@
 
         <filter-chain name="nova-rate-limiting">
             <filter name="rate-limiting"/>
-            <filter name="default-router"/>
         </filter-chain>
 
         <services>

@@ -11,8 +11,6 @@
             <filter name="client-authentication"/>
             <filter name="client-authorization"/>
             <filter name="rate-limiting"/>
-            <!-- default router will look for a destination that has default="true" -->
-            <filter name="default-router"/>
         </filters>
 
         <services>
