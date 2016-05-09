@@ -116,6 +116,16 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
       lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
         Option(config.getIdentityService.getPassword).isEmpty
+      lazy val tenantFromUri =
+        Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
+          Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegex =>
+            val regex = uriExtractionRegex.r
+            request.getRequestURI match {
+              case regex(tenantId, _*) => Some(tenantId)
+              case _ => throw UnparseableTenantException("Could not parse tenant from the URI")
+            }
+          }
+        }
 
       /**
         * BEGIN PROCESSING
@@ -135,13 +145,16 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             val processingResult =
               getAuthToken flatMap { authToken =>
                 validateToken(authToken) flatMap { validToken =>
-                  val doTenantCheck = doAuthorizeTenant(validToken)
+                  val tenantScopedRoles = getTenantScopedRoles(validToken.roles)
+                  val userIsPreAuthed = isUserPreAuthed(tenantScopedRoles)
+                  val scopedRolesToken = if (userIsPreAuthed) validToken else validToken.copy(roles = tenantScopedRoles)
+                  val doTenantCheck = shouldAuthorizeTenant(userIsPreAuthed)
                   val matchedUriTenant = getMatchingUriTenant(doTenantCheck, validToken)
-                  addTokenHeaders(validToken, matchedUriTenant.getOrElse(None))
+                  addTokenHeaders(validToken, matchedUriTenant)
                   authorizeTenant(doTenantCheck, matchedUriTenant) flatMap { _ =>
                     lazy val endpoints = getEndpoints(authToken, validToken) // Prevents making call if its not needed
                     addCatalogHeader(endpoints) flatMap { _ =>
-                      authorizeEndpoints(validToken, endpoints) flatMap { _ =>
+                      authorizeEndpoints(userIsPreAuthed, endpoints) flatMap { _ =>
                         addGroupsHeader(getGroups(authToken, validToken))
                       }
                     }
@@ -219,20 +232,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       /**
         * DEFINING FUNCTIONS IN SCOPE
         */
-      def tenantFromUri: Try[Option[String]] = {
-        Try(
-          Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
-            Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegex =>
-              val regex = uriExtractionRegex.r
-              request.getRequestURI match {
-                case regex(tenantId, _*) => Some(tenantId)
-                case _ => throw UnparseableTenantException("Could not parse tenant from the URI")
-              }
-            }
-          }
-        )
-      }
-
       def isWhitelisted(requestUri: String): Boolean = {
         logger.trace("Comparing request URI to whitelisted URIs")
 
@@ -310,40 +309,49 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
 
-      def doAuthorizeTenant(validToken: ValidToken): Boolean = {
-        Option(config.getTenantHandling.getValidateTenant) exists { validateTenant =>
-          Option(config.getPreAuthorizedRoles) forall {
-            _.getRole.asScala.intersect(validToken.roles).isEmpty
-          }
+      def getTenantScopedRoles(roles: Seq[Role]): Seq[Role] = {
+        Option(config.getTenantHandling.getValidateTenant) match {
+          case Some(validateTenant) if !validateTenant.isEnableLegacyRolesMode =>
+            roles.filter(role =>
+              role.tenantId.forall(roleTenantId =>
+                tenantFromUri.exists(roleTenantId.equals)))
+          case _ =>
+            roles
         }
       }
 
-      def getMatchingUriTenant(doTenantCheck: Boolean, validToken: ValidToken): Try[Option[String]] = {
+      def isUserPreAuthed(roles: Seq[Role]): Boolean = {
+        Option(config.getPreAuthorizedRoles) exists { preAuthedRoles =>
+          preAuthedRoles.getRole.asScala.intersect(roles.map(_.name)).nonEmpty
+        }
+      }
+
+      def shouldAuthorizeTenant(preAuthed: Boolean): Boolean = {
+        Option(config.getTenantHandling.getValidateTenant).exists(_ => !preAuthed)
+      }
+
+      def getMatchingUriTenant(doTenantCheck: Boolean, validToken: ValidToken): Option[String] = {
         if (doTenantCheck) {
-          tenantFromUri map {
-            _ flatMap { uriTenant =>
-              val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-              val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-              tokenTenants find { tokenTenant =>
-                tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
-                  tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)
-                )
-              }
+          tenantFromUri flatMap { uriTenant =>
+            val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
+            val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
+            tokenTenants find { tokenTenant =>
+              tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
+                tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)
+              )
             }
           }
         } else {
-          Success(None)
+          None
         }
       }
 
-      def authorizeTenant(doTenantCheck: Boolean, matchedUriTenant: Try[Option[String]]): Try[Unit.type] = {
+      def authorizeTenant(doTenantCheck: Boolean, matchedUriTenant: Option[String]): Try[Unit.type] = {
         logger.trace("Validating tenant")
 
         if (doTenantCheck) {
-          matchedUriTenant flatMap { uriTenant =>
-            if (uriTenant.isDefined) Success(Unit)
-            else Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
-          }
+          if (matchedUriTenant.isDefined) Success(Unit)
+          else Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
         } else {
           Success(Unit)
         }
@@ -375,7 +383,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
 
-      def authorizeEndpoints(validToken: ValidToken, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
+      def authorizeEndpoints(userIsPreAuthed: Boolean, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
         Option(config.getRequireServiceEndpoint) match {
           case Some(configuredEndpoint) =>
             logger.trace(s"Authorizing endpoints")
@@ -389,11 +397,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   region = Option(configuredEndpoint.getRegion)
                 )
 
-              val preAuthRoles = Option(config.getPreAuthorizedRoles)
-                .map(_.getRole.asScala)
-                .getOrElse(List.empty)
-
-              if (preAuthRoles.intersect(validToken.roles).nonEmpty || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
+              if (userIsPreAuthed || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
               else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
             }
           case None => Success(Unit)
@@ -498,8 +502,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
 
         // If configured, add roles header
-        if (config.getIdentityService.isSetRolesInHeader) {
-          request.addHeader(OpenStackServiceHeader.ROLES.toString, token.roles.mkString(","))
+        if (config.getIdentityService.isSetRolesInHeader && token.roles.nonEmpty) {
+          request.addHeader(OpenStackServiceHeader.ROLES.toString, token.roles.map(_.name).mkString(","))
         }
 
         // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
@@ -665,8 +669,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
   object CacheInvalidationFeedListener extends AtomFeedListener {
 
-    case class RegisteredFeed(id: String, unique: String)
-
     private var registeredFeeds = List.empty[RegisteredFeed]
 
     def unRegisterFeeds(): Unit = {
@@ -718,6 +720,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     override def onLifecycleEvent(event: LifecycleEvents): Unit = {
       logger.debug(s"Received Lifecycle Event: $event")
     }
+
+    case class RegisteredFeed(id: String, unique: String)
+
   }
 
 }

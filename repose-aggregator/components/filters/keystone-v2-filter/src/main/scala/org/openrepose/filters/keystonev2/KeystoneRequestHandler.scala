@@ -98,7 +98,9 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         val json = Json.parse(input)
         //Have to convert it to a vector, because List isn't serializeable in 2.10
         val userId = (json \ "access" \ "user" \ "id").as[String]
-        val roleNames = (json \ "access" \ "user" \ "roles" \\ "name").map(_.as[String]).toVector
+        val roles = (json \ "access" \ "user" \ "roles").as[JsArray].value
+          .map(jsRole => Role((jsRole \ "name").as[String], (jsRole \ "tenantId").asOpt[String]))
+          .toVector
         val expirationDate = iso8601ToRfc1123((json \ "access" \ "token" \ "expires").as[String])
         val username = (json \ "access" \ "user" \ "name").asOpt[String]
         val defaultTenantId = (json \ "access" \ "token" \ "tenant" \ "id").asOpt[String]
@@ -111,7 +113,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         val impersonatorRoles = (json \ "access" \ "RAX-AUTH:impersonator" \ "roles" \\ "name").map(_.as[String]).toVector
         val validToken = ValidToken(expirationDate,
           userId,
-          roleNames,
+          roles,
           username,
           tenantName,
           defaultTenantId,
@@ -255,9 +257,11 @@ object KeystoneRequestHandler {
 
   case class UnparseableTenantException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
+  case class Role(name: String, tenantId: Option[String] = None)
+
   case class ValidToken(expirationDate: String,
                         userId: String,
-                        roles: Seq[String],
+                        roles: Seq[Role],
                         username: Option[String],
                         tenantName: Option[String],
                         defaultTenantId: Option[String],

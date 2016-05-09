@@ -355,6 +355,49 @@ trait IdentityResponses {
     """.stripMargin
   }
 
+  def validateTokenResponseTenantedRoles(token: String = VALID_TOKEN,
+                            expires: DateTime = DateTime.now().plusDays(1),
+                            userId: String = VALID_USER_ID): String = {
+
+    val expiryTime = tokenDateFormat(expires)
+
+    s"""
+       |{
+       |    "access":{
+       |        "token":{
+       |            "id":"$token",
+       |            "expires":"$expiryTime",
+       |            "tenant":{
+       |                "id": "456",
+       |                "name": "My Project"
+       |            }
+       |        },
+       |        "user":{
+       |            "RAX-AUTH:defaultRegion": "DFW",
+       |            "RAX-AUTH:contactId": "abc123",
+       |            "id":"$userId",
+       |            "name":"testuser",
+       |            "roles":[{
+       |                    "id":"123",
+       |                    "name":"role:123"
+       |                },
+       |                {
+       |                    "id":"234",
+       |                    "tenantId": "234",
+       |                    "name":"role:234"
+       |                },
+       |                {
+       |                    "id":"345",
+       |                    "tenantId": "345",
+       |                    "name":"role:345"
+       |                }
+       |            ]
+       |        }
+       |    }
+       |}
+    """.stripMargin
+  }
+
   def validateImpersonatedTokenResponse(token: String = VALID_TOKEN,
                                         userId: String = VALID_USER_ID): String = {
     s"""
