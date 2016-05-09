@@ -19,28 +19,91 @@
  */
 package org.openrepose.filters.bodypatcher
 
+import java.io.ByteArrayInputStream
 import java.net.URL
+import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import gnieh.diffson.playJson._
+import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
+import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodypatcher.config.ChangeDetails
 import org.openrepose.filters.bodypatcher.config.BodyPatcherConfig
 import org.openrepose.filters.bodypatcher.config.Patch
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json => PJson}
 
 import scala.collection.JavaConverters._
 
 /**
   * Created by adrian on 4/29/16.
   */
-class BodyPatcherFilter(configurationService: ConfigurationService) extends AbstractConfiguredFilter[BodyPatcherConfig](configurationService) {
+@Named
+class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
+  extends AbstractConfiguredFilter[BodyPatcherConfig](configurationService) with LazyLogging {
   override val DEFAULT_CONFIG: String = "body-patcher.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/body-patcher.xsd"
 
-  override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = ???
+  override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
+    val httpRequest: HttpServletRequest = request.asInstanceOf[HttpServletRequest]
+    val httpResponse: HttpServletResponse = response.asInstanceOf[HttpServletResponse]
+
+    val pathChanges: List[ChangeDetails] = filterChanges(httpRequest)
+    val requestPatches: List[Patch] = filterRequestChanges(pathChanges)
+    val responsePatches: List[Patch] = filterResponseChanges(pathChanges)
+
+    //patch the request
+    val patchedRequest: HttpServletRequest = determineContentType(httpRequest.getContentType) match {
+      case Json =>
+        val jsonPatches: List[String] = filterJsonPatches(requestPatches)
+        if (jsonPatches.nonEmpty) {
+          logger.debug("Applying json patches on the request")
+          val patchedValue: JsValue = applyJsonPatches(PJson.parse(httpRequest.getInputStream), jsonPatches)
+          new HttpServletRequestWrapper(httpRequest, new ServletInputStreamWrapper(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes)))
+        } else {
+          httpRequest
+        }
+      case Xml =>
+        //todo: implement xml support
+        httpRequest
+      case Other =>
+        httpRequest
+    }
+
+
+    //check if we might do work to the response
+    if (responsePatches.isEmpty) {
+      chain.doFilter(patchedRequest, httpResponse)
+    } else {
+      val wrappedResponse: HttpServletResponseWrapper = new HttpServletResponseWrapper(httpResponse, PASSTHROUGH, MUTABLE)
+      chain.doFilter(patchedRequest, wrappedResponse)
+      wrappedResponse.uncommit()
+
+      determineContentType(wrappedResponse.getContentType) match {
+        case Json =>
+          val jsonPatches: List[String] = filterJsonPatches(responsePatches)
+          if (jsonPatches.nonEmpty) {
+            logger.debug("Applying json patches on the response")
+
+            val contentStream = wrappedResponse.getOutputStreamAsInputStream
+            val contentValue = if (contentStream.available() > 0) {
+              PJson.parse(contentStream)
+            } else {
+              PJson.obj()
+            }
+            val patchedValue: JsValue = applyJsonPatches(contentValue, jsonPatches)
+            wrappedResponse.setOutput(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes))
+          }
+        case Xml => //todo implement xml support
+        case Other =>
+      }
+      wrappedResponse.commitToResponse()
+    }
+  }
 
   def filterChanges(request: HttpServletRequest): List[ChangeDetails] = {
     val urlPath: String = new URL(request.getRequestURL.toString).getPath

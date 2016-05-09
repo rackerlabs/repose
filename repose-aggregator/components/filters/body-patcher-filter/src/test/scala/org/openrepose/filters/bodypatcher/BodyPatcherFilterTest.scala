@@ -19,22 +19,23 @@
  */
 package org.openrepose.filters.bodypatcher
 
-import javax.servlet.FilterConfig
+import javax.servlet.{FilterChain, FilterConfig}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.hamcrest.Matchers.{endsWith, hasProperty}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, argThat, eq => eql}
 import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.bodypatcher.config.ChangeDetails
-import org.openrepose.filters.bodypatcher.config.BodyPatcherConfig
-import org.openrepose.filters.bodypatcher.config.Patch
+import org.openrepose.filters.bodypatcher.config.{BodyPatcherConfig, ChangeDetails, Patch}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
-import org.springframework.mock.web.MockHttpServletRequest
-import play.api.libs.json.{JsValue, Json => PJson}
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
+import play.api.libs.json.{JsResultException, JsValue, Json => PJson}
 
 /**
   * Created by adrian on 5/2/16.
@@ -130,18 +131,8 @@ class BodyPatcherFilterTest
   describe("filterXmlPatches method") (pending)
 
   describe("applyJsonPatches method") {
-    val body: String =
-      """
-        |{
-        |   "some": "json",
-        |   "nested": {
-        |       "json": "object"
-        |   }
-        |}
-      """.stripMargin
-
     it("should apply patches") {
-      val patched: JsValue = filter.applyJsonPatches(PJson.parse(body), List(allRequestPatch.getJson, fooPatch.getJson))
+      val patched: JsValue = filter.applyJsonPatches(PJson.parse(testBody), List(allRequestPatch.getJson, fooPatch.getJson))
 
       (patched \ "all").as[String] shouldBe "request"
       (patched \ "foo").as[String] shouldBe "request"
@@ -149,6 +140,155 @@ class BodyPatcherFilterTest
   }
 
   describe("applyXmlPatches method") (pending)
+
+  describe("doWork method") {
+    it("should apply the appropriate patches to the request with simple path match") {
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setContentType("banana/json")
+      request.setRequestURI("http://rackspace.com/phone")
+      request.setContent(testBody.getBytes)
+      val chain: MockFilterChain = new MockFilterChain()
+
+      filter.doWork(request, new MockHttpServletResponse(), chain)
+
+      val content: JsValue = PJson.parse(chain.getRequest.getInputStream)
+      (content \ "all").as[String] shouldBe "request"
+      intercept[JsResultException] {
+        (content \ "foo").as[String]
+      }
+      intercept[JsResultException] {
+        (content \ "bar").as[String]
+      }
+      (content \ "some").as[String] shouldBe "json"
+    }
+
+    it("should apply the appropriate patches to the request with specific path match") {
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setContentType("banana/json")
+      request.setRequestURI("http://rackspace.com/foo")
+      request.setContent(testBody.getBytes)
+      val chain: MockFilterChain = new MockFilterChain()
+
+      filter.doWork(request, new MockHttpServletResponse(), chain)
+
+      val content: JsValue = PJson.parse(chain.getRequest.getInputStream)
+      (content \ "all").as[String] shouldBe "request"
+      (content \ "foo").as[String] shouldBe "request"
+      intercept[JsResultException] {
+        (content \ "bar").as[String]
+      }
+      (content \ "some").as[String] shouldBe "json"
+    }
+
+    it("should apply nothing to the body when content type on the request is wrong") {
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setContentType("banana/phone")
+      request.setRequestURI("http://rackspace.com/foo")
+      request.setContent(testBody.getBytes)
+      val chain: MockFilterChain = new MockFilterChain()
+
+      filter.doWork(request, new MockHttpServletResponse(), chain)
+
+      val content: JsValue = PJson.parse(chain.getRequest.getInputStream)
+      intercept[JsResultException] {
+        (content \ "all").as[String]
+      }
+        intercept[JsResultException] {
+        (content \ "foo").as[String]
+      }
+      intercept[JsResultException] {
+        (content \ "bar").as[String]
+      }
+      (content \ "some").as[String] shouldBe "json"
+    }
+
+    it("should apply the appropriate patches to the response with simple path match") {
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setContentType("banana/json")
+      request.setRequestURI("http://rackspace.com/foo")
+      request.setContent(testBody.getBytes)
+      val response: MockHttpServletResponse = new MockHttpServletResponse()
+      val chain: FilterChain = mock[FilterChain]
+      when(chain.doFilter(any(classOf[HttpServletRequest]), any(classOf[HttpServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit = {
+          val chainedResponse: HttpServletResponse = invocation.getArguments()(1).asInstanceOf[HttpServletResponse]
+          chainedResponse.setContentType("application/json")
+          chainedResponse.getWriter.print(testBody)
+          chainedResponse.flushBuffer()
+        }
+      } )
+
+      filter.doWork(request, response, chain)
+
+      val content: JsValue = PJson.parse(response.getContentAsString)
+      (content \ "all").as[String] shouldBe "response"
+      intercept[JsResultException] {
+        (content \ "foo").as[String]
+      }
+      intercept[JsResultException] {
+        (content \ "bar").as[String]
+      }
+      (content \ "some").as[String] shouldBe "json"
+    }
+
+    it("should apply the appropriate patches to the response with with specific path match") {
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setContentType("banana/json")
+      request.setRequestURI("http://rackspace.com/barcelona")
+      request.setContent(testBody.getBytes)
+      val response: MockHttpServletResponse = new MockHttpServletResponse()
+      val chain: FilterChain = mock[FilterChain]
+      when(chain.doFilter(any(classOf[HttpServletRequest]), any(classOf[HttpServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit = {
+          val chainedResponse: HttpServletResponse = invocation.getArguments()(1).asInstanceOf[HttpServletResponse]
+          chainedResponse.setContentType("application/json")
+          chainedResponse.getWriter.print(testBody)
+          chainedResponse.flushBuffer()
+        }
+      } )
+
+      filter.doWork(request, response, chain)
+
+      val content: JsValue = PJson.parse(response.getContentAsString)
+      (content \ "all").as[String] shouldBe "response"
+      intercept[JsResultException] {
+        (content \ "foo").as[String]
+      }
+      (content \ "bar").as[String] shouldBe "response"
+      (content \ "some").as[String] shouldBe "json"
+    }
+
+    it("should apply nothing to the body when content type on the response is wrong") {
+      val request: MockHttpServletRequest = new MockHttpServletRequest()
+      request.setContentType("banana/json")
+      request.setRequestURI("http://rackspace.com/barcelona")
+      request.setContent(testBody.getBytes)
+      val response: MockHttpServletResponse = new MockHttpServletResponse()
+      val chain: FilterChain = mock[FilterChain]
+      when(chain.doFilter(any(classOf[HttpServletRequest]), any(classOf[HttpServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit = {
+          val chainedResponse: HttpServletResponse = invocation.getArguments()(1).asInstanceOf[HttpServletResponse]
+          chainedResponse.setContentType("application/html")
+          chainedResponse.getWriter.print(testBody)
+          chainedResponse.flushBuffer()
+        }
+      } )
+
+      filter.doWork(request, response, chain)
+
+      val content: JsValue = PJson.parse(response.getContentAsString)
+      intercept[JsResultException] {
+        (content \ "all").as[String]
+      }
+      intercept[JsResultException] {
+        (content \ "foo").as[String]
+      }
+      intercept[JsResultException] {
+        (content \ "bar").as[String]
+      }
+      (content \ "some").as[String] shouldBe "json"
+    }
+  }
 
   val allRequestPatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"request"}]""")
   val allResponsePatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"response"}]""")
@@ -162,4 +302,14 @@ class BodyPatcherFilterTest
   val barChange: ChangeDetails = new ChangeDetails().withPath("/bar.*")
                                         .withResponse(barPatch)
   val basicConfig: BodyPatcherConfig = new BodyPatcherConfig().withChange(allChange, fooChange, barChange)
+
+  val testBody: String =
+    """
+      |{
+      |   "some": "json",
+      |   "nested": {
+      |       "json": "object"
+      |   }
+      |}
+    """.stripMargin
 }
