@@ -20,24 +20,24 @@
 package org.openrepose.filters.bodypatcher
 
 import java.io.ByteArrayInputStream
-import java.net.URL
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.core.filter.AbstractConfiguredFilter
 import gnieh.diffson.playJson._
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
-import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
+import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.bodypatcher.config.ChangeDetails
-import org.openrepose.filters.bodypatcher.config.BodyPatcherConfig
-import org.openrepose.filters.bodypatcher.config.Patch
+import org.openrepose.filters.bodypatcher.config.{BodyPatcherConfig, ChangeDetails, Patch}
 import play.api.libs.json.{JsValue, Json => PJson}
 
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 /**
   * Created by adrian on 4/29/16.
@@ -49,10 +49,10 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/body-patcher.xsd"
 
   override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
-    val httpRequest: HttpServletRequest = request.asInstanceOf[HttpServletRequest]
-    val httpResponse: HttpServletResponse = response.asInstanceOf[HttpServletResponse]
+    val httpRequest = request.asInstanceOf[HttpServletRequest]
+    val httpResponse = response.asInstanceOf[HttpServletResponse]
 
-    val pathChanges: List[ChangeDetails] = filterChanges(httpRequest)
+    val pathChanges: List[ChangeDetails] = filterPathChanges(httpRequest)
     val requestPatches: List[Patch] = filterRequestChanges(pathChanges)
     val responsePatches: List[Patch] = filterResponseChanges(pathChanges)
 
@@ -73,7 +73,6 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
       case Other =>
         httpRequest
     }
-
 
     //check if we might do work to the response
     if (responsePatches.isEmpty) {
@@ -105,10 +104,10 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
-  def filterChanges(request: HttpServletRequest): List[ChangeDetails] = {
-    val urlPath: String = new URL(request.getRequestURL.toString).getPath
+  def filterPathChanges(request: HttpServletRequest): List[ChangeDetails] = {
+    val path: String = URLDecoder.decode(request.getRequestURI, StandardCharsets.UTF_8.toString)
     configuration.getChange.asScala.toList
-        .filter(_.getPath.r.findFirstIn(urlPath).isDefined)
+        .filter(_.getPath.r.pattern.matcher(path).matches)
   }
 
   def filterRequestChanges(changes: List[ChangeDetails]): List[Patch] = {
@@ -120,14 +119,9 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
   }
 
   def determineContentType(contentType: String): ContentType = {
-    //magic code from stack overflow, i'm a terrible person, http://stackoverflow.com/questions/4636610/how-to-pattern-match-using-regular-expression-in-scala
-    implicit class Regex(sc: StringContext) {
-      def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
-    }
-
     Option(contentType).getOrElse("").toLowerCase match {
-      case r".*json.*" => Json
-      case r".*xml.*" => Xml
+      case Json.regex() => Json
+      case Xml.regex() => Xml
       case _ => Other
     }
   }
@@ -144,7 +138,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
   }
 }
 
-sealed trait ContentType
-case object Json extends ContentType
-case object Xml extends ContentType
-case object Other extends ContentType
+sealed trait ContentType { val regex: Regex }
+case object Json extends ContentType { override val regex = ".*json.*".r }
+case object Xml extends ContentType { override val regex = ".*xml.*".r }
+case object Other extends ContentType { override val regex = ".*".r }

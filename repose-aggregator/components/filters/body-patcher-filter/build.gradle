@@ -1,5 +1,8 @@
 dependencies {
     xjc "org.jvnet.jaxb2_commons:jaxb2-fluent-api"
+    xjc "org.jvnet.jaxb2_commons:jaxb2-basics"
+
+    generatedCompile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime"
 
     compile project(":repose-aggregator:core:repose-core-api")
     compile "org.scala-lang:scala-library"
@@ -22,6 +25,6 @@ dependencies {
 
 jaxb {
     xjc {
-        args = ["-Xfluent-api"]
+        args = ["-Xfluent-api", "-XtoString"]
     }
 }

@@ -19,8 +19,8 @@
  */
 package org.openrepose.filters.bodypatcher
 
-import javax.servlet.{FilterChain, FilterConfig}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.{FilterChain, FilterConfig}
 
 import org.hamcrest.Matchers.{endsWith, hasProperty}
 import org.junit.runner.RunWith
@@ -51,7 +51,7 @@ class BodyPatcherFilterTest
   var configurationService: ConfigurationService = _
 
   before {
-    configurationService= mock[ConfigurationService]
+    configurationService = mock[ConfigurationService]
     filter = new BodyPatcherFilter(configurationService)
     filter.configurationUpdated(basicConfig)
   }
@@ -66,15 +66,14 @@ class BodyPatcherFilterTest
     }
   }
 
-  describe("filterChanges method") {
+  describe("filterPathChanges method") {
     it("should select the correct changes based on path regex") {
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
-      request.setRequestURI("http://rackspace.com/bars")
+      val request = basicRequest("/bars", "")
 
-      val changes: List[ChangeDetails] = filter.filterChanges(request)
+      val changes: List[ChangeDetails] = filter.filterPathChanges(request)
 
-      changes.length shouldBe 2
       changes should contain allOf (allChange, barChange)
+      changes.length shouldBe 2
     }
   }
 
@@ -82,8 +81,8 @@ class BodyPatcherFilterTest
     it("should select those patches that apply to the request") {
       val patches: List[Patch] = filter.filterRequestChanges(List(allChange, fooChange, barChange))
 
-      patches.length shouldBe 2
       patches should contain allOf (allRequestPatch, fooPatch)
+      patches.length shouldBe 2
     }
   }
 
@@ -91,8 +90,8 @@ class BodyPatcherFilterTest
     it("should select those patches that apply to the response") {
       val patches: List[Patch] = filter.filterResponseChanges(List(allChange, fooChange, barChange))
 
-      patches.length shouldBe 2
       patches should contain allOf (allResponsePatch, barPatch)
+      patches.length shouldBe 2
     }
   }
 
@@ -123,8 +122,8 @@ class BodyPatcherFilterTest
     it("should select only where there is a json element") {
       val patches: List[String] = filter.filterJsonPatches(List(allRequestPatch, allResponsePatch, new Patch()))
 
-      patches.length shouldBe 2
       patches should contain allOf (allRequestPatch.getJson, allResponsePatch.getJson)
+      patches.length shouldBe 2
     }
   }
 
@@ -143,10 +142,7 @@ class BodyPatcherFilterTest
 
   describe("doWork method") {
     it("should apply the appropriate patches to the request with simple path match") {
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
-      request.setContentType("banana/json")
-      request.setRequestURI("http://rackspace.com/phone")
-      request.setContent(testBody.getBytes)
+      val request = basicRequest("/phone", "banana/json")
       val chain: MockFilterChain = new MockFilterChain()
 
       filter.doWork(request, new MockHttpServletResponse(), chain)
@@ -163,10 +159,7 @@ class BodyPatcherFilterTest
     }
 
     it("should apply the appropriate patches to the request with specific path match") {
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
-      request.setContentType("banana/json")
-      request.setRequestURI("http://rackspace.com/foo")
-      request.setContent(testBody.getBytes)
+      val request = basicRequest("/foo", "banana/json")
       val chain: MockFilterChain = new MockFilterChain()
 
       filter.doWork(request, new MockHttpServletResponse(), chain)
@@ -181,10 +174,7 @@ class BodyPatcherFilterTest
     }
 
     it("should apply nothing to the body when content type on the request is wrong") {
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
-      request.setContentType("banana/phone")
-      request.setRequestURI("http://rackspace.com/foo")
-      request.setContent(testBody.getBytes)
+      val request = basicRequest("/foo", "banana/phone")
       val chain: MockFilterChain = new MockFilterChain()
 
       filter.doWork(request, new MockHttpServletResponse(), chain)
@@ -203,10 +193,7 @@ class BodyPatcherFilterTest
     }
 
     it("should apply the appropriate patches to the response with simple path match") {
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
-      request.setContentType("banana/json")
-      request.setRequestURI("http://rackspace.com/foo")
-      request.setContent(testBody.getBytes)
+      val request = basicRequest("/foo", "banana/json")
       val response: MockHttpServletResponse = new MockHttpServletResponse()
       val chain: FilterChain = mock[FilterChain]
       when(chain.doFilter(any(classOf[HttpServletRequest]), any(classOf[HttpServletResponse]))).thenAnswer(new Answer[Unit] {
@@ -232,10 +219,7 @@ class BodyPatcherFilterTest
     }
 
     it("should apply the appropriate patches to the response with with specific path match") {
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
-      request.setContentType("banana/json")
-      request.setRequestURI("http://rackspace.com/barcelona")
-      request.setContent(testBody.getBytes)
+      val request = basicRequest("/b%61rcelona", "banana/json")
       val response: MockHttpServletResponse = new MockHttpServletResponse()
       val chain: FilterChain = mock[FilterChain]
       when(chain.doFilter(any(classOf[HttpServletRequest]), any(classOf[HttpServletResponse]))).thenAnswer(new Answer[Unit] {
@@ -259,10 +243,7 @@ class BodyPatcherFilterTest
     }
 
     it("should apply nothing to the body when content type on the response is wrong") {
-      val request: MockHttpServletRequest = new MockHttpServletRequest()
-      request.setContentType("banana/json")
-      request.setRequestURI("http://rackspace.com/barcelona")
-      request.setContent(testBody.getBytes)
+      val request = basicRequest("/barcelona", "banana/json")
       val response: MockHttpServletResponse = new MockHttpServletResponse()
       val chain: FilterChain = mock[FilterChain]
       when(chain.doFilter(any(classOf[HttpServletRequest]), any(classOf[HttpServletResponse]))).thenAnswer(new Answer[Unit] {
@@ -312,4 +293,14 @@ class BodyPatcherFilterTest
       |   }
       |}
     """.stripMargin
+
+  def basicRequest(uri: String, contentType: String): MockHttpServletRequest = {
+    val request: MockHttpServletRequest = new MockHttpServletRequest()
+    request.setContentType(contentType)
+    request.setProtocol("http")
+    request.setServerName("rackspace.com")
+    request.setRequestURI(uri)
+    request.setContent(testBody.getBytes)
+    request
+  }
 }
