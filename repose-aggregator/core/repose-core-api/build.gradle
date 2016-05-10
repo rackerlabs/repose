@@ -14,9 +14,6 @@ dependencies {
     testCompile "org.springframework:spring-test"
 }
 
-//todo: remove the local xslt
-
 license {
-    excludes(["**/httpx-headers.xsd", "**/httpx-common.xsd", "**/httpx.xsd", "**/request.xml", "**/response.xml",
-              "**/remove-1.1-elements.xsl"])
+    excludes(["**/httpx-headers.xsd", "**/httpx-common.xsd", "**/httpx.xsd", "**/request.xml", "**/response.xml"])
 }
