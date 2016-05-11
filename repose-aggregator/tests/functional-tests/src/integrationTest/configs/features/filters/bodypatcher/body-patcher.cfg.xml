@@ -33,9 +33,20 @@
         <request>
             <json>
                 [
-                { "op": "replace", "path": "/test/bar", "value": "boo" },
-                { "op": "add", "path": "/test/hello", "value": ["world"] },
-                { "op": "move", "from": "/test/foo", "path": "/test/fooo"}
+                    { "op": "replace", "path": "/test/bar", "value": "boo" },
+                    { "op": "add", "path": "/test/hello", "value": ["world"] },
+                    { "op": "move", "from": "/test/foo", "path": "/test/fooo"}
+                ]
+            </json>
+        </request>
+    </change>
+    <change path="/array/.*">
+        <request>
+            <json>
+                [
+                    { "op": "move", "from": "/array/1", "path": "/array/3" },
+                    { "op": "remove", "path": "/array/3"}
+                    { "test": "path": "/array/2", "value": "two"}
                 ]
             </json>
         </request>

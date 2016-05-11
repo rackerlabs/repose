@@ -34,6 +34,7 @@ class BodyPatcherTest extends ReposeValveTest {
 
     def static bodyJson1 = """{"bar": "test", "banana": "2"}"""
     def static bodyJson2 = """{"bar": "test", "banana": "2", "test":{"bar": "test", "foo": "2"}}"""
+    def static bodyJson3 = """{"bar": "test", "banana": "2", "array":["one", "four", "two", "three"]}"""
     def static respBodyJson1 = """{"foo": "test", "test": "8"}"""
 
     def setupSpec() {
@@ -109,6 +110,21 @@ class BodyPatcherTest extends ReposeValveTest {
         mc.handlings.size() == 1
         result["test"] == "repose"
         result["bar"] == "test"
+        mc.receivedResponse.code == "200"
+    }
+
+    def "More Working with Array" () {
+        when: "send request match replace path"
+        MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/test/", method: "POST", headers: ["content-type": "application/json"], requestBody: bodyJson3)
+        def body = new String(mc.handlings[0].request.body)
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(body)
+
+        then:
+        result.array[0] == "one"
+        result.array[1] == "two"
+        result.array[2] == "three"
+        result.array[3] == null
         mc.receivedResponse.code == "200"
     }
 }
