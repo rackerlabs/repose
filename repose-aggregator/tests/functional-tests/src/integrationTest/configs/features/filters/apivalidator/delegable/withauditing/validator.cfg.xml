@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<validators multi-role-match="false" xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
+    <delegating quality="0.5"/>
+
+    <validator default="true"
+               role="default"
+               check-well-formed="true"
+               check-elements="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02"
+                     xmlns:atom="http://www.w3.org/2005/Atom">
+            <resources base="http://localhost:${targetPort}">
+                <resource path="/audit">
+                    <method name="POST">
+                        <request>
+                            <representation mediaType="application/atom+xml" element="atom:entry"/>
+                        </request>
+                    </method>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+</validators>
+
