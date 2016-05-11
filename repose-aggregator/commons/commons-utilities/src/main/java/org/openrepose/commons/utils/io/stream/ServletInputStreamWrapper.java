@@ -38,4 +38,14 @@ public class ServletInputStreamWrapper extends ServletInputStream {
     public int read() throws IOException {
         return is.read();
     }
+
+    @Override
+    public int available() throws IOException {
+        return is.available();
+    }
+
+    @Override
+    public void close() throws IOException {
+        is.close();
+    }
 }

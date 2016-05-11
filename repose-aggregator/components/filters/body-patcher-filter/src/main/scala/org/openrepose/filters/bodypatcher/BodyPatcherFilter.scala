@@ -24,8 +24,8 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import javax.inject.{Inject, Named}
 import javax.servlet._
+import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR}
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -40,7 +40,7 @@ import play.api.libs.json.{JsValue, Json => PJson}
 
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
-import scala.util.{Success, Try, Failure}
+import scala.util.{Failure, Success, Try}
 
 /**
   * Created by adrian on 4/29/16.
@@ -65,12 +65,19 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
         val jsonPatches: List[String] = filterJsonPatches(requestPatches)
         if (jsonPatches.nonEmpty) {
           logger.debug("Applying json patches on the request")
-          val originalValue: JsValue = Try(PJson.parse(httpRequest.getInputStream))
-            .recover({
-              case jpe: JsonParseException =>
-                logger.trace("Bad Json body")
-                throw new RequestBodyUnparseableException("Couldn't parse the body as json", jpe)
-            }).get
+          val originalValue: JsValue = Try({
+            val inputStream: ServletInputStream = httpRequest.getInputStream
+            if (inputStream.available() > 0) {
+              PJson.parse(inputStream)
+            } else {
+              logger.trace("No request body found, creating empty json")
+              PJson.obj()
+            }
+          }).recover({
+            case jpe: JsonParseException =>
+              logger.trace("Bad Json body")
+              throw new RequestBodyUnparseableException("Couldn't parse the body as json", jpe)
+          }).get
           val patchedValue: JsValue = applyJsonPatches(originalValue, jsonPatches)
           new HttpServletRequestWrapper(httpRequest, new ServletInputStreamWrapper(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes)))
         } else {
@@ -103,6 +110,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
                 val contentValue = if (contentStream.available() > 0) {
                   PJson.parse(contentStream)
                 } else {
+                  logger.trace("No response body found, creating empty json")
                   PJson.obj()
                 }
                 val patchedValue: JsValue = applyJsonPatches(contentValue, jsonPatches)
