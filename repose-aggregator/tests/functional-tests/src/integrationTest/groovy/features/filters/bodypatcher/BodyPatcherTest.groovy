@@ -24,17 +24,15 @@ import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
 import spock.lang.Unroll
-
 /**
  * Created by jennyvo on 5/10/16.
  *   Body Patch Json Test
  */
 class BodyPatcherTest extends ReposeValveTest {
 
-    def static bodyJson1 = """{"bar": "test", "test": "2"}"""
-    def static bodyJson2 = """{"test":{"bar": "test", "foo": "2"}}"""
+    def static bodyJson1 = """{"bar": "test", "banana": "2"}"""
+    def static bodyJson2 = """{"bar": "test", "banana": "2", "test":{"bar": "test", "foo": "2"}}"""
     def static respBodyJson1 = """{"foo": "test", "test": "8"}"""
 
     def setupSpec() {
@@ -67,6 +65,7 @@ class BodyPatcherTest extends ReposeValveTest {
         then:
         result["bar"] == "boo"
         result["hello"][0] == "world"
+        result["banana"] == null
         mc.receivedResponse.code == "200"
 
         where:
@@ -76,7 +75,7 @@ class BodyPatcherTest extends ReposeValveTest {
     @Unroll("More OP with Request path, headers: #headers")
     def "More OP applying patches on Request"() {
         when: "send request match replace path"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: headers, requestBody: bodyJson2)
+        MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/test/", method: "POST", headers: headers, requestBody: bodyJson2)
         def body = new String(mc.handlings[0].request.body)
         def slurper = new JsonSlurper()
         def result = slurper.parseText(body)
@@ -91,7 +90,6 @@ class BodyPatcherTest extends ReposeValveTest {
         headers << [["Content-Type": "application/json"], ["Content-Type": "application/json+atom"], ["Content-Type": "json"]]
     }
 
-    @Ignore
     def "OP applying patches on Response"() {
         given:
         def Map headers = ["content-type": "test/json"]
@@ -100,7 +98,7 @@ class BodyPatcherTest extends ReposeValveTest {
 
         when: "send request match replace path"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers,
-                defaultHandler: jsonResp)
+                defaultHandler: jsonResp, requestBody: bodyJson1)
 
         def body = new String(mc.receivedResponse.body)
         def slurper = new JsonSlurper()
@@ -108,8 +106,8 @@ class BodyPatcherTest extends ReposeValveTest {
 
         then:
         mc.handlings.size() == 1
-        result["repose"] == "8"
-        result["foo"] == "test"
+        result["test"] == "repose"
+        result["bar"] == "test"
         mc.receivedResponse.code == "200"
     }
 }

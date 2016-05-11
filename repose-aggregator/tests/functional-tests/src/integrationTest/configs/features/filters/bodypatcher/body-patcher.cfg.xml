@@ -7,7 +7,7 @@
                 [
                     { "op": "replace", "path": "/bar", "value": "boo" },
                     { "op": "add", "path": "/hello", "value": ["world"] },
-                    { "op": "remove", "path": "/test"}
+                    { "op": "remove", "path": "/banana"}
                 ]
             </json>
             <!-- todo: when we add xml support revert the commit this was added in -->
