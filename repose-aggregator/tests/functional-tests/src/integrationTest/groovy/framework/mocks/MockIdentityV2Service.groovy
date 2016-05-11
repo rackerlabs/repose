@@ -1062,6 +1062,7 @@ class MockIdentityV2Service {
             "id":"\${userid}",
             "name":"\${username}",
             "roles":[{
+                    "tenantId" : "\${tenantid}",
                     "id":"123",
                     "name":"compute:admin"
                 },
@@ -1102,7 +1103,7 @@ class MockIdentityV2Service {
                     "name":"compute:admin"
                 },
                 {
-                    "tenantId" : "23456",
+                    "tenantId" : "\${tenantid}",
                     "id":"234",
                     "name":"object-store:admin"
                 },
