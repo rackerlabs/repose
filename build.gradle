@@ -117,6 +117,10 @@ subprojects {
         jaxb "com.sun.xml.bind:jaxb-impl"
         jaxb "javax.xml.bind:jaxb-api"
         jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
+
+        //todo: remove these once gradle bug with zinc compiler is fixed
+        zinc 'com.typesafe.zinc:zinc:0.3.9'
+        zinc 'org.scala-lang:scala-library:2.10.5'
     }
 
     testSets {
@@ -219,14 +223,6 @@ subprojects {
         compile.exclude group: 'commons-logging', module: 'commons-logging'
 
         testCompile.exclude group: 'xerces', module: 'xerces'
-    }
-
-    //todo: remove this once gradel fixes the bug with zinc compiler inference
-    //https://discuss.gradle.org/t/default-scala-compilation-doesnt-work-in-gradle-2-12/15328
-    tasks.withType(ScalaCompile) {
-        scalaCompileOptions.with {
-            useAnt = true
-        }
     }
 
     checkstyle {
