@@ -23,12 +23,12 @@ package org.openrepose.filters.ipuser
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.ipuser.config.{GroupType, IpUserConfig}
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
-class IpUserFilterTest extends FunSpec with BeforeAndAfter with Matchers {
+class IpUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
   val DefaultQuality = ";q=0.4"
 
@@ -37,7 +37,7 @@ class IpUserFilterTest extends FunSpec with BeforeAndAfter with Matchers {
   var servletResponse: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
 
-  before {
+  override def beforeEach() = {
     ipUserFilter = new IpUserFilter(null)
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse

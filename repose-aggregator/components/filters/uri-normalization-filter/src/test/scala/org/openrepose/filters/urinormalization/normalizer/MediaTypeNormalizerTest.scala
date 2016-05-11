@@ -24,11 +24,11 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.urinormalization.config.MediaType
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
 @RunWith(classOf[JUnitRunner])
-class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers {
+class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
   val configuredMediaTypes = Seq(
     new MediaType().withName("application/xml").withVariantExtension("xml").withPreferred(true)
@@ -36,7 +36,7 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfter with Matchers 
 
   var mediaTypeNormalizer: MediaTypeNormalizer = _
 
-  before {
+  override def beforeEach() = {
     mediaTypeNormalizer = new MediaTypeNormalizer(configuredMediaTypes)
   }
 

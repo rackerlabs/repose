@@ -25,7 +25,7 @@ import javax.servlet.ServletInputStream
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConverters._
@@ -33,7 +33,7 @@ import scala.collection.mutable
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Matchers {
+class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with Matchers {
   val queryParamMap: Map[String, Array[String]] = Map(
     "foo" -> Array("bar", "baz"))
   val headerMap: Map[String, List[String]] = Map(
@@ -46,7 +46,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfter with Mat
     "awesomeTime" -> List("Fri, 29 May 2015 12:12:12 CST"))
   var wrappedRequest: HttpServletRequestWrapper = _
 
-  before {
+  override def beforeEach() = {
     val mockRequest = new MockHttpServletRequest
     mockRequest.setRequestURI("/foo/bar")
     queryParamMap foreach { case (parameterKey, parameterValues) =>

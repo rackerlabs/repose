@@ -20,27 +20,27 @@
 
 package org.openrepose.filters.rackspaceauthuser
 
-import javax.servlet.http.HttpServletResponse
 import javax.servlet.FilterChain
+import javax.servlet.http.HttpServletResponse
 
 import org.junit.runner.RunWith
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
 @RunWith(classOf[JUnitRunner])
-class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   var filter: RackspaceAuthUserFilter = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: HttpServletResponse = _
   var filterChain: FilterChain = _
 
-  before {
+  override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = mock[HttpServletResponse]
     filterChain = mock[FilterChain]

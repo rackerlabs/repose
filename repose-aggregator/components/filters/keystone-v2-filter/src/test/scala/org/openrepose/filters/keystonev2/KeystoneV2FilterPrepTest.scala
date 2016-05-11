@@ -28,21 +28,21 @@ import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
-import org.mockito.{ArgumentCaptor, Matchers => MockitoMatcher, Mockito}
+import org.mockito.{ArgumentCaptor, Mockito, Matchers => MockitoMatcher}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.core.systemmodel.{TracingHeaderConfig, SystemModel}
+import org.openrepose.core.systemmodel.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   private val mockDatastoreService = mock[DatastoreService]
   private val mockDatastore = mock[Datastore]
@@ -52,7 +52,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
   Mockito.when(mockSystemModel.getTracingHeader).thenReturn(mockTracingHeader)
   Mockito.when(mockTracingHeader.isEnabled).thenReturn(true, Nil: _*)
 
-  before {
+  override def beforeEach() = {
     Mockito.reset(mockDatastore)
   }
 

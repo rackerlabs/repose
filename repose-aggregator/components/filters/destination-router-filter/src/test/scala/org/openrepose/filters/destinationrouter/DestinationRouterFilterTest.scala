@@ -30,15 +30,15 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.filters.routing.servlet.config.{DestinationRouterConfiguration, Target}
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest}
 
-class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAfter with MockitoSugar {
+class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAfterEach with MockitoSugar {
 
   val configurationService = mock[ConfigurationService]
   val metricsService = mock[MetricsService]
 
-  before {
+  override def beforeEach() = {
     reset(configurationService)
     reset(metricsService)
   }

@@ -29,15 +29,15 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, HttpServletRequestWrapper}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.filters.uristripper.config.UriStripperConfig
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
-import org.springframework.mock.web.{MockHttpServletResponse, MockHttpServletRequest}
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
-class UriStripperFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   import UriStripperFilterTest._
 
@@ -46,7 +46,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfter with Matchers wi
   var response: MockHttpServletResponse = _
   var filterChain: FilterChain = _
 
-  before {
+  override def beforeEach() = {
     request = new MockHttpServletRequest
     response = new MockHttpServletResponse
     filterChain = mock[FilterChain]

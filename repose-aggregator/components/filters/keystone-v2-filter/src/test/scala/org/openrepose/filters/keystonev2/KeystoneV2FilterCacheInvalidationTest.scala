@@ -37,7 +37,7 @@ import org.openrepose.filters.keystonev2.config.AtomFeedType
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterCacheInvalidationTest extends FunSpec
@@ -45,7 +45,7 @@ with MockedAkkaServiceClient
 with IdentityResponses
 with Matchers
 with MockitoSugar
-with BeforeAndAfter {
+with BeforeAndAfterEach {
 
   private val mockConfigurationService = mock[ConfigurationService]
   private val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
@@ -54,7 +54,7 @@ with BeforeAndAfter {
   private val mockDatastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
 
-  before {
+  override def beforeEach() = {
     reset(mockDatastore)
     reset(mockConfigurationService)
     mockAkkaServiceClient.reset()

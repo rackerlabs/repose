@@ -26,19 +26,19 @@ import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper
 import org.openrepose.core.systemmodel.Filter
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   import org.mockito.Mockito.when
 
   var httpServletResponseWrapper: HttpServletResponseWrapper = _
   val dummyInputStream = new ByteArrayInputStream(" ".getBytes)
 
-  before {
+  override def beforeEach() = {
     httpServletResponseWrapper = mock[HttpServletResponseWrapper]
 
     // the code under test makes some static method calls, so we gotta do this mess

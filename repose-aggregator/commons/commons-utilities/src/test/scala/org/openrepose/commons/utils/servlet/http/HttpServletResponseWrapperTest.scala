@@ -32,16 +32,16 @@ import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   var originalResponse: MockHttpServletResponse = _
 
-  before {
+  override def beforeEach() = {
     originalResponse = new MockHttpServletResponse()
   }
 

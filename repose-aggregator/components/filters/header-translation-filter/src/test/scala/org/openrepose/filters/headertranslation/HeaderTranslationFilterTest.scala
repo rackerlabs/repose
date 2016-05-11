@@ -30,19 +30,19 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.headertranslation.config.{Header, HeaderTranslationType}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   val mockFilterChain = mock[FilterChain]
 
   var filter: HeaderTranslationFilter = _
 
-  before {
+  override def beforeEach() = {
     reset(mockFilterChain)
 
     val configurationService = mock[ConfigurationService]

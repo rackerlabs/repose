@@ -40,7 +40,7 @@ import org.springframework.http.HttpHeaders
 import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
-class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers with PrivateMethodTester with MockitoSugar {
+class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach with Matchers with PrivateMethodTester with MockitoSugar {
 
   private final val SC_TOO_MANY_REQUESTS = 429
 
@@ -48,7 +48,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
   var identityConfig: OpenstackIdentityV3Config = _
   var identityAPI: OpenStackIdentityV3API = _
 
-  before {
+  override def beforeEach() = {
     identityConfig = new OpenstackIdentityV3Config()
     identityConfig.setOpenstackIdentityService(new OpenstackIdentityService())
     identityConfig.getOpenstackIdentityService.setUsername("user")

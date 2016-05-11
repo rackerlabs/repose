@@ -27,15 +27,15 @@ import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, LifecycleEvents}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSuiteLike}
+import org.scalatest.{BeforeAndAfterEach, FunSuiteLike}
 
 @RunWith(classOf[JUnitRunner])
-class NotifierTest extends TestKit(ActorSystem("TestNotifier")) with FunSuiteLike with MockitoSugar with BeforeAndAfter {
+class NotifierTest extends TestKit(ActorSystem("TestNotifier")) with FunSuiteLike with MockitoSugar with BeforeAndAfterEach {
 
   val mockAtomFeedListener = mock[AtomFeedListener]
   val actorRef = TestActorRef(new Notifier(mockAtomFeedListener))
 
-  before {
+  override def beforeEach() = {
     reset(mockAtomFeedListener)
   }
 

@@ -29,13 +29,13 @@ import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.uriuser.config.{IdentificationMapping, IdentificationMappingList, UriUserConfig}
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
 @RunWith(classOf[JUnitRunner])
-class UriUserFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class UriUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   import UriUserFilterTest._
 
@@ -44,7 +44,7 @@ class UriUserFilterTest extends FunSpec with BeforeAndAfter with Matchers with M
   var response: ServletResponse = _
   var filterChain: FilterChain = _
 
-  before {
+  override def beforeEach() = {
     request = new MockHttpServletRequest
     response = mock[ServletResponse]
     filterChain = mock[FilterChain]

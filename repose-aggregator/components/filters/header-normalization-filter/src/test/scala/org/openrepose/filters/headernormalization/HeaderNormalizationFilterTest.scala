@@ -20,7 +20,7 @@
 
 package org.openrepose.filters.headernormalization
 
-import javax.servlet.{FilterConfig, ServletResponse, FilterChain}
+import javax.servlet.{FilterChain, FilterConfig, ServletResponse}
 
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -30,14 +30,14 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
 import org.openrepose.filters.headernormalization.config._
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfter with Matchers {
+class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
   import HeaderNormalizationFilterTest._
 
@@ -49,7 +49,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfter with Mat
   var metricsService: MetricsService = _
   var metricsMeters: MeterByCategorySum = _
 
-  before {
+  override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = mock(classOf[ServletResponse])
     filterChain = mock(classOf[FilterChain])

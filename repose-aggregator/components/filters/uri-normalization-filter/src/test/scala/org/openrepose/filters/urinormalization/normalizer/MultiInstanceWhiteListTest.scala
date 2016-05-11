@@ -22,14 +22,14 @@ package org.openrepose.filters.urinormalization.normalizer
 import org.junit.runner.RunWith
 import org.openrepose.filters.urinormalization.config.{HttpUriParameterList, UriParameter}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class MultiInstanceWhiteListTest extends FunSpec with BeforeAndAfter with Matchers {
+class MultiInstanceWhiteListTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
   var whiteList: MultiInstanceWhiteList = _
 
-  before {
+  override def beforeEach() = {
     val parameterList = new HttpUriParameterList()
     parameterList.getParameter add {
       val parameterA = new UriParameter()

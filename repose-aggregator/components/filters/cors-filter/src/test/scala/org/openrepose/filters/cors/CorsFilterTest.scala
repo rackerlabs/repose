@@ -25,18 +25,18 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.http.{HeaderConstant, CommonHttpHeader, CorsHttpHeader}
-import org.openrepose.filters.cors.config._
+import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
 import org.openrepose.filters.cors.config.Origins.Origin
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
+import org.openrepose.filters.cors.config._
 import org.scalatest.junit.JUnitRunner
-import org.springframework.mock.web.{MockHttpServletResponse, MockHttpServletRequest}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
 @RunWith(classOf[JUnitRunner])
-class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
+class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
   import CorsFilterTest._
 
@@ -47,7 +47,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfter with Matchers {
   var servletResponse: MockHttpServletResponse = _
   var filterChain: FilterChain = _
 
-  before {
+  override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = mock(classOf[FilterChain])

@@ -20,7 +20,7 @@
 
 package org.openrepose.filters.addheader
 
-import javax.servlet.{ServletResponse, FilterChain}
+import javax.servlet.{FilterChain, ServletResponse}
 
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -28,14 +28,14 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, HttpServletRequestWrapper}
-import org.openrepose.filters.addheader.config.{HttpMessage, Header, AddHeadersConfig}
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
+import org.openrepose.filters.addheader.config.{AddHeadersConfig, Header, HttpMessage}
 import org.scalatest.junit.JUnitRunner
-import org.springframework.mock.web.{MockHttpServletResponse, MockHttpServletRequest}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
-class AddHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers {
+class AddHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
   import AddHeaderFilterTest._
 
@@ -44,7 +44,7 @@ class AddHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers {
   var servletResponse: MockHttpServletResponse = _
   var filterChain: FilterChain = _
 
-  before {
+  override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = mock(classOf[FilterChain])

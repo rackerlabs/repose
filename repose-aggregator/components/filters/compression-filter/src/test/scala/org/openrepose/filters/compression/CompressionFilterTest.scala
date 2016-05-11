@@ -27,18 +27,18 @@ import javax.servlet._
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{when, verify, doThrow}
+import org.mockito.Mockito.{doThrow, verify, when}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.external.pjlcompression.CompressingFilter
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
-import org.springframework.mock.web.{MockHttpServletResponse, MockHttpServletRequest}
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class CompressionFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class CompressionFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   var filter: CompressionFilter = _
   var servletRequest: MockHttpServletRequest = _
@@ -48,7 +48,7 @@ class CompressionFilterTest extends FunSpec with BeforeAndAfter with Matchers wi
   var compressingFilter: CompressingFilter = _
   var filterConfig: FilterConfig = _
 
-  before {
+  override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = mock[FilterChain]
