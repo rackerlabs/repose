@@ -74,7 +74,10 @@ object CommandExecutor {
       // A command to ascertain the status of users with the "foyer" role for a given set of configuration files.
       cmd(VerifyTryItNowCommand.getCommandToken) action { (_, c) =>
         c.copy(command = Some(VerifyTryItNowCommand))
-      } text VerifyTryItNowCommand.getCommandDescription
+      } text VerifyTryItNowCommand.getCommandDescription children (
+        opt[String]("role") action { (x, c) =>
+          c.copy(roleName = x)
+        } text "the name of the role given to tenant-less users")
     }
 
     parser.parse(args, LintConfig()) match {

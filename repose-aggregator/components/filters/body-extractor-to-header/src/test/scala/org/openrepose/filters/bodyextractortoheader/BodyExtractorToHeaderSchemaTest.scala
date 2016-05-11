@@ -17,14 +17,19 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.lint
+package org.openrepose.filters.bodyextractortoheader
 
-import java.io.File
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSpec, Matchers}
 
-import org.openrepose.lint.commands.Command
+@RunWith(classOf[JUnitRunner])
+class BodyExtractorToHeaderSchemaTest extends FunSpec with Matchers {
+  val validator = ConfigValidator("/META-INF/schema/config/body-extractor-to-header.xsd")
 
-case class LintConfig(command: Option[Command] = None,
-                      verbose: Boolean = false,
-                      configDir: File = new File("."),
-                      reposeVersion: String = "",
-                      roleName: String = "foyer")
+  describe("schema validation") {
+    it("should successfully validate the example config") {
+      validator.validateConfigFile("/META-INF/schema/examples/body-extractor-to-header.cfg.xml")
+    }
+  }
+}

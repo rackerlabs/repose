@@ -24,7 +24,6 @@ import org.rackspace.deproxy.PortFinder
 class TestProperties {
 
     String configDirectory
-    String rawConfigDirectory
     String logFile
     String reposeLintLogFile
     String logFilePattern
@@ -32,6 +31,7 @@ class TestProperties {
     String connFramework
     String reposeContainer = "valve"
     String reposeVersion
+    String userRole
     String reposeHome
     String projectBuildDirectory
 
@@ -116,6 +116,7 @@ class TestProperties {
             reposePatchVersion = Integer.parseInt(reposeVersionMatcher[3][1] as String)
             reposeHome = properties.getProperty("repose.home")
             mocksWar = properties.getProperty("mocks.war")
+            userRole = "foyer"
 
         } catch (Exception e) {
             throw new RuntimeException("Failure in setup of test: unable to read property files", e)

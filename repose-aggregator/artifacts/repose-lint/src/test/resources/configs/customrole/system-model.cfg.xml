@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
+    <repose-cluster id="cluster_1">
         <nodes>
-            <node id="simple-node" hostname="localhost" http-port="${reposePort}"/>
+            <node id="node_1" hostname="localhost" http-port="8080"/>
         </nodes>
 
         <filters>
@@ -11,9 +11,7 @@
         </filters>
 
         <destinations>
-            <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
-                      default="true"/>
+            <endpoint id="rackspace" protocol="http" hostname="rackspace.com" root-path="/" port="80" default="true"/>
         </destinations>
-
     </repose-cluster>
 </system-model>
