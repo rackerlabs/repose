@@ -192,6 +192,19 @@ class BodyPatcherFilterTest
       (content \ "some").as[String] shouldBe "json"
     }
 
+    it("should return a 400 for malformed request body") {
+      val request = basicRequest("/foo", "banana/json")
+      request.setContent("this isn't proper json who would do such a thing".getBytes)
+      val response: MockHttpServletResponse = new MockHttpServletResponse()
+
+      filter.doWork(request, response, new MockFilterChain())
+
+      response.getStatus shouldBe 400
+      response.getErrorMessage shouldBe "Body was unparseable as specified content type"
+    }
+
+    it("should take an empty an empty request body and apply the patches") (pending)
+
     it("should apply the appropriate patches to the response with simple path match") {
       val request = basicRequest("/foo", "banana/json")
       val response: MockHttpServletResponse = new MockHttpServletResponse()
@@ -269,6 +282,8 @@ class BodyPatcherFilterTest
       }
       (content \ "some").as[String] shouldBe "json"
     }
+
+    it("should take an empty an empty response body and apply the patches") (pending)
   }
 
   val allRequestPatch: Patch = new Patch().withJson("""[{"op":"add", "path":"/all", "value":"request"}]""")
