@@ -65,7 +65,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
     logger.trace("{} initializing ...", this.getClass.getSimpleName)
     configFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
 
-    logger.info("Initializing filter using config " + configFile)
+    logger.info("Initializing filter using config {}",  configFile)
     val xsdURL: URL = getClass.getResource(SCHEMA_LOCATION)
     configurationService.subscribeTo(
       filterConfig.getFilterName,
