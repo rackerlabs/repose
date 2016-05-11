@@ -149,13 +149,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                   val userIsPreAuthed = isUserPreAuthed(tenantScopedRoles)
                   val scopedRolesToken = if (userIsPreAuthed) validToken else validToken.copy(roles = tenantScopedRoles)
                   val doTenantCheck = shouldAuthorizeTenant(userIsPreAuthed)
-                  val matchedUriTenant = getMatchingUriTenant(doTenantCheck, validToken)
-                  addTokenHeaders(validToken, matchedUriTenant)
+                  val matchedUriTenant = getMatchingUriTenant(doTenantCheck, scopedRolesToken)
+                  addTokenHeaders(scopedRolesToken, matchedUriTenant)
                   authorizeTenant(doTenantCheck, matchedUriTenant) flatMap { _ =>
-                    lazy val endpoints = getEndpoints(authToken, validToken) // Prevents making call if its not needed
+                    lazy val endpoints = getEndpoints(authToken) // Prevents making call if its not needed
                     addCatalogHeader(endpoints) flatMap { _ =>
                       authorizeEndpoints(userIsPreAuthed, endpoints) flatMap { _ =>
-                        addGroupsHeader(getGroups(authToken, validToken))
+                        addGroupsHeader(getGroups(authToken, scopedRolesToken))
                       }
                     }
                   }
@@ -357,7 +357,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
 
-      def getEndpoints(authToken: String, validToken: ValidToken): Try[EndpointsData] = {
+      def getEndpoints(authToken: String): Try[EndpointsData] = {
         logger.trace(s"Getting endpoints for: $authToken")
 
         // todo: extract the "make call with admin token and retry" logic since that pattern is used elsewhere
