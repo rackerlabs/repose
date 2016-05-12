@@ -28,7 +28,7 @@ import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 5/10/16.
- *   Body Patch Json Test
+ *   Body Patch Json Test RFC-6902
  */
 class BodyPatcherTest extends ReposeValveTest {
 
@@ -113,9 +113,9 @@ class BodyPatcherTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
     }
 
-    def "More Working with Array" () {
+    def "More OP Working with Array"() {
         when: "send request match replace path"
-        MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/test/", method: "POST", headers: ["content-type": "application/json"], requestBody: bodyJson3)
+        MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/array/", method: "POST", headers: ["content-type": "application/json"], requestBody: bodyJson3)
         def body = new String(mc.handlings[0].request.body)
         def slurper = new JsonSlurper()
         def result = slurper.parseText(body)

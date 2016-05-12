@@ -5,26 +5,26 @@
         <request>
             <json>
                 [
-                    { "op": "replace", "path": "/bar", "value": "boo" },
-                    { "op": "add", "path": "/hello", "value": ["world"] },
-                    { "op": "remove", "path": "/banana"}
+                { "op": "replace", "path": "/bar", "value": "boo" },
+                { "op": "add", "path": "/hello", "value": ["world"] },
+                { "op": "remove", "path": "/banana"}
                 ]
             </json>
             <!-- todo: when we add xml support revert the commit this was added in -->
             <!--<xml>-->
-                <!--<![CDATA[-->
-                <!--<diff>-->
-                    <!--<replace sel="example/patchTool/@url">https://tools.ietf.org/html/rfc5261</replace>-->
-                    <!--<add pos="before" sel="example/greeting"><valediction>Goodbye sorrow</valediction></add>-->
-                <!--</diff>-->
-                <!--]]>-->
+            <!--<![CDATA[-->
+            <!--<diff>-->
+            <!--<replace sel="example/patchTool/@url">https://tools.ietf.org/html/rfc5261</replace>-->
+            <!--<add pos="before" sel="example/greeting"><valediction>Goodbye sorrow</valediction></add>-->
+            <!--</diff>-->
+            <!--]]>-->
             <!--</xml>-->
         </request>
         <response>
             <json>
                 [
-                    { "op": "replace", "path": "/test", "value": "repose" },
-                    { "op": "move", "from": "/foo", "path": "/bar"}
+                { "op": "replace", "path": "/test", "value": "repose" },
+                { "op": "move", "from": "/foo", "path": "/bar"}
                 ]
             </json>
         </response>
@@ -33,9 +33,9 @@
         <request>
             <json>
                 [
-                    { "op": "replace", "path": "/test/bar", "value": "boo" },
-                    { "op": "add", "path": "/test/hello", "value": ["world"] },
-                    { "op": "move", "from": "/test/foo", "path": "/test/fooo"}
+                { "op": "replace", "path": "/test/bar", "value": "boo" },
+                { "op": "add", "path": "/test/hello", "value": ["world"] },
+                { "op": "move", "from": "/test/foo", "path": "/test/fooo"}
                 ]
             </json>
         </request>
@@ -44,9 +44,9 @@
         <request>
             <json>
                 [
-                    { "op": "move", "from": "/array/1", "path": "/array/3" },
-                    { "op": "remove", "path": "/array/3"}
-                    { "test": "path": "/array/2", "value": "two"}
+                { "op": "move", "from": "/array/1", "path": "/array/3" },
+                { "op": "remove", "path": "/array/3"},
+                { "op": "test", "path": "/array/1", "value": "two"}
                 ]
             </json>
         </request>
