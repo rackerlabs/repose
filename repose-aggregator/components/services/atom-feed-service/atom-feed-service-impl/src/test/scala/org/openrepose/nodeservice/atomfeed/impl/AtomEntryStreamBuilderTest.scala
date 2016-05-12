@@ -19,7 +19,7 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl
 
-import java.io.{IOException, StringWriter}
+import java.io.StringWriter
 import java.net.{URL, URLConnection}
 import java.util.Date
 
@@ -36,14 +36,14 @@ import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContex
 import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with MockitoSugar {
+class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with MockitoSugar {
 
   val mockAuthRequestFactory = mock[AuthenticatedRequestFactory]
   val abdera = Abdera.getInstance()
@@ -51,7 +51,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfter with Mocki
   var mockAtomFeedService: MockService = _
   var feed: Feed = _
 
-  before {
+  override def beforeEach() = {
     reset(mockAuthRequestFactory)
     when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())

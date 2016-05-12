@@ -34,7 +34,7 @@ import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, LifecycleEvents}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSuiteLike, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSuiteLike, Matchers}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
@@ -43,7 +43,7 @@ import scala.language.postfixOps
 @RunWith(classOf[JUnitRunner])
 class NotifierManagerTest
   extends TestKit(ActorSystem("TestNotifier"))
-    with FunSuiteLike with BeforeAndAfter with MockitoSugar with Matchers with Eventually {
+    with FunSuiteLike with BeforeAndAfterEach with MockitoSugar with Matchers with Eventually {
 
   implicit val timeout = Timeout(5 seconds)
 
@@ -54,7 +54,7 @@ class NotifierManagerTest
 
   var actorRef: TestActorRef[NotifierManager] = _
 
-  before {
+  override def beforeEach() = {
     reset(mockListener)
     actorRef = TestActorRef[NotifierManager]
   }

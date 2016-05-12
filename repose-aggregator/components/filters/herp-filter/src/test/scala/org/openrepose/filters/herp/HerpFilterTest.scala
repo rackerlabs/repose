@@ -34,7 +34,7 @@ import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, Mo
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class HerpFilterTest extends FunSpec with BeforeAndAfter with Matchers {
+class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
   var herpFilter: HerpFilter = _
   var herpConfig: HerpConfig = _
@@ -44,7 +44,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfter with Matchers {
   var listAppenderPre: ListAppender = _
   var listAppenderPost: ListAppender = _
 
-  before {
+  override def beforeEach() = {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     listAppenderPre = ctx.getConfiguration.getAppender("highly-efficient-record-processor-pre-ListAppender").asInstanceOf[ListAppender].clear
     listAppenderPost = ctx.getConfiguration.getAppender("highly-efficient-record-processor-post-ListAppender").asInstanceOf[ListAppender].clear

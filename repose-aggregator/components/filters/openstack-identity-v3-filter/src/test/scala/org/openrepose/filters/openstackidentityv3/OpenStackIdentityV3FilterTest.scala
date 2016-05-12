@@ -30,10 +30,10 @@ import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaS
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   val mockConfigurationService = mock[ConfigurationService]
   val mockHttpClientService = mock[HttpClientService]
@@ -43,7 +43,7 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfter with Mat
 
   var filter: OpenStackIdentityV3Filter = _
 
-  before {
+  override def beforeEach() = {
     reset(mockAkkaServiceClientFactory)
     when(mockDatastoreService.getDefaultDatastore).thenReturn(null)
     when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)

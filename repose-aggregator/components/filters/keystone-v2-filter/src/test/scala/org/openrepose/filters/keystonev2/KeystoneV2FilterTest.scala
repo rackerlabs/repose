@@ -42,13 +42,13 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.core.systemmodel.{TracingHeaderConfig, SystemModel}
+import org.openrepose.core.systemmodel.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec}
+import org.scalatest.{BeforeAndAfterEach, FunSpec}
 
 import scala.collection.JavaConverters._
 import scala.util.Success
@@ -56,7 +56,7 @@ import scala.util.Success
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterTest extends FunSpec
 with org.scalatest.Matchers
-with BeforeAndAfter
+with BeforeAndAfterEach
 with MockitoSugar
 with IdentityResponses
 with MockedAkkaServiceClient
@@ -75,7 +75,7 @@ with HttpDelegationManager {
   when(mockTracingHeader.isEnabled).thenReturn(true, Nil: _*)
   private val mockFilterConfig = new MockFilterConfig
 
-  before {
+  override def beforeEach() = {
     reset(mockDatastore)
     reset(mockConfigurationService)
     mockAkkaServiceClient.reset()

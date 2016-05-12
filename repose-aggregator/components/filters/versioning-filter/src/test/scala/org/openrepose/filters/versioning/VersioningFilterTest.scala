@@ -35,10 +35,10 @@ import org.openrepose.core.services.reporting.metrics.{MeterByCategory, MetricsS
 import org.openrepose.core.systemmodel._
 import org.openrepose.filters.versioning.config.{MediaType, MediaTypeList, ServiceVersionMapping, ServiceVersionMappingList}
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
-class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfter with MockitoSugar {
+class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach with MockitoSugar {
 
   val systemModel = new SystemModel()
   val cluster = new ReposeCluster()
@@ -69,7 +69,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfter wit
   var systemModelListener: UpdateListener[SystemModel] = _
   var versioningListener: UpdateListener[ServiceVersionMappingList] = _
 
-  before {
+  override def beforeEach() = {
     configurationService = mock[ConfigurationService]
     healthCheckService = mock[HealthCheckService]
     healthCheckServiceProxy = mock[HealthCheckServiceProxy]

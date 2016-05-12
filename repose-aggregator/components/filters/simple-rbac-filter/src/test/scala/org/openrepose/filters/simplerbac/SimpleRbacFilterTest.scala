@@ -19,8 +19,8 @@
  */
 package org.openrepose.filters.simplerbac
 
-import java.net.URL
 import java.io.File
+import java.net.URL
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED, SC_NOT_FOUND, SC_OK}
 
 import com.mockrunner.mock.web.MockFilterConfig
@@ -28,10 +28,10 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
-import org.mockito.{Matchers, Mockito, ArgumentCaptor}
+import org.mockito.{ArgumentCaptor, Matchers, Mockito}
 import org.openrepose.commons.config.resource.{ConfigurationResource, ConfigurationResourceResolver}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.simplerbac.config.{ResourcesType, DelegatingType, SimpleRbacConfig}
+import org.openrepose.filters.simplerbac.config.{DelegatingType, ResourcesType, SimpleRbacConfig}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -40,7 +40,7 @@ import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, Mo
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThen with org.scalatest.Matchers with MockitoSugar {
+class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhenThen with org.scalatest.Matchers with MockitoSugar {
   var filter: SimpleRbacFilter = _
   var config: SimpleRbacConfig = _
   var servletRequest: MockHttpServletRequest = _
@@ -49,7 +49,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
   var mockConfigService: ConfigurationService = _
   var mockFilterConfig: MockFilterConfig = _
 
-  before {
+  override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
@@ -72,7 +72,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfter with GivenWhenThe
     config.setResources(resources)
   }
 
-  after {
+  override def afterEach() = {
     if (filter.isInitialized) filter.destroy()
   }
 

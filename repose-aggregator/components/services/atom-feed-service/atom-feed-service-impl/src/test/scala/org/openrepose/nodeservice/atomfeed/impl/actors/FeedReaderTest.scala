@@ -31,7 +31,7 @@ import org.apache.abdera.model.Feed
 import org.junit.runner.RunWith
 import org.mockito.AdditionalAnswers
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{reset, verify, when}
+import org.mockito.Mockito.{reset, when}
 import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
 import org.openrepose.nodeservice.atomfeed.impl.MockService
@@ -41,7 +41,7 @@ import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager.{BindFeed
 import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSuiteLike}
+import org.scalatest.{BeforeAndAfterEach, FunSuiteLike}
 import org.slf4j.MDC
 
 import scala.concurrent.duration._
@@ -49,7 +49,7 @@ import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class FeedReaderTest(_system: ActorSystem)
-  extends TestKit(_system) with FunSuiteLike with BeforeAndAfter with MockitoSugar {
+  extends TestKit(_system) with FunSuiteLike with BeforeAndAfterEach with MockitoSugar {
 
   val mockAuthRequestFactory = mock[AuthenticatedRequestFactory]
   val notifierProbe = TestProbe()
@@ -61,7 +61,7 @@ class FeedReaderTest(_system: ActorSystem)
 
   def this() = this(ActorSystem("FeedReaderTest"))
 
-  before {
+  override def beforeEach() = {
     reset(mockAuthRequestFactory)
     when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())

@@ -31,13 +31,13 @@ import org.mockito.Mockito._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodyextractortoheader.config.{BodyExtractorToHeaderConfig, Extractor}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers {
+class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
   val mockConfigurationService = mock(classOf[ConfigurationService])
   val mockFilterConfig = new MockFilterConfig
@@ -107,7 +107,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfter with M
   var servletResponse: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
 
-  before {
+  override def beforeEach() = {
     reset(mockConfigurationService)
     config = new BodyExtractorToHeaderConfig
     filter = new BodyExtractorToHeaderFilter(mockConfigurationService)

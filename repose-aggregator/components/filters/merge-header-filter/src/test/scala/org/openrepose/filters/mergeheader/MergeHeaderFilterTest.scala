@@ -27,13 +27,13 @@ import org.mockito.Mockito.verify
 import org.openrepose.core.services.config.ConfigurationService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class MergeHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class MergeHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   var configurationService: ConfigurationService = _
   var filter: MergeHeaderFilter = _
@@ -41,7 +41,7 @@ class MergeHeaderFilterTest extends FunSpec with BeforeAndAfter with Matchers wi
   var servletResponse: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
 
-  before {
+  override def beforeEach() = {
     configurationService = mock[ConfigurationService]
 
     servletRequest = new MockHttpServletRequest

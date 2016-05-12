@@ -44,12 +44,12 @@ import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientS
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar with LazyLogging {
+class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with LazyLogging {
   val HEADER_SLEEP = "Origin-Sleep"
   val HEADER_LOG = "Origin-Log"
   val AUTH_TOKEN_HEADER = "X-Auth-Token"
@@ -64,7 +64,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
   var app: ListAppender = _
   var uri: String = _
 
-  before {
+  override def beforeEach() = {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     val cfg = ctx.getConfiguration
     app = cfg.getAppender(LIST_APPENDER_REF).asInstanceOf[ListAppender].clear()
@@ -98,7 +98,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfter with Matcher
     request.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML)
   }
 
-  after {
+  override def afterEach() = {
     originServer.stop()
   }
 

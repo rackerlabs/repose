@@ -23,8 +23,8 @@ import java.io.ByteArrayInputStream
 import java.net.URL
 import java.util
 import java.util.concurrent.TimeUnit
-import javax.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, HttpServletResponse}
 import javax.servlet.http.HttpServletResponse.{SC_MULTIPLE_CHOICES, SC_OK}
+import javax.servlet.http.{HttpServletRequestWrapper, HttpServletResponse, HttpServletResponseWrapper}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 import com.mockrunner.mock.web.{MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
@@ -38,19 +38,19 @@ import org.mockito.{ArgumentCaptor, Matchers, Mockito}
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient, AkkaServiceClientException}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.filters.valkyrieauthorization.config.DevicePath.Regex
 import org.openrepose.filters.valkyrieauthorization.config.HttpMethod._
 import org.openrepose.filters.valkyrieauthorization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec}
+import org.scalatest.{BeforeAndAfterEach, FunSpec}
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with MockitoSugar with HttpDelegationManager {
+class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with HttpDelegationManager {
   private final val CACHE_PREFIX = "VALKYRIE-FILTER"
 
   //todo: I suspect some of these tests are repetitive now, although they test it from different perspectives so
@@ -62,7 +62,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfter with M
   val mockDatastore: Datastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
 
-  before {
+  override def beforeEach() = {
     Mockito.reset(mockDatastore)
     Mockito.reset(akkaServiceClient)
     Mockito.reset(akkaServiceClientFactory)

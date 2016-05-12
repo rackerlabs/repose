@@ -19,9 +19,9 @@
  */
 package org.openrepose.valve
 
-import java.io.{IOException, File}
-import java.nio.file.attribute.BasicFileAttributes
+import java.io.{File, IOException}
 import java.nio.file._
+import java.nio.file.attribute.BasicFileAttributes
 import javax.net.ssl.{SSLContext, SSLHandshakeException}
 
 import org.apache.http.client.methods.HttpGet
@@ -32,10 +32,10 @@ import org.junit.runner.RunWith
 import org.openrepose.core.container.config.{SslCipherConfiguration, SslConfiguration, SslProtocolConfiguration}
 import org.openrepose.core.spring.CoreSpringProvider
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll {
+class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
   val configDir: String = {
     val tempDir = Files.createTempDirectory("reposeSSLTesting")

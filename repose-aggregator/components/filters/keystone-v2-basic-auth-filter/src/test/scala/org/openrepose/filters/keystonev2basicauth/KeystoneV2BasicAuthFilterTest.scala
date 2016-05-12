@@ -43,7 +43,7 @@ import org.scalatest.mock.MockitoSugar
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar with LazyLogging {
+class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with LazyLogging {
 
   var listAppender: ListAppender = _
   var filterChain: MockFilterChain = _
@@ -55,7 +55,7 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfter with Mat
   var config: KeystoneV2BasicAuthConfig = _
   var filter: KeystoneV2BasicAuthFilter = _
 
-  before {
+  override def beforeEach() = {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
     filterChain = new MockFilterChain

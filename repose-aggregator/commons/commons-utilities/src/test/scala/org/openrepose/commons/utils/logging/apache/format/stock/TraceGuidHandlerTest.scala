@@ -25,15 +25,15 @@ import javax.servlet.http.HttpServletRequest
 
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
-class TraceGuidHandlerTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class TraceGuidHandlerTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
   import org.mockito.Mockito.when
 
   var mockRequest: HttpServletRequest = _
   var traceGuidHandler: TraceGuidHandler = _
 
-  before {
+  override def beforeEach() = {
     mockRequest = mock[HttpServletRequest]
     traceGuidHandler = new TraceGuidHandler
   }

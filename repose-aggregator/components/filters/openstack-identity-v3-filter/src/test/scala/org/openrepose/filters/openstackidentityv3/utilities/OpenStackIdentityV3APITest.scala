@@ -39,22 +39,22 @@ import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
 import org.openrepose.filters.openstackidentityv3.objects.{AuthenticateResponse, Group}
+import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 import org.springframework.http.HttpHeaders
 
 import scala.util.{Failure, Success, Try}
 
 @RunWith(classOf[JUnitRunner])
-class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matchers with PrivateMethodTester with MockitoSugar {
+class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Matchers with PrivateMethodTester with MockitoSugar {
 
   var identityV3API: OpenStackIdentityV3API = _
   var identityConfig: OpenstackIdentityV3Config = _
   var mockAkkaServiceClient: AkkaServiceClient = _
   var mockDatastore: Datastore = _
 
-  before {
+  override def beforeEach() = {
     mockAkkaServiceClient = mock[AkkaServiceClient]
     mockDatastore = mock[Datastore]
     identityConfig = new OpenstackIdentityV3Config()

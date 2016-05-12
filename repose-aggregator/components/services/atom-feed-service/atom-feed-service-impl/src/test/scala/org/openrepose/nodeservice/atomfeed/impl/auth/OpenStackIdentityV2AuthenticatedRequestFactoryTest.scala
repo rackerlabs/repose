@@ -30,16 +30,16 @@ import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2Authen
 import org.openrepose.nodeservice.atomfeed.impl.MockService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class OpenStackIdentityV2AuthenticatedRequestFactoryTest
-  extends FunSpec with BeforeAndAfter with MockitoSugar with Matchers {
+  extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers {
 
   var mockIdentityService: MockService = _
   var osiarf: OpenStackIdentityV2AuthenticatedRequestFactory = _
 
-  before {
+  override def beforeEach() = {
     mockIdentityService = new MockService()
   }
 

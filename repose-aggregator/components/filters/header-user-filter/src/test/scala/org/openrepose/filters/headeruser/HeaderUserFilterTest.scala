@@ -25,16 +25,16 @@ import javax.servlet.ServletResponse
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.filters.headeruser.config.{HttpHeaderList, HttpHeader, HeaderUserConfig}
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
+import org.openrepose.filters.headeruser.config.{HeaderUserConfig, HttpHeader, HttpHeaderList}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest}
 
-import collection.JavaConversions._
+import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class HeaderUserFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class HeaderUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   import HeaderUserFilterTest._
 
@@ -43,7 +43,7 @@ class HeaderUserFilterTest extends FunSpec with BeforeAndAfter with Matchers wit
   var servletResponse: ServletResponse = _
   var filterChain: MockFilterChain = _
 
-  before {
+  override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = mock[ServletResponse]
     filterChain = new MockFilterChain

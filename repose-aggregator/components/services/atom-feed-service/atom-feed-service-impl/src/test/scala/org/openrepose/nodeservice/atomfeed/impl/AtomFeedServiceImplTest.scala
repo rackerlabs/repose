@@ -35,19 +35,19 @@ import org.openrepose.nodeservice.atomfeed.AtomFeedListener
 import org.openrepose.nodeservice.atomfeed.impl.auth.OpenStackIdentityV2AuthenticatedRequestFactory
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
   val serviceListAppender = ctx.getConfiguration.getAppender("serviceList").asInstanceOf[ListAppender]
 
   var mockConfigService: ConfigurationService = _
 
-  before {
+  override def beforeEach() = {
     mockConfigService = mock[ConfigurationService]
     serviceListAppender.clear()
   }

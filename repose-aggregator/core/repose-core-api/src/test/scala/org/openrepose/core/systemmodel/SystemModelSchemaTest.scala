@@ -22,15 +22,15 @@ package org.openrepose.core.systemmodel
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class SystemModelSchemaTest extends FunSpec with BeforeAndAfter with Matchers {
+class SystemModelSchemaTest extends FunSpec with BeforeAndAfterEach with Matchers {
   var validator: ConfigValidator = _
 
-  before {
+  override def beforeEach() = {
     // for some reason this class requires it to be reinitialized for each test, otherwise it complains about ID reuse
     validator = ConfigValidator("/META-INF/schema/system-model/system-model.xsd")
   }

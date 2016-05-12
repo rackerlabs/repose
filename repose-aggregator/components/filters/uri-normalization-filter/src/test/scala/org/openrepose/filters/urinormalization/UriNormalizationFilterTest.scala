@@ -31,13 +31,13 @@ import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, Metri
 import org.openrepose.filters.urinormalization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class UriNormalizationFilterTest extends FunSpec with BeforeAndAfter with Matchers with MockitoSugar {
+class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   val meterByCategorySum = mock[MeterByCategorySum]
   val metricsService = mock[MetricsService]
@@ -50,7 +50,7 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfter with Matche
 
   when(metricsService.newMeterByCategorySum(any(), anyString(), anyString(), any())).thenReturn(meterByCategorySum)
 
-  before {
+  override def beforeEach() = {
     servletRequest = new MockHttpServletRequest("GET", "/a/really/nifty/uri")
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain

@@ -30,12 +30,12 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
-class ResponseMessageHandlerTest extends FunSpec with BeforeAndAfter with GivenWhenThen with Matchers with MockitoSugar {
+class ResponseMessageHandlerTest extends FunSpec with BeforeAndAfterEach with GivenWhenThen with Matchers with MockitoSugar {
   val escapeThis = "\b\n\t\f\r\\\"'/&<>"
   val mockResponse = mock[HttpServletResponse]
   var response: HttpServletResponseWrapper = _
 
-  before {
+  override def beforeEach() = {
     response = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
     response.sendError(0, escapeThis)
   }
