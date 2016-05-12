@@ -12,7 +12,6 @@
         <filters>
             <filter name="client-auth" uri-regex=".*/servers/([-|\w]+)/?.*"/>
             <!--filter name="api-validator" /-->
-            <filter name="default-router"/>
         </filters>
 
         <destinations>

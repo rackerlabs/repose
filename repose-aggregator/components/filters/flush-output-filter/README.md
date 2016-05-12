@@ -14,7 +14,6 @@ forcing all buffered response data to the output stream.
     <filters>
       <filter name="http-logging" />
       <filter name="flush-output" />
-      <filter name="default-router"/>
     </filters>
 
 This filter doesn't return any response codes or create any request headers, it simple
