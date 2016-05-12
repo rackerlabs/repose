@@ -868,8 +868,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 1)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 1)
+      assert((json \ "values").as[JsArray].value.size == 1)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 1)
     }
 
     it("should remove all values") {
@@ -896,8 +896,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.isEmpty)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 0)
+      assert((json \ "values").as[JsArray].value.isEmpty)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 0)
     }
 
     it("should remove no values") {
@@ -924,8 +924,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+      assert((json \ "values").as[JsArray].value.size == 2)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
     }
 
     it("should remove null values") {
@@ -952,8 +952,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 0)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 0)
+      assert((json \ "values").as[JsArray].value.size == 0)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 0)
     }
 
     it("should not remove null values") {
@@ -980,8 +980,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+      assert((json \ "values").as[JsArray].value.size == 2)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
     }
 
     it("should fail on null values") {
@@ -1033,8 +1033,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 0)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 0)
+      assert((json \ "values").as[JsArray].value.size == 0)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 0)
     }
 
     it("should not remove mismatched values") {
@@ -1061,8 +1061,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+      assert((json \ "values").as[JsArray].value.size == 2)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
     }
 
     it("should fail on mismatched values") {
@@ -1114,8 +1114,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+      assert((json \ "values").as[JsArray].value.size == 2)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
     }
 
     it("should remove values for account admins with Bypass Account Admin disabled") {
@@ -1143,8 +1143,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 1)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 1)
+      assert((json \ "values").as[JsArray].value.size == 1)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 1)
     }
 
     it("should remove no values for non-matching resources") {
@@ -1171,8 +1171,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val content: String = originalResponse.getOutputStreamContent
       val json: JsValue = Json.parse(content)
-      assert((json \ "values").asInstanceOf[JsArray].value.size == 2)
-      assert((json \ "metadata" \ "count").asInstanceOf[JsNumber].as[Int] == 2)
+      assert((json \ "values").as[JsArray].value.size == 2)
+      assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
     }
 
     it("should throw a 500 when the regex is un-parseable") {

@@ -4,6 +4,7 @@ apply plugin: 'nebula.ospackage'
 dependencies {
     earlib project(":repose-aggregator:components:filters:add-header-filter")
     earlib project(":repose-aggregator:components:filters:body-extractor-to-header-filter")
+    earlib project(":repose-aggregator:components:filters:body-patcher-filter")
     earlib project(":repose-aggregator:components:filters:compression-filter")
     earlib project(":repose-aggregator:components:filters:cors-filter")
     earlib project(":repose-aggregator:components:filters:content-type-stripper-filter")
