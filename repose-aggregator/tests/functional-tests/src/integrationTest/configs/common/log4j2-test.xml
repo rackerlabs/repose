@@ -21,8 +21,7 @@
         <Logger name="org.openrepose" level="debug"/>
         <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
-        <Logger name="org.apache.http.wire" level="trace"/>
-        <Logger name="intrafilter-logging" level="trace"/>
+        <Logger name="intrafilter-logging" level="info"/>
         <!--<Logger name="org.openrepose.core.services.serviceclient.akka.impl.AkkaServiceClientImpl" level="trace"/>-->
 
         <!-- I need debug info from JMX! -->
