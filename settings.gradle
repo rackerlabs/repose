@@ -1,3 +1,5 @@
+rootProject.name = "repose"
+
 include 'repose-aggregator',
         'repose-aggregator:artifacts:cli-utils',
         'repose-aggregator:artifacts:experimental-filter-bundle',
