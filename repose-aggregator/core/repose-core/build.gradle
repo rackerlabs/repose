@@ -97,8 +97,6 @@ processTestResources {
     expand(earDirectory: copyEars.outputDir, earVersion: versionProperties.get('testEarVersion'))
 }
 
-//todo: do the unpack
-
 license {
     excludes(["**/log4j2.component.properties", "**/test.properties", "**/log4j2-List2.json", "**/log4j2-List1.yaml",
               "**/log4j2-List1.json", "**/log4j2-List2.yaml"])
