@@ -2,7 +2,7 @@ dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.slf4j:slf4j-api"
 
-//todo: implement other methods so we can use this one
+///todo: swap these as part of REP-3950
 //    provided "javax.servlet:javax.servlet-api"
     provided "org.glassfish:javax.servlet"
 
