@@ -61,6 +61,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
 
     def setup() {
         fakeIdentityV2Service.resetHandlers()
+        fakeIdentityV2Service.resetDefaultParameters()
     }
 
     @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode), group HTTP code (#groupResponseCode) and response tenant: #responseTenant")
@@ -391,5 +392,24 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.getHandlings().get(0).getRequest().getHeaders().contains("x-tenant-id")
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == hybridtenant
+    }
+
+    def "Racker token fails with tenanted mode and non service admin role" () {
+        given: "keystone v2 with racker user access"
+        fakeIdentityV2Service.with {
+            client_token = "rackerSSO"
+            service_admin_role = "non-admin"
+        }
+
+        when: "pass request with request tenant"
+        def mc =
+                deproxy.makeRequest(
+                        url: reposeEndpoint + "/servers/12345",
+                        method: 'GET',
+                        headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token]
+                )
+
+        then: "should satisfy the following"
+        mc.receivedResponse.code == "401"
     }
 }

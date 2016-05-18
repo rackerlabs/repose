@@ -394,6 +394,8 @@ class MockIdentityService {
             if (xml) {
                 if (tokenId == "rackerButts") {
                     template = rackerTokenXmlTemplate
+                } else if (tokenId == "rackerSSO") {
+                    template = rackerSuccessfulValidateRespXmlTemplate
                 } else if (tokenId == "failureRacker") {
                     template = rackerTokenWithoutProperRoleXmlTemplate
                 } else if (tokenId == "dedicatedUser") {
@@ -406,6 +408,8 @@ class MockIdentityService {
             } else {
                 if (impersonate_id != "") {
                     template = impersonateSuccessfulJsonRespTemplate
+                } else if (tokenId == "rackerSSO") {
+                    template = rackerSuccessfulValidateRespJsonTemplate
                 } else if (tokenId == "dedicatedUser") {
                     template = dedicatedUserSuccessfulRespJsonTemplate
                 } else {
@@ -1154,7 +1158,59 @@ class MockIdentityService {
     </user>
 </access>
 """
-
+    def rackerSuccessfulValidateRespXmlTemplate =
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:ns2="http://www.w3.org/2005/Atom"
+    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+    xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+    xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+    xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+    <token id="\${token}"
+        expires="\${expires}"/>
+    <user id="rackerSSOUsername">
+        <roles>
+            <role id="9" name="\${serviceadmin}"
+                description="Defines a user as being a Racker"
+                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
+            <role id="100" name="dl_RackUSA" />
+            <role name="dl_RackGlobal"/>
+            <role name="dl_cloudblock"/>
+            <role name="dl_US Managers"/>
+            <role name="DL_USManagers"/>
+        </roles>
+    </user>
+</access>
+"""
+    def rackerSuccessfulValidateRespJsonTemplate =
+            """{
+  "access": {
+    "token": {
+      "expires": "\${expires}",
+      "id": "\${token}"
+    },
+    "user": {
+      "RAX-AUTH:defaultRegion": "",
+      "roles": [
+        {
+          "name": "\${serviceadmin}",
+          "description": "Defines a user as being a Racker",
+          "id": "9",
+          "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
+        },
+        {
+          "name": "test_repose",
+          "id" : "100",
+          "description" : "Defines a user a repose dev",
+          "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
+        }
+      ],
+      "id": "rackerSSOUsername"
+    }
+  }
+}
+"""
     def rackerTokenWithoutProperRoleXmlTemplate =
             """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
