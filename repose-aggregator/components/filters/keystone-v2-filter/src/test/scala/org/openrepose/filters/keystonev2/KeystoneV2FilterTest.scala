@@ -336,7 +336,7 @@ with HttpDelegationManager {
 
       //When we ask the cache for our token, it works
       // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(roles = Vector("compute:admin", "object-store:admin")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(roles = Vector(Role("compute:admin"), Role("object-store:admin"))), Nil: _*)
       // Doesn't update the User to Token cache.
       verify(mockDatastore, never()).put(any(), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
 
@@ -1176,7 +1176,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
-        .thenReturn(TestValidToken(userId = VALID_USER_ID, roles = Seq("Racker")), Nil: _*)
+        .thenReturn(TestValidToken(userId = VALID_USER_ID, roles = Seq(Role("Racker"))), Nil: _*)
 
       mockAkkaGetResponse(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")(
         "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, "")
@@ -1260,7 +1260,6 @@ with HttpDelegationManager {
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_FORBIDDEN
       lastRequest.getHeaderNames.asScala.toList should contain allOf(OpenStackServiceHeader.USER_ID.toString,
         OpenStackServiceHeader.X_EXPIRATION.toString,
-        OpenStackServiceHeader.ROLES.toString,
         OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString)
       mockAkkaServiceClient.validate()
     }
@@ -1762,7 +1761,7 @@ with HttpDelegationManager {
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("not-tenant"), roles = Seq("racker")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("not-tenant"), roles = Seq(Role("racker"))), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2163,6 +2162,242 @@ with HttpDelegationManager {
     }
   }
 
+  describe("Handling tenanted roles") {
+    it("should forward all roles if not in tenanted mode") {
+      def configuration = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service
+          |            username="username"
+          |            password="password"
+          |            uri="https://some.identity.com"
+          |            set-groups-in-header="false"
+          |            />
+          |</keystone-v2>
+        """.stripMargin)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles())
+      )
+
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+
+      filter.init(mockFilterConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/567/foo")
+      request.setRequestURI("/567/foo")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      val response = new MockHttpServletResponse()
+      val chain = new MockFilterChain()
+
+      filter.doFilter(request, response, chain)
+
+      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:234")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
+      mockAkkaServiceClient.validate()
+    }
+
+    it("should forward all roles in tenanted mode if legacy mode is enabled") {
+      def configuration = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service
+          |            username="username"
+          |            password="password"
+          |            uri="https://some.identity.com"
+          |            set-groups-in-header="false"
+          |            />
+          |    <tenant-handling>
+          |        <validate-tenant enable-legacy-roles-mode="true">
+          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |        </validate-tenant>
+          |    </tenant-handling>
+          |</keystone-v2>
+        """.stripMargin)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles())
+      )
+
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+
+      filter.init(mockFilterConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/456/foo")
+      request.setRequestURI("/456/foo")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      val response = new MockHttpServletResponse()
+      val chain = new MockFilterChain()
+
+      filter.doFilter(request, response, chain)
+
+      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:234")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
+      mockAkkaServiceClient.validate()
+    }
+
+    it("should only forward matching tenant roles if legacy mode is disabled") {
+      def configuration = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service
+          |            username="username"
+          |            password="password"
+          |            uri="https://some.identity.com"
+          |            set-groups-in-header="false"
+          |            />
+          |    <tenant-handling>
+          |        <validate-tenant enable-legacy-roles-mode="false">
+          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |        </validate-tenant>
+          |    </tenant-handling>
+          |</keystone-v2>
+        """.stripMargin)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles())
+      )
+
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+
+      filter.init(mockFilterConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/345/foo")
+      request.setRequestURI("/345/foo")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      val response = new MockHttpServletResponse()
+      val chain = new MockFilterChain()
+
+      filter.doFilter(request, response, chain)
+
+      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
+      mockAkkaServiceClient.validate()
+    }
+
+    it("should forward all roles if legacy mode is disabled, but the user is pre-authorized") {
+      def configuration = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service
+          |            username="username"
+          |            password="password"
+          |            uri="https://some.identity.com"
+          |            set-groups-in-header="false"
+          |            />
+          |    <tenant-handling>
+          |        <validate-tenant enable-legacy-roles-mode="false">
+          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |        </validate-tenant>
+          |    </tenant-handling>
+          |    <pre-authorized-roles>
+          |        <role>role:345</role>
+          |    </pre-authorized-roles>
+          |</keystone-v2>
+        """.stripMargin)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles())
+      )
+
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+
+      filter.init(mockFilterConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/345/foo")
+      request.setRequestURI("/345/foo")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      val response = new MockHttpServletResponse()
+      val chain = new MockFilterChain()
+
+      filter.doFilter(request, response, chain)
+
+      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:234")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
+      mockAkkaServiceClient.validate()
+    }
+
+    it("should only forward matching tenant roles if legacy mode is disabled, and the user is not pre-authorized") {
+      def configuration = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service
+          |            username="username"
+          |            password="password"
+          |            uri="https://some.identity.com"
+          |            set-groups-in-header="false"
+          |            />
+          |    <tenant-handling>
+          |        <validate-tenant enable-legacy-roles-mode="false">
+          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |        </validate-tenant>
+          |    </tenant-handling>
+          |    <pre-authorized-roles>
+          |        <role>role:234</role>
+          |    </pre-authorized-roles>
+          |</keystone-v2>
+        """.stripMargin)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles())
+      )
+
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+
+      filter.init(mockFilterConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      val request = new MockHttpServletRequest()
+      request.setRequestURL("http://www.sample.com/345/foo")
+      request.setRequestURI("/345/foo")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      val response = new MockHttpServletResponse()
+      val chain = new MockFilterChain()
+
+      filter.doFilter(request, response, chain)
+
+      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
+      mockAkkaServiceClient.validate()
+    }
+  }
+
   describe("Configured tracing header") {
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>
@@ -2334,7 +2569,7 @@ with HttpDelegationManager {
   object TestValidToken {
     def apply(expirationDate: String = "",
               userId: String = "",
-              roles: Seq[String] = Seq.empty[String],
+              roles: Seq[Role] = Seq.empty[Role],
               username: Option[String] = None,
               tenantName: Option[String] = None,
               defaultTenantId: Option[String] = None,

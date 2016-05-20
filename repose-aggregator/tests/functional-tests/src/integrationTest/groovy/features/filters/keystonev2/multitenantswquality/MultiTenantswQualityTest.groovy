@@ -142,8 +142,8 @@ class MultiTenantswQualityTest extends ReposeValveTest {
 
         where:
         defaultTenant | secondTenant | requestTenant | clientToken       | serviceRespCode | numberTenants
-        "123456"      | "nast-id"    | "123456"      | UUID.randomUUID() | "200"           | 3
-        "123456"      | "nast-id"    | "nast-id"     | UUID.randomUUID() | "200"           | 3
+        "123456"      | "nast-id"    | "123456"      | UUID.randomUUID() | "200"           | 4
+        "123456"      | "nast-id"    | "nast-id"     | UUID.randomUUID() | "200"           | 4
         "123456"      | "nast-id"    | "NAST-ID"     | UUID.randomUUID() | "401"           | 0
         "123456"      | "nast-id"    | "123457"      | UUID.randomUUID() | "401"           | 0
     }

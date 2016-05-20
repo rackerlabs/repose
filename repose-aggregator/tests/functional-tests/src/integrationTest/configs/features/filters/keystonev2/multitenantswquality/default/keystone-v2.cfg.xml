@@ -7,7 +7,7 @@
         </timeouts>
     </cache>
     <tenant-handling send-all-tenant-ids="true">
-        <validate-tenant>
+        <validate-tenant enable-legacy-roles-mode="true">
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
         </validate-tenant>
         <send-tenant-id-quality/>

@@ -184,6 +184,18 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="enable-legacy-roles-mode" type="xs:boolean" default="false" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If in legacy roles mode, all roles associated with a user token are forwarded.
+                        If NOT in legacy roles mode, roles which aren't tied to the tenant provided in the request
+                        will NOT be forwarded UNLESS the user has a pre-authorized role.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="RolesList">
