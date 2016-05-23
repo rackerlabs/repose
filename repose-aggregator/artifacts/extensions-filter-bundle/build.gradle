@@ -89,6 +89,7 @@ ospackage {
 buildDeb {
     requires('java8-runtime-headless')
     configurationFile '/etc/repose/validator.cfg.xml'
+    configurationFile '/etc/repose/simple-rbac.cfg.xml'
 }
 
 buildRpm {
