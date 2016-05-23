@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<url-extractor-to-header xmlns="http://docs.openrepose.org/repose/url-extractor-to-header/v1.0">
+    <!-- Grab the Device ID from the path immediately preceding 'entities'; default to an empty header -->
+    <extraction header="X-Device-Id" url-regex=".*/(hybrid:\d+)/entities/.+" default=""/>
+
+    <!-- Grab the Server ID from the resource immediately following 'servers'; don't include header if URL doesn't match -->
+    <extraction header="X-Server-Id" url-regex=".*/servers/([^/]+).*"/>
+
+    <!-- Grab the filter parameter; default to 'none' if a filter wasn't supplied -->
+    <extraction header="X-Filter-Param" url-regex=".*\?.*filter=([^&amp;]+).*" default="none"/>
+</url-extractor-to-header>

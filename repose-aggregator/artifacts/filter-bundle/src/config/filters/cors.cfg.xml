@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cross-origin-resource-sharing xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+    <allowed-origins>
+        <!-- Allow this host as an origin (Chrome and Safari treat some same-origin requests as CORS requests) -->
+        <origin regex="true">http://.*.here.rackspace.com:80</origin>
+
+        <!-- Allow any rackspace sub-domain on any port to request resources from this host -->
+        <origin regex="true">http://.*.rackspace.com:.*</origin>
+
+        <!-- Allow our partner site to request resources from this host -->
+        <origin>https://partner.somewhere-else.com:8443</origin>
+    </allowed-origins>
+
+    <!-- All resources support GET and HEAD -->
+    <allowed-methods>
+        <method>GET</method>
+        <method>HEAD</method>
+    </allowed-methods>
+
+    <!-- Resource specific configuration -->
+    <resources>
+        <!-- /v1/status doesn't support anything other than GET and HEAD -->
+        <resource path="/v1/status.*"/>
+
+        <!-- The rest of /v1 supports POST and PUT in addition to GET and HEAD -->
+        <resource path="/v1/.*">
+            <allowed-methods>
+                <method>POST</method>
+                <method>PUT</method>
+            </allowed-methods>
+        </resource>
+
+        <!-- All other non /v1 endpoints support POST, PUT, PATCH, and DELETE -->
+        <resource path="/.*">
+            <allowed-methods>
+                <method>POST</method>
+                <method>PUT</method>
+                <method>PATCH</method>
+                <method>DELETE</method>
+            </allowed-methods>
+        </resource>
+    </resources>
+</cross-origin-resource-sharing>

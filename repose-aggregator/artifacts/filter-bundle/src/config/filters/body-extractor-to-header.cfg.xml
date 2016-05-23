@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body-extractor-to-header xmlns="http://docs.openrepose.org/repose/body-extractor-to-header/v1.0">
+    <!-- Grab the Device ID from the 'entities' element; default to an empty header -->
+    <extraction header="X-Device-Id" jsonpath="$.bodyData.entities" defaultIfMiss=""/>
+
+    <!-- Grab the Server ID from the 'servers' element; don't include header if Body doesn't match, but overwrite if it does -->
+    <extraction header="X-Server-Id" jsonpath="$.bodyData.servers" overwrite="true"/>
+
+    <!-- Grab the Parameter from 'parameter' element; default to 'none' if a parameter wasn't supplied -->
+    <extraction header="X-Filter-Param" jsonpath="$.bodyData.parameter" defaultIfMiss="none"/>
+
+    <!-- Grab the Parameter from 'model' element; if it is JSON 'null' then default to 'NoValue' -->
+    <extraction header="X-Model-Id" jsonpath="$.bodyData.model" defaultIfNull="NoValue"/>
+</body-extractor-to-header>

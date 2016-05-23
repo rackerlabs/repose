@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<slf4j-http-logging xmlns="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
+    <!-- The id attribute is the named target of the log output,
+     it can then be used in log4j backend to determine which appender to go to -->
+    <!-- The format includes what will be logged.  The arguments with % are a subset of the apache mod_log_config
+         found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats -->
+    <slf4j-http-log
+            id="my-special-log"
+            format="Response Time=%T seconds\tResponse Time=%D microseconds\tResponse Code Modifiers=%200,201U\tModifier Negation=%!401a\tRemote IP=%a\tLocal IP=%A\tResponse Size(bytes)=%b\tRemote Host=%hRequest Line=&quot;%r&quot;\tRequest Method=%m\tRequest Protocol=%H\tServer Port=%p\tQuery String=%q\tTime Request Received=%t\tStatus=%s\tRemote User=%u\tURL Path Requested=%U\n"/>
+
+    <!--
+    If using a format string in an attribute is too ugly, you can use a format element as well.
+    Keep in mind, whitespace is not stripped here, so multiple lines will come out with multiple lines in the logger.
+    The CDATA element is not necessary (only if you've got xml conflicty things. Leading and trailing whitespace will be
+    stripped, but not whitespace within the message format.
+    -->
+    <slf4j-http-log id="my-other-log">
+        <format>
+            <![CDATA[
+            { "received": "%t", "duration": "%T", "method": "%m", "path": "%U", "status": "%s", "remote_ip": "%a", "x_forwarded_for": "%{x-forwarded-for}i", "x_real_ip": "%{x-real-ip}i", "remote_host": "%h", "remote_user":            "%u", "response_size": "%b", "query_string": "%q", "local_ip": "%A", "server_port": "%p", "user_agent":            "%{user-agent}i", "content_type": "%{content-type}i", "accept": "%{accept}i", "rate_limit_group":            "%{X-PP-Groups}i" }
+            ]]>
+        </format>
+    </slf4j-http-log>
+</slf4j-http-logging>

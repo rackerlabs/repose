@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-user xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+              xmlns='http://docs.openrepose.org/repose/uri-user/v1.0'
+              xsi:schemaLocation='http://docs.openrepose.org/repose/uri-user/v1.0'>
+
+    <identification-mappings>
+        <mapping id="main" identification-regex=".*/servers/(\w*)/.*"/>
+        <mapping id="backup" identification-regex=".*/servers2/(\w*)/.*"/>
+    </identification-mappings>
+
+    <group>User_Standard</group>
+    <quality>0.5</quality>
+
+</uri-user>
