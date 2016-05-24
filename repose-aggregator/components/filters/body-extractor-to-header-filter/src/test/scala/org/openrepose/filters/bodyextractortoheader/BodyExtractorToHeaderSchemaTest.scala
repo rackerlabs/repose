@@ -20,17 +20,20 @@
 package org.openrepose.filters.bodyextractortoheader
 
 import org.junit.runner.RunWith
+import org.mockito.Mockito._
 import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.core.services.config.ConfigurationService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class BodyExtractorToHeaderSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/body-extractor-to-header.xsd")
+  val filter: BodyExtractorToHeaderFilter = new BodyExtractorToHeaderFilter(mock(classOf[ConfigurationService]))
+  val validator = ConfigValidator(filter.SCHEMA_LOCATION)
 
   describe("schema validation") {
     it("should successfully validate the example config") {
-      validator.validateConfigFile("/META-INF/schema/examples/body-extractor-to-header.cfg.xml")
+      validator.validateConfigFile(s"/META-INF/schema/examples/${filter.DEFAULT_CONFIG}")
     }
   }
 }
