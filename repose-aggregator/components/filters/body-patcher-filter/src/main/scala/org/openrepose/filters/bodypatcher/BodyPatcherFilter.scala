@@ -65,19 +65,12 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
         val jsonPatches: List[String] = filterJsonPatches(requestPatches)
         if (jsonPatches.nonEmpty) {
           logger.debug("Applying json patches on the request")
-          val originalValue: JsValue = Try({
-            val inputStream: ServletInputStream = httpRequest.getInputStream
-            if (inputStream.available() > 0) {
-              PJson.parse(inputStream)
-            } else {
-              logger.trace("No request body found, creating empty json")
-              PJson.obj()
-            }
-          }).recover({
-            case jpe: JsonParseException =>
-              logger.trace("Bad Json body")
-              throw new RequestBodyUnparseableException("Couldn't parse the body as json", jpe)
-          }).get
+          val originalValue: JsValue = Try(PJson.parse(httpRequest.getInputStream))
+            .recover({
+              case jpe: JsonParseException =>
+                logger.trace("Bad Json body")
+                throw new RequestBodyUnparseableException("Couldn't parse the body as json", jpe)
+            }).get
           val patchedValue: JsValue = applyJsonPatches(originalValue, jsonPatches)
           new HttpServletRequestWrapper(httpRequest, new ServletInputStreamWrapper(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes)))
         } else {
@@ -106,13 +99,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
               if (jsonPatches.nonEmpty) {
                 logger.debug("Applying json patches on the response")
 
-                val contentStream = wrappedResponse.getOutputStreamAsInputStream
-                val contentValue = if (contentStream.available() > 0) {
-                  PJson.parse(contentStream)
-                } else {
-                  logger.trace("No response body found, creating empty json")
-                  PJson.obj()
-                }
+                val contentValue = PJson.parse(wrappedResponse.getOutputStreamAsInputStream)
                 val patchedValue: JsValue = applyJsonPatches(contentValue, jsonPatches)
                 wrappedResponse.setOutput(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes))
               }
