@@ -68,7 +68,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
           val originalValue: JsValue = Try(PJson.parse(httpRequest.getInputStream))
             .recover({
               case jpe: JsonParseException =>
-                logger.trace("Bad Json body")
+                logger.debug("Bad Json body", jpe)
                 throw new RequestBodyUnparseableException("Couldn't parse the body as json", jpe)
             }).get
           val patchedValue: JsValue = applyJsonPatches(originalValue, jsonPatches)
