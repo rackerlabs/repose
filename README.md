@@ -23,119 +23,76 @@ components. These components can be leveraged by service developers to perform
 common API processing tasks. By using Repose's components rather than creating their
 own, service developers can focus on the unique features of their services.  
 
-Repose can be used inside a service to perform API operations. It can also run on one or
-more separate servers as a proxy to one or more services. At its core, Repose is a proxy
-that allows services to use Enterprise Integration Patterns (EIP).
+Repose can be run as a standalone application (either as a Linux service or using the
+JAR directly), or it can be deployed as a WAR file in a servlet container alongside
+your origin service. Repose can be run on the same server or on a different server, and
+it can be run across multiple servers for horizontal scaling. At its core, Repose is a
+proxy that allows services to use Enterprise Integration Patterns (EIP).
 
-For more information, see our [website](http://openrepose.org/) and [wiki](http://wiki.openrepose.org).
-
-
-##Repose Components##
-
-Completed Repose components include:
-
- * Client Authentication
- * Rate Limiting
- * Versioning
- * HTTP Logging
-
-Repose components that are currently being developed include:
-
- * Service Authentication
- * Content Normalization
- * Translation
-
-Repose components that are planned for future development include:
-
- * Content Negotiation
- * Contract Scope Filter
- * Client Authorization
+For more information, check out our [Getting Started with Repose](https://repose.atlassian.net/wiki/display/REPOSE/Getting+Started+with+Repose) guide.
 
 
 ##Benefits##
 
- * **Scalable**. Repose is incredibly scalable because it is designed to be stateless, allowing state to be 
-  distributed across the web.
- * **Flexible**. Repose can be run as an executable JAR, deployed as a WAR file in any Servlet container, or 
-  deployed on a separate server. Repose's configuration allows a user to define which components to use 
-  and details for each component.
- * **Extensible**. New components can easily be added to Repose.
- * **High performance**. Repose can handle high loads with high accuracy.
- * **Improving**. Repose is under development and actively being worked on.
+* **Scalable**. Repose is incredibly scalable because it is designed to be stateless.
+* **Flexible**. Repose can be run as a [standalone Linux service (Valve)](https://repose.atlassian.net/wiki/display/REPOSE/Valve+Installation)
+  or deployed as a [WAR file](https://repose.atlassian.net/wiki/display/REPOSE/WAR+Installation) in any servlet
+  container.
+* **Extensible**. New [components](https://repose.atlassian.net/wiki/display/REPOSE/Filters+and+services)
+  are being added all of the time, and you can even build your own
+  [custom component](https://github.com/rackerlabs/repose-hello-world).
+* **High performance**. Repose can handle [high loads](https://repose.atlassian.net/wiki/display/REPOSE/Performance+best+practices) with high accuracy.
+* **Improving**. Repose continues to be under [active development](https://github.com/rackerlabs/repose/releases).
+
+
+##Repose Components##
+
+Repose includes several [filters and services](https://repose.atlassian.net/wiki/display/REPOSE/Filters+and+services)
+out of the box.  These include:
+
+* [Rate Limiting](https://repose.atlassian.net/wiki/display/REPOSE/Rate+Limiting+filter)
+* [Keystone v2 Auth](https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+Filter)
+* [OpenStack v3 Auth](https://repose.atlassian.net/wiki/display/REPOSE/OpenStack+Identity+v3+filter)
+* [API Validation](https://repose.atlassian.net/wiki/display/REPOSE/API+Validation+filter)
+* [Translation](https://repose.atlassian.net/wiki/display/REPOSE/Translation+filter)
+* [Compression](https://repose.atlassian.net/wiki/display/REPOSE/Compression+filter)
+* [CORS](https://repose.atlassian.net/wiki/display/REPOSE/CORS+Filter)
+* [Versioning](https://repose.atlassian.net/wiki/display/REPOSE/Versioning+filter)
+* [HTTP Logging](https://repose.atlassian.net/wiki/display/REPOSE/SLF4J+HTTP+Logging+filter)
+
+Repose also makes it easy to create your own custom components.  Check out
+our [example custom filter](https://github.com/rackerlabs/repose-hello-world) for more details.
 
  
 ##Installation##
-You can install/run Repose by several methods:
+You can install Repose using the following methods:
 
-- Embedded via the source code (JAR)
-- ROOT WAR
-- Proxy Server (via Resource Package Manager (RPM) or via Debian Package (DEB))
-- Proxy Server Cluster
-
-Check out our Configuration Management repositories:
-
-- [Puppet-Repose](https://github.com/rackerlabs/puppet-repose)
-- [Cookbook-Repose](https://github.com/rackerlabs/cookbook-repose)
+* RPM using yum ([Valve](https://repose.atlassian.net/wiki/display/REPOSE/Valve+Installation#ValveInstallation-RHEL%28yum%29baseddistributions) or [WAR](https://repose.atlassian.net/wiki/display/REPOSE/WAR+Installation#WARInstallation-RHEL%28yum%29baseddistributions))
+* DEB using apt-get ([Valve](https://repose.atlassian.net/wiki/display/REPOSE/Valve+Installation#ValveInstallation-Debian%28apt%29baseddistributions) or [WAR](https://repose.atlassian.net/wiki/display/REPOSE/WAR+Installation#WARInstallation-Debian%28apt%29baseddistributions))
+* [Puppet](https://github.com/rackerlabs/puppet-repose)
+* [Chef](https://github.com/rackerlabs/cookbook-repose)
 
 
-###Embedded Deployment Method###
+## Configuration##
 
-In an Embedded Repose deployment, Repose is embedded in the other service’s WAR using 
-JEE Specification.  The service host also hosts all of Repose's components in the same 
-app container. The servlet container may be Tomcat, Jetty, Glassfish, etc.
+Repose will search for configuration files in the user specified directory.
 
-This deployment option requires integration with the application code and is not as 
-flexible as the other deployment methods.  For this reason, this is not the recommended
-deployment option.
+* The configuration root directory must be user readable.
+* The configuration files should be user readable and writable.
 
+Setting the Configuration Root Directory.
 
-###ROOT WAR Deployment Method###
-
-With the Root WAR Repose deployment, the Repose Root WAR replaces the root component of the 
-servlet container. The servlet container may be Tomcat, Jetty, Glassfish, etc.
-
-
-###Proxy Server Deployment Method###
-
-In the Proxy Server deployment, Repose is in an external servlet container. This allows 
-host level routing over the network, so a non-Java service can take advantage of the 
-Repose features.
-
-
-###Proxy Server Cluster Deployment Method###
-
-Using the Power Proxy Cluster deployment, Repose may be scaled across multiple hosts. This 
-allows faster processing. Auto-balance caching between the nodes will occur on the basis of 
-resources and requests. (Rate Limiting is currently the only component that is able to take 
-advantage of this. For all other components auto-balance caching does not matter.)
-
-
-##Configuration##
-
-###Configuration Features###
-
-Repose supports the following features for configuration management:
-    Runtime updates
-    Fine grained resource locking
-
-
-###Configuration Expectations###
-
-Repose will search for configurations in a user specified directory.
-    The configuration root directory must be readable (chmod 755)
-    The configuration files should be user readable and writable (chmod 600)
-
-Setting the Configuration Root Directory
-    If using the Valve deployment, simply pass the configuration directory to the Java process using the "-c" option.
-
-    If using the WAR deployment, include the following in the $CONTAINER_HOME/conf/context.xml file:
+* If using the Valve deployment, simply pass the configuration directory to the Java process using the "-c" option.
+* If using the WAR deployment, include the following in the $CONTAINER_HOME/conf/context.xml file:
+```
     <Context docBase="ROOT.war">
       <Parameter name="powerapi-config-directory" value="/etc/repose" override="false"/>
       <Parameter name="repose-cluster-id" value="repose"/>
       <Parameter name="repose-node-id" value="repose_node1"/>
     </Context>
-
-    As an alternative, the web.xml file within the war itself can be modified to include the following:
+```
+* As an alternative, the web.xml file within the war itself can be modified to include the following:
+```
     <context-param>
         <param-name>repose-config-directory</param-name>
         <param-value>/etc/repose</param-value>
@@ -148,31 +105,10 @@ Setting the Configuration Root Directory
         <param-name>repose-node-id</param-name>
         <param-value>repose_node1</param-value>
     </context-param>
-
-###Configuration Mappings###
-
-Each Repose component specifies a unique configuration name. The component to configuration 
-name mappings are listed below.
-    _Component_      _Configuration Name_
-    System           system-model.cfg.xml
-    Rate Limiting    rate-limiting.cfg.xml
-    Versioning       versioning.cfg.xml    
-    Translation      translation.cfg.xml
-    Authentication   client-auth-n.cfg.xml
+```
 
 
-##Repose Documentation##
-
-Documentation is included with the source files and may be built with the maven command:  
-<pre>
-    export MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=256m'
-    mvn clean install -Pdocbook
-</pre>
-This will build the documentation pdfs in the generated "target/docbkx/" directory.
-
-
-
-##Notes Regarding Licensing##
+##Licensing##
 
 Original files contained with this distribution of Repose are licensed under
 the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0).
