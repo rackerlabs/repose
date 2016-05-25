@@ -69,7 +69,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
             .recover({
               case jpe: JsonParseException =>
                 logger.debug("Bad Json body", jpe)
-                throw new RequestBodyUnparseableException("Couldn't parse the body as json", jpe)
+                throw new BodyUnparseableException("Couldn't parse the body as json", jpe)
             }).get
           val patchedValue: JsValue = applyJsonPatches(originalValue, jsonPatches)
           new HttpServletRequestWrapper(httpRequest, new ServletInputStreamWrapper(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes)))
@@ -99,7 +99,12 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
               if (jsonPatches.nonEmpty) {
                 logger.debug("Applying json patches on the response")
 
-                val contentValue = PJson.parse(wrappedResponse.getOutputStreamAsInputStream)
+                val contentValue = Try(PJson.parse(wrappedResponse.getOutputStreamAsInputStream))
+                  .recover({
+                    case jpe: JsonParseException =>
+                      logger.debug("Bad Json body", jpe)
+                      throw new BodyUnparseableException("Couldn't parse the body as json", jpe)
+                  }).get
                 val patchedValue: JsValue = applyJsonPatches(contentValue, jsonPatches)
                 wrappedResponse.setOutput(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes))
               }
@@ -108,7 +113,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
           }
           wrappedResponse.commitToResponse()
         }
-      case Failure(rbue: RequestBodyUnparseableException) =>
+      case Failure(rbue: BodyUnparseableException) =>
         httpResponse.sendError(SC_BAD_REQUEST, "Body was unparseable as specified content type")
       case Failure(e) =>
         throw e
@@ -147,9 +152,9 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
       jsPatch(content)
     })
   }
-
-  case class RequestBodyUnparseableException(message: String, cause: Throwable) extends Exception(message, cause)
 }
+
+case class BodyUnparseableException(message: String, cause: Throwable) extends Exception(message, cause)
 
 sealed trait ContentType { val regex: Regex }
 case object Json extends ContentType { override val regex = ".*json.*".r }

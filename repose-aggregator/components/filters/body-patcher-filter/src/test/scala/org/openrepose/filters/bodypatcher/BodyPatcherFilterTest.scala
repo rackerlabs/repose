@@ -34,7 +34,7 @@ import org.openrepose.filters.bodypatcher.config.{BodyPatcherConfig, ChangeDetai
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
-import org.springframework.mock.web.{MockFilterChain, MockHttpServletResponse, MockHttpServletRequest}
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 import play.api.libs.json.{JsResultException, JsValue, Json => PJson}
 
 /**
@@ -279,6 +279,24 @@ class BodyPatcherFilterTest
         (content \ "bar").as[String]
       }
       (content \ "some").as[String] shouldBe "json"
+    }
+
+    it("should throw an exception when the response body is unparseable") {
+      val request = basicRequest("/foo", "banana/json")
+      val response: MockHttpServletResponse = new MockHttpServletResponse()
+      val chain: FilterChain = mock[FilterChain]
+      when(chain.doFilter(any(classOf[HttpServletRequest]), any(classOf[HttpServletResponse]))).thenAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit = {
+          val chainedResponse: HttpServletResponse = invocation.getArguments()(1).asInstanceOf[HttpServletResponse]
+          chainedResponse.setContentType("application/json")
+          chainedResponse.getWriter.print("this is not json, why would you send this and mark it as json?")
+          chainedResponse.flushBuffer()
+        }
+      } )
+
+      intercept[BodyUnparseableException] {
+        filter.doWork(request, response, chain)
+      }
     }
   }
 
