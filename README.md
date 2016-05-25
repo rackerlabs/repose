@@ -23,9 +23,11 @@ components. These components can be leveraged by service developers to perform
 common API processing tasks. By using Repose's components rather than creating their
 own, service developers can focus on the unique features of their services.  
 
-Repose can be used inside of a service to perform API operations. It can also run on one or
-more separate servers as a proxy to one or more services. At its core, Repose is a proxy
-that allows services to use Enterprise Integration Patterns (EIP).
+Repose can be run as a standalone application (either as a Linux service or using the
+JAR directly), or it can be deployed as a WAR file in a servlet container alongside
+your origin service. Repose can be run on the same server or on a different server, and
+it can be run across multiple servers for horizontal scaling. At its core, Repose is a
+proxy that allows services to use Enterprise Integration Patterns (EIP).
 
 For more information, check out our [Getting Started with Repose](https://repose.atlassian.net/wiki/display/REPOSE/Getting+Started+with+Repose) guide.
 
@@ -35,7 +37,7 @@ For more information, check out our [Getting Started with Repose](https://repose
 * **Scalable**. Repose is incredibly scalable because it is designed to be stateless.
 * **Flexible**. Repose can be run as a [standalone Linux service (Valve)](https://repose.atlassian.net/wiki/display/REPOSE/Valve+Installation)
   or deployed as a [WAR file](https://repose.atlassian.net/wiki/display/REPOSE/WAR+Installation) in any servlet
-  container.  It can run on a different server and be configured to load only the components you need.
+  container.
 * **Extensible**. New [components](https://repose.atlassian.net/wiki/display/REPOSE/Filters+and+services)
   are being added all of the time, and you can even build your own
   [custom component](https://github.com/rackerlabs/repose-hello-world).
@@ -73,12 +75,12 @@ You can install Repose using the following methods:
 
 ## Configuration##
 
-Repose will search for configurations in a user specified directory
+Repose will search for configuration files in the user specified directory.
 
-* The configuration root directory must be user readable
-* The configuration files should be user readable and writable
+* The configuration root directory must be user readable.
+* The configuration files should be user readable and writable.
 
-Setting the Configuration Root Directory
+Setting the Configuration Root Directory.
 
 * If using the Valve deployment, simply pass the configuration directory to the Java process using the "-c" option.
 * If using the WAR deployment, include the following in the $CONTAINER_HOME/conf/context.xml file:
