@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body-patcher xmlns="http://docs.openrepose.org/repose/bodypatcher/v1.0">
+    <change>
+        <request>
+            <json>
+                [
+                    {
+                        "op" : "replace",
+                        "path" : "/a",
+                        "value" : 6
+                    },{
+                        "op" : "remove",
+                        "path" : "/b"
+                    }
+                ]
+            </json>
+            <!-- todo: when we add xml support revert the commit this was added in -->
+            <!--<xml>-->
+                <!--<![CDATA[-->
+                <!--<diff>-->
+                    <!--<replace sel="example/patchTool/@url">https://tools.ietf.org/html/rfc5261</replace>-->
+                    <!--<add pos="before" sel="example/greeting"><valediction>Goodbye sorrow</valediction></add>-->
+                <!--</diff>-->
+                <!--]]>-->
+            <!--</xml>-->
+        </request>
+        <response>
+            <json>
+                [
+                    {
+                        "op" : "replace",
+                        "path" : "/c",
+                        "value" : "test2"
+                    },{
+                        "op" : "add",
+                        "path" : "/d",
+                        "value" : false
+                    }
+                ]
+            </json>
+            <!-- todo: when we add xml support revert the commit this was added in -->
+            <!--<xml>-->
+                <!--<![CDATA[-->
+                <!--<diff>-->
+                    <!--<replace sel="example/greeting/text()">Hello XML patch</replace>-->
+                <!--</diff>-->
+                <!--]]>-->
+            <!--</xml>-->
+        </response>
+    </change>
+    <change path="/foo/bar/.*">
+        <response>
+            <json>
+                [
+                    {
+                        "op" : "remove",
+                        "path" : "/b"
+                    }
+                ]
+            </json>
+        </response>
+    </change>
+</body-patcher>

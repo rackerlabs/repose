@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <highly-efficient-record-processor xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
                                    pre-filter-logger-name="org.openrepose.herp.pre.filter"
                                    post-filter-logger-name="org.openrepose.herp.post.filter"
                                    service-code="repose" region="USA" data-center="DFW">
     <template crush="true">
-        <!-- todo: methodLabel -->
+        <!-- todo: methodLabel, host.address -->
         <![CDATA[
         <event xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                xsi:schemaLocation='http://schemas.dmtf.org/cloud/audit/1.0/ user-access-cadf.xsd'

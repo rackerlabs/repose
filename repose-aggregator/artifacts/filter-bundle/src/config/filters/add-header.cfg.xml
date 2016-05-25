@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<add-headers xmlns="http://docs.openrepose.org/repose/add-header/v1.0">
+    <request>
+        <header name="foo">bar</header>
+    </request>
+    <response>
+        <header name="foo" quality="0.9" overwrite="true">bar</header>
+    </response>
+</add-headers>

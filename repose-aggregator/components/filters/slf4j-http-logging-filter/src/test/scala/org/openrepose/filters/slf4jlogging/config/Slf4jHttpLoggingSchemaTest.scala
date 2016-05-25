@@ -32,7 +32,7 @@ class Slf4jHttpLoggingSchemaTest extends FunSpec with Matchers {
 
   describe("schema validation") {
     it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/slf4j-http-logging.xml")
+      validator.validateConfigFile("/META-INF/schema/examples/slf4j-http-logging.cfg.xml")
     }
 
     it("should successfully validate the config when the log format is either an attribute or an element but not both") {

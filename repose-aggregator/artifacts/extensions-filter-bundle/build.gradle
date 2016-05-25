@@ -66,7 +66,7 @@ ospackage {
 
     //the configs
     from('src/config/filters') {
-        into '/etc/repose'
+        into '/etc/repose/examples'
         user 'repose'
         permissionGroup 'repose'
         fileMode 0640
@@ -88,7 +88,6 @@ ospackage {
 
 buildDeb {
     requires('java8-runtime-headless')
-    configurationFile '/etc/repose/validator.cfg.xml'
 }
 
 buildRpm {

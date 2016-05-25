@@ -1,0 +1,34 @@
+Original files contained with this distribution of Repose are licensed under
+the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0).
+
+You must agree to the terms of this license and abide by them before using,
+modifying, or distributing Repose or the Repose source code contained within
+this distribution.
+
+Repose has a number of dependencies that are covered by separate licenses, listed below.
+
+By using, modifying, or distributing Repose you may also be subject to the
+terms of those licenses.
+
+Below is the full list of dependencies.
+
+By contributing to this project, you agree to abide to the terms and conditions
+outlined in CONTRIBUTORS.txt.
+
+Group                                     Name                     Version         Licenses                           Source
+----------------------------------------- ------------------------ --------------- --------------------------- ----------------------------------------------------------------------
+com.fasterxml.jackson.core                jackson-core             2.4.0           Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.fasterxml.jackson.core                jackson-databind         2.4.0           Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+commons-codec                             commons-codec            1.10            Apache License Version 2.0  http://commons.apache.org/proper/commons-codec/
+commons-pool                              commons-pool             1.6             Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/
+com.typesafe.scala-logging                scala-logging-slf4j_2.11 2.1.2           Apache License Version 2.0  https://github.com/typesafehub/scala-logging
+com.yammer.metrics                        metrics-core             2.2.0           Apache License Version 2.0  http://metrics.dropwizard.io/2.2.0/maven/metrics-core/license.html
+org.apache.commons                        commons-lang3            3.3.2           Apache License Version 2.0  http://projects.apache.org/projects/commons_lang.html
+org.apache.httpcomponents                 httpclient               4.4.1           Apache License Version 2.0  http://hc.apache.org/httpcomponents-client-4.4.x/index.html
+org.codehaus.groovy                       groovy-all               2.4.3           Apache License Version 2.0  https://github.com/apache/groovy
+org.jruby                                 jruby-complete           1.7.24          EPL 1.0, GPL 2 and LGPL 2.1 https://github.com/jruby/jruby
+org.jvnet.jaxb2_commons                   jaxb2-basics-runtime     0.6.5           CDDL v1.1 and GPL v2        https://jaxb.java.net/
+org.luaj                                  luaj-jse                 3.0.1           MIT License                 http://luaj.sourceforge.net/
+org.python                                jython                   2.7.0           Jython Specific License     http://www.jython.org/license.html
+org.scala-lang                            scala-library            2.11.7          Scala Specific License      http://www.scala-lang.org/license.html
+org.slf4j                                 slf4j-api                1.7.7           MIT License                 http://slf4j.org/license.html

@@ -26,9 +26,9 @@ dependencies {
     earlib project(":repose-aggregator:components:filters:rate-limiting-filter")
     earlib project(":repose-aggregator:components:filters:slf4j-http-logging-filter")
     earlib project(":repose-aggregator:components:filters:translation-filter")
-    earlib project(":repose-aggregator:components:filters:uri-user-filter")
-    earlib project(":repose-aggregator:components:filters:uri-stripper-filter")
     earlib project(":repose-aggregator:components:filters:uri-normalization-filter")
+    earlib project(":repose-aggregator:components:filters:uri-stripper-filter")
+    earlib project(":repose-aggregator:components:filters:uri-user-filter")
     earlib project(":repose-aggregator:components:filters:url-extractor-to-header-filter")
     earlib project(":repose-aggregator:components:filters:valkyrie-authorization-filter")
     earlib project(":repose-aggregator:components:filters:versioning-filter")
@@ -94,7 +94,7 @@ ospackage {
 
     //the configs
     from('src/config/filters') {
-        into '/etc/repose'
+        into '/etc/repose/examples'
         user 'repose'
         permissionGroup 'repose'
         fileMode 0640
@@ -116,23 +116,6 @@ ospackage {
 
 buildDeb {
     requires('java8-runtime-headless')
-    configurationFile '/etc/repose/client-auth-n.cfg.xml'
-    configurationFile '/etc/repose/keystone-v2.cfg.xml'
-    configurationFile '/etc/repose/openstack-authorization.cfg.xml'
-    configurationFile '/etc/repose/uri-normalization.cfg.xml'
-    configurationFile '/etc/repose/header-normalization.cfg.xml'
-    configurationFile '/etc/repose/rate-limiting.cfg.xml'
-    configurationFile '/etc/repose/root-context-router.cfg.xml'
-    configurationFile '/etc/repose/versioning.cfg.xml'
-    configurationFile '/etc/repose/destination-router.cfg.xml'
-    configurationFile '/etc/repose/header-user.cfg.xml'
-    configurationFile '/etc/repose/ip-user.cfg.xml'
-    configurationFile '/etc/repose/uri-identity.cfg.xml'
-    configurationFile '/etc/repose/uri-stripper.cfg.xml'
-    configurationFile '/etc/repose/header-translation.cfg.xml'
-    configurationFile '/etc/repose/openstack-identity-v3.cfg.xml'
-    configurationFile '/etc/repose/add-header.cfg.xml'
-    configurationFile '/etc/repose/highly-efficient-record-processor.cfg.xml'
 }
 
 buildRpm {
