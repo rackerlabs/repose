@@ -94,7 +94,7 @@ ospackage {
 
     //the configs
     from('src/config/filters') {
-        into '/etc/repose'
+        into '/etc/repose/examples'
         user 'repose'
         permissionGroup 'repose'
         fileMode 0640
@@ -116,31 +116,6 @@ ospackage {
 
 buildDeb {
     requires('java8-runtime-headless')
-    configurationFile '/etc/repose/add-header.cfg.xml'
-    configurationFile '/etc/repose/body-extractor-to-header.cfg.xml'
-    configurationFile '/etc/repose/body-patcher.cfg.xml'
-    configurationFile '/etc/repose/compression.cfg.xml'
-    configurationFile '/etc/repose/cors.cfg.xml'
-    configurationFile '/etc/repose/destination-router.cfg.xml'
-    configurationFile '/etc/repose/header-normalization.cfg.xml'
-    configurationFile '/etc/repose/header-translation.cfg.xml'
-    configurationFile '/etc/repose/header-user.cfg.xml'
-    configurationFile '/etc/repose/highly-efficient-record-processor.cfg.xml'
-    configurationFile '/etc/repose/ip-user.cfg.xml'
-    configurationFile '/etc/repose/keystone-v2.cfg.xml'
-    configurationFile '/etc/repose/keystone-v2-basic-auth.cfg.xml'
-    configurationFile '/etc/repose/merge-header.cfg.xml'
-    configurationFile '/etc/repose/openstack-identity-v3.cfg.xml'
-    configurationFile '/etc/repose/rackspace-auth-user.cfg.xml'
-    configurationFile '/etc/repose/rate-limiting.cfg.xml'
-    configurationFile '/etc/repose/slf4j-http-logging.cfg.xml'
-    configurationFile '/etc/repose/translation.cfg.xml'
-    configurationFile '/etc/repose/uri-normalization.cfg.xml'
-    configurationFile '/etc/repose/uri-stripper.cfg.xml'
-    configurationFile '/etc/repose/uri-user.cfg.xml'
-    configurationFile '/etc/repose/url-extractor-to-header.cfg.xml'
-    configurationFile '/etc/repose/valkyrie-authorization.cfg.xml'
-    configurationFile '/etc/repose/versioning.cfg.xml'
 }
 
 buildRpm {
