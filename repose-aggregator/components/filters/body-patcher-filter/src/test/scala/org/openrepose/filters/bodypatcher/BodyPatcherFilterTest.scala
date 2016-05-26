@@ -19,9 +19,8 @@
  */
 package org.openrepose.filters.bodypatcher
 
-import java.io.ByteArrayInputStream
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpUpgradeHandler}
-import javax.servlet.{FilterChain, FilterConfig, ServletInputStream}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.{FilterChain, FilterConfig}
 
 import org.hamcrest.Matchers.{endsWith, hasProperty}
 import org.junit.runner.RunWith
@@ -30,13 +29,12 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodypatcher.config.{BodyPatcherConfig, ChangeDetails, Patch}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
-import org.springframework.mock.web.{MockFilterChain, MockHttpServletResponse, MockHttpServletRequest => SpringMockHttpServletRequest}
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 import play.api.libs.json.{JsResultException, JsValue, Json => PJson}
 
 /**
@@ -205,26 +203,6 @@ class BodyPatcherFilterTest
       response.getErrorMessage shouldBe "Body was unparseable as specified content type"
     }
 
-    it("should take an empty request body and apply the patches") {
-      val request = basicRequest("/phone", "banana/json")
-      request.setContent("".getBytes)
-      val chain: MockFilterChain = new MockFilterChain()
-
-      filter.doWork(request, new MockHttpServletResponse(), chain)
-
-      val content: JsValue = PJson.parse(chain.getRequest.getInputStream)
-      (content \ "all").as[String] shouldBe "request"
-      intercept[JsResultException] {
-        (content \ "foo").as[String]
-      }
-      intercept[JsResultException] {
-        (content \ "bar").as[String]
-      }
-      intercept[JsResultException] {
-        (content \ "some").as[String]
-      }
-    }
-
     it("should apply the appropriate patches to the response with simple path match") {
       val request = basicRequest("/foo", "banana/json")
       val response: MockHttpServletResponse = new MockHttpServletResponse()
@@ -303,7 +281,7 @@ class BodyPatcherFilterTest
       (content \ "some").as[String] shouldBe "json"
     }
 
-    it("should take an empty an empty response body and apply the patches") {
+    it("should throw an exception when the response body is unparseable") {
       val request = basicRequest("/foo", "banana/json")
       val response: MockHttpServletResponse = new MockHttpServletResponse()
       val chain: FilterChain = mock[FilterChain]
@@ -311,23 +289,13 @@ class BodyPatcherFilterTest
         override def answer(invocation: InvocationOnMock): Unit = {
           val chainedResponse: HttpServletResponse = invocation.getArguments()(1).asInstanceOf[HttpServletResponse]
           chainedResponse.setContentType("application/json")
-          chainedResponse.getWriter.print("")
+          chainedResponse.getWriter.print("this is not json, why would you send this and mark it as json?")
           chainedResponse.flushBuffer()
         }
       } )
 
-      filter.doWork(request, response, chain)
-
-      val content: JsValue = PJson.parse(response.getContentAsString)
-      (content \ "all").as[String] shouldBe "response"
-      intercept[JsResultException] {
-        (content \ "foo").as[String]
-      }
-      intercept[JsResultException] {
-        (content \ "bar").as[String]
-      }
-      intercept[JsResultException] {
-        (content \ "some").as[String]
+      intercept[BodyUnparseableException] {
+        filter.doWork(request, response, chain)
       }
     }
   }
@@ -355,7 +323,7 @@ class BodyPatcherFilterTest
       |}
     """.stripMargin
 
-  def basicRequest(uri: String, contentType: String): SpringMockHttpServletRequest = {
+  def basicRequest(uri: String, contentType: String): MockHttpServletRequest = {
     val request: MockHttpServletRequest = new MockHttpServletRequest()
     request.setContentType(contentType)
     request.setProtocol("http")
@@ -363,21 +331,5 @@ class BodyPatcherFilterTest
     request.setRequestURI(uri)
     request.setContent(testBody.getBytes)
     request
-  }
-
-  //springs mock doesn't return a proper input stream, so i have to hack in my own
-  class MockHttpServletRequest extends SpringMockHttpServletRequest {
-    private var content: Array[Byte] = _
-    override def setContent(content: Array[Byte]): Unit = {
-      this.content = content
-      super.setContent(content)
-    }
-
-    override def getInputStream: ServletInputStream = {
-      new ServletInputStreamWrapper(new ByteArrayInputStream(content))
-    }
-
-    //newer jee requires this method. but i don't use it or care about it
-    override def upgrade[T <: HttpUpgradeHandler](handlerClass: Class[T]): T = ???
   }
 }

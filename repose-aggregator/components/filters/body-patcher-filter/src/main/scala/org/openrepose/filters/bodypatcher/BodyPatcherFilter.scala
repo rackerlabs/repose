@@ -65,19 +65,12 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
         val jsonPatches: List[String] = filterJsonPatches(requestPatches)
         if (jsonPatches.nonEmpty) {
           logger.debug("Applying json patches on the request")
-          val originalValue: JsValue = Try({
-            val inputStream: ServletInputStream = httpRequest.getInputStream
-            if (inputStream.available() > 0) {
-              PJson.parse(inputStream)
-            } else {
-              logger.trace("No request body found, creating empty json")
-              PJson.obj()
-            }
-          }).recover({
-            case jpe: JsonParseException =>
-              logger.trace("Bad Json body")
-              throw new RequestBodyUnparseableException("Couldn't parse the body as json", jpe)
-          }).get
+          val originalValue: JsValue = Try(PJson.parse(httpRequest.getInputStream))
+            .recover({
+              case jpe: JsonParseException =>
+                logger.debug("Bad Json body", jpe)
+                throw new BodyUnparseableException("Couldn't parse the body as json", jpe)
+            }).get
           val patchedValue: JsValue = applyJsonPatches(originalValue, jsonPatches)
           new HttpServletRequestWrapper(httpRequest, new ServletInputStreamWrapper(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes)))
         } else {
@@ -106,13 +99,12 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
               if (jsonPatches.nonEmpty) {
                 logger.debug("Applying json patches on the response")
 
-                val contentStream = wrappedResponse.getOutputStreamAsInputStream
-                val contentValue = if (contentStream.available() > 0) {
-                  PJson.parse(contentStream)
-                } else {
-                  logger.trace("No response body found, creating empty json")
-                  PJson.obj()
-                }
+                val contentValue = Try(PJson.parse(wrappedResponse.getOutputStreamAsInputStream))
+                  .recover({
+                    case jpe: JsonParseException =>
+                      logger.debug("Bad Json body", jpe)
+                      throw new BodyUnparseableException("Couldn't parse the body as json", jpe)
+                  }).get
                 val patchedValue: JsValue = applyJsonPatches(contentValue, jsonPatches)
                 wrappedResponse.setOutput(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes))
               }
@@ -121,7 +113,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
           }
           wrappedResponse.commitToResponse()
         }
-      case Failure(rbue: RequestBodyUnparseableException) =>
+      case Failure(rbue: BodyUnparseableException) =>
         httpResponse.sendError(SC_BAD_REQUEST, "Body was unparseable as specified content type")
       case Failure(e) =>
         throw e
@@ -160,9 +152,9 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
       jsPatch(content)
     })
   }
-
-  case class RequestBodyUnparseableException(message: String, cause: Throwable) extends Exception(message, cause)
 }
+
+case class BodyUnparseableException(message: String, cause: Throwable) extends Exception(message, cause)
 
 sealed trait ContentType { val regex: Regex }
 case object Json extends ContentType { override val regex = ".*json.*".r }
