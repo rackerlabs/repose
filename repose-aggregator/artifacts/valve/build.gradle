@@ -78,7 +78,6 @@ publishing {
 
 ospackage {
     packageName = "repose-valve"
-    release = 1
     os = LINUX
     packageDescription 'Package for the Repose Valve Deployment'
     priority 'optional'
@@ -236,6 +235,8 @@ buildDeb {
 }
 
 buildRpm {
+    release = 1
+
     //the init.d
     from('../src/config/scripts/repose-valve-rpm') {
         rename('repose-valve-rpm', 'repose-valve')

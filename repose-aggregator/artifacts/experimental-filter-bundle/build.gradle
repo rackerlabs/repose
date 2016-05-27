@@ -44,7 +44,6 @@ publishing {
 
 ospackage {
     packageName = "repose-experimental-filter-bundle"
-    release = 1
     os = LINUX
     packageDescription 'Package for the Repose Experimental Filter Bundle'
     priority 'optional'
@@ -92,6 +91,8 @@ buildDeb {
 }
 
 buildRpm {
+    release = 1
+
     addParentDirs false
     requires('java', '1.8.0', GREATER | EQUAL)
 }

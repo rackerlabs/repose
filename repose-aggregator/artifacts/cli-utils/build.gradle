@@ -53,7 +53,6 @@ publishing {
 
 ospackage {
     packageName = "repose-cli-utils"
-    release = 1
     os = LINUX
     packageDescription 'CLI Utils for working with a running repose instance'
     priority 'optional'
@@ -104,5 +103,7 @@ buildDeb {
 }
 
 buildRpm {
+    release = 1
+
     requires('java', '1.8.0', GREATER | EQUAL)
 }

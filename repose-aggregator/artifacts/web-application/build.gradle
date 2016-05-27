@@ -50,7 +50,6 @@ publishing {
 
 ospackage {
     packageName = "repose-war"
-    release = 1
     os = LINUX
     packageDescription 'Package for the Repose WAR Deployment'
     priority 'optional'
@@ -162,6 +161,8 @@ buildDeb {
 }
 
 buildRpm {
+    release = 1
+
     requires('java', '1.8.0', GREATER | EQUAL)
     preInstall file('../src/config/scripts/preinst-rpm')
 }
