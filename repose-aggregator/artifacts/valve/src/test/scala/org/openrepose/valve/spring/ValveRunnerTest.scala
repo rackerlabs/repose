@@ -23,7 +23,6 @@ import org.junit.runner.RunWith
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.valve.spring.ValveRunner
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.slf4j.LoggerFactory

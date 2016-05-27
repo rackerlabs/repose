@@ -28,7 +28,6 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.valve.jmx.ValvePortMXBean
-import org.openrepose.valve.spring.ValveRunner
 import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
