@@ -1,0 +1,12 @@
+dependencies {
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile "org.slf4j:slf4j-api"
+
+///todo: swap these as part of REP-3950
+//    provided "javax.servlet:javax.servlet-api"
+    provided "org.glassfish:javax.servlet"
+
+    testCompile "junit:junit"
+    testCompile "org.mockito:mockito-all"
+    testCompile "com.mockrunner:mockrunner-servlet"
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<merge-header xmlns='http://docs.openrepose.org/repose/merge-header/v1.0'>
+    <!-- both response/request configs are optional, if neither are specified, this filter is a no-op -->
+    <response>
+        <header>merging-header-one</header>
+        <header>merging-header-two</header>
+    </response>
+    <request>
+        <header>merging-header-too</header>
+        <header>merging-header-also</header>
+    </request>
+</merge-header>

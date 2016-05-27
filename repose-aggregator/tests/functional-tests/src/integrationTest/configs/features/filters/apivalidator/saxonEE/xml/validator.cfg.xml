@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
+    <validator
+            role="group1"
+            default="false"
+            check-well-formed="true"
+            check-grammars="true"
+            check-elements="true"
+            xsd-engine="SaxonEE"
+            xpath-version="2"
+            check-plain-params="true"
+            enable-pre-process-extension="false"
+            join-xpath-checks="true"
+            >
+
+        <application xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:rax="http://docs.rackspace.com/api"
+             xmlns:tst="http://test.rackspace.com/test"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        >
+    <grammars>
+        <schema
+                elementFormDefault="qualified"
+                attributeFormDefault="unqualified"
+                xmlns="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:body="http://test.rackspace.com/body"
+                targetNamespace="http://test.rackspace.com/body">
+
+            <element name="body-root" type="body:BodyRoot"/>
+            <complexType name="BodyRoot">
+                <sequence>
+                    <element name="body-element" type="xsd:integer" minOccurs="1" maxOccurs="2" rax:message="Wrong number of Elements!!!"/>
+                </sequence>
+            </complexType>
+        </schema>
+    </grammars>
+
+    <resources base="http://localhost:${targetPort}">
+        <resource path="/path/to/test" id="path-to-test">
+            <method name="GET" id="path-to-test-GET">
+                <request>
+                    <param name="X-TEST" style="header" type="xsd:string" rax:message="Not Present" required="true"/>
+                    <representation mediaType="application/xml"/>
+                </request>
+            </method>
+        </resource>
+    </resources>
+</application>
+        </validator>
+    </validators>

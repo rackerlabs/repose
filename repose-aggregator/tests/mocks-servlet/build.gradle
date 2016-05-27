@@ -1,0 +1,13 @@
+apply plugin: 'war'
+
+dependencies {
+    compile "com.sun.jersey:jersey-servlet"
+    compile "org.slf4j:slf4j-api"
+
+    provided "javax.servlet:javax.servlet-api"
+
+    testCompile "org.codehaus.groovy:groovy-all"
+    testCompile "junit:junit"
+    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.mockito:mockito-all"
+}

@@ -1,0 +1,26 @@
+dependencies {
+    compile project(':repose-aggregator:commons:commons-utilities')
+    compile project(':repose-aggregator:core:repose-core-api')
+    compile "xerces:xerces-xsd11"
+    compile "xalan:xalan:2.7.1"
+    compile "org.slf4j:slf4j-api"
+
+    provided "javax.servlet:javax.servlet-api"
+
+    testCompile "junit:junit"
+    testCompile "org.mockito:mockito-all"
+    testCompile "org.scala-lang:scala-library"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    testCompile "org.codehaus.groovy:groovy-all"
+    testCompile "org.spockframework:spock-core"
+    testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
+    testCompile "org.apache.logging.log4j:log4j-core"
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
+}
+
+license {
+    excludes(["**/limits.xsd", "**/atom.xsd", "**/httpx-headers.xsd", "**/httpx-common.xsd", "**/httpx.xsd",
+              "**/versioning-schema1.1.xsd.txt", "**/versioning.xsd", "**/xproc-papi.xsd", "**/xml.xsd", "**/xproc.xsd",
+              "**/test.properties", "**/README.md"])
+}

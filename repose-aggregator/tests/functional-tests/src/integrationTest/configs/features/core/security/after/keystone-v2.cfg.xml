@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Adding a comment to ensure the config appears to be after -->
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <identity-service
+            username="admin_username"
+            password="password"
+            uri="http://localhost:${identityPort}"
+            set-groups-in-header="true"
+            set-catalog-in-header="false"
+            />
+    <require-service-endpoint public-url="http://localhost:${targetPort}/"/>
+    <cache>
+        <timeouts>
+            <group>600</group>
+        </timeouts>
+    </cache>
+    <white-list>
+        <uri-regex>^$</uri-regex>
+        <uri-regex>/buildinfo</uri-regex>
+        <uri-regex>/get</uri-regex>
+    </white-list>
+</keystone-v2>

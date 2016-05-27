@@ -1,0 +1,63 @@
+#!/bin/sh
+
+command -v "$JAVA_CMD" >/dev/null 2>&1
+if [ $? -gt 0 ]; then
+    echo 'Repose requires the "JAVA_CMD" environment variable be set to the absolute path of a Java executable!'
+    echo " - The current value ($JAVA_CMD) is invalid."
+    echo ' - This can be updated in the configuration file: /etc/systemd/system/repose-valve.service.d/local.conf'
+    exit 1
+fi
+
+VERSION=$("$JAVA_CMD" -version 2>&1 | grep ' version' | awk '{ print substr($3, 2, length($3)-2); }')
+JAVA_MINOR=$(echo $VERSION | tr "." " " | cut -d " " -f2)
+if [ "$JAVA_MINOR" -lt "8" ]; then
+    echo 'Repose requires a Java version of at least 8 to function.'
+    echo 'Please install a JRE 1.8 or greater.'
+    exit 2
+fi
+
+if [ ! -d "$REPOSE_CFG" ]; then
+    echo 'Repose requires the "REPOSE_CFG" environment variable be set to the absolute path of the configuration directory!'
+    echo " - The directory, $REPOSE_CFG, does NOT exist."
+    echo ' - This can be updated in the configuration file: /etc/systemd/system/repose-valve.service.d/local.conf'
+    exit 3
+fi
+
+CONTAINER_CFG=$REPOSE_CFG/container.cfg.xml
+if [ ! -f "$CONTAINER_CFG" ]; then
+    echo 'Repose requires a "container.cfg.xml" file to be present in the configuration directory!'
+    echo " - The file, $CONTAINER_CFG, does NOT exist."
+    exit 4
+fi
+
+DEPLOYMENT_DIR=$( cat $CONTAINER_CFG | sed -n "s_[ \t]*<\(.*\)deployment-directory.*>\(.*\)</\1deployment-directory>_\2_p" )
+if [ ! -d "$DEPLOYMENT_DIR" ]; then
+    echo "Repose requires the \"deployment-directory\" defined in $CONTAINER_CFG to exist!"
+    echo " - The directory, $DEPLOYMENT_DIR, does NOT exist."
+    echo " - Create the directory OR update the configuration."
+    exit 5
+fi
+
+dirs=$( ls $DEPLOYMENT_DIR )
+pids=$( ps -e | sed 's/ \([0-9]*\).*/\1/' )
+for dir in $dirs; do
+    pid_dir=$( echo $dir | sed -n "s/[^\.]*\.\([0-9]*\).*/\1/p" )
+    if [ -n "$pid_dir" ]; then
+        found=0
+        for pid in $pids; do
+            if [ "$pid_dir" = "$pid" ]; then
+                found=1
+            fi
+        done
+        if [ $found -eq 0 ]; then
+            echo "Removing unused Repose \"deployment-directory\": $DEPLOYMENT_DIR/$dir"
+            rm -rf $DEPLOYMENT_DIR/$dir
+        fi
+    fi
+done
+
+exec "$JAVA_CMD" \
+     $JAVA_OPTS \
+     -jar $REPOSE_JAR \
+     -c $REPOSE_CFG \
+     $REPOSE_OPTS

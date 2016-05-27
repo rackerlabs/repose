@@ -1,0 +1,28 @@
+dependencies {
+    xjc "org.jvnet.jaxb2_commons:jaxb2-fluent-api"
+    xjc "org.jvnet.jaxb2_commons:jaxb2-basics"
+
+    compile project(":repose-aggregator:commons:commons-configuration")
+    compile project(":repose-aggregator:core:repose-core")
+    compile project(":repose-aggregator:core:repose-core-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "org.slf4j:slf4j-api"
+
+    generatedCompile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime"
+
+    provided "javax.servlet:javax.servlet-api"
+    provided "javax.inject:javax.inject"
+
+    testCompile "junit:junit"
+    testCompile "org.mockito:mockito-all"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.springframework:spring-test"
+}
+
+jaxb {
+    xjc {
+        args = ["-Xfluent-api", "-XtoString"]
+    }
+}

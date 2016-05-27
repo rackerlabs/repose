@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
+    <!--
+        Defines an endpoint with a matching regex to bind GET requests for
+        returning live rate limiting information.
+    -->
+    <request-endpoint uri-regex="/limits" include-absolute-limits="true"/>
+
+    <!-- Protects the Origin Service from being flooded. -->
+    <global-limit-group>
+        <limit id="global" uri="*" uri-regex=".*" value="1000" unit="MINUTE"/>
+    </global-limit-group>
+
+    <!-- Limits for all other requests -->
+    <limit-group id="limited" groups="limited" default="true">
+        <limit id="get" uri="/service/*" uri-regex="/service/([\d^/]*)/.*" http-methods="GET" unit="SECOND" value="1"/>
+        <limit id="put" uri="/service/*" uri-regex="/service/([\d^/]*)/.*" http-methods="PUT" unit="MINUTE" value="5"/>
+        <limit id="post" uri="/service/*" uri-regex="/service/([\d^/]*)/.*" http-methods="POST" unit="HOUR" value="15"/>
+        <limit id="delete" uri="/service/*" uri-regex="/service/([\d^/]*)/.*" http-methods="DELETE" unit="DAY" value="2"/>
+        <limit id="all" uri="*" uri-regex="/.*" http-methods="POST PUT GET DELETE" unit="MINUTE" value="10"/>
+    </limit-group>
+
+    <!-- Limits for WhiteListed IPs -->
+    <limit-group id="unlimited" groups="unlimited" default="false"/>
+
+</rate-limiting>

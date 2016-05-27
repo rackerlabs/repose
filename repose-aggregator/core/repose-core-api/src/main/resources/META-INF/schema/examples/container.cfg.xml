@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- To configure Repose see: http://wiki.openrepose.org/display/REPOSE/Configuration -->
+<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+    <deployment-config>
+        <deployment-directory auto-clean="false">/var/repose</deployment-directory>
+        <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
+        <logging-configuration href="file:///etc/repose/log4j2.xml"/>
+        <ssl-configuration>
+            <keystore-filename>keystore.repose</keystore-filename>
+            <keystore-password>manage</keystore-password>
+            <key-password>password</key-password>
+            
+            <!-- Optional SSL configuration -->
+<!--
+            See the XSD for documentation on all the options here
+            <included-ciphers>
+                <cipher>.*TLS.*</cipher>
+            </included-ciphers>
+            <excluded-ciphers>
+                <cipher>.*SSL.*</cipher>
+            </excluded-ciphers>
+            <excluded-protocols>
+                <protocol>SSLv3</protocol>
+            </excluded-protocols>
+            <included-protocols>
+                <protocol>TLSv1.2</protocol>
+            </included-protocols>
+            <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
+-->
+        </ssl-configuration>
+    </deployment-config>
+</repose-container>

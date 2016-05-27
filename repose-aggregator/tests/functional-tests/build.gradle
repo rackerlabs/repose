@@ -1,0 +1,134 @@
+configurations {
+    integrationTestRunnable
+    integrationTestBundle
+}
+
+dependencies {
+    integrationTestCompile "junit:junit"
+    integrationTestCompile "org.codehaus.groovy:groovy-all"
+    integrationTestCompile "org.spockframework:spock-core"
+    integrationTestCompile "org.rackspace:deproxy"
+    integrationTestCompile "joda-time:joda-time"
+    integrationTestCompile project(":repose-aggregator:commons:commons-utilities")
+    integrationTestCompile project(":repose-aggregator:commons:commons-configuration")
+    integrationTestCompile project(":repose-aggregator:core:repose-core-api")
+    integrationTestCompile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
+    integrationTestCompile "javax.ws.rs:javax.ws.rs-api"
+    integrationTestCompile "org.eclipse.jetty:jetty-server"
+    integrationTestCompile "org.eclipse.jetty:jetty-servlet"
+    integrationTestCompile "org.apache.commons:commons-lang3"
+    integrationTestCompile "org.springframework:spring-web"
+    integrationTestCompile "org.slf4j:jcl-over-slf4j"
+
+    integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:artifacts:web-application", configuration: "archives")
+    integrationTestRunnable project(path: ":repose-aggregator:tests:mocks-servlet", configuration: "archives")
+    integrationTestRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-glassfish", configuration: "fatJar")
+    integrationTestRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-tomcat", configuration: "fatJar")
+
+    integrationTestBundle project(path: ":repose-aggregator:artifacts:filter-bundle", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:artifacts:extensions-filter-bundle", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:artifacts:experimental-filter-bundle", configuration: "archives")
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-one"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-two"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-three"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-four"
+    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-five"
+}
+
+task copyArtifacts() {
+    dependsOn(":repose-aggregator:artifacts:valve:shadowJar",
+              ":repose-aggregator:artifacts:repose-lint:shadowJar",
+              ":repose-aggregator:artifacts:web-application:war",
+              ":repose-aggregator:tests:mocks-servlet:war",
+              ":repose-aggregator:tests:test-containers:test-container-glassfish:shadowJar",
+              ":repose-aggregator:tests:test-containers:test-container-tomcat:shadowJar",
+              ":repose-aggregator:tests:mocks-servlet:war",
+              ":repose-aggregator:artifacts:filter-bundle:ear",
+              ":repose-aggregator:artifacts:extensions-filter-bundle:ear",
+              ":repose-aggregator:artifacts:experimental-filter-bundle:ear")
+    ext.outputDir = "$buildDir/repose_home"
+    inputs.files(configurations.integrationTestRunnable.files,
+                 configurations.integrationTestBundle.files)
+    outputs.dir outputDir
+
+    doLast {
+        //copy the runnables
+        file(outputDir).mkdirs()
+        copy {
+            from configurations.integrationTestRunnable.files
+            into outputDir
+        }
+
+        //copy the bundles
+        file("$outputDir/artifacts").mkdirs()
+        copy {
+            from configurations.integrationTestBundle.files
+            into "$outputDir/artifacts"
+        }
+    }
+}
+
+task copyConfigs() {
+    ext.outputDir = "$buildDir/configs"
+    inputs.dir "$projectDir/src/integrationTest/configs"
+    outputs.dir outputDir
+
+    doLast {
+        //copy the configs
+        file(outputDir).mkdirs()
+        copy {
+            from "$projectDir/src/integrationTest/configs"
+            into outputDir
+        }
+    }
+}
+
+integrationTest.dependsOn copyArtifacts, copyConfigs
+
+def container = "valve"
+def targetHostName = "localhost"
+def valveFileName = tasks.getByPath(":repose-aggregator:artifacts:valve:shadowJar").archiveName.split("/").last()
+def lintFileName = tasks.getByPath(":repose-aggregator:artifacts:repose-lint:shadowJar").archiveName.split("/").last()
+def warFileName = tasks.getByPath(":repose-aggregator:artifacts:web-application:war").archiveName.split("/").last()
+def glassfishFileName = tasks.getByPath(":repose-aggregator:tests:test-containers:test-container-glassfish:shadowJar").archiveName.split("/").last()
+def tomcatFileName = tasks.getByPath(":repose-aggregator:tests:test-containers:test-container-tomcat:shadowJar").archiveName.split("/").last()
+def mocksFileName = tasks.getByPath(":repose-aggregator:tests:mocks-servlet:war").archiveName.split("/").last()
+
+processIntegrationTestResources {
+    expand( reposeHome: copyArtifacts.outputDir,
+            version: version,
+            projectBuildDirectory: buildDir,
+            configTemplates: copyConfigs.outputDir,
+            reposeContainer: container,
+            valveLocation: "${copyArtifacts.outputDir}/$valveFileName",
+            lintLocation: "${copyArtifacts.outputDir}/$lintFileName",
+            warLocation: "${copyArtifacts.outputDir}/$warFileName",
+            glassfishLocation: "${copyArtifacts.outputDir}/$glassfishFileName",
+            tomcatLocation: "${copyArtifacts.outputDir}/$tomcatFileName",
+            mocksLocation: "${copyArtifacts.outputDir}/$mocksFileName",
+            targetHostname: targetHostName)
+}
+
+integrationTest {
+    useJUnit {
+        if (!project.hasProperty('runAll')) {
+            includeCategories "framework.category.Smoke"
+        } else {
+            excludeCategories "framework.category.Release", "framework.category.Bug", "framework.category.Flaky"
+            //todo: we have one test annotated with release, and i don't think it ever runs, maybe jenny explicitly invokes it post release?
+            //todo: Maybe reevaluate whether we still want these tests and categories
+        }
+    }
+
+    if (project.hasProperty('showLog')) {
+        testLogging {
+            showStandardStreams = true
+        }
+    }
+}
+
+license {
+    excludes(["**/credentials.xsd", "**/atom.xsd", "**/xml.xsd"])
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <identity-service
+            uri="https://some.identity.com"
+            connection-pool-id="keystone-v2-pool"
+            set-groups-in-header="true"
+            set-catalog-in-header="false"
+    />
+
+    <delegating quality="0.9"/>
+
+    <white-list>
+        <uri-regex>/application\.wadl$</uri-regex>
+    </white-list>
+
+    <cache>
+        <timeouts variability="10">
+            <!-- Datastore can only take integers, so we're operating in Int also, so this is just Seconds -->
+            <token>600</token>
+            <group>600</group>
+            <endpoints>600</endpoints>
+        </timeouts>
+        <!-- The ID of a feed defined in the Atom Feed service configuration. -->
+        <atom-feed id="some-feed"/>
+    </cache>
+
+    <tenant-handling send-all-tenant-ids="true">
+        <validate-tenant>
+            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
+        </validate-tenant>
+        <send-tenant-id-quality default-tenant-quality="1.0" roles-tenant-quality="0.5"/>
+    </tenant-handling>
+
+    <!-- authorization -->
+    <require-service-endpoint public-url="https://someuri" region="ORD" name="OpenStackCompute" type="compute"/>
+
+    <pre-authorized-roles>
+        <role>serviceAdmin</role>
+        <role>racker</role>
+    </pre-authorized-roles>
+
+</keystone-v2>

@@ -1,9 +1,0 @@
-Package: [[artifactName]]
-Version: [[version]]
-Section: misc
-Priority: optional
-Architecture: all
-Maintainer: Repose Development <repose-development@lists.openrepose.org>
-Description: Debian Package for the Repose Filter Bundle
-Homepage: http://openrepose.org
-Depends: java7-runtime-headless, repose-valve (=[[version]]) | repose-war (=[[version]]) | repose-deb-war (=[[version]])

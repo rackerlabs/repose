@@ -1,0 +1,18 @@
+dependencies {
+    compile project(":repose-aggregator:core:repose-core-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile project(":repose-aggregator:external:pjl-compressing-filter")
+    compile "org.springframework:spring-beans"
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+
+    provided "javax.servlet:javax.servlet-api"
+    provided "javax.inject:javax.inject"
+
+    testCompile project(":repose-aggregator:commons:commons-test")
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.mockito:mockito-all"
+    testCompile "org.springframework:spring-test"
+    testCompile "org.slf4j:jcl-over-slf4j"
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<valkyrie-authorization
+        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+        cache-timeout-millis="300000"
+        enable-masking-403s="true"
+        enable-bypass-account-admin="false"
+        connection-pool-id="valkyrie-auth-pool">
+
+    <!-- Used is you wish to use delegating authorization, see derp filter -->
+    <delegating quality="0.9"/>
+    <!-- Which valkyrie instance to hit and with which credentials -->
+    <valkyrie-server uri="http://theserver:8080" username="myUsername" password="myPassword"/>
+    <!-- Activates role translation -->
+    <translate-permissions-to-roles/>
+    <!-- Sets up response resource culling -->
+    <collection-resources device-id-mismatch-action="fail">
+        <resource>
+            <!-- The resource that you want response culling on -->
+            <path-regex http-methods="GET">
+                /devices/.*
+            </path-regex>
+            <collection>
+                <json>
+                    <!-- json path to the array that holds the collection -->
+                    <path-to-collection>$.values</path-to-collection>
+                    <path-to-device-id>
+                        <!-- json path relative to the object within the array to the field that contains the device id -->
+                        <path>$.uri</path>
+                        <!-- regex to capture the device id -->
+                        <regex>http://core.rackspace.com/accounts/\d*/devices/(\d*)</regex>
+                    </path-to-device-id>
+                    <!-- json path to the total item count -->
+                    <path-to-item-count>$.metadata.count</path-to-item-count>
+                </json>
+            </collection>
+        </resource>
+    </collection-resources>
+    <pre-authorized-roles>
+        <role>admin</role>
+        <role>openstack:admin</role>
+    </pre-authorized-roles>
+</valkyrie-authorization>

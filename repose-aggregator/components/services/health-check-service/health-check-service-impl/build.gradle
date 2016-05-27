@@ -1,0 +1,9 @@
+dependencies {
+    compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
+    compile "org.slf4j:slf4j-api"
+
+    provided "javax.inject:javax.inject"
+
+    testCompile "junit:junit"
+    testCompile "org.codehaus.groovy:groovy-all"
+}

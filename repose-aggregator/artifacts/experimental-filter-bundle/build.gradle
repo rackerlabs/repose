@@ -1,0 +1,97 @@
+apply plugin: 'ear'
+apply plugin: 'nebula.ospackage'
+
+dependencies {
+    earlib project(":repose-aggregator:components:filters:servlet-contract-filter")
+    earlib project(":repose-aggregator:components:filters:echo-filter")
+    earlib project(":repose-aggregator:components:filters:exception-filter")
+    earlib project(":repose-aggregator:components:filters:tightly-coupled-filter")
+    earlib project(":repose-aggregator:components:filters:scripting-filter")
+}
+
+ear {
+    manifest {
+        attributes(
+                "Specification-Title": "Repose Components - $project.name",
+                "Specification-Vendor": "Rackspace US, Inc.",
+                "Specification-Version": version,
+                "Implementation-Title": "Repose Components - $project.name",
+                "Implementation-Version": version,
+                "Implementation-Vendor": "Rackspace US, Inc.",
+                "Implementation-Vendor-Id": project.group,
+                "Built-By": System.getProperty('user.name'),
+                "Build-Jdk": org.gradle.internal.jvm.Jvm.current(),
+                "Created-By": "Gradle $project.gradle.gradleVersion",
+        )
+    }
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            artifact source: ear, extension: 'ear'
+            if(project.hasProperty('release')) {
+                artifact source: buildDeb, extension: 'deb'
+                artifact source: buildRpm, extension: 'rpm'
+            }
+
+            pom.withXml {
+                asNode().appendNode('packaging', 'ear')
+            }
+        }
+    }
+}
+
+ospackage {
+    packageName = "repose-experimental-filter-bundle"
+    release = 1
+    os = LINUX
+    packageDescription 'Package for the Repose Experimental Filter Bundle'
+    priority 'optional'
+    packageGroup 'Applications/Internet'
+    maintainer 'Repose Development <repose-development@lists.openrepose.org>'
+    url 'http://openrepose.org'
+
+    if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
+        signingKeyId project.getProperty('signing.keyId')
+        signingKeyPassphrase project.getProperty('signing.password')
+        signingKeyRingFile file(project.getProperty('signing.secretKeyRingFile'))
+    }
+
+    into '/usr/share/repose/filters'
+
+    //the bundle
+    from(ear.outputs.files) {
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0555
+    }
+
+    //the configs
+    from('src/config/filters') {
+        into '/etc/repose/examples'
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 0640
+        fileType CONFIG | NOREPLACE
+    }
+
+    //the license info
+    from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", 'src/config/docs/DEPENDENCIES.txt']) {
+        into '/usr/share/doc/repose-experimental-filter-bundle'
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0444
+    }
+
+    requires('repose', project.version, EQUAL)
+}
+
+buildDeb {
+    requires('java8-runtime-headless')
+}
+
+buildRpm {
+    addParentDirs false
+    requires('java', '1.8.0', GREATER | EQUAL)
+}

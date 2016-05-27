@@ -1,0 +1,33 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+configurations {
+    fatJar
+}
+
+dependencies {
+    compile project(":repose-aggregator:tests:test-containers:test-container-api")
+    compile "org.glassfish.main.extras:glassfish-embedded-all"
+    compile "org.slf4j:slf4j-api"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl"
+    compile "org.apache.logging.log4j:log4j-api"
+    compile "org.apache.logging.log4j:log4j-core"
+    compile "commons-cli:commons-cli"
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.openrepose.commons.utils.test.glassfish.ReposeGlassfishServer'
+    }
+}
+
+shadowJar {
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+artifacts {
+    fatJar shadowJar
+}
+
+build.dependsOn shadowJar

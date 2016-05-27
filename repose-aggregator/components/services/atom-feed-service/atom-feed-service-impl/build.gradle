@@ -1,0 +1,28 @@
+dependencies {
+    compile project(":repose-aggregator:core:repose-core-api")
+    compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile "org.slf4j:slf4j-api"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "org.slf4j:jcl-over-slf4j"
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.akka:akka-actor_$scalaMajDotMin"
+    compile "org.apache.abdera:abdera-core"
+    compile "org.apache.abdera:abdera-parser"
+    compile "org.springframework:spring-beans"
+    compile "com.typesafe.play:play-json_$scalaMajDotMin"
+    compile "org.apache.httpcomponents:httpclient"
+
+    provided "javax.inject:javax.inject"
+    provided "com.google.code.findbugs:jsr305" //i hate this hack
+
+    testCompile project(":repose-aggregator:commons:commons-test")
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.mockito:mockito-all"
+    testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
+    testCompile "org.apache.logging.log4j:log4j-core"
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
+    testCompile "com.typesafe.akka:akka-testkit_$scalaMajDotMin"
+    testCompile "com.typesafe.akka:akka-http-core-experimental_$scalaMajDotMin"
+}

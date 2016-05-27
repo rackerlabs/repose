@@ -1,0 +1,103 @@
+configurations {
+    testEar
+}
+
+dependencies {
+    compile project(":repose-aggregator:components:services:phone-home-service")
+    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-impl")
+    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-impl")
+    compile project(":repose-aggregator:core:repose-core-api")
+    compile project(":repose-aggregator:components:services:datastore-service:datastore-service-impl")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
+    compile project(":repose-aggregator:components:services:health-check-service:health-check-service-impl")
+    compile project(":repose-aggregator:commons:commons-configuration")
+    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-api")
+    compile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
+    compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-impl")
+    compile project(":repose-aggregator:external:jee6-schemas")
+    compile "org.apache.logging.log4j:log4j-flume-ng"
+    compile "javax.inject:javax.inject"
+    compile "com.yammer.metrics:metrics-graphite"
+    compile "com.yammer.metrics:metrics-core"
+    compile "org.springframework:spring-core"
+    compile "org.springframework:spring-context"
+    compile "org.springframework:spring-web"
+    compile "org.springframework:spring-beans"
+    compile "org.slf4j:slf4j-api"
+    compile "org.slf4j:jcl-over-slf4j"
+    compile "org.apache.logging.log4j:log4j-api"
+    compile "org.apache.logging.log4j:log4j-core"
+    compile "org.apache.logging.log4j:log4j-iostreams"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl"
+    compile "org.apache.logging.log4j:log4j-jul"
+    compile "org.scala-lang:scala-library"
+    compile "xerces:xerces-xsd11"
+    compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
+    compile "joda-time:joda-time"
+    compile "org.apache.commons:commons-lang3"
+    compile "commons-io:commons-io"
+    compile "com.fasterxml.jackson.core:jackson-core"
+    compile "com.fasterxml.jackson.core:jackson-annotations"
+    compile "com.fasterxml.jackson.core:jackson-databind"
+    compile "com.google.guava:guava"
+    compile "com.typesafe:config"
+    compile "javax.ws.rs:javax.ws.rs-api"
+
+    provided "javax.servlet:javax.servlet-api"
+
+    testCompile "junit:junit"
+    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.codehaus.groovy:groovy-all"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.mockito:mockito-all"
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
+    testCompile "org.powermock:powermock-core"
+    testCompile "org.powermock:powermock-module-junit4"
+    testCompile "org.powermock:powermock-api-mockito"
+    testCompile "org.springframework:spring-test"
+    testCompile "org.spockframework:spock-core"
+    testCompile "org.jetbrains:annotations"
+
+    testEar "org.openrepose.filters.core.test:core-test-filter-bundle"
+    testEar "org.openrepose.filters.core.test:busted-application-name-ear"
+    testEar "org.openrepose.filters.core.test:busted-web-fragment-ear"
+    testEar "org.openrepose.filters.core.test:second-filter-bundle"
+
+}
+
+sourceSets.main.scala.srcDir "src/main/java"
+sourceSets.main.java.srcDirs = []
+
+compileTestGroovy.dependsOn compileTestScala
+
+task copyEars() {
+    description "Copies over ears needed for tests"
+    ext.outputDir = "$buildDir/earFiles/"
+    inputs.files(configurations.testEar.files)
+    outputs.dir outputDir
+
+    doLast {
+        file(outputDir).mkdirs()
+        copy {
+            from configurations.testEar.files
+            into outputDir
+        }
+    }
+}
+
+test.dependsOn copyEars
+
+processResources {
+    expand(reposeVersion: version, reposeVersionName: reposeCodename)
+}
+
+processTestResources {
+    expand(earDirectory: copyEars.outputDir, earVersion: versionProperties.get('testEarVersion'))
+}
+
+license {
+    excludes(["**/log4j2.component.properties", "**/test.properties", "**/log4j2-List2.json", "**/log4j2-List1.yaml",
+              "**/log4j2-List1.json", "**/log4j2-List2.yaml"])
+}

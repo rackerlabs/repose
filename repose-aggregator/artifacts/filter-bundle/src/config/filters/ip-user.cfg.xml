@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
+    <!--
+     Specify what header to put the user value in. This is the default.
+     It will always add an additional header, not clobbering the existing value.
+    -->
+    <user-header name="X-PP-User" quality="0.4"/>
+
+    <!--
+     Specify what header to put the group name in. This is the default.
+     It will always add an additional header, not clobbering the existing value.
+    -->
+    <group-header name="X-PP-Groups" quality="0.4"/>
+
+    <!--
+    Group match criterion follow the CIDR rules: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
+    You can specify CIDR expressions in either IPv4, IPv6, or mixed.
+    The groups should be priority ordered as the first match wins.
+    If any group has a match, then the name is applied to the specified header and matching stops.
+    If nothing matches, then nothing happens.
+    A default catch all is not supplied.
+    If you want to guarantee at least one group will match, then you must define a catch all group.
+    The names of the groups must be unique.
+    -->
+    <group name="sample-group">
+        <cidr-ip>192.168.1.0/24</cidr-ip>
+        <cidr-ip>192.168.0.1/32</cidr-ip>
+    </group>
+    <group name="sample-ipv6-group">
+        <cidr-ip>2001:db8::/48</cidr-ip>
+    </group>
+    <group name="bolth-group">
+        <cidr-ip>10.10.220.0/24</cidr-ip>
+        <cidr-ip>2001:1938:80:bc::1/64</cidr-ip>
+    </group>
+    <group name="ipv4-match-all">
+        <cidr-ip>0.0.0.0/0</cidr-ip>
+    </group>
+</ip-user>

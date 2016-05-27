@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<header-user xmlns='http://docs.openrepose.org/repose/header-user/v1.0'>
+    <source-headers>
+        <header id="X-Auth-Token"/>
+        <header id="X-Forwarded-For" quality="0.2"/>
+    </source-headers>
+</header-user>

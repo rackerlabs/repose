@@ -1,0 +1,38 @@
+dependencies {
+    xjc "org.jvnet.jaxb2_commons:jaxb2-fluent-api"
+
+    compile project(":repose-aggregator:core:repose-core-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
+    compile "commons-io:commons-io"
+    compile "org.slf4j:slf4j-api"
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "xalan:xalan"
+    compile "org.springframework:spring-beans"
+
+    provided "javax.servlet:javax.servlet-api"
+    provided "javax.inject:javax.inject"
+    provided "com.google.code.findbugs:jsr305"
+
+    testCompile project(":repose-aggregator:commons:commons-test")
+    testCompile "junit:junit"
+    testCompile "org.mockito:mockito-all"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.springframework:spring-test"
+    testCompile "org.slf4j:jcl-over-slf4j"
+    testCompile "xmlunit:xmlunit"
+}
+
+jaxb {
+    xjc {
+        args = ["-Xfluent-api"]
+    }
+}
+
+license {
+    excludes(["atom.xsd", "versioning-schema1.1.xsd.txt", "versioning.xsd", "xml.xsd", "version-json.xsl",
+              "choices.json", "version.json", "choices2.json", "versions.json", "choices.xml", "versions2.json",
+              "version.xml", "versions.xml"]
+            .collect { "**/$it" })
+}

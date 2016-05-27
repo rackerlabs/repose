@@ -1,0 +1,82 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    CONFIG_DIR=/etc/repose
+else
+    CONFIG_DIR=$1
+fi
+
+if [ ! -d "$CONFIG_DIR" ]; then
+    echo Directory $CONFIG_DIR not found
+    exit 1;
+fi
+
+CONTAINER_CFG=$CONFIG_DIR/container.cfg.xml
+
+if [ ! -f "$CONTAINER_CFG" ]; then
+    echo container.cfg.xml not found in $CONFIG_DIR
+    exit 2;
+fi
+
+BASE_DIR=$( cat $CONTAINER_CFG | sed -n "s_[ \t]*<\(.*\)deployment-directory.*>\(.*\)</\1deployment-directory>_\2_p" )
+
+if [ ! -d "$BASE_DIR" ]; then
+    echo $BASE_DIR is not a valid directory.  Check your container.cfg.xml
+    exit 3;
+fi
+
+echo Deployment directory: $BASE_DIR
+
+REPOSE_PREFIX=repose
+dirs=$( ls $BASE_DIR )
+pids=$( ps -e | sed 's/ \([0-9]*\).*/\1/' )
+
+checkDirs()
+{
+    local dir
+    for dir in $dirs; do
+	local pid=$( echo $dir | sed -n "s/[^\.]*\.\([0-9]*\).*/\1/p" )
+	if [ -n "$pid" ]; then 
+	    isInPidList $pid
+	    yes=$?
+	    if [ $yes -eq 1 ]; then
+		echo $dir matches active pid
+	    else
+		if [ -d "$BASE_DIR/$dir" ]; then
+		    echo removing $BASE_DIR/$dir
+		    rm -r $BASE_DIR/$dir
+		fi
+	    fi
+        fi
+    done
+}
+
+listPids()
+{
+    local pid
+    for pid in $pids; do
+	echo $pid
+    done
+}
+
+isInPidList()
+{
+    local found=0;
+    local pid;
+
+    for pid in $pids; do
+	if [ "$1" = "$pid" ]; then
+	    found=1;
+	fi
+    done
+
+    return $found
+}
+
+
+listPids
+
+checkDirs
+
+exit 0
+

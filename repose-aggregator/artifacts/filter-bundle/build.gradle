@@ -1,0 +1,124 @@
+apply plugin: 'ear'
+apply plugin: 'nebula.ospackage'
+
+dependencies {
+    earlib project(":repose-aggregator:components:filters:add-header-filter")
+    earlib project(":repose-aggregator:components:filters:body-extractor-to-header-filter")
+    earlib project(":repose-aggregator:components:filters:body-patcher-filter")
+    earlib project(":repose-aggregator:components:filters:compression-filter")
+    earlib project(":repose-aggregator:components:filters:cors-filter")
+    earlib project(":repose-aggregator:components:filters:content-type-stripper-filter")
+    earlib project(":repose-aggregator:components:filters:derp-filter")
+    earlib project(":repose-aggregator:components:filters:destination-router-filter")
+    earlib project(":repose-aggregator:components:filters:flush-output-filter")
+    earlib project(":repose-aggregator:components:filters:forwarded-proto-filter")
+    earlib project(":repose-aggregator:components:filters:header-normalization-filter")
+    earlib project(":repose-aggregator:components:filters:header-translation-filter")
+    earlib project(":repose-aggregator:components:filters:header-user-filter")
+    earlib project(":repose-aggregator:components:filters:herp-filter")
+    earlib project(":repose-aggregator:components:filters:ip-user-filter")
+    earlib project(":repose-aggregator:components:filters:iri-validator-filter")
+    earlib project(":repose-aggregator:components:filters:keystone-v2-filter")
+    earlib project(":repose-aggregator:components:filters:merge-header-filter")
+    earlib project(":repose-aggregator:components:filters:openstack-identity-v3-filter")
+    earlib project(":repose-aggregator:components:filters:rackspace-auth-user-filter")
+    earlib project(":repose-aggregator:components:filters:keystone-v2-basic-auth-filter")
+    earlib project(":repose-aggregator:components:filters:rate-limiting-filter")
+    earlib project(":repose-aggregator:components:filters:slf4j-http-logging-filter")
+    earlib project(":repose-aggregator:components:filters:translation-filter")
+    earlib project(":repose-aggregator:components:filters:uri-normalization-filter")
+    earlib project(":repose-aggregator:components:filters:uri-stripper-filter")
+    earlib project(":repose-aggregator:components:filters:uri-user-filter")
+    earlib project(":repose-aggregator:components:filters:url-extractor-to-header-filter")
+    earlib project(":repose-aggregator:components:filters:valkyrie-authorization-filter")
+    earlib project(":repose-aggregator:components:filters:versioning-filter")
+}
+
+ear {
+    manifest {
+        attributes(
+                "Specification-Title": "Repose Components - $project.name",
+                "Specification-Vendor": "Rackspace US, Inc.",
+                "Specification-Version": version,
+                "Implementation-Title": "Repose Components - $project.name",
+                "Implementation-Version": version,
+                "Implementation-Vendor": "Rackspace US, Inc.",
+                "Implementation-Vendor-Id": project.group,
+                "Built-By": System.getProperty('user.name'),
+                "Build-Jdk": org.gradle.internal.jvm.Jvm.current(),
+                "Created-By": "Gradle $project.gradle.gradleVersion",
+        )
+    }
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            artifact source: ear, extension: 'ear'
+            if(project.hasProperty('release')) {
+                artifact source: buildDeb, extension: 'deb'
+                artifact source: buildRpm, extension: 'rpm'
+            }
+
+            pom.withXml {
+                asNode().appendNode('packaging', 'ear')
+            }
+        }
+    }
+}
+
+ospackage {
+    packageName = "repose-filter-bundle"
+    release = 1
+    os = LINUX
+    packageDescription 'Package for the Repose Filter Bundle'
+    priority 'optional'
+    packageGroup 'Applications/Internet'
+    maintainer 'Repose Development <repose-development@lists.openrepose.org>'
+    url 'http://openrepose.org'
+
+    if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
+        signingKeyId project.getProperty('signing.keyId')
+        signingKeyPassphrase project.getProperty('signing.password')
+        signingKeyRingFile file(project.getProperty('signing.secretKeyRingFile'))
+    }
+
+    into '/usr/share/repose/filters'
+
+    //the bundle
+    from(ear.outputs.files) {
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0555
+    }
+
+    //the configs
+    from('src/config/filters') {
+        into '/etc/repose/examples'
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 0640
+        fileType CONFIG | NOREPLACE
+    }
+
+    //the license info
+    from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", 'src/config/docs/DEPENDENCIES.txt']) {
+        into '/usr/share/doc/repose-filter-bundle'
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0444
+    }
+
+    requires('repose', project.version, EQUAL)
+
+    replaces('repose-filters')
+}
+
+buildDeb {
+    requires('java8-runtime-headless')
+}
+
+buildRpm {
+    addParentDirs false
+    requires('java', '1.8.0', GREATER | EQUAL)
+}

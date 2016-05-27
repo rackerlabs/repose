@@ -1,0 +1,108 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'nebula.ospackage'
+
+configurations {
+    fatJar
+}
+
+dependencies {
+    compile project(':repose-aggregator:commons:commons-utilities')
+    compile project(':repose-aggregator:components:services:datastore-service:datastore-service-api')
+    compile project(':repose-aggregator:core:repose-core-api')
+    compile "org.slf4j:slf4j-api"
+
+    testCompile "junit:junit"
+    testCompile "org.hamcrest:hamcrest-all"
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.openrepose.cli.CommandDriver'
+    }
+}
+
+shadowJar {
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+artifacts {
+    fatJar shadowJar
+}
+
+build.dependsOn shadowJar
+
+signing {
+    required { gradle.taskGraph.hasTask("publish") }
+    sign shadowJar
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            artifact shadowJar
+            if(project.hasProperty('release')) {
+                artifact source: signShadowJar.singleSignature, extension: 'asc'
+                artifact source: buildDeb, extension: 'deb'
+                artifact source: buildRpm, extension: 'rpm'
+            }
+        }
+    }
+}
+
+ospackage {
+    packageName = "repose-cli-utils"
+    release = 1
+    os = LINUX
+    packageDescription 'CLI Utils for working with a running repose instance'
+    priority 'optional'
+    packageGroup 'Applications/Internet'
+    maintainer 'Repose Development <repose-development@lists.openrepose.org>'
+    url 'http://openrepose.org'
+
+    if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
+        signingKeyId project.getProperty('signing.keyId')
+        signingKeyPassphrase project.getProperty('signing.password')
+        signingKeyRingFile file(project.getProperty('signing.secretKeyRingFile'))
+    }
+
+    into '/usr/share/repose'
+
+    //the jar
+    from(shadowJar.outputs.files) {
+        rename('(.*).jar', 'repose-cli.jar')
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0555
+    }
+
+    //the scripts
+    from('src/config/scripts') {
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 0640
+    }
+    link('/usr/bin/clean-repose-deploy', '/usr/share/repose/clean-repose-deploy')
+    link('/usr/bin/dd-remove', '/usr/share/repose/dd-remove')
+
+    //the license info
+    from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", 'src/config/docs/DEPENDENCIES.txt']) {
+        into '/usr/share/doc/repose-cli-utils'
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0444
+    }
+
+    requires('repose', project.version, EQUAL)
+
+    replaces('cli-utils')
+}
+
+buildDeb {
+    requires('java8-runtime-headless')
+}
+
+buildRpm {
+    requires('java', '1.8.0', GREATER | EQUAL)
+}

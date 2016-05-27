@@ -1,0 +1,378 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
+        }
+    }
+
+    dependencies {
+        classpath 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0'
+        classpath 'com.netflix.nebula:nebula-dependency-recommender:3.3.0'
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
+        classpath 'org.openrepose:gradle-jaxb-plugin:2.2.1'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+        classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:0.8.2'
+        classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:1.2'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.4.4'
+        classpath 'com.netflix.nebula:gradle-git-scm-plugin:3.0.1'
+        classpath 'com.netflix.nebula:gradle-ospackage-plugin:3.4.0'
+        classpath 'org.hidetake:gradle-ssh-plugin:1.0.5'
+    }
+}
+
+apply plugin: 'org.sonarqube'
+apply plugin: 'nebula.gradle-git-scm'
+apply plugin: 'org.hidetake.ssh'
+
+ext {
+    reposeCodename = "Ezio?"
+    scalaMajor = '2'
+    scalaMinor = '11'
+    scalaPatch = '7'
+    scalaMajDotMin = "$scalaMajor.$scalaMinor"
+}
+
+task('publishToPackageRepo', group: 'publishing', description: 'Publishes the debian and rpm packages to the package repo.',
+        dependsOn: [':repose-aggregator:artifacts:cli-utils:buildDeb',
+                    ':repose-aggregator:artifacts:cli-utils:buildRpm',
+                    ':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb',
+                    ':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm',
+                    ':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb',
+                    ':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm',
+                    ':repose-aggregator:artifacts:filter-bundle:buildDeb',
+                    ':repose-aggregator:artifacts:filter-bundle:buildRpm',
+                    ':repose-aggregator:artifacts:repose-lint:buildDeb',
+                    ':repose-aggregator:artifacts:repose-lint:buildRpm',
+                    ':repose-aggregator:artifacts:valve:buildDeb',
+                    ':repose-aggregator:artifacts:valve:buildRpm',
+                    ':repose-aggregator:artifacts:web-application:buildDeb',
+                    ':repose-aggregator:artifacts:web-application:buildRpm',]) << {
+    ssh.run {
+        session(remotes.packageRepo) {
+            put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:repose-lint:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:repose-lint:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:web-application:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+            put from: tasks.getByPath(':repose-aggregator:artifacts:web-application:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+        }
+    }
+}
+
+task('tagVersion', description: 'Tag the repository with the current version.', group: 'release') << {
+    scmFactory.create().tag(version)
+}
+
+task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [tagVersion, publishToPackageRepo])
+
+allprojects {
+    group = 'org.openrepose'
+    def baseVersion = '8.0.0.0'
+    version = project.hasProperty('release') ? baseVersion : "$baseVersion-SNAPSHOT"
+
+    apply plugin: 'idea'
+    apply plugin: 'nebula.dependency-recommender'
+
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
+        }
+    }
+}
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+    apply plugin: 'scala'
+    apply plugin: 'org.unbroken-dome.test-sets'
+    apply plugin: 'nebula.provided-base'
+    apply plugin: 'org.openrepose.gradle.plugins.jaxb'
+    apply plugin: 'checkstyle'
+    apply plugin: 'codenarc'
+    apply plugin: 'scalaStyle'
+    apply plugin: 'com.github.hierynomus.license'
+    apply plugin: 'jacoco'
+    apply plugin: 'nebula.maven-publish'
+    apply plugin: 'signing'
+
+    dependencies {
+        jaxb "com.sun.xml.bind:jaxb-xjc"
+        jaxb "com.sun.xml.bind:jaxb-impl"
+        jaxb "javax.xml.bind:jaxb-api"
+        jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
+
+        //todo: remove these once gradle bug with zinc compiler is fixed
+        zinc 'com.typesafe.zinc:zinc:0.3.9'
+        zinc 'org.scala-lang:scala-library:2.10.5'
+    }
+
+    testSets {
+        integrationTest
+    }
+
+    check.dependsOn integrationTest
+    integrationTest.mustRunAfter test
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    task transformXSDs() {
+        description "Runs xml through an xslt transfurm"
+        ext.outputDir = "$buildDir/src/generated-xsd"
+        def xsltFile = "$rootDir/repose-aggregator/src/config/xsl/remove-1.1-elements.xsl"
+        def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
+
+        //If they set a property for the jaxbXSLT file override our default
+        if (project.hasProperty('jaxbXsltFile')) {
+            xsltFile = project.jaxbXsltFile
+        }
+
+        if (project.hasProperty('jaxbSchemaBase')) {
+            schemaBaseDir = project.jaxbSchemaBase
+        }
+
+        inputs.files(
+                fileTree(dir: schemaBaseDir, includes: ["**/*.xsd", "**/*.xjb"]),
+                file(xsltFile)
+        )
+        outputs.dir outputDir
+
+        doLast {
+            file(outputDir).mkdirs()
+
+            //Find all XSDs in the src/main/resources/META-INF.schema
+            if (file(xsltFile).exists() && file(schemaBaseDir).exists()) {
+                logger.lifecycle("Transforming Schemas")
+                ant.xslt(
+                        extension: '.xsd',
+                        basedir: schemaBaseDir,
+                        includes: "**/*.xsd",
+                        style: xsltFile,
+                        destdir: "${outputDir}"
+                )
+            } else {
+                logger.lifecycle("NOT Transforming Schemas")
+                copy {
+                    from schemaBaseDir
+                    into outputDir
+                    include "**/*.xsd"
+                }
+            }
+
+            //Copy over any bindings.xjb into their appropriate directories
+            logger.lifecycle("Copying xjb's")
+            copy {
+                from schemaBaseDir
+                into outputDir
+                include "**/*.xjb"
+            }
+        }
+    }
+
+    def generatedDir = "${buildDir}/src/generated-sources"
+
+    jaxb {
+        xsdDir transformXSDs.outputDir
+        bindingsDir = transformXSDs.outputDir
+        xjc {
+            destinationDir = generatedDir
+        }
+    }
+
+    xjc.dependsOn transformXSDs
+
+    sourceSets {
+        generated {
+            java {
+                srcDirs += generatedDir
+            }
+        }
+        main {
+            java {
+                compileClasspath += generated.output
+                runtimeClasspath += generated.output
+            }
+            output.dir(sourceSets.generated.output.classesDir, builtBy: 'compileGeneratedJava')
+        }
+    }
+
+    [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
+        tasks.withType(type) {
+            dependsOn('xjc')
+        }
+    }
+
+    configurations {
+        compile.exclude group: 'commons-logging', module: 'commons-logging'
+
+        testCompile.exclude group: 'xerces', module: 'xerces'
+    }
+
+    checkstyle {
+        configFile = file("$rootDir/repose-aggregator/src/config/styles/checkstyle.xml")
+        sourceSets = sourceSets.matching {it.name != 'generated'}
+    }
+
+    codenarc {
+        configFile = file("$rootDir/repose-aggregator/src/config/styles/codenarc.xml")
+    }
+
+    //todo: write a good one of these plugins, because this is garbage
+    scalaStyle {
+        configLocation = "$rootDir/repose-aggregator/src/config/styles/scalastyle_config.xml"
+        includeTestSourceDirectory = true
+        source = "src/main/scala"
+        testSource = "src/test/scala"
+        failOnWarning = true
+    }
+
+    check.dependsOn scalaStyle
+
+    license {
+        header file("$rootDir/repose-aggregator/src/config/license/LICENSE.txt")
+        mapping {
+            scala = 'SLASHSTAR_STYLE'
+        }
+        exclude "**/*.cfg.xml"
+        exclude "**/log4j2*.xml"
+        sourceSets = sourceSets.matching {it.name != 'generated'}
+    }
+
+    //todo: for some reason jacoco freaks when we do clean and build together
+    jacoco {
+        toolVersion = "0.7.6.201602180812"
+    }
+
+    test {
+        jacoco {
+            destinationFile = file("$rootDir/repose-aggregator/build/jacoco/jacocoTest.exec")
+        }
+    }
+
+    integrationTest {
+        jacoco {
+            destinationFile = file("$rootDir/repose-aggregator/build/jacoco/jacocoIntegrationTest.exec")
+        }
+        systemProperty 'jacocoArguments', jacoco.getAsJvmArg()
+    }
+
+    if(project.hasProperty('sonarBuild')) {
+        tasks.withType(Test) {
+            it.ignoreFailures = true
+        }
+    }
+
+    jar {
+        manifest {
+            attributes(
+                    "Specification-Title": "Repose Components - $project.name",
+                    "Specification-Vendor": "Rackspace US, Inc.",
+                    "Specification-Version": version,
+                    "Implementation-Title": "Repose Components - $project.name",
+                    "Implementation-Version": version,
+                    "Implementation-Vendor": "Rackspace US, Inc.",
+                    "Implementation-Vendor-Id": project.group,
+                    "Built-By": System.getProperty('user.name'),
+                    "Build-Jdk": org.gradle.internal.jvm.Jvm.current(),
+                    "Created-By": "Gradle $project.gradle.gradleVersion",
+            )
+        }
+    }
+
+    idea {
+        module {
+            sourceDirs += file("$generatedDir")
+            generatedSourceDirs += file("$generatedDir")
+        }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name 'reposeNexus'
+                if (project.hasProperty('release')) {
+                    url 'https://maven.research.rackspacecloud.com/content/repositories/releases'
+                } else {
+                    url 'https://maven.research.rackspacecloud.com/content/repositories/snapshots'
+                }
+                credentials {
+                    username project.hasProperty('maven.repo.username') ? property('maven.repo.username') : 'Need to provide an actual username'
+                    password project.hasProperty('maven.repo.password') ? property('maven.repo.password') : 'Need to provide an actual password'
+                }
+            }
+        }
+
+        publications {
+            nebula(MavenPublication) {
+                if(project.hasProperty('release')) {
+                    artifact source: signArchives.singleSignature, extension: 'asc'
+                }
+
+                //when we include the signature it tries to switch the packaging in the pom to pom,
+                // i just remove it here, because the default in maven is jar if you don't specify,
+                // so i can go fix it only where it needs it
+                pom.withXml { XmlProvider xml ->
+                    def root = xml.asNode()
+                    root.get("packaging").each { root.remove(it) }
+                }
+            }
+        }
+    }
+
+    signing {
+        required { gradle.taskGraph.hasTask("publish") }
+        sign configurations.archives
+    }
+
+    project.tasks.getByPath(':release').dependsOn publish
+}
+
+dependencyRecommendations {
+    propertiesFile file: file('versions.properties')
+}
+
+//this will let us access the a couple of the versions while still keeping a single source of truth
+project.ext.versionProperties = new Properties()
+project.ext.versionProperties.load(new FileInputStream("$rootDir/versions.properties"))
+
+sonarqube {
+    properties {
+        property "sonar.dynamicAnalysis", "reuseReports"
+        property "sonar.jacoco.reportPath", "$rootDir/repose-aggregator/build/jacoco/jacocoTest.exec"
+        property "sonar.jacoco.itReportPath", "$rootDir/repose-aggregator/build/jacoco/jacocoIntegrationTest.exec"
+    }
+}
+
+remotes {
+    packageRepo {
+        user = 'repose-dev'
+        host = 'repo.openrepose.org'
+        def repoKey = new File("${System.properties['user.home']}/.ssh/repo_key")
+        if (repoKey.exists()) {
+            identity = file(repoKey)
+        } else {
+            identity = file("${System.properties['user.home']}/.ssh/id_rsa")
+        }
+        def systemKnownHosts = new File("/etc/ssh/ssh_known_hosts")
+        if (systemKnownHosts.exists()) {
+            knownHosts = file(systemKnownHosts)
+        }
+    }
+}
