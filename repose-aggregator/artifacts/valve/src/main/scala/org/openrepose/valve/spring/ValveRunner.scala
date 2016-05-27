@@ -208,7 +208,7 @@ class ValveRunner @Inject()(
 
             //Start up all the new nodes, replacing the existing nodes list with a new one
             activeNodes = activeNodes ++ startList.flatMap { n =>
-              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig), testMode)
+              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, sslConfig, None, None, testMode)
               try {
                 node.start()
                 //Update the MX bean with port info

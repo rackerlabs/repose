@@ -167,7 +167,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(excludedProtocols = List("TLSv1")))
+      Some(sslConfig(excludedProtocols = List("TLSv1"))),
+      None,
+      None
     )
     repose.start()
 
@@ -186,7 +188,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedProtocols = List("TLSv1.1", "TLSv1.2")))
+      Some(sslConfig(includedProtocols = List("TLSv1.1", "TLSv1.2"))),
+      None,
+      None
     )
     repose.start()
     try {
@@ -206,7 +210,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(excludedCiphers = List(defaultEnabledCiphers.head)))
+      Some(sslConfig(excludedCiphers = List(defaultEnabledCiphers.head))),
+      None,
+      None
     )
     repose.start()
     try {
@@ -224,7 +230,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedCiphers = List(defaultEnabledCiphers.head)))
+      Some(sslConfig(includedCiphers = List(defaultEnabledCiphers.head))),
+      None,
+      None
     )
     repose.start()
     try {
@@ -242,7 +250,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = false))
+      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = false)),
+      None,
+      None
     )
     repose.start()
 
@@ -261,7 +271,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = true))
+      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = true)),
+      None,
+      None
     )
     repose.start()
 
@@ -280,7 +292,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(excludedCiphers = List(".*TLS.*")))
+      Some(sslConfig(excludedCiphers = List(".*TLS.*"))),
+      None,
+      None
     )
     repose.start()
     try {
@@ -306,7 +320,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       Some(httpsPort),
-      Some(sslConfig(includedCiphers = List(".*SSL.*")))
+      Some(sslConfig(includedCiphers = List(".*SSL.*"))),
+      None,
+      None
     )
     repose.start()
     try {
