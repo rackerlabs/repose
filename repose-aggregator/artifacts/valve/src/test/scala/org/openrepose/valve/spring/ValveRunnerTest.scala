@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.spring
+package org.openrepose.valve.spring
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.config.manager.UpdateListener
