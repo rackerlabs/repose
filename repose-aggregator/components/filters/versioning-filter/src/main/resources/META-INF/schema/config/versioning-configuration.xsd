@@ -44,12 +44,37 @@
             <xs:element name="version-mapping" type="ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
+        <xs:attribute name="format" type="JsonFormat" use="optional" default="COMPUTE">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The format to use when returning JSON to describe the available versions.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:assert vc:minVersion="1.1"
                    test="count(distinct-values(version-mapping/@id)) = count(version-mapping/@id)"
                    xerces:message="Version mapping must have ids unique within their containing filter list"
                    saxon:message="Version mapping must have ids unique within their containing filter list"
                    xpathDefaultNamespace="##targetNamespace"/>
     </xs:complexType>
+
+    <xs:simpleType name="JsonFormat">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The type of JSON Formats supported by this filter. The supported values are COMPUTE and IDENTITY.
+                </html:p>
+                <html:p>COMPUTE: http://developer.openstack.org/api-ref-compute-v2.1.html</html:p>
+                <html:p>IDENTITY: http://developer.openstack.org/api-ref-identity-v2.html</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="COMPUTE"/>
+            <xs:enumeration value="IDENTITY"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="ServiceVersionMapping">
         <xs:annotation>
