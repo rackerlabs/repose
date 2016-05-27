@@ -76,9 +76,8 @@ class ValveRunner @Inject()(
       val objectName = new ObjectName(ValvePortMXBean.OBJECT_NAME)
       mbs.unregisterMBean(objectName)
     } catch {
-      case e: InstanceNotFoundException => {
+      case e: InstanceNotFoundException =>
         logger.debug(s"Shut down before I could register the MXBean: ${ValvePortMXBean.OBJECT_NAME}", e)
-      }
     }
   }
 
@@ -217,13 +216,12 @@ class ValveRunner @Inject()(
                 }
                 Some(node)
               } catch {
-                case e: Exception => {
+                case e: Exception =>
                   //If we couldn't start a node, throw a fatal error, and try to start other nodes?
                   // at the very least, we need to unload all the things, because it's buggered.
                   node.shutdown()
                   logger.error(s"Unable to start repose node ${node.clusterId}:${node.nodeId} !!!!", e)
                   None
-                }
               }
             }
 
