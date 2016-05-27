@@ -82,6 +82,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
         <!-- Check to make sure we really need this to be a Name -->
         <xs:attribute name="via" type="xs:string" use="optional">
             <xs:annotation>
@@ -104,6 +105,30 @@
                 <xs:documentation>
                     <html:p>The number of seconds the JMX reporting service keeps data.
                         The data will be reset after this amount of time.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="idleTimeout" type="xs:long" use="optional" default="30000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The time in milliseconds that a connection can be idle before it is closed (Default: 30000).
+                        See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="soLingerTime" type="xs:int" use="optional" default="-1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A value >=0 sets the socket SO_LINGER value in milliseconds.
+                        Repose (Jetty) attempts to gently close all TCP/IP connections with proper half close semantics,
+                        so a linger timeout should not be required and thus the default is -1.
+                        See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
