@@ -110,7 +110,9 @@ class ValveRunner @Inject()(
       val containerConfig = currentContainerConfig.get
 
       if (Option(systemModel).isDefined && Option(containerConfig).isDefined) {
-        val sslConfig = containerConfig.getDeploymentConfig.getSslConfiguration
+        val sslConfig = Option(containerConfig.getDeploymentConfig.getSslConfiguration)
+        val idleTimeout = Option(containerConfig.getDeploymentConfig.getIdleTimeout)
+        val soLingerTime = Option(containerConfig.getDeploymentConfig.getSoLingerTime)
 
         def isLocal(host: String): Boolean = {
           try {
@@ -207,7 +209,7 @@ class ValveRunner @Inject()(
 
             //Start up all the new nodes, replacing the existing nodes list with a new one
             activeNodes = activeNodes ++ startList.flatMap { n =>
-              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, sslConfig, None, None, testMode)
+              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
               try {
                 node.start()
                 //Update the MX bean with port info

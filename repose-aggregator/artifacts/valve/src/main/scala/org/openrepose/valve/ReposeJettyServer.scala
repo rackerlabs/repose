@@ -146,6 +146,11 @@ class ReposeJettyServer(val clusterId: String,
 
     if (connectors.isEmpty) {
       throw new ServerInitializationException("At least one HTTP or HTTPS port must be specified")
+    } else {
+      connectors foreach { connector =>
+        idleTimeout foreach connector.setIdleTimeout
+        soLingerTime foreach connector.setSoLingerTime
+      }
     }
 
     //Hook up the port connectors!
@@ -201,7 +206,7 @@ class ReposeJettyServer(val clusterId: String,
    */
   def restart(): ReposeJettyServer = {
     shutdown()
-    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig, None, None, testMode)
+    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
   }
 
   /**
