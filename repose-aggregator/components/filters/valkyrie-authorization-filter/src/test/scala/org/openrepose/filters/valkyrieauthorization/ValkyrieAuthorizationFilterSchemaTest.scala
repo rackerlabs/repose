@@ -65,6 +65,7 @@ class ValkyrieAuthorizationFilterSchemaTest extends FunSpec with Matchers {
           validateConfigString(config)
       }
     }
+
     it(s"should fail to validate if the HTTP Methods list is empty") {
       val config =
         s"""<valkyrie-authorization
@@ -94,6 +95,99 @@ class ValkyrieAuthorizationFilterSchemaTest extends FunSpec with Matchers {
         validator.validateConfigString(config)
       }
       exception.getLocalizedMessage should include ("If the http-methods attribute is present, then it must not be empty.")
+    }
+
+    it("should fail if username is present and password isn't") {
+      val config =
+        s"""<valkyrie-authorization
+            |        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+            |        cache-timeout-millis="3000">
+            |    <valkyrie-server uri="http://localhost" password="Pa$$W0rd"/>
+            |    <collection-resources>
+            |        <resource>
+            |            <path-regex http-methods="GET">
+            |                /path/.*
+            |            </path-regex>
+            |            <collection>
+            |                <json>
+            |                    <path-to-collection>
+            |                        /path/.*
+            |                    </path-to-collection>
+            |                    <path-to-device-id>
+            |                        <path>/path/.*</path>
+            |                        <regex>http://www.rackspace.com/path/</regex>
+            |                    </path-to-device-id>
+            |                </json>
+            |            </collection>
+            |        </resource>
+            |    </collection-resources>
+            |</valkyrie-authorization>""".stripMargin
+
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include ("Username and password must be specified or neither.")
+    }
+
+    it("should fail if password is present and username isn't") {
+      val config =
+        s"""<valkyrie-authorization
+            |        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+            |        cache-timeout-millis="3000">
+            |    <valkyrie-server uri="http://localhost" username="UserName"/>
+            |    <collection-resources>
+            |        <resource>
+            |            <path-regex http-methods="GET">
+            |                /path/.*
+            |            </path-regex>
+            |            <collection>
+            |                <json>
+            |                    <path-to-collection>
+            |                        /path/.*
+            |                    </path-to-collection>
+            |                    <path-to-device-id>
+            |                        <path>/path/.*</path>
+            |                        <regex>http://www.rackspace.com/path/</regex>
+            |                    </path-to-device-id>
+            |                </json>
+            |            </collection>
+            |        </resource>
+            |    </collection-resources>
+            |</valkyrie-authorization>""".stripMargin
+
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include ("Username and password must be specified or neither.")
+    }
+
+    it("should validate if both username and password are absent") {
+      val config =
+        s"""<valkyrie-authorization
+            |        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+            |        cache-timeout-millis="3000">
+            |    <valkyrie-server uri="http://localhost"/>
+            |    <collection-resources>
+            |        <resource>
+            |            <path-regex http-methods="GET">
+            |                /path/.*
+            |            </path-regex>
+            |            <collection>
+            |                <json>
+            |                    <path-to-collection>
+            |                        /path/.*
+            |                    </path-to-collection>
+            |                    <path-to-device-id>
+            |                        <path>/path/.*</path>
+            |                        <regex>http://www.rackspace.com/path/</regex>
+            |                    </path-to-device-id>
+            |                </json>
+            |            </collection>
+            |        </resource>
+            |    </collection-resources>
+            |</valkyrie-authorization>""".stripMargin
+
+      validator.validateConfigString(config)
     }
   }
 }
