@@ -55,7 +55,6 @@ publishing {
 
 ospackage {
     packageName = "repose-lint"
-    release = 1
     os = LINUX
     packageDescription 'A command-line utility which flags suspicious usage of Repose'
     priority 'optional'
@@ -101,5 +100,7 @@ buildDeb {
 }
 
 buildRpm {
+    release = 1
+
     requires('java', '1.8.0', GREATER | EQUAL)
 }
