@@ -44,7 +44,7 @@
             <xs:element name="version-mapping" type="ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:attribute name="format" type="JsonFormat" use="optional" default="COMPUTE">
+        <xs:attribute name="json-format" type="JsonFormat" use="optional" default="COMPUTE">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The format to use when returning JSON to describe the available versions.</html:p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <versioning xmlns="http://docs.openrepose.org/repose/versioning/v2.0"
-            format="COMPUTE">
+            json-format="COMPUTE">
     <version-mapping id="v0" pp-dest-id="service-v0" status="DEPRECATED"/>
 
     <version-mapping id="v1" pp-dest-id="service-v1">
