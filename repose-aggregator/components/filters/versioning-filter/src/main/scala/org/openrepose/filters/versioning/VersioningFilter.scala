@@ -63,7 +63,6 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
   private final val VersioningDefaultQuality = 0.5
 
   private val versioningObjectFactory = new ObjectFactory()
-  private val contentTransformer = new ContentTransformer(JsonFormat.COMPUTE)
   private val healthCheckServiceProxy = healthCheckService.register
   private val mbcVersionedRequests = metricsService.newMeterByCategory(
     classOf[Versioning],
@@ -75,6 +74,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
   private var configurationFileName: String = _
   private var serviceVersionMappings: Map[String, ServiceVersionMapping] = _
   private var destinations: Map[String, Destination] = _
+  private var contentTransformer:ContentTransformer = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Versioning Filter initializing")
@@ -227,6 +227,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
     override def configurationUpdated(configurationObject: ServiceVersionMappingList): Unit = {
       serviceVersionMappings = configurationObject.getVersionMapping.map(svm => svm.getId -> svm).toMap
+      contentTransformer = new ContentTransformer(configurationObject.getJsonFormat)
       initialized = true
     }
 

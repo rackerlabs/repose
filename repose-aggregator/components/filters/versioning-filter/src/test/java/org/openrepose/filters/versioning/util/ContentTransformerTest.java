@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.versioning.util;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
