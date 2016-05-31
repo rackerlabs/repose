@@ -68,7 +68,8 @@ public class ContentTransformerTest {
 
     public static class WhenTransformingVersions {
         private String versionJsonFileReader, versionsJsonFileReader, versionJsonIdentityFileReader,
-                versionXmlFileReader, versionsXmlFileReader, choicesJsonFileReader, choicesXmlFileReader;
+                versionsJsonIdentityFileReader, versionXmlFileReader, versionsXmlFileReader, choicesJsonFileReader,
+                choicesXmlFileReader;
         private ObjectMapper mapper;
 
         @Before
@@ -77,7 +78,9 @@ public class ContentTransformerTest {
 
             versionJsonFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/json/version.json").toURI()));
             versionsJsonFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/json/versions.json").toURI()));
-            versionJsonIdentityFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/json/versions-identity.json").toURI()));
+
+            versionJsonIdentityFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/json/version-identity.json").toURI()));
+            versionsJsonIdentityFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/json/versions-identity.json").toURI()));
 
             versionXmlFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/xml/version.xml").toURI()));
             versionsXmlFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/xml/versions.xml").toURI()));
@@ -108,6 +111,36 @@ public class ContentTransformerTest {
                     versionsXmlFileReader,
                     new MediaType(MimeType.APPLICATION_JSON, -1),
                     new ContentTransformer(JsonFormat.COMPUTE));
+
+            assertNotNull("No expected string value found!", expected);
+            assertEquals(
+                    "Objects should be equivalent",
+                    mapper.readValue(expected, Map.class),
+                    mapper.readValue(actual, Map.class));
+        }
+
+        @Test
+        public void shouldTransformVersionIdentityToJson() throws Exception {
+            String expected = versionJsonIdentityFileReader;
+            String actual = transformXmlToFormat(
+                    versionXmlFileReader,
+                    new MediaType(MimeType.APPLICATION_JSON, -1),
+                    new ContentTransformer(JsonFormat.IDENTITY));
+
+            assertNotNull("No expected string value found!", expected);
+            assertEquals(
+                    "Objects should be equivalent",
+                    mapper.readValue(expected, Map.class),
+                    mapper.readValue(actual, Map.class));
+        }
+
+        @Test
+        public void shouldTransformVersionsIdentityToJson() throws Exception {
+            String expected = versionsJsonIdentityFileReader;
+            String actual = transformXmlToFormat(
+                    versionsXmlFileReader,
+                    new MediaType(MimeType.APPLICATION_JSON, -1),
+                    new ContentTransformer(JsonFormat.IDENTITY));
 
             assertNotNull("No expected string value found!", expected);
             assertEquals(

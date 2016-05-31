@@ -1,0 +1,33 @@
+{
+  "version": {
+    "updated": "2010-12-12T18:30:02.25Z",
+    "status": "deprecated",
+    "id": "v1.0",
+    "links": [
+      {
+        "href": "http://service.api.vendor.com/v1.0/",
+        "rel": "self"
+      },
+      {
+        "href": "http://service.api.vendor.com/v1.0/Docs.pdf",
+        "type": "application/pdf",
+        "rel": "describedby"
+      },
+      {
+        "href": "http://service.api.vendor.com/v1.0/application.wadl",
+        "type": "application/vnd.sun.wadl+xml",
+        "rel": "describedby"
+      }
+    ],
+    "media-types": [
+      {
+        "type": "application/vnd.vendor.service-v1.0+xml",
+        "base": "application/xml"
+      },
+      {
+        "type": "application/vnd.vendor.service-v1.0+json",
+        "base": "application/json"
+      }
+    ]
+  }
+}

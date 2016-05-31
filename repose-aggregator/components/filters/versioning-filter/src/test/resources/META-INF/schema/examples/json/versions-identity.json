@@ -1,96 +1,98 @@
 {
-  "versions": [
-    {
-      "updated": "2009-10-09T11:30:00Z",
-      "status": "DEPRECATED",
-      "id": "v1.0",
-      "links": [
-        {
-          "href": "http://service.api.vendor.com/v1.0/",
-          "rel": "self"
-        }
-      ],
-      "media-types": [
-        {
-          "type": "application/vnd.vendor.service-v1.0+xml",
-          "base": "application/xml"
-        },
-        {
-          "type": "application/vnd.vendor.service-v1.0+json",
-          "base": "application/json"
-        }
-      ]
-    },
-    {
-      "updated": "2010-12-12T18:30:02.25Z",
-      "status": "CURRENT",
-      "id": "v1.1",
-      "links": [
-        {
-          "href": "http://service.api.vendor.com/v1.1/",
-          "rel": "self"
-        }
-      ],
-      "media-types": [
-        {
-          "type": "application/vnd.vendor.service-v1.1+xml",
-          "base": "application/xml"
-        },
-        {
-          "type": "application/vnd.vendor.service-v1.1+json",
-          "base": "application/json"
-        }
-      ]
-    },
-    {
-      "updated": "2011-01-13T09:25:02Z",
-      "status": "BETA",
-      "id": "v1.2",
-      "links": [
-        {
-          "href": "http://service.api.vendor.com/v1.2/",
-          "rel": "self"
-        }
-      ],
-      "media-types": [
-        {
-          "type": "application/vnd.vendor.service-v1.2+xml",
-          "base": "application/xml"
-        },
-        {
-          "type": "application/vnd.vendor.service-v1.2+json",
-          "base": "application/json"
-        },
-        {
-          "type": "application/vnd.vendor.service-v1.2+atom",
-          "base": "application/atom"
-        }
-      ]
-    },
-    {
-      "updated": "2011-01-15T10:10:10Z",
-      "status": "ALPHA",
-      "id": "v2.0",
-      "links": [
-        {
-          "href": "http://service.api.vendor.com/v2.0/",
-          "rel": "self"
-        }
-      ],
-      "media-types": [
-        {
-          "type": "application/vnd.vendor.service-v2.0+xml",
-          "base": "application/xml"
-        },
-        {
-          "type": "application/vnd.vendor.service-v2.0+json",
-          "base": "application/json"
-        },
-        {
-          "type": "application/vnd.vendor.service-v2.0+atom",
-          "base": "application/atom"
-        }
-      ]
-    }
-  ]
+  "versions": {
+    "values": [
+      {
+        "updated": "2009-10-09T11:30:00Z",
+        "status": "deprecated",
+        "id": "v1.0",
+        "links": [
+          {
+            "href": "http://service.api.vendor.com/v1.0/",
+            "rel": "self"
+          }
+        ],
+        "media-types": [
+          {
+            "type": "application/vnd.vendor.service-v1.0+xml",
+            "base": "application/xml"
+          },
+          {
+            "type": "application/vnd.vendor.service-v1.0+json",
+            "base": "application/json"
+          }
+        ]
+      },
+      {
+        "updated": "2010-12-12T18:30:02.25Z",
+        "status": "stable",
+        "id": "v1.1",
+        "links": [
+          {
+            "href": "http://service.api.vendor.com/v1.1/",
+            "rel": "self"
+          }
+        ],
+        "media-types": [
+          {
+            "type": "application/vnd.vendor.service-v1.1+xml",
+            "base": "application/xml"
+          },
+          {
+            "type": "application/vnd.vendor.service-v1.1+json",
+            "base": "application/json"
+          }
+        ]
+      },
+      {
+        "updated": "2011-01-13T09:25:02Z",
+        "status": "beta",
+        "id": "v1.2",
+        "links": [
+          {
+            "href": "http://service.api.vendor.com/v1.2/",
+            "rel": "self"
+          }
+        ],
+        "media-types": [
+          {
+            "type": "application/vnd.vendor.service-v1.2+xml",
+            "base": "application/xml"
+          },
+          {
+            "type": "application/vnd.vendor.service-v1.2+json",
+            "base": "application/json"
+          },
+          {
+            "type": "application/vnd.vendor.service-v1.2+atom",
+            "base": "application/atom"
+          }
+        ]
+      },
+      {
+        "updated": "2011-01-15T10:10:10Z",
+        "status": "alpha",
+        "id": "v2.0",
+        "links": [
+          {
+            "href": "http://service.api.vendor.com/v2.0/",
+            "rel": "self"
+          }
+        ],
+        "media-types": [
+          {
+            "type": "application/vnd.vendor.service-v2.0+xml",
+            "base": "application/xml"
+          },
+          {
+            "type": "application/vnd.vendor.service-v2.0+json",
+            "base": "application/json"
+          },
+          {
+            "type": "application/vnd.vendor.service-v2.0+atom",
+            "base": "application/atom"
+          }
+        ]
+      }
+    ]
+  }
 }
