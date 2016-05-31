@@ -33,6 +33,6 @@ jaxb {
 license {
     excludes(["atom.xsd", "versioning-schema1.1.xsd.txt", "versioning.xsd", "xml.xsd", "version-json.xsl",
               "choices.json", "version.json", "choices2.json", "versions.json", "choices.xml", "versions2.json",
-              "version.xml", "versions.xml"]
+              "version.xml", "versions.xml", "versions-identity.json"]
             .collect { "**/$it" })
 }

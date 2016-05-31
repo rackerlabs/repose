@@ -40,7 +40,7 @@ import org.openrepose.core.services.healthcheck.{HealthCheckService, Severity}
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.{Destination, SystemModel}
-import org.openrepose.filters.versioning.config.{ServiceVersionMapping, ServiceVersionMappingList}
+import org.openrepose.filters.versioning.config.{JsonFormat, ServiceVersionMapping, ServiceVersionMappingList}
 import org.openrepose.filters.versioning.domain.{ConfigurationData, VersionedHostNotFoundException, VersionedRequest}
 import org.openrepose.filters.versioning.schema.ObjectFactory
 import org.openrepose.filters.versioning.util.{ContentTransformer, VersionChoiceFactory}
@@ -63,7 +63,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
   private final val VersioningDefaultQuality = 0.5
 
   private val versioningObjectFactory = new ObjectFactory()
-  private val contentTransformer = new ContentTransformer()
+  private val contentTransformer = new ContentTransformer(JsonFormat.COMPUTE)
   private val healthCheckServiceProxy = healthCheckService.register
   private val mbcVersionedRequests = metricsService.newMeterByCategory(
     classOf[Versioning],
