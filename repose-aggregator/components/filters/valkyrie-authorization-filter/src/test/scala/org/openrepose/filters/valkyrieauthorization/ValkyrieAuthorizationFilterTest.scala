@@ -1413,6 +1413,37 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
   }
 
+  describe("when there are no credentials for the valkyrie server") {
+    it("should try to apply the original requests x-auth-token") {
+      Mockito.when(akkaServiceClient.get(
+        CACHE_PREFIX + "any" + "someTenant" + "123456",
+        "http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective",
+        Map("X-Auth-Token" -> "someToken")))
+        .thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream(createValkyrieResponse(devicePermissions("123456", "view_product")).getBytes)))
+
+      val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
+      val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
+      configuration.getValkyrieServer.setUsername(null)
+      configuration.getValkyrieServer.setPassword(null)
+      filter.configurationUpdated(configuration)
+
+      val mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com:8080")
+      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+      mockServletRequest.setHeader("X-Device-Id", "123456")
+      mockServletRequest.setHeader("X-Contact-Id", "123456")
+      mockServletRequest.setHeader("X-Auth-Token", "someToken")
+
+      val mockFilterChain = mock[FilterChain]
+      filter.doFilter(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
+
+      val responseCaptor = ArgumentCaptor.forClass(classOf[HttpServletResponseWrapper])
+      Mockito.verify(mockFilterChain).doFilter(Matchers.any(classOf[ServletRequest]), responseCaptor.capture())
+      assert(responseCaptor.getValue.getStatus == 200)
+    }
+  }
+
   def createGenericValkyrieConfiguration(delegation: DelegatingType): ValkyrieAuthorizationConfig = {
     createGenericValkyrieConfiguration(delegation, enableBypassAccountAdmin = true)
   }

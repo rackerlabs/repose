@@ -160,7 +160,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           case UserInfo(tenant, contact) =>
             //  authorize device            || cull list                  || translate account permissions
             if (requestedDeviceId.isDefined || matchingResources.nonEmpty || translateAccountPermissions.isDefined) {
-              datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
+              datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, Option(httpRequest.getHeader("x-auth-token")), _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
             } else {
               ResponseResult(200)
             }
@@ -202,7 +202,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
             if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(ACCOUNT_ADMIN)) {
               val inventoryResult = checkHeader match {
                 case UserInfo(tenant, contact) =>
-                  datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, _.asInstanceOf[DevicePermissions], parseInventory, tracingHeader)
+                  datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, Option(httpRequest.getHeader("x-auth-token")), _.asInstanceOf[DevicePermissions], parseInventory, tracingHeader)
                 case _ => userPermissions
               }
               inventoryResult match {
@@ -310,6 +310,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                      contactId: String,
                      callType: String,
                      valkyrieServer: ValkyrieServer,
+                     authToken: Option[String],
                      datastoreTransform: java.io.Serializable => ValkyrieResult,
                      responseParser: InputStream => Try[java.io.Serializable],
                      tracingHeader: Option[String] = None): ValkyrieResult = {
@@ -321,10 +322,18 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       } else {
         s"/account/$transformedTenant/permissions/contacts/$callType/by_contact/$contactId/effective"
       }
-      Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
-        valkyrieServer.getUri + uri,
-        Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword) ++ requestTracingHeader)
-      )
+      (Option(valkyrieServer.getUsername), Option(valkyrieServer.getPassword)) match {
+        case (Some(username), Some(password)) =>
+          Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
+            valkyrieServer.getUri + uri,
+            Map("X-Auth-User" -> username, "X-Auth-Token" -> password) ++ requestTracingHeader)
+          )
+        case _ =>
+          Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
+            valkyrieServer.getUri + uri,
+            Map("X-Auth-Token" -> authToken.getOrElse(null)) ++ requestTracingHeader)
+          )
+      }
     }
 
     def valkyrieAuthorize(): ValkyrieResult = {
