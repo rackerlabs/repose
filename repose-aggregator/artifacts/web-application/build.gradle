@@ -144,7 +144,7 @@ ospackage {
         fileMode 0444
     }
 
-    provides('repose')
+    provides("repose-$project.version")
     conflicts('repose-valve')
     recommends('repose-filter-bundle')
     suggests('repose-extensions-bundle')
