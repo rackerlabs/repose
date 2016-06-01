@@ -259,7 +259,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
     //TODO: I can test this with openssl s_client commands, but not otherwise
     import scala.sys.process._
     try {
-      ("echo R" #| s"openssl s_client -connect localhost:$httpsPort" !) shouldBe 1
+      ("echo R" #| s"openssl s_client -connect localhost:${httpsPort.get}" !) shouldBe 1
     } finally {
       repose.shutdown()
     }
@@ -280,7 +280,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
     //TODO: I can test this with openssl s_client commands, but not otherwise
     import scala.sys.process._
     try {
-      ("echo R" #| s"openssl s_client -connect localhost:$httpsPort" !) shouldBe 0
+      ("echo R" #| s"openssl s_client -connect localhost:${httpsPort.get}" !) shouldBe 0
     } finally {
       repose.shutdown()
     }
