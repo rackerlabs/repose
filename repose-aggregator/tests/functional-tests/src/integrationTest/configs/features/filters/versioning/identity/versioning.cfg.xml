@@ -1,5 +1,5 @@
-<versioning xmlns="http://docs.openrepose.org/repose/versioning/v2.0">
-    <version-mapping pp-dest-id="target1" id="/v1.0" status="deprecated">
+<versioning xmlns="http://docs.openrepose.org/repose/versioning/v2.0" json-format="IDENTITY">
+    <version-mapping pp-dest-id="target1" id="/v1" status="DEPRECATED">
         <media-types>
             <media-type type="application/vnd.vendor.service-v1+xml" base="application/xml"/>
             <media-type type="application/vnd.vendor.service+xml; version=1" base="application/xml"/>
@@ -13,46 +13,60 @@
             <media-type type="application/vnd.rackspace; rnd=1; x=v1; rnd2=2; y=json" base="application/json"/>
         </media-types>
     </version-mapping>
-    <version-mapping pp-dest-id="target2" id="/v1.1" status="stable">
+    <version-mapping pp-dest-id="target2" id="/v2" status="CURRENT">
         <media-types>
-            <media-type type="application/vnd.vendor.service-v1.1+xml" base="application/xml"/>
-            <media-type type="application/vnd.vendor.service+xml; version=1.1" base="application/xml"/>
-            <media-type type="application/v1.1+xml" base="application/xml"/>
-            <media-type type="application/vnd.rackspace; x=v1.1; y=xml" base="application/xml"/>
-            <media-type type="application/vnd.rackspace; rnd=1; x=v1.1; rnd2=2; y=xml" base="application/xml"/>
-            <media-type type="application/vnd.vendor.service-v1.1+json" base="application/json"/>
-            <media-type type="application/vnd.vendor.service+json; version=1.1" base="application/json"/>
-            <media-type type="application/v1.1+json" base="application/json"/>
-            <media-type type="application/vnd.rackspace; x=v1.1; y=json" base="application/json"/>
-            <media-type type="application/vnd.rackspace; rnd=1; x=v1.1; rnd2=2; y=json" base="application/json"/>
+            <media-type type="application/vnd.vendor.service-v2+xml" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service+xml; version=2" base="application/xml"/>
+            <media-type type="application/v2+xml" base="application/xml"/>
+            <media-type type="application/vnd.rackspace; x=v2; y=xml" base="application/xml"/>
+            <media-type type="application/vnd.rackspace; rnd=1; x=v2; rnd2=2; y=xml" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service-v2+json" base="application/json"/>
+            <media-type type="application/vnd.vendor.service+json; version=2" base="application/json"/>
+            <media-type type="application/v2+json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; x=v2; y=json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; rnd=1; x=v2; rnd2=2; y=json" base="application/json"/>
         </media-types>
     </version-mapping>
-    <version-mapping pp-dest-id="target3" id="/v1.2" status="beta">
+    <version-mapping pp-dest-id="target1" id="/v3" status="DEPRECATED">
         <media-types>
-            <media-type type="application/vnd.vendor.service-v1.2+xml" base="application/xml"/>
-            <media-type type="application/vnd.vendor.service+xml; version=1.2" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service-v3+xml" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service+xml; version=3" base="application/xml"/>
             <media-type type="application/v3+xml" base="application/xml"/>
-            <media-type type="application/vnd.rackspace; x=v1.2; y=xml" base="application/xml"/>
-            <media-type type="application/vnd.rackspace; rnd=1; x=v1.2; rnd2=2; y=xml" base="application/xml"/>
-            <media-type type="application/vnd.vendor.service-v1.2+json" base="application/json"/>
-            <media-type type="application/vnd.vendor.service+json; version=1.2" base="application/json"/>
-            <media-type type="application/v1.2+json" base="application/json"/>
-            <media-type type="application/vnd.rackspace; x=v1.2; y=json" base="application/json"/>
-            <media-type type="application/vnd.rackspace; rnd=1; x=v1.2; rnd2=2; y=json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; x=v3; y=xml" base="application/xml"/>
+            <media-type type="application/vnd.rackspace; rnd=1; x=v3; rnd2=2; y=xml" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service-v3+json" base="application/json"/>
+            <media-type type="application/vnd.vendor.service+json; version=3" base="application/json"/>
+            <media-type type="application/v3+json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; x=v3; y=json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; rnd=1; x=v3; rnd2=2; y=json" base="application/json"/>
         </media-types>
     </version-mapping>
-    <version-mapping pp-dest-id="target1" id="/v2.0" status="alpha">
+    <version-mapping pp-dest-id="target1" id="/v4" status="ALPHA">
         <media-types>
-            <media-type type="application/vnd.vendor.service-v2.0+xml" base="application/xml"/>
-            <media-type type="application/vnd.vendor.service+xml; version=2.0" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service-v4+xml" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service+xml; version=4" base="application/xml"/>
             <media-type type="application/v4+xml" base="application/xml"/>
-            <media-type type="application/vnd.rackspace; x=v2.0; y=xml" base="application/xml"/>
-            <media-type type="application/vnd.rackspace; rnd=1; x=v2.0; rnd2=2; y=xml" base="application/xml"/>
-            <media-type type="application/vnd.vendor.service-v2.0+json" base="application/json"/>
-            <media-type type="application/vnd.vendor.service+json; version=2.0" base="application/json"/>
-            <media-type type="application/v2.0+json" base="application/json"/>
-            <media-type type="application/vnd.rackspace; x=v2.0; y=json" base="application/json"/>
-            <media-type type="application/vnd.rackspace; rnd=1; x=v2.0; rnd2=2; y=json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; x=v4; y=xml" base="application/xml"/>
+            <media-type type="application/vnd.rackspace; rnd=1; x=v4; rnd2=2; y=xml" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service-v4+json" base="application/json"/>
+            <media-type type="application/vnd.vendor.service+json; version=4" base="application/json"/>
+            <media-type type="application/v4+json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; x=v4; y=json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; rnd=1; x=v4; rnd2=2; y=json" base="application/json"/>
+        </media-types>
+    </version-mapping>
+    <version-mapping pp-dest-id="target1" id="/v5" status="BETA">
+        <media-types>
+            <media-type type="application/vnd.vendor.service-v5+xml" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service+xml; version=5" base="application/xml"/>
+            <media-type type="application/v5+xml" base="application/xml"/>
+            <media-type type="application/vnd.rackspace; x=v5; y=xml" base="application/xml"/>
+            <media-type type="application/vnd.rackspace; rnd=1; x=v5; rnd2=2; y=xml" base="application/xml"/>
+            <media-type type="application/vnd.vendor.service-v5+json" base="application/json"/>
+            <media-type type="application/vnd.vendor.service+json; version=5" base="application/json"/>
+            <media-type type="application/v5+json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; x=v5; y=json" base="application/json"/>
+            <media-type type="application/vnd.rackspace; rnd=1; x=v5; rnd2=2; y=json" base="application/json"/>
         </media-types>
     </version-mapping>
 </versioning>

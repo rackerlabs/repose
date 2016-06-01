@@ -94,7 +94,7 @@ class VersioningForIdentityTest extends ReposeValveTest {
 
         def json = new JsonSlurper().parseText(mc.receivedResponse.body as String)
         json.versions.values
-        json.versions.values.size == 4
+        json.versions.values.size == 5
         json.versions.values[0].id
         json.versions.values[0].id.contains("/v")
         json.versions.values[0].links
@@ -106,11 +106,93 @@ class VersioningForIdentityTest extends ReposeValveTest {
         json.versions.values[0]."media-types".type
         json.versions.values[0]."media-types".type[0].contains("application/")
         json.versions.values[0].status
-        (json.versions.values[0].status as String).toUpperCase() == json.versions[0].status as String
-        json.versions.find { it.id == '/v1.0' }.status == "depriecated"
-        json.versions.find { it.id == '/v1.1' }.status == "stable"
-        json.versions.find { it.id == '/v1.2' }.status == "beta"
-        json.versions.find { it.id == '/v2.0' }.status == "alpha"
+        json.versions.values[0].status as String == "stable"
+        json.versions.values.find { it.id == '/v1' }.status == "deprecated"
+        json.versions.values.find { it.id == '/v2' }.status == "stable"
+        json.versions.values.find { it.id == '/v3' }.status == "deprecated"
+        json.versions.values.find { it.id == '/v4' }.status == "alpha"
+        json.versions.values.find { it.id == '/v5' }.status == "beta"
     }
 
+    def "verify the response JSON is formatted for Identity when the format is not configured for a single version request"() {
+        when: "User sends requests through repose"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + "/v1", method: 'GET', headers: acceptJSON)
+
+        then: "Response body should contain the expected JSON format"
+        mc.receivedResponse.code == "200"
+
+        def json = new JsonSlurper().parseText(mc.receivedResponse.body as String)
+        json.version
+        json.version.id == "/v1"
+        json.version."media-types"
+        json.version."media-types".base
+        json.version."media-types".base[0].contains("application/")
+        json.version."media-types".type
+        json.version."media-types".type[0].contains("application/")
+        json.version."media-types".find { it.type == "application/v1+xml" }.base == "application/xml"
+        json.version."media-types".find { it.type == "application/v1+json" }.base == "application/json"
+        json.version.status == "deprecated"
+    }
+
+    @Unroll
+    def "when retrieving version details: #reqHeaders - #requestUri"() {
+        when: "User sends requests through repose"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUri, method: 'GET', headers: reqHeaders)
+
+        then: "Response body should contain"
+        mc.receivedResponse.code == respCode
+
+        for (String st : shouldContain) {
+            mc.receivedResponse.body.contains(st)
+        }
+
+        for (String st : shouldNotContain) {
+            !mc.receivedResponse.body.contains(st)
+        }
+
+        where:
+        reqHeaders   | respCode | shouldContain                    | shouldNotContain | requestUri
+        acceptJSON   | '200'    | ['"id" : "/v1"']                 | ['"id" : "/v2"'] | "/v1"
+        acceptJSON   | '200'    | ['"id" : "/v2"']                 | ['"id" : "/v1"'] | "/v2"
+        acceptV1JSON | '200'    | ['"id" : "/v1"']                 | ['"id" : "/v2"'] | "/v1"
+        acceptV2JSON | '200'    | ['"id" : "/v2"']                 | ['"id" : "/v1"'] | "/v2"
+        acceptJSON   | '300'    | ['"id" : "/v2"', '"id" : "/v1"'] | []               | "/wrong"
+        acceptJSON   | '300'    | ['"id" : "/v2"', '"id" : "/v1"'] | []               | "/0/usertest1/ss"
+        acceptXML    | '200'    | ['id="/v1"']                     | ['id="/v2"']     | "/v1"
+        acceptXML    | '200'    | ['id="/v2"']                     | ['id="/v1"']     | "/v2"
+        acceptV1XML  | '200'    | ['id="/v1"']                     | ['id="/v1"']     | "/v1"
+        acceptV2XML  | '200'    | ['id="/v2"']                     | ['id="/v2"']     | "/v2"
+        acceptXML    | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/wrong"
+        acceptXML    | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/v1xxx/usertest1/ss"
+        acceptXML    | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/0/usertest1/ss"
+        acceptJSON   | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/v1xxx/usertest1/ss"
+    }
+
+    @Unroll
+    def "when retrieving version details with variant uri: #reqHeaders - #requestUri"() {
+        when: "User sends requests through repose"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUri, method: 'GET', headers: reqHeaders)
+
+        then: "Response body should contain"
+        mc.receivedResponse.code == "200"
+
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getFirstValue("host") == host
+
+        where:
+        reqHeaders          | requestUri         | host
+        acceptV2VendorJSON  | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptV2VendorXML   | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptV2VendorJSON2 | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptV2VendorXML2  | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptHtml          | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXHtml         | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXMLWQ         | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptV1VendorJSON  | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptV1VendorXML   | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptV1VendorJSON2 | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptV1VendorXML2  | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptXML           | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
+        acceptJSON          | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
+    }
 }
