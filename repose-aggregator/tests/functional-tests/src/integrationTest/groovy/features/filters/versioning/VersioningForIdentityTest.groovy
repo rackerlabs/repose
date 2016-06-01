@@ -26,7 +26,7 @@ import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 5/31/16.
- *  Versioning for identity
+ *  Versioning for identity when config versioning with json-format="IDENTITY"
  */
 class VersioningForIdentityTest extends ReposeValveTest {
     def static Map acceptXML = [accept: "application/xml"]
@@ -106,7 +106,6 @@ class VersioningForIdentityTest extends ReposeValveTest {
         json.versions.values[0]."media-types".type
         json.versions.values[0]."media-types".type[0].contains("application/")
         json.versions.values[0].status
-        json.versions.values[0].status as String == "stable"
         json.versions.values.find { it.id == '/v1' }.status == "deprecated"
         json.versions.values.find { it.id == '/v2' }.status == "stable"
         json.versions.values.find { it.id == '/v3' }.status == "deprecated"
