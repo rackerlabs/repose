@@ -21,6 +21,8 @@ package features.filters.compression
 
 import framework.ReposeValveTest
 import framework.category.Slow
+import org.apache.http.HttpHeaders
+import org.apache.http.HttpStatus
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -309,5 +311,43 @@ class CompressionHeaderTest extends ReposeValveTest {
         "Accept-encoding" | "x-gzip"
         "Accept-Encoding" | "deflate"
         "accept-Encoding" | "identity"
+    }
+
+    @Unroll("A GET request with Accept-Encoding header set to #encoding is honored on the output")
+    def "Check if GET request with Accept-Encoding header set to #encoding is honored on the output"() {
+        when:
+        "the content is sent to the origin service through Repose with Accept-Encoding " + encoding
+        def MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint,
+                method: 'GET',
+                headers: [
+                        'Content-Length' : '0',
+                        'Accept-Encoding': encoding
+                ],
+                defaultHandler: { new Response(HttpStatus.SC_OK, "OK", null, content) }
+        )
+
+        then: "the uncompressed response from the origin service should be compressed before reaching the client"
+        mc.handlings[0].response.body.toString() == content
+        if (mc.receivedResponse.body instanceof byte[]) {
+            // This doesn't seem to work because of extra -1's padding the end of the body array.
+            //Arrays.equals((byte[]) mc.receivedResponse.body, zippedContent)
+            // So we go old school.
+            def rxBody = (byte[]) mc.receivedResponse.body
+            for (int i = 0; i < zippedContent.length; i++) {
+                assert (rxBody[i] == zippedContent[i])
+            }
+        } else {
+            assert (zippedContent instanceof String)
+            assert (mc.receivedResponse.body == zippedContent)
+        }
+        Integer.valueOf(mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_LENGTH, "-1")) == zippedContent.length
+
+        where:
+        encoding   | zippedContent
+        "gzip"     | gzipCompressedContent
+        "x-gzip"   | gzipCompressedContent
+        "deflate"  | deflateCompressedContent
+        "identity" | content
     }
 }
