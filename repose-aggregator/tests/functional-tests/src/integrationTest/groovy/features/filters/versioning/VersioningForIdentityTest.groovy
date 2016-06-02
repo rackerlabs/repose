@@ -85,7 +85,7 @@ class VersioningForIdentityTest extends ReposeValveTest {
         acceptJSON | ['"id" : "/v1"', '"id" : "/v2"']
     }
 
-    def "verify the response JSON is formatted for identity when the format is not configured for a versions request"() {
+    def "verify the response JSON is formatted for Identity when configured as such for a versions request"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: acceptJSON)
 
@@ -113,7 +113,7 @@ class VersioningForIdentityTest extends ReposeValveTest {
         json.versions.values.find { it.id == '/v5' }.status == "beta"
     }
 
-    def "verify the response JSON is formatted for Identity when the format is not configured for a single version request"() {
+    def "verify the response JSON is formatted for Identity when configured as such for a single version request"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url: reposeEndpoint + "/v1", method: 'GET', headers: acceptJSON)
 
