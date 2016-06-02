@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
@@ -34,6 +35,7 @@ import org.openrepose.filters.versioning.schema.VersionChoiceList;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -48,8 +50,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-// suppress unchecked assignment warnings in the static initializer
-@SuppressWarnings("unchecked")
 public class ContentTransformerTest {
 
     private static final String EXAMPLES_DIR = "/META-INF/schema/examples/";
@@ -62,21 +62,21 @@ public class ContentTransformerTest {
     private static final String XML_CHOICES = EXAMPLES_DIR + "xml/choices.xml";
     private static final String JSON_CHOICES = EXAMPLES_DIR + "json/choices.json";
 
-    private static final Transform<InputStream, JAXBElement<?>> xmlTransformer;
+    private static Transform<InputStream, JAXBElement<?>> xmlTransformer;
+    private static String versionXmlFileReader;
+    private static String versionsXmlFileReader;
 
     private ObjectMapper mapper = new ObjectMapper();
-    private String versionXmlFileReader = getFileAsString(XML_VERSION);
-    private String versionsXmlFileReader = getFileAsString(XML_VERSIONS);
 
-    static {
-        try {
-            xmlTransformer = new StreamToJaxbTransform(
-                    JAXBContext.newInstance(
-                            org.openrepose.filters.versioning.schema.ObjectFactory.class,
-                            org.openrepose.filters.versioning.config.ObjectFactory.class));
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to create JAXBContext for test", ex);
-        }
+    @BeforeClass
+    @SuppressWarnings("unchecked")
+    public static void setup() throws JAXBException {
+        xmlTransformer = new StreamToJaxbTransform(
+                JAXBContext.newInstance(
+                        org.openrepose.filters.versioning.schema.ObjectFactory.class,
+                        org.openrepose.filters.versioning.config.ObjectFactory.class));
+        versionXmlFileReader = getFileAsString(XML_VERSION);
+        versionsXmlFileReader = getFileAsString(XML_VERSIONS);
     }
 
     @Test
@@ -166,6 +166,7 @@ public class ContentTransformerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void shouldMarshalVersionXml() {
         final JAXBElement jaxbElement = xmlTransformer.transform(
                 ContentTransformerTest.class.getResourceAsStream(XML_VERSION));
@@ -174,6 +175,7 @@ public class ContentTransformerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void shouldMarshalVersionsXml() {
         final JAXBElement jaxbElement = xmlTransformer.transform(
                 ContentTransformerTest.class.getResourceAsStream(XML_VERSIONS));
@@ -182,6 +184,7 @@ public class ContentTransformerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void shouldMarshalChoicesXml() {
         final JAXBElement jaxbElement = xmlTransformer.transform(
                 ContentTransformerTest.class.getResourceAsStream(XML_CHOICES));
@@ -199,9 +202,9 @@ public class ContentTransformerTest {
         return transformStream.toString();
     }
 
-    private String getFileAsString(String fileName) {
+    private static String getFileAsString(String fileName) {
         try {
-            return FileUtils.readFileToString(new File(getClass().getResource(fileName).toURI()));
+            return FileUtils.readFileToString(new File(ContentTransformerTest.class.getResource(fileName).toURI()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (URISyntaxException e) {
