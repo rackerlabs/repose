@@ -31,7 +31,7 @@ apply plugin: 'nebula.gradle-git-scm'
 apply plugin: 'org.hidetake.ssh'
 
 ext {
-    reposeCodename = "Ezio?"
+    reposeCodename = "Ezio"
     scalaMajor = '2'
     scalaMinor = '11'
     scalaPatch = '7'
@@ -81,7 +81,7 @@ task('release', description: 'Release the project and publish to all repos.', gr
 
 allprojects {
     group = 'org.openrepose'
-    def baseVersion = '8.0.0.0'
+    def baseVersion = '8.0.1.0'
     version = project.hasProperty('release') ? baseVersion : "$baseVersion-SNAPSHOT"
 
     apply plugin: 'idea'
