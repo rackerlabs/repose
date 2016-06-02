@@ -19,6 +19,7 @@
  */
 package org.openrepose.valve
 
+import org.eclipse.jetty.server.ServerConnector
 import org.junit.runner.RunWith
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
@@ -32,8 +33,12 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
     CoreSpringProvider.getInstance().reInitializeCoreContext("/config/root", false)
   }
 
-  val httpPort = 10234
-  val httpsPort = 10235
+  val httpPort = Some(10234)
+  val httpsPort = Some(10235)
+  val idleTimeout = Some(10236L)
+  val soLingerTime = Some(10237)
+  val DEFAULT_IDLE_TIMEOUT = 30000
+  val DEFAULT_SO_LINGER_TIME = -1
 
   val sslConfig = {
     val s = new SslConfiguration()
@@ -41,45 +46,114 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
     s.setKeystoreFilename("some.file")
     s.setKeystorePassword("lolpassword")
 
-    s
+    Some(s)
   }
 
   it("can create a jetty server listening on an HTTP port") {
     val repose = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(httpPort),
+      httpPort,
+      None,
+      None,
       None,
       None
     )
 
     //Cannot verify too much, really can just prove that I have one connector
-    repose.server.getConnectors.size shouldBe 1
+    repose.server.getConnectors.length shouldBe 1
+    // and it should have default idleTimeout & soLingerTime
+    repose.server.getConnectors.head.getIdleTimeout shouldBe DEFAULT_IDLE_TIMEOUT
+    repose.server.getConnectors.head.asInstanceOf[ServerConnector].getSoLingerTime shouldBe DEFAULT_SO_LINGER_TIME
   }
+
   it("can create a jetty server listening on an HTTPS port") {
     val repose = new ReposeJettyServer(
       "cluster",
       "node",
       None,
-      Some(httpPort),
-      Some(sslConfig)
+      httpsPort,
+      sslConfig,
+      None,
+      None
     )
 
     //Cannot verify too much, really can just prove that I have one connector
-    repose.server.getConnectors.size shouldBe 1
+    repose.server.getConnectors.length shouldBe 1
+    // and it should have the default idleTimeout & soLingerTime
+    repose.server.getConnectors.head.getIdleTimeout shouldBe DEFAULT_IDLE_TIMEOUT
+    repose.server.getConnectors.head.asInstanceOf[ServerConnector].getSoLingerTime shouldBe DEFAULT_SO_LINGER_TIME
   }
+
   it("can create a jetty server listening on both an HTTP port and an HTTPS port") {
     val repose = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(httpPort),
-      Some(httpsPort),
-      Some(sslConfig)
+      httpPort,
+      httpsPort,
+      sslConfig,
+      None,
+      None
+    )
+
+    //Cannot verify too much, really can just prove that I have two connectors
+    repose.server.getConnectors.length shouldBe 2
+  }
+
+  it("the jetty server listening on an HTTP port and having a non-default idleTimeout") {
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      httpPort,
+      None,
+      None,
+      idleTimeout,
+      None
     )
 
     //Cannot verify too much, really can just prove that I have one connector
-    repose.server.getConnectors.size shouldBe 2
+    repose.server.getConnectors.length shouldBe 1
+    // and it should have the new idleTimeout
+    repose.server.getConnectors.head.getIdleTimeout shouldBe idleTimeout.get
+    // and it should have the default soLingerTime
+    repose.server.getConnectors.head.asInstanceOf[ServerConnector].getSoLingerTime shouldBe DEFAULT_SO_LINGER_TIME
+  }
 
+  it("the jetty server listening on an HTTPS port and a non-default soLingerTime") {
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      None,
+      httpsPort,
+      sslConfig,
+      None,
+      soLingerTime
+    )
+
+    //Cannot verify too much, really can just prove that I have one connector
+    repose.server.getConnectors.length shouldBe 1
+    // and it should have the default idleTimeout
+    repose.server.getConnectors.head.getIdleTimeout shouldBe DEFAULT_IDLE_TIMEOUT
+    // and it should have the new soLingerTime
+    repose.server.getConnectors.head.asInstanceOf[ServerConnector].getSoLingerTime shouldBe soLingerTime.get
+  }
+
+  it("the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout & soLingerTime") {
+    val repose = new ReposeJettyServer(
+      "cluster",
+      "node",
+      httpPort,
+      httpsPort,
+      sslConfig,
+      idleTimeout,
+      soLingerTime
+    )
+
+    //Cannot verify too much, really can just prove that I have two connectors
+    repose.server.getConnectors.length shouldBe 2
+    // and both should have the new idleTimeout and the new soLingerTime
+    repose.server.getConnectors foreach { conn => conn.getIdleTimeout shouldBe idleTimeout.get }
+    repose.server.getConnectors foreach { conn => conn.asInstanceOf[ServerConnector].getSoLingerTime shouldBe soLingerTime.get }
   }
 
   it("raises an exception when an HTTPS port is specified, but no ssl config is provided") {
@@ -88,16 +162,21 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
         "cluster",
         "node",
         None,
-        Some(httpPort),
+        httpsPort,
+        None,
+        None,
         None
       )
     }
   }
+
   it("raises an exception when neither HTTP nor HTTPS port are specified") {
     intercept[ServerInitializationException] {
       new ReposeJettyServer(
         "cluster",
         "node",
+        None,
+        None,
         None,
         None,
         None
@@ -109,7 +188,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
     val server = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(httpPort),
+      httpPort,
+      None,
+      None,
       None,
       None
     )
@@ -126,11 +207,14 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
     server.appContext.isRunning shouldBe false
 
   }
+
   it("can be restarted, terminating and restarting everything") {
     val server = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(httpPort),
+      httpPort,
+      None,
+      None,
       None,
       None
     )
@@ -160,7 +244,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
     val server = new ReposeJettyServer(
       "cluster",
       "node",
-      Some(httpPort),
+      httpPort,
+      None,
+      None,
       None,
       None
     )
@@ -183,11 +269,12 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
       "le_node_id",
       Some(8080),
       None,
+      None,
+      None,
       None
     )
     import ReposeSpringProperties.CORE._
     import ReposeSpringProperties.NODE._
-
 
     val expectedProperties = Map(
       CLUSTER_ID -> "cluster",
@@ -199,7 +286,5 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
     expectedProperties.foreach { case (k, v) =>
       server.appContext.getEnvironment.getProperty(k) shouldBe v
     }
-
   }
-
 }

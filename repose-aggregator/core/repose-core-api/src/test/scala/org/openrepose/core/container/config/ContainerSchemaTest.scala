@@ -102,5 +102,44 @@ class ContainerSchemaTest extends FunSpec with Matchers {
       }
       exception.getLocalizedMessage should include ("Don't duplicate ciphers")
     }
+
+    it("should successfully validate a config with max values for idleTimeout and soLingerTime") {
+      val config = """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+                     |    <deployment-config idleTimeout="9223372036854775807" soLingerTime="2147483647">
+                     |        <deployment-directory auto-clean="false">/var/repose</deployment-directory>
+                     |        <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
+                     |        <logging-configuration href="file:///etc/repose/log4j2.xml"/>
+                     |    </deployment-config>
+                     |</repose-container>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should reject a config with idleTimeout greater than max value") {
+      val config = """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+                     |    <deployment-config idleTimeout="9223372036854775808">
+                     |        <deployment-directory auto-clean="false">/var/repose</deployment-directory>
+                     |        <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
+                     |        <logging-configuration href="file:///etc/repose/log4j2.xml"/>
+                     |    </deployment-config>
+                     |</repose-container>""".stripMargin
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include ("is not facet-valid with respect to maxInclusive")
+    }
+
+    it("should reject a config with soLingerTime greater than max value") {
+      val config = """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+                     |    <deployment-config soLingerTime="2147483648">
+                     |        <deployment-directory auto-clean="false">/var/repose</deployment-directory>
+                     |        <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
+                     |        <logging-configuration href="file:///etc/repose/log4j2.xml"/>
+                     |    </deployment-config>
+                     |</repose-container>""".stripMargin
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include ("is not facet-valid with respect to maxInclusive")
+    }
   }
 }

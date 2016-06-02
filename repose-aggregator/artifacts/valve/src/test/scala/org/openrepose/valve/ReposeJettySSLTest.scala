@@ -103,14 +103,14 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
   }
 
 
-  val httpsPort = 10235
+  val httpsPort = Some(10235)
 
   //Create an SSL configuration for the jaxb thingies
   def sslConfig(includedProtocols: List[String] = List.empty[String],
                 excludedProtocols: List[String] = List.empty[String],
                 includedCiphers: List[String] = List.empty[String],
                 excludedCiphers: List[String] = List.empty[String],
-                tlsRenegotiation: Boolean = true): SslConfiguration = {
+                tlsRenegotiation: Boolean = true): Option[SslConfiguration] = {
     val s = new SslConfiguration()
     s.setKeyPassword("buttsbuttsbutts")
     s.setKeystoreFilename("keystore.jks")
@@ -135,7 +135,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
     s.setIncludedProtocols(includedProtocols)
     s.setTlsRenegotiationAllowed(tlsRenegotiation)
 
-    s
+    Some(s)
   }
 
   //For each one of these, create a jetty server, talk to it, and make sure the SSL stuff is doing what is described
@@ -157,7 +157,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
     val client = HttpClients.custom().setSSLSocketFactory(sf).build()
 
-    val get = new HttpGet(s"https://localhost:$httpsPort")
+    val get = new HttpGet(s"https://localhost:${httpsPort.get}")
     val response = client.execute(get)
   }
 
@@ -166,8 +166,10 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "cluster",
       "node",
       None,
-      Some(httpsPort),
-      Some(sslConfig(excludedProtocols = List("TLSv1")))
+      httpsPort,
+      sslConfig(excludedProtocols = List("TLSv1")),
+      None,
+      None
     )
     repose.start()
 
@@ -185,8 +187,10 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "cluster",
       "node",
       None,
-      Some(httpsPort),
-      Some(sslConfig(includedProtocols = List("TLSv1.1", "TLSv1.2")))
+      httpsPort,
+      sslConfig(includedProtocols = List("TLSv1.1", "TLSv1.2")),
+      None,
+      None
     )
     repose.start()
     try {
@@ -205,8 +209,10 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "cluster",
       "node",
       None,
-      Some(httpsPort),
-      Some(sslConfig(excludedCiphers = List(defaultEnabledCiphers.head)))
+      httpsPort,
+      sslConfig(excludedCiphers = List(defaultEnabledCiphers.head)),
+      None,
+      None
     )
     repose.start()
     try {
@@ -223,8 +229,10 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "cluster",
       "node",
       None,
-      Some(httpsPort),
-      Some(sslConfig(includedCiphers = List(defaultEnabledCiphers.head)))
+      httpsPort,
+      sslConfig(includedCiphers = List(defaultEnabledCiphers.head)),
+      None,
+      None
     )
     repose.start()
     try {
@@ -241,15 +249,17 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "cluster",
       "node",
       None,
-      Some(httpsPort),
-      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = false))
+      httpsPort,
+      sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = false),
+      None,
+      None
     )
     repose.start()
 
     //TODO: I can test this with openssl s_client commands, but not otherwise
     import scala.sys.process._
     try {
-      ("echo R" #| s"openssl s_client -connect localhost:$httpsPort" !) shouldBe 1
+      ("echo R" #| s"openssl s_client -connect localhost:${httpsPort.get}" !) shouldBe 1
     } finally {
       repose.shutdown()
     }
@@ -260,15 +270,17 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "cluster",
       "node",
       None,
-      Some(httpsPort),
-      Some(sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = true))
+      httpsPort,
+      sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = true),
+      None,
+      None
     )
     repose.start()
 
     //TODO: I can test this with openssl s_client commands, but not otherwise
     import scala.sys.process._
     try {
-      ("echo R" #| s"openssl s_client -connect localhost:$httpsPort" !) shouldBe 0
+      ("echo R" #| s"openssl s_client -connect localhost:${httpsPort.get}" !) shouldBe 0
     } finally {
       repose.shutdown()
     }
@@ -279,8 +291,10 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "cluster",
       "node",
       None,
-      Some(httpsPort),
-      Some(sslConfig(excludedCiphers = List(".*TLS.*")))
+      httpsPort,
+      sslConfig(excludedCiphers = List(".*TLS.*")),
+      None,
+      None
     )
     repose.start()
     try {
@@ -305,8 +319,10 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "cluster",
       "node",
       None,
-      Some(httpsPort),
-      Some(sslConfig(includedCiphers = List(".*SSL.*")))
+      httpsPort,
+      sslConfig(includedCiphers = List(".*SSL.*")),
+      None,
+      None
     )
     repose.start()
     try {

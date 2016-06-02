@@ -76,9 +76,8 @@ class ValveRunner @Inject()(
       val objectName = new ObjectName(ValvePortMXBean.OBJECT_NAME)
       mbs.unregisterMBean(objectName)
     } catch {
-      case e: InstanceNotFoundException => {
+      case e: InstanceNotFoundException =>
         logger.debug(s"Shut down before I could register the MXBean: ${ValvePortMXBean.OBJECT_NAME}", e)
-      }
     }
   }
 
@@ -111,7 +110,9 @@ class ValveRunner @Inject()(
       val containerConfig = currentContainerConfig.get
 
       if (Option(systemModel).isDefined && Option(containerConfig).isDefined) {
-        val sslConfig = containerConfig.getDeploymentConfig.getSslConfiguration
+        val sslConfig = Option(containerConfig.getDeploymentConfig.getSslConfiguration)
+        val idleTimeout = Option(containerConfig.getDeploymentConfig.getIdleTimeout)
+        val soLingerTime = Option(containerConfig.getDeploymentConfig.getSoLingerTime)
 
         def isLocal(host: String): Boolean = {
           try {
@@ -208,7 +209,7 @@ class ValveRunner @Inject()(
 
             //Start up all the new nodes, replacing the existing nodes list with a new one
             activeNodes = activeNodes ++ startList.flatMap { n =>
-              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, Option(sslConfig), testMode)
+              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
               try {
                 node.start()
                 //Update the MX bean with port info
@@ -217,13 +218,12 @@ class ValveRunner @Inject()(
                 }
                 Some(node)
               } catch {
-                case e: Exception => {
+                case e: Exception =>
                   //If we couldn't start a node, throw a fatal error, and try to start other nodes?
                   // at the very least, we need to unload all the things, because it's buggered.
                   node.shutdown()
                   logger.error(s"Unable to start repose node ${node.clusterId}:${node.nodeId} !!!!", e)
                   None
-                }
               }
             }
 

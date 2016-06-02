@@ -42,17 +42,22 @@ case class ServerInitializationException(message: String, cause: Throwable = nul
  * A single jetty can listen on both an HTTP port and an HTTPS port. In theory, a single jetty could listen on many
  * ports, and just have many connectors. A clusterID and nodeID is all that is needed to figure out what jetty it is.
  * It will fail to build if there's no SSL configuration
- * @param clusterId
- * @param nodeId
- * @param httpPort
- * @param httpsPort
- * @param sslConfig
+ *
+ * @param clusterId Repose Cluster ID
+ * @param nodeId Repose Node ID
+ * @param httpPort The port to listen on for HTTP traffic
+ * @param httpsPort The port to listen on for HTTPS traffic
+ * @param idleTimeout The time in milliseconds that the connection can be idle before it is closed.
+ * @param soLingerTime A value >=0 sets the socket SO_LINGER value in milliseconds.
+ * @param sslConfig The SSL Configuration to use
  */
 class ReposeJettyServer(val clusterId: String,
                         val nodeId: String,
                         val httpPort: Option[Int],
                         val httpsPort: Option[Int],
                         sslConfig: Option[SslConfiguration],
+                        idleTimeout: Option[Long],
+                        soLingerTime: Option[Int],
                         testMode: Boolean = false) {
 
   val config = ConfigFactory.load("springConfiguration.conf")
@@ -141,6 +146,11 @@ class ReposeJettyServer(val clusterId: String,
 
     if (connectors.isEmpty) {
       throw new ServerInitializationException("At least one HTTP or HTTPS port must be specified")
+    } else {
+      connectors foreach { connector =>
+        idleTimeout foreach connector.setIdleTimeout
+        soLingerTime foreach connector.setSoLingerTime
+      }
     }
 
     //Hook up the port connectors!
@@ -196,7 +206,7 @@ class ReposeJettyServer(val clusterId: String,
    */
   def restart(): ReposeJettyServer = {
     shutdown()
-    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig, testMode)
+    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
   }
 
   /**
