@@ -183,7 +183,6 @@ class CompressionHeaderTest extends ReposeValveTest {
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', defaultHandler: handler)
-        def handling = mc.getHandlings()[0]
 
         then:
         mc.receivedResponse.code == "201"
@@ -334,8 +333,9 @@ class CompressionHeaderTest extends ReposeValveTest {
             //Arrays.equals((byte[]) mc.receivedResponse.body, zippedContent)
             // So we go old school.
             def rxBody = (byte[]) mc.receivedResponse.body
-            for (int i = 0; i < zippedContent.length; i++) {
-                assert (rxBody[i] == zippedContent[i])
+            def expected = (byte[]) zippedContent
+            for (int i = 0; i < expected.length; i++) {
+                assert (rxBody[i] == expected[i])
             }
         } else {
             assert (zippedContent instanceof String)
