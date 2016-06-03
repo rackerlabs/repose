@@ -171,7 +171,18 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             // because we care to match on the status code of the response, if anything was set.
             validateTokenResponse.map(response => response.getStatus) match {
               case Some(statusCode) if statusCode == HttpServletResponse.SC_OK =>
-                val subjectTokenObject = jsonStringToObject[AuthResponse](inputStreamToString(validateTokenResponse.get.getData)).token
+                val json = Json.parse(inputStreamToString(validateTokenResponse.get.getData))
+                val tokenExpiration = (json \ "token" \ "expires_at").as[String]
+                //val roles = (json \ "token" \ "user" \ "roles").as[JsArray].value
+                //  .map(jsRole => Role("", (jsRole \ "name").as[String], (jsRole \ "tenantId").asOpt[String]))  // todo: which to populate
+                //  .toVector
+                val subjectTokenObject = AuthenticateResponse(
+                  tokenExpiration,
+                  None,
+                  None,
+                  None,
+                  None,
+                  UserForAuthenticateResponse(DomainsForAuthenticateResponse()))
 
                 val expiration = new DateTime(subjectTokenObject.expires_at)
                 val identityTtl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)

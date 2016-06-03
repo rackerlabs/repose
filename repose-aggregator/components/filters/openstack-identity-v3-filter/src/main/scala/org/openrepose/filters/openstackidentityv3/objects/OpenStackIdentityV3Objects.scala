@@ -85,8 +85,8 @@ case class ImpersonatorForAuthenticationResponse(id: Option[String] = None,
                                                  name: Option[String] = None)
 
 case class AuthenticateResponse(expires_at: String,
-                                issued_at: String,
-                                methods: List[String],
+                                //issued_at: String,
+                                //methods: List[String],
                                 domain: Option[DomainsForAuthenticateResponse],
                                 project: Option[ProjectForAuthenticateResponse],
                                 catalog: Option[List[ServiceForAuthenticationResponse]],
