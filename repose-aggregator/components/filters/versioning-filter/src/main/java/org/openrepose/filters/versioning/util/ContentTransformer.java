@@ -26,6 +26,7 @@ import org.openrepose.commons.utils.transform.xslt.XsltToStreamTransform;
 import org.openrepose.commons.utils.xslt.LogErrorListener;
 import org.openrepose.commons.utils.xslt.LogTemplatesWrapper;
 import org.openrepose.core.servlet.PowerApiContextException;
+import org.openrepose.filters.versioning.config.JsonFormat;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -37,7 +38,10 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.OutputStream;
 
 public class ContentTransformer {
-    private static final String JSON_XSLT = "/META-INF/transform/xslt/version-json.xsl";
+    private static final String XSLT_DIR = "/META-INF/transform/xslt/";
+    private static final String JSON_XSLT_COMPUTE = "version-json.xsl";
+    private static final String JSON_XSLT_IDENTITY = "version-json-identity.xsl";
+
     /**
      * This is the class that was used in the original repose before having to set the classloader
      * I don't know if this is the right class, but it does work.
@@ -52,13 +56,15 @@ public class ContentTransformer {
     private final StreamTransform<JAXBElement, OutputStream> jsonStreamTransform;
     private final StreamTransform<JAXBElement, OutputStream> xmlStreamTransform;
 
-    public ContentTransformer() {
+    public ContentTransformer(JsonFormat jsonFormat) {
         try {
             final JAXBContext context = JAXBContext.newInstance(
                     org.openrepose.filters.versioning.schema.ObjectFactory.class,
                     org.openrepose.filters.versioning.config.ObjectFactory.class);
+
+            String jsonXslt = XSLT_DIR + ((JsonFormat.COMPUTE == jsonFormat) ? JSON_XSLT_COMPUTE : JSON_XSLT_IDENTITY);
             final Templates jsonXsltTemplates =
-                    ContentTransformer.parseXslt(new StreamSource(getClass().getResourceAsStream(JSON_XSLT)));
+                    ContentTransformer.parseXslt(new StreamSource(getClass().getResourceAsStream(jsonXslt)));
 
             xmlStreamTransform = new JaxbToStreamTransform<>(context);
             jsonStreamTransform = new XsltToStreamTransform<>(jsonXsltTemplates, context);

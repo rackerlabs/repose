@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,16 +22,13 @@ package features.filters.versioning
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**
- * User: dimi5963
- * Date: 9/11/13
- * Time: 5:03 PM
+ * Created by jennyvo on 5/31/16.
+ *  Versioning for identity when config versioning with json-format="IDENTITY"
  */
-class VersioningTest extends ReposeValveTest {
+class VersioningForIdentityTest extends ReposeValveTest {
     def static Map acceptXML = [accept: "application/xml"]
     def static Map acceptJSON = [accept: "application/json"]
     def static Map acceptV1XML = [accept: 'application/v1+xml']
@@ -61,7 +58,7 @@ class VersioningTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/versioning", params)
+        repose.configurationProvider.applyConfigs("features/filters/versioning/identity", params)
         repose.start()
     }
 
@@ -88,8 +85,7 @@ class VersioningTest extends ReposeValveTest {
         acceptJSON | ['"id" : "/v1"', '"id" : "/v2"']
     }
 
-    // http://developer.openstack.org/api-ref-compute-v2.1.html#listVersionsv2.1
-    def "verify the response JSON is formatted for Compute when the format is not configured for a versions request"() {
+    def "verify the response JSON is formatted for Identity when configured as such for a versions request"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: acceptJSON)
 
@@ -97,25 +93,44 @@ class VersioningTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
 
         def json = new JsonSlurper().parseText(mc.receivedResponse.body as String)
-        json.versions
-        json.versions.size == 5
-        json.versions[0].id
-        json.versions[0].id.contains("/v")
-        json.versions[0].links
-        json.versions[0].links.href
-        json.versions[0].links.rel
-        json.versions[0]."media-types"
-        json.versions[0]."media-types".base
-        json.versions[0]."media-types".base[0].contains("application/")
-        json.versions[0]."media-types".type
-        json.versions[0]."media-types".type[0].contains("application/")
-        json.versions[0].status
-        (json.versions[0].status as String).toUpperCase() == json.versions[0].status as String
-        json.versions.find { it.id == '/v1' }.status == "DEPRECATED"
-        json.versions.find { it.id == '/v2' }.status == "CURRENT"
-        json.versions.find { it.id == '/v3' }.status == "DEPRECATED"
-        json.versions.find { it.id == '/v4' }.status == "ALPHA"
-        json.versions.find { it.id == '/v5' }.status == "BETA"
+        json.versions.values
+        json.versions.values.size == 5
+        json.versions.values[0].id
+        json.versions.values[0].id.contains("/v")
+        json.versions.values[0].links
+        json.versions.values[0].links.href
+        json.versions.values[0].links.rel
+        json.versions.values[0]."media-types"
+        json.versions.values[0]."media-types".base
+        json.versions.values[0]."media-types".base[0].contains("application/")
+        json.versions.values[0]."media-types".type
+        json.versions.values[0]."media-types".type[0].contains("application/")
+        json.versions.values[0].status
+        json.versions.values.find { it.id == '/v1' }.status == "deprecated"
+        json.versions.values.find { it.id == '/v2' }.status == "stable"
+        json.versions.values.find { it.id == '/v3' }.status == "deprecated"
+        json.versions.values.find { it.id == '/v4' }.status == "alpha"
+        json.versions.values.find { it.id == '/v5' }.status == "beta"
+    }
+
+    def "verify the response JSON is formatted for Identity when configured as such for a single version request"() {
+        when: "User sends requests through repose"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + "/v1", method: 'GET', headers: acceptJSON)
+
+        then: "Response body should contain the expected JSON format"
+        mc.receivedResponse.code == "200"
+
+        def json = new JsonSlurper().parseText(mc.receivedResponse.body as String)
+        json.version
+        json.version.id == "/v1"
+        json.version."media-types"
+        json.version."media-types".base
+        json.version."media-types".base[0].contains("application/")
+        json.version."media-types".type
+        json.version."media-types".type[0].contains("application/")
+        json.version."media-types".find { it.type == "application/v1+xml" }.base == "application/xml"
+        json.version."media-types".find { it.type == "application/v1+json" }.base == "application/json"
+        json.version.status == "deprecated"
     }
 
     @Unroll
@@ -152,27 +167,6 @@ class VersioningTest extends ReposeValveTest {
         acceptJSON   | '300'    | ['id="/v2"', 'id="/v1"']         | []               | "/v1xxx/usertest1/ss"
     }
 
-    // http://developer.openstack.org/api-ref-compute-v2.1.html#showVersionsv2.1
-    def "verify the response JSON is formatted for Compute when the format is not configured for a single version request"() {
-        when: "User sends requests through repose"
-        def mc = deproxy.makeRequest(url: reposeEndpoint + "/v1", method: 'GET', headers: acceptJSON)
-
-        then: "Response body should contain the expected JSON format"
-        mc.receivedResponse.code == "200"
-
-        def json = new JsonSlurper().parseText(mc.receivedResponse.body as String)
-        json.version
-        json.version.id == "/v1"
-        json.version."media-types"
-        json.version."media-types".base
-        json.version."media-types".base[0].contains("application/")
-        json.version."media-types".type
-        json.version."media-types".type[0].contains("application/")
-        json.version."media-types".find { it.type == "application/v1+xml" }.base == "application/xml"
-        json.version."media-types".find { it.type == "application/v1+json" }.base == "application/json"
-        json.version.status == "DEPRECATED"
-    }
-
     @Unroll
     def "when retrieving version details with variant uri: #reqHeaders - #requestUri"() {
         when: "User sends requests through repose"
@@ -199,97 +193,5 @@ class VersioningTest extends ReposeValveTest {
         acceptV1VendorXML2  | "/usertest1/ss"    | "localhost:" + properties.targetPort
         acceptXML           | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
         acceptJSON          | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
-    }
-
-    def "Should split request headers according to rfc by default"() {
-        given:
-        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
-        def reqHeaders = [
-                "user-agent": userAgentValue,
-                "x-pp-user" : "usertest1, usertest2, usertest3",
-                accept      : "application/xml;q=1 , application/json;q=0.5"]
-
-        when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v2/test", method: 'GET', headers: reqHeaders)
-
-        then:
-        mc.handlings.size() == 1
-        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
-        mc.handlings[0].request.headers['user-agent'] == userAgentValue
-        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
-        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
-    }
-
-    def "Should not split response headers according to rfc"() {
-        given: "Origin service returns headers "
-        def respHeaders = [
-                location: "http://somehost.com/blah?a=b,c,d",
-                via     : "application/xml;q=0.3, application/json;q=1"]
-
-        when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v2/test", method: 'GET', defaultHandler: {
-            new Response(201, "Created", respHeaders, "")
-        })
-
-        then:
-        mc.receivedResponse.code == "201"
-        mc.handlings.size() == 1
-        mc.receivedResponse.headers.findAll("location").size() == 1
-        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
-        mc.receivedResponse.headers.findAll("via").size() == 1
-    }
-
-    @Unroll
-    def "Requests - headers: #headerName with \"#headerValue\" keep its case in requests"() {
-
-        when: "make a request with the given header and value"
-        def headers = [
-                'Content-Length': '0',
-                (headerName)    : headerValue]
-
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v2/test", headers: headers)
-
-        then: "the request should keep headerName and headerValue case"
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.contains(headerName)
-        mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
-
-        where:
-        headerName         | headerValue
-        "Accept"           | "text/plain"
-        "ACCEPT"           | "text/PLAIN"
-        "accept"           | "TEXT/plain;q=0.2"
-        "aCCept"           | "text/plain"
-        "CONTENT-Encoding" | "identity"
-        "Content-ENCODING" | "identity"
-    }
-
-    @Unroll
-    def "Responses - headers: #headerName with \"#headerValue\" keep its case in responses"() {
-
-        when: "make a request with the given header and value"
-        def headers = [
-                'Content-Length': '0',
-                (headerName)    : headerValue
-        ]
-
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v2/test", defaultHandler: {
-            new Response(200, null, headers)
-        })
-
-        then: "the response should keep headerName and headerValue case"
-        mc.handlings.size() == 1
-        mc.receivedResponse.headers.contains(headerName)
-        mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
-
-        where:
-        headerName     | headerValue
-        "x-auth-token" | "123445"
-        "X-AUTH-TOKEN" | "239853"
-        "x-AUTH-token" | "slDSFslk&D"
-        "x-auth-TOKEN" | "sl4hsdlg"
-        "CONTENT-Type" | "application/json"
-        "Content-TYPE" | "application/json"
     }
 }

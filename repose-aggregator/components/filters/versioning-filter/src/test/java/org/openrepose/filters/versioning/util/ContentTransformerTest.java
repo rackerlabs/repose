@@ -19,166 +19,196 @@
  */
 package org.openrepose.filters.versioning.util;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.transform.Transform;
 import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
+import org.openrepose.filters.versioning.config.JsonFormat;
 import org.openrepose.filters.versioning.schema.VersionChoice;
 import org.openrepose.filters.versioning.schema.VersionChoiceList;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
-/**
- * @author jhopper
- */
-@RunWith(Enclosed.class)
 public class ContentTransformerTest {
 
-    private static final Transform<InputStream, JAXBElement<?>> xmlTransformer;
+    private static final String EXAMPLES_DIR = "/META-INF/schema/examples/";
+    private static final String XML_VERSION = EXAMPLES_DIR + "xml/version.xml";
+    private static final String XML_VERSIONS = EXAMPLES_DIR + "xml/versions.xml";
+    private static final String JSON_VERSION = EXAMPLES_DIR + "json/version.json";
+    private static final String JSON_VERSIONS = EXAMPLES_DIR + "json/versions.json";
+    private static final String JSON_VERSION_IDENTITY = EXAMPLES_DIR + "json/version-identity.json";
+    private static final String JSON_VERSIONS_IDENTITY = EXAMPLES_DIR + "json/versions-identity.json";
+    private static final String XML_CHOICES = EXAMPLES_DIR + "xml/choices.xml";
+    private static final String JSON_CHOICES = EXAMPLES_DIR + "json/choices.json";
 
-    static {
+    private static Transform<InputStream, JAXBElement<?>> xmlTransformer;
+    private static String versionXmlFileReader;
+    private static String versionsXmlFileReader;
+
+    private ObjectMapper mapper = new ObjectMapper();
+
+    @BeforeClass
+    @SuppressWarnings("unchecked")
+    public static void setup() throws JAXBException {
+        xmlTransformer = new StreamToJaxbTransform(
+                JAXBContext.newInstance(
+                        org.openrepose.filters.versioning.schema.ObjectFactory.class,
+                        org.openrepose.filters.versioning.config.ObjectFactory.class));
+        versionXmlFileReader = getFileAsString(XML_VERSION);
+        versionsXmlFileReader = getFileAsString(XML_VERSIONS);
+    }
+
+    @Test
+    public void shouldTransformVersionToJson() throws Exception {
+        String expected = getFileAsString(JSON_VERSION);
+        String actual = transformXmlToFormat(
+                versionXmlFileReader,
+                new MediaType(MimeType.APPLICATION_JSON, -1),
+                new ContentTransformer(JsonFormat.COMPUTE));
+
+        assertThat("No expected string value found!", expected, not(nullValue()));
+        assertThat(mapper.readValue(actual, Map.class), equalTo(mapper.readValue(expected, Map.class)));
+    }
+
+    @Test
+    public void shouldTransformVersionsToJson() throws Exception {
+        String expected = getFileAsString(JSON_VERSIONS);
+        String actual = transformXmlToFormat(
+                versionsXmlFileReader,
+                new MediaType(MimeType.APPLICATION_JSON, -1),
+                new ContentTransformer(JsonFormat.COMPUTE));
+
+        assertThat("No expected string value found!", expected, not(nullValue()));
+        assertThat(mapper.readValue(actual, Map.class), equalTo(mapper.readValue(expected, Map.class)));
+    }
+
+    @Test
+    public void shouldTransformVersionIdentityToJson() throws Exception {
+        String expected = getFileAsString(JSON_VERSION_IDENTITY);
+        String actual = transformXmlToFormat(
+                versionXmlFileReader,
+                new MediaType(MimeType.APPLICATION_JSON, -1),
+                new ContentTransformer(JsonFormat.IDENTITY));
+
+        assertThat("No expected string value found!", expected, not(nullValue()));
+        assertThat(mapper.readValue(actual, Map.class), equalTo(mapper.readValue(expected, Map.class)));
+    }
+
+    @Test
+    public void shouldTransformVersionsIdentityToJson() throws Exception {
+        String expected = getFileAsString(JSON_VERSIONS_IDENTITY);
+        String actual = transformXmlToFormat(
+                versionsXmlFileReader,
+                new MediaType(MimeType.APPLICATION_JSON, -1),
+                new ContentTransformer(JsonFormat.IDENTITY));
+
+        assertThat("No expected string value found!", expected, not(nullValue()));
+        assertThat(mapper.readValue(actual, Map.class), equalTo(mapper.readValue(expected, Map.class)));
+    }
+
+    @Test
+    public void shouldTransformVersionToXml() throws Exception {
+        String expected = versionXmlFileReader;
+        String actual = transformXmlToFormat(
+                versionXmlFileReader,
+                new MediaType(MimeType.APPLICATION_XML, -1),
+                new ContentTransformer(JsonFormat.COMPUTE));
+
+        assertThat("No expected string value found!", expected, not(nullValue()));
+        Diff diff = new Diff(expected, actual);
+        assertTrue("XML Should be equivalent: " + diff, diff.similar());
+    }
+
+    @Test
+    public void shouldTransformVersionsToXml() throws Exception {
+        String expected = versionsXmlFileReader;
+        String actual = transformXmlToFormat(
+                versionsXmlFileReader,
+                new MediaType(MimeType.APPLICATION_XML, -1),
+                new ContentTransformer(JsonFormat.COMPUTE));
+
+        assertThat("No expected string value found!", expected, not(nullValue()));
+        Diff diff = new Diff(expected, actual);
+        assertTrue("XML Should be equivalent: " + diff, diff.similar());
+    }
+
+    @Test
+    public void shouldTransformChoicesToJson() throws Exception {
+        String expected = getFileAsString(JSON_CHOICES);
+        String actual = transformXmlToFormat(
+                getFileAsString("/META-INF/schema/examples/xml/choices.xml"),
+                new MediaType(MimeType.APPLICATION_JSON, -1),
+                new ContentTransformer(JsonFormat.COMPUTE));
+
+        assertThat("No expected string value found!", expected, not(nullValue()));
+        assertThat(mapper.readValue(actual, Map.class), equalTo(mapper.readValue(expected, Map.class)));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldMarshalVersionXml() {
+        final JAXBElement jaxbElement = xmlTransformer.transform(
+                ContentTransformerTest.class.getResourceAsStream(XML_VERSION));
+
+        assertTrue(jaxbElement.getDeclaredType().isAssignableFrom(VersionChoice.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldMarshalVersionsXml() {
+        final JAXBElement jaxbElement = xmlTransformer.transform(
+                ContentTransformerTest.class.getResourceAsStream(XML_VERSIONS));
+
+        assertTrue(jaxbElement.getDeclaredType().isAssignableFrom(VersionChoiceList.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldMarshalChoicesXml() {
+        final JAXBElement jaxbElement = xmlTransformer.transform(
+                ContentTransformerTest.class.getResourceAsStream(XML_CHOICES));
+
+        assertTrue(jaxbElement.getDeclaredType().isAssignableFrom(VersionChoiceList.class));
+    }
+
+    private String transformXmlToFormat(
+            String source,
+            MediaType mediaType,
+            ContentTransformer contentTransformer) {
+        JAXBElement jaxbElement = xmlTransformer.transform(IOUtils.toInputStream(source));
+        ByteArrayOutputStream transformStream = new ByteArrayOutputStream();
+        contentTransformer.transform(jaxbElement, mediaType, transformStream);
+        return transformStream.toString();
+    }
+
+    private static String getFileAsString(String fileName) {
         try {
-            xmlTransformer = new StreamToJaxbTransform(
-                    JAXBContext.newInstance(
-                            org.openrepose.filters.versioning.schema.ObjectFactory.class,
-                            org.openrepose.filters.versioning.config.ObjectFactory.class));
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to create JAXBContext for test", ex);
-        }
-    }
-
-    public static class WhenTransformingVersions {
-
-        private ContentTransformer contentTransformer;
-        private String versionJsonFileReader, versionXmlFileReader, choicesJsonFileReader, choicesXmlFileReader;
-        private ObjectMapper mapper;
-
-        @Before
-        public void standUp() throws Exception {
-            mapper = new ObjectMapper();
-            contentTransformer = new ContentTransformer();
-            versionJsonFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/json/version.json").toURI()));
-            versionXmlFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/xml/version.xml").toURI()));
-            choicesJsonFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/json/choices.json").toURI()));
-            choicesXmlFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/xml/choices.xml").toURI()));
-        }
-
-        @Test
-        public void shouldTransformVersionToJson() throws Exception {
-
-            String expected;
-            expected = versionJsonFileReader;
-            assertNotNull("no expected string value found!", expected);
-
-            final JAXBElement jaxbElement
-                    = xmlTransformer.transform(IOUtils.toInputStream(versionXmlFileReader));
-            ByteArrayOutputStream transformStream = new ByteArrayOutputStream();
-            contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1), transformStream);
-            String actual = transformStream.toString();
-
-            Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
-            Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
-
-            assertEquals("Objects should be equivalent", expectedMap, actualMap);
-        }
-
-        @Test
-        public void shouldTransformVersionToXml() throws Exception {
-            String expected;
-            expected = versionXmlFileReader;
-            assertNotNull("no expected string value found!", expected);
-
-            final JAXBElement jaxbElement
-                    = xmlTransformer.transform(IOUtils.toInputStream(versionXmlFileReader));
-            ByteArrayOutputStream transformStream = new ByteArrayOutputStream();
-            contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_XML, -1), transformStream);
-            String actual = transformStream.toString();
-            Diff diff = new Diff(expected, actual);
-            assertTrue("XML Should be equivalent", diff.similar());
-        }
-
-        @Test
-        public void shouldTransformVersionsToJson() throws Exception {
-            String expected;
-            expected = versionJsonFileReader;
-            assertNotNull("no expected string value found!", expected);
-
-            final JAXBElement jaxbElement
-                    = xmlTransformer.transform(IOUtils.toInputStream(versionXmlFileReader));
-
-            ByteArrayOutputStream transformStream = new ByteArrayOutputStream();
-            contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1), transformStream);
-            String actual = transformStream.toString();
-
-            Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
-            Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
-
-            assertEquals("Objects should be equivalent", expectedMap, actualMap);
-            //assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
-        }
-
-        @Test
-        public void shouldTransformChoicesToJson() throws Exception {
-            String expected;
-            expected = choicesJsonFileReader;
-            assertNotNull("no expected string value found!", expected);
-
-            final JAXBElement jaxbElement
-                    = xmlTransformer.transform(IOUtils.toInputStream(choicesXmlFileReader));
-
-            ByteArrayOutputStream transformStream = new ByteArrayOutputStream();
-            contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1), transformStream);
-            String actual = transformStream.toString();
-
-            Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
-            Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
-
-            assertEquals("Objects should be equivalent", expectedMap, actualMap);
-
-            //assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
-        }
-    }
-
-    public static class WhenMarshallingVersions {
-
-        @Test
-        public void shouldMarshalVersionXml() {
-            final JAXBElement jaxbElement = xmlTransformer.transform(
-                    ContentTransformerTest.class.getResourceAsStream("/META-INF/schema/examples/xml/version.xml"));
-
-            assertTrue(jaxbElement.getDeclaredType().isAssignableFrom(VersionChoice.class));
-        }
-
-        @Test
-        public void shouldMarshalVersionsXml() {
-            final JAXBElement jaxbElement = xmlTransformer.transform(
-                    ContentTransformerTest.class.getResourceAsStream("/META-INF/schema/examples/xml/versions.xml"));
-
-            assertTrue(jaxbElement.getDeclaredType().isAssignableFrom(VersionChoiceList.class));
-        }
-
-        @Test
-        public void shouldMarshalChoicesXml() {
-            final JAXBElement jaxbElement = xmlTransformer.transform(
-                    ContentTransformerTest.class.getResourceAsStream("/META-INF/schema/examples/xml/choices.xml"));
-
-            assertTrue(jaxbElement.getDeclaredType().isAssignableFrom(VersionChoiceList.class));
+            return FileUtils.readFileToString(new File(ContentTransformerTest.class.getResource(fileName).toURI()));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 }
