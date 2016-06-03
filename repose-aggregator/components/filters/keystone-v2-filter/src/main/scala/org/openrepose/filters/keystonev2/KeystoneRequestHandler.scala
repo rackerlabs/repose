@@ -131,7 +131,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       }
     }
 
-    val akkaResponse = Try(akkaServiceClient.get(s"$TOKEN_KEY_PREFIX$validatableToken",
+    val akkaResponse = Try(akkaServiceClient.get(
+      s"$TOKEN_KEY_PREFIX$validatableToken",
       s"$identityServiceUri$TOKEN_ENDPOINT/$validatableToken",
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> validatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)

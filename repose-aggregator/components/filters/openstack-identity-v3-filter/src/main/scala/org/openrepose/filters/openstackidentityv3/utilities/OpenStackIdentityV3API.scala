@@ -25,6 +25,7 @@ import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.MediaType
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.Header
 import org.joda.time.DateTime
@@ -35,6 +36,7 @@ import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Conf
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.springframework.http.HttpHeaders
+import play.api.libs.json.{JsArray, JsResultException, Json}
 import spray.json._
 
 import scala.collection.JavaConverters._
@@ -109,17 +111,24 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         // because we care to match on the status code of the response, if anything was set.
         authTokenResponse map (response => response.getStatus) match {
           case Some(statusCode) if statusCode == HttpServletResponse.SC_CREATED =>
-            val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) => header.getName.equalsIgnoreCase(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
+            val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) =>
+              header.getName.equalsIgnoreCase(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
 
             newAdminToken match {
               case Some(token) =>
                 logger.debug("Caching admin token")
 
-                val adminTokenObject = jsonStringToObject[AuthResponse](inputStreamToString(authTokenResponse.get.getData)).token
-                val adminTokenTtl = safeLongToInt(new DateTime(adminTokenObject.expires_at).getMillis - DateTime.now.getMillis)
+                try {
+                  val json = Json.parse(inputStreamToString(authTokenResponse.get.getData))
+                  val tokenExpiration = (json \ "token" \ "expires_at").as[String]
+                  val adminTokenTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
 
-                datastore.put(ADMIN_TOKEN_KEY, token, adminTokenTtl, TimeUnit.MILLISECONDS)
-                Success(token)
+                  datastore.put(ADMIN_TOKEN_KEY, token, adminTokenTtl, TimeUnit.MILLISECONDS)
+                  Success(token)
+                } catch {
+                  case oops@(_: JsResultException | _: JsonProcessingException) =>
+                    Failure(new IdentityServiceException("Unable to parse JSON from identity validate token response", oops))
+                }
               case None =>
                 logger.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
                 Failure(new IdentityServiceException("OpenStack Identity service did not return headers with a successful response"))
@@ -144,7 +153,8 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       case None =>
         getAdminToken(tracingHeader, checkCache) match {
           case Success(adminToken) =>
-            val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
+            val requestTracingHeader = tracingHeader
+              .map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
@@ -228,7 +238,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 } else {
                   offsetConfiguredTtl
                 }
-                logger.debug(s"Caching groups for user '${userId}' with TTL set to: ${ttl}ms")
+                logger.debug(s"Caching groups for user '$userId' with TTL set to: ${ttl}ms")
                 // TODO: Maybe handle all this conversion jank?
                 datastore.put(GROUPS_KEY_PREFIX + userId, groups.toBuffer.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
 
