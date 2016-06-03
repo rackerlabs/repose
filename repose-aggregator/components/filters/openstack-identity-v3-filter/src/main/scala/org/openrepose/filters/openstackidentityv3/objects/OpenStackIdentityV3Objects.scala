@@ -84,15 +84,15 @@ case class UserForAuthenticateResponse(domain: DomainsForAuthenticateResponse,
 case class ImpersonatorForAuthenticationResponse(id: Option[String] = None,
                                                  name: Option[String] = None)
 
-case class AuthenticateResponse(expires_at: String,
+case class AuthenticateResponse(expires_at: String, // todo: this is used
                                 //issued_at: String,
                                 //methods: List[String],
-                                domain: Option[DomainsForAuthenticateResponse],
-                                project: Option[ProjectForAuthenticateResponse],
-                                catalog: Option[List[ServiceForAuthenticationResponse]],
-                                roles: Option[List[Role]],
-                                user: UserForAuthenticateResponse,
-                                rax_impersonator: Option[ImpersonatorForAuthenticationResponse] = None
+                                //domain: Option[DomainsForAuthenticateResponse],
+                                project: Option[ProjectForAuthenticateResponse],  // todo: this is used
+                                catalog: Option[List[ServiceForAuthenticationResponse]],  // todo: this is used
+                                roles: Option[List[Role]],  // todo: this is used
+                                user: UserForAuthenticateResponse,  // todo: this is used
+                                rax_impersonator: Option[ImpersonatorForAuthenticationResponse] = None  // todo: this is used
                                  ) extends Serializable
 
 case class UserNamePasswordRequest(domain: Option[Domain] = None,

@@ -181,10 +181,9 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                   None,
                   None,
                   None,
-                  None,
                   UserForAuthenticateResponse(DomainsForAuthenticateResponse()))
 
-                val expiration = new DateTime(subjectTokenObject.expires_at)
+                val expiration = new DateTime(tokenExpiration)
                 val identityTtl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
                 // TODO: Come up with a better algorithm to decide the cache TTL and handle negative/0 TTLs
