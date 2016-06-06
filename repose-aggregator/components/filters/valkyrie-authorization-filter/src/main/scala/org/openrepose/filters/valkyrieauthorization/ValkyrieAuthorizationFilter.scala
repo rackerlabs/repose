@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.PatternSyntaxException
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletResponse.{SC_MULTIPLE_CHOICES, SC_OK}
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
 
@@ -37,6 +37,7 @@ import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import io.gatling.jsonpath.Parser
 import org.apache.http.HttpHeaders.RETRY_AFTER
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper
@@ -117,9 +118,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
       def checkHeaders(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
         (requestedTenantId, requestedContactId) match {
-          case (None, _) => ResponseResult(401, "No tenant ID specified")
-          case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(403, "Not Authorized")
-          case (_, None) => ResponseResult(401, "No contact ID specified")
+          case (None, _) => ResponseResult(SC_UNAUTHORIZED, "No tenant ID specified")
+          case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(SC_FORBIDDEN, "Not Authorized")
+          case (_, None) => ResponseResult(SC_UNAUTHORIZED, "No contact ID specified")
           case (Some(tenant), Some(contact)) => UserInfo(tenant.substring(tenant.indexOf(":") + 1), contact)
         }
 
@@ -163,7 +164,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
             if (requestedDeviceId.isDefined || matchingResources.nonEmpty || translateAccountPermissions.isDefined) {
               datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, Option(httpRequest.getHeader("x-auth-token")), _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
             } else {
-              ResponseResult(200)
+              ResponseResult(SC_OK)
             }
           case _ => headerResult
         }
@@ -227,14 +228,14 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
               case "edit_product" => permissionsWithDevicePermissions
               case "admin_product" => permissionsWithDevicePermissions
               case ACCOUNT_ADMIN => permissionsWithDevicePermissions
-              case _ => ResponseResult(403, "Not Authorized")
+              case _ => ResponseResult(SC_FORBIDDEN, "Not Authorized")
             }
           } getOrElse {
-            ResponseResult(403, "Not Authorized")
+            ResponseResult(SC_FORBIDDEN, "Not Authorized")
           }
 
           deviceBasedResult match {
-            case ResponseResult(403, _, _) =>
+            case ResponseResult(SC_FORBIDDEN, _, _) =>
               if (permissions.roles.contains(ACCOUNT_ADMIN) && configuration.isEnableBypassAccountAdmin) {
                 permissions
               } else {
@@ -254,15 +255,15 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         (result, translateAccountPermissions) match {
           case (UserPermissions(roles, _), Some(_)) =>
             roles.foreach(httpRequest.addHeader("X-Roles", _))
-            ResponseResult(200)
-          case (UserPermissions(_, _), None) => ResponseResult(200)
+            ResponseResult(SC_OK)
+          case (UserPermissions(_, _), None) => ResponseResult(SC_OK)
           case (responseResult: ResponseResult, _) => responseResult
         }
       }
 
       def mask403s(valkyrieResponse: ResponseResult): ResponseResult = {
         valkyrieResponse match {
-          case ResponseResult(403, _, _) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
+          case ResponseResult(SC_FORBIDDEN, _, _) if configuration.isEnableMasking403S => ResponseResult(SC_NOT_FOUND, "Not Found")
           case result => result
         }
       }
@@ -281,7 +282,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         val allPermissions = getInventory(userPermissions, checkHeader)
         val authPermissions = authorizeDevice(allPermissions, requestedDeviceId)
         mask403s(addRoles(authPermissions)) match {
-          case ResponseResult(200, _, _) =>
+          case ResponseResult(SC_OK, _, _) =>
             filterChain.doFilter(httpRequest, httpResponse)
             val status = httpResponse.getStatus
             if (SC_OK <= status && status < SC_MULTIPLE_CHOICES) {
@@ -290,7 +291,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
               } catch {
                 case rce: ResponseCullingException =>
                   logger.debug("Failed to cull response, wiping out response.", rce)
-                  sendError(httpResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.getMessage)
+                  sendError(httpResponse, SC_INTERNAL_SERVER_ERROR, rce.getMessage)
               }
             }
           case ResponseResult(code, message, retryTime) if Option(configuration.getDelegating).isDefined =>
@@ -341,12 +342,12 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     def valkyrieAuthorize(): ValkyrieResult = {
       tryValkyrieCall() match {
         case Success(response) =>
-          if (response.getStatus == 200) {
+          if (response.getStatus == SC_OK) {
             responseParser(response.getData) match {
               case Success(values) =>
                 datastore.put(cacheKey(callType, transformedTenant, contactId), values, configuration.getCacheTimeoutMillis, TimeUnit.MILLISECONDS)
                 datastoreTransform(values)
-              case Failure(x) => ResponseResult(502, x.getMessage) //JSON Parsing failure
+              case Failure(x) => ResponseResult(SC_BAD_GATEWAY, x.getMessage) //JSON Parsing failure
             }
           } else {
             val retryTime = response.getHeaders.find(_.getName == RETRY_AFTER).map(_.getValue)
@@ -354,29 +355,29 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
               //admin creds
               case (Some(_), Some(_)) =>
                 response.getStatus match {
-                  case 400 => ResponseResult(500, "Valkyrie rejected the request for being bad")
-                  case 401 => ResponseResult(500, "Valkyrie said the credentials weren't authorized")
-                  case 403 => ResponseResult(500, "Valkyrie said the credentials were forbidden")
-                  case 500 => ResponseResult(502, "Valkyrie failed for an unspecified reason")
-                  case 413 | 429 | 503 => ResponseResult(503, "Valkyrie rate limited the request", retryTime)
-                  case statusCode => ResponseResult(502, s"Valkyrie returned a $statusCode")
+                  case SC_BAD_REQUEST => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie rejected the request for being bad")
+                  case SC_UNAUTHORIZED => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie said the credentials weren't authorized")
+                  case SC_FORBIDDEN => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie said the credentials were forbidden")
+                  case SC_INTERNAL_SERVER_ERROR => ResponseResult(SC_BAD_GATEWAY, "Valkyrie failed for an unspecified reason")
+                  case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS | SC_SERVICE_UNAVAILABLE => ResponseResult(SC_SERVICE_UNAVAILABLE, "Valkyrie rate limited the request", retryTime)
+                  case statusCode => ResponseResult(SC_BAD_GATEWAY, s"Valkyrie returned a $statusCode")
                 }
               //user token
               case _ =>
                 response.getStatus match {
-                  case 400 => ResponseResult(500, "Valkyrie rejected the request for being bad")
-                  case 401 => ResponseResult(401, "Valkyrie said the user was unauthorized")
-                  case 403 => ResponseResult(403, "Valkyrie said the user was forbidden")
-                  case 500 => ResponseResult(502, "Valkyrie failed for an unspecified reason")
-                  case 413 => ResponseResult(413, "Valkyrie rate limited the request", retryTime)
-                  case 429 => ResponseResult(429, "Valkyrie rate limited the request", retryTime)
-                  case 503 => ResponseResult(503, "Valkyrie rate limited the request", retryTime)
-                  case statusCode => ResponseResult(502, s"Valkyrie returned a $statusCode")
+                  case SC_BAD_REQUEST => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie rejected the request for being bad")
+                  case SC_UNAUTHORIZED => ResponseResult(SC_UNAUTHORIZED, "Valkyrie said the user was unauthorized")
+                  case SC_FORBIDDEN => ResponseResult(SC_FORBIDDEN, "Valkyrie said the user was forbidden")
+                  case SC_INTERNAL_SERVER_ERROR => ResponseResult(SC_BAD_GATEWAY, "Valkyrie failed for an unspecified reason")
+                  case SC_REQUEST_ENTITY_TOO_LARGE => ResponseResult(SC_REQUEST_ENTITY_TOO_LARGE, "Valkyrie rate limited the request", retryTime)
+                  case SC_TOO_MANY_REQUESTS => ResponseResult(SC_TOO_MANY_REQUESTS, "Valkyrie rate limited the request", retryTime)
+                  case SC_SERVICE_UNAVAILABLE => ResponseResult(SC_SERVICE_UNAVAILABLE, "Valkyrie rate limited the request", retryTime)
+                  case statusCode => ResponseResult(SC_BAD_GATEWAY, s"Valkyrie returned a $statusCode")
                 }
             }
           }
         case Failure(exception) =>
-          ResponseResult(502, s"Unable to communicate with Valkyrie: ${exception.getMessage}")
+          ResponseResult(SC_BAD_GATEWAY, s"Unable to communicate with Valkyrie: ${exception.getMessage}")
       }
     }
 
