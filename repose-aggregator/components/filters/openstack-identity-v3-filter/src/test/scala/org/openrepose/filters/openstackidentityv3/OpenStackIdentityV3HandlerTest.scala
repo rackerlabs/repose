@@ -98,7 +98,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should add the X-Default-Region if rax_default_region is available for the user") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Option(List(Role("1", "admin"))), UserForAuthenticateResponse(null, None, None, None, None, Some("ORD")))))
+          Option(List(Role("admin"))), UserForAuthenticateResponse(None, None, Some("ORD")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -111,7 +111,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should not include X-Default-Region if rax_default_region is not available for the user") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Option(List(Role("1", "admin"))), new UserForAuthenticateResponse(null))))
+          Option(List(Role("admin"))), new UserForAuthenticateResponse())))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -124,7 +124,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is available") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Option(List(Role("1", "admin"))), new UserForAuthenticateResponse(null), Some(new ImpersonatorForAuthenticationResponse(Some("ImpersonationId"), Some("ImpersonationName"))))))
+          Option(List(Role("admin"))), new UserForAuthenticateResponse(), Some(new ImpersonatorForAuthenticationResponse(Some("ImpersonationId"), Some("ImpersonationName"))))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -138,7 +138,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should not add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is not available") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Option(List(Role("1", "admin"))), new UserForAuthenticateResponse(null))))
+          Option(List(Role("admin"))), new UserForAuthenticateResponse())))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -151,7 +151,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should non-destructively add the x-roles header") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Option(List(Role("1", "admin"))), UserForAuthenticateResponse(null, None, None, None, None, Some("ORD")))))
+          Option(List(Role("admin"))), UserForAuthenticateResponse(None, None, Some("ORD")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       mockRequest.addHeader(OpenStackServiceHeader.ROLES.toString, "foo")
@@ -166,9 +166,9 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should set the x-project-id header to the uri project id value if it is set and send all project ids is not set/false") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1",
-          Some(ProjectForAuthenticateResponse(null, Some("ProjectIdToNotSee"))),
+          Some(ProjectForAuthenticateResponse(Some("ProjectIdToNotSee"))),
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Some(List(Role("1", "admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse(null))))
+          Some(List(Role("admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
@@ -181,9 +181,9 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should set the x-project-id header to the default project id if send all project ids is not set/false and there is no uri project id validation") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1",
-          Some(ProjectForAuthenticateResponse(null, Some("DefaultProjectIdToSee"))),
+          Some(ProjectForAuthenticateResponse(Some("DefaultProjectIdToSee"))),
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Some(List(Role("1", "admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse(null))))
+          Some(List(Role("admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/bar")
@@ -198,7 +198,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1", None,
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Some(List(Role("1", "admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse(null))))
+          Some(List(Role("admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/bar")
@@ -212,9 +212,9 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should return default project id and roles project ids returned by identity as multiple x-project-id headers if all project ids is true and there is no uri project id validation") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1",
-          Some(ProjectForAuthenticateResponse(null, Some("ProjectIdFromProject"))),
+          Some(ProjectForAuthenticateResponse(Some("ProjectIdFromProject"))),
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Some(List(Role("1", "admin", Some("ProjectIdFromRoles")))), UserForAuthenticateResponse(null))))
+          Some(List(Role("admin", Some("ProjectIdFromRoles")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
@@ -228,9 +228,9 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should return all project ids returned by identity as multiple x-project-id headers if all project ids is true") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(AuthenticateResponse("1",
-          Some(ProjectForAuthenticateResponse(null, Some("ProjectIdFromProject"))),
+          Some(ProjectForAuthenticateResponse(Some("ProjectIdFromProject"))),
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Some(List(Role("1", "admin", Some("ProjectIdFromRoles"), Some("RaxExtensionProjectId")))), UserForAuthenticateResponse(null))))
+          Some(List(Role("admin", Some("ProjectIdFromRoles"), Some("RaxExtensionProjectId")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
@@ -334,7 +334,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
   describe("writeProjectHeader") {
     val writeProjectHeader = PrivateMethod[Unit]('writeProjectHeader)
-    val roles = List(Role(null, null, Option("12345"), null, null), Role(null, null, Option("67890"), null, null))
+    val roles = List(Role(null, Option("12345"), null), Role(null, Option("67890"), null))
 
     it("should only provide the url project when the flag says to not write all") {
       val wrappedRequest = mock[HttpServletRequestWrapper]
@@ -358,7 +358,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       val wrappedRequest = mock[HttpServletRequestWrapper]
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
-      val roleList = List(Role(null, null, None, None, None), Role(null, null, None, None, None))
+      val roleList = List(Role(null, None, None), Role(null, None, None))
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roleList, Some(uriPid), true, false, wrappedRequest)
       verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid))
     }
@@ -367,7 +367,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       val wrappedRequest = mock[HttpServletRequestWrapper]
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
-      val roleList = List(Role(null, null, None, None, None), Role(null, null, Option("foo"), None, None), Role(null, null, None, None, None))
+      val roleList = List(Role(null, None, None), Role(null, Option("foo"), None), Role(null, None, None))
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roleList, Some(uriPid), true, false, wrappedRequest)
       verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid))
       verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq("foo"))
@@ -509,7 +509,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     }
 
     it("should return true if the user had a role which bypasses validation") {
-      identityV3Handler invokePrivate isProjectIdValid("", AuthenticateResponse(null, None, None, Some(List(Role("12345", "admin"))), null)) shouldBe true
+      identityV3Handler invokePrivate isProjectIdValid("", AuthenticateResponse(null, None, None, Some(List(Role("admin"))), null)) shouldBe true
     }
 
     it("should return false if no a project ID could not be extracted from the URI") {
@@ -539,23 +539,23 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     val projectMatches = PrivateMethod[Boolean]('projectMatches)
 
     it("should return false if no project IDs match") {
-      identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("id", "name", Some("09876")))) shouldBe false
+      identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("name", Some("09876")))) shouldBe false
     }
 
     it("should return true if the default project ID matches") {
-      identityV3Handler invokePrivate projectMatches("12345", Some("12345"), List(Role("id", "name", Some("09876")))) shouldBe true
+      identityV3Handler invokePrivate projectMatches("12345", Some("12345"), List(Role("name", Some("09876")))) shouldBe true
     }
 
     it("should return true if a role project ID matches") {
-      identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("id", "name", Some("12345")))) shouldBe true
+      identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("name", Some("12345")))) shouldBe true
     }
 
     it("should return true if the default project ID matches after stripping a prefix") {
-      identityV3Handler invokePrivate projectMatches("12345", Some("foo:12345"), List(Role("id", "name", Some("09876")))) shouldBe true
+      identityV3Handler invokePrivate projectMatches("12345", Some("foo:12345"), List(Role("name", Some("09876")))) shouldBe true
     }
 
     it("should return true if a role project ID matches after stripping a prefix") {
-      identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("id", "name", Some("bar:12345")))) shouldBe true
+      identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("name", Some("bar:12345")))) shouldBe true
     }
   }
 

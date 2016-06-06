@@ -265,8 +265,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   private def writeProjectHeader(defaultProject: Option[String], roles: List[Role], projectFromUri: Option[String],
                                  writeAll: Boolean, sendQuality: Boolean, request: HttpServletRequestWrapper) {
-    lazy val projectsFromRoles = (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId } :::
-      roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId }).toSet
+    lazy val projectsFromRoles = (roles.collect { case Role(_, Some(projectId), _) => projectId } :::
+      roles.collect { case Role( _, _, Some(raxId)) => raxId }).toSet
 
     if (writeAll && sendQuality) {
       defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))

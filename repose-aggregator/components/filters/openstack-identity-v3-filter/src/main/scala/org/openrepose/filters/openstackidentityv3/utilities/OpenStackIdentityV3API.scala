@@ -181,7 +181,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                   None,
                   None,
                   None,
-                  UserForAuthenticateResponse(DomainsForAuthenticateResponse()))
+                  UserForAuthenticateResponse())
 
                 val expiration = new DateTime(tokenExpiration)
                 val identityTtl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)

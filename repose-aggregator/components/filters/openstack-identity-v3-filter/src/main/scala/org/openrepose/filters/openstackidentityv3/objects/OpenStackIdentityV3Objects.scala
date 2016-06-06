@@ -24,10 +24,10 @@ case class DomainsForAuthenticateResponse(id: Option[String] = None,
                                           enabled: Option[Boolean] = None
                                            ) extends Serializable
 
-case class ProjectForAuthenticateResponse(domain: DomainsForAuthenticateResponse,
+case class ProjectForAuthenticateResponse(//domain: DomainsForAuthenticateResponse,
                                           id: Option[String] = None,
-                                          name: Option[String] = None,
-                                          enabled: Option[Boolean] = None
+                                          name: Option[String] = None
+                                          //enabled: Option[Boolean] = None
                                            ) extends Serializable
 
 case class Endpoint(id: String,
@@ -35,7 +35,7 @@ case class Endpoint(id: String,
                     interface: Option[String] = None,
                     region: Option[String] = None,
                     url: String,
-                    service_id: Option[String] = None
+                    service_id: Option[String] = None // todo: probably don't need this field
                      ) extends Serializable {
 
   /**
@@ -65,19 +65,19 @@ case class ServiceForAuthenticationResponse(endpoints: List[Endpoint],
                                             name: Option[String] = None
                                              ) extends Serializable
 
-case class Role(id: String,
+case class Role(//id: String,
                 name: String,
                 project_id: Option[String] = None,
-                rax_project_id: Option[String] = None,
-                domain_id: Option[String] = None,
-                description: Option[String] = None
+                rax_project_id: Option[String] = None
+                //domain_id: Option[String] = None,
+                //description: Option[String] = None
                  ) extends Serializable
 
-case class UserForAuthenticateResponse(domain: DomainsForAuthenticateResponse,
+case class UserForAuthenticateResponse(//domain: DomainsForAuthenticateResponse,
                                        id: Option[String] = None,
                                        name: Option[String] = None,
-                                       description: Option[String] = None,
-                                       default_project_id: Option[String] = None,
+                                       //description: Option[String] = None,
+                                       //default_project_id: Option[String] = None,
                                        rax_default_region: Option[String] = None
                                         ) extends Serializable
 
@@ -90,7 +90,7 @@ case class AuthenticateResponse(expires_at: String, // todo: this is used
                                 //domain: Option[DomainsForAuthenticateResponse],
                                 project: Option[ProjectForAuthenticateResponse],  // todo: this is used
                                 catalog: Option[List[ServiceForAuthenticationResponse]],  // todo: this is used
-                                roles: Option[List[Role]],  // todo: this is used
+                                roles: Option[List[Role]],  // todo: this is used  // todo: see if it can just be a List
                                 user: UserForAuthenticateResponse,  // todo: this is used
                                 rax_impersonator: Option[ImpersonatorForAuthenticationResponse] = None  // todo: this is used
                                  ) extends Serializable
