@@ -34,7 +34,7 @@ public class ServiceClientResponse {
 
     public ServiceClientResponse(int code, InputStream data) {
         this.statusCode = code;
-        this.headers = null;
+        this.headers = new Header[0];
         this.data = data;
     }
 
