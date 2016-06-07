@@ -29,11 +29,10 @@ import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.filter.FilterAction
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityV3Config, WhiteList}
-import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
 import org.springframework.http.HttpHeaders
-import spray.json._
+import play.api.libs.json._
 
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
@@ -85,6 +84,19 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         retry = new HttpDate(retryCalendar.getTime).toRFC1123
       }
       response.addHeader(HttpHeaders.RETRY_AFTER, retry)
+    }
+
+    implicit val catalogWrites = new Writes[ServiceForAuthenticationResponse] {
+      def writes(catalog: ServiceForAuthenticationResponse) = JsObject(Seq(
+        "endpoints" -> JsArray(catalog.endpoints.map(endpoint => JsObject(
+          Seq("id" -> JsString(endpoint.id)) ++
+            endpoint.name.map(name => Seq("name" -> JsString(name))).getOrElse(Seq()) ++
+            endpoint.interface.map(interface => Seq("interface" -> JsString(interface))).getOrElse(Seq()) ++
+            endpoint.region.map(region => Seq("region" -> JsString(region))).getOrElse(Seq()) ++
+            Seq("url" -> JsString(endpoint.url)) ++
+            endpoint.service_id.map(serviceId => Seq("service_id" -> JsString(serviceId))).getOrElse(Seq()))))) ++
+        catalog.id.map(id => Seq("id" -> JsString(id))).getOrElse(Seq()) ++
+        catalog.name.map(name => Seq("name" -> JsString(name))).getOrElse(Seq()))
     }
 
     // Check if the request URI is whitelisted and pass it along if so
@@ -219,7 +231,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           impersonator.name.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
         }
         if (forwardCatalog) {
-          token.get.catalog.foreach(catalog => request.replaceHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
+          token.get.catalog.foreach(catalog =>
+            request.replaceHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(Json.stringify(Json.toJson(catalog)))))
         }
         if (forwardGroups) {
           userGroups.foreach(group => request.addHeader(PowerApiHeader.GROUPS.toString, group, 1.0))

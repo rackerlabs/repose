@@ -33,7 +33,6 @@ import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, ServiceCli
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
-import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.springframework.http.HttpHeaders
 import play.api.libs.json._

@@ -7,7 +7,6 @@ dependencies {
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.openrepose:http-delegation"
     compile "commons-codec:commons-codec"
-    compile "io.spray:spray-json_$scalaMajDotMin"
     compile "org.springframework:spring-web"
     compile "joda-time:joda-time"
     compile "org.joda:joda-convert"

@@ -36,7 +36,6 @@ com.yammer.metrics                        metrics-core             2.2.0        
 com.yammer.metrics                        metrics-ehcache          2.2.0           Apache License Version 2.0  http://metrics.dropwizard.io/2.2.0/maven/metrics-ehcache/license.html
 com.yammer.metrics                        metrics-graphite         2.2.0           Apache License Version 2.0  http://metrics.dropwizard.io/2.2.0/maven/metrics-graphite/license.html
 io.gatling                                jsonpath_2.11            0.6.4           Apache License Version 2.0  https://github.com/gatling/jsonpath
-io.spray                                  spray-json_2.11          1.2.6           Apache License Version 2.0  https://github.com/spray/spray-json
 javax.ws.rs                               javax.ws.rs-api          2.0.1           CDDL v1.1                   https://jax-rs-spec.java.net/
 joda-time                                 joda-time                2.7             Apache License Version 2.0  http://joda-time.sourceforge.net/license.html
 net.sf.ehcache                            ehcache-core             2.6.0           Apache License Version 2.0  http://www.ehcache.org/about/license
