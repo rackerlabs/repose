@@ -102,14 +102,14 @@
         <xs:attribute name="username" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Username to authenticate against the Valkyrie endpoint.</html:p>
+                    <html:p>DEPRECATED - Username to authenticate against the Valkyrie endpoint.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="password" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Password to authenticate against the Valkyrie endpoint.</html:p>
+                    <html:p>DEPRECATED - Password to authenticate against the Valkyrie endpoint.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
