@@ -334,7 +334,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         case _ =>
           Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
             valkyrieServer.getUri + uri,
-            Map("X-Auth-Token" -> authToken.getOrElse(null)) ++ requestTracingHeader)
+            authToken.map(token => Map("X-Auth-Token" -> token)).getOrElse(Map.empty) ++ requestTracingHeader)
           )
       }
     }
