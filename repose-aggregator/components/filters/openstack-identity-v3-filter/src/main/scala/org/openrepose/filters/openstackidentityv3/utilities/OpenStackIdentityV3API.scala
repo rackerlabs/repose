@@ -36,8 +36,7 @@ import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Conf
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.springframework.http.HttpHeaders
-import play.api.libs.json.{JsArray, JsResultException, Json}
-import spray.json._
+import play.api.libs.json._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -65,31 +64,35 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       val username = config.getOpenstackIdentityService.getUsername
       val password = config.getOpenstackIdentityService.getPassword
 
-      val projectScope = Option(config.getOpenstackIdentityService.getProjectId) match {
-        case Some(projectId) => Some(Scope(project = Some(ProjectScope(id = projectId))))
-        case _ => None
-      }
+      // don't include these fields at all if they're going to be null
+      val domain = Option(config.getOpenstackIdentityService.getDomainId).map(id => Seq(
+        "domain" -> JsObject(Seq(
+          "id" -> JsString(id)
+        ))
+      )) getOrElse Seq()
 
-      val userDomain = Option(config.getOpenstackIdentityService.getDomainId) match {
-        case x: Some[String] => Some(Domain(id = x))
-        case _ => None
-      }
+      val scope = Option(config.getOpenstackIdentityService.getProjectId).map(id => Seq(
+        "scope" -> JsObject(Seq(
+          "project" -> JsObject(Seq(
+            "id" -> JsString(id)
+          ))
+        ))
+      )) getOrElse Seq()
 
-      AuthRequestRoot(
-        AuthRequest(
-          AuthIdentityRequest(
-            methods = List("password"),
-            password = Some(PasswordCredentials(
-              UserNamePasswordRequest(
-                domain = userDomain,
-                name = Some(username),
-                password = password
-              )
+      Json.stringify(JsObject(Seq(
+        "auth" -> JsObject(Seq(
+          "identity" -> JsObject(Seq(
+            "methods" -> JsArray(Seq(JsString("password"))),
+            "password" -> JsObject(Seq(
+              "user" -> JsObject(
+                domain ++ Seq(
+                  "name" -> JsString(username),
+                  "password" -> JsString(password)
+              ))
             ))
-          ),
-          scope = projectScope
-        )
-      ).toJson.compactPrint
+          ))
+        ) ++ scope)
+      )))
     }
 
     getFromCache[String](ADMIN_TOKEN_KEY) match {
@@ -99,11 +102,12 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
           .getOrElse(Map())
         val headerMap = Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON) ++ requestTracingHeader
+        val adminReq = createAdminAuthRequest()
         val authTokenResponse = Option(akkaServiceClient.post(
           ADMIN_TOKEN_KEY,
           identityServiceUri + TOKEN_ENDPOINT,
           headerMap.asJava,
-          createAdminAuthRequest(),
+          adminReq,
           MediaType.APPLICATION_JSON_TYPE
         ))
 
@@ -245,7 +249,8 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       case None =>
         getAdminToken(tracingHeader, checkCache) match {
           case Success(adminToken) =>
-            val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
+            val requestTracingHeader = tracingHeader
+              .map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
@@ -261,7 +266,14 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             // because we care to match on the status code of the response, if anything was set.
             groupsResponse.map(response => response.getStatus) match {
               case Some(statusCode) if statusCode == HttpServletResponse.SC_OK =>
-                val groups = jsonStringToObject[Groups](inputStreamToString(groupsResponse.get.getData)).groups
+                val json = Json.parse(inputStreamToString(groupsResponse.get.getData))
+
+                val groups = (json \ "groups").as[JsArray].value.map(jsGroup =>
+                  Group(
+                    (jsGroup \ "id").as[String],
+                    (jsGroup \ "name").as[String],
+                    (jsGroup \ "description").asOpt[String],
+                    (jsGroup \ "domain_id").asOpt[String])).toList
 
                 val offsetConfiguredTtl = offsetTtl(groupsCacheTtl, cacheOffset)
                 val ttl = if (offsetConfiguredTtl < 1) {
@@ -311,9 +323,6 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
     inputStream.reset() // TODO: Remove this when we can. It relies on our implementation returning an InputStream that supports reset.
     Source.fromInputStream(inputStream).mkString
   }
-
-  private def jsonStringToObject[T: JsonFormat](json: String) =
-    json.parseJson.convertTo[T]
 
   private def safeLongToInt(l: Long) =
     math.min(l, Int.MaxValue).toInt
