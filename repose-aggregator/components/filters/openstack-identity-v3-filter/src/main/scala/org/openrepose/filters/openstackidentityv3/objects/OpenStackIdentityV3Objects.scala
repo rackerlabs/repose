@@ -35,7 +35,7 @@ case class Endpoint(id: String,
                     interface: Option[String] = None,
                     region: Option[String] = None,
                     url: String,
-                    service_id: Option[String] = None // todo: probably don't need this field
+                    service_id: Option[String] = None
                      ) extends Serializable {
 
   /**
