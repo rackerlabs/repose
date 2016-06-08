@@ -21,15 +21,14 @@ package org.openrepose.filters.openstackidentityv3.objects
 
 case class AuthenticateResponse(
     expires_at: String,
-    project: Option[ProjectForAuthenticateResponse],
+    projectId: Option[String] = None,
+    projectName: Option[String] = None,
     catalog: Option[List[ServiceForAuthenticationResponse]],
     roles: Option[List[Role]],
     user: UserForAuthenticateResponse,
     impersonatorId: Option[String] = None,
     impersonatorName: Option[String] = None)
   extends Serializable
-
-case class ProjectForAuthenticateResponse(id: Option[String] = None, name: Option[String] = None) extends Serializable
 
 case class ServiceForAuthenticationResponse(
     endpoints: List[Endpoint],

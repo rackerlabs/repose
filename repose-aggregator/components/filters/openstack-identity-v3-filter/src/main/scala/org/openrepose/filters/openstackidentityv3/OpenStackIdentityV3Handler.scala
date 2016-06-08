@@ -208,20 +208,18 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         token.get.user.rax_default_region.foreach { defaultRegion =>
           request.replaceHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, defaultRegion)
         }
-        token.get.project.foreach { project =>
-          project.name.foreach { projectName =>
-            request.replaceHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
-          }
+        token.get.projectName.foreach { projectName =>
+          request.replaceHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
         }
         projectIdUriRegex match {
           case Some(regex) =>
-            val defaultProjectId = token.flatMap(_.project.flatMap(_.id))
+            val defaultProjectId = token.flatMap(_.projectId)
             val roles = token.flatMap(_.roles).getOrElse(List[Role]())
             val uriProjectId = extractProjectIdFromUri(regex, request.getRequestURI)
             writeProjectHeader(defaultProjectId, roles, uriProjectId, identityConfig.isSendAllProjectIds,
               identityConfig.isSendProjectIdQuality, request)
           case None =>
-            val defaultProjectId = token.flatMap(_.project.flatMap(_.id))
+            val defaultProjectId = token.flatMap(_.projectId)
             val roles = token.flatMap(_.roles).getOrElse(List[Role]())
             writeProjectHeader(defaultProjectId, roles, None, identityConfig.isSendAllProjectIds,
               identityConfig.isSendProjectIdQuality, request)
@@ -324,7 +322,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           val extractedProjectId = extractProjectIdFromUri(regex, requestUri)
 
           // Bind the default project ID, if available
-          val defaultProjectId = token.project.map(_.id).getOrElse(None)
+          val defaultProjectId = token.projectId
 
           // Attempt to match the extracted project ID against the project IDs in the token
           extractedProjectId match {
