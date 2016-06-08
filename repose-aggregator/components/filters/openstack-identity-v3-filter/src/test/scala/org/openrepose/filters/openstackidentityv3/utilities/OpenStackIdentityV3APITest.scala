@@ -83,7 +83,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API.getAdminToken(None, true)
+      identityV3API.getAdminToken(None, checkCache = true)
 
       verify(mockAkkaServiceClient).post(
         anyString,
@@ -105,7 +105,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API.getAdminToken(None, true)
+      identityV3API.getAdminToken(None, checkCache = true)
 
       verify(mockAkkaServiceClient).post(
         anyString,
@@ -125,7 +125,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_UNAUTHORIZED)
 
-      identityV3API.getAdminToken(None, true)
+      identityV3API.getAdminToken(None, checkCache = true)
 
       verify(mockAkkaServiceClient).post(
         anyString,
@@ -143,8 +143,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API.getAdminToken(None, true) shouldBe a[Failure[_]]
-      identityV3API.getAdminToken(None, true).failed.get shouldBe a[InvalidAdminCredentialsException]
+      identityV3API.getAdminToken(None, checkCache = true) shouldBe a[Failure[_]]
+      identityV3API.getAdminToken(None, checkCache = true).failed.get shouldBe a[InvalidAdminCredentialsException]
     }
 
     val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, ExtendedStatusCodes.SC_TOO_MANY_REQUESTS)
@@ -158,7 +158,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getAdminToken(None, true)
+          val value = identityV3API.getAdminToken(None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -182,7 +182,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getAdminToken(None, true)
+          val value = identityV3API.getAdminToken(None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -197,8 +197,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     it("should return a Success for a cached admin token") {
       when(mockDatastore.get(anyString)).thenReturn("test-admin-token", Nil: _*)
 
-      identityV3API.getAdminToken(None, true) shouldBe a[Success[_]]
-      identityV3API.getAdminToken(None, true).get should startWith("test-admin-token")
+      identityV3API.getAdminToken(None, checkCache = true) shouldBe a[Success[_]]
+      identityV3API.getAdminToken(None, checkCache = true).get should startWith("test-admin-token")
     }
 
     it("should return an admin token as a string when the admin API call succeeds") {
@@ -210,8 +210,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API.getAdminToken(None, true) shouldBe a[Success[_]]
-      identityV3API.getAdminToken(None, true).get should startWith("test-admin-token")
+      identityV3API.getAdminToken(None, checkCache = true) shouldBe a[Success[_]]
+      identityV3API.getAdminToken(None, checkCache = true).get should startWith("test-admin-token")
     }
 
     it("should return a new admin token (non-cached) if checkCache is set to false") {
@@ -224,8 +224,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API.getAdminToken(None, false) shouldBe a[Success[_]]
-      identityV3API.getAdminToken(None, false).get should startWith("test-admin-token")
+      identityV3API.getAdminToken(None, checkCache = false) shouldBe a[Success[_]]
+      identityV3API.getAdminToken(None, checkCache = false).get should startWith("test-admin-token")
     }
 
     it("should cache an admin token when the admin API call succeeds") {
@@ -237,7 +237,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API.getAdminToken(None, true)
+      identityV3API.getAdminToken(None, checkCache = true)
 
       verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")), argThat(equalTo("test-admin-token")), anyInt(), any[TimeUnit])
     }
@@ -254,7 +254,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-      identityV3API.getAdminToken(None, true)
+      identityV3API.getAdminToken(None, checkCache = true)
 
       verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")), argThat(equalTo("test-admin-token")), intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), argThat(is(theInstance(TimeUnit.MILLISECONDS))))
     }
@@ -380,7 +380,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.validateToken("test-subject-token", None, true)
+          val value = identityV3API.validateToken("test-subject-token", None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -404,7 +404,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.validateToken("test-subject-token", None, true)
+          val value = identityV3API.validateToken("test-subject-token", None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -441,7 +441,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getGroups("test-user-id", None, true)
+          val value = identityV3API.getGroups("test-user-id", None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -465,7 +465,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getGroups("test-user-id", None, true)
+          val value = identityV3API.getGroups("test-user-id", None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
