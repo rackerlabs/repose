@@ -42,7 +42,6 @@ class CompressionBinaryTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/compression", params)
         repose.configurationProvider.applyConfigs("features/filters/compression/binary", params)
-        repose.enableSuspend()
         repose.start()
     }
 
