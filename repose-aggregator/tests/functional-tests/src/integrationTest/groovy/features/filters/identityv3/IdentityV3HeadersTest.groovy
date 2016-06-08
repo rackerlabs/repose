@@ -84,6 +84,7 @@ class IdentityV3HeadersTest extends ReposeValveTest {
         request.headers.contains("X-Token-Expires")
         request.headers.contains("X-Catalog")
         request.headers.getFirstValue("X-Default-Region") == "DFW"
+        request.headers.findAll("X-PP-Groups").containsAll(["Developers;q=1.0", "Repose Developers;q=1.0", "Secure Developers;q=1.0"])
         new String(Base64.getDecoder().decode(request.headers.getFirstValue("X-Catalog"))) ==
                 """[{"endpoints":[{"id":"39dc322ce86c4111b4f06c2eeae0841b","interface":"public","region":"RegionOne","url":"http://localhost:10009"},{"id":"ec642f27474842e78bf059f6c48f4e99","interface":"internal","region":"RegionOne","url":"http://localhost:10009"},{"id":"c609fc430175452290b62a4242e8a7e8","interface":"admin","region":"RegionOne","url":"http://localhost:10009"}],"id":"4363ae44bdf34a3981fde3b823cb9aa2","name":"keystone"}]"""
 
