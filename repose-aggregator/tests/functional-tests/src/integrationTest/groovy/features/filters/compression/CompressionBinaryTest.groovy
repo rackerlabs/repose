@@ -44,6 +44,7 @@ class CompressionBinaryTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/compression", params)
+        repose.configurationProvider.applyConfigs("features/filters/compression/binary", params)
         repose.enableSuspend()
         repose.start()
     }
