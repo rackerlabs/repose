@@ -342,6 +342,7 @@ subprojects {
     }
 
     project.tasks.getByPath(':release').dependsOn publish
+    publish.dependsOn build
 }
 
 dependencyRecommendations {
