@@ -101,12 +101,11 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
           .getOrElse(Map())
         val headerMap = Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON) ++ requestTracingHeader
-        val adminReq = createAdminAuthRequest()
         val authTokenResponse = Option(akkaServiceClient.post(
           ADMIN_TOKEN_KEY,
           identityServiceUri + TOKEN_ENDPOINT,
           headerMap.asJava,
-          adminReq,
+          createAdminAuthRequest(),
           MediaType.APPLICATION_JSON_TYPE
         ))
 

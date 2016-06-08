@@ -19,11 +19,6 @@
  */
 package org.openrepose.filters.openstackidentityv3.objects
 
-case class DomainsForAuthenticateResponse(id: Option[String] = None,
-                                          name: Option[String] = None,
-                                          enabled: Option[Boolean] = None
-                                           ) extends Serializable
-
 case class ProjectForAuthenticateResponse(id: Option[String] = None,
                                           name: Option[String] = None
                                            ) extends Serializable
@@ -83,60 +78,7 @@ case class AuthenticateResponse(expires_at: String,
                                 rax_impersonator: Option[ImpersonatorForAuthenticationResponse] = None
                                  ) extends Serializable
 
-case class UserNamePasswordRequest(domain: Option[Domain] = None,
-                                   id: Option[String] = None,
-                                   name: Option[String] = None,
-                                   password: String,
-                                   scope: Option[Scope] = None
-                                    ) extends Serializable
-
-case class PasswordCredentials(user: UserNamePasswordRequest
-                                ) extends Serializable
-
-case class TokenCredentials(id: String
-                             ) extends Serializable
-
-case class AuthIdentityRequest(methods: List[String],
-                               password: Option[PasswordCredentials] = None,
-                               token: Option[TokenCredentials] = None
-                                ) extends Serializable
-
-case class AuthRequest(identity: AuthIdentityRequest,
-                       scope: Option[Scope] = None
-                        ) extends Serializable
-
-case class AuthRequestRoot(auth: AuthRequest
-                            ) extends Serializable
-
-case class AuthResponse(token: AuthenticateResponse
-                         ) extends Serializable
-
-case class Domain(id: Option[String] = None,
-                  name: Option[String] = None,
-                  enabled: Option[Boolean] = None
-                   ) extends Serializable
-
-case class DomainScope(id: String,
-                       name: String
-                        ) extends Serializable
-
-
-case class ProjectScope(domain: Option[DomainScope] = None,
-                        id: String,
-                        name: Option[String] = None
-                         ) extends Serializable
-
-case class TrustScope(id: String
-                       ) extends Serializable
-
-case class Scope(domain: Option[DomainScope] = None,
-                 project: Option[ProjectScope] = None,
-                 trust: Option[TrustScope] = None
-                  ) extends Serializable
-
 case class Group(id: String,
                  name: String,
                  description: Option[String] = None,
                  domain_id: Option[String] = None) extends Serializable
-
-case class Groups(groups: List[Group]) extends Serializable
