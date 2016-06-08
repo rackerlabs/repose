@@ -145,7 +145,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
       // Attempt to fetch groups if configured to do so
       val userGroups = if (!failureInValidation && forwardGroups) {
-        token.get.user.id map { userId =>
+        token.get.userId map { userId =>
           identityAPI.getGroups(userId, tracingHeader) match {
             case Success(groupsList) =>
               groupsList
@@ -179,19 +179,19 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         response.setStatus(HttpServletResponse.SC_OK)
 
         // Set the appropriate headers
-        request.replaceHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expires_at)
+        request.replaceHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expiresAt)
         request.replaceHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
-        token.get.user.name.foreach { user =>
+        token.get.userName.foreach { user =>
           request.addHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, user)
           request.addHeader(PowerApiHeader.USER.toString, user, 1.0)
         }
         token.get.roles.foreach { roles =>
           request.addHeader(OpenStackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
         }
-        token.get.user.id.foreach { id =>
+        token.get.userId.foreach { id =>
           request.replaceHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
         }
-        token.get.user.raxDefaultRegion.foreach { defaultRegion =>
+        token.get.defaultRegion.foreach { defaultRegion =>
           request.replaceHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, defaultRegion)
         }
         token.get.projectName.foreach { projectName =>

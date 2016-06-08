@@ -170,6 +170,9 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
               case Some(statusCode) if statusCode == HttpServletResponse.SC_OK =>
                 val json = Json.parse(inputStreamToString(validateTokenResponse.get.getData))
 
+                val userId = (json \ "token" \ "user" \ "id").asOpt[String]
+                val userName = (json \ "token" \ "user" \ "name").asOpt[String]
+                val defaultRegion = (json \ "token" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
                 val tokenExpiration = (json \ "token" \ "expires_at").as[String]
                 val projectId = (json \ "token" \ "project" \ "id").asOpt[String]
                 val projectName = (json \ "token" \ "project" \ "name").asOpt[String]
@@ -188,14 +191,20 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                     (jsRole \ "name").as[String],
                     (jsRole \ "project_id").asOpt[String],
                     (jsRole \ "RAX-AUTH:project_id").asOpt[String])).toList)
-                val user = UserForAuthenticateResponse(
-                  (json \ "token" \ "user" \ "id").asOpt[String],
-                  (json \ "token" \ "user" \ "name").asOpt[String],
-                  (json \ "token" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String])
                 val impersonatorId = (json \ "token" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
                 val impersonatorName = (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
-                val subjectTokenObject = AuthenticateResponse(tokenExpiration, projectId, projectName, catalogJson,
-                  catalogEndpoints, roles, user, impersonatorId, impersonatorName)
+                val subjectTokenObject = AuthenticateResponse(
+                  userId = userId,
+                  userName = userName,
+                  defaultRegion = defaultRegion,
+                  expiresAt = tokenExpiration,
+                  projectId = projectId,
+                  projectName = projectName,
+                  catalogJson = catalogJson,
+                  catalogEndpoints = catalogEndpoints,
+                  roles = roles,
+                  impersonatorId = impersonatorId,
+                  impersonatorName = impersonatorName)
 
                 val identityTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)

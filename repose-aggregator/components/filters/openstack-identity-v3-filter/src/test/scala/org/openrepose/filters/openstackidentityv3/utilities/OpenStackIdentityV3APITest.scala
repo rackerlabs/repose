@@ -275,7 +275,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     }
 
     it("should return a Success for a cached admin token") {
-      when(mockDatastore.get(anyString)).thenReturn(AuthenticateResponse(null, null, null, null, null, null, null, None, None), Nil: _*)
+      when(mockDatastore.get(anyString)).thenReturn(AuthenticateResponse(null, null, null, null, null, null, null, null, null, None, None), Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Success[_]]
       identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get shouldBe an[AuthenticateResponse]
@@ -306,7 +306,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
-      response.get.user.raxDefaultRegion shouldBe Some("ORD")
+      response.get.defaultRegion shouldBe Some("ORD")
     }
 
     it("should correctly map none to the default region if there is not one provided") {
@@ -320,7 +320,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
-      response.get.user.raxDefaultRegion shouldBe None
+      response.get.defaultRegion shouldBe None
     }
 
     it("should correctly create an impersonation object from the authentication response") {

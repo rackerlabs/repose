@@ -20,13 +20,15 @@
 package org.openrepose.filters.openstackidentityv3.objects
 
 case class AuthenticateResponse(
-    expires_at: String,
+    userId: Option[String],
+    userName: Option[String],
+    defaultRegion: Option[String],
+    expiresAt: String,
     projectId: Option[String] = None,
     projectName: Option[String] = None,
     catalogJson: Option[String],
     catalogEndpoints: List[Endpoint],
     roles: Option[List[Role]],
-    user: UserForAuthenticateResponse,
     impersonatorId: Option[String] = None,
     impersonatorName: Option[String] = None)
   extends Serializable
@@ -35,12 +37,6 @@ case class Role(
     name: String,
     projectId: Option[String] = None,
     raxProjectId: Option[String] = None)
-  extends Serializable
-
-case class UserForAuthenticateResponse(
-    id: Option[String] = None,
-    name: Option[String] = None,
-    raxDefaultRegion: Option[String] = None)
   extends Serializable
 
 case class Endpoint(
