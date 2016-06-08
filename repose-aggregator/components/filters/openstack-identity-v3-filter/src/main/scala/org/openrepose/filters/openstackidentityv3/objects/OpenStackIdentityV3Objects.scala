@@ -23,17 +23,12 @@ case class AuthenticateResponse(
     expires_at: String,
     projectId: Option[String] = None,
     projectName: Option[String] = None,
-    catalog: Option[List[ServiceForAuthenticationResponse]],
+    catalogJson: Option[String],
+    catalogEndpoints: List[Endpoint],
     roles: Option[List[Role]],
     user: UserForAuthenticateResponse,
     impersonatorId: Option[String] = None,
     impersonatorName: Option[String] = None)
-  extends Serializable
-
-case class ServiceForAuthenticationResponse(
-    endpoints: List[Endpoint],
-    id: Option[String] = None,
-    name: Option[String] = None)
   extends Serializable
 
 case class Role(
@@ -49,12 +44,10 @@ case class UserForAuthenticateResponse(
   extends Serializable
 
 case class Endpoint(
-    id: String,
     name: Option[String] = None,
     interface: Option[String] = None,
     region: Option[String] = None,
-    url: String,
-    service_id: Option[String] = None)
+    url: String)
   extends Serializable {
 
   /**

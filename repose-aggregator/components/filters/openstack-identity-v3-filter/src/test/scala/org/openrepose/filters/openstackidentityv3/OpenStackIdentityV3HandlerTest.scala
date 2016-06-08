@@ -97,7 +97,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
     it("should add the X-Default-Region if rax_default_region is available for the user") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
-        Try(new AuthenticateResponse("1", None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+        Try(new AuthenticateResponse("1", None, None, None, List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Option(List(Role("admin"))), UserForAuthenticateResponse(None, None, Some("ORD")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
@@ -110,7 +110,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
     it("should not include X-Default-Region if rax_default_region is not available for the user") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
-        Try(new AuthenticateResponse("1", None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+        Try(new AuthenticateResponse("1", None, None, None, List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Option(List(Role("admin"))), new UserForAuthenticateResponse())))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
@@ -123,7 +123,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
     it("should add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is available") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
-        Try(new AuthenticateResponse("1", None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+        Try(new AuthenticateResponse("1", None, None, None, List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Option(List(Role("admin"))), new UserForAuthenticateResponse(), Some("ImpersonationId"), Some("ImpersonationName"))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
@@ -137,7 +137,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
     it("should not add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is not available") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
-        Try(new AuthenticateResponse("1", None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+        Try(new AuthenticateResponse("1", None, None, None, List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Option(List(Role("admin"))), new UserForAuthenticateResponse())))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
@@ -150,7 +150,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
     it("should non-destructively add the x-roles header") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
-        Try(new AuthenticateResponse("1", None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+        Try(new AuthenticateResponse("1", None, None, None, List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Option(List(Role("admin"))), UserForAuthenticateResponse(None, None, Some("ORD")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
@@ -168,7 +168,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
         Try(AuthenticateResponse("1",
           Some("ProjectIdToNotSee"),
           None,
-          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          None,
+          List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Some(List(Role("admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
@@ -184,7 +185,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
         Try(AuthenticateResponse("1",
           Some("DefaultProjectIdToSee"),
           None,
-          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          None,
+          List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Some(List(Role("admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
@@ -198,8 +200,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
     it("should not set the x-project-id header if there is no default and send all project ids is not set/false and there is no uri project id validation") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
-        Try(AuthenticateResponse("1", None, None,
-          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+        Try(AuthenticateResponse("1", None, None, None,
+          List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Some(List(Role("admin", Some("ProjectToNotSee")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
@@ -216,7 +218,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
         Try(AuthenticateResponse("1",
           Some("ProjectIdFromProject"),
           None,
-          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          None,
+          List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Some(List(Role("admin", Some("ProjectIdFromRoles")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
@@ -233,7 +236,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
         Try(AuthenticateResponse("1",
           Some("ProjectIdFromProject"),
           None,
-          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          None,
+          List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           Some(List(Role("admin", Some("ProjectIdFromRoles"), Some("RaxExtensionProjectId")))), UserForAuthenticateResponse())))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
@@ -400,64 +404,64 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
     it("should return true when there is an endpoint that matches the url") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
-        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")),
-        Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")
+        List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
+        Endpoint(None, None, None, "http://www.notreallyawebsite.com")
       ) should be(true)
     }
 
     it("should return true when there is an endpoint that matches the url with the project id appended") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
-        List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com/tenantId")),
-        Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")
+        List(Endpoint(None, None, None, "http://www.notreallyawebsite.com/tenantId")),
+        Endpoint(None, None, None, "http://www.notreallyawebsite.com")
       ) should be(true)
     }
 
     it("should return false when there isn't an endpoint that matches the url") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
-        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.banana.com")),
-        Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")
+        List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(None, None, None, "http://www.banana.com")),
+        Endpoint(None, None, None, "http://www.notreallyawebsite.com")
       ) should be(false)
     }
 
     it("Should return true when the url matches and region does") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
-        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, null, Option("DFW"), "http://www.notreallyawebsite.com")),
-        Endpoint(null, None, None, Option("DFW"), "http://www.notreallyawebsite.com")
+        List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(None, null, Option("DFW"), "http://www.notreallyawebsite.com")),
+        Endpoint(None, None, Option("DFW"), "http://www.notreallyawebsite.com")
       ) should be(true)
     }
 
     it("Should return false when the url matches and region doesn't") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
-        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")),
-        Endpoint(null, None, None, Option("DFW"), "http://www.notreallyawebsite.com")
+        List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
+        Endpoint(None, None, Option("DFW"), "http://www.notreallyawebsite.com")
       ) should be(false)
     }
 
     it("Should return true when the url matches and name does") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
-        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), None, Option("DFW"), "http://www.notreallyawebsite.com")),
-        Endpoint(null, Option("foo"), None, None, "http://www.notreallyawebsite.com")
+        List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(Option("foo"), None, Option("DFW"), "http://www.notreallyawebsite.com")),
+        Endpoint(Option("foo"), None, None, "http://www.notreallyawebsite.com")
       ) should be(true)
     }
 
     it("Should return false when the url matches and name doesn't") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
-        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), null, None, "http://www.notreallyawebsite.com")),
-        Endpoint(null, Option("foo"), None, None, "http://www.notreallyawebsite.com")
+        List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(Option("bar"), null, None, "http://www.notreallyawebsite.com")),
+        Endpoint(Option("foo"), None, None, "http://www.notreallyawebsite.com")
       ) should be(false)
     }
 
     it("Should return true when the url matches and interface does") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
-        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com")),
-        Endpoint(null, None, Option("foo"), None, "http://www.notreallyawebsite.com")
+        List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com")),
+        Endpoint(None, Option("foo"), None, "http://www.notreallyawebsite.com")
       ) should be(true)
     }
 
     it("Should return false when the url matches and interface doesn't") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
-        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), None, None, "http://www.notreallyawebsite.com")),
-        Endpoint(null, None, Option("foo"), None, "http://www.notreallyawebsite.com")
+        List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(Option("bar"), None, None, "http://www.notreallyawebsite.com")),
+        Endpoint(None, Option("foo"), None, "http://www.notreallyawebsite.com")
       ) should be(false)
     }
   }
@@ -472,19 +476,19 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
       val handler = new OpenStackIdentityV3Handler(config, identityAPI)
 
-      handler invokePrivate isAuthorized(AuthenticateResponse(null, null, null, null, null, null)) should be(true)
+      handler invokePrivate isAuthorized(AuthenticateResponse(null, null, null, null, null, null, null)) should be(true)
     }
 
     it("should return true when configured and the endpoint is present") {
-      val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")), null, null))
-      val authToken = AuthenticateResponse(null, None, None, Option(catalog), null, null)
+      val catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com"))
+      val authToken = AuthenticateResponse(null, None, None, None, catalogEndpoints, null, null)
 
       identityV3Handler invokePrivate isAuthorized(authToken) should be(true)
     }
 
     it("should return false when configured and the endpoint is not present") {
-      val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.woot.com")), null, null))
-      val authToken = AuthenticateResponse(null, None, None, Option(catalog), null, null)
+      val catalogEndpoints = List(Endpoint(None, None, None, "http://www.woot.com"))
+      val authToken = AuthenticateResponse(null, None, None, None, catalogEndpoints, null, null)
 
       identityV3Handler invokePrivate isAuthorized(authToken) should be(false)
     }
@@ -508,15 +512,15 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
       val handler = new OpenStackIdentityV3Handler(config, identityAPI)
 
-      handler invokePrivate isProjectIdValid("", AuthenticateResponse(null, None, None, null, null, null)) shouldBe true
+      handler invokePrivate isProjectIdValid("", AuthenticateResponse(null, None, None, None, List(), null, null)) shouldBe true
     }
 
     it("should return true if the user had a role which bypasses validation") {
-      identityV3Handler invokePrivate isProjectIdValid("", AuthenticateResponse(null, None, None, None, Some(List(Role("admin"))), null)) shouldBe true
+      identityV3Handler invokePrivate isProjectIdValid("", AuthenticateResponse(null, None, None, None, List(), Some(List(Role("admin"))), null)) shouldBe true
     }
 
     it("should return false if no a project ID could not be extracted from the URI") {
-      identityV3Handler invokePrivate isProjectIdValid("/foo/bar", AuthenticateResponse(null, None, None, None, None, null)) shouldBe false
+      identityV3Handler invokePrivate isProjectIdValid("/foo/bar", AuthenticateResponse(null, None, None, None, List(), None, null)) shouldBe false
     }
   }
 

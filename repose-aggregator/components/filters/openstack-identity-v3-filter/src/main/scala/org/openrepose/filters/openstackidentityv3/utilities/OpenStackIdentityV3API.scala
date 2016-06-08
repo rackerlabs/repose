@@ -173,18 +173,16 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 val tokenExpiration = (json \ "token" \ "expires_at").as[String]
                 val projectId = (json \ "token" \ "project" \ "id").asOpt[String]
                 val projectName = (json \ "token" \ "project" \ "name").asOpt[String]
-                val catalog = (json \ "token" \ "catalog").asOpt[JsArray].map(_.value.map(jsCatalog =>
-                  ServiceForAuthenticationResponse(
-                    (jsCatalog \ "endpoints").as[JsArray].value.map(jsEndpoint =>
-                      Endpoint(
-                        (jsEndpoint \ "id").as[String],
-                        (jsEndpoint \ "name").asOpt[String],
-                        (jsEndpoint \ "interface").asOpt[String],
-                        (jsEndpoint \ "region").asOpt[String],
-                        (jsEndpoint \ "url").as[String],
-                        (jsEndpoint \ "service_id").asOpt[String])).toList,
-                    (jsCatalog \ "id").asOpt[String],
-                    (jsCatalog \ "name").asOpt[String])).toList)
+                val catalogJson = (json \ "token" \ "catalog").toOption.map(_.toString)
+                val catalogEndpoints = (json \ "token" \ "catalog" \\ "endpoints")
+                  .flatMap(_.as[JsArray].value.map(jsEndpoint =>
+                  Endpoint(
+                    (jsEndpoint \ "name").asOpt[String],
+                    (jsEndpoint \ "interface").asOpt[String],
+                    (jsEndpoint \ "region").asOpt[String],
+                    (jsEndpoint \ "url").as[String])
+                  )
+                ).toList
                 val roles = (json \ "token" \ "roles").asOpt[JsArray].map(_.value.map(jsRole =>
                   Role(
                     (jsRole \ "name").as[String],
@@ -196,8 +194,8 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                   (json \ "token" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String])
                 val impersonatorId = (json \ "token" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
                 val impersonatorName = (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
-                val subjectTokenObject = AuthenticateResponse(tokenExpiration, projectId, projectName, catalog, roles,
-                  user, impersonatorId, impersonatorName)
+                val subjectTokenObject = AuthenticateResponse(tokenExpiration, projectId, projectName, catalogJson,
+                  catalogEndpoints, roles, user, impersonatorId, impersonatorName)
 
                 val identityTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
