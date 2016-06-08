@@ -196,11 +196,9 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                   (json \ "token" \ "user" \ "id").asOpt[String],
                   (json \ "token" \ "user" \ "name").asOpt[String],
                   (json \ "token" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String])
-                val raxImpersonator = (json \ "token" \ "RAX-AUTH:impersonator").toOption.map(_ =>
-                  ImpersonatorForAuthenticationResponse(
-                    (json \ "token" \ "RAX-AUTH:impersonator" \ "id").asOpt[String],
-                    (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]))
-                val subjectTokenObject = AuthenticateResponse(tokenExpiration, project, catalog, roles, user, raxImpersonator)
+                val impersonatorId = (json \ "token" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
+                val impersonatorName = (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
+                val subjectTokenObject = AuthenticateResponse(tokenExpiration, project, catalog, roles, user, impersonatorId, impersonatorName)
 
                 val identityTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)

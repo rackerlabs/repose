@@ -226,10 +226,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
             writeProjectHeader(defaultProjectId, roles, None, identityConfig.isSendAllProjectIds,
               identityConfig.isSendProjectIdQuality, request)
         }
-        token.get.rax_impersonator.foreach { impersonator =>
-          impersonator.id.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
-          impersonator.name.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
-        }
+        token.get.impersonatorId.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
+        token.get.impersonatorName.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
         if (forwardCatalog) {
           token.get.catalog.foreach(catalog =>
             request.replaceHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(Json.stringify(Json.toJson(catalog)))))

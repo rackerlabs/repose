@@ -25,7 +25,8 @@ case class AuthenticateResponse(
     catalog: Option[List[ServiceForAuthenticationResponse]],
     roles: Option[List[Role]],
     user: UserForAuthenticateResponse,
-    rax_impersonator: Option[ImpersonatorForAuthenticationResponse] = None)
+    impersonatorId: Option[String] = None,
+    impersonatorName: Option[String] = None)
   extends Serializable
 
 case class ProjectForAuthenticateResponse(id: Option[String] = None, name: Option[String] = None) extends Serializable
@@ -47,8 +48,6 @@ case class UserForAuthenticateResponse(
     name: Option[String] = None,
     rax_default_region: Option[String] = None)
   extends Serializable
-
-case class ImpersonatorForAuthenticationResponse(id: Option[String] = None, name: Option[String] = None)
 
 case class Endpoint(
     id: String,

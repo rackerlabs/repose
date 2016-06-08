@@ -124,7 +124,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     it("should add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is available") {
       when(identityAPI.validateToken("123456", None)).thenReturn(
         Try(new AuthenticateResponse("1", None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
-          Option(List(Role("admin"))), new UserForAuthenticateResponse(), Some(new ImpersonatorForAuthenticationResponse(Some("ImpersonationId"), Some("ImpersonationName"))))))
+          Option(List(Role("admin"))), new UserForAuthenticateResponse(), Some("ImpersonationId"), Some("ImpersonationName"))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -159,7 +159,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
 
-      val requestHeaderManager = identityV3Handler.handleRequest(mockRequest, new MockHttpServletResponse())
+      identityV3Handler.handleRequest(mockRequest, new MockHttpServletResponse())
       mockRequest.getHeadersScala(OpenStackServiceHeader.ROLES.toString) should contain only("foo", "admin")
     }
 
@@ -266,7 +266,6 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
   describe("handleResponse") {
     // TODO: Get this to work, or make it a system level test
     ignore("should set the appropriate response status") {
-      val mockServletRequest = new MockHttpServletRequest()
       val mockServletResponse = new MockHttpServletResponse()
 
       val responseStatus = "response-status-key"

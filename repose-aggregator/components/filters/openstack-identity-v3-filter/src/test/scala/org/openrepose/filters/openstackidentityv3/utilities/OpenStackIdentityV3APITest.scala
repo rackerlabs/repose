@@ -275,7 +275,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     }
 
     it("should return a Success for a cached admin token") {
-      when(mockDatastore.get(anyString)).thenReturn(AuthenticateResponse(null, null, null, null, null), Nil: _*)
+      when(mockDatastore.get(anyString)).thenReturn(AuthenticateResponse(null, null, null, null, null, None, None), Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Success[_]]
       identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get shouldBe an[AuthenticateResponse]
@@ -334,8 +334,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
-      response.get.rax_impersonator.get.id.get shouldBe "567"
-      response.get.rax_impersonator.get.name.get shouldBe "impersonator.joe"
+      response.get.impersonatorId.get shouldBe "567"
+      response.get.impersonatorName.get shouldBe "impersonator.joe"
     }
 
     it("should correctly not populate an impersonation object if its not available") {
@@ -349,7 +349,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
-      response.get.rax_impersonator shouldBe None
+      response.get.impersonatorId shouldBe None
+      response.get.impersonatorName shouldBe None
     }
 
     it("should cache a token object when x-subject-token validation succeeds with the correct TTL") {
