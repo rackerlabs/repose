@@ -19,25 +19,53 @@
  */
 package org.openrepose.filters.openstackidentityv3.objects
 
-case class ProjectForAuthenticateResponse(id: Option[String] = None,
-                                          name: Option[String] = None
-                                           ) extends Serializable
+case class AuthenticateResponse(
+    expires_at: String,
+    project: Option[ProjectForAuthenticateResponse],
+    catalog: Option[List[ServiceForAuthenticationResponse]],
+    roles: Option[List[Role]],
+    user: UserForAuthenticateResponse,
+    rax_impersonator: Option[ImpersonatorForAuthenticationResponse] = None)
+  extends Serializable
 
-case class Endpoint(id: String,
-                    name: Option[String] = None,
-                    interface: Option[String] = None,
-                    region: Option[String] = None,
-                    url: String,
-                    service_id: Option[String] = None
-                     ) extends Serializable {
+case class ProjectForAuthenticateResponse(id: Option[String] = None, name: Option[String] = None) extends Serializable
+
+case class ServiceForAuthenticationResponse(
+    endpoints: List[Endpoint],
+    id: Option[String] = None,
+    name: Option[String] = None)
+  extends Serializable
+
+case class Role(
+    name: String,
+    project_id: Option[String] = None,
+    rax_project_id: Option[String] = None)
+  extends Serializable
+
+case class UserForAuthenticateResponse(
+    id: Option[String] = None,
+    name: Option[String] = None,
+    rax_default_region: Option[String] = None)
+  extends Serializable
+
+case class ImpersonatorForAuthenticationResponse(id: Option[String] = None, name: Option[String] = None)
+
+case class Endpoint(
+    id: String,
+    name: Option[String] = None,
+    interface: Option[String] = None,
+    region: Option[String] = None,
+    url: String,
+    service_id: Option[String] = None)
+  extends Serializable {
 
   /**
-   * Determines whether or not this endpoint meets the requirements set forth by the values contained in
-   * endpointRequirement for the purpose of authorization.
-   *
-   * @param endpointRequirement an endpoint containing fields with required values
-   * @return true if this endpoint has field values matching those in the endpointRequirement, false otherwise
-   */
+    * Determines whether or not this endpoint meets the requirements set forth by the values contained in
+    * endpointRequirement for the purpose of authorization.
+    *
+    * @param endpointRequirement an endpoint containing fields with required values
+    * @return true if this endpoint has field values matching those in the endpointRequirement, false otherwise
+    */
   def meetsRequirement(endpointRequirement: Endpoint) = {
     def compare(available: Option[String], required: Option[String]) = (available, required) match {
       case (Some(x), Some(y)) => x == y
@@ -51,29 +79,3 @@ case class Endpoint(id: String,
       compare(this.interface, endpointRequirement.interface)
   }
 }
-
-case class ServiceForAuthenticationResponse(endpoints: List[Endpoint],
-                                            id: Option[String] = None,
-                                            name: Option[String] = None
-                                             ) extends Serializable
-
-case class Role(name: String,
-                project_id: Option[String] = None,
-                rax_project_id: Option[String] = None
-                 ) extends Serializable
-
-case class UserForAuthenticateResponse(id: Option[String] = None,
-                                       name: Option[String] = None,
-                                       rax_default_region: Option[String] = None
-                                        ) extends Serializable
-
-case class ImpersonatorForAuthenticationResponse(id: Option[String] = None,
-                                                 name: Option[String] = None)
-
-case class AuthenticateResponse(expires_at: String,
-                                project: Option[ProjectForAuthenticateResponse],
-                                catalog: Option[List[ServiceForAuthenticationResponse]],
-                                roles: Option[List[Role]],
-                                user: UserForAuthenticateResponse,
-                                rax_impersonator: Option[ImpersonatorForAuthenticationResponse] = None
-                                 ) extends Serializable
