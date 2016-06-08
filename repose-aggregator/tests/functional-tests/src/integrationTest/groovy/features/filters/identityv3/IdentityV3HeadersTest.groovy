@@ -44,7 +44,6 @@ class IdentityV3HeadersTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
-        fakeIdentityV3Service.resetCounts()
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityV3Service.handler)
     }
@@ -57,13 +56,13 @@ class IdentityV3HeadersTest extends ReposeValveTest {
     }
 
     def setup() {
+        fakeIdentityV3Service.resetCounts()
         fakeIdentityV3Service.resetHandlers()
         fakeIdentityV3Service.resetParameters()
     }
 
     def "When token is validated, set of headers should be generated"() {
         when: "I send a GET request to Repose with an X-Auth-Token header"
-        fakeIdentityV3Service.resetCounts()
         fakeIdentityV3Service.default_region = "DFW"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
 
@@ -83,7 +82,10 @@ class IdentityV3HeadersTest extends ReposeValveTest {
         request.headers.contains("X-pp-user")
         request.headers.contains("X-pp-groups")
         request.headers.contains("X-Token-Expires")
+        request.headers.contains("X-Catalog")
         request.headers.getFirstValue("X-Default-Region") == "DFW"
+        new String(Base64.getDecoder().decode(request.headers.getFirstValue("X-Catalog"))) ==
+                """[{"endpoints":[{"id":"39dc322ce86c4111b4f06c2eeae0841b","interface":"public","region":"RegionOne","url":"http://localhost:10009"},{"id":"ec642f27474842e78bf059f6c48f4e99","interface":"internal","region":"RegionOne","url":"http://localhost:10009"},{"id":"c609fc430175452290b62a4242e8a7e8","interface":"admin","region":"RegionOne","url":"http://localhost:10009"}],"id":"4363ae44bdf34a3981fde3b823cb9aa2","name":"keystone"}]"""
 
         when: "I send a second GET request to Repose with the same token"
         fakeIdentityV3Service.resetCounts()
