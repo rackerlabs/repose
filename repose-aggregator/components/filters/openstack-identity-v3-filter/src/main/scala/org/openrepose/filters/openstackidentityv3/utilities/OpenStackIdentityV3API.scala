@@ -25,7 +25,6 @@ import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.MediaType
 
-import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.Header
 import org.joda.time.DateTime
@@ -38,7 +37,6 @@ import org.springframework.http.HttpHeaders
 import play.api.libs.json._
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.io.Source
 import scala.util.{Failure, Random, Success, Try}
 
@@ -236,10 +234,10 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
     }
   }
 
-  def getGroups(userId: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[List[Group]] = {
-    getFromCache[mutable.ArrayBuffer[Group]](GROUPS_KEY_PREFIX + userId) match {
+  def getGroups(userId: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[List[String]] = {
+    getFromCache[List[String]](GROUPS_KEY_PREFIX + userId) match {
       case Some(cachedGroups) =>
-        Success(cachedGroups.toList)
+        Success(cachedGroups)
       case None =>
         getAdminToken(tracingHeader, checkCache) match {
           case Success(adminToken) =>
@@ -261,14 +259,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             groupsResponse.map(response => response.getStatus) match {
               case Some(statusCode) if statusCode == HttpServletResponse.SC_OK =>
                 val json = Json.parse(inputStreamToString(groupsResponse.get.getData))
-
-                val groups = (json \ "groups").as[JsArray].value.map(jsGroup =>
-                  Group(
-                    (jsGroup \ "id").as[String],
-                    (jsGroup \ "name").as[String],
-                    (jsGroup \ "description").asOpt[String],
-                    (jsGroup \ "domain_id").asOpt[String])).toList
-
+                val groups = (json \ "groups" \\ "name").map(_.as[String]).toList
                 val offsetConfiguredTtl = offsetTtl(groupsCacheTtl, cacheOffset)
                 val ttl = if (offsetConfiguredTtl < 1) {
                   logger.error("Offset group cache ttl was negative, defaulting to 10 minutes. Please check your configuration.")

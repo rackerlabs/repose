@@ -38,7 +38,7 @@ import org.openrepose.commons.utils.http.{HttpDate, ServiceClientResponse}
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
-import org.openrepose.filters.openstackidentityv3.objects.{AuthenticateResponse, Group}
+import org.openrepose.filters.openstackidentityv3.objects.AuthenticateResponse
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -477,7 +477,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     }
 
     it("should return a Success for cached groups") {
-      when(mockDatastore.get(anyString)).thenReturn(List(Group("", "", Some(""))).toBuffer.asInstanceOf[Serializable], Nil: _*)
+      when(mockDatastore.get(anyString)).thenReturn(List("").asInstanceOf[Serializable], Nil: _*)
 
       identityV3API invokePrivate getGroups("test-user-id", None, false) shouldBe a[Success[_]]
       identityV3API.invokePrivate(getGroups("test-user-id", None, false)).get shouldBe a[List[_]]

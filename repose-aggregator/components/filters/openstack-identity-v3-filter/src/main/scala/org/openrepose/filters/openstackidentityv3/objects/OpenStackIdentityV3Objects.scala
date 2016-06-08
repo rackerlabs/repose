@@ -77,8 +77,3 @@ case class AuthenticateResponse(expires_at: String,
                                 user: UserForAuthenticateResponse,
                                 rax_impersonator: Option[ImpersonatorForAuthenticationResponse] = None
                                  ) extends Serializable
-
-case class Group(id: String,
-                 name: String,
-                 description: Option[String] = None,
-                 domain_id: Option[String] = None) extends Serializable

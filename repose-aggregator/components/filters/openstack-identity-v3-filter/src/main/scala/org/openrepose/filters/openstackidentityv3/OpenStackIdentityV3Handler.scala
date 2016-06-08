@@ -162,7 +162,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         token.get.user.id map { userId =>
           identityAPI.getGroups(userId, tracingHeader) match {
             case Success(groupsList) =>
-              groupsList.map(_.name)
+              groupsList
             case Failure(e: IdentityServiceOverLimitException) =>
               failureInValidation = true
               delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, e.getMessage) {
