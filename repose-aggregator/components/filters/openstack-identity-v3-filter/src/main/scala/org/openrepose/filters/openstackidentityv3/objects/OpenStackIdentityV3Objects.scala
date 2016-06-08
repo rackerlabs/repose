@@ -33,14 +33,14 @@ case class AuthenticateResponse(
 
 case class Role(
     name: String,
-    project_id: Option[String] = None,
-    rax_project_id: Option[String] = None)
+    projectId: Option[String] = None,
+    raxProjectId: Option[String] = None)
   extends Serializable
 
 case class UserForAuthenticateResponse(
     id: Option[String] = None,
     name: Option[String] = None,
-    rax_default_region: Option[String] = None)
+    raxDefaultRegion: Option[String] = None)
   extends Serializable
 
 case class Endpoint(

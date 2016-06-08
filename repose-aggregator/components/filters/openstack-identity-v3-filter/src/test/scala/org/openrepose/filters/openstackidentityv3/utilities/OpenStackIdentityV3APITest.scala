@@ -306,7 +306,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
-      response.get.user.rax_default_region shouldBe Some("ORD")
+      response.get.user.raxDefaultRegion shouldBe Some("ORD")
     }
 
     it("should correctly map none to the default region if there is not one provided") {
@@ -320,7 +320,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
-      response.get.user.rax_default_region shouldBe None
+      response.get.user.raxDefaultRegion shouldBe None
     }
 
     it("should correctly create an impersonation object from the authentication response") {

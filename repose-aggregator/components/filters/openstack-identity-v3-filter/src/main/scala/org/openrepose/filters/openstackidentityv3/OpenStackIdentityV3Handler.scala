@@ -191,7 +191,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         token.get.user.id.foreach { id =>
           request.replaceHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
         }
-        token.get.user.rax_default_region.foreach { defaultRegion =>
+        token.get.user.raxDefaultRegion.foreach { defaultRegion =>
           request.replaceHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, defaultRegion)
         }
         token.get.projectName.foreach { projectName =>
@@ -323,8 +323,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   private def projectMatches(projectFromUri: String, defaultProjectId: Option[String], roles: List[Role]): Boolean = {
     val allProjectIds = defaultProjectId.toSet ++
-      roles.filter(_.project_id.isDefined).map(_.project_id.get) ++
-      roles.filter(_.rax_project_id.isDefined).map(_.rax_project_id.get)
+      roles.filter(_.projectId.isDefined).map(_.projectId.get) ++
+      roles.filter(_.raxProjectId.isDefined).map(_.raxProjectId.get)
 
     allProjectIds.exists { pid =>
       pid.equals(projectFromUri) || projectIdPrefixes.exists { prefix =>
