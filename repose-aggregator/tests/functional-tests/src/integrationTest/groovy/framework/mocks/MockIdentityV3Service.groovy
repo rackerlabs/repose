@@ -353,6 +353,11 @@ class MockIdentityV3Service {
     }
 
     Response validateToken(String tokenId, Request request) {
+        if (request.getHeaders().getAt("X-Auth-Token") != admin_token) {
+            println("Bad admin token (x-auth-token) when validating")
+            return new Response(401)
+        }
+
         def path = request.getPath()
         def request_token = tokenId
         def impersonateid = impersonate_id
@@ -410,11 +415,11 @@ class MockIdentityV3Service {
                     json.auth.identity.methods[0] != "password" ||
                     (json.auth.identity.password.user.name == null && json.auth.identity.password.user.id == null) ||
                     json.auth.identity.password.user.password == null) {
-                println("Admin token XSD validation error: " + e)
+                println("Admin token JSON validation error")
                 return new Response(400)
             }
         } catch (Exception e) {
-            println("Admin token XSD validation error: " + e)
+            println("Admin token JSON validation error: " + e)
             return new Response(400)
         }
 
