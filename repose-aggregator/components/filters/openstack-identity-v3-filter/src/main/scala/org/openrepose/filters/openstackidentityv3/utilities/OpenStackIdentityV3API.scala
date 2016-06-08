@@ -65,17 +65,17 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
 
       // don't include these fields at all if they're going to be null
       val domain = Option(config.getOpenstackIdentityService.getDomainId).map(id => Seq(
-        "domain" -> JsObject(Seq(
-          "id" -> JsString(id)
-        ))
+        "domain" -> Json.obj(
+          "id" -> id
+        )
       )) getOrElse Seq()
 
       val scope = Option(config.getOpenstackIdentityService.getProjectId).map(id => Seq(
-        "scope" -> JsObject(Seq(
-          "project" -> JsObject(Seq(
-            "id" -> JsString(id)
-          ))
-        ))
+        "scope" -> Json.obj(
+          "project" -> Json.obj(
+            "id" -> id
+          )
+        )
       )) getOrElse Seq()
 
       Json.stringify(JsObject(Seq(
@@ -85,12 +85,12 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             "password" -> JsObject(Seq(
               "user" -> JsObject(
                 domain ++ Seq(
-                  "name" -> JsString(username),
-                  "password" -> JsString(password)
-              ))
-            ))
-          ))
-        ) ++ scope)
+                "name" -> JsString(username),
+                "password" -> JsString(password)
+              ))))
+            ))) ++
+          scope
+        )
       )))
     }
 
@@ -98,7 +98,8 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       case Some(adminToken) if checkCache =>
         Success(adminToken)
       case _ =>
-        val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
+        val requestTracingHeader = tracingHeader
+          .map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
           .getOrElse(Map())
         val headerMap = Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON) ++ requestTracingHeader
         val authTokenResponse = Option(akkaServiceClient.post(
@@ -120,17 +121,13 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
               case Some(token) =>
                 logger.debug("Caching admin token")
 
-                try {
-                  val json = Json.parse(inputStreamToString(authTokenResponse.get.getData))
-                  val tokenExpiration = (json \ "token" \ "expires_at").as[String]
-                  val adminTokenTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
+                val json = Json.parse(inputStreamToString(authTokenResponse.get.getData))
+                val tokenExpiration = (json \ "token" \ "expires_at").as[String]
+                val adminTokenTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
+                logger.debug(s"Caching admin token with TTL set to: ${adminTokenTtl}ms")
 
-                  datastore.put(ADMIN_TOKEN_KEY, token, adminTokenTtl, TimeUnit.MILLISECONDS)
-                  Success(token)
-                } catch {
-                  case oops@(_: JsResultException | _: JsonProcessingException) =>
-                    Failure(new IdentityServiceException("Unable to parse JSON from identity validate token response", oops))
-                }
+                datastore.put(ADMIN_TOKEN_KEY, token, adminTokenTtl, TimeUnit.MILLISECONDS)
+                Success(token)
               case None =>
                 logger.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
                 Failure(new IdentityServiceException("OpenStack Identity service did not return headers with a successful response"))
@@ -207,8 +204,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                     (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]))
                 val subjectTokenObject = AuthenticateResponse(tokenExpiration, project, catalog, roles, user, raxImpersonator)
 
-                val expiration = new DateTime(tokenExpiration)
-                val identityTtl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
+                val identityTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
                 // TODO: Come up with a better algorithm to decide the cache TTL and handle negative/0 TTLs
                 val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
@@ -282,7 +278,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 }
                 logger.debug(s"Caching groups for user '$userId' with TTL set to: ${ttl}ms")
                 // TODO: Maybe handle all this conversion jank?
-                datastore.put(GROUPS_KEY_PREFIX + userId, groups.toBuffer.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
+                datastore.put(GROUPS_KEY_PREFIX + userId, groups.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
 
                 Success(groups)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_NOT_FOUND =>
