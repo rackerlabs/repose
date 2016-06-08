@@ -33,9 +33,6 @@ import static features.filters.compression.CompressionHeaderTest.*
 
 @Category(Slow.class)
 class CompressionBinaryTest extends ReposeValveTest {
-//    def static content = CompressionHeaderTest.content
-//    def static byte[] gzipCompressedContent = CompressionHeaderTest.gzipCompressedContent
-//    def static byte[] deflateCompressedContent = CompressionHeaderTest.deflateCompressedContent
 
     def setupSpec() {
         deproxy = new Deproxy()
