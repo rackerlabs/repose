@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.PatternSyntaxException
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletResponse.{SC_MULTIPLE_CHOICES, SC_OK}
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpServletResponseWrapper}
 
 import com.fasterxml.jackson.core.JsonParseException
@@ -14,13 +14,14 @@ import com.josephpconley.jsonpath.JSONPath
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
+import org.apache.http.HttpHeaders.RETRY_AFTER
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, MutableHttpServletResponse}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.valkyrieauthorization.config._
 import play.api.libs.json._
 
@@ -135,7 +136,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         case UserInfo(tenant, contact) =>
           //  authorize device            || cull list                  || translate account permissions
           if (requestedDeviceId.isDefined || matchingResources.nonEmpty || translateAccountPermissions.isDefined) {
-            datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
+            datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, Option(mutableHttpRequest.getHeader("x-auth-token")), _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
           } else {
             ResponseResult(200)
           }
@@ -177,7 +178,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(ACCOUNT_ADMIN)) {
             val inventoryResult = checkHeader match {
               case UserInfo(tenant, contact) =>
-                datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, _.asInstanceOf[DevicePermissions], parseInventory, tracingHeader)
+                datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, Option(mutableHttpRequest.getHeader("x-auth-token")), _.asInstanceOf[DevicePermissions], parseInventory, tracingHeader)
               case _ => userPermissions
             }
             inventoryResult match {
@@ -208,7 +209,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         }
 
         deviceBasedResult match {
-          case ResponseResult(403, _) =>
+          case ResponseResult(403, _, _) =>
             if (permissions.roles.contains(ACCOUNT_ADMIN) && configuration.isEnableBypassAccountAdmin) {
               permissions
             } else {
@@ -236,7 +237,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     def mask403s(valkyrieResponse: ResponseResult): ResponseResult = {
       valkyrieResponse match {
-        case ResponseResult(403, _) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
+        case ResponseResult(403, _, _) if configuration.isEnableMasking403S => ResponseResult(404, "Not Found")
         case result => result
       }
     }
@@ -255,7 +256,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       val allPermissions = getInventory(userPermissions, checkHeader)
       val authPermissions = authorizeDevice(allPermissions, requestedDeviceId)
       mask403s(addRoles(authPermissions)) match {
-        case ResponseResult(200, _) =>
+        case ResponseResult(200, _, _) =>
           filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
           val status = mutableHttpResponse.getStatus
           if (SC_OK <= status && status < SC_MULTIPLE_CHOICES) {
@@ -267,12 +268,14 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                 mutableHttpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rce.getMessage)
             }
           }
-        case ResponseResult(code, message) if Option(configuration.getDelegating).isDefined =>
+        case ResponseResult(code, message, retryTime) if Option(configuration.getDelegating).isDefined =>
           buildDelegationHeaders(code, "valkyrie-authorization", message, configuration.getDelegating.getQuality).foreach { case (key, values) =>
             values.foreach { value => mutableHttpRequest.addHeader(key, value) }
           }
           filterChain.doFilter(mutableHttpRequest, mutableHttpResponse)
-        case ResponseResult(code, message) =>
+          retryTime.foreach(time => mutableHttpResponse.addHeader(RETRY_AFTER, time))
+        case ResponseResult(code, message, retryTime) =>
+          retryTime.foreach(time => mutableHttpResponse.addHeader(RETRY_AFTER, time))
           mutableHttpResponse.sendError(code, message)
       }
     }
@@ -286,6 +289,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                      contactId: String,
                      callType: String,
                      valkyrieServer: ValkyrieServer,
+                     authToken: Option[String],
                      datastoreTransform: java.io.Serializable => ValkyrieResult,
                      responseParser: InputStream => Try[java.io.Serializable],
                      tracingHeader: Option[String] = None): ValkyrieResult = {
@@ -297,10 +301,18 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       } else {
         s"/account/$transformedTenant/permissions/contacts/$callType/by_contact/$contactId/effective"
       }
-      Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
-        valkyrieServer.getUri + uri,
-        Map("X-Auth-User" -> valkyrieServer.getUsername, "X-Auth-Token" -> valkyrieServer.getPassword) ++ requestTracingHeader)
-      )
+      (Option(valkyrieServer.getUsername), Option(valkyrieServer.getPassword)) match {
+        case (Some(username), Some(password)) =>
+          Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
+            valkyrieServer.getUri + uri,
+            Map("X-Auth-User" -> username, "X-Auth-Token" -> password) ++ requestTracingHeader)
+          )
+        case _ =>
+          Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
+            valkyrieServer.getUri + uri,
+            authToken.map(token => Map("X-Auth-Token" -> token)).getOrElse(Map.empty) ++ requestTracingHeader)
+          )
+      }
     }
 
     def valkyrieAuthorize(): ValkyrieResult = {
@@ -314,7 +326,31 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
               case Failure(x) => ResponseResult(502, x.getMessage) //JSON Parsing failure
             }
           } else {
-            ResponseResult(502, s"Valkyrie returned a ${response.getStatus}") //Didn't get a 200 from valkyrie
+            val retryTime = response.getHeaders.find(_.getName == RETRY_AFTER).map(_.getValue)
+            (Option(configuration.getValkyrieServer.getUsername), Option(configuration.getValkyrieServer.getPassword)) match {
+              //admin creds
+              case (Some(_), Some(_)) =>
+                response.getStatus match {
+                  case SC_BAD_REQUEST => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie rejected the request for being bad")
+                  case SC_UNAUTHORIZED => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie said the credentials weren't authorized")
+                  case SC_FORBIDDEN => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie said the credentials were forbidden")
+                  case SC_INTERNAL_SERVER_ERROR => ResponseResult(SC_BAD_GATEWAY, "Valkyrie failed for an unspecified reason")
+                  case SC_REQUEST_ENTITY_TOO_LARGE | 429 | SC_SERVICE_UNAVAILABLE => ResponseResult(SC_SERVICE_UNAVAILABLE, "Valkyrie rate limited the request", retryTime)
+                  case statusCode => ResponseResult(SC_BAD_GATEWAY, s"Valkyrie returned a $statusCode")
+                }
+              //user token
+              case _ =>
+                response.getStatus match {
+                  case SC_BAD_REQUEST => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie rejected the request for being bad")
+                  case SC_UNAUTHORIZED => ResponseResult(SC_UNAUTHORIZED, "Valkyrie said the user was unauthorized")
+                  case SC_FORBIDDEN => ResponseResult(SC_FORBIDDEN, "Valkyrie said the user was forbidden")
+                  case SC_INTERNAL_SERVER_ERROR => ResponseResult(SC_BAD_GATEWAY, "Valkyrie failed for an unspecified reason")
+                  case SC_REQUEST_ENTITY_TOO_LARGE => ResponseResult(SC_REQUEST_ENTITY_TOO_LARGE, "Valkyrie rate limited the request", retryTime)
+                  case 429 => ResponseResult(429, "Valkyrie rate limited the request", retryTime)
+                  case SC_SERVICE_UNAVAILABLE => ResponseResult(SC_SERVICE_UNAVAILABLE, "Valkyrie rate limited the request", retryTime)
+                  case statusCode => ResponseResult(SC_BAD_GATEWAY, s"Valkyrie returned a $statusCode")
+                }
+            }
           }
         case Failure(exception) =>
           ResponseResult(502, s"Unable to communicate with Valkyrie: ${exception.getMessage}")
@@ -459,6 +495,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   case class DeviceToPermission(device: Int, permission: String)
 
-  case class ResponseResult(statusCode: Int, message: String = "") extends ValkyrieResult
+  case class ResponseResult(statusCode: Int, message: String = "", retryTime: Option[String] = None) extends ValkyrieResult
 
 }

@@ -99,20 +99,25 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="username" type="xs:string" use="required">
+        <xs:attribute name="username" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Username to authenticate against the Valkyrie endpoint.</html:p>
+                    <html:p>DEPRECATED - Username to authenticate against the Valkyrie endpoint.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="password" type="xs:string" use="required">
+        <xs:attribute name="password" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Password to authenticate against the Valkyrie endpoint.</html:p>
+                    <html:p>DEPRECATED - Password to authenticate against the Valkyrie endpoint.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:assert vc:minVersion="1.1"
+                   test="(@username and @password) or (not(@username) and not(@password))"
+                   xerces:message="Username and password must be specified or neither."
+                   saxon:message="Username and password must be specified or neither."
+        />
     </xs:complexType>
 
     <xs:complexType name="DelegatingType">
