@@ -38,7 +38,7 @@ import org.openrepose.commons.utils.http.{HttpDate, ServiceClientResponse}
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
-import org.openrepose.filters.openstackidentityv3.objects.AuthenticateResponse
+import org.openrepose.filters.openstackidentityv3.objects.ValidToken
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -275,10 +275,10 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     }
 
     it("should return a Success for a cached admin token") {
-      when(mockDatastore.get(anyString)).thenReturn(AuthenticateResponse(null, null, null, null, null, null, null, null, null, None, None), Nil: _*)
+      when(mockDatastore.get(anyString)).thenReturn(ValidToken(null, null, null, null, null, null, null, null, null, None, None), Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get shouldBe an[AuthenticateResponse]
+      identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get shouldBe an[ValidToken]
     }
 
     it("should return a token object when x-subject-token validation succeeds") {
@@ -292,7 +292,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get shouldBe an[AuthenticateResponse]
+      identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get shouldBe an[ValidToken]
     }
 
     it("should correctly map the default region to the authentication response") {
@@ -305,7 +305,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
+      val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
       response.get.defaultRegion shouldBe Some("ORD")
     }
 
@@ -319,7 +319,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
+      val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
       response.get.defaultRegion shouldBe None
     }
 
@@ -333,7 +333,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
+      val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
       response.get.impersonatorId.get shouldBe "567"
       response.get.impersonatorName.get shouldBe "impersonator.joe"
     }
@@ -348,7 +348,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
-      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", None, true)
+      val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
       response.get.impersonatorId shouldBe None
       response.get.impersonatorName shouldBe None
     }

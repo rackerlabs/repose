@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.openstackidentityv3.objects
 
-case class AuthenticateResponse(
+case class ValidToken(
     userId: Option[String],
     userName: Option[String],
     defaultRegion: Option[String],

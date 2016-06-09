@@ -235,7 +235,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     filterAction
   }
 
-  private def authenticate(request: HttpServletRequest, tracingHeader: Option[String] = None): Try[AuthenticateResponse] = {
+  private def authenticate(request: HttpServletRequest, tracingHeader: Option[String] = None): Try[ValidToken] = {
     Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
         identityAPI.validateToken(subjectToken, tracingHeader)
@@ -245,9 +245,9 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     }
   }
 
-  private def isAuthorized(authResponse: AuthenticateResponse) = {
+  private def isAuthorized(token: ValidToken) = {
     configuredServiceEndpoint forall { configuredEndpoint =>
-      containsRequiredEndpoint(authResponse.catalogEndpoints, configuredEndpoint)
+      containsRequiredEndpoint(token.catalogEndpoints, configuredEndpoint)
     }
   }
 
@@ -290,7 +290,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     }
   }
 
-  private def isProjectIdValid(requestUri: String, token: AuthenticateResponse): Boolean = {
+  private def isProjectIdValid(requestUri: String, token: ValidToken): Boolean = {
     projectIdUriRegex match {
       case Some(regex) =>
         // Check whether or not this user should bypass project ID validation

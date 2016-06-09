@@ -143,8 +143,8 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
     }
   }
 
-  def validateToken(subjectToken: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[AuthenticateResponse] = {
-    getFromCache[AuthenticateResponse](TOKEN_KEY_PREFIX + subjectToken) match {
+  def validateToken(subjectToken: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[ValidToken] = {
+    getFromCache[ValidToken](TOKEN_KEY_PREFIX + subjectToken) match {
       case Some(cachedSubjectTokenObject) =>
         Success(cachedSubjectTokenObject)
       case None =>
@@ -193,7 +193,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                     (jsRole \ "RAX-AUTH:project_id").asOpt[String])).toList) getOrElse List.empty
                 val impersonatorId = (json \ "token" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
                 val impersonatorName = (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
-                val subjectTokenObject = AuthenticateResponse(
+                val subjectTokenObject = ValidToken(
                   userId = userId,
                   userName = userName,
                   defaultRegion = defaultRegion,
