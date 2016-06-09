@@ -190,7 +190,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                   Role(
                     (jsRole \ "name").as[String],
                     (jsRole \ "project_id").asOpt[String],
-                    (jsRole \ "RAX-AUTH:project_id").asOpt[String])).toList)
+                    (jsRole \ "RAX-AUTH:project_id").asOpt[String])).toList) getOrElse List.empty
                 val impersonatorId = (json \ "token" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
                 val impersonatorName = (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String]
                 val subjectTokenObject = AuthenticateResponse(

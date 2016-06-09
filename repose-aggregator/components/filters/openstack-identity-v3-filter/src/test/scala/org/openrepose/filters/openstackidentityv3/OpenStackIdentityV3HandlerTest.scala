@@ -106,7 +106,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Option(List(Role("admin"))))))
+          roles = List(Role("admin")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -127,7 +127,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Option(List(Role("admin"))))))
+          roles = List(Role("admin")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -148,7 +148,9 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Option(List(Role("admin"))), Some("ImpersonationId"), Some("ImpersonationName"))))
+          roles = List(Role("admin")),
+          impersonatorId = Some("ImpersonationId"),
+          impersonatorName = Some("ImpersonationName"))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -170,7 +172,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Option(List(Role("admin"))))))
+          roles = List(Role("admin")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
@@ -191,7 +193,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Option(List(Role("admin"))))))
+          roles = List(Role("admin")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
       mockRequest.addHeader(OpenStackServiceHeader.ROLES.toString, "foo")
@@ -214,7 +216,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Some(List(Role("admin", Some("ProjectToNotSee")))))))
+          roles = List(Role("admin", Some("ProjectToNotSee"))))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
@@ -235,7 +237,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Some(List(Role("admin", Some("ProjectToNotSee")))))))
+          roles = List(Role("admin", Some("ProjectToNotSee"))))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/bar")
@@ -257,7 +259,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Some(List(Role("admin", Some("ProjectToNotSee")))))))
+          roles = List(Role("admin", Some("ProjectToNotSee"))))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/bar")
@@ -279,7 +281,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Some(List(Role("admin", Some("ProjectIdFromRoles")))))))
+          roles = List(Role("admin", Some("ProjectIdFromRoles"))))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
@@ -301,7 +303,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           projectName = None,
           catalogJson = None,
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
-          roles = Some(List(Role("admin", Some("ProjectIdFromRoles"), Some("RaxExtensionProjectId")))))))
+          roles = List(Role("admin", Some("ProjectIdFromRoles"), Some("RaxExtensionProjectId"))))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
@@ -579,11 +581,11 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     }
 
     it("should return true if the user had a role which bypasses validation") {
-      identityV3Handler invokePrivate isProjectIdValid("", AuthenticateResponse(None, None, None, null, None, None, None, List(), Some(List(Role("admin"))))) shouldBe true
+      identityV3Handler invokePrivate isProjectIdValid("", AuthenticateResponse(None, None, None, null, None, None, None, List(), List(Role("admin")))) shouldBe true
     }
 
     it("should return false if no a project ID could not be extracted from the URI") {
-      identityV3Handler invokePrivate isProjectIdValid("/foo/bar", AuthenticateResponse(None, None, None, null, None, None, None, List(), None)) shouldBe false
+      identityV3Handler invokePrivate isProjectIdValid("/foo/bar", AuthenticateResponse(None, None, None, null, None, None, None, List(), List())) shouldBe false
     }
   }
 

@@ -28,7 +28,7 @@ case class AuthenticateResponse(
     projectName: Option[String] = None,
     catalogJson: Option[String],
     catalogEndpoints: List[Endpoint],
-    roles: Option[List[Role]],
+    roles: List[Role],
     impersonatorId: Option[String] = None,
     impersonatorName: Option[String] = None)
   extends Serializable
