@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>profile-support</artifactId>
-        <version>7.3.6.0</version>
+        <version>7.3.6.1-SNAPSHOT</version>
     </parent>
 
     <name>Repose Components - Components Support</name>
