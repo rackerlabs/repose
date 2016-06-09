@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>commons-support</artifactId>
-        <version>7.3.5.1-SNAPSHOT</version>
+        <version>7.3.6.0</version>
     </parent>
 
     <name>Repose Commons - Configuration Management</name>
