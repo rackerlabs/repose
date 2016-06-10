@@ -68,11 +68,9 @@ class CompressionBinaryTest extends ReposeValveTest {
         mc.handlings[0].response.body.toString() == content
         if (mc.receivedResponse.body instanceof byte[]) {
             Arrays.equals((byte[]) mc.receivedResponse.body, (byte[]) zippedContent)
-            Integer.valueOf(mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_LENGTH, "-1")) == ((byte[]) zippedContent).length
         } else {
             assert (zippedContent instanceof String)
             assert (mc.receivedResponse.body == zippedContent)
-            Integer.valueOf(mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_LENGTH, "-1")) == zippedContent.length()
         }
 
         where:
