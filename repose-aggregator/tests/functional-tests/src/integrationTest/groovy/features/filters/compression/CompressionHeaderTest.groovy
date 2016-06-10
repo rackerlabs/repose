@@ -21,8 +21,6 @@ package features.filters.compression
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import org.apache.http.HttpHeaders
-import org.apache.http.HttpStatus
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
