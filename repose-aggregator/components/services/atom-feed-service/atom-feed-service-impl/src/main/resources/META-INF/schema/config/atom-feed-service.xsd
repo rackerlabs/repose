@@ -95,7 +95,7 @@
                 </xs:annotation>
             </xs:enumeration>
 
-            <!--xs:enumeration value="reverse-read">
+            <xs:enumeration value="reverse-read">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
@@ -104,7 +104,7 @@
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
-            </xs:enumeration-->
+            </xs:enumeration>
 
             <!--xs:enumeration value="updated">
                 <xs:annotation>
