@@ -93,15 +93,13 @@ class FeedReader(feedUri: String,
       MDC.put(TracingKey.TRACING_KEY, requestId)
 
       try {
-        def getStream(): Stream[Entry] = {
-          AtomEntryStreamBuilder.build(feedUrl, AuthenticationRequestContextImpl(reposeVersion, requestId), authenticatedRequestFactory)
-        }
+        def getStream = AtomEntryStreamBuilder.build(feedUrl, AuthenticationRequestContextImpl(reposeVersion, requestId), authenticatedRequestFactory)
 
-        val entryStream = Option(order) match {
-          case Some(reverse) if reverse.value().equals("reverse-read") =>
-            getStream().reverse
-          case _ =>
-            getStream()
+        val entryStream = order match {
+          case EntryOrderType.READ =>
+            getStream
+          case EntryOrderType.REVERSE_READ =>
+            getStream.reverse
         }
 
         if (firstReadDone) {
