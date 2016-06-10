@@ -66,6 +66,7 @@ class MockValkyrie {
         contact_id = ""
         tenant_id = ""
         sleeptime = 0
+        valid_auth = "valid-auth"
     }
 
     Closure<Response> authorizeHandler
@@ -76,6 +77,7 @@ class MockValkyrie {
     String account_perm = "also_butts"
     String contact_id = ""
     String tenant_id = ""
+    String valid_auth = "valid-auth"
     Integer device_multiplier = 10
     Integer inventory_multiplier = 1
 
@@ -104,10 +106,11 @@ class MockValkyrie {
 
         def username
         def password
-        if (!request.headers.contains('X-Auth-User'))
-            missingRequestHeaders = true
-        else
+        if (!request.headers.contains('X-Auth-User')) {
+            missingRequestHeaders = !(request.headers.getFirstValue('X-Auth-Token') == valid_auth)
+        } else {
             username = request.headers.getFirstValue('X-Auth-User')
+        }
         if (!request.headers.contains('X-Auth-Token'))
             missingRequestHeaders = true
         else
