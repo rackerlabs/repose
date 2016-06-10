@@ -91,7 +91,6 @@ class CompressionFilterCompleteTest extends FunSpec with BeforeAndAfterEach with
           val rxBody = servletResponse.getContentAsByteArray
           val expected = zippedContent.asInstanceOf[Array[Byte]]
           assert(rxBody sameElements expected)
-          assert(Option(servletResponse.getHeaderValue(HttpHeaders.CONTENT_LENGTH)).getOrElse("-1").toString.toInt == expected.length)
         } else {
           assert(servletResponse.getContentAsString == content)
         }
