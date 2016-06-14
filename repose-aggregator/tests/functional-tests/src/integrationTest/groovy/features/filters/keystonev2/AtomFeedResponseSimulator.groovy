@@ -41,6 +41,8 @@ class AtomFeedResponseSimulator {
             'Content-type': 'application/xml',
     ]
 
+    def atomEntries = []
+
     AtomFeedResponseSimulator(int atomPort) {
         this.atomPort = atomPort
     }
@@ -55,9 +57,9 @@ class AtomFeedResponseSimulator {
         { request ->
             if (hasEntry) {
                 def params = [
-                        'atomPort': atomPort,
-                        'time'    : new DateTime().toString(DATE_FORMAT),
-                        'userId'  : userId
+                        atomPort: atomPort,
+                        time    : new DateTime().toString(DATE_FORMAT),
+                        userId  : userId
                 ]
                 hasEntry = false //Only respond with it once once it's been got
 
@@ -71,9 +73,9 @@ class AtomFeedResponseSimulator {
         { request ->
             if (hasEntry) {
                 def params = [
-                        'atomPort': atomPort,
-                        'time'    : new DateTime().toString(DATE_FORMAT),
-                        'userId'  : userId
+                        atomPort: atomPort,
+                        time    : new DateTime().toString(DATE_FORMAT),
+                        userId  : userId
                 ]
                 hasEntry = false
                 new Response(200, 'OK', headers, templateEngine.createTemplate(userUpdateEvent).make(params))
@@ -83,25 +85,17 @@ class AtomFeedResponseSimulator {
 
 
     def handler = { request ->
-
-        def template
-
-        if (hasEntry) {
-            template = atomWithEntryXml
-        } else {
-            template = atomEmptyXml
-        }
-
+        def template = hasEntry ? atomWithEntryXml() : atomEmptyXml
         def params = [
-                'atomPort': atomPort,
-                'time'    : new DateTime().toString(DATE_FORMAT),
-                'token'   : client_token,
-                'tenant'  : client_tenant,
+                atomPort: atomPort,
+                time    : new DateTime().toString(DATE_FORMAT),
+                token   : client_token,
+                tenant  : client_tenant
         ]
         hasEntry = false
+        atomEntries = []
         return new Response(200, 'OK', headers, templateEngine.createTemplate(template).make(params))
     }
-
 
     def String atomEmptyXml =
             """<?xml version="1.0"?>
@@ -118,8 +112,13 @@ class AtomFeedResponseSimulator {
 </feed>
 """
 
-    def String atomWithEntryXml =
-            """<?xml version="1.0"?>
+    def String atomWithEntryXml() {
+        if (atomEntries.isEmpty()) {
+            // test did not specify any custom atom entries, so give them a default one
+            atomEntries << createAtomEntry()
+        }
+
+        """<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <link href="http://localhost:\${atomPort}/feed/"
         rel="current"/>
@@ -130,10 +129,16 @@ class AtomFeedResponseSimulator {
     <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
           rel="previous"/>
     <updated>\${time}</updated>
+${atomEntries.join("\n")}
+</feed>"""
+    }
+
+    def String createAtomEntry(Map<String, String> params = [:]) {
+        """\
     <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
                 xmlns="http://docs.rackspace.com/core/event"
                 xmlns:id="http://docs.rackspace.com/event/identity/token">
-        <atom:id>urn:uuid:1</atom:id>
+        <atom:id>${params['id'] ?: 'urn:uuid:1'}</atom:id>
         <atom:category term="rgn:IDK"/>
         <atom:category term="dc:IDK1"/>
         <atom:category term="rid:\${token}"/>
@@ -161,9 +166,8 @@ class AtomFeedResponseSimulator {
                    rel="self"/>
         <atom:updated>\${time}</atom:updated>
         <atom:published>\${time}</atom:published>
-    </atom:entry>
-</feed>
-"""
+    </atom:entry>"""
+    }
 
     /**
      * This is to revoke a specific set of tokens for a specific user

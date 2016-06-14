@@ -22,9 +22,8 @@
         <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
-        <Logger name="org.openrepose.nodeservice.atomfeed" level="trace">
-            <AppenderRef ref="serviceList"/>
-        </Logger>
+        <Logger name="org.openrepose.filters.keystonev2" level="trace"/>
+        <Logger name="org.openrepose.nodeservice.atomfeed" level="trace"/>
 
         <!-- I need debug info from JMX! -->
         <!-- useful: http://docs.oracle.com/javase/1.5.0/docs/guide/jmx/logging.html -->
