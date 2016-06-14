@@ -1,0 +1,157 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require 'getoptlong'
+
+opts = GetoptLong.new(
+    [ '--repose-version', GetoptLong::OPTIONAL_ARGUMENT ]
+)
+
+reposeVersion=''
+
+opts.each do |opt, arg|
+  case opt
+    when '--repose-version'
+      reposeVersion=arg
+  end
+end
+
+$update_yum = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Updating Apt packages"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+# update package lists from the server
+apt-get update -q
+#apt-get upgrade -yq
+SCRIPT
+
+$install_repose_dependencies = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Repose package dependencies"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+# install potentially missing packages needed to install Repose
+apt-get install -y -q wget
+
+# add openrepose.org repository
+wget -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add -
+sh -c 'echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list'
+
+## add nodesource.com repository
+##### This tries to install the latest version and we need an older one.
+#curl -sL https://deb.nodesource.com/setup_0.12 | bash -
+
+apt-get update
+SCRIPT
+
+$install_nodejs = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Node JS"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+# This is the latest version of 0.12.7 that is supported.
+wget --quiet https://deb.nodesource.com/node_0.12/pool/main/n/nodejs/nodejs_0.12.7-1nodesource1~trusty1_amd64.deb
+dpkg -i nodejs_0.12.7-1nodesource1~trusty1_amd64.deb
+apt-mark hold nodejs
+apt-get install -y -f
+
+## The current fake-keystone and fake-valkyrie require v0.12.7
+##### This doesn't work for some reason even after the nodesource.com repository is added.
+#apt-get install -y nodejs=0.12.7-1nodesource1~trusty1
+SCRIPT
+
+$install_python = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Python"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+apt-get install -y curl python-pip
+SCRIPT
+
+$other_tools = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing other tools"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+apt-get install -y --quiet vim
+SCRIPT
+
+$install_repose = <<SCRIPT
+name='default'
+version=''
+if [ $# -ne 0 ] ; then
+  if [ "X_${1}_X" = "X_local_X" ] ; then
+    name="${1}"
+  else
+    name="v${1}"
+    version="-${1}-1"
+  fi
+fi
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Repose ${name} package"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+
+if [ "X_${name}_X" = "X_local_X" ] ; then
+  dpkg -i /vagrant/repose-valve*_all.deb /vagrant/repose-filter-bundle*_all.deb /vagrant/repose-extensions-filter-bundle*_all.deb
+  apt-get install -y -f
+elif [ "X_${name}_X" = "X_default_X" ] ; then
+  apt-get install -y repose-valve repose-filter-bundle repose-extensions-filter-bundle
+else
+  apt-get install -y repose-valve=${version} repose-filter-bundle=${version} repose-extensions-filter-bundle=${version}
+fi
+SCRIPT
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure(2) do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+  #config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/xenial64"
+
+  config.vm.provision "shell", inline: <<SCRIPT
+echo '# Fix a bug in the current Xenial images where the local host name is not in the hosts file.' >> /etc/hosts
+echo '# https://bugs.launchpad.net/ubuntu/+source/livecd-rootfs/+bug/1561250' >> /etc/hosts
+echo '127.0.0.1 ubuntu-xenial' >> /etc/hosts
+SCRIPT
+
+  config.vm.provision "shell", inline: $update_yum
+  config.vm.provision "shell", inline: $install_repose_dependencies
+  config.vm.provision "shell", inline: $other_tools
+  config.vm.provision "shell", inline: $install_python
+  config.vm.provision "shell", inline: $install_nodejs
+  config.vm.provision "shell", path: "../scripts/python_installs.sh"
+
+  config.vm.provision "shell", path: "../scripts/fake_keystone_prepare.sh"
+  # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/tracing/master/package.json
+  config.vm.provision "file", source: "../fake-keystone2/package.json", destination: "/opt/fake-keystone/package.json"
+  # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/tracing/master/auth_backend.js.j2
+  config.vm.provision "file", source: "../fake-keystone2/app.js", destination: "/opt/fake-keystone/app.js"
+  config.vm.provision "shell", privileged: false, path: "../scripts/fake_keystone_install.sh"
+  config.vm.provision "shell", path: "../scripts/fake_keystone_run.sh", run: "always"
+
+  config.vm.provision "shell", path: "../scripts/fake_valkyrie_prepare.sh"
+  # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/valkyrie/master/package.json
+  config.vm.provision "file", source: "../fake-valkyrie2/package.json", destination: "/opt/fake-valkyrie/package.json"
+  # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/valkyrie/master/valkyrie_backend.js
+  config.vm.provision "file", source: "../fake-valkyrie2/app.js", destination: "/opt/fake-valkyrie/app.js"
+  config.vm.provision "shell", privileged: false, path: "../scripts/fake_valkyrie_install.sh"
+  config.vm.provision "shell", path: "../scripts/fake_valkyrie_run.sh", run: "always"
+
+  config.vm.provision "shell", path: "../scripts/httpbin_run.sh", run: "always"
+
+  config.vm.provision "shell", inline: $install_repose do |s|
+    s.args = "#{reposeVersion}"
+  end
+  config.vm.provision "shell", path: "../scripts/repose_run.sh"
+
+  config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
+  config.vm.synced_folder ".", "/vagrant"
+end
