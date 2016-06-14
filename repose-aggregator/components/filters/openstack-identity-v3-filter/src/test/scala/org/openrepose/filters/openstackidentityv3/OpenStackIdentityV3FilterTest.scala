@@ -50,6 +50,15 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
 
   var filter: OpenStackIdentityV3Filter = _
 
+  val idPrefix = "pre-"
+  val atomFeedIdOne = "AtomFeedId1"
+  val atomFeedIdTwo = "AtomFeedId2"
+  val atomFeedIdThree = "AtomFeedId3"
+  val userId = "some-user"
+  val tokenOne = UUID.randomUUID.toString
+  val tokenTwo = UUID.randomUUID.toString
+  val tokenThree = UUID.randomUUID.toString
+
   override def beforeEach() = {
     reset(mockConfigurationService)
     reset(mockAkkaServiceClientFactory)
@@ -58,6 +67,12 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
 
     when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
     when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(MockitoMatchers.anyString(), MockitoMatchers.isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+    when(mockAtomFeedService.registerListener(MockitoMatchers.eq(atomFeedIdOne), MockitoMatchers.any[AtomFeedListener]))
+      .thenReturn(idPrefix + atomFeedIdOne)
+    when(mockAtomFeedService.registerListener(MockitoMatchers.eq(atomFeedIdTwo), MockitoMatchers.any[AtomFeedListener]))
+      .thenReturn(idPrefix + atomFeedIdTwo)
+    when(mockAtomFeedService.registerListener(MockitoMatchers.eq(atomFeedIdThree), MockitoMatchers.any[AtomFeedListener]))
+      .thenReturn(idPrefix + atomFeedIdThree)
 
     filter = new OpenStackIdentityV3Filter(mockConfigurationService,
       mockDatastoreService,
@@ -116,22 +131,6 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
   }
 
   describe("atom feed cache invalidation") {
-    val idPrefix = "pre-"
-    val atomFeedIdOne = "AtomFeedId1"
-    val atomFeedIdTwo = "AtomFeedId2"
-    val atomFeedIdThree = "AtomFeedId3"
-    val userId = "some-user"
-    val tokenOne = UUID.randomUUID.toString
-    val tokenTwo = UUID.randomUUID.toString
-    val tokenThree = UUID.randomUUID.toString
-
-    when(mockAtomFeedService.registerListener(MockitoMatchers.eq(atomFeedIdOne), MockitoMatchers.any[AtomFeedListener]))
-      .thenReturn(idPrefix + atomFeedIdOne)
-    when(mockAtomFeedService.registerListener(MockitoMatchers.eq(atomFeedIdTwo), MockitoMatchers.any[AtomFeedListener]))
-      .thenReturn(idPrefix + atomFeedIdTwo)
-    when(mockAtomFeedService.registerListener(MockitoMatchers.eq(atomFeedIdThree), MockitoMatchers.any[AtomFeedListener]))
-      .thenReturn(idPrefix + atomFeedIdThree)
-
     it("register the feeds") {
       val feedIds = Set(atomFeedIdOne, atomFeedIdTwo, atomFeedIdThree)
 
@@ -157,7 +156,7 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
       filter.CacheInvalidationFeedListener.updateFeeds(oldFeedIds ++ newFeedIds)
 
       verify(mockAtomFeedService, never).unregisterListener(MockitoMatchers.anyString())
-      verify(mockAtomFeedService, never).registerListener(MockitoMatchers.eq(atomFeedIdOne), MockitoMatchers.any[AtomFeedListener])
+      verify(mockAtomFeedService).registerListener(MockitoMatchers.eq(atomFeedIdOne), MockitoMatchers.any[AtomFeedListener])
       verify(mockAtomFeedService).registerListener(MockitoMatchers.eq(atomFeedIdTwo), MockitoMatchers.any[AtomFeedListener])
       verify(mockAtomFeedService).registerListener(MockitoMatchers.eq(atomFeedIdThree), MockitoMatchers.any[AtomFeedListener])
     }

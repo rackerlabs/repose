@@ -30,6 +30,7 @@ import org.apache.http.Header
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, ServiceClientResponse}
 import org.openrepose.core.services.datastore.Datastore
+import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.openrepose.filters.openstackidentityv3.objects._
@@ -43,13 +44,13 @@ import scala.util.{Failure, Random, Success, Try}
 class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datastore, akkaServiceClient: AkkaServiceClient)
   extends LazyLogging {
 
+  import OpenStackIdentityV3API._
+
   private final val SC_TOO_MANY_REQUESTS = 429
   private final val TOKEN_ENDPOINT = "/v3/auth/tokens"
   private final val GROUPS_ENDPOINT = (userId: String) => s"/v3/users/$userId/groups"
 
   private final val ADMIN_TOKEN_KEY = "IDENTITY:V3:ADMIN_TOKEN"
-  private final val TOKEN_KEY_PREFIX = "IDENTITY:V3:TOKEN:"
-  private final val GROUPS_KEY_PREFIX = "IDENTITY:V3:GROUPS:"
 
   private val identityServiceUri = config.getOpenstackIdentityService.getUri
   private val cacheOffset = config.getCacheOffset
@@ -199,6 +200,9 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 // TODO: Come up with a better algorithm to decide the cache TTL and handle negative/0 TTLs
                 val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
                 logger.debug(s"Caching token '$subjectToken' with TTL set to: ${ttl}ms")
+                subjectTokenObject.userId foreach { userId =>
+                  datastore.patch(s"$USER_ID_KEY_PREFIX$userId", new SetPatch(subjectToken), ttl, TimeUnit.MILLISECONDS)
+                }
                 datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
                 Success(subjectTokenObject)
@@ -226,8 +230,8 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
     }
   }
 
-  def getGroups(userId: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[List[String]] = {
-    getFromCache[List[String]](GROUPS_KEY_PREFIX + userId) match {
+  def getGroups(userId: String, subjectToken: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[List[String]] = {
+    getFromCache[List[String]](GROUPS_KEY_PREFIX + subjectToken) match {
       case Some(cachedGroups) =>
         Success(cachedGroups)
       case None =>
@@ -241,7 +245,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
               HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
             ) ++ requestTracingHeader
             val groupsResponse = Option(akkaServiceClient.get(
-              GROUPS_KEY_PREFIX + userId,
+              GROUPS_KEY_PREFIX + subjectToken,
               identityServiceUri + GROUPS_ENDPOINT(userId),
               headerMap.asJava
             ))
@@ -261,7 +265,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 }
                 logger.debug(s"Caching groups for user '$userId' with TTL set to: ${ttl}ms")
                 // TODO: Maybe handle all this conversion jank?
-                datastore.put(GROUPS_KEY_PREFIX + userId, groups.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
+                datastore.put(GROUPS_KEY_PREFIX + subjectToken, groups.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
 
                 Success(groups)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_NOT_FOUND =>
@@ -269,7 +273,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 Failure(new InvalidUserForGroupsException("Failed to fetch groups"))
               case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && checkCache =>
                 logger.error("Request made with an expired admin token. Fetching a fresh admin token and retrying groups retrieval. Response Code: 401")
-                getGroups(userId, tracingHeader, checkCache = false)
+                getGroups(userId, subjectToken, tracingHeader, checkCache = false)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && !checkCache =>
                 logger.error(s"Retry after fetching a new admin token failed. Aborting groups retrieval for: '$userId'")
                 Failure(new IdentityServiceException("Valid admin token could not be fetched"))
@@ -322,4 +326,12 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       new IdentityServiceOverLimitException("Rate limited by OpenStack Identity service", statusCode, retryHeaders.head.getValue)
     }
   }
+}
+
+object OpenStackIdentityV3API {
+  // todo: make these functions rather than vals
+  // todo: where should these live?
+  final val TOKEN_KEY_PREFIX = "IDENTITY:V3:TOKEN:"
+  final val GROUPS_KEY_PREFIX = "IDENTITY:V3:GROUPS:"
+  final val USER_ID_KEY_PREFIX = "IDENTITY:V3:USER_ID:"
 }

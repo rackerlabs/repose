@@ -441,7 +441,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getGroups("test-user-id", None, checkCache = true)
+          val value = identityV3API.getGroups("test-user-id", "test-token", None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -465,7 +465,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getGroups("test-user-id", None, checkCache = true)
+          val value = identityV3API.getGroups("test-user-id", "test-token", None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
