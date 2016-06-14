@@ -181,7 +181,6 @@ class CompressionHeaderTest extends ReposeValveTest {
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', defaultHandler: handler)
-        def handling = mc.getHandlings()[0]
 
         then:
         mc.receivedResponse.code == "201"
