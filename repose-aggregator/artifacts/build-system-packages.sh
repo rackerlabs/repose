@@ -55,3 +55,6 @@ sort --key=5 --unique > ${BUILD_DIR}/Files_RPM.out &&
 
 # Do the diff
 sdiff ${BUILD_DIR}/Files_DEB.out ${BUILD_DIR}/Files_RPM.out | grep -ve "^d.*<$"
+
+# Copy over the Vagrant files and fake services
+cp -R ${SCRIPT_DIR}/src/vagrant/* ${VAGRANT_DIR}/
