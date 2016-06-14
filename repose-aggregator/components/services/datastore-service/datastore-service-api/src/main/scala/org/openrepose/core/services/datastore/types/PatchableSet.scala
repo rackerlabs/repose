@@ -30,22 +30,17 @@ import scala.collection.mutable
 class PatchableSet[A] extends mutable.HashSet[A]
   with Patchable[PatchableSet[A], SetPatch[A]] {
   override def applyPatch(patch: SetPatch[A]): PatchableSet[A] = {
-    val returnedSet = PatchableSet(this.toList :_*)
     this.add(patch.patchValue)
-    returnedSet.add(patch.patchValue)
-    returnedSet
+    PatchableSet(this.toList: _*)
   }
 }
 
-class SetPatch[A](val patchValue: A) extends SerializablePatch[PatchableSet[A]] {
+case class SetPatch[A](patchValue: A) extends SerializablePatch[PatchableSet[A]] {
   override def newFromPatch(): PatchableSet[A] = PatchableSet(patchValue)
 }
 
 object PatchableSet {
-  def apply[A](xs: A*): PatchableSet[A] = {
-    val set = new PatchableSet[A]
-    xs.foreach(set.add(_))
-    set
-  }
+  def apply[A](xs: A*): PatchableSet[A] = new PatchableSet[A] ++= xs
+
   def empty[A]: PatchableSet[A] = new PatchableSet[A]
 }
