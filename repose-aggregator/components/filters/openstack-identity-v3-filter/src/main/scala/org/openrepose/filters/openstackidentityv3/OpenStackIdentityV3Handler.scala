@@ -29,11 +29,9 @@ import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.filter.FilterAction
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityV3Config, WhiteList}
-import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
 import org.springframework.http.HttpHeaders
-import spray.json._
 
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
@@ -50,7 +48,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private val projectIdPrefixes = Try(identityConfig.getValidateProjectIdInUri.getStripTokenProjectPrefixes.split('/')).getOrElse(Array.empty[String])
   private val bypassProjectIdCheckRoles = Option(identityConfig.getRolesWhichBypassProjectIdCheck).map(_.getRole.asScala.toList)
   private val configuredServiceEndpoint = Option(identityConfig.getServiceEndpoint) map { serviceEndpoint =>
-    Endpoint(id = "configured-endpoint",
+    Endpoint(
       url = serviceEndpoint.getUrl,
       name = Option(serviceEndpoint.getName),
       interface = Option(serviceEndpoint.getInterface),
@@ -147,10 +145,10 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
       // Attempt to fetch groups if configured to do so
       val userGroups = if (!failureInValidation && forwardGroups) {
-        token.get.user.id map { userId =>
+        token.get.userId map { userId =>
           identityAPI.getGroups(userId, tracingHeader) match {
             case Success(groupsList) =>
-              groupsList.map(_.name)
+              groupsList
             case Failure(e: IdentityServiceOverLimitException) =>
               failureInValidation = true
               delegateOrElse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, e.getMessage) {
@@ -181,45 +179,40 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         response.setStatus(HttpServletResponse.SC_OK)
 
         // Set the appropriate headers
-        request.replaceHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expires_at)
+        request.replaceHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expiresAt)
         request.replaceHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
-        token.get.user.name.foreach { user =>
+        token.get.userName foreach { user =>
           request.addHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, user)
           request.addHeader(PowerApiHeader.USER.toString, user, 1.0)
         }
-        token.get.roles.foreach { roles =>
-          request.addHeader(OpenStackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
+        Option(token.get.roles.map(_.name) mkString ",").filter(_.nonEmpty) foreach { rolesString =>
+          request.addHeader(OpenStackIdentityV3Headers.X_ROLES, rolesString)
         }
-        token.get.user.id.foreach { id =>
+        token.get.userId foreach { id =>
           request.replaceHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
         }
-        token.get.user.rax_default_region.foreach { defaultRegion =>
+        token.get.defaultRegion foreach { defaultRegion =>
           request.replaceHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, defaultRegion)
         }
-        token.get.project.foreach { project =>
-          project.name.foreach { projectName =>
-            request.replaceHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
-          }
+        token.get.projectName foreach { projectName =>
+          request.replaceHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
         }
         projectIdUriRegex match {
           case Some(regex) =>
-            val defaultProjectId = token.flatMap(_.project.flatMap(_.id))
-            val roles = token.flatMap(_.roles).getOrElse(List[Role]())
+            val defaultProjectId = token.flatMap(_.projectId)
             val uriProjectId = extractProjectIdFromUri(regex, request.getRequestURI)
-            writeProjectHeader(defaultProjectId, roles, uriProjectId, identityConfig.isSendAllProjectIds,
+            writeProjectHeader(defaultProjectId, token.get.roles, uriProjectId, identityConfig.isSendAllProjectIds,
               identityConfig.isSendProjectIdQuality, request)
           case None =>
-            val defaultProjectId = token.flatMap(_.project.flatMap(_.id))
-            val roles = token.flatMap(_.roles).getOrElse(List[Role]())
-            writeProjectHeader(defaultProjectId, roles, None, identityConfig.isSendAllProjectIds,
+            val defaultProjectId = token.flatMap(_.projectId)
+            writeProjectHeader(defaultProjectId, token.get.roles, None, identityConfig.isSendAllProjectIds,
               identityConfig.isSendProjectIdQuality, request)
         }
-        token.get.rax_impersonator.foreach { impersonator =>
-          impersonator.id.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
-          impersonator.name.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
-        }
+        token.get.impersonatorId.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
+        token.get.impersonatorName.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
         if (forwardCatalog) {
-          token.get.catalog.foreach(catalog => request.replaceHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
+          token.get.catalogJson.foreach(catalog =>
+            request.replaceHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog)))
         }
         if (forwardGroups) {
           userGroups.foreach(group => request.addHeader(PowerApiHeader.GROUPS.toString, group, 1.0))
@@ -242,7 +235,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     filterAction
   }
 
-  private def authenticate(request: HttpServletRequest, tracingHeader: Option[String] = None): Try[AuthenticateResponse] = {
+  private def authenticate(request: HttpServletRequest, tracingHeader: Option[String] = None): Try[ValidToken] = {
     Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
         identityAPI.validateToken(subjectToken, tracingHeader)
@@ -252,11 +245,9 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     }
   }
 
-  private def isAuthorized(authResponse: AuthenticateResponse) = {
+  private def isAuthorized(token: ValidToken) = {
     configuredServiceEndpoint forall { configuredEndpoint =>
-      val tokenEndpoints = authResponse.catalog.map(catalog => catalog.flatMap(service => service.endpoints)).getOrElse(List.empty[Endpoint])
-
-      containsRequiredEndpoint(tokenEndpoints, configuredEndpoint)
+      containsRequiredEndpoint(token.catalogEndpoints, configuredEndpoint)
     }
   }
 
@@ -265,8 +256,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   private def writeProjectHeader(defaultProject: Option[String], roles: List[Role], projectFromUri: Option[String],
                                  writeAll: Boolean, sendQuality: Boolean, request: HttpServletRequestWrapper) {
-    lazy val projectsFromRoles = (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId } :::
-      roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId }).toSet
+    lazy val projectsFromRoles = (roles.collect { case Role(_, Some(projectId), _) => projectId } :::
+      roles.collect { case Role( _, _, Some(raxId)) => raxId }).toSet
 
     if (writeAll && sendQuality) {
       defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
@@ -299,11 +290,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     }
   }
 
-  private def isProjectIdValid(requestUri: String, token: AuthenticateResponse): Boolean = {
+  private def isProjectIdValid(requestUri: String, token: ValidToken): Boolean = {
     projectIdUriRegex match {
       case Some(regex) =>
         // Check whether or not this user should bypass project ID validation
-        val userRoles = token.roles.getOrElse(List[Role]()).map(_.name)
+        val userRoles = token.roles.map(_.name)
         val bypassProjectIdCheck = hasIgnoreEnabledRole(bypassProjectIdCheckRoles.getOrElse(List.empty[String]), userRoles)
 
         if (bypassProjectIdCheck) {
@@ -313,11 +304,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           val extractedProjectId = extractProjectIdFromUri(regex, requestUri)
 
           // Bind the default project ID, if available
-          val defaultProjectId = token.project.map(_.id).getOrElse(None)
+          val defaultProjectId = token.projectId
 
           // Attempt to match the extracted project ID against the project IDs in the token
           extractedProjectId match {
-            case Some(projectId) => projectMatches(projectId, defaultProjectId, token.roles.getOrElse(List[Role]()))
+            case Some(projectId) => projectMatches(projectId, defaultProjectId, token.roles)
             case None => false
           }
         }
@@ -330,8 +321,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   private def projectMatches(projectFromUri: String, defaultProjectId: Option[String], roles: List[Role]): Boolean = {
     val allProjectIds = defaultProjectId.toSet ++
-      roles.filter(_.project_id.isDefined).map(_.project_id.get) ++
-      roles.filter(_.rax_project_id.isDefined).map(_.rax_project_id.get)
+      roles.filter(_.projectId.isDefined).map(_.projectId.get) ++
+      roles.filter(_.raxProjectId.isDefined).map(_.raxProjectId.get)
 
     allProjectIds.exists { pid =>
       pid.equals(projectFromUri) || projectIdPrefixes.exists { prefix =>

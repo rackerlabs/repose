@@ -296,9 +296,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 }
             } cacheOnSuccess { validToken =>
               val cacheSettings = config.getCache.getTimeouts
-              val timeToLive = getTtl(cacheSettings.getToken,
-                cacheSettings.getVariability,
-                Some(validToken))
+              val timeToLive = getTtl(cacheSettings.getToken, cacheSettings.getVariability, Some(validToken))
 
               timeToLive foreach { ttl =>
                 datastore.patch(s"$USER_ID_KEY_PREFIX${validToken.userId}", new SetPatch(authToken), ttl, TimeUnit.SECONDS)

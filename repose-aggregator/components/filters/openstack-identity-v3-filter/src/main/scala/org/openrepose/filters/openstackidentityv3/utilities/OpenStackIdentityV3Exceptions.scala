@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.openstackidentityv3.utilities
 
-class IdentityServiceException(message: String) extends Exception(message)
+class IdentityServiceException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
 class IdentityServiceOverLimitException(message: String, statusCode: Int, retryAfter: String) extends IdentityServiceException(message) {
   def getStatusCode: Int = {

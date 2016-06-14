@@ -19,6 +19,7 @@
  */
 package framework.mocks
 
+import groovy.json.JsonSlurper
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -352,6 +353,11 @@ class MockIdentityV3Service {
     }
 
     Response validateToken(String tokenId, Request request) {
+        if (request.getHeaders().getAt("X-Auth-Token") != admin_token) {
+            println("Bad admin token (x-auth-token) when validating")
+            return new Response(401)
+        }
+
         def path = request.getPath()
         def request_token = tokenId
         def impersonateid = impersonate_id
@@ -400,11 +406,20 @@ class MockIdentityV3Service {
 
     Response generateToken(Request request) {
         try {
+            String requestBody = request.getBody() instanceof String ?
+                    request.getBody() :
+                    new String(request.getBody() as byte[])
 
-            // TODO: Validate what we need is present in the JSON request
+            def json = new JsonSlurper().parseText(requestBody)
+            if (json.auth.identity.methods.size != 1 ||
+                    json.auth.identity.methods[0] != "password" ||
+                    (json.auth.identity.password.user.name == null && json.auth.identity.password.user.id == null) ||
+                    json.auth.identity.password.user.password == null) {
+                println("Admin token JSON validation error")
+                return new Response(400)
+            }
         } catch (Exception e) {
-
-            println("Admin token XSD validation error: " + e)
+            println("Admin token JSON validation error: " + e)
             return new Response(400)
         }
 

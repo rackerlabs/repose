@@ -32,13 +32,11 @@ import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, ServiceCli
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
-import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.springframework.http.HttpHeaders
-import spray.json._
+import play.api.libs.json._
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.io.Source
 import scala.util.{Failure, Random, Success, Try}
 
@@ -63,38 +61,43 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       val username = config.getOpenstackIdentityService.getUsername
       val password = config.getOpenstackIdentityService.getPassword
 
-      val projectScope = Option(config.getOpenstackIdentityService.getProjectId) match {
-        case Some(projectId) => Some(Scope(project = Some(ProjectScope(id = projectId))))
-        case _ => None
-      }
-
-      val userDomain = Option(config.getOpenstackIdentityService.getDomainId) match {
-        case x: Some[String] => Some(Domain(id = x))
-        case _ => None
-      }
-
-      AuthRequestRoot(
-        AuthRequest(
-          AuthIdentityRequest(
-            methods = List("password"),
-            password = Some(PasswordCredentials(
-              UserNamePasswordRequest(
-                domain = userDomain,
-                name = Some(username),
-                password = password
-              )
-            ))
-          ),
-          scope = projectScope
+      // don't include these fields at all if they're going to be null
+      val domain = Option(config.getOpenstackIdentityService.getDomainId).map(id => Seq(
+        "domain" -> Json.obj(
+          "id" -> id
         )
-      ).toJson.compactPrint
+      )) getOrElse Seq.empty
+
+      val scope = Option(config.getOpenstackIdentityService.getProjectId).map(id => Seq(
+        "scope" -> Json.obj(
+          "project" -> Json.obj(
+            "id" -> id
+          )
+        )
+      )) getOrElse Seq.empty
+
+      Json.stringify(JsObject(Seq(
+        "auth" -> JsObject(Seq(
+          "identity" -> JsObject(Seq(
+            "methods" -> JsArray(Seq(JsString("password"))),
+            "password" -> JsObject(Seq(
+              "user" -> JsObject(
+                domain ++ Seq(
+                "name" -> JsString(username),
+                "password" -> JsString(password)
+              ))))
+            ))) ++
+          scope
+        )
+      )))
     }
 
     getFromCache[String](ADMIN_TOKEN_KEY) match {
       case Some(adminToken) if checkCache =>
         Success(adminToken)
       case _ =>
-        val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
+        val requestTracingHeader = tracingHeader
+          .map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
           .getOrElse(Map())
         val headerMap = Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON) ++ requestTracingHeader
         val authTokenResponse = Option(akkaServiceClient.post(
@@ -109,14 +112,17 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         // because we care to match on the status code of the response, if anything was set.
         authTokenResponse map (response => response.getStatus) match {
           case Some(statusCode) if statusCode == HttpServletResponse.SC_CREATED =>
-            val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) => header.getName.equalsIgnoreCase(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
+            val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) =>
+              header.getName.equalsIgnoreCase(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
 
             newAdminToken match {
               case Some(token) =>
                 logger.debug("Caching admin token")
 
-                val adminTokenObject = jsonStringToObject[AuthResponse](inputStreamToString(authTokenResponse.get.getData)).token
-                val adminTokenTtl = safeLongToInt(new DateTime(adminTokenObject.expires_at).getMillis - DateTime.now.getMillis)
+                val json = Json.parse(inputStreamToString(authTokenResponse.get.getData))
+                val tokenExpiration = (json \ "token" \ "expires_at").as[String]
+                val adminTokenTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
+                logger.debug(s"Caching admin token with TTL set to: ${adminTokenTtl}ms")
 
                 datastore.put(ADMIN_TOKEN_KEY, token, adminTokenTtl, TimeUnit.MILLISECONDS)
                 Success(token)
@@ -137,14 +143,15 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
     }
   }
 
-  def validateToken(subjectToken: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[AuthenticateResponse] = {
-    getFromCache[AuthenticateResponse](TOKEN_KEY_PREFIX + subjectToken) match {
+  def validateToken(subjectToken: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[ValidToken] = {
+    getFromCache[ValidToken](TOKEN_KEY_PREFIX + subjectToken) match {
       case Some(cachedSubjectTokenObject) =>
         Success(cachedSubjectTokenObject)
       case None =>
         getAdminToken(tracingHeader, checkCache) match {
           case Success(adminToken) =>
-            val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
+            val requestTracingHeader = tracingHeader
+              .map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
@@ -161,10 +168,33 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             // because we care to match on the status code of the response, if anything was set.
             validateTokenResponse.map(response => response.getStatus) match {
               case Some(statusCode) if statusCode == HttpServletResponse.SC_OK =>
-                val subjectTokenObject = jsonStringToObject[AuthResponse](inputStreamToString(validateTokenResponse.get.getData)).token
+                val json = Json.parse(inputStreamToString(validateTokenResponse.get.getData))
 
-                val expiration = new DateTime(subjectTokenObject.expires_at)
-                val identityTtl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
+                val subjectTokenObject = ValidToken(
+                  userId = (json \ "token" \ "user" \ "id").asOpt[String],
+                  userName = (json \ "token" \ "user" \ "name").asOpt[String],
+                  defaultRegion = (json \ "token" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String],
+                  expiresAt = (json \ "token" \ "expires_at").as[String],
+                  projectId = (json \ "token" \ "project" \ "id").asOpt[String],
+                  projectName = (json \ "token" \ "project" \ "name").asOpt[String],
+                  catalogJson = (json \ "token" \ "catalog").toOption.map(_.toString),
+                  catalogEndpoints = (json \ "token" \ "catalog" \\ "endpoints")
+                    .flatMap(_.as[JsArray].value.map(jsEndpoint =>
+                      Endpoint(
+                        (jsEndpoint \ "name").asOpt[String],
+                        (jsEndpoint \ "interface").asOpt[String],
+                        (jsEndpoint \ "region").asOpt[String],
+                        (jsEndpoint \ "url").as[String])
+                    )).toList,
+                  roles = (json \ "token" \ "roles").asOpt[JsArray].map(_.value.map(jsRole =>
+                    Role(
+                      (jsRole \ "name").as[String],
+                      (jsRole \ "project_id").asOpt[String],
+                      (jsRole \ "RAX-AUTH:project_id").asOpt[String])).toList) getOrElse List.empty,
+                  impersonatorId = (json \ "token" \ "RAX-AUTH:impersonator" \ "id").asOpt[String],
+                  impersonatorName = (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String])
+
+                val identityTtl = safeLongToInt(new DateTime(subjectTokenObject.expiresAt).getMillis - DateTime.now.getMillis)
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
                 // TODO: Come up with a better algorithm to decide the cache TTL and handle negative/0 TTLs
                 val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
@@ -196,14 +226,15 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
     }
   }
 
-  def getGroups(userId: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[List[Group]] = {
-    getFromCache[mutable.ArrayBuffer[Group]](GROUPS_KEY_PREFIX + userId) match {
+  def getGroups(userId: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[List[String]] = {
+    getFromCache[List[String]](GROUPS_KEY_PREFIX + userId) match {
       case Some(cachedGroups) =>
-        Success(cachedGroups.toList)
+        Success(cachedGroups)
       case None =>
         getAdminToken(tracingHeader, checkCache) match {
           case Success(adminToken) =>
-            val requestTracingHeader = tracingHeader.map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
+            val requestTracingHeader = tracingHeader
+              .map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
@@ -219,8 +250,8 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             // because we care to match on the status code of the response, if anything was set.
             groupsResponse.map(response => response.getStatus) match {
               case Some(statusCode) if statusCode == HttpServletResponse.SC_OK =>
-                val groups = jsonStringToObject[Groups](inputStreamToString(groupsResponse.get.getData)).groups
-
+                val json = Json.parse(inputStreamToString(groupsResponse.get.getData))
+                val groups = (json \ "groups" \\ "name").map(_.as[String]).toList
                 val offsetConfiguredTtl = offsetTtl(groupsCacheTtl, cacheOffset)
                 val ttl = if (offsetConfiguredTtl < 1) {
                   logger.error("Offset group cache ttl was negative, defaulting to 10 minutes. Please check your configuration.")
@@ -228,9 +259,9 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 } else {
                   offsetConfiguredTtl
                 }
-                logger.debug(s"Caching groups for user '${userId}' with TTL set to: ${ttl}ms")
+                logger.debug(s"Caching groups for user '$userId' with TTL set to: ${ttl}ms")
                 // TODO: Maybe handle all this conversion jank?
-                datastore.put(GROUPS_KEY_PREFIX + userId, groups.toBuffer.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
+                datastore.put(GROUPS_KEY_PREFIX + userId, groups.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
 
                 Success(groups)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_NOT_FOUND =>
@@ -269,9 +300,6 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
     inputStream.reset() // TODO: Remove this when we can. It relies on our implementation returning an InputStream that supports reset.
     Source.fromInputStream(inputStream).mkString
   }
-
-  private def jsonStringToObject[T: JsonFormat](json: String) =
-    json.parseJson.convertTo[T]
 
   private def safeLongToInt(l: Long) =
     math.min(l, Int.MaxValue).toInt
