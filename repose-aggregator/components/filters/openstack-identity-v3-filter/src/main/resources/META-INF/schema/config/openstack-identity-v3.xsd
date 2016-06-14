@@ -98,6 +98,18 @@
             </xs:annotation>
         </xs:attribute>
 
+        <!--TODO: Rather than using an attribute, create a cache element like in Keystone v2.
+                  Deprecate the current cache attributes, and move them to the element. -->
+        <xs:attribute name="atom-feed-ids" type="AtomFeedIdsType" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Specifies the Atom feeds used to evict cached data.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="forward-groups" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
@@ -316,6 +328,19 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
+    <xs:simpleType name="AtomFeedIdsType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A whitespace separated list of strings which map to Feed IDs defined in the Atom Feed service
+                    configuration.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:list itemType="xs:string"/>
+    </xs:simpleType>
 
     <xs:simpleType name="QualityType">
         <xs:restriction base="xs:double">

@@ -80,6 +80,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <!-- TODO: Restrict "id" type to disallow spaces (probably using pattern)? -->
     </xs:complexType>
 
     <xs:simpleType name="EntryOrderType">
