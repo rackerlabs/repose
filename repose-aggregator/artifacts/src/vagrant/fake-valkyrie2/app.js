@@ -21,6 +21,8 @@ app.use(function (req, res, next) {
 app.disable('etag');
 
 app.get('/account/:tenant/inventory', function (req, res) {
+    var tenant = req.params.tenant;
+    console.log('JSON: tenantId=%s', tenant);
     var deviceID = generateDeviceID();
     var deviceID2 = generateDeviceID();
     var deviceID3 = generateDeviceID();
@@ -96,6 +98,12 @@ app.get('/account/:tenant/inventory', function (req, res) {
 });
 
 app.get('/account/:tenant/permissions/contacts/:devices/by_contact/:contact/effective', function (req, res) {
+    var tenant = req.params.tenant;
+    var devices = req.params.devices;
+    var contact = req.params.contact;
+    console.log('JSON: tenantId=%s', tenant);
+    console.log('JSON: devices=%s', devices);
+    console.log('JSON: tenantId=%s', contact);
     var deviceID = generateDeviceID();
     var deviceID2 = generateDeviceID();
     var deviceID3 = generateDeviceID();
