@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+    <deployment-config http-port="8080">
+        <deployment-directory auto-clean="true">/var/repose</deployment-directory>
+        <artifact-directory check-interval="1000">/usr/share/repose/filters</artifact-directory>
+        <logging-configuration href="file:///etc/repose/log4j2.xml"/>
+    </deployment-config>
+</repose-container>

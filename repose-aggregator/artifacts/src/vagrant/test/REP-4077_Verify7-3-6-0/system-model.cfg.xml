@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+
+    <nodes>
+      <node id="simple-node" hostname="localhost" http-port="8080"/>
+    </nodes>
+
+    <filters>
+      <filter name="keystone-v2"/>
+      <filter name="api-validator"/>
+      <filter name="valkyrie-authorization"/>
+    </filters>
+
+    <destinations>
+        <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="8000" default="true" />
+    </destinations>
+
+  </repose-cluster>
+</system-model>
