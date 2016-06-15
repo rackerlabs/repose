@@ -5,7 +5,7 @@
      for specific HTTP status codes. -->
 <response-messaging xmlns="http://docs.openrepose.org/repose/response-messaging/v1.0">
     <status-code id="418" code-regex="418">
-        <message media-type="/" content-type="application/json">
+        <message media-type="*/*" content-type="application/json">
             { "I" : "am a teapot" }
         </message>
 
