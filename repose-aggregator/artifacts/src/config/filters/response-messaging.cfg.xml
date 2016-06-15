@@ -10,9 +10,7 @@
         </message>
 
         <message media-type="application/xml" content-type="application/xml">
-            <![CDATA[
-<I> am a teapot</I>
-]]>
+            <![CDATA[<I> am a teapot</I>]]>
         </message>
     </status-code>
 </response-messaging>
