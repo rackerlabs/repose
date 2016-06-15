@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<valkyrie-authorization
+        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0" cache-timeout-millis="3000">
+    <valkyrie-server uri="http://localhost:6060"/>
+</valkyrie-authorization>
