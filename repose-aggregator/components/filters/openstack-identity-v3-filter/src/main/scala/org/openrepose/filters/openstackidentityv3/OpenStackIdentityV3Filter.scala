@@ -35,8 +35,8 @@ import org.openrepose.core.services.datastore.types.PatchableSet
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
-import org.openrepose.filters.openstackidentityv3.objects.ValidToken
-import org.openrepose.filters.openstackidentityv3.utilities.OpenStackIdentityV3API
+import org.openrepose.filters.openstackidentityv3.utilities.Cache._
+import org.openrepose.filters.openstackidentityv3.utilities.{Cache, OpenStackIdentityV3API}
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 
 import scala.collection.JavaConversions._
@@ -52,7 +52,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
 
   private final val DEFAULT_CONFIG = "openstack-identity-v3.cfg.xml"
 
-  private val datastore = datastoreService.getDefaultDatastore
+  private val cache = new Cache(datastoreService.getDefaultDatastore)
 
   private var initialized = false
   private var configFilename: String = _
@@ -109,7 +109,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
     akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)
     akkaServiceClientOld.foreach(_.destroy())
 
-    val identityAPI = new OpenStackIdentityV3API(config, datastore, akkaServiceClient)
+    val identityAPI = new OpenStackIdentityV3API(config, cache, akkaServiceClient)
     openStackIdentityV3Handler = new OpenStackIdentityV3Handler(config, identityAPI)
     initialized = true
   }
@@ -150,16 +150,16 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
         val authTokens = resourceType.headOption match {
           // User OR Token Revocation Record (TRR) event.
           case Some("USER") | Some("TRR_USER") =>
-            val tokens = Option(datastore.get(s"${OpenStackIdentityV3API.USER_ID_KEY_PREFIX}${resourceId.get}").asInstanceOf[PatchableSet[String]])
-            datastore.remove(s"${OpenStackIdentityV3API.USER_ID_KEY_PREFIX}${resourceId.get}")
+            val tokens = Option(cache.get(getUserIdKey(resourceId.get)).asInstanceOf[PatchableSet[String]])
+            cache.remove(getUserIdKey(resourceId.get))
             tokens.getOrElse(Set.empty[String])
           case Some("TOKEN") => Set(resourceId.get)
           case _ => Set.empty[String]
         }
 
         authTokens foreach { authToken =>
-          datastore.remove(s"${OpenStackIdentityV3API.GROUPS_KEY_PREFIX}$authToken")
-          datastore.remove(s"${OpenStackIdentityV3API.TOKEN_KEY_PREFIX}$authToken")
+          cache.remove(getGroupsKey(authToken))
+          cache.remove(getTokenKey(authToken))
         }
       }
     }

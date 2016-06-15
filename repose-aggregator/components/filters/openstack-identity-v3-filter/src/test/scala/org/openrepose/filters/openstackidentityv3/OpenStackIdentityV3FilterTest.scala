@@ -31,7 +31,7 @@ import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
-import org.openrepose.filters.openstackidentityv3.utilities.OpenStackIdentityV3API
+import org.openrepose.filters.openstackidentityv3.utilities.Cache._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -226,14 +226,14 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
             |""".stripMargin
       )
 
-      verify(mockDatastore).remove(s"${OpenStackIdentityV3API.TOKEN_KEY_PREFIX}$tokenOne")
-      verify(mockDatastore).remove(s"${OpenStackIdentityV3API.GROUPS_KEY_PREFIX}$tokenOne")
-      verify(mockDatastore, never).remove(MockitoMatchers.startsWith(OpenStackIdentityV3API.USER_ID_KEY_PREFIX))
+      verify(mockDatastore).remove(getTokenKey(tokenOne))
+      verify(mockDatastore).remove(getGroupsKey(tokenOne))
+      verify(mockDatastore, never).remove(MockitoMatchers.startsWith(UserIdKeyPrefix))
     }
 
     List("USER", "TRR_USER") foreach { resourceType =>
       it(s"removes the User to Token cache along with the token cache on a $resourceType event") {
-        when(mockDatastore.get(s"${OpenStackIdentityV3API.USER_ID_KEY_PREFIX}$userId")).thenReturn(PatchableSet(tokenOne, tokenTwo), null)
+        when(mockDatastore.get(getUserIdKey(userId))).thenReturn(PatchableSet(tokenOne, tokenTwo), null)
 
         filter.CacheInvalidationFeedListener.onNewAtomEntry(
           s"""<?xml version="1.0" encoding="UTF-8"?>
@@ -273,13 +273,13 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
               |""".stripMargin
         )
 
-        verify(mockDatastore).remove(s"${OpenStackIdentityV3API.USER_ID_KEY_PREFIX}$userId")
+        verify(mockDatastore).remove(getUserIdKey(userId))
 
-        verify(mockDatastore).remove(s"${OpenStackIdentityV3API.TOKEN_KEY_PREFIX}$tokenOne")
-        verify(mockDatastore).remove(s"${OpenStackIdentityV3API.GROUPS_KEY_PREFIX}$tokenOne")
+        verify(mockDatastore).remove(getTokenKey(tokenOne))
+        verify(mockDatastore).remove(getGroupsKey(tokenOne))
 
-        verify(mockDatastore).remove(s"${OpenStackIdentityV3API.TOKEN_KEY_PREFIX}$tokenTwo")
-        verify(mockDatastore).remove(s"${OpenStackIdentityV3API.GROUPS_KEY_PREFIX}$tokenTwo")
+        verify(mockDatastore).remove(getTokenKey(tokenTwo))
+        verify(mockDatastore).remove(getGroupsKey(tokenTwo))
       }
     }
 
@@ -319,13 +319,13 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
             |""".stripMargin
       )
 
-      verify(mockDatastore, never).remove(s"${OpenStackIdentityV3API.USER_ID_KEY_PREFIX}$userId")
+      verify(mockDatastore, never).remove(getUserIdKey(userId))
 
-      verify(mockDatastore, never).remove(s"${OpenStackIdentityV3API.TOKEN_KEY_PREFIX}$tokenOne")
-      verify(mockDatastore, never).remove(s"${OpenStackIdentityV3API.GROUPS_KEY_PREFIX}$tokenOne")
+      verify(mockDatastore, never).remove(getTokenKey(tokenOne))
+      verify(mockDatastore, never).remove(getGroupsKey(tokenOne))
 
-      verify(mockDatastore, never).remove(s"${OpenStackIdentityV3API.TOKEN_KEY_PREFIX}$tokenTwo")
-      verify(mockDatastore, never).remove(s"${OpenStackIdentityV3API.GROUPS_KEY_PREFIX}$tokenTwo")
+      verify(mockDatastore, never).remove(getTokenKey(tokenTwo))
+      verify(mockDatastore, never).remove(getGroupsKey(tokenTwo))
     }
 
     it("doesn't have any problems with bogus content") {
