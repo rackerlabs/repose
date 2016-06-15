@@ -140,5 +140,5 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", path: "../scripts/repose_run.sh"
 
   config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
-  config.vm.synced_folder ".", "/vagrant"
+  config.vm.synced_folder ".", "/vagrant", mount_options: ["dmode=777,fmode=666"]
 end
