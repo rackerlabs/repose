@@ -30,8 +30,10 @@ import scala.collection.mutable
 class PatchableSet[A] extends mutable.HashSet[A]
   with Patchable[PatchableSet[A], SetPatch[A]] {
   override def applyPatch(patch: SetPatch[A]): PatchableSet[A] = {
+    val returnedSet = PatchableSet(this.toList: _*)
     this.add(patch.patchValue)
-    PatchableSet(this.toList: _*)
+    returnedSet.add(patch.patchValue)
+    returnedSet
   }
 }
 
