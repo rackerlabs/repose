@@ -41,7 +41,7 @@ class AtomFeedResponseSimulator {
             'Content-type': 'application/xml',
     ]
 
-    def atomEntries = []
+    volatile List atomEntries = []
 
     AtomFeedResponseSimulator(int atomPort) {
         this.atomPort = atomPort

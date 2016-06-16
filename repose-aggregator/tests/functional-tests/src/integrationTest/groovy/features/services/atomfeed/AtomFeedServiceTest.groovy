@@ -8,11 +8,10 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 
+import java.util.concurrent.TimeUnit
+
 @Category(Slow.class)
 class AtomFeedServiceTest extends ReposeValveTest {
-    // the atom feed is read every 5 seconds by default, wait 11 seconds to be safe
-    static final int WAIT_TIME_IN_SECONDS = 11_000
-
     Endpoint originEndpoint
     Endpoint atomEndpoint
     MockIdentityV2Service fakeIdentityV2Service
@@ -50,7 +49,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        sleep(WAIT_TIME_IN_SECONDS)
+        reposeLogSearch.awaitByString("</atom:entry>", 1, 11, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entry"
         atomFeedEntry.eachLine { line ->
@@ -66,7 +65,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        sleep(WAIT_TIME_IN_SECONDS)
+        reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
         def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
@@ -81,7 +80,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        sleep(WAIT_TIME_IN_SECONDS)
+        reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
         def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
@@ -89,16 +88,16 @@ class AtomFeedServiceTest extends ReposeValveTest {
         logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
 
         when: "there are more entries on the next page"
-        ids = (401..425).collect {it as String}
-        fakeAtomFeed.atomEntries.addAll(ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
+        def moreIds = (401..425).collect {it as String}
+        fakeAtomFeed.atomEntries.addAll(moreIds.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
         fakeAtomFeed.hasEntry = true
 
         and: "we wait for the Keystone V2 filter to read the feed"
-        sleep(WAIT_TIME_IN_SECONDS)
+        reposeLogSearch.awaitByString("</atom:entry>", ids.size() + moreIds.size(), 11, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
         def moreLogLines = reposeLogSearch.searchByString("<atom:id>.*4\\d{2}</atom:id>")
-        moreLogLines.size() == ids.size()
-        moreLogLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
+        moreLogLines.size() == moreIds.size()
+        moreLogLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == moreIds
     }
 }
