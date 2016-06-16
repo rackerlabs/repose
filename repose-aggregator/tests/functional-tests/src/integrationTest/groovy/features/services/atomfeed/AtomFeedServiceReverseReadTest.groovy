@@ -9,7 +9,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 
 @Category(Slow.class)
-class AtomFeedServiceTest extends ReposeValveTest {
+class AtomFeedServiceReverseReadTest extends ReposeValveTest {
     // the atom feed is read every 5 seconds by default, wait 11 seconds to be safe
     static final int WAIT_TIME_IN_SECONDS = 11_000
 
@@ -30,6 +30,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/atom", params)
+        repose.configurationProvider.applyConfigs("features/services/atomfeed/reverseread", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -59,7 +60,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         }
     }
 
-    def "when multiple atom feed entries are received, they are passed in-order to the filter"() {
+    def "when multiple atom feed entries are received, they are passed in reverse-read order to the filter"() {
         given: "there is a list of atom feed entries available for consumption"
         List<String> ids = (201..210).collect {it as String}
         fakeAtomFeed.atomEntries.addAll(ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
@@ -71,10 +72,10 @@ class AtomFeedServiceTest extends ReposeValveTest {
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
         def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
         logLines.size() == ids.size()
-        logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
+        logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids.reverse()
     }
 
-    def "when multiple pages of atom feed entries are received, they are all processed by the filter"() {
+    def "when multiple pages of atom feed entries are received, they are all processed by the filter in the correct reverse-read order"() {
         given: "there is a list of atom feed entries available for consumption"
         List<String> ids = (301..325).collect {it as String}
         fakeAtomFeed.atomEntries.addAll(ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
@@ -86,7 +87,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
         def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
         logLines.size() == ids.size()
-        logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
+        logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids.reverse()
 
         when: "there are more entries on the next page"
         ids = (401..425).collect {it as String}
@@ -99,6 +100,6 @@ class AtomFeedServiceTest extends ReposeValveTest {
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
         def moreLogLines = reposeLogSearch.searchByString("<atom:id>.*4\\d{2}</atom:id>")
         moreLogLines.size() == ids.size()
-        moreLogLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
+        moreLogLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids.reverse()
     }
 }
