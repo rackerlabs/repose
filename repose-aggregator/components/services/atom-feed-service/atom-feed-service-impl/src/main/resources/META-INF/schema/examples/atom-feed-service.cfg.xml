@@ -5,6 +5,9 @@
 
     <feed id="non-authenticating-feed" uri="http://public.atom.com/feed"/>
 
+    <!-- when the page of new entries is passed to the service, they will be passed in reverse order -->
+    <feed id="non-authenticating-reverse-feed" uri="http://reverse.atom.com/feed" entry-order="reverse-read"/>
+
     <feed id="authenticating-feed" uri="http://private.atom.com/feed">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://identity.jware.com"
