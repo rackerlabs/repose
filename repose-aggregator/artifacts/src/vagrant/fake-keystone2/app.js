@@ -200,7 +200,7 @@ app.post('/v2.0/tokens', function (req, res) {
 app.get('/v2.0/tokens/:token_id', function (req, res) {
     var token = req.params.token_id;
     var expires = new Date().addDays(1).toFormat('YYYY-MM-DDTHH24:MI:SSZ');
-    var tenantid = token.substr(0, 10);
+    var tenantid = 'hybrid:' + token.substr(0, 10);
     var tenantidtwo = 12345;
     var tenantname = 'this-is-the-tenant-name';
     var userid = token.substr(0, 10);
