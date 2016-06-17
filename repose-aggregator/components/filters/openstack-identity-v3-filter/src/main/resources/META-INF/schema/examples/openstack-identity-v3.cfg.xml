@@ -4,7 +4,8 @@
                        token-cache-timeout="300000"
                        groups-cache-timeout="300000"
                        cache-offset="10000"
-                       connection-pool-id="identity-v3-pool">
+                       connection-pool-id="identity-v3-pool"
+                       atom-feed-ids="feed-one-id feed-two-id">
 
     <white-list>
         <uri-pattern>/application\.wadl$</uri-pattern>

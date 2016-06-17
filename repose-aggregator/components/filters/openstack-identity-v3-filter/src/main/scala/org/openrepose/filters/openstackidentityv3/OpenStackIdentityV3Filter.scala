@@ -143,6 +143,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
     }
 
     override def onNewAtomEntry(atomEntry: String): Unit = {
+      logger.debug("Processing atom feed entry: {}", atomEntry)
       val atomXml = XML.loadString(atomEntry)
       val resourceId = (atomXml \\ "event" \\ "@resourceId").map(_.text).headOption
       if (resourceId.isDefined) {
