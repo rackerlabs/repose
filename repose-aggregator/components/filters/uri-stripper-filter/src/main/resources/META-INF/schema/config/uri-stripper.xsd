@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.1" encoding="UTF-8"?>
 <!--
   _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
   Repose
@@ -19,23 +19,29 @@
   =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
   -->
 
-
-<xs:schema xmlns:uri-stripper="http://docs.openrepose.org/repose/uri-stripper/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema targetNamespace="http://docs.openrepose.org/repose/uri-stripper/v1.0"
+           xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            elementFormDefault="qualified"
-           attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/uri-stripper/v1.0">
+           attributeFormDefault="unqualified">
 
-    <!-- Client IP Identity Configuration -->
-    <xs:element name="uri-stripper" type="uri-stripper:UriStripperConfig"/>
+    <xs:element name="uri-stripper" type="UriStripperConfig"/>
 
     <xs:complexType name="UriStripperConfig">
-
         <xs:annotation>
             <xs:documentation>
                 <html:p>Configuration for the URI Stripper Filter</html:p>
             </xs:documentation>
         </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="link-resources" type="LinkResources" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
         <xs:attribute name="rewrite-location" type="xs:boolean" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -52,7 +58,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="token-index" type="uri-stripper:nonNegativeInt" use="required">
+        <xs:attribute name="token-index" type="NonNegativeInt" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -65,14 +71,174 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
     </xs:complexType>
 
-    <xs:simpleType name="nonNegativeInt">
+    <xs:complexType name="LinkResources">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A list of resources which return responses that contain one or more links which should have the
+                    stripped URI path segment re-inserted.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="resource" type="LinkResource" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="link-segment-mismatch-action" type="LinkSegmentMismatchAction" use="optional"
+                      default="fail">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The action to take when a link cannot be found at a path, or when a link is found, but
+                        the configured path segment is out of bounds.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="LinkResource">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A specific ReST resource that contains one or more links which should have the stripped URI
+                    path segment re-inserted.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="link-paths" type="LinkPaths"/>
+        </xs:all>
+
+        <xs:attribute name="uri-path-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A regex which will be matched against the URI path to determine if link modification should
+                        be attempted.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="http-methods" type="HttpMethodList" use="optional" default="ALL">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        List of HTTP methods for this resource on which links should be modified.
+                        Valid values include:
+                        GET, DELETE, POST, PUT, PATCH, HEAD, OPTIONS, CONNECT, TRACE, ALL
+                        NOTE: If this attribute is present, then it must not be empty.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="if (exists(@http-methods)) then (string-length(string(@http-methods)) > 0) else true()"
+                   xerces:message="If the http-methods attribute is present, then it must not be empty."
+                   saxon:message="If the http-methods attribute is present, then it must not be empty."/>
+    </xs:complexType>
+
+    <xs:complexType name="LinkPaths">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Specifies where in the response document to find the links to be modified.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="json" type="LinkPath" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Specifies the JSONPath to the link to be modified.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!--<xs:element name="xml" type="LinkPath" minOccurs="0" maxOccurs="unbounded">-->
+            <!--<xs:annotation>-->
+            <!--<xs:documentation>-->
+            <!--<html:p>Specifies the XPath to the link to be modified.</html:p>-->
+            <!--</xs:documentation>-->
+            <!--</xs:annotation>-->
+            <!--</xs:element>-->
+        </xs:sequence>
+
+        <!-- TODO: Fix this when adding XML support -->
+        <!--<xs:assert vc:minVersion="1.1"-->
+        <!--xpathDefaultNamespace="##targetNamespace"-->
+        <!--test=""-->
+        <!--xerces:message="Either a json element or a xml element must be defined."-->
+        <!--saxon:message="Either a json element or a xml element must be defined."/>-->
+    </xs:complexType>
+
+    <xs:complexType name="LinkPath">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="token-index" type="NonNegativeInt" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The URI Stripper filter will parse the links in the body of a response
+                                into tokens using the '/' character as a delimiter, re-insert the stripped token
+                                from the request URI, then rebuild the link. Index '0' if the first path segment.
+                                If this attribute is not present, the filter will re-insert the stripped token into
+                                the path segment it resided prior to being stripped.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="HttpMethodList">
+        <xs:list itemType="HttpMethod"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="HttpMethod">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The HttpMethod simple type defines a string
+                    enumeration of HTTP method verbs as outlined in
+                    <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a>
+                    section 9.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="DELETE"/>
+            <xs:enumeration value="POST"/>
+            <xs:enumeration value="PUT"/>
+            <xs:enumeration value="PATCH"/>
+            <xs:enumeration value="HEAD"/>
+            <xs:enumeration value="OPTIONS"/>
+            <xs:enumeration value="CONNECT"/>
+            <xs:enumeration value="TRACE"/>
+            <xs:enumeration value="ALL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="LinkSegmentMismatchAction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="keep"/>
+            <xs:enumeration value="remove"/>
+            <xs:enumeration value="fail"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="NonNegativeInt">
         <xs:restriction base="xs:int">
             <xs:minInclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
-
-
 </xs:schema>
