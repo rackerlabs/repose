@@ -20,7 +20,9 @@
 
 package org.openrepose.filters.uristripper
 
+import java.io.ByteArrayInputStream
 import javax.servlet.FilterChain
+import javax.servlet.http.HttpServletResponse
 
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -29,12 +31,14 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.filters.uristripper.config.UriStripperConfig
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
+import play.api.libs.json.Json
 
 @RunWith(classOf[JUnitRunner])
 class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
@@ -114,6 +118,247 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
     }
   }
 
+  describe("response links should be updated") {
+    it("should not alter the body if the uri does not match the configured regex") {
+      val config =
+        s"""
+           |<uri-stripper token-index="1">
+           |    <link-resources>
+           |        <resource uri-path-regex="/v1/[^/]+/bar">
+           |            <link-paths>
+           |                <json>$$.link</json>
+           |            </link-paths>
+           |        </resource>
+           |    </link-resources>
+           |</uri-stripper>
+         """.stripMargin
+
+      val respBody =
+        s"""
+           |{
+           |  "link": "http://example.com/v1/bar"
+           |}
+         """.stripMargin
+
+      filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+      request.setRequestURI("/v1/12345/foo")
+      setResponseBody(respBody, MimeType.APPLICATION_JSON.toString)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getContentAsString shouldEqual respBody
+    }
+
+    it("should not alter the body if the method does not match the configured method") {
+      val config =
+        s"""
+           |<uri-stripper token-index="1">
+           |    <link-resources>
+           |        <resource uri-path-regex=".*" http-methods="POST">
+           |            <link-paths>
+           |                <json>$$.link</json>
+           |            </link-paths>
+           |        </resource>
+           |    </link-resources>
+           |</uri-stripper>
+         """.stripMargin
+
+      val respBody =
+        s"""
+           |{
+           |  "link": "http://example.com/v1/foo"
+           |}
+         """.stripMargin
+
+      filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+      request.setRequestURI("/v1/12345/foo")
+      setResponseBody(respBody, MimeType.APPLICATION_JSON.toString)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getContentAsString shouldEqual respBody
+    }
+
+    it("should not alter the body if the content-type is not supported") {
+      val config =
+        s"""
+           |<uri-stripper token-index="1">
+           |    <link-resources>
+           |        <resource uri-path-regex=".*">
+           |            <link-paths>
+           |                <json>$$.link</json>
+           |            </link-paths>
+           |        </resource>
+           |    </link-resources>
+           |</uri-stripper>
+         """.stripMargin
+
+      val respBody =
+        s"""
+           |The link is http://example.com/v1/foo
+         """.stripMargin
+
+      filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+      request.setRequestURI("/v1/12345/foo")
+      setResponseBody(respBody, MimeType.TEXT_PLAIN.toString)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getContentAsString shouldEqual respBody
+    }
+
+    it("should update a link by replacing the stripped token at the same index it was removed from") {
+      val config =
+        s"""
+           |<uri-stripper token-index="1">
+           |    <link-resources>
+           |        <resource uri-path-regex=".*">
+           |            <link-paths>
+           |                <json>$$.link</json>
+           |            </link-paths>
+           |        </resource>
+           |    </link-resources>
+           |</uri-stripper>
+         """.stripMargin
+
+      val respBody =
+        s"""
+           |{
+           |  "link": "http://example.com/v1/bar"
+           |}
+         """.stripMargin
+
+      filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+      request.setRequestURI("/v1/12345/foo")
+      setResponseBody(respBody, MimeType.APPLICATION_JSON.toString)
+
+      filter.doFilter(request, response, filterChain)
+
+      (Json.parse(response.getContentAsString) \ "link").as[String] shouldEqual "http://example.com/v1/12345/bar"
+    }
+
+    it("should update a link by replacing the stripped token at the configured index") {
+      val config =
+        s"""
+           |<uri-stripper token-index="1">
+           |    <link-resources>
+           |        <resource uri-path-regex=".*">
+           |            <link-paths>
+           |                <json token-index="2">$$.link</json>
+           |            </link-paths>
+           |        </resource>
+           |    </link-resources>
+           |</uri-stripper>
+         """.stripMargin
+
+      val respBody =
+        s"""
+           |{
+           |  "link": "http://example.com/v1/bar"
+           |}
+         """.stripMargin
+
+      filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+      request.setRequestURI("/v1/12345/foo")
+      setResponseBody(respBody, MimeType.APPLICATION_JSON.toString)
+
+      filter.doFilter(request, response, filterChain)
+
+      (Json.parse(response.getContentAsString) \ "link").as[String] shouldEqual "http://example.com/v1/bar/12345"
+    }
+
+    it("should not alter the body if the link cannot be located (keep)") {
+      val config =
+        s"""
+           |<uri-stripper token-index="1">
+           |    <link-resources link-mismatch-action="keep">
+           |        <resource uri-path-regex=".*">
+           |            <link-paths>
+           |                <json>$$.dne</json>
+           |            </link-paths>
+           |        </resource>
+           |    </link-resources>
+           |</uri-stripper>
+         """.stripMargin
+
+      val respBody =
+        s"""
+           |{
+           |  "link": "http://example.com/v1/foo"
+           |}
+         """.stripMargin
+
+      filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+      request.setRequestURI("/v1/12345/foo")
+      setResponseBody(respBody, MimeType.APPLICATION_JSON.toString)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getContentAsString shouldEqual respBody
+    }
+
+    it("should remove the field if the path segment cannot be located (remove)") {
+      val config =
+        s"""
+           |<uri-stripper token-index="1">
+           |    <link-resources link-mismatch-action="remove">
+           |        <resource uri-path-regex=".*">
+           |            <link-paths>
+           |                <json>$$.dne</json>
+           |            </link-paths>
+           |        </resource>
+           |    </link-resources>
+           |</uri-stripper>
+         """.stripMargin
+
+      val respBody =
+        s"""
+           |{
+           |  "link": "http://example.com/v1/foo"
+           |}
+         """.stripMargin
+
+      filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+      request.setRequestURI("/v1/12345/foo")
+      setResponseBody(respBody, MimeType.APPLICATION_JSON.toString)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getContentAsString shouldEqual "{}"
+    }
+
+    it("should fail if the link cannot be located (fail)") {
+      val config =
+        s"""
+           |<uri-stripper token-index="1">
+           |    <link-resources link-mismatch-action="fail">
+           |        <resource uri-path-regex=".*">
+           |            <link-paths>
+           |                <json>$$.dne</json>
+           |            </link-paths>
+           |        </resource>
+           |    </link-resources>
+           |</uri-stripper>
+         """.stripMargin
+
+      val respBody =
+        s"""
+           |{
+           |  "link": "http://example.com/v1/foo"
+           |}
+         """.stripMargin
+
+      filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+      request.setRequestURI("/v1/12345/foo")
+      setResponseBody(respBody, MimeType.APPLICATION_JSON.toString)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getContentLength shouldEqual 0
+    }
+  }
+
   def createConfig(index: Int = 0, rewriteLocationHeader: Boolean = false): UriStripperConfig = {
     val config = new UriStripperConfig
     config.setRewriteLocation(rewriteLocationHeader)
@@ -139,6 +384,23 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       def answer(invocation: InvocationOnMock): Void = {
         headers.foreach(header => responseCaptor.getValue.addHeader(header.name, header.value))
         null
+      }
+    }).when(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), responseCaptor.capture())
+  }
+
+  /**
+    * Grabs the wrapped response that was passed in to the filterChain and sets the body
+    */
+  def setResponseBody(body: String, contentType: String): Unit = {
+    val responseCaptor = ArgumentCaptor.forClass(classOf[HttpServletResponseWrapper])
+    doAnswer(new Answer[Unit]() {
+      def answer(invocation: InvocationOnMock): Unit = {
+        val response = responseCaptor.getValue
+        val bodyStream = new ByteArrayInputStream(body.getBytes)
+
+        response.setContentType(contentType)
+        response.setContentLength(bodyStream.available)
+        response.setOutput(bodyStream)
       }
     }).when(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), responseCaptor.capture())
   }
