@@ -36,7 +36,7 @@ import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.openrepose.filters.openstackidentityv3.utilities.Cache._
-import org.openrepose.filters.openstackidentityv3.utilities.{Cache, OpenStackIdentityV3API}
+import org.openrepose.filters.openstackidentityv3.utilities.OpenStackIdentityV3API
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 
 import scala.collection.JavaConversions._
@@ -103,7 +103,9 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
 
   def configurationUpdated(config: OpenstackIdentityV3Config) {
     // This will also un-register any Atom Feeds not present in the new config.
-    CacheInvalidationFeedListener.updateFeeds(config.getCache.getAtomFeed.map(_.getId).toSet)
+    CacheInvalidationFeedListener.updateFeeds(
+      Option(config.getCache).map(_.getAtomFeed.map(_.getId).toSet).getOrElse(Set.empty)
+    )
 
     val akkaServiceClientOld = Option(akkaServiceClient)
     akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)
