@@ -50,9 +50,13 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
   private final val GROUPS_ENDPOINT = (userId: String) => s"/v3/users/$userId/groups"
 
   private val identityServiceUri = config.getOpenstackIdentityService.getUri
-  private val cacheOffset = config.getCacheOffset
-  private val tokenCacheTtl = config.getTokenCacheTimeout
-  private val groupsCacheTtl = config.getGroupsCacheTimeout
+  private val timeouts = Option(config.getCache).flatMap(cache => Option(cache.getTimeouts))
+  private val cacheOffset =
+    timeouts.flatMap(timeouts => Option(timeouts.getVariance)).getOrElse(config.getCacheOffset)
+  private val tokenCacheTtl =
+    timeouts.flatMap(timeouts => Option(timeouts.getToken).map(_.intValue())).getOrElse(config.getTokenCacheTimeout)
+  private val groupsCacheTtl =
+    timeouts.flatMap(timeouts => Option(timeouts.getGroup).map(_.intValue())).getOrElse(config.getGroupsCacheTimeout)
 
   def getAdminToken(tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[String] = {
     def createAdminAuthRequest() = {

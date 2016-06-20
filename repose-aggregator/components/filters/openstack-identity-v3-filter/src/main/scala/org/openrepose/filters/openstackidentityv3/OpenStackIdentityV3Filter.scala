@@ -103,7 +103,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
 
   def configurationUpdated(config: OpenstackIdentityV3Config) {
     // This will also un-register any Atom Feeds not present in the new config.
-    CacheInvalidationFeedListener.updateFeeds(config.getAtomFeedIds.toSet)
+    CacheInvalidationFeedListener.updateFeeds(config.getCache.getAtomFeed.map(_.getId).toSet)
 
     val akkaServiceClientOld = Option(akkaServiceClient)
     akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)

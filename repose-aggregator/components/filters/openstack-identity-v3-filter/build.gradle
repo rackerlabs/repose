@@ -1,4 +1,6 @@
 dependencies {
+    xjc "org.jvnet.jaxb2_commons:jaxb2-default-value"
+
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:commons:commons-utilities")
     compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
@@ -23,4 +25,10 @@ dependencies {
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.mockito:mockito-all"
     testCompile "com.mockrunner:mockrunner-servlet"
+}
+
+jaxb {
+    xjc {
+        args = ["-Xdefault-value"]
+    }
 }
