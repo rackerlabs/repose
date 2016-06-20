@@ -19,12 +19,8 @@
  */
 package org.openrepose.filters.openstackidentityv3.utilities
 
-import java.util.concurrent.TimeUnit
-
 import org.junit.runner.RunWith
-import org.mockito.Mockito.{verify, when}
 import org.openrepose.core.services.datastore.Datastore
-import org.openrepose.core.services.datastore.types.StringValue
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -33,11 +29,9 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 class CacheTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   var mockDatastore: Datastore = _
-  var cache: Cache = _
 
   override def beforeEach() {
     mockDatastore = mock[Datastore]
-    cache = new Cache(mockDatastore)
   }
 
   describe("getTokenKey") {
@@ -92,81 +86,6 @@ class CacheTest extends FunSpec with BeforeAndAfterEach with Matchers with Mocki
 
     it("should convert a Long less than the min Int value to the min Int value") {
       Cache.safeLongToInt(-3000000000L) shouldEqual Int.MinValue
-    }
-  }
-
-  describe("safeGet") {
-    it("should return None if the key does not exist in the cache") {
-      val key = "some-key"
-
-      cache.safeGet(key, classOf[String]) shouldBe None
-    }
-
-    it("should return None if the value associated with a key is not of the correct type") {
-      val key = "some-key"
-      when(mockDatastore.get(key)).thenReturn(10, Nil: _*)
-
-      cache.safeGet(key, classOf[String]) shouldBe None
-    }
-
-    it("should return Some(value) if the key exists and the associated value is of the correct type") {
-      val key = "some-key"
-      val value = "some-value"
-      when(mockDatastore.get(key)).thenReturn(value, Nil: _*)
-
-      cache.safeGet(key, classOf[String]) shouldEqual Some(value)
-    }
-  }
-
-  describe("Datastore methods") {
-    it("should delegate get to the wrapped Datastore") {
-      val key = "some-key"
-
-      cache.get(key)
-
-      verify(mockDatastore).get(key)
-    }
-
-    it("should delegate removeAll to the wrapped Datastore") {
-      cache.removeAll()
-
-      verify(mockDatastore).removeAll()
-    }
-
-    it("should delegate getName to the wrapped Datastore") {
-      cache.getName
-
-      verify(mockDatastore).getName
-    }
-
-    it("should delegate put to the wrapped Datastore") {
-      val key = "some-key"
-      val value = "some-value"
-
-      cache.put(key, value)
-      cache.put(key, value, 10, TimeUnit.SECONDS)
-
-      verify(mockDatastore).put(key, value)
-      verify(mockDatastore).put(key, value, 10, TimeUnit.SECONDS)
-    }
-
-    it("should delegate remove to the wrapped Datastore") {
-      val key = "some-key"
-
-      cache.remove(key)
-
-      verify(mockDatastore).remove(key)
-    }
-
-    it("should delegate patch to the wrapped Datastore") {
-      val key = "some-key"
-      val patch = new StringValue.Patch("some-value")
-
-      cache.patch(key, patch)
-      cache.patch(key, patch, 10, TimeUnit.SECONDS)
-
-      verify(mockDatastore).patch(key, patch)
-      verify(mockDatastore).patch(key, patch, 10, TimeUnit.SECONDS)
     }
   }
 }

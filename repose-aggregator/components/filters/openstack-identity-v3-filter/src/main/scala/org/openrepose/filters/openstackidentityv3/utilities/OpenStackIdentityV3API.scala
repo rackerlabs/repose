@@ -29,6 +29,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.Header
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, ServiceClientResponse}
+import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
@@ -41,7 +42,7 @@ import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
-class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, cache: Cache, akkaServiceClient: AkkaServiceClient)
+class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datastore, akkaServiceClient: AkkaServiceClient)
   extends LazyLogging {
 
   private final val SC_TOO_MANY_REQUESTS = 429
@@ -89,7 +90,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, cache: Cache, ak
       )))
     }
 
-    cache.safeGet(AdminTokenKey, classOf[String]) match {
+    Option(datastore.get(AdminTokenKey).asInstanceOf[String]) match {
       case Some(adminToken) if checkCache =>
         Success(adminToken)
       case _ =>
@@ -121,7 +122,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, cache: Cache, ak
                 val adminTokenTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
                 logger.debug(s"Caching admin token with TTL set to: ${adminTokenTtl}ms")
 
-                cache.put(AdminTokenKey, token, adminTokenTtl, TimeUnit.MILLISECONDS)
+                datastore.put(AdminTokenKey, token, adminTokenTtl, TimeUnit.MILLISECONDS)
                 Success(token)
               case None =>
                 logger.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
@@ -141,7 +142,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, cache: Cache, ak
   }
 
   def validateToken(subjectToken: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[ValidToken] = {
-    cache.safeGet(getTokenKey(subjectToken), classOf[ValidToken]) match {
+    Option(datastore.get(getTokenKey(subjectToken)).asInstanceOf[ValidToken]) match {
       case Some(cachedSubjectTokenObject) =>
         Success(cachedSubjectTokenObject)
       case None =>
@@ -197,9 +198,9 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, cache: Cache, ak
                 val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
                 logger.debug(s"Caching token '$subjectToken' with TTL set to: ${ttl}ms")
                 subjectTokenObject.userId foreach { userId =>
-                  cache.patch(getUserIdKey(userId), new SetPatch(subjectToken), ttl, TimeUnit.MILLISECONDS)
+                  datastore.patch(getUserIdKey(userId), new SetPatch(subjectToken), ttl, TimeUnit.MILLISECONDS)
                 }
-                cache.put(getTokenKey(subjectToken), subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
+                datastore.put(getTokenKey(subjectToken), subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
                 Success(subjectTokenObject)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_NOT_FOUND =>
@@ -227,7 +228,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, cache: Cache, ak
   }
 
   def getGroups(userId: String, subjectToken: String, tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[List[String]] = {
-    cache.safeGet(getGroupsKey(subjectToken), classOf[List[String]]) match {
+    Option(datastore.get(getGroupsKey(subjectToken)).asInstanceOf[List[String]]) match {
       case Some(cachedGroups) =>
         Success(cachedGroups)
       case None =>
@@ -261,7 +262,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, cache: Cache, ak
                 }
                 logger.debug(s"Caching groups for user '$userId' with TTL set to: ${ttl}ms")
                 // TODO: Maybe handle all this conversion jank?
-                cache.put(getGroupsKey(subjectToken), groups.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
+                datastore.put(getGroupsKey(subjectToken), groups.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
 
                 Success(groups)
               case Some(statusCode) if statusCode == HttpServletResponse.SC_NOT_FOUND =>

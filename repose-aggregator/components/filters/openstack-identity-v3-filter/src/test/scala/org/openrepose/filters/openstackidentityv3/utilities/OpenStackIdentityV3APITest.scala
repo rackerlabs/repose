@@ -54,12 +54,10 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
   var identityConfig: OpenstackIdentityV3Config = _
   var mockAkkaServiceClient: AkkaServiceClient = _
   var mockDatastore: Datastore = _
-  var mockCache: Cache = _
 
   override def beforeEach() = {
     mockAkkaServiceClient = mock[AkkaServiceClient]
     mockDatastore = mock[Datastore]
-    mockCache = new Cache(mockDatastore)
 
     identityConfig = new OpenstackIdentityV3Config()
     identityConfig.setOpenstackIdentityService(new OpenstackIdentityService())
@@ -71,7 +69,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
     when(mockDatastore.get(anyString)).thenReturn(null, Nil: _*)
 
-    identityV3API = new OpenStackIdentityV3API(identityConfig, mockCache, mockAkkaServiceClient)
+    identityV3API = new OpenStackIdentityV3API(identityConfig, mockDatastore, mockAkkaServiceClient)
   }
 
   describe("getAdminToken") {
@@ -79,7 +77,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     it("builds a JSON auth token request with a domain ID"){
       //Modify the identity config to include the domain
       identityConfig.getOpenstackIdentityService.setDomainId("867530nieeein")
-      identityV3API = new OpenStackIdentityV3API(identityConfig, mockCache, mockAkkaServiceClient)
+      identityV3API = new OpenStackIdentityV3API(identityConfig, mockDatastore, mockAkkaServiceClient)
 
       val mockServiceClientResponse = mock[ServiceClientResponse]
 

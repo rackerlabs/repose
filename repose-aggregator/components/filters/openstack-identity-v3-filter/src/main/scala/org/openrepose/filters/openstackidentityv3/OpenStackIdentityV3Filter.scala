@@ -52,7 +52,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
 
   private final val DEFAULT_CONFIG = "openstack-identity-v3.cfg.xml"
 
-  private val cache = new Cache(datastoreService.getDefaultDatastore)
+  private val datastore = datastoreService.getDefaultDatastore
 
   private var initialized = false
   private var configFilename: String = _
@@ -109,7 +109,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
     akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)
     akkaServiceClientOld.foreach(_.destroy())
 
-    val identityAPI = new OpenStackIdentityV3API(config, cache, akkaServiceClient)
+    val identityAPI = new OpenStackIdentityV3API(config, datastore, akkaServiceClient)
     openStackIdentityV3Handler = new OpenStackIdentityV3Handler(config, identityAPI)
     initialized = true
   }
@@ -151,16 +151,16 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
         val authTokens = resourceType.headOption match {
           // User OR Token Revocation Record (TRR) event.
           case Some("USER") | Some("TRR_USER") =>
-            val tokens = Option(cache.get(getUserIdKey(resourceId.get)).asInstanceOf[PatchableSet[String]])
-            cache.remove(getUserIdKey(resourceId.get))
+            val tokens = Option(datastore.get(getUserIdKey(resourceId.get)).asInstanceOf[PatchableSet[String]])
+            datastore.remove(getUserIdKey(resourceId.get))
             tokens.getOrElse(Set.empty[String])
           case Some("TOKEN") => Set(resourceId.get)
           case _ => Set.empty[String]
         }
 
         authTokens foreach { authToken =>
-          cache.remove(getGroupsKey(authToken))
-          cache.remove(getTokenKey(authToken))
+          datastore.remove(getGroupsKey(authToken))
+          datastore.remove(getTokenKey(authToken))
         }
       }
     }

@@ -19,11 +19,6 @@
  */
 package org.openrepose.filters.openstackidentityv3.utilities
 
-import java.io.Serializable
-import java.util.concurrent.TimeUnit
-
-import org.openrepose.core.services.datastore.{Datastore, Patch}
-
 import scala.util.Random
 
 object Cache {
@@ -47,32 +42,4 @@ object Cache {
     if (long < 0) math.max(long, Int.MinValue).toInt
     else math.min(long, Int.MaxValue).toInt
   }
-}
-
-class Cache(datastore: Datastore) extends Datastore {
-  def safeGet[T <: Serializable](key: String, cls: Class[T]): Option[T] = {
-    try {
-      Option(get(key)).map(cls.cast)
-    } catch {
-      case cce: ClassCastException => None
-    }
-  }
-
-  override def get(key: String): Serializable = datastore.get(key)
-
-  override def removeAll(): Unit = datastore.removeAll()
-
-  override def getName: String = datastore.getName
-
-  override def put(key: String, value: Serializable): Unit = datastore.put(key, value)
-
-  override def put(key: String, value: Serializable, ttl: Int, timeUnit: TimeUnit): Unit =
-    datastore.put(key, value, ttl, timeUnit)
-
-  override def remove(key: String): Boolean = datastore.remove(key)
-
-  override def patch(key: String, patch: Patch[_]): Serializable = datastore.patch(key, patch)
-
-  override def patch(key: String, patch: Patch[_], ttl: Int, timeUnit: TimeUnit): Serializable =
-    datastore.patch(key, patch, ttl, timeUnit)
 }
