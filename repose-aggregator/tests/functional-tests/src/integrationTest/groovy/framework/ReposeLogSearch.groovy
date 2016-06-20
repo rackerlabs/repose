@@ -44,17 +44,13 @@ class ReposeLogSearch {
         File logFile = new File(logFileLocation);
 
         def foundMatches = []
-        logFile.eachLine {
-
-            ln ->
-                if (ln =~ searchString) {
-                    foundMatches << "${ln}"
-                }
+        logFile.eachLine { ln ->
+            if (ln =~ searchString) {
+                foundMatches << "${ln}"
+            }
         }
 
-
         return foundMatches;
-
     }
 
     /**

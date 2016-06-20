@@ -41,6 +41,8 @@ class AtomFeedResponseSimulator {
             'Content-type': 'application/xml',
     ]
 
+    volatile List atomEntries = []
+
     AtomFeedResponseSimulator(int atomPort) {
         this.atomPort = atomPort
     }
@@ -54,15 +56,10 @@ class AtomFeedResponseSimulator {
     def trrEventHandler(String userId) {
         { request ->
             if (hasEntry) {
-                def params = [
-                        'atomPort': atomPort,
-                        'time'    : new DateTime().toString(DATE_FORMAT),
-                        'userId'  : userId
-                ]
-                hasEntry = false //Only respond with it once once it's been got
+                // reset for next time
+                hasEntry = false
 
-                new Response(200, 'OK', headers, templateEngine.createTemplate(tokenRevocationRecordAtomEntryXml).make(params)
-                )
+                new Response(200, 'OK', headers, populateTemplate(tokenRevocationRecordAtomEntryXml, [userId: userId]))
             }
         }
     }
@@ -70,203 +67,198 @@ class AtomFeedResponseSimulator {
     def userUpdateHandler(String userId) {
         { request ->
             if (hasEntry) {
-                def params = [
-                        'atomPort': atomPort,
-                        'time'    : new DateTime().toString(DATE_FORMAT),
-                        'userId'  : userId
-                ]
+                // reset for next time
                 hasEntry = false
-                new Response(200, 'OK', headers, templateEngine.createTemplate(userUpdateEvent).make(params))
+
+                new Response(200, 'OK', headers, populateTemplate(userUpdateEvent, [userId: userId]))
             }
         }
     }
 
-
     def handler = { request ->
+        def template = hasEntry ? atomWithEntryXml() : atomEmptyXml
 
-        def template
-
-        if (hasEntry) {
-            template = atomWithEntryXml
-        } else {
-            template = atomEmptyXml
-        }
-
-        def params = [
-                'atomPort': atomPort,
-                'time'    : new DateTime().toString(DATE_FORMAT),
-                'token'   : client_token,
-                'tenant'  : client_tenant,
-        ]
+        // reset for next time
         hasEntry = false
-        return new Response(200, 'OK', headers, templateEngine.createTemplate(template).make(params))
+        atomEntries = []
+
+        return new Response(200, 'OK', headers, populateTemplate(template))
     }
 
+    def populateTemplate(String template, Map params = [:]) {
+        def defaultParams = [
+                atomPort: atomPort,
+                time    : new DateTime().toString(DATE_FORMAT),
+                token   : client_token,
+                tenant  : client_tenant,
+        ]
 
-    def String atomEmptyXml =
-            """<?xml version="1.0"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <link href="http://localhost:\${atomPort}/feed/"
-        rel="current"/>
-    <link href="http://localhost:\${atomPort}/feed/"
-        rel="self"/>
-    <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
-    <title type="text">feed</title>
-    <link href="http://localhost:\${atomPort}/feed/?marker=last&amp;limit=25&amp;search=&amp;direction=backward"
-          rel="last"/>
-    <updated>\${time}</updated>
-</feed>
-"""
+        templateEngine.createTemplate(template).make(defaultParams + params)
+    }
 
-    def String atomWithEntryXml =
-            """<?xml version="1.0"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <link href="http://localhost:\${atomPort}/feed/"
-        rel="current"/>
-    <link href="http://localhost:\${atomPort}/feed/"
-        rel="self"/>
-    <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
-    <title type="text">feed</title>
-    <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
-          rel="previous"/>
-    <updated>\${time}</updated>
-    <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
-                xmlns="http://docs.rackspace.com/core/event"
-                xmlns:id="http://docs.rackspace.com/event/identity/token">
-        <atom:id>urn:uuid:1</atom:id>
-        <atom:category term="rgn:IDK"/>
-        <atom:category term="dc:IDK1"/>
-        <atom:category term="rid:\${token}"/>
-        <atom:category term="cloudidentity.token.token.delete"/>
-        <atom:title type="text">Identity Token Event</atom:title>
-        <atom:author>
-            <atom:name>Repose Team</atom:name>
-        </atom:author>
-        <atom:content type="application/xml">
-            <event dataCenter="IDK"
-                   environment="JUNIT"
-                   eventTime="\${time}"
-                   id="12345678-9abc-def0-1234-56789abcdef0"
-                   region="IDK"
-                   resourceId="\${token}"
-                   type="DELETE"
-                   version="1">
-                <id:product resourceType="TOKEN"
-                            serviceCode="CloudIdentity"
-                            tenants="\${tenant}"
-                            version="1"/>
-            </event>
-        </atom:content>
-        <atom:link href="http://test.feed.atomhopper.rackspace.com/some/identity/feed/entries/urn:uuid:4fa194dc-5148-a465-254d-b8ccab3766bc"
-                   rel="self"/>
-        <atom:updated>\${time}</atom:updated>
-        <atom:published>\${time}</atom:published>
-    </atom:entry>
-</feed>
-"""
+    def String atomEmptyXml = """\
+        |<?xml version="1.0"?>
+        |<feed xmlns="http://www.w3.org/2005/Atom">
+        |    <link href="http://localhost:\${atomPort}/feed/" rel="current"/>
+        |    <link href="http://localhost:\${atomPort}/feed/" rel="self"/>
+        |    <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
+        |    <title type="text">feed</title>
+        |    <link href="http://localhost:\${atomPort}/feed/?marker=last&amp;limit=25&amp;search=&amp;direction=backward"
+        |          rel="last"/>
+        |    <updated>\${time}</updated>
+        |</feed>""".stripMargin()
+
+    def String atomWithEntryXml() {
+        if (atomEntries.isEmpty()) {
+            // test did not specify any custom atom entries, so give them a default one
+            atomEntries << createAtomEntry()
+        }
+
+        """\
+        |<?xml version="1.0"?>
+        |    <feed xmlns="http://www.w3.org/2005/Atom">
+        |    <link href="http://localhost:\${atomPort}/feed/" rel="current"/>
+        |    <link href="http://localhost:\${atomPort}/feed/" rel="self"/>
+        |    <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
+        |    <title type="text">feed</title>
+        |    <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
+        |          rel="previous"/>
+        |    <updated>\${time}</updated>
+        |${atomEntries.join("\n")}
+        |</feed>""".stripMargin()
+    }
+
+    def String createAtomEntry(Map<String, String> params = [:]) {
+        populateTemplate("""\
+        |    <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+        |                xmlns="http://docs.rackspace.com/core/event"
+        |                xmlns:id="http://docs.rackspace.com/event/identity/token">
+        |        <atom:id>${params['id'] ?: 'urn:uuid:1'}</atom:id>
+        |        <atom:category term="rgn:IDK" />
+        |        <atom:category term="dc:IDK1" />
+        |        <atom:category term="rid:\${token}" />
+        |        <atom:category term="cloudidentity.token.token.delete" />
+        |        <atom:title type="text">Identity Token Event</atom:title>
+        |        <atom:author>
+        |            <atom:name>Repose Team</atom:name>
+        |        </atom:author>
+        |        <atom:content type="application/xml">
+        |            <event dataCenter="IDK"
+        |                   environment="JUNIT"
+        |                   eventTime="\${time}"
+        |                   id="12345678-9abc-def0-1234-56789abcdef0"
+        |                   region="IDK"
+        |                   resourceId="\${token}"
+        |                   type="DELETE"
+        |                   version="1">
+        |                <id:product resourceType="TOKEN"
+        |                            serviceCode="CloudIdentity"
+        |                            tenants="\${tenant}"
+        |                            version="1" />
+        |            </event>
+        |        </atom:content>
+        |        <atom:link href="http://test.feed.atomhopper.rackspace.com/some/identity/feed/entries/urn:uuid:4fa194dc-5148-a465-254d-b8ccab3766bc"
+        |                   rel="self" />
+        |        <atom:updated>\${time}</atom:updated>
+        |        <atom:published>\${time}</atom:published>
+        |    </atom:entry>""".stripMargin())
+    }
 
     /**
      * This is to revoke a specific set of tokens for a specific user
      * The resourceId is a user id, not a token ID.
      */
-    def tokenRevocationRecordAtomEntryXml =
-            """<?xml version="1.0"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <link href="http://localhost:\${atomPort}/feed/"
-        rel="current"/>
-    <link href="http://localhost:\${atomPort}/feed/"
-        rel="self"/>
-    <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
-    <title type="text">feed</title>
-    <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
-          rel="previous"/>
-    <updated>\${time}</updated>
-    <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        xmlns="http://www.w3.org/2001/XMLSchema">
-        <atom:id>urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814</atom:id>
-        <atom:category term="rgn:DFW"/>
-        <atom:category term="dc:DFW1"/>
-        <atom:category term="rid:\${userId}"/>
-        <atom:category term="cloudidentity.user.trr_user.delete"/>
-        <atom:category term="type:cloudidentity.user.trr_user.delete"/>
-        <atom:title>CloudIdentity</atom:title>
-        <atom:content type="application/xml">
-            <event xmlns="http://docs.rackspace.com/core/event"
-                xmlns:sample="http://docs.rackspace.com/event/identity/trr/user"
-                id="e53d007a-fc23-11e1-975c-cfa6b29bb814"
-                version="2"
-                resourceId="\${userId}"
-                eventTime="\${time}"
-                type="DELETE"
-                dataCenter="DFW1"
-                region="DFW">
-                <sample:product serviceCode="CloudIdentity"
-                    version="1"
-                    resourceType="TRR_USER"
-                    tokenCreationDate="2013-09-26T15:32:00Z">
-                    <sample:tokenAuthenticatedBy values="PASSWORD APIKEY"/>
-                </sample:product>
-            </event>
-        </atom:content>
-        <atom:link href="https://ord.feeds.api.rackspacecloud.com/identity/events/entries/urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814"
-        rel="self"/>
-        <atom:updated>\${time}</atom:updated>
-        <atom:published>\${time}</atom:published>
-    </atom:entry>
-</feed>
-"""
+    def tokenRevocationRecordAtomEntryXml = """\
+        |<?xml version="1.0"?>
+        |<feed xmlns="http://www.w3.org/2005/Atom">
+        |    <link href="http://localhost:\${atomPort}/feed/" rel="current"/>
+        |    <link href="http://localhost:\${atomPort}/feed/" rel="self"/>
+        |    <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
+        |    <title type="text">feed</title>
+        |    <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
+        |          rel="previous"/>
+        |    <updated>\${time}</updated>
+        |    <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+        |        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        |        xmlns="http://www.w3.org/2001/XMLSchema">
+        |        <atom:id>urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814</atom:id>
+        |        <atom:category term="rgn:DFW"/>
+        |        <atom:category term="dc:DFW1"/>
+        |        <atom:category term="rid:\${userId}"/>
+        |        <atom:category term="cloudidentity.user.trr_user.delete"/>
+        |        <atom:category term="type:cloudidentity.user.trr_user.delete"/>
+        |        <atom:title>CloudIdentity</atom:title>
+        |        <atom:content type="application/xml">
+        |            <event xmlns="http://docs.rackspace.com/core/event"
+        |                xmlns:sample="http://docs.rackspace.com/event/identity/trr/user"
+        |                id="e53d007a-fc23-11e1-975c-cfa6b29bb814"
+        |                version="2"
+        |                resourceId="\${userId}"
+        |                eventTime="\${time}"
+        |                type="DELETE"
+        |                dataCenter="DFW1"
+        |                region="DFW">
+        |                <sample:product serviceCode="CloudIdentity"
+        |                    version="1"
+        |                    resourceType="TRR_USER"
+        |                    tokenCreationDate="2013-09-26T15:32:00Z">
+        |                    <sample:tokenAuthenticatedBy values="PASSWORD APIKEY"/>
+        |                </sample:product>
+        |            </event>
+        |        </atom:content>
+        |        <atom:link href="https://ord.feeds.api.rackspacecloud.com/identity/events/entries/urn:uuid:e53d007a-fc23-11e1-975c-cfa6b29bb814"
+        |            rel="self"/>
+        |        <atom:updated>\${time}</atom:updated>
+        |        <atom:published>\${time}</atom:published>
+        |    </atom:entry>
+        |</feed>""".stripMargin()
 
-    def userUpdateEvent =
-            """<?xml version="1.0"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <link href="http://localhost:\${atomPort}/feed/"
-        rel="current"/>
-    <link href="http://localhost:\${atomPort}/feed/"
-        rel="self"/>
-    <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
-    <title type="text">feed</title>
-    <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
-          rel="previous"/>
-    <updated>\${time}</updated>
-<atom:entry xmlns:atom="http://www.w3.org/2005/Atom">
-    <atom:id>urn:uuid:e29ac1ca-fd06-11e1-a80c-bb58fc4a6929</atom:id>
-    <atom:category term="rgn:DFW" />
-    <atom:category term="dc:DFW1" />
-    <atom:category term="rid:\${userId}"/>
-    <atom:category term="tid:123456" />
-    <atom:category term="cloudidentity.user.user.update" />
-    <atom:category term="type:cloudidentity.user.user.update" />
-    <atom:category term="updatedAttributes:GROUPS ROLES PASSWORD" />
-    <atom:title type="text">Identity Event</atom:title>
-    <atom:content type="application/xml">
-        <event xmlns="http://docs.rackspace.com/core/event"
-            xmlns:id="http://docs.rackspace.com/event/identity/user"
-            dataCenter="DFW1"
-            environment="PROD"
-            eventTime="\${time}"
-            id="e29ac1ca-fd06-11e1-a80c-bb58fc4a6929"
-            region="DFW"
-            resourceId="\${userId}"
-            tenantId="123456"
-            resourceName="testuser"
-            type="UPDATE" version="1">
-            <id:product displayName="testUser"
-                groups="group1 group2 group3"
-                migrated="false"
-                multiFactorEnabled="false"
-                resourceType="USER"
-                roles="admin RAX:admin role3"
-                serviceCode="CloudIdentity"
-                updatedAttributes="GROUPS ROLES PASSWORD"
-                version="2" />
-        </event>
-    </atom:content>
-    <atom:link href="http://localhost:\${atomPort}/feed/"
-             rel="self"/>
-    <atom:updated>\${time}</atom:updated>
-    <atom:published>\${time}</atom:published>
-</atom:entry>
-</feed>
-"""
+    def userUpdateEvent = """\
+        |<?xml version="1.0"?>
+        |<feed xmlns="http://www.w3.org/2005/Atom">
+        |    <link href="http://localhost:\${atomPort}/feed/" rel="current"/>
+        |    <link href="http://localhost:\${atomPort}/feed/" rel="self"/>
+        |    <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
+        |    <title type="text">feed</title>
+        |    <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
+        |          rel="previous"/>
+        |    <updated>\${time}</updated>
+        |    <atom:entry xmlns:atom="http://www.w3.org/2005/Atom">
+        |        <atom:id>urn:uuid:e29ac1ca-fd06-11e1-a80c-bb58fc4a6929</atom:id>
+        |        <atom:category term="rgn:DFW" />
+        |        <atom:category term="dc:DFW1" />
+        |        <atom:category term="rid:\${userId}"/>
+        |        <atom:category term="tid:123456" />
+        |        <atom:category term="cloudidentity.user.user.update" />
+        |        <atom:category term="type:cloudidentity.user.user.update" />
+        |        <atom:category term="updatedAttributes:GROUPS ROLES PASSWORD" />
+        |        <atom:title type="text">Identity Event</atom:title>
+        |        <atom:content type="application/xml">
+        |            <event xmlns="http://docs.rackspace.com/core/event"
+        |                xmlns:id="http://docs.rackspace.com/event/identity/user"
+        |                dataCenter="DFW1"
+        |                environment="PROD"
+        |                eventTime="\${time}"
+        |                id="e29ac1ca-fd06-11e1-a80c-bb58fc4a6929"
+        |                region="DFW"
+        |                resourceId="\${userId}"
+        |                tenantId="123456"
+        |                resourceName="testuser"
+        |                type="UPDATE" version="1">
+        |                <id:product displayName="testUser"
+        |                    groups="group1 group2 group3"
+        |                    migrated="false"
+        |                    multiFactorEnabled="false"
+        |                    resourceType="USER"
+        |                    roles="admin RAX:admin role3"
+        |                    serviceCode="CloudIdentity"
+        |                    updatedAttributes="GROUPS ROLES PASSWORD"
+        |                    version="2" />
+        |            </event>
+        |        </atom:content>
+        |        <atom:link href="http://localhost:\${atomPort}/feed/" rel="self"/>
+        |        <atom:updated>\${time}</atom:updated>
+        |        <atom:published>\${time}</atom:published>
+        |    </atom:entry>
+        |</feed>""".stripMargin()
 }

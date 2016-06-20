@@ -21,6 +21,7 @@ package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import java.io.{IOException, StringWriter}
 import java.net.{URL, UnknownServiceException}
+import org.apache.abdera.model.Entry
 
 import akka.actor._
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -92,7 +93,14 @@ class FeedReader(feedUri: String,
       MDC.put(TracingKey.TRACING_KEY, requestId)
 
       try {
-        val entryStream = AtomEntryStreamBuilder.build(feedUrl, AuthenticationRequestContextImpl(reposeVersion, requestId), authenticatedRequestFactory)
+        def getStream = AtomEntryStreamBuilder.build(feedUrl, AuthenticationRequestContextImpl(reposeVersion, requestId), authenticatedRequestFactory)
+
+        val entryStream = order match {
+          case EntryOrderType.READ =>
+            getStream
+          case EntryOrderType.REVERSE_READ =>
+            getStream.reverse
+        }
 
         if (firstReadDone) {
           val newEntryStream = highWaterMark match {

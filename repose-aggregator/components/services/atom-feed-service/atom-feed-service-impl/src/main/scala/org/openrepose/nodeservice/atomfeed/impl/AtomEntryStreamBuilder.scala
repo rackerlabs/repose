@@ -89,9 +89,6 @@ object AtomEntryStreamBuilder {
           val feedInputStream = urlConnection.getInputStream
           val feed = parser.parse[Feed](feedInputStream).getRoot
 
-          // Try to close the stream, but ignore any failures
-          Try(feedInputStream.close())
-
           feed.getLinks.find(link => link.getRel.equals("next")) match {
             case Some(nextPageLink) =>
               feed.getEntries.toStream #::: buildR(nextPageLink.getResolvedHref.toURL, context, authenticator, authenticationTimeLimit)

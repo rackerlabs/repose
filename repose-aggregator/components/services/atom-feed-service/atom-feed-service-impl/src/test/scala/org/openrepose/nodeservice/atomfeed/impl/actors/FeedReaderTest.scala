@@ -309,4 +309,63 @@ class FeedReaderTest(_system: ActorSystem)
     assert(messages(0).atomEntry.hashCode == newEntryHash)
     assert(messages(1).atomEntry.hashCode == oldEntryHash)
   }
+
+  test("the newest atom entries should come last in the list (reverse-read)") {
+    finishSetup()
+
+    actorRef = TestActorRef(
+      new FeedReader(mockAtomFeedService.getUrl + "/feed",
+        Some(mockAuthRequestFactory),
+        notifierProbe.ref,
+        5,
+        EntryOrderType.REVERSE_READ,
+        "1.0")
+    )
+
+    actorRef ! ReadFeed
+
+    val oldEntry = feed.addEntry()
+    oldEntry.setId("tag:openrepose.org,2007:/feed/entries/1")
+    oldEntry.setTitle("Old Entry")
+    oldEntry.addAuthor("Repose")
+    oldEntry.setSummary("This is a test")
+    oldEntry.setContent("This is a test")
+    oldEntry.setUpdated(new Date(System.currentTimeMillis + 60000))
+    oldEntry.setPublished(new Date(System.currentTimeMillis + 60000))
+
+    val oesw = new StringWriter()
+    oldEntry.writeTo(oesw)
+    val oldEntryHash = oesw.toString.hashCode
+
+    val newEntry = feed.insertEntry()
+    newEntry.setId("tag:openrepose.org,2007:/feed/entries/2")
+    newEntry.setTitle("New Entry")
+    newEntry.addAuthor("Repose")
+    newEntry.setSummary("This is a test")
+    newEntry.setContent("This is a test")
+    newEntry.setUpdated(new Date(System.currentTimeMillis + 30000))
+    newEntry.setPublished(new Date(System.currentTimeMillis + 30000))
+
+    val nesw = new StringWriter()
+    newEntry.writeTo(nesw)
+    val newEntryHash = nesw.toString.hashCode
+
+    val sw = new StringWriter()
+    feed.writeTo(sw)
+
+    mockAtomFeedService.requestHandler = {
+      case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
+        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+
+      case HttpRequest(_, _, _, _, _) =>
+        HttpResponse(404, entity = "Not Found")
+    }
+
+    actorRef ! ReadFeed
+
+    val messages = notifierProbe.expectMsgAllClassOf(classOf[Notify], classOf[Notify]).toArray
+    notifierProbe.expectNoMsg()
+    assert(messages(0).atomEntry.hashCode == oldEntryHash)
+    assert(messages(1).atomEntry.hashCode == newEntryHash)
+  }
 }

@@ -384,7 +384,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       def authorizeEndpoints(userIsPreAuthed: Boolean, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
         Option(config.getRequireServiceEndpoint) match {
           case Some(configuredEndpoint) =>
-            logger.trace(s"Authorizing endpoints")
+            logger.trace("Authorizing endpoints")
 
             maybeEndpoints flatMap { endpoints =>
               lazy val requiredEndpoint =
@@ -693,6 +693,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     override def onNewAtomEntry(atomEntry: String): Unit = {
+      logger.debug("Processing atom feed entry: {}", atomEntry)
       val atomXml = XML.loadString(atomEntry)
       val resourceId = (atomXml \\ "event" \\ "@resourceId").map(_.text).headOption
       if (resourceId.isDefined) {
