@@ -87,7 +87,7 @@
             <xs:element name="resource" type="LinkResource" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:attribute name="link-segment-mismatch-action" type="LinkSegmentMismatchAction" use="optional"
+        <xs:attribute name="link-mismatch-action" type="LinkMismatchAction" use="optional"
                       default="fail">
             <xs:annotation>
                 <xs:documentation>
@@ -228,7 +228,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="LinkSegmentMismatchAction">
+    <xs:simpleType name="LinkMismatchAction">
         <xs:restriction base="xs:string">
             <xs:enumeration value="keep"/>
             <xs:enumeration value="remove"/>
