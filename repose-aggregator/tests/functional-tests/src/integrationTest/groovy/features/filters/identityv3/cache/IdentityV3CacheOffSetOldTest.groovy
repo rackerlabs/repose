@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.identityv3
+package features.filters.identityv3.cache
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV3Service
