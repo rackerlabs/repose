@@ -24,29 +24,26 @@ import framework.mocks.MockIdentityV3Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Shared
+import spock.lang.Unroll
 
 /**
- * Created by jennyvo on 8/26/14.
- * Test with Identity v3 with cache-offset option
+ * Created by jennyvo on 8/27/14.
+ * Test token cached with no cache-offset attr or set to 0
  */
-class IdentityV3CacheOffSetTest extends ReposeValveTest {
+class IdentityV3NoCacheOffSetOldTest extends ReposeValveTest {
+    @Shared
     def identityEndpoint
+    @Shared
+    def MockIdentityV3Service fakeIdentityV3Service
 
-    def setupSpec() {
-        deproxy = new Deproxy()
-        def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/cacheoffset", params)
-        repose.start()
-        waitUntilReadyToServiceRequests("401")
-    }
-
-    def cleanupSpec() {
+    def cleanup() {
         if (deproxy)
             deproxy.shutdown()
+
         if (repose)
-            repose.stop()
+            repose.stop([throwExceptionOnKill: false])
+
     }
 
     /**
@@ -55,43 +52,46 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest {
      * - cache timeout for these users will be set at a range of tokenTimeout +/- cacheOffset
      * - all tokens will expire at tokenTimeout+cacheOffset
      */
-    def "should cache tokens using cache offset"() {
-        given: "Identity Service returns cache tokens with 1 day expiration"
-        MockIdentityV3Service fakeIdentityV3Service
-        def (clientToken, tokenTimeout, cacheOffset) = [UUID.randomUUID().toString(), 5000, 3000]
+    @Unroll("when cache-offset is not config or equals 0 and token-cache-timeout #tokenTimeout: #id")
+    def "when cache offset is not config or set to 0 no cache offset is used"() {
+
+        given: "All users have unique X-Auth-Token"
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.targetPort)
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/cacheoffset/" + additionalConfigs + "/old", params)
+        repose.start()
+        waitUntilReadyToServiceRequests('401')
+
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
         fakeIdentityV3Service.resetCounts()
         fakeIdentityV3Service.with {
-            client_token = clientToken
+            client_token = UUID.randomUUID().toString()
             tokenExpiresAt = (new DateTime()).plusDays(1)
         }
+
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityV3Service.handler)
 
         List<Thread> clientThreads = new ArrayList<Thread>()
+        def userTokens = (1..uniqueUsers).collect { "random-token-$id-$it" }
 
-        and: "All users have unique X-Subject-Token"
-        def userTokens = (1..uniqueUsers).collect { "random-token-$it" }
-
-        when:
-        "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Subject-Token"
-        fakeIdentityV3Service.resetCounts()
-
+        when: "A burst of XXX users sends GET requests to REPOSE with an X-Subject-Token"
         DateTime initialTokenValidation = DateTime.now()
-        DateTime lastTokenValidation = DateTime.now()
+        DateTime initialBurstLastValidationCall
         userTokens.eachWithIndex { token, index ->
-
             def thread = Thread.start {
                 (1..initialCallsPerUser).each {
+                    def threadName = "User-$index-Call-$it"
                     MessageChain mc = deproxy.makeRequest(
-                            url: reposeEndpoint, method: 'GET',
-                            headers: [
-                                    'content-type'   : 'application/json',
-                                    'X-Subject-Token': token,
-                                    'TEST_THREAD'    : "User-$index-Call-$it"
-                            ])
-                    mc.receivedResponse.code.equals("200")
-                    lastTokenValidation = DateTime.now()
+                            url: reposeEndpoint,
+                            method: 'GET',
+                            headers: ['X-Subject-Token': token, 'TEST_THREAD': threadName])
+                    assert mc.receivedResponse.code.equals('200')
+
+                    initialBurstLastValidationCall = DateTime.now()
                 }
             }
             clientThreads.add(thread)
@@ -101,21 +101,21 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest {
         then: "REPOSE should validate the token and then pass the request to the origin service"
         fakeIdentityV3Service.validateTokenCount == uniqueUsers
 
-        when: "Same users send subsequent GET requests up to but not exceeding the token timeout - cache offset (since some requests may expire at that time)"
+
+        when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
         fakeIdentityV3Service.resetCounts()
-        DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(tokenTimeout - cacheOffset)
+
+        DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(tokenTimeout)
         clientThreads = new ArrayList<Thread>()
 
         userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
                 while (minimumTokenExpiration.isAfterNow()) {
                     MessageChain mc = deproxy.makeRequest(
-                            url: reposeEndpoint, method: 'GET',
-                            headers: [
-                                    'content-type'   : 'application/json',
-                                    'X-Subject-Token': token
-                            ])
-                    mc.receivedResponse.code.equals("200")
+                            url: reposeEndpoint,
+                            method: 'GET',
+                            headers: ['X-Subject-Token': token])
+                    assert mc.receivedResponse.code.equals('200')
                 }
             }
             clientThreads.add(thread)
@@ -125,36 +125,33 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest {
         then: "All calls should hit cache"
         fakeIdentityV3Service.validateTokenCount == 0
 
-        when: "Cache has expired for all tokens (token timeout + cache offset), and new GETs are issued"
+        when: "Cache has expired for all tokens, and new GETs are issued"
         fakeIdentityV3Service.resetCounts()
-        DateTime maximumTokenExpiration = lastTokenValidation.plusMillis(tokenTimeout + cacheOffset)
-        //wait until max token expiration is reached
-        while (maximumTokenExpiration.isAfterNow()) {
-            sleep 200
-        }
-
         clientThreads = new ArrayList<Thread>()
+
+        DateTime maxTokenExpiration = initialBurstLastValidationCall.plusMillis(tokenTimeout)
+        while (maxTokenExpiration.isAfterNow()) {
+            sleep 500
+        }
 
         userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
                 MessageChain mc = deproxy.makeRequest(
-                        url: reposeEndpoint, method: 'GET',
-                        headers: [
-                                'content-type'   : 'application/json',
-                                'X-Subject-Token': token
-                        ])
-                mc.receivedResponse.code.equals("200")
+                        url: reposeEndpoint,
+                        method: 'GET',
+                        headers: ['X-Subject-Token': token])
+                assert mc.receivedResponse.code.equals('200')
             }
             clientThreads.add(thread)
         }
         clientThreads*.join()
 
         then: "All calls should hit identity"
-        //since we are talking about time based testing, we cannot always validate against a concrete number.  This is testing a range of requests.
         fakeIdentityV3Service.validateTokenCount == uniqueUsers
 
         where:
-        uniqueUsers | initialCallsPerUser
-        50          | 1
+        uniqueUsers | initialCallsPerUser | additionalConfigs | id  | tokenTimeout
+        10          | 4                   | "notset"          | 100 | 5000
+        15          | 4                   | "defaultzero"     | 200 | 5000
     }
 }

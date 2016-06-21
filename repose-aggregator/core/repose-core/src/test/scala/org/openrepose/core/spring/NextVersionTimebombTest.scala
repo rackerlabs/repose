@@ -43,6 +43,15 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
 
       /*
        * Before moving to version 9, the following updates should be made:
+       *
+       * 1. Remove these attributes from openstack-identity-v3.xsd:
+       *    a. token-cache-timeout
+       *    b. groups-cache-timeout
+       *    c. cache-offset
+       *
+       * 2. Remove the functional tests for the above attributes:
+       *    a. IdentityV3CacheOffSetOldTest
+       *    b. IdentityV3NoCacheOffSetOldTest
        */
     }
   }
