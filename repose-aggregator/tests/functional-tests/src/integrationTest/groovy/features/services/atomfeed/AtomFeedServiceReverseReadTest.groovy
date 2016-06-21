@@ -65,11 +65,11 @@ class AtomFeedServiceReverseReadTest extends ReposeValveTest {
     def "when an atom feed entry is received, it is passed to the filter"() {
         given: "there is an atom feed entry available for consumption"
         String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: 'urn:uuid:101')
-        fakeAtomFeed.atomEntries << atomFeedEntry
-        fakeAtomFeed.hasEntry = true
+        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
 
         when: "we wait for the Keystone V2 filter to read the feed"
         reposeLogSearch.awaitByString("</atom:entry>", 1, 11, TimeUnit.SECONDS)
+        atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
         then: "the Keystone V2 filter logs receiving the atom feed entry"
         atomFeedEntry.eachLine { line ->
@@ -81,11 +81,12 @@ class AtomFeedServiceReverseReadTest extends ReposeValveTest {
     def "when multiple atom feed entries are received, they are passed in reverse-read order to the filter"() {
         given: "there is a list of atom feed entries available for consumption"
         List<String> ids = (201..210).collect {it as String}
-        fakeAtomFeed.atomEntries.addAll(ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
-        fakeAtomFeed.hasEntry = true
+        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries(
+                ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
         reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
+        atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
         def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
@@ -96,11 +97,12 @@ class AtomFeedServiceReverseReadTest extends ReposeValveTest {
     def "when multiple pages of atom feed entries are received, they are all processed by the filter in the correct reverse-read order"() {
         given: "there is a list of atom feed entries available for consumption"
         List<String> ids = (301..325).collect {it as String}
-        fakeAtomFeed.atomEntries.addAll(ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
-        fakeAtomFeed.hasEntry = true
+        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries(
+                ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
         reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
+        atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
         def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
@@ -109,11 +111,12 @@ class AtomFeedServiceReverseReadTest extends ReposeValveTest {
 
         when: "there are more entries on the next page"
         def moreIds = (401..425).collect {it as String}
-        fakeAtomFeed.atomEntries.addAll(moreIds.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
-        fakeAtomFeed.hasEntry = true
+        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries(
+                moreIds.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
 
         and: "we wait for the Keystone V2 filter to read the feed"
         reposeLogSearch.awaitByString("</atom:entry>", ids.size() + moreIds.size(), 11, TimeUnit.SECONDS)
+        atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
         def moreLogLines = reposeLogSearch.searchByString("<atom:id>.*4\\d{2}</atom:id>")
