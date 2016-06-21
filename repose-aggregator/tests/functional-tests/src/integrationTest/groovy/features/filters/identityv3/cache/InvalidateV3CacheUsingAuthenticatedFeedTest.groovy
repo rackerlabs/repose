@@ -30,7 +30,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
 @Category(Slow.class)
-class InvalidateV3CacheUsingAtomFeedTest extends ReposeValveTest {
+class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
     Endpoint originEndpoint
     Endpoint atomEndpoint
     Endpoint identityEndpoint
@@ -48,6 +48,7 @@ class InvalidateV3CacheUsingAtomFeedTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/atom", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/atom/wauthenticatedfeed", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
