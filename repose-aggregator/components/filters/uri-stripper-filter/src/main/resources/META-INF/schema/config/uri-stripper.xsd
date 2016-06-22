@@ -39,7 +39,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="link-resource" type="LinkResource" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="link-resource" type="LinkResource" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="rewrite-location" type="xs:boolean" use="required">
@@ -148,7 +148,7 @@
                             <html:p>
                                 The URI Stripper filter will parse the links in the body of a response
                                 into tokens using the '/' character as a delimiter, re-insert the stripped token
-                                from the request URI, then rebuild the link. Index '0' if the first path segment.
+                                from the request URI, then rebuild the link. Index '0' is the first path segment.
                                 If this attribute is not present, the filter will re-insert the stripped token into
                                 the path segment it resided prior to being stripped.
                             </html:p>
