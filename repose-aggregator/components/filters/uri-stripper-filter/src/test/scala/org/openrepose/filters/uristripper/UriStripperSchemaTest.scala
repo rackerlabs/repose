@@ -39,13 +39,9 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
       it(s"should successfully validate if the HTTP Methods list is not empty ($httpMethods)") {
         val config =
           s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
-              |    <link-resources>
-              |        <resource uri-path-regex=".*" http-methods="$httpMethods">
-              |            <link-paths>
-              |                <json>$$.service.link</json>
-              |            </link-paths>
-              |        </resource>
-              |    </link-resources>
+              |    <link-resource uri-path-regex=".*" http-methods="$httpMethods">
+              |        <json>$$.service.link</json>
+              |    </link-resource>
               |</uri-stripper>""".stripMargin
 
         validator.validateConfigString(config)
@@ -55,13 +51,9 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
     it(s"should fail to validate if the HTTP Methods list is empty") {
       val config =
         s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
-            |    <link-resources>
-            |        <resource uri-path-regex=".*" http-methods="">
-            |            <link-paths>
-            |                <json>$$.service.link</json>
-            |            </link-paths>
-            |        </resource>
-            |    </link-resources>
+            |    <link-resource uri-path-regex=".*" http-methods="">
+            |        <json>$$.service.link</json>
+            |    </link-resource>
             |</uri-stripper>""".stripMargin
 
       val exception = intercept[SAXParseException] {
