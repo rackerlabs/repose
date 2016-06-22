@@ -45,13 +45,6 @@ class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
         fakeAtomFeed = new AtomFeedResponseSimulator(atomPort2)
         atomEndpoint = deproxy.addEndpoint(atomPort2, 'atom service', null, fakeAtomFeed.handler)
 
-        def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/atom", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/atom/wauthenticatedfeed", params)
-        repose.start()
-
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
 
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
@@ -62,6 +55,13 @@ class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort2, properties.targetPort)
         deproxy.addEndpoint(properties.identityPort2,
                 'identity service v2', null, fakeIdentityV2Service.handler)
+
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/atom", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/atom/wauthenticatedfeed", params)
+        repose.start()
     }
 
     def cleanup() {
@@ -76,6 +76,9 @@ class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
                 url: reposeEndpoint,
                 method: 'GET',
                 headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
+
+        and: "we sleep 5 seconds to let the atom feed get its act together"
+        sleep(5_000)
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
@@ -112,7 +115,7 @@ class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
                 url: reposeEndpoint,
                 method: 'GET',
                 headers: ['X-Subject-Token': fakeIdentityV3Service.client_token],
-                defaultHandler: fakeIdentityV3Service.handler)
+                defaultHandler: fakeIdentityV3Service.handler) // it shouldn't reach this anyway, but mess it up to be sure
 
         then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
         mc.receivedResponse.code == '401'
@@ -127,6 +130,9 @@ class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
                 url: reposeEndpoint,
                 method: 'GET',
                 headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
+
+        and: "we sleep 5 seconds to let the atom feed get its act together"
+        sleep(5_000)
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
@@ -164,7 +170,7 @@ class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
                 method: 'GET',
                 headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
 
-        then: "Repose should not have the token in the cache any more, so it shoudl try to re-validate it"
+        then: "Repose should not have the token in the cache any more, so it should try to re-validate it"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
         fakeIdentityV3Service.validateTokenCount == 1
@@ -178,6 +184,9 @@ class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
                 url: reposeEndpoint,
                 method: 'GET',
                 headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
+
+        and: "we sleep 5 seconds to let the atom feed get its act together"
+        sleep(5_000)
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
@@ -214,7 +223,7 @@ class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
                 url: reposeEndpoint,
                 method: 'GET',
                 headers: ['X-Subject-Token': fakeIdentityV3Service.client_token],
-                defaultHandler: fakeIdentityV3Service.handler)
+                defaultHandler: fakeIdentityV3Service.handler) // it shouldn't reach this anyway, but mess it up to be sure
 
         then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
         mc.receivedResponse.code == '401'
