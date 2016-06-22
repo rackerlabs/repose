@@ -57,6 +57,7 @@ class TestProperties {
     int targetPort
     int targetPort2
     int identityPort
+    int identityPort2
     int valkyriePort
     int atomPort
     int atomPort2
@@ -102,6 +103,7 @@ class TestProperties {
             targetPort = PortFinder.Singleton.getNextOpenPort()
             targetPort2 = PortFinder.Singleton.getNextOpenPort()
             identityPort = PortFinder.Singleton.getNextOpenPort()
+            identityPort2 = PortFinder.Singleton.getNextOpenPort()
             valkyriePort = PortFinder.Singleton.getNextOpenPort()
             atomPort = PortFinder.Singleton.getNextOpenPort()
             atomPort2 = PortFinder.Singleton.getNextOpenPort()
@@ -132,6 +134,7 @@ class TestProperties {
                 targetPort1              : targetPort,
                 targetPort2              : targetPort2,
                 identityPort             : identityPort,
+                identityPort2            : identityPort2,
                 atomPort                 : atomPort,
                 atomPort2                : atomPort2,
                 targetHostname           : targetHostname,

@@ -7,7 +7,7 @@
 
     <feed id="authenticating-feed" uri="http://localhost:${atomPort2}/feed">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
-                        uri="http://localhost:${identityPort}"
+                        uri="http://localhost:${identityPort2}"
                         username="admin_username"
                         password="admin_password"/>
     </feed>

@@ -22,6 +22,7 @@ package features.filters.identityv3.cache
 import features.filters.keystonev2.AtomFeedResponseSimulator
 import framework.ReposeValveTest
 import framework.category.Slow
+import framework.mocks.MockIdentityV2Service
 import framework.mocks.MockIdentityV3Service
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
@@ -33,16 +34,16 @@ import org.rackspace.deproxy.Response
 class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
     Endpoint originEndpoint
     Endpoint atomEndpoint
-    Endpoint identityEndpoint
     AtomFeedResponseSimulator fakeAtomFeed
     MockIdentityV3Service fakeIdentityV3Service
+    MockIdentityV2Service fakeIdentityV2Service
 
     def setup() {
         deproxy = new Deproxy()
 
-        int atomPort = properties.atomPort
-        fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
-        atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
+        int atomPort2 = properties.atomPort2
+        fakeAtomFeed = new AtomFeedResponseSimulator(atomPort2)
+        atomEndpoint = deproxy.addEndpoint(atomPort2, 'atom service', null, fakeAtomFeed.handler)
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
@@ -52,9 +53,15 @@ class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
-        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
+        deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityV3Service.handler)
+
+        // necessary for the authenticated atom feed
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort2, properties.targetPort)
+        deproxy.addEndpoint(properties.identityPort2,
+                'identity service v2', null, fakeIdentityV2Service.handler)
     }
 
     def cleanup() {
