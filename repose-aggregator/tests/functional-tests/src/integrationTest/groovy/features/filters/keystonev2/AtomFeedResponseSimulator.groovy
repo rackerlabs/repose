@@ -41,8 +41,6 @@ class AtomFeedResponseSimulator {
             'Content-type': 'application/xml',
     ]
 
-    volatile List atomEntries = []
-
     AtomFeedResponseSimulator(int atomPort) {
         this.atomPort = atomPort
     }
@@ -80,9 +78,12 @@ class AtomFeedResponseSimulator {
 
         // reset for next time
         hasEntry = false
-        atomEntries = []
 
         return new Response(200, 'OK', headers, populateTemplate(template))
+    }
+
+    def handlerWithEntries(List<String> entries) {
+        { request -> new Response(200, 'OK', headers, populateTemplate(atomWithEntryXml(entries))) }
     }
 
     def populateTemplate(String template, Map params = [:]) {
@@ -108,12 +109,7 @@ class AtomFeedResponseSimulator {
         |    <updated>\${time}</updated>
         |</feed>""".stripMargin()
 
-    def String atomWithEntryXml() {
-        if (atomEntries.isEmpty()) {
-            // test did not specify any custom atom entries, so give them a default one
-            atomEntries << createAtomEntry()
-        }
-
+    def String atomWithEntryXml(List entries = [createAtomEntry()]) {
         """\
         |<?xml version="1.0"?>
         |    <feed xmlns="http://www.w3.org/2005/Atom">
@@ -124,7 +120,7 @@ class AtomFeedResponseSimulator {
         |    <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
         |          rel="previous"/>
         |    <updated>\${time}</updated>
-        |${atomEntries.join("\n")}
+        |${entries.join("\n")}
         |</feed>""".stripMargin()
     }
 
