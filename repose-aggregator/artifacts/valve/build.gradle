@@ -248,7 +248,6 @@ buildRpm {
     }
 
     requires('java', '1.8.0', GREATER | EQUAL)
-    requires('daemonize')
     preInstall file('../src/config/scripts/preinst-rpm')
     postInstall('/sbin/chkconfig --add repose-valve')
 }
