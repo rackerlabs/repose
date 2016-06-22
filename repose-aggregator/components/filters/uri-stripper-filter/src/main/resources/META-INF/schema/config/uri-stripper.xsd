@@ -39,7 +39,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="link-resources" type="LinkResources" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="link-resource" type="LinkResource" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="rewrite-location" type="xs:boolean" use="required">
@@ -73,33 +73,6 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="LinkResources">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                    A list of resources which return responses that contain one or more links which should have the
-                    stripped URI path segment re-inserted.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:sequence>
-            <xs:element name="resource" type="LinkResource" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-
-        <xs:attribute name="link-mismatch-action" type="LinkMismatchAction" use="optional"
-                      default="fail">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        The action to take when a link cannot be found at a path, or when a link is found, but
-                        the configured path segment is out of bounds.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
-
     <xs:complexType name="LinkResource">
         <xs:annotation>
             <xs:documentation>
@@ -110,11 +83,25 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:all>
-            <xs:element name="link-paths" type="LinkPaths"/>
-        </xs:all>
+        <xs:sequence>
+            <xs:element name="json" type="LinkPath" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Specifies the JSONPath to the link to be modified.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
 
-        <xs:attribute name="uri-path-regex" type="xs:string" use="required">
+            <!--<xs:element name="xml" type="LinkPath" minOccurs="0" maxOccurs="unbounded">-->
+            <!--<xs:annotation>-->
+            <!--<xs:documentation>-->
+            <!--<html:p>Specifies the XPath to the link to be modified.</html:p>-->
+            <!--</xs:documentation>-->
+            <!--</xs:annotation>-->
+            <!--</xs:element>-->
+        </xs:sequence>
+
+        <xs:attribute name="uri-path-regex" type="xs:string" use="optional" default=".*">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -143,32 +130,6 @@
                    test="if (exists(@http-methods)) then (string-length(string(@http-methods)) > 0) else true()"
                    xerces:message="If the http-methods attribute is present, then it must not be empty."
                    saxon:message="If the http-methods attribute is present, then it must not be empty."/>
-    </xs:complexType>
-
-    <xs:complexType name="LinkPaths">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>Specifies where in the response document to find the links to be modified.</html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:sequence>
-            <xs:element name="json" type="LinkPath" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Specifies the JSONPath to the link to be modified.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-
-            <!--<xs:element name="xml" type="LinkPath" minOccurs="0" maxOccurs="unbounded">-->
-            <!--<xs:annotation>-->
-            <!--<xs:documentation>-->
-            <!--<html:p>Specifies the XPath to the link to be modified.</html:p>-->
-            <!--</xs:documentation>-->
-            <!--</xs:annotation>-->
-            <!--</xs:element>-->
-        </xs:sequence>
 
         <!-- TODO: Fix this when adding XML support -->
         <!--<xs:assert vc:minVersion="1.1"-->
@@ -190,6 +151,17 @@
                                 from the request URI, then rebuild the link. Index '0' if the first path segment.
                                 If this attribute is not present, the filter will re-insert the stripped token into
                                 the path segment it resided prior to being stripped.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="link-mismatch-action" type="LinkMismatchAction" use="optional" default="fail">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The action to take when a link cannot be found at a path, or when a link is found, but
+                                the configured path segment is out of bounds.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
