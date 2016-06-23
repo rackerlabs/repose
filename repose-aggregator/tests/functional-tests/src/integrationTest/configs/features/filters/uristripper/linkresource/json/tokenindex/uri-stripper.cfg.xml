@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+    <link-resource>
+        <json link-mismatch-action="keep" token-index="0">$.link-a</json>
+    </link-resource>
+    <link-resource>
+        <json link-mismatch-action="keep" token-index="1">$.link-b</json>
+    </link-resource>
+    <link-resource>
+        <json link-mismatch-action="keep" token-index="5">$.link-c</json>
+    </link-resource>
+    <link-resource>
+        <json link-mismatch-action="keep">$.foo.bar.baz.link</json>
+    </link-resource>
+    <link-resource>
+        <json link-mismatch-action="keep">$.store..link</json>
+    </link-resource>
+</uri-stripper>
