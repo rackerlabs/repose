@@ -97,6 +97,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       wrappedResponse.uncommit()
 
       val originalLocation = wrappedResponse.getHeader(CommonHttpHeader.LOCATION.toString)
+      // todo: What if the path is "/<tenant-id>"? The location header wouldn't be modified. Is that the correct behavior?
       if (config.isRewriteLocation && token.isDefined && !Option(originalLocation).forall(_.trim.isEmpty) && (previousToken.isDefined || nextToken.isDefined)) {
 
         if (originalLocation.contains(previousToken.getOrElse("") + UriDelimiter + token.get + UriDelimiter + nextToken.getOrElse(""))) {
