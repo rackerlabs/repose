@@ -162,13 +162,10 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       configuredMethods.contains(HttpMethod.fromValue(requestMethod))
 
   private def getPathsForContentType(contentType: String, resource: LinkResource): List[LinkPath] = {
-    if (contentType.contains("json")) {
-      resource.getJson.toList
-    } else if (contentType.contains("xml")) {
-      // todo: return xpath when xml is supported
-      List.empty
-    } else {
-      List.empty
+    Option(contentType) match {
+      case Some(ct) if ct.contains("json") => resource.getJson.toList
+      case Some(ct) if ct.contains("xml") => List.empty
+      case _ => List.empty
     }
   }
 
