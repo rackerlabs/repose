@@ -41,7 +41,7 @@ class UriStripperLinkResourceJsonTokenIndexTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/uristripper/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/uristripper/linkresource/json", params)
+        repose.configurationProvider.applyConfigs("features/filters/uristripper/linkresource/json/tokenindex", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }
