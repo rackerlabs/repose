@@ -93,9 +93,6 @@ class UriStripperLinkResourceJsonTest extends ReposeValveTest {
         "POST"    | "/foo/$tenantId/bar"
         "PUT"     | "/foo/bar"
         "PATCH"   | "/foo/bar"
-        "HEAD"    | "/foo/bar"
-        "OPTIONS" | "/foo/bar"
-        "CONNECT" | "/foo/bar"
         "TRACE"   | "/foo/bar"
     }
 

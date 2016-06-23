@@ -3,4 +3,7 @@
     <link-resource>
         <json>$.link</json>
     </link-resource>
+    <link-resource>
+        <json token-index="5">$.alt-link</json>
+    </link-resource>
 </uri-stripper>

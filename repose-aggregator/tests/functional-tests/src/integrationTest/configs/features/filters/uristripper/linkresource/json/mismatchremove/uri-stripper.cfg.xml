@@ -3,4 +3,7 @@
     <link-resource>
         <json link-mismatch-action="remove">$.link</json>
     </link-resource>
+    <link-resource>
+        <json link-mismatch-action="remove" token-index="5">$.alt-link</json>
+    </link-resource>
 </uri-stripper>

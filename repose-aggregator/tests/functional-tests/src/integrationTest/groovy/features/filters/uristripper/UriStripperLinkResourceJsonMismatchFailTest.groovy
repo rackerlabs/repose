@@ -50,10 +50,11 @@ class UriStripperLinkResourceJsonMismatchFailTest extends ReposeValveTest {
     }
 
     def "when configured to fail on mismatch, Repose returns a 500 if the response body link can't be updated due to no recognizable tokens"() {
-        given: "the link in the JSON response doesn't contain the previous nor following token"
+        given: "the link in the JSON response doesn't contain the previous nor following token and the alt-link is legit"
         def requestUrl = "/foo/$tenantId/bar"
         jsonBuilder {
             link "/a/b/c/d/e/f/g/h"
+            "alt-link" "/a/b/c/d/e/f/g/h"
             "other-field" "some value"
         }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
@@ -65,7 +66,24 @@ class UriStripperLinkResourceJsonMismatchFailTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
     }
 
-    def "when configured to fail on mismatch, the response body is not modified if the JSON path to the link does not resolve"() {
+    def "when configured to fail on mismatch, the response body alt-link is removed if the token index is too high for the link"() {
+        given: "the alt-link in the JSON response doesn't contain enough tokens and the link is legit"
+        def requestUrl = "/foo/$tenantId/bar"
+        jsonBuilder {
+            link "/foo/bar"
+            "alt-link" "/a/b/c"
+            "other-field" "some value"
+        }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
+
+        when: "a request is made"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
+
+        then: "the response code is 500"
+        mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
+    }
+
+    def "when configured to fail on mismatch, Repose returns a 500 if the JSON path to the link does not resolve"() {
         given: "the JSON response doesn't contain the link field at all"
         def requestUrl = "/foo/$tenantId/bar"
         jsonBuilder {
@@ -76,7 +94,7 @@ class UriStripperLinkResourceJsonMismatchFailTest extends ReposeValveTest {
         when: "a request is made"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
-        then: "the response body is not modified"
-        mc.receivedResponse.body as String == jsonBuilder.toString()
+        then: "the response code is 500"
+        mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
     }
 }

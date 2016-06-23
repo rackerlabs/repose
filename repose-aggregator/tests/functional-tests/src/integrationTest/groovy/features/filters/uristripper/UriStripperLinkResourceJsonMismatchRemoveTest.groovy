@@ -68,6 +68,25 @@ class UriStripperLinkResourceJsonMismatchRemoveTest extends ReposeValveTest {
         responseJson."other-field" == "some value"  // unrelated field should remain unaltered
     }
 
+    def "when configured to remove on mismatch, the response body alt-link is removed if the token index is too high for the link"() {
+        given: "the alt-link in the JSON response doesn't contain enough tokens and the link is legit"
+        def requestUrl = "/foo/$tenantId/bar"
+        def responseBodyLink = "/a/b/c"
+        jsonBuilder {
+            "alt-link" responseBodyLink
+            "other-field" "some value"
+        }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
+
+        when: "a request is made and the JSON response body is parsed"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
+        def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the response body link is not modified"
+        !responseJson."alt-link"  // link should have been removed
+        responseJson."other-field" == "some value"  // unrelated field should remain unaltered
+    }
+
     def "when configured to remove on mismatch, the response body is not modified if the JSON path to the link does not resolve"() {
         given: "the JSON response doesn't contain the link field at all"
         def requestUrl = "/foo/$tenantId/bar"
