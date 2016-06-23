@@ -163,8 +163,9 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
   private def getPathsForContentType(contentType: String, resource: LinkResource): List[LinkPath] = {
     Option(contentType) match {
-      case Some(ct) if ct.contains("json") => resource.getJson.toList
-      case Some(ct) if ct.contains("xml") => List.empty
+      case Some(ct) if ct.toLowerCase.contains("json") => resource.getJson.toList
+      // todo: return xpath when xml is supported
+      case Some(ct) if ct.toLowerCase.contains("xml") => List.empty
       case _ => List.empty
     }
   }
