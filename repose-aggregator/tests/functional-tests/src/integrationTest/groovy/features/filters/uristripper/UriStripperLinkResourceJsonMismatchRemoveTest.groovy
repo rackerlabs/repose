@@ -53,12 +53,14 @@ class UriStripperLinkResourceJsonMismatchRemoveTest extends ReposeValveTest {
         given: "the link in the JSON response doesn't contain the previous nor following token"
         def requestUrl = "/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c/d/e/f/g/h"
-        jsonBuilder.link responseBodyLink
-        jsonBuilder."other-field" "some value"
+        jsonBuilder {
+            link responseBodyLink
+            "other-field" "some value"
+        }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
         def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is not modified"
@@ -69,11 +71,13 @@ class UriStripperLinkResourceJsonMismatchRemoveTest extends ReposeValveTest {
     def "when configured to remove on mismatch, the response body is not modified if the JSON path to the link does not resolve"() {
         given: "the JSON response doesn't contain the link field at all"
         def requestUrl = "/foo/$tenantId/bar"
-        jsonBuilder."not-the-link" "/foo/bar"
+        jsonBuilder {
+            "not-the-link" "/foo/bar"
+        }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response body is not modified"
         mc.receivedResponse.body as String == jsonBuilder.toString()

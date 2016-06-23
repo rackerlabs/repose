@@ -51,14 +51,16 @@ class UriStripperLinkResourceJsonTokenIndexTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "when configured to update the token-index #index, the JSON response body link should be from #responseBodyLink to #modifiedResponseBodyLink"() {
+    def "when configured to update the token-index #index, the JSON response body link should be updated from #responseBodyLink to #modifiedResponseBodyLink"() {
         given: "the JSON response body has the configured link"
         def requestUrl = "/foo/$tenantId/bar"
-        jsonBuilder."$jsonPath" responseBodyLink
+        jsonBuilder {
+            "$jsonPath" responseBodyLink
+        }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
         def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is modified"
@@ -77,13 +79,15 @@ class UriStripperLinkResourceJsonTokenIndexTest extends ReposeValveTest {
         given: "the JSON response body contains multiple link-resources"
         def requestUrl = "/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c/d/e/f/g/h"
-        jsonBuilder."link-a" responseBodyLink
-        jsonBuilder."link-b" responseBodyLink
-        jsonBuilder."link-c" responseBodyLink
+        jsonBuilder {
+            "link-a" responseBodyLink
+            "link-b" responseBodyLink
+            "link-c" responseBodyLink
+        }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
         def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "all of the links in the response body are updated correctly"
@@ -106,7 +110,7 @@ class UriStripperLinkResourceJsonTokenIndexTest extends ReposeValveTest {
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
         def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is modified"
@@ -131,7 +135,7 @@ class UriStripperLinkResourceJsonTokenIndexTest extends ReposeValveTest {
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
         def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "all of the links in the response body are updated correctly"

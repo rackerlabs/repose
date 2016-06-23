@@ -56,11 +56,13 @@ class UriStripperLinkResourceJsonTest extends ReposeValveTest {
 
         and: "a JSON response body contains a link without a tenantId"
         def responseBodyLink = "/bar/path/to/resource"
-        jsonBuilder.link responseBodyLink
+        jsonBuilder {
+            link responseBodyLink
+        }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
         def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the link in the response body should remain unmodified"
@@ -72,11 +74,13 @@ class UriStripperLinkResourceJsonTest extends ReposeValveTest {
         given: "a JSON response body contains a link without a tenantId"
         def requestUrl = "/foo/$tenantId/bar"
         def responseBodyLink = "/foo/bar"
-        jsonBuilder.link responseBodyLink
+        jsonBuilder {
+            link responseBodyLink
+        }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: requestUrl, method: method, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, method: method, defaultHandler: responseHandler)
         def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is the expected value for the given method"
@@ -84,26 +88,26 @@ class UriStripperLinkResourceJsonTest extends ReposeValveTest {
 
         where:
         method    | expectedResponseBodyLink
-        "GET"     | requestUrl
-        "DELETE"  | responseBodyLink
-        "POST"    | requestUrl
-        "PUT"     | responseBodyLink
-        "PATCH"   | responseBodyLink
-        "HEAD"    | responseBodyLink
-        "OPTIONS" | responseBodyLink
-        "CONNECT" | responseBodyLink
-        "TRACE"   | responseBodyLink
+        "GET"     | "/foo/$tenantId/bar"
+        "DELETE"  | "/foo/bar"
+        "POST"    | "/foo/$tenantId/bar"
+        "PUT"     | "/foo/bar"
+        "PATCH"   | "/foo/bar"
+        "HEAD"    | "/foo/bar"
+        "OPTIONS" | "/foo/bar"
+        "CONNECT" | "/foo/bar"
+        "TRACE"   | "/foo/bar"
     }
 
     def "when the response is not JSON, the response body is not modified"() {
         given: "a non-JSON response body"
         def requestUrl = "/foo/$tenantId/bar"
-        def body = "There’s a million things I haven’t done, just you wait"
+        def body = "There's a million things I haven't done, just you wait"
         def responseHandler = { request ->
             new Response(200, null, ["Content-Type": MimeType.TEXT_PLAIN.toString()], body) }
 
         when: "a request is made"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response body is not modified"
         mc.receivedResponse.body as String == body
@@ -113,11 +117,13 @@ class UriStripperLinkResourceJsonTest extends ReposeValveTest {
     def "the response body link can be updated using the #position token only"() {
         given: "the link in the JSON response only contains one of the tokens"
         def requestUrl = "/foo/$tenantId/bar"
-        jsonBuilder.link responseBodyLink
+        jsonBuilder {
+            link responseBodyLink
+        }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
         def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is correctly updated"
@@ -133,11 +139,13 @@ class UriStripperLinkResourceJsonTest extends ReposeValveTest {
         given: "the link in the JSON response doesn't contain the previous nor following token"
         def requestUrl = "/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c/d/e/f/g/h"
-        jsonBuilder.link responseBodyLink
+        jsonBuilder {
+            link responseBodyLink
+        }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
         def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is not modified"
@@ -147,11 +155,13 @@ class UriStripperLinkResourceJsonTest extends ReposeValveTest {
     def "when configured to keep on mismatch, the response body is not modified if the JSON path to the link does not resolve"() {
         given: "the JSON response doesn't contain the link field at all"
         def requestUrl = "/foo/$tenantId/bar"
-        jsonBuilder."not-the-link" "/foo/bar"
+        jsonBuilder {
+            "not-the-link" "/foo/bar"
+        }
         def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
 
         when: "a request is made"
-        def mc = deproxy.makeRequest(url: requestUrl, defaultHandler: responseHandler)
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response body is not modified"
         mc.receivedResponse.body as String == jsonBuilder.toString()
