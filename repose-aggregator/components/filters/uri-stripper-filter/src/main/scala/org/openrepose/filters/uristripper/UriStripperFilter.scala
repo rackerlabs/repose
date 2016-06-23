@@ -199,12 +199,22 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
       Try(responseJson.transform(linkTransform)).recover{ case _: IndexOutOfBoundsException => JsError() }.get match {
         case JsSuccess(transformedJson, _) =>
+          logger.debug("Successfully transformed the link at: \"" + linkPath.getValue + "\"")
           transformedJson
-        case JsError(_) if linkPath.getLinkMismatchAction == LinkMismatchAction.KEEP =>
+        case JsError(_) if linkPath.getLinkMismatchAction == LinkMismatchAction.CONTINUE =>
+          logger.debug("Failed to transform link at: \"" + linkPath.getValue + "\", configured to CONTINUE, returning the response as-is")
           responseJson
         case JsError(_) if linkPath.getLinkMismatchAction == LinkMismatchAction.REMOVE =>
-          responseJson.transform(jsonPath.prune).getOrElse(responseJson)
+          responseJson.transform(jsonPath.prune) match {
+            case JsSuccess(jsObject, _) =>
+              logger.debug("Failed to transform link at: \"" + linkPath.getValue + "\", configured to REMOVE, removing the link")
+              jsObject
+            case _ =>
+              logger.debug("Failed to transform link at: \"" + linkPath.getValue + "\", configured to REMOVE, returning the response as-is")
+              responseJson
+          }
         case _ =>
+          logger.debug("Failed to transform link at: \"" + linkPath.getValue + "\", configured to FAIL, returning a failure response")
           throw LinkTransformException("Failed to transform link at: " + linkPath.getValue)
       }
     }
