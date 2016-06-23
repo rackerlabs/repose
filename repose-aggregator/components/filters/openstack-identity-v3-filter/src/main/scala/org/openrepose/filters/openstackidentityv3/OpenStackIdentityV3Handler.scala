@@ -20,7 +20,7 @@
 package org.openrepose.filters.openstackidentityv3
 
 import java.util.{Calendar, GregorianCalendar}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.HttpServletResponse
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -100,8 +100,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Extract the tracing GUID from the request
       val tracingHeader = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString))
 
+      // Extract the subject token from the request
+      val subjectToken = Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN))
+
       // Attempt to validate the request token with the Identity service
-      val token = authenticate(request, tracingHeader) match {
+      val token = authenticate(subjectToken, tracingHeader) match {
         case Success(tokenObject) =>
           Some(tokenObject)
         case Failure(e: InvalidSubjectTokenException) =>
@@ -146,7 +149,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Attempt to fetch groups if configured to do so
       val userGroups = if (!failureInValidation && forwardGroups) {
         token.get.userId map { userId =>
-          identityAPI.getGroups(userId, tracingHeader) match {
+          identityAPI.getGroups(userId, subjectToken.get, tracingHeader) match {
             case Success(groupsList) =>
               groupsList
             case Failure(e: IdentityServiceOverLimitException) =>
@@ -235,10 +238,10 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     filterAction
   }
 
-  private def authenticate(request: HttpServletRequest, tracingHeader: Option[String] = None): Try[ValidToken] = {
-    Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)) match {
-      case Some(subjectToken) =>
-        identityAPI.validateToken(subjectToken, tracingHeader)
+  private def authenticate(subjectToken: Option[String], tracingHeader: Option[String] = None): Try[ValidToken] = {
+    subjectToken match {
+      case Some(token) =>
+        identityAPI.validateToken(token, tracingHeader)
       case None =>
         logger.error("No X-Subject-Token present -- a subject token was not provided to validate")
         Failure(new InvalidSubjectTokenException("A subject token was not provided to validate"))

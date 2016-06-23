@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.identityv3
+package features.filters.identityv3.cache
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV3Service
@@ -29,7 +29,7 @@ import org.rackspace.deproxy.MessageChain
  * Created by jennyvo on 8/26/14.
  * Test with Identity v3 with cache-offset option
  */
-class IdentityV3CacheOffSetTest extends ReposeValveTest {
+class IdentityV3CacheOffSetOldTest extends ReposeValveTest {
     def identityEndpoint
 
     def setupSpec() {
@@ -37,7 +37,7 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/cacheoffset", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/cacheoffset/old", params)
         repose.start()
         waitUntilReadyToServiceRequests("401")
     }

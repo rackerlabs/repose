@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
-                       token-cache-timeout="300000"
-                       groups-cache-timeout="300000"
-                       cache-offset="10000"
                        connection-pool-id="identity-v3-pool">
+
     <white-list>
         <uri-pattern>/application\.wadl$</uri-pattern>
     </white-list>
+
     <openstack-identity-service
             username="admin_username"
             password="admin_password"
             domain-id="some.domain"
             uri="http://identity.example.com"/>
+
+    <cache>
+        <timeouts variance="10">
+            <token>300</token>
+            <group>300</group>
+        </timeouts>
+        <atom-feed id="feed-one-id"/>
+        <atom-feed id="feed-two-id"/>
+    </cache>
 </openstack-identity-v3>

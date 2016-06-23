@@ -39,6 +39,7 @@ import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
 import org.openrepose.filters.openstackidentityv3.objects.ValidToken
+import org.openrepose.filters.openstackidentityv3.utilities.Cache._
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -57,6 +58,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
   override def beforeEach() = {
     mockAkkaServiceClient = mock[AkkaServiceClient]
     mockDatastore = mock[Datastore]
+
     identityConfig = new OpenstackIdentityV3Config()
     identityConfig.setOpenstackIdentityService(new OpenstackIdentityService())
     identityConfig.getOpenstackIdentityService.setUsername("user")
@@ -239,7 +241,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
       identityV3API.getAdminToken(None, checkCache = true)
 
-      verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")), argThat(equalTo("test-admin-token")), anyInt(), any[TimeUnit])
+      verify(mockDatastore).put(argThat(equalTo(AdminTokenKey)), argThat(equalTo("test-admin-token")), anyInt(), any[TimeUnit])
     }
 
     it("should cache an admin token with the right TTL") {
@@ -256,7 +258,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
       identityV3API.getAdminToken(None, checkCache = true)
 
-      verify(mockDatastore).put(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")), argThat(equalTo("test-admin-token")), intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), argThat(is(theInstance(TimeUnit.MILLISECONDS))))
+      verify(mockDatastore).put(argThat(equalTo(AdminTokenKey)), argThat(equalTo("test-admin-token")), intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), argThat(is(theInstance(TimeUnit.MILLISECONDS))))
     }
   }
 
@@ -268,7 +270,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
       when(mockGetServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_NOT_FOUND)
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Failure[_]]
       an[InvalidSubjectTokenException] should be thrownBy identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get
@@ -289,7 +291,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
           .getBytes))
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Success[_]]
       identityV3API.invokePrivate(validateSubjectToken("test-subject-token", None, true)).get shouldBe an[ValidToken]
@@ -303,7 +305,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\", \"RAX-AUTH:defaultRegion\":\"ORD\"}}}"
           .getBytes))
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
       response.get.defaultRegion shouldBe Some("ORD")
@@ -317,7 +319,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
           .getBytes))
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
       response.get.defaultRegion shouldBe None
@@ -331,7 +333,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         "{\"token\":{\"RAX-AUTH:impersonator\":{ \"id\": \"567\", \"name\": \"impersonator.joe\"}, \"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
           .getBytes))
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
       response.get.impersonatorId.get shouldBe "567"
@@ -346,7 +348,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
           .getBytes))
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
       response.get.impersonatorId shouldBe None
@@ -362,7 +364,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockGetServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_OK)
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(returnJson.getBytes))
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true)
 
@@ -425,9 +427,9 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
       when(mockGetServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_NOT_FOUND)
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
-      identityV3API invokePrivate getGroups("test-user-id", None, true) shouldBe a[Failure[_]]
+      identityV3API invokePrivate getGroups("test-user-id", "test-token", None, true) shouldBe a[Failure[_]]
     }
 
     val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, ExtendedStatusCodes.SC_TOO_MANY_REQUESTS)
@@ -441,7 +443,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getGroups("test-user-id", None, checkCache = true)
+          val value = identityV3API.getGroups("test-user-id", "test-token", None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -465,7 +467,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
-          val value = identityV3API.getGroups("test-user-id", None, checkCache = true)
+          val value = identityV3API.getGroups("test-user-id", "test-token", None, checkCache = true)
           value shouldBe a[Failure[_]]
           val throwable = value.failed.get
           throwable.isInstanceOf[IdentityServiceOverLimitException]
@@ -480,8 +482,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     it("should return a Success for cached groups") {
       when(mockDatastore.get(anyString)).thenReturn(List("").asInstanceOf[Serializable], Nil: _*)
 
-      identityV3API invokePrivate getGroups("test-user-id", None, false) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(getGroups("test-user-id", None, false)).get shouldBe a[List[_]]
+      identityV3API invokePrivate getGroups("test-user-id", "test-token", None, false) shouldBe a[Success[_]]
+      identityV3API.invokePrivate(getGroups("test-user-id", "test-token", None, false)).get shouldBe a[List[_]]
     }
 
     it("should return a list of groups when groups call succeeds") {
@@ -492,33 +494,10 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         "{\"groups\":[{\"description\":\"Developersclearedforworkonallgeneralprojects\",\"domain_id\":\"--domain-id--\",\"id\":\"--group-id--\",\"links\":{\"self\":\"http://identity:35357/v3/groups/--group-id--\"},\"name\":\"Developers\"},{\"description\":\"Developersclearedforworkonsecretprojects\",\"domain_id\":\"--domain-id--\",\"id\":\"--group-id--\",\"links\":{\"self\":\"http://identity:35357/v3/groups/--group-id--\"},\"name\":\"SecureDevelopers\"}],\"links\":{\"self\":\"http://identity:35357/v3/users/--user-id--/groups\",\"previous\":null,\"next\":null}}"
           .getBytes))
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
-      identityV3API invokePrivate getGroups("test-user-id", None, true) shouldBe a[Success[_]]
-      identityV3API.invokePrivate(getGroups("test-user-id", None, true)).get shouldBe a[List[_]]
-    }
-  }
-
-  describe("offsetTtl") {
-    val offsetTtl = PrivateMethod[Int]('offsetTtl)
-
-    it("should return the configured ttl is offset is 0") {
-      identityV3API invokePrivate offsetTtl(1000, 0) shouldBe 1000
-    }
-
-    it("should return 0 if the configured ttl is 0") {
-      identityV3API invokePrivate offsetTtl(0, 1000) shouldBe 0
-    }
-
-    it("should return a random int between configured ttl +/- offset") {
-      val firstCall = identityV3API invokePrivate offsetTtl(1000, 100)
-      val secondCall = identityV3API invokePrivate offsetTtl(1000, 100)
-      val thirdCall = identityV3API invokePrivate offsetTtl(1000, 100)
-
-      firstCall shouldBe 1000 +- 100
-      secondCall shouldBe 1000 +- 100
-      thirdCall shouldBe 1000 +- 100
-      firstCall should (not be secondCall or not be thirdCall)
+      identityV3API invokePrivate getGroups("test-user-id", "test-token", None, true) shouldBe a[Success[_]]
+      identityV3API.invokePrivate(getGroups("test-user-id", "test-token", None, true)).get shouldBe a[List[_]]
     }
   }
 }

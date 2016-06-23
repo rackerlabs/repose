@@ -17,32 +17,29 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.datastore.types
+package org.openrepose.filters.openstackidentityv3.utilities
 
-import org.openrepose.core.services.datastore.Patchable
-import org.openrepose.core.services.datastore.distributed.SerializablePatch
+import scala.util.Random
 
-import scala.collection.mutable
+object Cache {
+  final val AdminTokenKey = "IDENTITY:V3:ADMIN_TOKEN"
+  final val TokenKeyPrefix = "IDENTITY:V3:TOKEN:"
+  final val GroupsKeyPrefix = "IDENTITY:V3:GROUPS:"
+  final val UserIdKeyPrefix = "IDENTITY:V3:USER_ID:"
 
-/**
-  * Created by adrian on 1/21/16.
-  */
-class PatchableSet[A] extends mutable.HashSet[A]
-  with Patchable[PatchableSet[A], SetPatch[A]] {
-  override def applyPatch(patch: SetPatch[A]): PatchableSet[A] = {
-    val returnedSet = PatchableSet(this.toList: _*)
-    this.add(patch.patchValue)
-    returnedSet.add(patch.patchValue)
-    returnedSet
+  def getTokenKey(token: String): String = TokenKeyPrefix + token
+
+  def getGroupsKey(token: String): String = GroupsKeyPrefix + token
+
+  def getUserIdKey(userId: String): String = UserIdKeyPrefix + userId
+
+  def offsetTtl(exactTtl: Int, offset: Int): Int = {
+    if (offset == 0 || exactTtl == 0) exactTtl
+    else safeLongToInt(exactTtl.toLong + (Random.nextInt(offset * 2) - offset))
   }
-}
 
-case class SetPatch[A](patchValue: A) extends SerializablePatch[PatchableSet[A]] {
-  override def newFromPatch(): PatchableSet[A] = PatchableSet(patchValue)
-}
-
-object PatchableSet {
-  def apply[A](xs: A*): PatchableSet[A] = new PatchableSet[A] ++= xs
-
-  def empty[A]: PatchableSet[A] = new PatchableSet[A]
+  def safeLongToInt(long: Long): Int = {
+    if (long < 0) math.max(long, Int.MinValue).toInt
+    else math.min(long, Int.MaxValue).toInt
+  }
 }

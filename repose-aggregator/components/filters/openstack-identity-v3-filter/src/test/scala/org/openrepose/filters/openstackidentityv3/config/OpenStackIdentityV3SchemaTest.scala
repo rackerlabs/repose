@@ -17,32 +17,21 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.datastore.types
 
-import org.openrepose.core.services.datastore.Patchable
-import org.openrepose.core.services.datastore.distributed.SerializablePatch
+package org.openrepose.filters.openstackidentityv3.config
 
-import scala.collection.mutable
+import org.junit.runner.RunWith
+import org.openrepose.commons.test.ConfigValidator
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSpec, Matchers}
 
-/**
-  * Created by adrian on 1/21/16.
-  */
-class PatchableSet[A] extends mutable.HashSet[A]
-  with Patchable[PatchableSet[A], SetPatch[A]] {
-  override def applyPatch(patch: SetPatch[A]): PatchableSet[A] = {
-    val returnedSet = PatchableSet(this.toList: _*)
-    this.add(patch.patchValue)
-    returnedSet.add(patch.patchValue)
-    returnedSet
+@RunWith(classOf[JUnitRunner])
+class OpenStackIdentityV3SchemaTest extends FunSpec with Matchers {
+  val validator = ConfigValidator("/META-INF/schema/config/openstack-identity-v3.xsd")
+
+  describe("schema validation") {
+    it("should successfully validate the sample config") {
+      validator.validateConfigFile("/META-INF/schema/examples/openstack-identity-v3.cfg.xml")
+    }
   }
-}
-
-case class SetPatch[A](patchValue: A) extends SerializablePatch[PatchableSet[A]] {
-  override def newFromPatch(): PatchableSet[A] = PatchableSet(patchValue)
-}
-
-object PatchableSet {
-  def apply[A](xs: A*): PatchableSet[A] = new PatchableSet[A] ++= xs
-
-  def empty[A]: PatchableSet[A] = new PatchableSet[A]
 }

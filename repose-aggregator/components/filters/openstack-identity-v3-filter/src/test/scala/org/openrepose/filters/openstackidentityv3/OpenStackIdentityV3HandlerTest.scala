@@ -397,10 +397,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     val authenticate = PrivateMethod[Try[ValidToken]]('authenticate)
 
     it("should return a Failure when the x-subject-token header is not present") {
-      val mockRequest = new MockHttpServletRequest()
-
-      identityV3Handler invokePrivate authenticate(mockRequest, None) shouldBe a[Failure[_]]
-      an[InvalidSubjectTokenException] should be thrownBy identityV3Handler.invokePrivate(authenticate(mockRequest, None)).get
+      identityV3Handler invokePrivate authenticate(None, None) shouldBe a[Failure[_]]
+      an[InvalidSubjectTokenException] should be thrownBy identityV3Handler.invokePrivate(authenticate(None, None)).get
     }
   }
 

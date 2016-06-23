@@ -31,19 +31,28 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
+import org.openrepose.core.services.datastore.types.PatchableSet
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
+import org.openrepose.filters.openstackidentityv3.utilities.Cache._
 import org.openrepose.filters.openstackidentityv3.utilities.OpenStackIdentityV3API
+import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
+
+import scala.collection.JavaConversions._
+import scala.xml.XML
 
 @Named
 class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationService,
                                           datastoreService: DatastoreService,
+                                          atomFeedService: AtomFeedService,
                                           httpClientService: HttpClientService,
                                           akkaServiceClientFactory: AkkaServiceClientFactory)
   extends Filter with UpdateListener[OpenstackIdentityV3Config] with LazyLogging {
 
   private final val DEFAULT_CONFIG = "openstack-identity-v3.cfg.xml"
+
+  private val datastore = datastoreService.getDefaultDatastore
 
   private var initialized = false
   private var configFilename: String = _
@@ -87,17 +96,83 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
   def isInitialized = initialized
 
   override def destroy() {
-    Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(configFilename, this)
+    CacheInvalidationFeedListener.unregisterFeeds()
+    Option(akkaServiceClient).foreach(_.destroy())
   }
 
   def configurationUpdated(config: OpenstackIdentityV3Config) {
+    // This will also un-register any Atom Feeds not present in the new config.
+    CacheInvalidationFeedListener.updateFeeds(
+      Option(config.getCache).map(_.getAtomFeed.map(_.getId).toSet).getOrElse(Set.empty)
+    )
+
     val akkaServiceClientOld = Option(akkaServiceClient)
     akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)
     akkaServiceClientOld.foreach(_.destroy())
 
-    val identityAPI = new OpenStackIdentityV3API(config, datastoreService.getDefaultDatastore, akkaServiceClient)
+    val identityAPI = new OpenStackIdentityV3API(config, datastore, akkaServiceClient)
     openStackIdentityV3Handler = new OpenStackIdentityV3Handler(config, identityAPI)
     initialized = true
   }
+
+  object CacheInvalidationFeedListener extends AtomFeedListener {
+
+    private var registeredFeeds = List.empty[RegisteredFeed]
+
+    def unregisterFeeds(): Unit = {
+      registeredFeeds synchronized {
+        registeredFeeds foreach { feed =>
+          atomFeedService.unregisterListener(feed.unique)
+        }
+      }
+    }
+
+    def updateFeeds(feeds: Set[String]): Unit = {
+      registeredFeeds synchronized {
+        // Unregister the feeds we no longer care about.
+        val feedsToUnregister = registeredFeeds.filterNot(regFeed => feeds.contains(regFeed.id))
+        feedsToUnregister.foreach(feed => atomFeedService.unregisterListener(feed.unique))
+
+        // Register with only the new feeds we aren't already registered with.
+        val registeredFeedIds = registeredFeeds.map(_.id)
+        val feedsToRegister = feeds.filterNot(posFeed => registeredFeedIds.contains(posFeed))
+        val newRegisteredFeeds = feedsToRegister.map(feedId => RegisteredFeed(feedId, atomFeedService.registerListener(feedId, this)))
+
+        // Update to the still and newly registered feeds.
+        registeredFeeds = registeredFeeds.diff(feedsToUnregister) ++ newRegisteredFeeds
+      }
+    }
+
+    override def onNewAtomEntry(atomEntry: String): Unit = {
+      logger.debug("Processing atom feed entry: {}", atomEntry)
+      val atomXml = XML.loadString(atomEntry)
+      val resourceId = (atomXml \\ "event" \\ "@resourceId").map(_.text).headOption
+      if (resourceId.isDefined) {
+        val resourceType = (atomXml \\ "event" \\ "@resourceType").map(_.text)
+        val authTokens = resourceType.headOption match {
+          // User OR Token Revocation Record (TRR) event.
+          case Some("USER") | Some("TRR_USER") =>
+            val tokens = Option(datastore.get(getUserIdKey(resourceId.get)).asInstanceOf[PatchableSet[String]])
+            datastore.remove(getUserIdKey(resourceId.get))
+            tokens.getOrElse(Set.empty[String])
+          case Some("TOKEN") => Set(resourceId.get)
+          case _ => Set.empty[String]
+        }
+
+        authTokens foreach { authToken =>
+          datastore.remove(getGroupsKey(authToken))
+          datastore.remove(getTokenKey(authToken))
+        }
+      }
+    }
+
+    override def onLifecycleEvent(event: LifecycleEvents): Unit = {
+      logger.debug(s"Received Lifecycle Event: $event")
+    }
+
+    case class RegisteredFeed(id: String, unique: String)
+
+  }
+
 }
