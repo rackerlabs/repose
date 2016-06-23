@@ -108,12 +108,8 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
             case Success(uri) =>
               val locationTokens = splitPathIntoTokens(uri.getPath)
 
-              // figure out where to add the token if we can
-              ((previousToken.filter(locationTokens.contains), nextToken.filter(locationTokens.contains)) match {
-                case (Some(foundToken), _) => Some(locationTokens.indexOf(foundToken) + 1)
-                case (_, Some(foundToken)) => Some(locationTokens.indexOf(foundToken))
-                case _ => None
-              }).foreach(locationTokens.insert(_, token.get))
+              findReplacementTokenIndex(locationTokens, previousToken, nextToken)
+                .foreach(locationTokens.insert(_, token.get))
 
               wrappedResponse.replaceHeader(
                 CommonHttpHeader.LOCATION.toString,
@@ -130,7 +126,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
       if (token.isDefined && applicableLinkPaths.nonEmpty) {
         val tryParsedJson = Try(Json.parse(wrappedResponse.getOutputStreamAsInputStream))
-        applicableLinkPaths.foldLeft(tryParsedJson)(transformLink(_, _, token.get)) match {
+        applicableLinkPaths.foldLeft(tryParsedJson)(transformLink(_, _, token.get, previousToken, nextToken)) match {
           case Success(jsValue) =>
             val jsValueBytes = jsValue.toString.getBytes(wrappedResponse.getCharacterEncoding)
             wrappedResponse.setContentLength(jsValueBytes.length)
@@ -149,6 +145,14 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
   private def joinTokensIntoPath(tokens: mutable.Buffer[String]): String =
     StringUriUtilities.formatUri(tokens.mkString(UriDelimiter))
+
+  private def findReplacementTokenIndex(pathTokens: mutable.Buffer[String], previousToken: Option[String], nextToken: Option[String]): Option[Int] = {
+    (previousToken.filter(pathTokens.contains), nextToken.filter(pathTokens.contains)) match {
+      case (Some(foundToken), _) => Some(pathTokens.indexOf(foundToken) + 1)
+      case (_, Some(foundToken)) => Some(pathTokens.indexOf(foundToken))
+      case _ => None
+    }
+  }
 
   private def replacePath(uri: URI, newPath: String): String = {
     val preUri = Option(uri.getScheme).map(_ + "://" + uri.getHost + (if (uri.getPort != -1) ":" + uri.getPort else ""))
@@ -184,37 +188,43 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       }
   }
 
-  private def transformLink(tryResponseJson: Try[JsValue], linkPath: LinkPath, strippedToken: String): Try[JsValue] = {
+  private def transformLink(tryResponseJson: Try[JsValue], linkPath: LinkPath, strippedToken: String, previousToken: Option[String], nextToken: Option[String]): Try[JsValue] = {
     tryResponseJson map { responseJson =>
       val jsonPath = stringToJsPath(linkPath.getValue).json
       val linkTransform = jsonPath.update(
         of[JsString] map { case JsString(link) =>
-          val replacementIndex = Option(linkPath.getTokenIndex).map(_.intValue).getOrElse(config.getTokenIndex)
           val uri = new URI(link)
           val pathTokens = splitPathIntoTokens(uri.getRawPath)
+          val replacementIndex = Option(linkPath.getTokenIndex).map(_.intValue)
+            .getOrElse(findReplacementTokenIndex(pathTokens, previousToken, nextToken)
+              .getOrElse(throw new IndexOutOfBoundsException("Replacement index could not be determined")))
           pathTokens.insert(replacementIndex, strippedToken)
           JsString(replacePath(uri, joinTokensIntoPath(pathTokens)))
         }
       )
 
-      Try(responseJson.transform(linkTransform)).recover{ case _: IndexOutOfBoundsException => JsError() }.get match {
+      Try(responseJson.transform(linkTransform)).recover { case _: IndexOutOfBoundsException => JsError() }.get match {
         case JsSuccess(transformedJson, _) =>
           logger.debug("Successfully transformed the link at: \"" + linkPath.getValue + "\"")
           transformedJson
         case JsError(_) if linkPath.getLinkMismatchAction == LinkMismatchAction.CONTINUE =>
-          logger.debug("Failed to transform link at: \"" + linkPath.getValue + "\", configured to CONTINUE, returning the response as-is")
+          logger.debug("Failed to transform link at: \"" + linkPath.getValue +
+            "\", configured to CONTINUE -- returning the response as-is")
           responseJson
         case JsError(_) if linkPath.getLinkMismatchAction == LinkMismatchAction.REMOVE =>
           responseJson.transform(jsonPath.prune) match {
             case JsSuccess(jsObject, _) =>
-              logger.debug("Failed to transform link at: \"" + linkPath.getValue + "\", configured to REMOVE, removing the link")
+              logger.debug("Failed to transform link at: \"" + linkPath.getValue +
+                "\", configured to REMOVE -- removing the link")
               jsObject
             case _ =>
-              logger.debug("Failed to transform link at: \"" + linkPath.getValue + "\", configured to REMOVE, returning the response as-is")
+              logger.debug("Failed to transform link at: \"" + linkPath.getValue +
+                "\", configured to REMOVE, but could not locate the link -- returning the response as-is")
               responseJson
           }
         case _ =>
-          logger.debug("Failed to transform link at: \"" + linkPath.getValue + "\", configured to FAIL, returning a failure response")
+          logger.debug("Failed to transform link at: \"" + linkPath.getValue +
+            "\", configured to FAIL -- returning a failure response")
           throw LinkTransformException("Failed to transform link at: " + linkPath.getValue)
       }
     }

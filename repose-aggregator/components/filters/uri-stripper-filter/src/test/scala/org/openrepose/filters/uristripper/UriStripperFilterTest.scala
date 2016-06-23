@@ -196,7 +196,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       response.getContentAsString shouldEqual respBody
     }
 
-    it("should update a link by replacing the stripped token at the same index it was removed from") {
+    it("should update a link by replacing the stripped token after the previous token from the request URI") {
       val config =
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
@@ -220,6 +220,32 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       filter.doFilter(request, response, filterChain)
 
       (Json.parse(response.getContentAsString) \ "link").as[String] shouldEqual "http://example.com/v1/12345/bar"
+    }
+
+    it("should update a link by replacing the stripped token before the next token from the request URI") {
+      val config =
+        s"""<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <json>$$.link</json>
+            |    </link-resource>
+            |</uri-stripper>
+         """.stripMargin
+
+      val respBody =
+        s"""
+           |{
+           |  "link": "http://example.com/v2/foo"
+           |}
+         """.stripMargin
+
+      filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+      request.setRequestURI("/v1/12345/foo")
+      setResponseBody(respBody, MimeType.APPLICATION_JSON.toString)
+
+      filter.doFilter(request, response, filterChain)
+
+      (Json.parse(response.getContentAsString) \ "link").as[String] shouldEqual "http://example.com/v2/12345/foo"
     }
 
     it("should update a link by replacing the stripped token at the configured index") {
@@ -248,12 +274,12 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       (Json.parse(response.getContentAsString) \ "link").as[String] shouldEqual "http://example.com/v1/bar/12345"
     }
 
-    it("should not alter the body if the link cannot be located (keep)") {
+    it("should not alter the body if the link cannot be located (continue)") {
       val config =
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
            |    <link-resource uri-path-regex=".*">
-           |        <json link-mismatch-action="keep">$$.dne</json>
+           |        <json link-mismatch-action="continue">$$.dne</json>
            |    </link-resource>
            |</uri-stripper>
          """.stripMargin
@@ -274,12 +300,12 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       response.getContentAsString shouldEqual Json.parse(respBody).toString()
     }
 
-    it("should not alter the body if the link's token index is out of bounds (keep)") {
+    it("should not alter the body if the link's token index is out of bounds (continue)") {
       val config =
         s"""<?xml version="1.0" encoding="UTF-8"?>
             |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
             |    <link-resource uri-path-regex=".*">
-            |        <json link-mismatch-action="keep" token-index="5">$$.link</json>
+            |        <json link-mismatch-action="continue" token-index="5">$$.link</json>
             |    </link-resource>
             |</uri-stripper>
          """.stripMargin
