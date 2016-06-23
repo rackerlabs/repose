@@ -202,7 +202,7 @@
 
     <xs:simpleType name="LinkMismatchAction">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="keep"/>
+            <xs:enumeration value="continue"/>
             <xs:enumeration value="remove"/>
             <xs:enumeration value="fail"/>
         </xs:restriction>
