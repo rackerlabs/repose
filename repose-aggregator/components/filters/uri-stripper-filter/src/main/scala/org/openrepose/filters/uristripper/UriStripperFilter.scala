@@ -175,7 +175,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
-  // todo: this function only provides support for named '$', '.', and '..' JSONPath operators
+  // todo: this function only provides support for named '$' and '.' JSONPath operators
   private def stringToJsPath(jsonPath: String): JsPath = {
     Parser.parse(Parser.query, jsonPath)
       .getOrElse(throw MalformedJsonPathException(s"Unable to parse JsonPath: $jsonPath"))
@@ -183,7 +183,6 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         pathToken match {
           case RootNode => jsPath
           case Field(name) => jsPath \ name
-          case RecursiveField(name) => jsPath \\ name
           case _ => jsPath
         }
       }
