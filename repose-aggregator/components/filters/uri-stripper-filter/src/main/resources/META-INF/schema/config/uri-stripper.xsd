@@ -83,23 +83,10 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:sequence>
-            <xs:element name="json" type="LinkPath" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Specifies the JSONPath to the link to be modified.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-
-            <!--<xs:element name="xml" type="LinkPath" minOccurs="0" maxOccurs="unbounded">-->
-            <!--<xs:annotation>-->
-            <!--<xs:documentation>-->
-            <!--<html:p>Specifies the XPath to the link to be modified.</html:p>-->
-            <!--</xs:documentation>-->
-            <!--</xs:annotation>-->
-            <!--</xs:element>-->
-        </xs:sequence>
+        <xs:all>
+            <xs:element name="request" type="HttpMessage" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="response" type="HttpMessage" minOccurs="0" maxOccurs="1"/>
+        </xs:all>
 
         <xs:attribute name="uri-path-regex" type="xs:string" use="optional" default=".*">
             <xs:annotation>
@@ -130,6 +117,32 @@
                    test="if (exists(@http-methods)) then (string-length(string(@http-methods)) > 0) else true()"
                    xerces:message="If the http-methods attribute is present, then it must not be empty."
                    saxon:message="If the http-methods attribute is present, then it must not be empty."/>
+
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="request or response"
+                   xerces:message="Either a request or response element must be defined."
+                   saxon:message="Either a request or response element must be defined."/>
+    </xs:complexType>
+
+    <xs:complexType name="HttpMessage">
+        <xs:sequence>
+            <xs:element name="json" type="LinkPath" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Specifies the JSONPath to the link to be modified.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <!--<xs:element name="xml" type="LinkPath" minOccurs="0" maxOccurs="unbounded">-->
+            <!--<xs:annotation>-->
+            <!--<xs:documentation>-->
+            <!--<html:p>Specifies the XPath to the link to be modified.</html:p>-->
+            <!--</xs:documentation>-->
+            <!--</xs:annotation>-->
+            <!--</xs:element>-->
+        </xs:sequence>
 
         <!-- TODO: Fix this when adding XML support -->
         <!--<xs:assert vc:minVersion="1.1"-->

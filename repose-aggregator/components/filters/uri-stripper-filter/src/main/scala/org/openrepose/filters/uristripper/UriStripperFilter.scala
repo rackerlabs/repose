@@ -27,7 +27,7 @@ import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.gatling.jsonpath.AST.{Field, RecursiveField, RootNode}
+import io.gatling.jsonpath.AST.{Field, RootNode}
 import io.gatling.jsonpath.Parser
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
@@ -122,7 +122,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val applicableLinkPaths = config.getLinkResource
         .filter(resource => resource.getUriPathRegex.r.pattern.matcher(wrappedRequest.getRequestURI).matches)
         .filter(resource => isMatchingMethod(resource.getHttpMethods.toSet, wrappedRequest.getMethod))
-        .map(resource => getPathsForContentType(wrappedResponse.getContentType, resource))
+        .map(resource => getPathsForContentType(wrappedResponse.getContentType, resource.getResponse))
         .fold(List.empty[LinkPath])(_ ++ _)
 
       if (token.isDefined && applicableLinkPaths.nonEmpty) {
@@ -166,7 +166,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       configuredMethods.contains(HttpMethod.ALL) ||
       configuredMethods.contains(HttpMethod.fromValue(requestMethod))
 
-  private def getPathsForContentType(contentType: String, resource: LinkResource): List[LinkPath] = {
+  private def getPathsForContentType(contentType: String, resource: HttpMessage): List[LinkPath] = {
     Option(contentType) match {
       case Some(ct) if ct.toLowerCase.contains("json") => resource.getJson.toList
       // todo: return xpath when xml is supported

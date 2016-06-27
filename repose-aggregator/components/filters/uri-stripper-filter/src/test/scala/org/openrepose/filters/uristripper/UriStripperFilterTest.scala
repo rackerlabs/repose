@@ -124,7 +124,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
            |    <link-resource uri-path-regex="/v1/[^/]+/bar">
-           |        <json>$$.link</json>
+           |        <response>
+           |            <json>$$.link</json>
+           |        </response>
            |    </link-resource>
            |</uri-stripper>
          """.stripMargin
@@ -150,7 +152,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
            |    <link-resource uri-path-regex=".*" http-methods="POST">
-           |        <json>$$.link</json>
+           |        <response>
+           |            <json>$$.link</json>
+           |        </response>
            |    </link-resource>
            |</uri-stripper>
          """.stripMargin
@@ -177,7 +181,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
            |    <link-resource uri-path-regex=".*">
-           |        <json>$$.link</json>
+           |        <response>
+           |            <json>$$.link</json>
+           |        </response>
            |    </link-resource>
            |</uri-stripper>
          """.stripMargin
@@ -201,7 +207,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
            |    <link-resource uri-path-regex=".*">
-           |        <json>$$.link</json>
+           |        <response>
+           |            <json>$$.link</json>
+           |        </response>
            |    </link-resource>
            |</uri-stripper>
          """.stripMargin
@@ -227,7 +235,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
             |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
             |    <link-resource uri-path-regex=".*">
-            |        <json>$$.link</json>
+            |        <response>
+            |            <json>$$.link</json>
+            |        </response>
             |    </link-resource>
             |</uri-stripper>
          """.stripMargin
@@ -253,7 +263,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
            |    <link-resource uri-path-regex=".*">
-           |        <json token-index="2">$$.link</json>
+           |        <response>
+           |            <json token-index="2">$$.link</json>
+           |        </response>
            |    </link-resource>
            |</uri-stripper>
          """.stripMargin
@@ -279,7 +291,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
            |    <link-resource uri-path-regex=".*">
-           |        <json link-mismatch-action="continue">$$.dne</json>
+           |        <response>
+           |            <json link-mismatch-action="continue">$$.dne</json>
+           |        </response>
            |    </link-resource>
            |</uri-stripper>
          """.stripMargin
@@ -305,7 +319,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
             |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
             |    <link-resource uri-path-regex=".*">
-            |        <json link-mismatch-action="continue" token-index="5">$$.link</json>
+            |        <response>
+            |            <json link-mismatch-action="continue" token-index="5">$$.link</json>
+            |        </response>
             |    </link-resource>
             |</uri-stripper>
          """.stripMargin
@@ -331,7 +347,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
            |    <link-resource uri-path-regex=".*">
-           |        <json link-mismatch-action="remove">$$.dne</json>
+           |        <response>
+           |            <json link-mismatch-action="remove">$$.dne</json>
+           |        </response>
            |    </link-resource>
            |</uri-stripper>
          """.stripMargin
@@ -357,7 +375,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
             |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
             |    <link-resource uri-path-regex=".*">
-            |        <json link-mismatch-action="remove" token-index="5">$$.link</json>
+            |        <response>
+            |            <json link-mismatch-action="remove" token-index="5">$$.link</json>
+            |        </response>
             |    </link-resource>
             |</uri-stripper>
          """.stripMargin
@@ -383,7 +403,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
            |    <link-resource uri-path-regex=".*">
-           |        <json link-mismatch-action="fail">$$.dne</json>
+           |        <response>
+           |            <json link-mismatch-action="fail">$$.dne</json>
+           |        </response>
            |    </link-resource>
            |</uri-stripper>
          """.stripMargin
@@ -410,7 +432,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         s"""<?xml version="1.0" encoding="UTF-8"?>
             |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
             |    <link-resource uri-path-regex=".*">
-            |        <json link-mismatch-action="fail" token-index="5">$$.link</json>
+            |        <response>
+            |            <json link-mismatch-action="fail" token-index="5">$$.link</json>
+            |        </response>
             |    </link-resource>
             |</uri-stripper>
          """.stripMargin

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
     <link-resource uri-path-regex="/foo/.*" http-methods="GET POST">
-        <json link-mismatch-action="continue">$.link</json>
+        <response>
+            <json link-mismatch-action="continue">$.link</json>
+        </response>
     </link-resource>
 </uri-stripper>

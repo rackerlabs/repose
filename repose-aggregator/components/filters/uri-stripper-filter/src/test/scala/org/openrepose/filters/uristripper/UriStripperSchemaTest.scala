@@ -35,12 +35,14 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
     }
 
     val methods = Set("GET", "DELETE", "POST", "PUT", "PATCH", "HEAD", "OPTIONS", "CONNECT", "TRACE", "ALL")
-    methods.subsets.filter(_.nonEmpty).map(_.mkString(" ")).foreach { httpMethods =>
+    methods.subsets.filter(_.nonEmpty).map(_.mkString(" ")) foreach { httpMethods =>
       it(s"should successfully validate if the HTTP Methods list is not empty ($httpMethods)") {
         val config =
           s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
               |    <link-resource uri-path-regex=".*" http-methods="$httpMethods">
-              |        <json>$$.service.link</json>
+              |        <response>
+              |            <json>$$.service.link</json>
+              |        </response>
               |    </link-resource>
               |</uri-stripper>""".stripMargin
 
@@ -52,7 +54,9 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
       val config =
         s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
             |    <link-resource uri-path-regex=".*" http-methods="">
-            |        <json>$$.service.link</json>
+            |        <response>
+            |            <json>$$.service.link</json>
+            |        </response>
             |    </link-resource>
             |</uri-stripper>""".stripMargin
 
@@ -60,6 +64,35 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
         validator.validateConfigString(config)
       }
       exception.getLocalizedMessage should include("If the http-methods attribute is present, then it must not be empty.")
+    }
+
+    it(s"should successfully validate if the both request and response are present") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |        <request>
+            |            <json>$$.service.link</json>
+            |        </request>
+            |        <response>
+            |            <json>$$.service.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      validator.validateConfigString(config)
+    }
+
+    it(s"should fail to validate if the neither request nor response is present") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include("Either a request or response element must be defined.")
     }
   }
 }
