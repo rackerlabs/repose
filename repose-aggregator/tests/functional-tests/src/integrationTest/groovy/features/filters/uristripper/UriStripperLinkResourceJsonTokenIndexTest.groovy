@@ -68,6 +68,7 @@ class UriStripperLinkResourceJsonTokenIndexTest extends ReposeValveTest {
 
         where:
         jsonPath | index | responseBodyLink   | modifiedResponseBodyLink
+        "link-a" | 0     | "/"                | "/$tenantId"
         "link-a" | 0     | "/a/b/c/d/e/f/g/h" | "/$tenantId/a/b/c/d/e/f/g/h"
         "link-b" | 1     | "/a/b/c/d/e/f/g/h" | "/a/$tenantId/b/c/d/e/f/g/h"
         "link-c" | 5     | "/a/b/c/d/e/f/g/h" | "/a/b/c/d/e/$tenantId/f/g/h"
@@ -115,32 +116,5 @@ class UriStripperLinkResourceJsonTokenIndexTest extends ReposeValveTest {
 
         then: "the response body link is modified"
         responseJson.foo.bar.baz.link == requestUrl
-    }
-
-    def "when a JSON path list is configured and the response body contains multiple instances, they are all updated"() {
-        given: "the JSON response body contains multiple link resources"
-        def requestUrl = "/foo/$tenantId/bar"
-        def responseBodyLink = "/foo/bar"
-        jsonBuilder.store {
-            foo {
-                link responseBodyLink
-            }
-            bar {
-                link responseBodyLink
-            }
-            baz {
-                link responseBodyLink
-            }
-        }
-        def responseHandler = { request -> new Response(200, null, responseHeaders, jsonBuilder.toString()) }
-
-        when: "a request is made and the JSON response body is parsed"
-        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
-        def responseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
-
-        then: "all of the links in the response body are updated correctly"
-        responseJson.store.foo.link == requestUrl
-        responseJson.store.bar.link == requestUrl
-        responseJson.store.baz.link == requestUrl
     }
 }

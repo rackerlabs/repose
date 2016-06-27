@@ -132,7 +132,7 @@ class UriStripperLinkResourceJsonTest extends ReposeValveTest {
         "following" | "/jack/jill/bar" | "/jack/jill/$tenantId/bar"
     }
 
-    def "when configured to keep on mismatch, the response body link is not modified if it can't be updated due to no recognizable tokens"() {
+    def "when configured to continue on mismatch, the response body link is not modified if it can't be updated due to no recognizable tokens"() {
         given: "the link in the JSON response doesn't contain the previous nor following token"
         def requestUrl = "/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c/d/e/f/g/h"
@@ -149,7 +149,7 @@ class UriStripperLinkResourceJsonTest extends ReposeValveTest {
         responseJson.link == responseBodyLink
     }
 
-    def "when configured to keep on mismatch, the response body is not modified if the JSON path to the link does not resolve"() {
+    def "when configured to continue on mismatch, the response body is not modified if the JSON path to the link does not resolve"() {
         given: "the JSON response doesn't contain the link field at all"
         def requestUrl = "/foo/$tenantId/bar"
         jsonBuilder {
