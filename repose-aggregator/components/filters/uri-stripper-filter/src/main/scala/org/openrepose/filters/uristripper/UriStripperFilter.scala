@@ -251,9 +251,9 @@ object UriStripperFilter {
   private final val UriDelimiter = "/"
   private final val QueryParamIndicator = "?"
 
-  case class MalformedJsonPathException(message: String, throwable: Throwable = null)
-    extends Exception(message, throwable)
+  case class MalformedJsonPathException(message: String)
+    extends Exception(message)
 
-  case class LinkTransformException(message: String, throwable: Throwable = null)
-    extends Exception(message, throwable)
+  case class LinkTransformException(message: String)
+    extends Exception(message)
 }
