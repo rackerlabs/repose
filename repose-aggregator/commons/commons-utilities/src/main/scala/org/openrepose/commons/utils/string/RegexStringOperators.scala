@@ -28,7 +28,7 @@ import scala.language.implicitConversions
   * Allows the implicit conversion to RegexString to be mixed-in.
   */
 trait RegexStringOperators {
-  implicit def stringToStringRegex(str: String): RegexString = new RegexString(str)
+  implicit def stringToRegexString(str: String): RegexString = new RegexString(str)
 }
 
 /**
