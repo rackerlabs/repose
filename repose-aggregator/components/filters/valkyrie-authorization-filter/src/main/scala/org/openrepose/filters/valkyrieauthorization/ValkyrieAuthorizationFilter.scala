@@ -40,6 +40,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
+import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
@@ -58,6 +59,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   extends Filter
     with UpdateListener[ValkyrieAuthorizationConfig]
     with HttpDelegationManager
+    with RegexStringOperators
     with LazyLogging {
 
   private final val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
@@ -107,7 +109,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       val matchingResources: Seq[Resource] = Option(configuration.getCollectionResources)
         .map(_.getResource.asScala.filter(resource => {
           val pathRegex = resource.getPathRegex
-          pathRegex.getValue.r.pattern.matcher(urlPath).matches() && {
+          (pathRegex.getValue =~ urlPath) && {
             val httpMethods = pathRegex.getHttpMethods
             httpMethods.isEmpty ||
               httpMethods.contains(HttpMethod.ALL) ||
@@ -424,7 +426,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
       def parseDeviceId(fieldValue: String): Try[String] = {
         Try {
-          val matcher = devicePath.getRegex.getValue.r.pattern.matcher(fieldValue)
+          val matcher = devicePath.getRegex.getValue ==~ fieldValue
           if (matcher.matches()) {
             matcher.group(devicePath.getRegex.getCaptureGroup)
           } else {
