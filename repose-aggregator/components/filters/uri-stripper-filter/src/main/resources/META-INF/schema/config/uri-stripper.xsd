@@ -135,21 +135,20 @@
                 </xs:annotation>
             </xs:element>
 
-            <!--<xs:element name="xml" type="LinkPath" minOccurs="0" maxOccurs="unbounded">-->
-            <!--<xs:annotation>-->
-            <!--<xs:documentation>-->
-            <!--<html:p>Specifies the XPath to the link to be modified.</html:p>-->
-            <!--</xs:documentation>-->
-            <!--</xs:annotation>-->
-            <!--</xs:element>-->
+            <xs:element name="xml" type="LinkPath" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Specifies the XPath to the link to be modified.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
 
-        <!-- TODO: Fix this when adding XML support -->
-        <!--<xs:assert vc:minVersion="1.1"-->
-        <!--xpathDefaultNamespace="##targetNamespace"-->
-        <!--test=""-->
-        <!--xerces:message="Either a json element or a xml element must be defined."-->
-        <!--saxon:message="Either a json element or a xml element must be defined."/>-->
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="json or xml"
+                   xerces:message="Either a json element or a xml element must be defined."
+                   saxon:message="Either a json element or a xml element must be defined."/>
     </xs:complexType>
 
     <xs:complexType name="LinkPath">
