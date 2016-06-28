@@ -80,6 +80,14 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="connection-pool-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>HTTP Connection pool ID to use when communicating with this feed</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:simpleType name="EntryOrderType">
@@ -116,6 +124,12 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:enumeration-->
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="NonNegativeIntType">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -184,6 +198,17 @@
                 <xs:documentation>
                     <html:p>
                         Defines the password of the user which will query the authenticated feed.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="timeout" type="NonNegativeIntType" use="optional" default="5000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines the amount of time, in milliseconds, to wait before considering an authentication
+                        attempt to be a failure. A value of '0' indicates an infinite wait time.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
