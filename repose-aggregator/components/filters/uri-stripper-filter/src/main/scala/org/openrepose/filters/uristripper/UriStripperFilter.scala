@@ -25,10 +25,11 @@ import java.net.{URI, URL}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.xml.transform.{Transformer, TransformerFactory}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.gatling.jsonpath.AST.{Field, RootNode}
-import io.gatling.jsonpath.Parser
+import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
+import _root_.io.gatling.jsonpath.Parser
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -40,6 +41,7 @@ import org.openrepose.filters.uristripper.config._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 
+import scala.xml.XML
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.language.postfixOps
@@ -127,14 +129,28 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         .fold(List.empty[LinkPath])(_ ++ _)
 
       if (token.isDefined && applicableLinkPaths.nonEmpty) {
-        val tryParsedJson = Try(Json.parse(wrappedResponse.getOutputStreamAsInputStream))
-        applicableLinkPaths.foldLeft(tryParsedJson)(transformLink(_, _, token.get, previousToken, nextToken)) match {
-          case Success(jsValue) =>
-            val jsValueBytes = jsValue.toString.getBytes(wrappedResponse.getCharacterEncoding)
-            wrappedResponse.setContentLength(jsValueBytes.length)
-            wrappedResponse.setOutput(new ByteArrayInputStream(jsValueBytes))
-          case Failure(e) =>
-            wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
+        Option(wrappedResponse.getContentType) match {
+          case Some(ct) if ct.toLowerCase.contains("json") =>
+            val tryParsedJson = Try(Json.parse(wrappedResponse.getOutputStreamAsInputStream))
+            applicableLinkPaths.foldLeft(tryParsedJson)(transformJsonLink(_, _, token.get, previousToken, nextToken)) match {
+              case Success(jsValue) =>
+                val jsValueBytes = jsValue.toString.getBytes(wrappedResponse.getCharacterEncoding)
+                wrappedResponse.setContentLength(jsValueBytes.length)
+                wrappedResponse.setOutput(new ByteArrayInputStream(jsValueBytes))
+              case Failure(e) =>
+                wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
+            }
+          case Some(ct) if ct.toLowerCase.contains("xml") =>
+            val tryParsedXml = Try(XML.loadString(wrappedResponse.getOutputStreamAsInputStream))
+            applicableLinkPaths.foldLeft(tryParsedXml)(transformXmlLink(_, _, token.get, previousToken, nextToken)) match {
+              case Success(xmlValue) =>
+                val xmlValueBytes = xmlValue.toString.getBytes(wrappedResponse.getCharacterEncoding)
+                wrappedResponse.setContentLength(xmlValueBytes.length)
+                wrappedResponse.setOutput(new ByteArrayInputStream(xmlValueBytes))
+              case Failure(e) =>
+                wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
+            }
+          case _ => //do nothing? not sure
         }
       }
 
@@ -171,7 +187,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     Option(contentType) match {
       case Some(ct) if ct.toLowerCase.contains("json") => resource.getJson.toList
       // todo: return xpath when xml is supported
-      case Some(ct) if ct.toLowerCase.contains("xml") => List.empty
+      case Some(ct) if ct.toLowerCase.contains("xml") => resource.getXml.toList
       case _ => List.empty
     }
   }
@@ -189,7 +205,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       }
   }
 
-  private def transformLink(tryResponseJson: Try[JsValue], linkPath: LinkPath, strippedToken: String, previousToken: Option[String], nextToken: Option[String]): Try[JsValue] = {
+  private def transformJsonLink(tryResponseJson: Try[JsValue], linkPath: LinkPath, strippedToken: String, previousToken: Option[String], nextToken: Option[String]): Try[JsValue] = {
     tryResponseJson map { responseJson =>
       val jsonPath = stringToJsPath(linkPath.getValue).json
       val linkTransform = jsonPath.update(
