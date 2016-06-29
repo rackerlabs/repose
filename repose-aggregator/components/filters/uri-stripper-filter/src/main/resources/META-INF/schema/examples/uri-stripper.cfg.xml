@@ -6,5 +6,9 @@
             <json>$.service.link</json>
             <json token-index="1" link-mismatch-action="fail">$.other-service.link</json>
         </response>
+        <response>
+            <xml>/service/link</xml>
+            <xml token-index="1" link-mismatch-action="fail">/other-service/link</xml>
+        </response>
     </link-resource>
 </uri-stripper>
