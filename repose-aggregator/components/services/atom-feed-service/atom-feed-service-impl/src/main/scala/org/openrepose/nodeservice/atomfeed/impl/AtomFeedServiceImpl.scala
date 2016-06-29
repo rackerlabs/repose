@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConversions._
 import scala.language.postfixOps
+import scala.concurrent.duration._
 
 @Named
 class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVersion: String,
@@ -142,6 +143,8 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
 
         // Create FeedReaders that are defined in the configuration
         configurationObject.getFeed.diff(feedConfigurations) foreach { newFeedConfig =>
+          val authenticationConfig = Option(newFeedConfig.getAuthentication)
+
           val notifierManager = feedActors.get(newFeedConfig.getId)
             .map(_.notifierManager)
             .getOrElse(actorSystem.actorOf(Props[NotifierManager], name = newFeedConfig.getId + NOTIFIER_MANAGER_TAG))
@@ -149,7 +152,8 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
           val feedReader = actorSystem.actorOf(
             FeedReader.props(
               newFeedConfig.getUri,
-              Option(newFeedConfig.getAuthentication).map(buildAuthenticatedRequestFactory),
+              authenticationConfig.map(buildAuthenticatedRequestFactory),
+              authenticationConfig.map(_.getTimeout).filterNot(_ == 0).map(_.milliseconds).getOrElse(Duration.Inf),
               notifierManager,
               newFeedConfig.getPollingFrequency,
               newFeedConfig.getEntryOrder,

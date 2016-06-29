@@ -93,6 +93,7 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef = TestActorRef(
       new FeedReader(mockAtomFeedService.getUrl + "/feed",
         Some(mockAuthRequestFactory),
+        1 second,
         notifierProbe.ref,
         5,
         EntryOrderType.READ,
@@ -104,6 +105,7 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef = TestActorRef(
       new FeedReader("http://test.url/feed",
         Some(mockAuthRequestFactory),
+        1 second,
         notifierProbe.ref,
         5,
         EntryOrderType.READ,
@@ -118,6 +120,7 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef = TestActorRef(
       new FeedReader("http://test.url/feed",
         Some(mockAuthRequestFactory),
+        1 second,
         notifierProbe.ref,
         5,
         EntryOrderType.READ,
@@ -316,6 +319,7 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef = TestActorRef(
       new FeedReader(mockAtomFeedService.getUrl + "/feed",
         Some(mockAuthRequestFactory),
+        1 second,
         notifierProbe.ref,
         5,
         EntryOrderType.REVERSE_READ,

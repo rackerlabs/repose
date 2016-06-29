@@ -51,7 +51,7 @@ object AtomEntryStreamBuilder {
     * @param baseFeedUrl             a static locator pointing to the "head" of an Atom feed (e.g., the subscription document)
     * @param context                 a context object which contains information related to the request
     * @param authenticator           a URL processor which authenticates connections
-    * @param authenticationTimeLimit a maximum [[Duration]] to wait on authentication before considering authentication
+    * @param authenticationTimeout a maximum [[Duration]] to wait on authentication before considering authentication
     *                                a failure
     * @return a Scala [[scala.collection.immutable.Stream]] which will yield Atom entries in an Atom feed located at the
     *         provided baseFeedUrl. The entries will be yielded in the order in which they are read from the feed XML,
@@ -61,21 +61,21 @@ object AtomEntryStreamBuilder {
   def build(baseFeedUrl: URL,
             context: AuthenticationRequestContext,
             authenticator: Option[AuthenticatedRequestFactory] = None,
-            authenticationTimeLimit: Duration = 1 second): Stream[Entry] = {
-    buildR(baseFeedUrl, context, authenticator, authenticationTimeLimit)
+            authenticationTimeout: Duration = 1 second): Stream[Entry] = {
+    buildR(baseFeedUrl, context, authenticator, authenticationTimeout)
   }
 
   private def buildR(baseFeedUrl: URL,
                      context: AuthenticationRequestContext,
                      authenticator: Option[AuthenticatedRequestFactory] = None,
-                     authenticationTimeLimit: Duration = 1 second,
+                     authenticationTimeout: Duration = 1 second,
                      firstAttempt: Boolean = true): Stream[Entry] = {
     val baseFeedConnection = baseFeedUrl.openConnection()
 
     val authenticatedConnection = authenticator match {
       case Some(arf) =>
         val connectionFuture = Future(arf.authenticateRequest(baseFeedConnection, context))
-        Option(Await.result(connectionFuture, authenticationTimeLimit))
+        Option(Await.result(connectionFuture, authenticationTimeout))
       case None =>
         Some(baseFeedConnection)
     }
@@ -91,7 +91,7 @@ object AtomEntryStreamBuilder {
 
           feed.getLinks.find(link => link.getRel.equals("next")) match {
             case Some(nextPageLink) =>
-              feed.getEntries.toStream #::: buildR(nextPageLink.getResolvedHref.toURL, context, authenticator, authenticationTimeLimit)
+              feed.getEntries.toStream #::: buildR(nextPageLink.getResolvedHref.toURL, context, authenticator, authenticationTimeout)
             case None =>
               feed.getEntries.toStream
           }
@@ -100,7 +100,7 @@ object AtomEntryStreamBuilder {
             authenticator.foreach(_.onInvalidCredentials())
             if (firstAttempt) {
               // Inform the authenticator that the request failed and retry once
-              buildR(baseFeedUrl, context, authenticator, authenticationTimeLimit, firstAttempt = false)
+              buildR(baseFeedUrl, context, authenticator, authenticationTimeout, firstAttempt = false)
             } else {
               throw UnrecoverableIOException(ioe)
             }

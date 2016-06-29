@@ -21,7 +21,6 @@ package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import java.io.{IOException, StringWriter}
 import java.net.{URL, UnknownServiceException}
-import org.apache.abdera.model.Entry
 
 import akka.actor._
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -46,11 +45,19 @@ object FeedReader {
 
   def props(feedUri: String,
             authenticatedRequestFactory: Option[AuthenticatedRequestFactory],
+            authenticationTimeout: Duration,
             notifierManager: ActorRef,
             pollingFrequency: Int,
             order: EntryOrderType,
             reposeVersion: String): Props =
-    Props(new FeedReader(feedUri, authenticatedRequestFactory, notifierManager, pollingFrequency, order, reposeVersion))
+    Props(new FeedReader(
+      feedUri,
+      authenticatedRequestFactory,
+      authenticationTimeout,
+      notifierManager,
+      pollingFrequency,
+      order,
+      reposeVersion))
 
   object ReadFeed
 
@@ -62,6 +69,7 @@ object FeedReader {
 
 class FeedReader(feedUri: String,
                  authenticatedRequestFactory: Option[AuthenticatedRequestFactory],
+                 authenticationTimeout: Duration,
                  notifierManager: ActorRef,
                  pollingFrequency: Int,
                  order: EntryOrderType,
@@ -93,7 +101,11 @@ class FeedReader(feedUri: String,
       MDC.put(TracingKey.TRACING_KEY, requestId)
 
       try {
-        def getStream = AtomEntryStreamBuilder.build(feedUrl, AuthenticationRequestContextImpl(reposeVersion, requestId), authenticatedRequestFactory)
+        def getStream = AtomEntryStreamBuilder.build(
+          feedUrl,
+          AuthenticationRequestContextImpl(reposeVersion, requestId),
+          authenticatedRequestFactory,
+          authenticationTimeout)
 
         val entryStream = order match {
           case EntryOrderType.READ =>
