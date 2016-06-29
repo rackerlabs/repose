@@ -58,7 +58,7 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
     def "when removing tenant id from request"() {
 
         when: "Request is sent through repose"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/v1/${tenantId}/path/to/resource"])
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/v1/${tenantId}/path/to/resource")
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will send uri without tenant id"
@@ -73,7 +73,7 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
         def resp = { request -> return new Response(301, "Moved Permanently", ["Location": locationheader]) }
 
         when: "Request is sent through repose"
-        def response = deproxy.makeRequest([url: reposeEndpoint + "/v1/${tenantId}/path/to/resource", defaultHandler: resp])
+        def response = deproxy.makeRequest(url: reposeEndpoint + "/v1/${tenantId}/path/to/resource", defaultHandler: resp)
         def sentRequest = ((MessageChain) response).getHandlings()[0]
 
         then: "Repose will put back the tenant id in the location header"

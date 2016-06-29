@@ -20,26 +20,34 @@
 
 package org.openrepose.filters.uristripper
 
+import java.io.ByteArrayInputStream
 import java.net.{URI, URL}
-import javax.inject.{Named, Inject}
+import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import io.gatling.jsonpath.AST.{Field, RootNode}
+import io.gatling.jsonpath.Parser
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.servlet.http.{ResponseMode, HttpServletResponseWrapper, HttpServletRequestWrapper}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
+import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.uristripper.config.UriStripperConfig
+import org.openrepose.filters.uristripper.config._
+import play.api.libs.json.Reads._
+import play.api.libs.json._
 
+import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.util.{Success, Failure, Try}
+import scala.language.postfixOps
+import scala.util.{Failure, Success, Try}
 
 @Named
 class UriStripperFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[UriStripperConfig] with LazyLogging {
+  extends Filter with UpdateListener[UriStripperConfig] with RegexStringOperators with LazyLogging {
 
   import UriStripperFilter._
 
@@ -65,9 +73,9 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     } else {
       val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
       val wrappedResponse = new HttpServletResponseWrapper(
-        servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+        servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.MUTABLE, ResponseMode.MUTABLE)
 
-      val uriTokens = splitUriIntoTokens(wrappedRequest.getRequestURI)
+      val uriTokens = splitPathIntoTokens(wrappedRequest.getRequestURI)
       var previousToken: Option[String] = None
       var nextToken: Option[String] = None
       var token: Option[String] = None
@@ -82,12 +90,15 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         }
 
         token = Some(uriTokens.remove(config.getTokenIndex))
-        wrappedRequest.setRequestURI(joinTokensIntoUri(uriTokens))
+        wrappedRequest.setRequestURI(joinTokensIntoPath(uriTokens))
       }
 
       filterChain.doFilter(wrappedRequest, wrappedResponse)
 
+      wrappedResponse.uncommit()
+
       val originalLocation = wrappedResponse.getHeader(CommonHttpHeader.LOCATION.toString)
+      // todo: What if the path is "/<tenant-id>"? The location header wouldn't be modified. Is that the correct behavior?
       if (config.isRewriteLocation && token.isDefined && !Option(originalLocation).forall(_.trim.isEmpty) && (previousToken.isDefined || nextToken.isDefined)) {
 
         if (originalLocation.contains(previousToken.getOrElse("") + UriDelimiter + token.get + UriDelimiter + nextToken.getOrElse(""))) {
@@ -97,21 +108,33 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
             case Failure(exception) =>
               logger.warn("Unable to parse Location header. Location header is malformed URI", exception)
             case Success(uri) =>
-              val locationTokens = splitUriIntoTokens(uri.getPath)
+              val locationTokens = splitPathIntoTokens(uri.getPath)
 
-              // figure out where to add the token if we can
-              ((previousToken.filter(locationTokens.contains), nextToken.filter(locationTokens.contains)) match {
-                case (Some(foundToken), _) => Some(locationTokens.indexOf(foundToken) + 1)
-                case (_, Some(foundToken)) => Some(locationTokens.indexOf(foundToken))
-                case _ => None
-              }).foreach(locationTokens.insert(_, token.get))
+              findReplacementTokenIndex(locationTokens, previousToken, nextToken)
+                .foreach(locationTokens.insert(_, token.get))
 
-              val preUri = Option(uri.getScheme).map(_ + "://" + uri.getHost + (if (uri.getPort != -1) ":" + uri.getPort else ""))
-              val postUri = Option(uri.getQuery).filterNot(_.trim.isEmpty).map(QueryParamIndicator +)
               wrappedResponse.replaceHeader(
                 CommonHttpHeader.LOCATION.toString,
-                preUri.getOrElse("") + joinTokensIntoUri(locationTokens) + postUri.getOrElse(""))
+                replacePath(uri, joinTokensIntoPath(locationTokens)))
           }
+        }
+      }
+
+      val applicableLinkPaths = config.getLinkResource
+        .filter(resource => resource.getUriPathRegex =~ wrappedRequest.getRequestURI)
+        .filter(resource => isMatchingMethod(resource.getHttpMethods.toSet, wrappedRequest.getMethod))
+        .map(resource => getPathsForContentType(wrappedResponse.getContentType, resource.getResponse))
+        .fold(List.empty[LinkPath])(_ ++ _)
+
+      if (token.isDefined && applicableLinkPaths.nonEmpty) {
+        val tryParsedJson = Try(Json.parse(wrappedResponse.getOutputStreamAsInputStream))
+        applicableLinkPaths.foldLeft(tryParsedJson)(transformLink(_, _, token.get, previousToken, nextToken)) match {
+          case Success(jsValue) =>
+            val jsValueBytes = jsValue.toString.getBytes(wrappedResponse.getCharacterEncoding)
+            wrappedResponse.setContentLength(jsValueBytes.length)
+            wrappedResponse.setOutput(new ByteArrayInputStream(jsValueBytes))
+          case Failure(e) =>
+            wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
         }
       }
 
@@ -119,11 +142,94 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
-  private def splitUriIntoTokens(uri: String): mutable.Buffer[String] =
+  private def splitPathIntoTokens(uri: String): mutable.Buffer[String] =
     StringUriUtilities.formatUriNoLead(uri).split(UriDelimiter).toBuffer
 
-  private def joinTokensIntoUri(tokens: mutable.Buffer[String]): String =
+  private def joinTokensIntoPath(tokens: mutable.Buffer[String]): String =
     StringUriUtilities.formatUri(tokens.mkString(UriDelimiter))
+
+  private def findReplacementTokenIndex(pathTokens: mutable.Buffer[String], previousToken: Option[String], nextToken: Option[String]): Option[Int] = {
+    (previousToken.filter(pathTokens.contains), nextToken.filter(pathTokens.contains)) match {
+      case (Some(foundToken), _) => Some(pathTokens.indexOf(foundToken) + 1)
+      case (_, Some(foundToken)) => Some(pathTokens.indexOf(foundToken))
+      case _ => None
+    }
+  }
+
+  private def replacePath(uri: URI, newPath: String): String = {
+    val preUri = Option(uri.getScheme).map(_ + "://" + uri.getHost + (if (uri.getPort != -1) ":" + uri.getPort else ""))
+    val postUri = Option(uri.getQuery).filterNot(_.trim.isEmpty).map(QueryParamIndicator +)
+    preUri.getOrElse("") + newPath + postUri.getOrElse("")
+  }
+
+  private def isMatchingMethod(configuredMethods: Set[HttpMethod], requestMethod: String): Boolean =
+    configuredMethods.isEmpty ||
+      configuredMethods.contains(HttpMethod.ALL) ||
+      configuredMethods.contains(HttpMethod.fromValue(requestMethod))
+
+  private def getPathsForContentType(contentType: String, resource: HttpMessage): List[LinkPath] = {
+    Option(contentType) match {
+      case Some(ct) if ct.toLowerCase.contains("json") => resource.getJson.toList
+      // todo: return xpath when xml is supported
+      case Some(ct) if ct.toLowerCase.contains("xml") => List.empty
+      case _ => List.empty
+    }
+  }
+
+  // todo: this function only provides support for named '$' and '.' JSONPath operators
+  private def stringToJsPath(jsonPath: String): JsPath = {
+    Parser.parse(Parser.query, jsonPath)
+      .getOrElse(throw MalformedJsonPathException(s"Unable to parse JsonPath: $jsonPath"))
+      .foldLeft(new JsPath) { (jsPath, pathToken) =>
+        pathToken match {
+          case RootNode => jsPath
+          case Field(name) => jsPath \ name
+          case _ => jsPath
+        }
+      }
+  }
+
+  private def transformLink(tryResponseJson: Try[JsValue], linkPath: LinkPath, strippedToken: String, previousToken: Option[String], nextToken: Option[String]): Try[JsValue] = {
+    tryResponseJson map { responseJson =>
+      val jsonPath = stringToJsPath(linkPath.getValue).json
+      val linkTransform = jsonPath.update(
+        of[JsString] map { case JsString(link) =>
+          val uri = new URI(link)
+          val pathTokens = splitPathIntoTokens(uri.getRawPath)
+          val replacementIndex = Option(linkPath.getTokenIndex).map(_.intValue)
+            .getOrElse(findReplacementTokenIndex(pathTokens, previousToken, nextToken)
+              .getOrElse(throw new IndexOutOfBoundsException("Replacement index could not be determined")))
+          pathTokens.insert(replacementIndex, strippedToken)
+          JsString(replacePath(uri, joinTokensIntoPath(pathTokens)))
+        }
+      )
+
+      Try(responseJson.transform(linkTransform)).recover { case _: IndexOutOfBoundsException => JsError() }.get match {
+        case JsSuccess(transformedJson, _) =>
+          logger.debug("Successfully transformed the link at: \"" + linkPath.getValue + "\"")
+          transformedJson
+        case JsError(_) if linkPath.getLinkMismatchAction == LinkMismatchAction.CONTINUE =>
+          logger.debug("Failed to transform link at: \"" + linkPath.getValue +
+            "\", configured to CONTINUE -- returning the response as-is")
+          responseJson
+        case JsError(_) if linkPath.getLinkMismatchAction == LinkMismatchAction.REMOVE =>
+          responseJson.transform(jsonPath.prune) match {
+            case JsSuccess(jsObject, _) =>
+              logger.debug("Failed to transform link at: \"" + linkPath.getValue +
+                "\", configured to REMOVE -- removing the link")
+              jsObject
+            case _ =>
+              logger.debug("Failed to transform link at: \"" + linkPath.getValue +
+                "\", configured to REMOVE, but could not locate the link -- returning the response as-is")
+              responseJson
+          }
+        case _ =>
+          logger.debug("Failed to transform link at: \"" + linkPath.getValue +
+            "\", configured to FAIL -- returning a failure response")
+          throw LinkTransformException("Failed to transform link at: " + linkPath.getValue)
+      }
+    }
+  }
 
   override def destroy(): Unit = {
     logger.trace("URI Stripper filter destroying...")
@@ -145,4 +251,10 @@ object UriStripperFilter {
 
   private final val UriDelimiter = "/"
   private final val QueryParamIndicator = "?"
+
+  case class MalformedJsonPathException(message: String)
+    extends Exception(message)
+
+  case class LinkTransformException(message: String)
+    extends Exception(message)
 }

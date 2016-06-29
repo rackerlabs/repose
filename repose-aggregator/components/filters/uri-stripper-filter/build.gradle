@@ -4,10 +4,14 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "com.typesafe.play:play-json_$scalaMajDotMin"
+    compile "io.gatling:jsonpath_$scalaMajDotMin"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"
 
+    testCompile project(":repose-aggregator:commons:commons-test")
+    testCompile project(":repose-aggregator:commons:commons-configuration")
     testCompile "junit:junit"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.spockframework:spock-core"

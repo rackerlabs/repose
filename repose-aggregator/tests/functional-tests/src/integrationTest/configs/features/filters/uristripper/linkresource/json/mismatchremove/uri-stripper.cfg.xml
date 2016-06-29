@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+    <link-resource>
+        <response>
+            <json link-mismatch-action="remove">$.link</json>
+        </response>
+    </link-resource>
+    <link-resource>
+        <response>
+            <json link-mismatch-action="remove" token-index="5">$.alt-link</json>
+        </response>
+    </link-resource>
+</uri-stripper>

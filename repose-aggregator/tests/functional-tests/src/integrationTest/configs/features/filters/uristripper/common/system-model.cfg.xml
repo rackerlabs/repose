@@ -8,7 +8,6 @@
 
         <filters>
             <filter name="uri-stripper"/>
-            <!-- had to use a simple filter as we have issues when no filter is present-->
         </filters>
 
         <destinations>
