@@ -33,6 +33,7 @@ import gnieh.diffson.playJson._
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
+import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodypatcher.config.{BodyPatcherConfig, ChangeDetails, Patch}
@@ -47,7 +48,7 @@ import scala.util.{Failure, Success, Try}
   */
 @Named
 class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
-  extends AbstractConfiguredFilter[BodyPatcherConfig](configurationService) with LazyLogging {
+  extends AbstractConfiguredFilter[BodyPatcherConfig](configurationService) with RegexStringOperators with LazyLogging {
   override val DEFAULT_CONFIG: String = "body-patcher.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/body-patcher.xsd"
 
@@ -123,7 +124,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
   def filterPathChanges(request: HttpServletRequest): List[ChangeDetails] = {
     val path: String = URLDecoder.decode(request.getRequestURI, StandardCharsets.UTF_8.toString)
     configuration.getChange.asScala.toList
-        .filter(_.getPath.r.pattern.matcher(path).matches)
+        .filter(_.getPath =~ path)
   }
 
   def filterRequestChanges(changes: List[ChangeDetails]): List[Patch] = {

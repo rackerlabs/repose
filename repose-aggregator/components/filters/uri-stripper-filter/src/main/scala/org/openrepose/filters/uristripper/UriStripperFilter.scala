@@ -33,6 +33,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
+import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.uristripper.config._
@@ -46,7 +47,7 @@ import scala.util.{Failure, Success, Try}
 
 @Named
 class UriStripperFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[UriStripperConfig] with LazyLogging {
+  extends Filter with UpdateListener[UriStripperConfig] with RegexStringOperators with LazyLogging {
 
   import UriStripperFilter._
 
@@ -120,7 +121,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       }
 
       val applicableLinkPaths = config.getLinkResource
-        .filter(resource => resource.getUriPathRegex.r.pattern.matcher(wrappedRequest.getRequestURI).matches)
+        .filter(resource => resource.getUriPathRegex =~ wrappedRequest.getRequestURI)
         .filter(resource => isMatchingMethod(resource.getHttpMethods.toSet, wrappedRequest.getMethod))
         .map(resource => getPathsForContentType(wrappedResponse.getContentType, resource.getResponse))
         .fold(List.empty[LinkPath])(_ ++ _)
