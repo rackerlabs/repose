@@ -94,5 +94,40 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
       }
       exception.getLocalizedMessage should include("Either a request or response element must be defined.")
     }
+
+    it(s"should fail to validate if the neither json nor xml is present") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |        <request>
+            |        </request>
+            |        <response>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include("Either a json element or a xml element must be defined.")
+    }
+
+    it(s"should successfully validate if the both json and xml are present") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |        <request>
+            |            <json>$$.service.link</json>
+            |            <xml>/service/link</xml>
+            |        </request>
+            |        <response>
+            |            <json>$$.service.link</json>
+            |            <xml>/service/link</xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      validator.validateConfigString(config)
+    }
   }
 }
