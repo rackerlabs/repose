@@ -131,14 +131,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
-             |  "link": "http://example.com/v1/foo"
+             |  "link": "http://example.com/v1/bar"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -159,14 +159,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v1/foo"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setMethod("GET")
@@ -188,12 +188,12 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |The link is http://example.com/v1/foo
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -214,14 +214,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v1/bar"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -242,14 +242,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v2/foo"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -270,14 +270,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v1/bar"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -298,14 +298,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v1/foo"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -326,14 +326,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v1/foo"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -354,14 +354,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v2/bar"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -382,14 +382,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v1/foo"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -410,14 +410,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v1/foo"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -438,14 +438,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v2/bar"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -466,14 +466,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v1/foo"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -495,14 +495,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-           """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v1/foo"
              |}
-           """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -524,14 +524,14 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        </response>
               |    </link-resource>
               |</uri-stripper>
-         """.stripMargin
+          """.stripMargin
 
         val respBody =
           s"""
              |{
              |  "link": "http://example.com/v2/bar"
              |}
-         """.stripMargin
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
