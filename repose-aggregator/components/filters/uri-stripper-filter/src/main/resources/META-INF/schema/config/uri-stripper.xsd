@@ -151,6 +151,18 @@
                    saxon:message="Either a json element or a xml element must be defined."/>
     </xs:complexType>
 
+    <xs:complexType name="NamespaceList">
+        <xs:sequence>
+            <xs:element name="namespace" type="LinkPath" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Specifies the required namespace.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:complexType name="LinkPath">
         <xs:simpleContent>
             <xs:extension base="xs:string">

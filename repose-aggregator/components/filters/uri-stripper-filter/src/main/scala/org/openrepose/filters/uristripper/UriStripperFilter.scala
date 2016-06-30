@@ -25,11 +25,16 @@ import java.net.{URI, URL}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.xml.transform.{Transformer, TransformerFactory}
+import javax.xml.transform._
+import javax.xml.transform.stream._
+import javax.xml.transform.dom._
 
+import com.rackspace.cloud.api.wadl.Converters._
+import net.sf.saxon.TransformerFactoryImpl
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
 import _root_.io.gatling.jsonpath.Parser
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -41,7 +46,7 @@ import org.openrepose.filters.uristripper.config._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 
-import scala.xml.XML
+import scala.xml._
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.language.postfixOps
@@ -150,7 +155,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
               case Failure(e) =>
                 wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
             }
-          case _ => //do nothing? not sure
+          case _ => //do nothing
         }
       }
 
@@ -247,6 +252,20 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
+  private def transformXmlLink(tryResponseXml: Try[XmlValue], linkPath: LinkPath, strippedToken: String, previousToken: Option[String], nextToken: Option[String]): Try[XmlValue] = {
+    val transformerFactory = TransformerFactory.newInstance()
+    val xsltTransformer = transformerFactory.newTransformer(xsltSource)
+    xsltTransformer.setParameter(parameterName, parameterValue)
+
+    tryResponseXml map { responseXml =>
+      Try(responseXml.transform)
+
+
+
+
+    }
+  }
+
   override def destroy(): Unit = {
     logger.trace("URI Stripper filter destroying...")
     configurationService.unsubscribeFrom(configurationFileName, this.asInstanceOf[UpdateListener[_]])
@@ -255,6 +274,27 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
   override def configurationUpdated(uriStripperConfig: UriStripperConfig): Unit = {
     config = uriStripperConfig
+    val saxonTransformFactory = {
+      val f = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", this.getClass.getClassLoader)
+      val cast = f.asInstanceOf[TransformerFactoryImpl]
+      cast.getConfiguration.getDynamicLoader.setClassLoader(this.getClass.getClassLoader)
+      f
+    }
+    val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/xsl/xml-remove.xsl").toString))
+    val setupTransformer = setupTemplate.newTransformer
+    setupTransformer.setParameter("xpath", xpath)
+    setupTransformer.setParameter("namespaces", new StreamSource(
+      <namespaces xmlns="http://www.rackspace.com/repose/params">
+        {
+        for ((prefix, uri) <- namespaces) yield
+            <ns prefix={prefix} uri={uri}/>
+        }
+      </namespaces>
+    ))
+    val removeXPathXSLTDomResult = new DOMResult()
+    setupTransformer.transform (new StreamSource(<ignore-input />), removeXPathXSLTDomResult)
+    val removeXPathTransform = saxonTransformFactory.newTemplates(new DOMSource(removeXPathXSLTDomResult.getNode()))
+
     initialized = true
   }
 
