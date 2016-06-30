@@ -2,6 +2,7 @@
 <uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="2">
     <link-resource uri-path-regex="/continue/.*" http-methods="GET POST">
         <response>
+            <json>$.bookstore.book.link</json>
             <xml link-mismatch-action="continue">/bookstore/book/link</xml>
         </response>
     </link-resource>
@@ -38,7 +39,7 @@
             <xml link-mismatch-action="continue">/bookstore/book/link</xml>
         </response>
     </link-resource>
-    <link-resource uri-path-regex="/.*/multi-url-a/.*">
+    <link-resource uri-path-regex="/multi-url-a/.*">
         <response>
             <xml link-mismatch-action="continue">/bookstore/book/link-a</xml>
         </response>
@@ -46,11 +47,6 @@
     <link-resource uri-path-regex="/.*/multi-url-b/.*">
         <response>
             <xml link-mismatch-action="continue">/bookstore/book/link-b</xml>
-        </response>
-    </link-resource>
-    <link-resource uri-path-regex="/invalid-xpath/.*">
-        <response>
-            <xml link-mismatch-action="continue">];/book//&amp;//*///$//</xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/basic/.*">
@@ -98,12 +94,12 @@
             <xml link-mismatch-action="continue">//link[@*]</xml>
         </response>
     </link-resource>
-    <link-resource uri-path-regex="/xpath/any-child-from-root/.*">
+    <link-resource uri-path-regex="/xpath/all-links-double-slash/.*">
         <response>
             <xml link-mismatch-action="continue">//link</xml>
         </response>
     </link-resource>
-    <link-resource uri-path-regex="/xpath/multiple-updates/.*">
+    <link-resource uri-path-regex="/xpath/all-links-bookstore-star/.*">
         <response>
             <xml link-mismatch-action="continue">/bookstore/*/link</xml>
         </response>

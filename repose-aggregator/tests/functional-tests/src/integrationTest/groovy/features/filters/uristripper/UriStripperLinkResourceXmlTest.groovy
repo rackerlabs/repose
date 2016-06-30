@@ -33,8 +33,6 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
     def static String tenantId = "138974928"
     def static xmlSlurper = new XmlSlurper()
     def static responseHeaders = ["Content-Type": MimeType.APPLICATION_XML.toString()]
-    def stringWriter
-    def xmlBuilder
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -48,32 +46,13 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-    def setup() {
-        stringWriter = new StringWriter()
-        xmlBuilder = new MarkupBuilder(stringWriter)
-    }
-
-    def simpleXmlBodyWithLink(String responseBodyLink) {
-        xmlBuilder.bookstore {
-            book(category: 'BAKING') {
-                title lang: 'en', 'Everyday French'
-                author 'Some person'
-                year 2001
-                price 20.00
-                link responseBodyLink
-            }
-        }
-
-        stringWriter.toString()
-    }
-
     def "when the uri does not match the configured uri-path-regex, the response body should not be modified"() {
         given: "url does not match any configured uri-path-regex"
         def requestUrl = "/matches/nothing/$tenantId/some/more/resources"
 
         and: "an XML response body contains a link without a tenantId"
         def responseBodyLink = "/matches/nothing/some/more/resources"
-        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlBodyWithLink(responseBodyLink)) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
 
         when: "a request is made and the XML response body is parsed"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
@@ -88,7 +67,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         given: "an XML response body contains a link without a tenantId"
         def requestUrl = "/continue/foo/$tenantId/bar"
         def responseBodyLink = "/continue/foo/bar"
-        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlBodyWithLink(responseBodyLink)) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
 
         when: "a request is made and the XML response body is parsed"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, method: method, defaultHandler: responseHandler)
@@ -129,7 +108,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
     def "the response body link can be updated using the #position token only"() {
         given: "the link in the XML response only contains one of the tokens"
         def requestUrl = "/continue/foo/$tenantId/bar"
-        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlBodyWithLink(responseBodyLink)) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
 
         when: "a request is made and the XML response body is parsed"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
@@ -148,7 +127,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         given: "the link in the XML response doesn't contain the previous nor following token"
         def requestUrl = "/continue/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c/d/e/f/g/h"
-        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlBodyWithLink(responseBodyLink)) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
 
         when: "a request is made and the JSON response body is parsed"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
@@ -175,6 +154,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
     def "when configured to update the token-index #index, the XML response body link should be updated from #responseBodyLink to #modifiedResponseBodyLink"() {
         given: "the XML response body has the configured link"
         def requestUrl = "/continue-index/foo/$tenantId/bar"
+        def stringWriter = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(stringWriter)
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title 'Everyday French'
@@ -184,8 +165,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
                 "$xPath" responseBodyLink
             }
         }
-        def body = stringWriter.toString()
-        def responseHandler = { request -> new Response(200, null, responseHeaders, body) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, stringWriter.toString()) }
 
         when: "a request is made and the XML response body is parsed"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
@@ -208,6 +188,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         given: "the XML response body contains multiple link-resources"
         def requestUrl = "/continue-index/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c/d/e/f/g/h"
+        def stringWriter = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(stringWriter)
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title 'Everyday French'
@@ -219,8 +201,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
                 "link-c" responseBodyLink
             }
         }
-        def body = stringWriter.toString()
-        def responseHandler = { request -> new Response(200, null, responseHeaders, body) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, stringWriter.toString()) }
 
         when: "a request is made and the XML response body is parsed"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
@@ -236,7 +217,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         given: "the link in the XML response doesn't contain the previous nor following token"
         def requestUrl = "/remove/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c/d/e/f/g/h"
-        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlBodyWithLink(responseBodyLink)) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
 
         when: "a request is made and the XML response body is parsed"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
@@ -250,6 +231,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
     def "when configured to remove on mismatch, the response body is not modified if the xpath to the link does not resolve"() {
         given: "the XML response doesn't contain the link field at all"
         def requestUrl = "/remove/foo/$tenantId/bar"
+        def stringWriter = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(stringWriter)
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title 'Everyday French'
@@ -272,7 +255,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         given: "the link in the XML response doesn't contain enough tokens"
         def requestUrl = "/remove-index/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c"
-        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlBodyWithLink(responseBodyLink)) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
 
         when: "a request is made and the XML response body is parsed"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
@@ -287,7 +270,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         given: "the link in the XML response doesn't contain the previous nor following token"
         def requestUrl = "/fail/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c/d/e/f/g/h"
-        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlBodyWithLink(responseBodyLink)) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
 
         when: "a request is made"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
@@ -299,6 +282,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
     def "when configured to fail on mismatch, Repose returns a 500 if the xpath to the link does not resolve"() {
         given: "the XML response doesn't contain the link field at all"
         def requestUrl = "/fail/foo/$tenantId/bar"
+        def stringWriter = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(stringWriter)
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title 'Everyday French'
@@ -307,8 +292,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
                 price 20.00
             }
         }
-        def body = stringWriter.toString()
-        def responseHandler = { request -> new Response(200, null, responseHeaders, body) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, stringWriter.toString()) }
 
         when: "a request is made"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
@@ -321,13 +305,168 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         given: "the link in the XML response doesn't contain enough tokens to be updated"
         def requestUrl = "/fail-index/foo/$tenantId/bar"
         def responseBodyLink = "/a/b/c"
-        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlBodyWithLink(responseBodyLink)) }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
 
         when: "a request is made"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response code is 500"
         mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
+    }
+
+    @Unroll
+    def "when configured XPath is #xPath, the book at index #index in the XML response body should have its link updated"() {
+        given: "the XML response body has the configured link"
+        def requestUrl = "/xpath/$url/$tenantId/bar"
+        def responseHandler = { request -> new Response(200, null, responseHeaders, body) }
+
+        when: "a request is made and the XML response body is parsed"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
+        def bookstore = xmlSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the response body link is modified"
+        bookstore.book[index as String]."$node" == "/xpath/foo/$tenantId/bar"
+
+        where:
+        xPath                                           | index | node        | url                | body
+        "/bookstore/book/link"                          | 0     | "link"      | "basic"            | simpleXmlWithLink("/xpath/foo/bar")
+        "/bookstore//link"                              | 0     | "link"      | "any-child"        | simpleXmlWithLink("/xpath/foo/bar")
+        "/bookstore/book/@category"                     | 0     | "@category" | "attribute"        | simpleXmlWithLink("/xpath/foo/bar")
+        "/bookstore/book[1]/link"                       | 1     | "link"      | "first"            | xmlWithMultipleBooks()
+        "/bookstore/book[price>45]/link"                | 2     | "link"      | "element-search"   | xmlWithMultipleBooks()
+        "/bookstore/book[@category='BAKING']/link"      | 0     | "link"      | "attribute-search" | xmlWithMultipleBooks()
+        "/bookstore/book[not(@category='FLIGHT')]/link" | 0     | "link"      | "function-not"     | xmlWithMultipleBooks()
+        "/bookstore/book[last()]/link"                  | 3     | "link"      | "function-last"    | xmlWithMultipleBooks()
+        "//link[@*]"                                    | 3     | "link"      | "attribute-any"    | xmlWithMultipleBooks()
+    }
+
+    @Unroll
+    def "when configured XPath is #xPath, all of the books in the XML response body should have their link updated"() {
+        given: "the XML response body has the configured link"
+        def requestUrl = "/xpath/$url/$tenantId/bar"
+        def responseHandler = { request -> new Response(200, null, responseHeaders, xmlWithMultipleBooks()) }
+
+        when: "a request is made and the XML response body is parsed"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
+        def bookstore = xmlSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the response body link is modified"
+        (0..3).each { assert bookstore.book[it as String].link == "/xpath/foo/$tenantId/bar" }
+
+        where:
+        xPath               | url
+        "//link"            | "all-links-double-slash"
+        "/bookstore/*/link" | "all-links-bookstore-star"
+    }
+
+    def "when the XML response body has a namespace, the response body link is updated"() {
+        given: "the XML response body has the configured link and a namespace"
+        def requestUrl = "/continue/foo/$tenantId/bar"
+        def stringWriter = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(stringWriter)
+        xmlBuilder.'x:bookstore'('xmlns:x': 'http://www.groovy-lang.org') {
+            'x:book'(category: 'BAKING') {
+                'x:title' lang: 'en', 'Everyday French'
+                'x:author' 'Some person'
+                'x:year' 2001
+                'x:price' 20.00
+                'x:link' '/continue/foo/bar'
+            }
+        }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, stringWriter.toString()) }
+
+        when: "a request is made and the XML response body is parsed"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
+        def bookstore = xmlSlurper.parseText(mc.receivedResponse.body as String)
+                .declareNamespace(x: 'http://www.groovy-lang.org')
+
+        then: "the response body link is modified"
+        bookstore.'x:book'.'x:link' == "/continue/foo/$tenantId/bar"
+    }
+
+    def "when the request URL matches multiple link-resources, all are applied to the response body"() {
+        given: "the request URL will match multiple link-resources"
+        def requestUrl = "/multi-url-a/multi-url-b/$tenantId/bar"
+
+        and: "the XML response body has the configured links in the response body"
+        def stringWriter = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(stringWriter)
+        xmlBuilder.bookstore {
+            book(category: 'BAKING') {
+                title 'Everyday French'
+                author 'Some person'
+                year 2001
+                price 20.00
+                "link-a" "/multi-url-a/multi-url-b/bar"
+                "link-b" "/multi-url-a/multi-url-b/bar"
+            }
+        }
+        def responseHandler = { request -> new Response(200, null, responseHeaders, stringWriter.toString()) }
+
+        when: "a request is made and the XML response body is parsed"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
+        def bookstore = xmlSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the response body link is modified"
+        bookstore.book."link-a" == requestUrl
+        bookstore.book."link-b" == requestUrl
+    }
+
+    def simpleXmlWithLink(String responseBodyLink) {
+        def stringWriter = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(stringWriter)
+
+        xmlBuilder.bookstore {
+            book(category: 'BAKING') {
+                title lang: 'en', 'Everyday French'
+                author 'Some person'
+                year 2001
+                price 20.00
+                link responseBodyLink
+            }
+        }
+
+        stringWriter.toString()
+    }
+
+    def xmlWithMultipleBooks() {
+        def stringWriter = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(stringWriter)
+
+        xmlBuilder.bookstore {
+            book(category: 'BAKING') {
+                title lang: 'en', 'Everyday French'
+                author 'Some person'
+                year 2001
+                price 20.00
+                link '/xpath/foo/bar'
+            }
+            book(category: 'FLIGHT') {
+                title lang: 'en', 'Flying Airplanes'
+                author 'That other person'
+                year 2004
+                price 39.99
+                link '/xpath/foo/bar'
+            }
+            book(category: 'FLIGHT') {
+                title lang: 'en', 'Sick Tricks for Planes'
+                author 'Ed'
+                author 'Edd'
+                author 'Eddy'
+                year 2000
+                price 59.95
+                link '/xpath/foo/bar'
+            }
+            book(category: 'FLIGHT') {
+                title lang: 'en', 'Flying More Airplanes'
+                author 'That other person'
+                year 2006
+                price 39.99
+                link lang: 'en', '/xpath/foo/bar'
+            }
+        }
+
+        stringWriter.toString()
     }
 }
 
