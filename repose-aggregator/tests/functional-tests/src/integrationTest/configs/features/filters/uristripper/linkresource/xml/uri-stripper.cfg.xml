@@ -104,4 +104,9 @@
             <xml link-mismatch-action="continue">/bookstore/*/link</xml>
         </response>
     </link-resource>
+    <link-resource uri-path-regex="/xpath/all-links-using-or/.*">
+        <response>
+            <xml link-mismatch-action="continue">/bookstore/book[0]/link | /bookstore/book[1]/link | /bookstore/book[2]/link | /bookstore/book[3]/link</xml>
+        </response>
+    </link-resource>
 </uri-stripper>

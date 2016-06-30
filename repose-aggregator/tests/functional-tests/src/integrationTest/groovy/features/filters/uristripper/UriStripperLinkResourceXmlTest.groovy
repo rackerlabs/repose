@@ -354,9 +354,10 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         (0..3).each { assert bookstore.book[it as String].link == "/xpath/foo/$tenantId/bar" }
 
         where:
-        xPath               | url
-        "//link"            | "all-links-double-slash"
-        "/bookstore/*/link" | "all-links-bookstore-star"
+        url                        | xPath
+        "all-links-double-slash"   | "//link"
+        "all-links-bookstore-star" | "/bookstore/*/link"
+        "all-links-using-or"       | "/bookstore/book[0]/link | /bookstore/book[1]/link | /bookstore/book[2]/link | /bookstore/book[3]/link"
     }
 
     def "when the XML response body has a namespace, the response body link is updated"() {
