@@ -103,7 +103,7 @@ class ClassLoaderTest extends ReposeValveTest {
 
         then: "the request header should equal BAR"
         mc.handlings.size() == 1
-        mc.receivedResponse.code == 200
+        mc.receivedResponse.code == "200"
         mc.handlings[0].request.headers.getFirstValue("FOO") == "BAR"
 
         when: "make a request with the BAR header"
@@ -116,7 +116,7 @@ class ClassLoaderTest extends ReposeValveTest {
 
         then: "the request should bomb"
         mc.handlings.size() == 0
-        mc.receivedResponse.code == 500
+        mc.receivedResponse.code == "500"
         reposeLogSearch.searchByString("IllegalArgumentException").size() > 0
     }
 
@@ -228,7 +228,7 @@ class ClassLoaderTest extends ReposeValveTest {
 
         then: "the request should log BAR and BARRR"
         mc.handlings.size() == 1
-        mc.receivedResponse.code == 200
+        mc.receivedResponse.code == "200"
         reposeLogSearch.searchByString("BAR").size() == 2
         reposeLogSearch.searchByString("BARRR").size() == 1
     }
