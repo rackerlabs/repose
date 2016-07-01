@@ -20,7 +20,6 @@
 package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import java.io.StringWriter
-import java.net.URLConnection
 import java.util.Date
 
 import akka.actor.ActorSystem
@@ -28,17 +27,20 @@ import akka.http.scaladsl.model._
 import akka.testkit.{TestActorRef, TestKit, TestProbe}
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
+import org.apache.http.client.HttpClient
+import org.apache.http.impl.client.HttpClients
 import org.junit.runner.RunWith
 import org.mockito.AdditionalAnswers
-import org.mockito.Matchers.any
+import org.mockito.Matchers.{any, anyString}
 import org.mockito.Mockito.{reset, when}
 import org.openrepose.commons.utils.logging.TracingKey
+import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
 import org.openrepose.nodeservice.atomfeed.impl.MockService
 import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.{CancelScheduledReading, ReadFeed, ScheduleReading}
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager.{BindFeedReader, Notify}
-import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSuiteLike}
@@ -58,12 +60,23 @@ class FeedReaderTest(_system: ActorSystem)
   var feed: Feed = _
   var actorRef: TestActorRef[FeedReader] = _
   var mockAtomFeedService: MockService = _
+  var mockHttpClientService: HttpClientService = _
 
   def this() = this(ActorSystem("FeedReaderTest"))
 
   override def beforeEach() = {
+    mockHttpClientService = mock[HttpClientService]
+    when(mockHttpClientService.getClient(anyString)).thenReturn(new HttpClientContainer {
+      override def getClientInstanceId: String = ""
+
+      override def getUserId: String = ""
+
+      override def getHttpClient: HttpClient = HttpClients.createDefault()
+    })
+
+
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
+    when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
     mockAtomFeedService = new MockService()
@@ -92,6 +105,8 @@ class FeedReaderTest(_system: ActorSystem)
 
     actorRef = TestActorRef(
       new FeedReader(mockAtomFeedService.getUrl + "/feed",
+        mockHttpClientService,
+        "",
         Some(mockAuthRequestFactory),
         1 second,
         notifierProbe.ref,
@@ -104,6 +119,8 @@ class FeedReaderTest(_system: ActorSystem)
   test("should bind to the notifier manager and send a lifecycle update when started") {
     actorRef = TestActorRef(
       new FeedReader("http://test.url/feed",
+        mockHttpClientService,
+        "",
         Some(mockAuthRequestFactory),
         1 second,
         notifierProbe.ref,
@@ -119,6 +136,8 @@ class FeedReaderTest(_system: ActorSystem)
   test("should send a lifecycle update when stopped") {
     actorRef = TestActorRef(
       new FeedReader("http://test.url/feed",
+        mockHttpClientService,
+        "",
         Some(mockAuthRequestFactory),
         1 second,
         notifierProbe.ref,
@@ -318,6 +337,8 @@ class FeedReaderTest(_system: ActorSystem)
 
     actorRef = TestActorRef(
       new FeedReader(mockAtomFeedService.getUrl + "/feed",
+        mockHttpClientService,
+        "",
         Some(mockAuthRequestFactory),
         1 second,
         notifierProbe.ref,

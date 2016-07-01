@@ -20,7 +20,7 @@
 package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import java.io.{IOException, StringWriter}
-import java.net.{URL, UnknownServiceException}
+import java.net.{URI, UnknownServiceException}
 
 import akka.actor._
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -28,10 +28,11 @@ import org.apache.abdera.Abdera
 import org.apache.abdera.i18n.iri.IRI
 import org.apache.abdera.parser.ParseException
 import org.openrepose.commons.utils.logging.TracingKey
+import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
 import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder
-import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.{AuthenticationException, UnrecoverableIOException}
+import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.{AuthenticationException, ClientErrorException}
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.{FeedReaderActivated, FeedReaderCreated, FeedReaderDeactivated, FeedReaderDestroyed}
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
 import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContextImpl
@@ -44,6 +45,8 @@ import scala.language.postfixOps
 object FeedReader {
 
   def props(feedUri: String,
+            httpClientService: HttpClientService,
+            connectionPoolId: String,
             authenticatedRequestFactory: Option[AuthenticatedRequestFactory],
             authenticationTimeout: Duration,
             notifierManager: ActorRef,
@@ -52,6 +55,8 @@ object FeedReader {
             reposeVersion: String): Props =
     Props(new FeedReader(
       feedUri,
+      httpClientService,
+      connectionPoolId,
       authenticatedRequestFactory,
       authenticationTimeout,
       notifierManager,
@@ -67,7 +72,9 @@ object FeedReader {
 
 }
 
-class FeedReader(feedUri: String,
+class FeedReader(feedURIString: String,
+                 httpClientService: HttpClientService,
+                 connectionPoolId: String,
                  authenticatedRequestFactory: Option[AuthenticatedRequestFactory],
                  authenticationTimeout: Duration,
                  notifierManager: ActorRef,
@@ -79,7 +86,7 @@ class FeedReader(feedUri: String,
   import FeedReader._
 
   val parser = Abdera.getInstance().getParser
-  val feedUrl = new URL(feedUri)
+  val feedURI = new URI(feedURIString)
 
   var firstReadDone = false
   var highWaterMark: Option[IRI] = None
@@ -97,12 +104,15 @@ class FeedReader(feedUri: String,
 
   override def receive: Receive = {
     case ReadFeed =>
+      val httpClientContainer = httpClientService.getClient(connectionPoolId)
       val requestId = java.util.UUID.randomUUID().toString
       MDC.put(TracingKey.TRACING_KEY, requestId)
 
       try {
+        // todo: add authenticatedRequestFactory and authenticationTimeout to the AuthenticationRequestContextImpl?
         def getStream = AtomEntryStreamBuilder.build(
-          feedUrl,
+          feedURI,
+          httpClientContainer.getHttpClient,
           AuthenticationRequestContextImpl(reposeVersion, requestId),
           authenticatedRequestFactory,
           authenticationTimeout)
@@ -133,17 +143,19 @@ class FeedReader(feedUri: String,
       } catch {
         case AuthenticationException =>
           logger.error("Authentication failed -- connection to Atom service could not be established")
-        case e@(_: UnknownServiceException | _: IOException | _: UnrecoverableIOException) =>
+        case e@(_: UnknownServiceException | _: IOException | ClientErrorException) =>
           logger.error("Connection to Atom service failed -- an invalid URI may have been provided, or " +
             "authentication credentials may be invalid", e)
         case pe: ParseException =>
           logger.error("Failed to parse the Atom feed", pe)
         case e: Exception =>
           logger.error("Feed was unable to be read", e)
+      } finally {
+        httpClientService.releaseClient(httpClientContainer)
       }
     case ScheduleReading =>
       schedule = schedule orElse {
-        logger.info("Scheduled feed reader for URI: " + feedUri)
+        logger.info("Scheduled feed reader for URI: " + feedURIString)
         val newSchedule = Some(context.system.scheduler.schedule(
           Duration.Zero,
           pollingFrequency.seconds,
@@ -156,7 +168,7 @@ class FeedReader(feedUri: String,
       }
     case CancelScheduledReading =>
       schedule foreach { cancellable =>
-        logger.info("Cancelled scheduled feed reader for URI: " + feedUri)
+        logger.info("Cancelled scheduled feed reader for URI: " + feedURIString)
         cancellable.cancel()
         notifierManager ! FeedReaderDeactivated
       }

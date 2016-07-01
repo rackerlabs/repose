@@ -20,7 +20,7 @@
 package org.openrepose.nodeservice.atomfeed.impl.auth
 
 import java.io.InputStream
-import java.net.URLConnection
+import java.util
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.client.methods.HttpPost
@@ -31,7 +31,7 @@ import org.apache.http.{HttpHeaders, HttpStatus}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
-import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
 import play.api.libs.json.Json
 
 import scala.io.{Codec, Source}
@@ -56,7 +56,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactory(configuration: OpenStackIde
 
   private var cachedToken: Option[String] = None
 
-  override def authenticateRequest(atomFeedUrlConnection: URLConnection, context: AuthenticationRequestContext): URLConnection = {
+  override def authenticateRequest(feedReadRequest: FeedReadRequest, context: AuthenticationRequestContext): FeedReadRequest = {
     lazy val tracingHeader = TracingHeaderHelper.createTracingHeader(context.getRequestId, "1.1 Repose (Repose/" + context.getReposeVersion + ")", username)
 
     val tryToken = cachedToken match {
@@ -67,8 +67,8 @@ class OpenStackIdentityV2AuthenticatedRequestFactory(configuration: OpenStackIde
     tryToken match {
       case Success(tkn) =>
         logger.debug(s"Adding x-auth-token header with value: $tkn")
-        atomFeedUrlConnection.setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, tkn)
-        atomFeedUrlConnection
+        feedReadRequest.getHeaders.put(CommonHttpHeader.AUTH_TOKEN.toString, util.Arrays.asList(tkn))
+        feedReadRequest
       case Failure(_) =>
         null
     }

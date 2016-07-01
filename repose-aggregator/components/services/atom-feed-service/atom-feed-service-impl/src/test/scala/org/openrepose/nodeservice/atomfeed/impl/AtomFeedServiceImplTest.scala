@@ -29,6 +29,7 @@ import org.mockito.Matchers.{eq => isEq, _}
 import org.mockito.Mockito.verify
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.systemmodel._
 import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedServiceConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedListener
@@ -46,15 +47,17 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
   val serviceListAppender = ctx.getConfiguration.getAppender("serviceList").asInstanceOf[ListAppender]
 
   var mockConfigService: ConfigurationService = _
+  var mockHttpClientService: HttpClientService = _
 
   override def beforeEach() = {
     mockConfigService = mock[ConfigurationService]
+    mockHttpClientService = mock[HttpClientService]
     serviceListAppender.clear()
   }
 
   describe("init") {
     it("should register configuration listeners") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "", "", mockConfigService)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "", "", mockHttpClientService, mockConfigService)
 
       atomFeedService.init()
 
@@ -74,7 +77,7 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
 
   describe("destroy") {
     it("should unregister configuration listeners") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "", "", mockConfigService)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "", "", mockHttpClientService, mockConfigService)
 
       atomFeedService.destroy()
 
@@ -85,7 +88,7 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
 
   describe("registerListener") {
     it("should register a notifier with a notifier manager") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockConfigService)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockHttpClientService, mockConfigService)
 
       val listenerIdOne = atomFeedService.registerListener("feedId", mock[AtomFeedListener])
       val listenerIdTwo = atomFeedService.registerListener("feedIdTwo", mock[AtomFeedListener])
@@ -101,7 +104,7 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
     // and i don't want to see it happen in a release and cause a headache
     // see REP-3664
     ignore("should unregister a listener when passed a valid listener ID") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockConfigService)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockHttpClientService, mockConfigService)
 
       val listenerId = atomFeedService.registerListener("feedId", mock[AtomFeedListener])
       atomFeedService.unregisterListener(listenerId)
@@ -111,7 +114,7 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
     }
 
     it("should report if a listener ID is not registered") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockConfigService)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockHttpClientService, mockConfigService)
 
       atomFeedService.unregisterListener("notRegisteredFeedId")
 

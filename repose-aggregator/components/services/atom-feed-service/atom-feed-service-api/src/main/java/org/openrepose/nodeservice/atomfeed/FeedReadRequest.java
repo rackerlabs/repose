@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,23 +19,18 @@
  */
 package org.openrepose.nodeservice.atomfeed;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
 /**
- * A factory which will perform any necessary processing to authenticate a request to the Atom service.
+ * A simple object which contains information related to a request that may be used during authentication.
  */
-public interface AuthenticatedRequestFactory {
+public interface FeedReadRequest {
 
-    /**
-     * Mutates a request to adhere to some authentication scheme compatible with the Atom service.
-     *
-     * @param feedReadRequest A mutable container for request data that will be sent to the Atom service.
-     * @param context         A context object which contains information related to the request.
-     * @return The {@link FeedReadRequest} with authentication mutations applied.
-     */
-    FeedReadRequest authenticateRequest(FeedReadRequest feedReadRequest, AuthenticationRequestContext context);
+    URI getURI();
 
-    /**
-     * This method will be called anytime authentication credentials on a request that has been processed by the
-     * authenticateRequest method are found to be invalid.
-     */
-    void onInvalidCredentials();
+    void setURI(URI uri);
+
+    Map<String, List<String>> getHeaders();
 }

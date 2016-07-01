@@ -20,20 +20,22 @@
 package org.openrepose.nodeservice.atomfeed.impl
 
 import java.io.StringWriter
-import java.net.{URL, URLConnection}
+import java.net.URI
 import java.util.Date
 
 import akka.http.scaladsl.model._
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
+import org.apache.http.client.HttpClient
+import org.apache.http.impl.client.HttpClients
 import org.junit.runner.RunWith
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.{AdditionalAnswers, ArgumentCaptor}
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.UnrecoverableIOException
+import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.ClientErrorException
 import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContextImpl
-import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -49,11 +51,14 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
   val abdera = Abdera.getInstance()
 
   var mockAtomFeedService: MockService = _
+  var httpClient: HttpClient = _
   var feed: Feed = _
 
   override def beforeEach() = {
+    httpClient = HttpClients.createDefault()
+
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
+    when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
     mockAtomFeedService = new MockService()
@@ -87,43 +92,43 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
     val waitingAuthFactory = Some(new AuthenticatedRequestFactory {
       override def onInvalidCredentials(): Unit = ???
 
-      override def authenticateRequest(atomFeedUrlConnection: URLConnection, context: AuthenticationRequestContext): URLConnection = {
+      override def authenticateRequest(feedReadRequest: FeedReadRequest, context: AuthenticationRequestContext): FeedReadRequest = {
         // Infinite loop to prove that the Future safeguard actually bounds the authenticator
         while (true) {
           Thread.sleep(1000)
         }
-        atomFeedUrlConnection
+        feedReadRequest
       }
     })
 
     intercept[TimeoutException] {
-      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"), waitingAuthFactory, 100 millis)
+      AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("requestId", "1.0"), waitingAuthFactory, 100 millis)
     }
   }
 
   test("should add a tracing header to the request to the Atom service") {
     finishSetup()
 
-    val capturedUrlConnection = ArgumentCaptor.forClass(classOf[URLConnection])
+    val capturedfeedReadRequest = ArgumentCaptor.forClass(classOf[FeedReadRequest])
 
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(capturedUrlConnection.capture(), any[AuthenticationRequestContext]))
+    when(mockAuthRequestFactory.authenticateRequest(capturedfeedReadRequest.capture(), any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
-    AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
+    AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
 
-    assert(capturedUrlConnection.getValue.getRequestProperty(CommonHttpHeader.TRACE_GUID.toString).nonEmpty)
+    assert(!capturedfeedReadRequest.getValue.getHeaders.get(CommonHttpHeader.TRACE_GUID.toString).isEmpty)
   }
 
   test("should throw an AuthenticationException if the factory returns null") {
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
+    when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
       .thenReturn(null)
 
     finishSetup()
 
     intercept[AtomEntryStreamBuilder.AuthenticationException.type] {
-      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
+      AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
     }
   }
 
@@ -144,7 +149,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
 
     finishSetup()
 
-    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"))
+    val entryStream = AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("requestId", "1.0"))
 
     assert(entryStream.exists(entry => entry.getContent.equals("entryOne")))
     assert(entryStream.exists(entry => entry.getContent.equals("entryTwo")))
@@ -167,7 +172,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
 
     finishSetup()
 
-    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"))
+    val entryStream = AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("requestId", "1.0"))
 
     assert(entryStream.head.getContent.equals("entryOne"))
     assert(entryStream.drop(1).head.getContent.equals("entryTwo"))
@@ -221,7 +226,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
         HttpResponse(404, entity = "Not Found")
     }
 
-    val entryStream = AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("requestId", "1.0"))
+    val entryStream = AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("requestId", "1.0"))
 
     assert(entryStream.head.getContent.equals("entryOne"))
     assert(entryStream.drop(1).head.getContent.equals("entryTwo"))
@@ -239,15 +244,15 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
     }
 
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
+    when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
-    intercept[UnrecoverableIOException] {
-      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("", ""), Some(mockAuthRequestFactory))
+    intercept[ClientErrorException.type] {
+      AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("", ""), Some(mockAuthRequestFactory))
     }
 
     verify(mockAuthRequestFactory, times(2)).onInvalidCredentials()
-    verify(mockAuthRequestFactory, times(2)).authenticateRequest(any[URLConnection], any[AuthenticationRequestContext])
+    verify(mockAuthRequestFactory, times(2)).authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext])
   }
 
   test("should retry once if authentication credentials go bad after the initial page fetch") {
@@ -285,14 +290,14 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
     }
 
     reset(mockAuthRequestFactory)
-    when(mockAuthRequestFactory.authenticateRequest(any[URLConnection], any[AuthenticationRequestContext]))
+    when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
-    intercept[UnrecoverableIOException] {
-      AtomEntryStreamBuilder.build(new URL(mockAtomFeedService.getUrl + "/feed"), AuthenticationRequestContextImpl("", ""), Some(mockAuthRequestFactory))
+    intercept[ClientErrorException.type] {
+      AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("", ""), Some(mockAuthRequestFactory))
     }
 
     verify(mockAuthRequestFactory, times(2)).onInvalidCredentials()
-    verify(mockAuthRequestFactory, times(3)).authenticateRequest(any[URLConnection], any[AuthenticationRequestContext])
+    verify(mockAuthRequestFactory, times(3)).authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext])
   }
 }

@@ -19,15 +19,14 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl.auth
 
-import java.net.URLConnection
+import java.net.URI
 
 import akka.http.scaladsl.model._
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mEq}
-import org.mockito.Mockito.{times, verify}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
-import org.openrepose.nodeservice.atomfeed.impl.MockService
+import org.openrepose.nodeservice.atomfeed.impl.{FeedReadRequestImpl, MockService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -66,7 +65,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      osiarf.authenticateRequest(mock[URLConnection], AuthenticationRequestContextImpl("", ""))
+      val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+
+      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
 
       requestHeaders.exists(_.is(CommonHttpHeader.TRACE_GUID.toString)) shouldBe true
     }
@@ -79,8 +80,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      val mockConnection = mock[URLConnection]
-      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", "")) shouldBe null
+      val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+
+      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", "")) shouldBe null
     }
 
     it("should handle a 4xx response") {
@@ -91,8 +93,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      val mockConnection = mock[URLConnection]
-      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", "")) shouldBe null
+      val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+
+      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", "")) shouldBe null
     }
 
     it("should send a valid payload and receive a valid token for the user provided") {
@@ -103,10 +106,11 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      val mockConnection = mock[URLConnection]
-      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", ""))
+      val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
 
-      verify(mockConnection).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
+      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
+
+      feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"
     }
 
     it("should cache a token until invalidated") {
@@ -120,20 +124,24 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      val mockConnection = mock[URLConnection]
+      var feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
 
-      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", ""))
-      verify(mockConnection).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
+      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
+      feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"
       numberOfInterations shouldEqual 1
 
-      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", ""))
-      verify(mockConnection, times(2)).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
+      feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+
+      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
+      feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"
       numberOfInterations shouldEqual 1
 
       osiarf.onInvalidCredentials()
 
-      osiarf.authenticateRequest(mockConnection, AuthenticationRequestContextImpl("", ""))
-      verify(mockConnection, times(3)).setRequestProperty(CommonHttpHeader.AUTH_TOKEN.toString, "test-token")
+      feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+
+      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
+      feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"
       numberOfInterations shouldEqual 2
     }
   }

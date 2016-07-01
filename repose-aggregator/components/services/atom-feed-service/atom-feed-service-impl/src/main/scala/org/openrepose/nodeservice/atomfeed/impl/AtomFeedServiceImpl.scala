@@ -27,6 +27,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedConfigType, AtomFeedServiceConfigType, OpenStackIdentityV2AuthenticationType}
@@ -36,13 +37,14 @@ import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, A
 import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConversions._
-import scala.language.postfixOps
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 @Named
 class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVersion: String,
                                     @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                                     @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
+                                    httpClientService: HttpClientService,
                                     configurationService: ConfigurationService)
   extends AtomFeedService with LazyLogging {
 
@@ -152,6 +154,8 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
           val feedReader = actorSystem.actorOf(
             FeedReader.props(
               newFeedConfig.getUri,
+              httpClientService,
+              newFeedConfig.getConnectionPoolId,
               authenticationConfig.map(buildAuthenticatedRequestFactory),
               authenticationConfig.map(_.getTimeout).filterNot(_ == 0).map(_.milliseconds).getOrElse(Duration.Inf),
               notifierManager,
