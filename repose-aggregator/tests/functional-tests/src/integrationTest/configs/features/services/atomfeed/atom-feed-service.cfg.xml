@@ -2,36 +2,36 @@
 <atom-feed-service xmlns="http://docs.openrepose.org/repose/atom-feed-service/v1.0"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <feed id="unauth-feed-no-pool" uri="http://localhost:${atomPort}/feed"/>
+    <feed id="unauth-feed-no-pool" uri="http://localhost:${atomPort}/feed" polling-frequency="2"/>
 
-    <feed id="auth-feed-no-pool" uri="http://localhost:${atomPort}/feed">
+    <feed id="auth-feed-no-pool" uri="http://localhost:${atomPort}/feed" polling-frequency="2">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
                         password="admin_password"/>
     </feed>
 
-    <feed id="unauth-feed-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="atom-feed-pool-unauth"/>
+    <feed id="unauth-feed-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="atom-feed-pool-unauth" polling-frequency="2"/>
 
-    <feed id="auth-feed-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="atom-feed-pool-auth">
+    <feed id="auth-feed-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="atom-feed-pool-auth" polling-frequency="2">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
                         password="admin_password"/>
     </feed>
 
-    <feed id="unauth-feed-missing-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="missing-pool-unauth"/>
+    <feed id="unauth-feed-missing-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="missing-pool-unauth" polling-frequency="2"/>
 
-    <feed id="auth-feed-missing-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="missing-pool-auth">
+    <feed id="auth-feed-missing-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="missing-pool-auth" polling-frequency="2">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
                         password="admin_password"/>
     </feed>
 
-    <feed id="unauth-feed-timeout-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="small-timeout-pool"/>
+    <feed id="unauth-feed-timeout-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="small-timeout-pool" polling-frequency="2"/>
 
-    <feed id="auth-feed-timeout-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="small-timeout-pool">
+    <feed id="auth-feed-timeout-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="small-timeout-pool" polling-frequency="2">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
@@ -39,7 +39,7 @@
     </feed>
 
     <!-- This feed will be used to test authentication taking too long and timing out -->
-    <feed id="auth-feed-auth-timeout" uri="http://localhost:${atomPort}/feed">
+    <feed id="auth-feed-auth-timeout" uri="http://localhost:${atomPort}/feed" polling-frequency="2">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         timeout="2000"
                         uri="http://localhost:${identityPort}"

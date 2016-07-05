@@ -83,11 +83,8 @@ class AtomFeedResponseSimulator {
         return new Response(200, 'OK', headers, populateTemplate(template))
     }
 
-    def handlerWithEntries(List<String> entries, Closure processRequest = { r -> }) {
-        { Request request ->
-            processRequest(request)
-            new Response(200, 'OK', headers, populateTemplate(atomWithEntryXml(entries)))
-        }
+    def handlerWithEntries(List<String> entries) {
+        { Request request -> new Response(200, 'OK', headers, populateTemplate(atomWithEntryXml(entries))) }
     }
 
     def populateTemplate(String template, Map params = [:]) {

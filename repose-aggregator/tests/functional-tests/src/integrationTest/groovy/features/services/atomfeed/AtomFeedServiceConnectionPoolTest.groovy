@@ -43,7 +43,6 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
 
     def startReposeWithConfigParams(Map testParams = [:]) {
         deproxy = new Deproxy()
-        reposeLogSearch.cleanLog()
 
         int atomPort = properties.atomPort
         fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
@@ -72,17 +71,18 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
 
         and: "an atom feed entry is available for consumption"
         String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: "urn:uuid:$entryId")
+        def atomFeedHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
         HeaderCollection requestHeaders = new HeaderCollection()
-        def headerGrabber = { Request request -> requestHeaders = request.headers }
-        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry], headerGrabber)
+        def atomFeedHandlerWrapper = { Request request ->
+            requestHeaders = request.headers
+            atomFeedHandler(request)
+        }
+        atomEndpoint.defaultHandler = atomFeedHandlerWrapper
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("</atom:entry>", 1, 11, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:$entryId</atom:id>", 2, 6, TimeUnit.SECONDS)
 
-        then: "the atom feed entry is read by the Keystone V2 filter"
-        reposeLogSearch.searchByString("<atom:id>urn:uuid:$entryId</atom:id>").size() == 1
-
-        and: "the default connection pool was used"
+        then: "the correct connection pool was used"
         requestHeaders.getFirstValue("X-Pool-Id") == expectedPoolId
 
         where:
