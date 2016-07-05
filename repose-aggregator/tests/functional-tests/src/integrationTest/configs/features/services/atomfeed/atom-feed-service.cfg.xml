@@ -4,7 +4,7 @@
 
     <feed id="unauth-feed-no-pool" uri="http://localhost:${atomPort}/feed"/>
 
-    <feed id="auth-feed-no-pool" uri="http://localhost:${atomPort2}/feed">
+    <feed id="auth-feed-no-pool" uri="http://localhost:${atomPort}/feed">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
@@ -13,7 +13,7 @@
 
     <feed id="unauth-feed-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="atom-feed-pool-unauth"/>
 
-    <feed id="auth-feed-pool" uri="http://localhost:${atomPort2}/feed" connection-pool-id="atom-feed-pool-auth">
+    <feed id="auth-feed-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="atom-feed-pool-auth">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
@@ -22,7 +22,7 @@
 
     <feed id="unauth-feed-missing-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="missing-pool-unauth"/>
 
-    <feed id="auth-feed-missing-pool" uri="http://localhost:${atomPort2}/feed" connection-pool-id="missing-pool-auth">
+    <feed id="auth-feed-missing-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="missing-pool-auth">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
@@ -31,7 +31,7 @@
 
     <feed id="unauth-feed-timeout-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="small-timeout-pool"/>
 
-    <feed id="auth-feed-timeout-pool" uri="http://localhost:${atomPort2}/feed" connection-pool-id="small-timeout-pool">
+    <feed id="auth-feed-timeout-pool" uri="http://localhost:${atomPort}/feed" connection-pool-id="small-timeout-pool">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
@@ -39,7 +39,7 @@
     </feed>
 
     <!-- This feed will be used to test authentication taking too long and timing out -->
-    <feed id="auth-feed-auth-timeout" uri="http://localhost:${atomPort2}/feed">
+    <feed id="auth-feed-auth-timeout" uri="http://localhost:${atomPort}/feed">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
                         timeout="2000"
                         uri="http://localhost:${identityPort}"
