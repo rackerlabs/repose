@@ -3,10 +3,17 @@
 <uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
     <link-resource uri-path-regex=".*" http-methods="ALL">
         <response>
+
             <json>$.service.link</json>
             <json token-index="1" link-mismatch-action="fail">$.other-service.link</json>
-            <xml>/service/link</xml>
-            <xml token-index="1" link-mismatch-action="fail">/other-service/link</xml>
+            <xml>
+                <namespace>abcd</namespace>
+                <xpath token-index="1" link-mismatch-action="fail">/service/link</xpath>
+            </xml>
+            <xml>
+                <namespace>efgh</namespace>
+                <xpath>/other-service/link</xpath>
+            </xml>
         </response>
     </link-resource>
 </uri-stripper>
