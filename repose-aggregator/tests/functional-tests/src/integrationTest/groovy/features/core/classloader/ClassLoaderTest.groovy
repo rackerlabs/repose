@@ -37,7 +37,7 @@ class ClassLoaderTest extends ReposeValveTest {
      * Unfortunately this tests requires the Servlet Filter Contract to actually be upheld,
      * Repose doesn't do this, so we're setting a timebomb that will make the tests fail at a later date
      */
-    def splodeDate = new GregorianCalendar(2016, Calendar.JULY, 5)
+    def splodeDate = new GregorianCalendar(2016, Calendar.OCTOBER, 5)
 
     /**
      * copy the bundle from /repose-aggregator/tests/test-bundles/bundle-one/target/
@@ -103,7 +103,7 @@ class ClassLoaderTest extends ReposeValveTest {
 
         then: "the request header should equal BAR"
         mc.handlings.size() == 1
-        mc.receivedResponse.code == 200
+        mc.receivedResponse.code == "200"
         mc.handlings[0].request.headers.getFirstValue("FOO") == "BAR"
 
         when: "make a request with the BAR header"
@@ -116,7 +116,7 @@ class ClassLoaderTest extends ReposeValveTest {
 
         then: "the request should bomb"
         mc.handlings.size() == 0
-        mc.receivedResponse.code == 500
+        mc.receivedResponse.code == "500"
         reposeLogSearch.searchByString("IllegalArgumentException").size() > 0
     }
 
@@ -228,7 +228,7 @@ class ClassLoaderTest extends ReposeValveTest {
 
         then: "the request should log BAR and BARRR"
         mc.handlings.size() == 1
-        mc.receivedResponse.code == 200
+        mc.receivedResponse.code == "200"
         reposeLogSearch.searchByString("BAR").size() == 2
         reposeLogSearch.searchByString("BARRR").size() == 1
     }
