@@ -29,8 +29,6 @@ import javax.xml.transform._
 import javax.xml.transform.stream._
 import javax.xml.transform.dom._
 
-import com.rackspace.cloud.api.wadl.Converters._
-import net.sf.saxon.TransformerFactoryImpl
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
 import _root_.io.gatling.jsonpath.Parser
@@ -145,16 +143,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
               case Failure(e) =>
                 wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
             }
-          case Some(ct) if ct.toLowerCase.contains("xml") =>
-            val tryParsedXml = Try(XML.loadString(wrappedResponse.getOutputStreamAsInputStream))
-            applicableLinkPaths.foldLeft(tryParsedXml)(transformXmlLink(_, _, token.get, previousToken, nextToken)) match {
-              case Success(xmlValue) =>
-                val xmlValueBytes = xmlValue.toString.getBytes(wrappedResponse.getCharacterEncoding)
-                wrappedResponse.setContentLength(xmlValueBytes.length)
-                wrappedResponse.setOutput(new ByteArrayInputStream(xmlValueBytes))
-              case Failure(e) =>
-                wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
-            }
+          case Some(ct) if ct.toLowerCase.contains("xml") => //not sure yet
           case _ => //do nothing
         }
       }
@@ -191,8 +180,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private def getPathsForContentType(contentType: String, resource: HttpMessage): List[LinkPath] = {
     Option(contentType) match {
       case Some(ct) if ct.toLowerCase.contains("json") => resource.getJson.toList
-      // todo: return xpath when xml is supported
-      case Some(ct) if ct.toLowerCase.contains("xml") => resource.getXml.toList
+      case Some(ct) if ct.toLowerCase.contains("xml") => resource.getXml.toList map(_.getXpath)
       case _ => List.empty
     }
   }
@@ -253,17 +241,11 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   }
 
   private def transformXmlLink(tryResponseXml: Try[XmlValue], linkPath: LinkPath, strippedToken: String, previousToken: Option[String], nextToken: Option[String]): Try[XmlValue] = {
-    val transformerFactory = TransformerFactory.newInstance()
-    val xsltTransformer = transformerFactory.newTransformer(xsltSource)
-    xsltTransformer.setParameter(parameterName, parameterValue)
-
-    tryResponseXml map { responseXml =>
-      Try(responseXml.transform)
 
 
+  //  val transformerFactory = TransformerFactory.newInstance()
+  //  val xsltTransformer = transformerFactory.newTransformer(xsltSource)
 
-
-    }
   }
 
   override def destroy(): Unit = {
@@ -274,27 +256,6 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
   override def configurationUpdated(uriStripperConfig: UriStripperConfig): Unit = {
     config = uriStripperConfig
-    val saxonTransformFactory = {
-      val f = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", this.getClass.getClassLoader)
-      val cast = f.asInstanceOf[TransformerFactoryImpl]
-      cast.getConfiguration.getDynamicLoader.setClassLoader(this.getClass.getClassLoader)
-      f
-    }
-    val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/xsl/xml-remove.xsl").toString))
-    val setupTransformer = setupTemplate.newTransformer
-    setupTransformer.setParameter("xpath", xpath)
-    setupTransformer.setParameter("namespaces", new StreamSource(
-      <namespaces xmlns="http://www.rackspace.com/repose/params">
-        {
-        for ((prefix, uri) <- namespaces) yield
-            <ns prefix={prefix} uri={uri}/>
-        }
-      </namespaces>
-    ))
-    val removeXPathXSLTDomResult = new DOMResult()
-    setupTransformer.transform (new StreamSource(<ignore-input />), removeXPathXSLTDomResult)
-    val removeXPathTransform = saxonTransformFactory.newTemplates(new DOMSource(removeXPathXSLTDomResult.getNode()))
-
     initialized = true
   }
 
