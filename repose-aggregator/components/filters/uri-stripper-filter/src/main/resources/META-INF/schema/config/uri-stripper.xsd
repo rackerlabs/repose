@@ -138,13 +138,8 @@
             <xs:element name="xml">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="namespace" minOccurs="0" maxOccurs="unbounded">
-                            <xs:annotation>
-                                <xs:documentation>
-                                    <html:p>Specifies the Namespaces to the link to be modified.</html:p>
-                                </xs:documentation>
-                            </xs:annotation>
-                        </xs:element>
+                        <xs:element name="namespace" type="Namespace" minOccurs="0" maxOccurs="unbounded"/>
+
                         <xs:element name="xpath" type="LinkPath" minOccurs="1" maxOccurs="1">
                             <xs:annotation>
                                 <xs:documentation>
@@ -162,6 +157,32 @@
                    test="json or xml"
                    xerces:message="Either a json element or a xml element must be defined."
                    saxon:message="Either a json element or a xml element must be defined."/>
+    </xs:complexType>
+
+    <xs:complexType name="Namespace">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Specifies the Namespaces to the link to be modified.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The name that the namespace appears under the XPath.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="url" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The url of the namespace that is used in the XPath.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="LinkPath">
