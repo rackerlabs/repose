@@ -3,7 +3,6 @@
 <uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
     <link-resource uri-path-regex=".*" http-methods="ALL">
         <response>
-
             <json>$.service.link</json>
             <json token-index="1" link-mismatch-action="fail">$.other-service.link</json>
             <xml>
