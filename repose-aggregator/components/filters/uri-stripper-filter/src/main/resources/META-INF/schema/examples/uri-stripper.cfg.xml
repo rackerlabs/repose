@@ -7,11 +7,13 @@
             <json>$.service.link</json>
             <json token-index="1" link-mismatch-action="fail">$.other-service.link</json>
             <xml>
-                <namespace>abcd</namespace>
+                <namespace>foo</namespace>
                 <xpath token-index="1" link-mismatch-action="fail">/service/link</xpath>
             </xml>
             <xml>
-                <namespace>efgh</namespace>
+                <namespace>bar</namespace>
+                <namespace>biz</namespace>
+                <namespace>buzzaroo</namespace>
                 <xpath>/other-service/link</xpath>
             </xml>
         </response>
