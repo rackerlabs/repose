@@ -551,7 +551,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex="/v1/[^/]+/bar">
               |        <response>
-              |            <xml>/link</xml>
+              |            <xml>
+              |                <xpath>/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -577,7 +579,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*" http-methods="POST">
               |        <response>
-              |            <xml>/link</xml>
+              |            <xml>
+              |                <xpath>/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -604,7 +608,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml>/link</xml>
+              |            <xml>
+              |                <xpath>/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -630,7 +636,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml>/link</xml>
+              |            <xml>
+              |                <xpath>/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -656,7 +664,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml>/link</xml>
+              |            <xml>
+              |                <xpath>/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -682,7 +692,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml token-index="2">/link</xml>
+              |            <xml>
+              |                <xpath token-index="2">/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -708,7 +720,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <json link-mismatch-action="continue">$$.dne</json>
+              |            <xml>
+              |                <xpath link-mismatch-action="continue">/dne</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -734,7 +748,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml link-mismatch-action="continue" token-index="5">/link</xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="continue" token-index="5">/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -760,7 +776,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml link-mismatch-action="continue">/link</xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="continue">/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -786,7 +804,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml link-mismatch-action="remove">/dne</xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="remove">/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -812,7 +832,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml link-mismatch-action="remove" token-index="5">/link</xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="remove" token-index="5">/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -838,7 +860,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml link-mismatch-action="remove">/link</xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="remove">/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -864,7 +888,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml link-mismatch-action="fail">/dne</xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="fail">/dne</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -891,7 +917,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml link-mismatch-action="fail" token-index="5">/link</xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="fail" token-index="5">/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>
@@ -918,7 +946,9 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
               |    <link-resource uri-path-regex=".*">
               |        <response>
-              |            <xml link-mismatch-action="fail">/link</xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="fail">/link</xpath>
+              |            </xml>
               |        </response>
               |    </link-resource>
               |</uri-stripper>

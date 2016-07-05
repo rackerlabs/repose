@@ -165,5 +165,21 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
 
       validator.validateConfigString(config)
     }
+
+    it(s"should successfully validate if only json is present") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |        <request>
+            |            <json>$$.service.link</json>
+            |        </request>
+            |        <response>
+            |            <json>$$.service.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      validator.validateConfigString(config)
+    }
   }
 }

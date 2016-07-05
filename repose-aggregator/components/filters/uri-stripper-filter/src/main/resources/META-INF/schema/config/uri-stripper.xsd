@@ -139,7 +139,6 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element name="namespace" type="Namespace" minOccurs="0" maxOccurs="unbounded"/>
-
                         <xs:element name="xpath" type="LinkPath" minOccurs="1" maxOccurs="1">
                             <xs:annotation>
                                 <xs:documentation>
