@@ -118,11 +118,47 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
             |    <link-resource>
             |        <request>
             |            <json>$$.service.link</json>
-            |            <xml>/service/link</xml>
+            |            <xml>
+            |                <namespace name="foo" url="http://foo.bar"/>
+            |                <namespace name="bar" url="http://bar.bar"/>
+            |                <namespace name="buzz" url="http://buzz.bar"/>
+            |                <xpath>/other-service/link</xpath>
+            |            </xml>
             |        </request>
             |        <response>
             |            <json>$$.service.link</json>
-            |            <xml>/service/link</xml>
+            |            <xml>
+            |                <namespace name="foo" url="http://foo.bar"/>
+            |                <namespace name="bar" url="http://bar.bar"/>
+            |                <namespace name="buzz" url="http://buzz.bar"/>
+            |                <xpath>/other-service/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      validator.validateConfigString(config)
+    }
+
+    it(s"should successfully validate if only xml is present") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |        <request>
+            |            <xml>
+            |                <namespace name="foo" url="http://foo.bar"/>
+            |                <namespace name="bar" url="http://bar.bar"/>
+            |                <namespace name="buzz" url="http://buzz.bar"/>
+            |                <xpath>/service/link</xpath>
+            |            </xml>
+            |        </request>
+            |        <response>
+            |            <xml>
+            |                <namespace name="foo" url="http://foo.bar"/>
+            |                <namespace name="bar" url="http://bar.bar"/>
+            |                <namespace name="buzz" url="http://buzz.bar"/>
+            |                <xpath>/service/link</xpath>
+            |            </xml>
             |        </response>
             |    </link-resource>
             |</uri-stripper>""".stripMargin

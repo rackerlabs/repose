@@ -135,7 +135,7 @@
                 </xs:annotation>
             </xs:element>
 
-            <xs:element name="xml">
+            <xs:element name="xml" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element name="namespace" type="Namespace" minOccurs="0" maxOccurs="unbounded"/>
