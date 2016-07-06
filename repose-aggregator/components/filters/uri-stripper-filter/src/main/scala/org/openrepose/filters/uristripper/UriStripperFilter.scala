@@ -297,6 +297,11 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       setupTransformer.asInstanceOf[Controller].addLogErrorListener
       val updateXPathXSLTDomResult = new DOMResult()
       setupTransformer.transform (new StreamSource(<ignore-input />), updateXPathXSLTDomResult)
+
+      val config = saxonTransformFactory.asInstanceOf[TransformerFactoryImpl].getConfiguration()
+      config.registerExtensionFunction(new StringExtension("process-url","rax", "http://docs.rackspace.com/api",
+        replaceWith => "somefunction"))
+
       saxonTransformFactory.newTemplates(new DOMSource(updateXPathXSLTDomResult.getNode()))
     }
 
