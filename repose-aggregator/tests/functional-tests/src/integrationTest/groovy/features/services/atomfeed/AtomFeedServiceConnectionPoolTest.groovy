@@ -29,6 +29,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.HeaderCollection
 import org.rackspace.deproxy.Request
+import org.spockframework.runtime.ConditionNotSatisfiedError
+import spock.lang.FailsWith
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
@@ -40,8 +42,10 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
     Endpoint atomEndpoint
     MockIdentityV2Service fakeIdentityV2Service
     AtomFeedResponseSimulator fakeAtomFeed
+    HeaderCollection requestHeadersToIdentity = null
 
     def startReposeWithConfigParams(Map testParams = [:]) {
+        reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
 
         int atomPort = properties.atomPort
@@ -49,7 +53,11 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
 
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
-        deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityV2Service.handler)
+        def identityHandlerWrapper = { Request request ->
+            requestHeadersToIdentity = request.headers
+            fakeIdentityV2Service.handler(request)
+        }
+        deproxy.addEndpoint(properties.identityPort, 'identity service', null, identityHandlerWrapper)
 
         Map params = properties.defaultTemplateParams + testParams
         repose.configurationProvider.applyConfigs("common", params)
@@ -66,15 +74,15 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
 
     @Unroll
     def "when an #feedType atom feed is configured with connection pool #connectionPool, it uses the #expectedPoolId pool"() {
-        given: "keystone is configured to use the unauth atom feed with no connection pool configured"
+        given: "Keystone is configured to use the correct atom feed with the specified connection pool"
         startReposeWithConfigParams("atom-feed-id": atomFeedId)
 
-        and: "an atom feed entry is available for consumption"
+        and: "we provide a valid atom feed entry with a handler that will capture the request headers"
         String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: "urn:uuid:$entryId")
         def atomFeedHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
-        HeaderCollection requestHeaders = new HeaderCollection()
+        HeaderCollection requestHeadersToAtomFeed = null
         def atomFeedHandlerWrapper = { Request request ->
-            requestHeaders = request.headers
+            requestHeadersToAtomFeed = request.headers
             atomFeedHandler(request)
         }
         atomEndpoint.defaultHandler = atomFeedHandlerWrapper
@@ -83,7 +91,7 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("<atom:id>urn:uuid:$entryId</atom:id>", 2, 6, TimeUnit.SECONDS)
 
         then: "the correct connection pool was used"
-        requestHeaders.getFirstValue("X-Pool-Id") == expectedPoolId
+        requestHeadersToAtomFeed?.getFirstValue("X-Pool-Id") == expectedPoolId
 
         where:
         feedType          | connectionPool          | atomFeedId                 | expectedPoolId          | entryId
@@ -93,5 +101,72 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         "authenticated"   | "<none>"                | "auth-feed-no-pool"        | "default-pool"          | 109
         "authenticated"   | "atom-feed-pool-auth"   | "auth-feed-pool"           | "atom-feed-pool-auth"   | 111
         "authenticated"   | "missing-pool-auth"     | "auth-feed-missing-pool"   | "default-pool"          | 113
+    }
+
+    @Unroll
+    @FailsWith(ConditionNotSatisfiedError) // feature not yet supported
+    def "when an authenticated atom feed is configured to #connectionPool, the authentication request uses the connection pool #expectedPoolId"() {
+        given: "Keystone is configured to use the correct atom feed with the specified connection pool"
+        startReposeWithConfigParams("atom-feed-id": atomFeedId)
+
+        and: "an atom feed entry is available for consumption"
+        String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: "urn:uuid:$entryId")
+        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+
+        when: "we wait for the Keystone V2 filter to read the feed"
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:$entryId</atom:id>", 2, 6, TimeUnit.SECONDS)
+
+        then: "the correct connection pool was used"
+        requestHeadersToIdentity?.getFirstValue("X-Pool-Id") == expectedPoolId
+
+        where:
+        connectionPool        | atomFeedId               | expectedPoolId        | entryId
+        "<none>"              | "auth-feed-no-pool"      | "default-pool"        | 215
+        "atom-feed-pool-auth" | "auth-feed-pool"         | "atom-feed-pool-auth" | 217
+        "missing-pool-auth"   | "auth-feed-missing-pool" | "default-pool"        | 219
+    }
+
+    @Unroll
+    def "when an #feedType atom feed times out in the Akka Service Client, the next request will still work"() {
+        given: "Keystone is configured to use the correct atom feed with the specified connection pool"
+        startReposeWithConfigParams("atom-feed-id": atomFeedId)
+
+        and: "an atom feed entry is available for consumption"
+        String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: "urn:uuid:$entryId")
+        def atomFeedHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+        def atomFeedHandlerWrapper = { Request request ->
+            sleep(2_000) // configured timeout is 1 second
+            atomFeedHandler(request)
+        }
+        atomEndpoint.defaultHandler = atomFeedHandlerWrapper
+
+        when: "the Akka Service Client times out"
+        reposeLogSearch.awaitByString("java.net.SocketTimeoutException: Read timed out", 1, 5, TimeUnit.SECONDS)
+
+        and: "we provide a valid atom feed entry for the next attempt with a handler that will capture the request headers"
+        atomFeedEntry = fakeAtomFeed.createAtomEntry(id: "urn:uuid:${entryId + 4}")
+        atomFeedHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+        HeaderCollection requestHeadersToAtomFeed = null
+        atomFeedHandlerWrapper = { Request request ->
+            requestHeadersToAtomFeed = request.headers
+            atomFeedHandler(request)
+        }
+        atomEndpoint.defaultHandler = atomFeedHandlerWrapper
+
+        and: "we wait for the Keystone V2 filter to read the feed"
+        // Repose should log receiving 325 and 327
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:${entryId + 4}</atom:id>", 2, 10, TimeUnit.SECONDS)
+
+        then: "the correct connection pool was used"
+        requestHeadersToAtomFeed?.getFirstValue("X-Pool-Id") == expectedPoolId
+
+        and: "the timed out atom feed entry did not make it through"
+        // Repose will never log receiving 321 and 323
+        reposeLogSearch.searchByString("<atom:id>urn:uuid:$entryId</atom:id>").size() == 0
+
+        where:
+        feedType          | atomFeedId                 | expectedPoolId       | entryId
+        "unauthenticated" | "unauth-feed-timeout-pool" | "small-timeout-pool" | 321
+        "authenticated"   | "auth-feed-timeout-pool"   | "small-timeout-pool" | 323
     }
 }

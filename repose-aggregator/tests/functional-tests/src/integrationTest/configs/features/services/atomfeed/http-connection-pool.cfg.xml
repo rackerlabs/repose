@@ -15,7 +15,7 @@
             <header name="X-Pool-Id" value="atom-feed-pool-auth"/>
         </headers>
     </pool>
-    <pool id="small-timeout-pool" http.socket.timeout="1500">
+    <pool id="small-timeout-pool" http.socket.timeout="1000">
         <headers>
             <header name="X-Pool-Id" value="small-timeout-pool"/>
         </headers>
