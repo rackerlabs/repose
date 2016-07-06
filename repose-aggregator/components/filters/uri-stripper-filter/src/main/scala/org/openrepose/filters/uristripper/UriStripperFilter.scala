@@ -37,7 +37,6 @@ import net.sf.saxon.Controller
 
 import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
 import _root_.io.gatling.jsonpath.Parser
-import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl
 import com.sun.org.apache.xpath.internal.res.XPATHErrorResources
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
@@ -263,7 +262,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     ////
   }
 
-  private def xsltFunction():  = {}
+  //private def xsltFunction():  = {}
 
   override def destroy(): Unit = {
     logger.trace("URI Stripper filter destroying...")
@@ -280,6 +279,8 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       f.setAttribute("http://saxon.sf.net/feature/recoveryPolicyName","recoverSilently")
       f
     }
+
+    val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/xsl/transform.xsl").toString))
 
     def setupTransformer(xmlElement: HttpMessage.Xml): Templates = {
       val setupTransformer = setupTemplate.newTransformer
@@ -300,10 +301,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     }
 
     config = uriStripperConfig
-
-    val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/xsl/transform.xsl").toString))
     templateMap = config.getLinkResource.toList.map{resource => resource.getUriPathRegex -> (resource.getResponse.getXml.toList map(setupTransformer(_)))}.toMap
-
     initialized = true
   }
 
