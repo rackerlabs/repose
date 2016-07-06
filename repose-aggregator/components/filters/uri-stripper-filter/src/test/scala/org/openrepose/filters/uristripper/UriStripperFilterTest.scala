@@ -813,7 +813,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |    <link-resource uri-path-regex=".*">
               |        <response>
               |            <xml>
-              |                <xpath link-mismatch-action="remove">/link</xpath>
+              |                <xpath link-mismatch-action="remove">/dne</xpath>
               |            </xml>
               |        </response>
               |    </link-resource>
@@ -980,6 +980,71 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         response.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         response.getContentLength shouldEqual 0
+      }
+
+      it("should fail if the namespaces used in the response are not specified in the config") {
+        val config =
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+              |    <link-resource uri-path-regex=".*">
+              |        <response>
+              |            <xml>
+              |                <namespace name="foo" url="bar"/>
+              |                <xpath link-mismatch-action="fail">/service/link</xpath>
+              |            </xml>
+              |        </response>
+              |    </link-resource>
+              |</uri-stripper>
+         """.stripMargin
+
+        val respBody =
+          s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
+             |<badnamespace:service xmlns:badnamespace="bar">
+             |  <badnamespace:link>http://example.com/v1/foo</badnamespace:link>
+             |</badnamespace:service>
+            """.stripMargin
+
+        filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+        request.setRequestURI("/v1/12345/foo")
+        setResponseBody(respBody, MimeType.APPLICATION_XML.toString)
+
+        filter.doFilter(request, response, filterChain)
+
+        response.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        response.getContentLength shouldEqual 0
+      }
+
+      it("should pass if the namespaces used in the response are specified in the config") {
+        val config =
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+              |    <link-resource uri-path-regex=".*">
+              |        <response>
+              |            <xml>
+              |                <namespace name="foo" url="bar"/>
+              |                <xpath>/foo:service/foo:link</xpath>
+              |            </xml>
+              |        </response>
+              |    </link-resource>
+              |</uri-stripper>
+         """.stripMargin
+
+        val respBody =
+          s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
+             |<foo:service xmlns:foo="bar">
+             |  <foo:link>http://example.com/v1/foo</foo:link>
+             |</foo:service>
+            """.stripMargin
+
+        filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+        request.setRequestURI("/v1/12345/foo")
+        setResponseBody(respBody, MimeType.APPLICATION_XML.toString)
+
+        filter.doFilter(request, response, filterChain)
+
+        (XML.loadString(response.getContentAsString) \\ "foo:link").text shouldEqual "http://example.com/v1/12345/bar"
       }
     }
   }
