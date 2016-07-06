@@ -38,13 +38,13 @@ import java.util.concurrent.TimeUnit
 @Category(Slow.class)
 class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
 
-    Endpoint originEndpoint
     Endpoint atomEndpoint
+    Endpoint identityEndpoint
     MockIdentityV2Service fakeIdentityV2Service
     AtomFeedResponseSimulator fakeAtomFeed
     HeaderCollection requestHeadersToIdentity = null
 
-    def startReposeWithConfigParams(Map testParams = [:]) {
+    def setup() {
         reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
 
@@ -57,19 +57,19 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
             requestHeadersToIdentity = request.headers
             fakeIdentityV2Service.handler(request)
         }
-        deproxy.addEndpoint(properties.identityPort, 'identity service', null, identityHandlerWrapper)
-
-        Map params = properties.defaultTemplateParams + testParams
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/atomfeed", params)
-        repose.start()
-
-        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, identityHandlerWrapper)
     }
 
     def cleanup() {
         deproxy?.shutdown()
         repose?.stop()
+    }
+
+    def startReposeWithConfigParams(Map testParams = [:]) {
+        Map params = properties.defaultTemplateParams + testParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/atomfeed", params)
+        repose.start()
     }
 
     @Unroll
@@ -168,5 +168,38 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         feedType          | atomFeedId                 | expectedPoolId       | entryId
         "unauthenticated" | "unauth-feed-timeout-pool" | "small-timeout-pool" | 321
         "authenticated"   | "auth-feed-timeout-pool"   | "small-timeout-pool" | 323
+    }
+
+    def "when authentication takes too long, the atom feed service times out"() {
+        given: "identity will take longer than the configured authentication timeout allows"
+        identityEndpoint.defaultHandler = { Request request ->
+            sleep(2_500) // configured timeout is 1.5 seconds
+            fakeIdentityV2Service.handler(request)
+        }
+
+        and: "Keystone is configured to use the correct atom feed with the specified connection pool"
+        startReposeWithConfigParams("atom-feed-id": "auth-feed-auth-timeout")
+
+        when: "the authentication times out"
+        reposeLogSearch.awaitByString("Futures timed out after \\[1500 milliseconds\\]", 1, 5, TimeUnit.SECONDS)
+
+        and: "the identity handler is updated to not take so long"
+        identityEndpoint.defaultHandler = fakeIdentityV2Service.handler
+
+        and: "an atom feed entry is made available"
+        String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: 'urn:uuid:429')
+        def atomFeedHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+        HeaderCollection requestHeadersToAtomFeed = null
+        def atomFeedHandlerWrapper = { Request request ->
+            requestHeadersToAtomFeed = request.headers
+            atomFeedHandler(request)
+        }
+        atomEndpoint.defaultHandler = atomFeedHandlerWrapper
+
+        and: "we wait for the Keystone V2 filter to read the feed"
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:429</atom:id>", 2, 6, TimeUnit.SECONDS)
+
+        then: "the correct connection pool was used"
+        requestHeadersToAtomFeed?.getFirstValue("X-Pool-Id") == "default-pool"
     }
 }

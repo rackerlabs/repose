@@ -41,7 +41,7 @@
     <!-- This feed will be used to test authentication taking too long and timing out -->
     <feed id="auth-feed-auth-timeout" uri="http://localhost:${atomPort}/feed" polling-frequency="2">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
-                        timeout="2000"
+                        timeout="1500"
                         uri="http://localhost:${identityPort}"
                         username="admin_username"
                         password="admin_password"/>
