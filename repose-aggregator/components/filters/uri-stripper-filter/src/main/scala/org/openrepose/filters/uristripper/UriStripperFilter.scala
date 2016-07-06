@@ -30,6 +30,11 @@ import javax.xml.transform.stream._
 import javax.xml.transform.dom._
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.rackspace.cloud.api.wadl.Converters._
+import com.rackspace.cloud.api.wadl.util.LogErrorListener
+import net.sf.saxon.TransformerFactoryImpl
+import net.sf.saxon.Controller
+
 import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
 import _root_.io.gatling.jsonpath.Parser
 import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl
@@ -41,6 +46,7 @@ import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, Htt
 import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.filters.uristripper.config.LinkMismatchAction.FAIL
 import org.openrepose.filters.uristripper.config._
 import org.xml.sax.SAXParseException
 import play.api.libs.json.Reads._
@@ -50,6 +56,7 @@ import scala.xml._
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.language.postfixOps
+import scala.language.reflectiveCalls
 import scala.util.{Failure, Success, Try}
 
 @Named
@@ -61,7 +68,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private var configurationFileName: String = DefaultConfigFileName
   private var initialized = false
   private var config: UriStripperConfig = _
-  private var templatesList: List[Templates] = _
+  private var templateMap: Map[String, List[Templates]] = _
   private val FIRST_INDEX : Int = 3
   private val DROP_CODE : String = "[[DROP]]"
 
@@ -148,7 +155,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
               case Failure(e) =>
                 wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
             }
-          case Some(ct) if ct.toLowerCase.contains("xml") => //todo: xpath goes in as a string, what if it's a list, get namespaces, uriIndex vs uriMarker, get failOnMiss from config
+          case Some(ct) if ct.toLowerCase.contains("xml") =>
           case _ => //do nothing
         }
       }
@@ -300,12 +307,12 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       setupTransformer.setParameter("namespaces", new StreamSource(
         <namespaces xmlns="http://www.rackspace.com/repose/params">
           {
-          for ((prefix, uri) <- xmlElement.getNamespace) yield
-              <ns prefix={prefix} uri={uri}/>
+          for (namespace <- xmlElement.getNamespace) yield
+              <ns prefix={namespace.getName} uri={namespace.getUrl}/>
           }
         </namespaces>
       ))
-      setupTransformer.setParameter("failOnMiss", failOnMiss)
+      setupTransformer.setParameter("failOnMiss", (xmlElement.getXpath.getLinkMismatchAction == FAIL))
       setupTransformer.asInstanceOf[Controller].addLogErrorListener
       val updateXPathXSLTDomResult = new DOMResult()
       setupTransformer.transform (new StreamSource(<ignore-input />), updateXPathXSLTDomResult)
@@ -315,9 +322,8 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     config = uriStripperConfig
 
     val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/xsl/transform.xsl").toString))
-    val configXmlElements = (config.getLinkResource.toList map(_.getResponse.getXml.toList)).fold(List.empty[HttpMessage.Xml])(_ ++ _)
+    templateMap = config.getLinkResource.toList.map{resource => resource.getUriPathRegex -> (resource.getResponse.getXml.toList map(setupTransformer(_)))}.toMap
 
-    templatesList = configXmlElements map(xml => setupTransformer(xml))
     initialized = true
   }
 
