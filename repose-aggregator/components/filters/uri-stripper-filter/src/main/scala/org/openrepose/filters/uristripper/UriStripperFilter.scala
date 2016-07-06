@@ -146,7 +146,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
               case Failure(e) =>
                 wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
             }
-          case Some(ct) if ct.toLowerCase.contains("xml") => //not sure yet
+          case Some(ct) if ct.toLowerCase.contains("xml") => //todo: xpath goes in as a string, what if it's a list, get namespaces, uriIndex vs uriMarker, get failOnMiss from config
           case _ => //do nothing
         }
       }
@@ -284,6 +284,33 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
   override def configurationUpdated(uriStripperConfig: UriStripperConfig): Unit = {
     config = uriStripperConfig
+
+    val saxonTransformFactory = {
+      val f = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", this.getClass.getClassLoader)
+      val cast = f.asInstanceOf[TransformerFactoryImpl]
+      cast.getConfiguration.getDynamicLoader.setClassLoader(this.getClass.getClassLoader)
+      // Recover silently from recoverable errors. These may occur depending on XPath passed in.
+      f.setAttribute("http://saxon.sf.net/feature/recoveryPolicyName","recoverSilently")
+      f
+    }
+    val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/xsl/transform.xsl").toString))
+
+      //todo get xpath, namespaces, failonmiss. is there a list?
+    val setupTransformer = setupTemplate.newTransformer
+    setupTransformer.setParameter("xpath", xpath)
+    setupTransformer.setParameter("namespaces", new StreamSource(
+      <namespaces xmlns="http://www.rackspace.com/repose/params">
+        {
+        for ((prefix, uri) <- namespaces) yield
+            <ns prefix={prefix} uri={uri}/>
+        }
+      </namespaces>
+    ))
+    setupTransformer.setParameter("failOnMiss", failOnMiss)
+    setupTransformer.asInstanceOf[Controller].addLogErrorListener
+    val updateXPathXSLTDomResult = new DOMResult()
+    setupTransformer.transform (new StreamSource(<ignore-input />), updateXPathXSLTDomResult)
+
     initialized = true
   }
 
