@@ -191,7 +191,6 @@
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-
         <xs:all>
             <xs:element name="keystore-filename" type="xs:anyURI" minOccurs="1">
                 <xs:annotation>
@@ -214,7 +213,30 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-
+            <xs:element name="truststore-filename" type="xs:anyURI" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The application truststore used for validating client certificates.
+                            This is typically set to the same path as the keystore.
+                            NOTE: This element is only used if the need-client-auth attribute is True.
+                            NOTE: IF the need-client-auth attribute is True AND this element is not present,
+                                  THEN the keystore will be used.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="truststore-password" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The password for the application truststore.
+                            NOTE: This element is only used if the need-client-auth attribute is True
+                                  AND the truststore-filename element is present.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="included-protocols" type="papic:sslProtocolConfiguration" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
@@ -251,7 +273,13 @@
                 </xs:annotation>
             </xs:element>
         </xs:all>
-
+        <xs:attribute name="need-client-auth" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Indicates whether or not SSL client authentication is required.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="sslProtocolConfiguration">
