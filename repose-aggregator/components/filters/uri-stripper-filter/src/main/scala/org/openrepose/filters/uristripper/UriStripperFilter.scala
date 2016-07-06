@@ -41,6 +41,7 @@ import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.uristripper.config._
+import org.xml.sax.SAXParseException
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 
@@ -59,6 +60,8 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private var configurationFileName: String = DefaultConfigFileName
   private var initialized = false
   private var config: UriStripperConfig = _
+  private val FIRST_INDEX : Int = 3
+  private val DROP_CODE : String = "[[DROP]]"
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("URI Stripper filter initializing...")
@@ -240,12 +243,37 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
-  private def transformXmlLink(tryResponseXml: Try[XmlValue], linkPath: LinkPath, strippedToken: String, previousToken: Option[String], nextToken: Option[String]): Try[XmlValue] = {
+  private def transformXmlLink(xpath : String, namespaces : Map[String, String], uriIndex : Option[Int], uriMarker : Option[String],
+                               newComponent : Option[String], failOnMiss : Boolean = false, source : Source, result : Result) = {
+    if ((uriIndex == None) && (uriMarker == None)) {
+      throw new SAXParseException("You must specify a uriIndex or a uriMarker", null)
+    }
+    if ((uriIndex != None) && (uriMarker != None)) {
+      throw new SAXParseException("You cannot specify both uriIndex and uriMarker", null)
+    }
+    ///you are here, kind of
+  }
 
+  private def getIndex(in : Array[String], uriIndex : Option[Int], uriMarker : Option[String]) : Int = {
+    uriIndex match {
+      case Some(uri) =>
+        val idx = uriIndex.get + FIRST_INDEX
+        if (idx >= in.size) -1 else idx
+      case _ =>
+        val idx = in.indexOf(uriMarker.get, FIRST_INDEX)
+        if (idx == -1) idx else idx + 1
+    }
+  }
 
-  //  val transformerFactory = TransformerFactory.newInstance()
-  //  val xsltTransformer = transformerFactory.newTransformer(xsltSource)
-
+  private def changeComponent(in : String, uriIndex : Option[Int], uriMarker : Option[String], newComp : String) : String = {
+    // todo i think null might be wrong here... the goal is that if there is no "newComp" we will remove the token else we will insert the token
+    val uriComponents = in.split("/")
+    val index = getIndex(uriComponents, uriIndex, uriMarker)
+    (index, newComp) match {
+      case(-1,_) => DROP_CODE
+      case(_,null) => (uriComponents.slice(0, index) ++ uriComponents.slice(index+1, in.size)).mkString("/")
+      case(_,_) => (uriComponents.slice (0, index) ++ Array(newComp) ++ uriComponents.slice(index, in.size)).mkString("/")
+    }
   }
 
   override def destroy(): Unit = {
