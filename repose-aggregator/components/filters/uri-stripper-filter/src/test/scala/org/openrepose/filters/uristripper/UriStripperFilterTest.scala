@@ -561,6 +561,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v1/bar</link>
            """.stripMargin
 
@@ -589,6 +590,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v1/foo</link>
            """.stripMargin
 
@@ -646,6 +648,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v1/bar</link>
            """.stripMargin
 
@@ -674,6 +677,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v2/foo</link>
            """.stripMargin
 
@@ -702,6 +706,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v1/bar</link>
            """.stripMargin
 
@@ -730,6 +735,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v1/foo</link>
            """.stripMargin
 
@@ -758,6 +764,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v1/foo</link>
            """.stripMargin
 
@@ -786,6 +793,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v2/bar</link>
            """.stripMargin
 
@@ -814,6 +822,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v1/foo</link>
            """.stripMargin
 
@@ -842,6 +851,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v1/foo</link>
            """.stripMargin
 
@@ -870,6 +880,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v2/bar</link>
            """.stripMargin
 
@@ -927,6 +938,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v1/foo</link>
            """.stripMargin
 
@@ -956,6 +968,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""
+             |<?xml version="1.0" encoding="UTF-8"?>
              |<link>http://example.com/v2/bar</link>
            """.stripMargin
 

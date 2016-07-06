@@ -164,7 +164,7 @@
                 <html:p>Specifies the Namespaces to the link to be modified.</html:p>
             </xs:documentation>
         </xs:annotation>
-        <xs:attribute name="name" type="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -173,7 +173,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="url" type="xs:string">
+        <xs:attribute name="url" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>

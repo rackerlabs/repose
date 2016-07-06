@@ -181,5 +181,55 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
 
       validator.validateConfigString(config)
     }
+
+    it(s"should not successfully validate if namespace is missing the url attribute") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |        <request>
+            |            <xml>
+            |                <namespace name="foo"/>
+            |                <xpath>/service/link</xpath>
+            |            </xml>
+            |        </request>
+            |        <response>
+            |            <xml>
+            |                <namespace name="bar"/>
+            |                <xpath>/service/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include("Attribute 'url' must appear on element 'namespace'.")
+    }
+
+    it(s"should not successfully validate if namespace is missing the name attribute") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |        <request>
+            |            <xml>
+            |                <namespace url="http://foo.bar"/>
+            |                <xpath>/service/link</xpath>
+            |            </xml>
+            |        </request>
+            |        <response>
+            |            <xml>
+            |                <namespace url="http://buzz.bar"/>
+            |                <xpath>/service/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include("Attribute 'name' must appear on element 'namespace'.")
+    }
   }
 }

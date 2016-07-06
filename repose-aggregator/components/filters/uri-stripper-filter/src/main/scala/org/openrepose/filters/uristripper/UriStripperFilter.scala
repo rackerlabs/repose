@@ -280,7 +280,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       f
     }
 
-    val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/xsl/transform.xsl").toString))
+    val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/META-INF/schema/xslt/transformer.xsl").toString))
 
     def setupTransformer(xmlElement: HttpMessage.Xml): Templates = {
       val setupTransformer = setupTemplate.newTransformer
