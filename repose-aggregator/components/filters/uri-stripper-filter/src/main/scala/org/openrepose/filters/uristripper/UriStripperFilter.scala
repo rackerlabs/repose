@@ -33,6 +33,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
 import _root_.io.gatling.jsonpath.Parser
 import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl
+import com.sun.org.apache.xpath.internal.res.XPATHErrorResources
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -60,6 +61,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private var configurationFileName: String = DefaultConfigFileName
   private var initialized = false
   private var config: UriStripperConfig = _
+  private var templatesList: List[Templates] = _
   private val FIRST_INDEX : Int = 3
   private val DROP_CODE : String = "[[DROP]]"
 
@@ -283,8 +285,6 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def configurationUpdated(uriStripperConfig: UriStripperConfig): Unit = {
-    config = uriStripperConfig
-
     val saxonTransformFactory = {
       val f = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", this.getClass.getClassLoader)
       val cast = f.asInstanceOf[TransformerFactoryImpl]
@@ -293,24 +293,31 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       f.setAttribute("http://saxon.sf.net/feature/recoveryPolicyName","recoverSilently")
       f
     }
+
+    def setupTransformer(xmlElement: HttpMessage.Xml): Templates = {
+      val setupTransformer = setupTemplate.newTransformer
+      setupTransformer.setParameter("xpath", xmlElement.getXpath)
+      setupTransformer.setParameter("namespaces", new StreamSource(
+        <namespaces xmlns="http://www.rackspace.com/repose/params">
+          {
+          for ((prefix, uri) <- xmlElement.getNamespace) yield
+              <ns prefix={prefix} uri={uri}/>
+          }
+        </namespaces>
+      ))
+      setupTransformer.setParameter("failOnMiss", failOnMiss)
+      setupTransformer.asInstanceOf[Controller].addLogErrorListener
+      val updateXPathXSLTDomResult = new DOMResult()
+      setupTransformer.transform (new StreamSource(<ignore-input />), updateXPathXSLTDomResult)
+      saxonTransformFactory.newTemplates(new DOMSource(updateXPathXSLTDomResult.getNode()))
+    }
+
+    config = uriStripperConfig
+
     val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/xsl/transform.xsl").toString))
+    val configXmlElements = (config.getLinkResource.toList map(_.getResponse.getXml.toList)).fold(List.empty[HttpMessage.Xml])(_ ++ _)
 
-      //todo get xpath, namespaces, failonmiss. is there a list?
-    val setupTransformer = setupTemplate.newTransformer
-    setupTransformer.setParameter("xpath", xpath)
-    setupTransformer.setParameter("namespaces", new StreamSource(
-      <namespaces xmlns="http://www.rackspace.com/repose/params">
-        {
-        for ((prefix, uri) <- namespaces) yield
-            <ns prefix={prefix} uri={uri}/>
-        }
-      </namespaces>
-    ))
-    setupTransformer.setParameter("failOnMiss", failOnMiss)
-    setupTransformer.asInstanceOf[Controller].addLogErrorListener
-    val updateXPathXSLTDomResult = new DOMResult()
-    setupTransformer.transform (new StreamSource(<ignore-input />), updateXPathXSLTDomResult)
-
+    templatesList = configXmlElements map(xml => setupTransformer(xml))
     initialized = true
   }
 
