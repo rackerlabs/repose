@@ -223,17 +223,11 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val jsonPath = stringToJsPath(linkPath.getValue).json
       val linkTransform = jsonPath.update(
         of[JsString] map { case JsString(link) =>
-          val uri = new URI(link)
-          val pathTokens = splitPathIntoTokens(uri.getRawPath)
-          val replacementIndex = Option(linkPath.getTokenIndex).map(_.intValue)
-            .getOrElse(findReplacementTokenIndex(pathTokens, previousToken, nextToken)
-              .getOrElse(throw new IndexOutOfBoundsException("Replacement index could not be determined")))
-          pathTokens.insert(replacementIndex, strippedToken)
-          JsString(replacePath(uri, joinTokensIntoPath(pathTokens)))
+          JsString(replaceIntoPath(link, strippedToken, previousToken, nextToken, Option(linkPath.getTokenIndex).map(_.intValue())))
         }
       )
 
-      Try(responseJson.transform(linkTransform)).recover { case _: IndexOutOfBoundsException => JsError() }.get match {
+      Try(responseJson.transform(linkTransform)).recover { case _: PathRewriteException => JsError() }.get match {
         case JsSuccess(transformedJson, _) =>
           logger.debug("Successfully transformed the link at: \"" + linkPath.getValue + "\"")
           transformedJson
