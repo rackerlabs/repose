@@ -54,6 +54,8 @@ class AtomFeedServiceTest extends ReposeValveTest {
 
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityV2Service.handler)
+
+        waitUntilReadyToServiceRequests()
     }
 
     def cleanup() {

@@ -20,4 +20,9 @@
             <header name="X-Pool-Id" value="small-timeout-pool"/>
         </headers>
     </pool>
+    <pool id="keystone">
+        <headers>
+            <header name="X-Pool-Id" value="keystone-pool"/>
+        </headers>
+    </pool>
 </http-connection-pools>

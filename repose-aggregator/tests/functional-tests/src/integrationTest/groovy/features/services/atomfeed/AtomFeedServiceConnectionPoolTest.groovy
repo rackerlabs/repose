@@ -58,6 +58,8 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
             fakeIdentityV2Service.handler(request)
         }
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, identityHandlerWrapper)
+
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
     }
 
     def cleanup() {
@@ -70,6 +72,7 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/atomfeed", params)
         repose.start()
+        waitUntilReadyToServiceRequests()
     }
 
     @Unroll

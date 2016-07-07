@@ -12,4 +12,7 @@
     <identity-service username="admin_username"
                       password="admin_password"
                       uri="http://localhost:${identityPort}"/>
+    <white-list>
+        <uri-regex>.*</uri-regex>
+    </white-list>
 </keystone-v2>
