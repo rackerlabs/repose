@@ -89,18 +89,18 @@ task('tagVersion', description: 'Tag the repository with the current version.', 
 task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [tagVersion, publishToPackageRepo])
 
 task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds the new version of the docs to github pages') << {
-    def workingDir = project.file("${project.buildDir}/gh-pages-vdocs")
+    def workingDir = project.file("${project.buildDir}/gh-pages")
 
     workingDir.deleteDir()
 
     def repo = Grgit.clone(
             uri: 'git@github.com:rackerlabs/repose.git',
-            refToCheckout: 'gh-pages-vdocs',
+            refToCheckout: 'gh-pages',
             dir: workingDir,
     )
 
     //add to versions list
-    def versionsFile = project.file("${project.buildDir}/gh-pages-vdocs/_includes/versions.html")
+    def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.html")
     def versions = versionsFile.readLines()
     versions.add(0, """<li><a href="./versions/$version/index.html">v$version</a> - 2016-01-11</li>""")
     def writer = versionsFile.newWriter()
@@ -111,7 +111,7 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
 
     copy {
         from "${asciidoctor.outputDir}/html5"
-        into "${project.buildDir}/gh-pages-vdocs/versions/$version"
+        into "${project.buildDir}/gh-pages/versions/$version"
     }
 
     repo.with {

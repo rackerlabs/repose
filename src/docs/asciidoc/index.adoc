@@ -1,12 +1,13 @@
 = Hello, AsciiDoc!
 Doc Writer <doc@example.com>
 
-An introduction to http://asciidoc.org[AsciiDoc].
+This is a template for an asciidoc page http://asciidoc.org[AsciiDoc].
 
-== First Section
+== This will be the repose landing page
 
-* item 1
-* item 2
+* hello
+* repose
 
 [source,java]
+//this is formatted java code
 System.out.println("Hello Repose!!");
