@@ -26,18 +26,14 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.transform._
-import javax.xml.transform.stream._
 import javax.xml.transform.dom._
-
-import com.typesafe.scalalogging.slf4j.LazyLogging
-import com.rackspace.cloud.api.wadl.Converters._
-import com.rackspace.cloud.api.wadl.util.LogErrorListener
-import net.sf.saxon.TransformerFactoryImpl
-import net.sf.saxon.Controller
+import javax.xml.transform.stream._
 
 import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
 import _root_.io.gatling.jsonpath.Parser
-import com.sun.org.apache.xpath.internal.res.XPATHErrorResources
+import com.rackspace.cloud.api.wadl.Converters._
+import com.typesafe.scalalogging.slf4j.LazyLogging
+import net.sf.saxon.{Controller, TransformerFactoryImpl}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -51,11 +47,9 @@ import org.xml.sax.SAXParseException
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 
-import scala.xml._
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.language.postfixOps
-import scala.language.reflectiveCalls
+import scala.language.{postfixOps, reflectiveCalls}
 import scala.util.{Failure, Success, Try}
 
 @Named
@@ -115,24 +109,12 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
       val originalLocation = wrappedResponse.getHeader(CommonHttpHeader.LOCATION.toString)
       // todo: What if the path is "/<tenant-id>"? The location header wouldn't be modified. Is that the correct behavior?
-      if (config.isRewriteLocation && token.isDefined && !Option(originalLocation).forall(_.trim.isEmpty) && (previousToken.isDefined || nextToken.isDefined)) {
-
-        if (originalLocation.contains(previousToken.getOrElse("") + UriDelimiter + token.get + UriDelimiter + nextToken.getOrElse(""))) {
-          logger.debug("Stripped token already present in Location Header")
-        } else {
-          Try(new URI(originalLocation)) match {
-            case Failure(exception) =>
-              logger.warn("Unable to parse Location header. Location header is malformed URI", exception)
-            case Success(uri) =>
-              val locationTokens = splitPathIntoTokens(uri.getPath)
-
-              findReplacementTokenIndex(locationTokens, previousToken, nextToken)
-                .foreach(locationTokens.insert(_, token.get))
-
-              wrappedResponse.replaceHeader(
-                CommonHttpHeader.LOCATION.toString,
-                replacePath(uri, joinTokensIntoPath(locationTokens)))
-          }
+      if (config.isRewriteLocation && token.isDefined && !Option(originalLocation).forall(_.trim.isEmpty)) {
+        Try(wrappedResponse.replaceHeader(
+          CommonHttpHeader.LOCATION.toString,
+          replaceIntoPath(originalLocation, token.get, previousToken, nextToken, None))) match {
+          case Failure(ex: PathRewriteException) => logger.warn("Failed while trying to rewrite the location header", ex)
+          case Success(_) => //don't care
         }
       }
 
@@ -160,6 +142,33 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       }
 
       wrappedResponse.commitToResponse()
+    }
+  }
+
+  private def replaceIntoPath(uri: String, token: String, tokenPrefix: Option[String], tokenPostfix: Option[String], tokenIndex: Option[Int]): String = {
+    logger.debug("Attempting to add token: {} into uri: {}", token, uri)
+    if ((tokenPrefix.isDefined || tokenPostfix.isDefined) &&
+      uri.contains(tokenPrefix.getOrElse("") + UriDelimiter + token + UriDelimiter + tokenPostfix.getOrElse(""))) {
+      logger.debug("Stripped token already present in uri")
+      uri
+    } else {
+      Try(new URI(uri)) match {
+        case Failure(ex) =>
+          logger.warn("Unable to parse uri", ex)
+          throw new PathRewriteException("Couldn't parse the uri.", ex)
+        case Success(parsedUri) =>
+          val pathTokens = splitPathIntoTokens(parsedUri.getRawPath)
+          val replacementIndex = tokenIndex
+            .getOrElse(findReplacementTokenIndex(pathTokens, tokenPrefix, tokenPostfix)
+              .getOrElse(throw new PathRewriteException("Replacement index could not be determined")))
+          Try(pathTokens.insert(replacementIndex, token)) match {
+            case Failure(ex: IndexOutOfBoundsException) =>
+              logger.warn("Determined index outside of uri path length", ex)
+              throw new PathRewriteException("Determined index is out side the number of parsed path segments", ex)
+            case Success(_) => //don't care
+          }
+          replacePath(parsedUri, joinTokensIntoPath(pathTokens))
+      }
     }
   }
 
@@ -311,6 +320,10 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def isInitialized: Boolean = initialized
+
+  case class PathRewriteException(message: String, ex: Throwable) extends Exception(message, ex) {
+    def this(message: String) = this(message, null)
+  }
 }
 
 object UriStripperFilter {
