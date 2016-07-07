@@ -38,7 +38,6 @@ class AtomFeedServiceReverseReadTest extends ReposeValveTest {
 
     def setup() {
         deproxy = new Deproxy()
-        reposeLogSearch.cleanLog()
 
         int atomPort = properties.atomPort
         fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
@@ -68,8 +67,7 @@ class AtomFeedServiceReverseReadTest extends ReposeValveTest {
         atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("</atom:entry>", 1, 11, TimeUnit.SECONDS)
-        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:101</atom:id>", 1, 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entry"
         atomFeedEntry.eachLine { line ->
@@ -85,11 +83,10 @@ class AtomFeedServiceReverseReadTest extends ReposeValveTest {
                 ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
-        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:2\\d{2}</atom:id>", ids.size(), 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
-        def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
+        def logLines = reposeLogSearch.searchByString("<atom:id>urn:uuid:2\\d{2}</atom:id>")
         logLines.size() == ids.size()
         logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids.reverse()
     }
@@ -101,11 +98,10 @@ class AtomFeedServiceReverseReadTest extends ReposeValveTest {
                 ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
-        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:3\\d{2}</atom:id>", ids.size(), 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
-        def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
+        def logLines = reposeLogSearch.searchByString("<atom:id>urn:uuid:3\\d{2}</atom:id>")
         logLines.size() == ids.size()
         logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids.reverse()
 
@@ -115,11 +111,10 @@ class AtomFeedServiceReverseReadTest extends ReposeValveTest {
                 moreIds.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
 
         and: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("</atom:entry>", ids.size() + moreIds.size(), 11, TimeUnit.SECONDS)
-        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:4\\d{2}</atom:id>", moreIds.size(), 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
-        def moreLogLines = reposeLogSearch.searchByString("<atom:id>.*4\\d{2}</atom:id>")
+        def moreLogLines = reposeLogSearch.searchByString("<atom:id>urn:uuid:4\\d{2}</atom:id>")
         moreLogLines.size() == moreIds.size()
         moreLogLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == moreIds.reverse()
     }
