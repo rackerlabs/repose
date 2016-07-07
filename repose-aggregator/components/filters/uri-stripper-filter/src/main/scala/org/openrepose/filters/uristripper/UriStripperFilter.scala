@@ -61,7 +61,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private var configurationFileName: String = DefaultConfigFileName
   private var initialized = false
   private var config: UriStripperConfig = _
-  private var templateMap: Map[String, List[Templates]] = _
+  private var templateMap: Map[LinkPath, Templates] = _
   private val DROP_CODE : String = "[[DROP]]"
 
   override def init(filterConfig: FilterConfig): Unit = {
@@ -319,7 +319,10 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     }
 
     config = uriStripperConfig
-    templateMap = config.getLinkResource.toList.map{resource => resource.getUriPathRegex -> (resource.getResponse.getXml.toList map(setupTransformer(_)))}.toMap
+
+    templateMap = (for (resource <- config.getLinkResource;
+                        xml <- Option(resource.getResponse).map(_.getXml.toList).getOrElse(List.empty))
+                        yield xml.getXpath -> setupTransformer(xml)).toMap
     initialized = true
   }
 
