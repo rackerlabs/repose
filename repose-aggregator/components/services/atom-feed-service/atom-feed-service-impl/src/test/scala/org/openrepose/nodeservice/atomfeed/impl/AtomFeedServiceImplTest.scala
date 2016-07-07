@@ -154,7 +154,7 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
     val service = new Service()
     node.setId("nodeId")
     nodes.getNode.add(node)
-    service.setName(AtomFeedServiceImpl.SERVICE_NAME)
+    service.setName(AtomFeedServiceImpl.ServiceName)
     services.getService.add(service)
     cluster.setId("clusterId")
     cluster.setServices(services)

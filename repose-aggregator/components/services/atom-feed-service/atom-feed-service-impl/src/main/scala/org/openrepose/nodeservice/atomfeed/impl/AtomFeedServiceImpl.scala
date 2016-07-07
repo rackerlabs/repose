@@ -65,13 +65,13 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
     val xsdURL = getClass.getResource("/META-INF/schema/config/atom-feed-service.xsd")
 
     configurationService.subscribeTo(
-      DEFAULT_CONFIG,
+      DefaultConfig,
       xsdURL,
       AtomFeedServiceConfigurationListener,
       classOf[AtomFeedServiceConfigType]
     )
     configurationService.subscribeTo(
-      SYSTEM_MODEL_CONFIG,
+      SystemModelConfig,
       SystemModelConfigurationListener,
       classOf[SystemModel]
     )
@@ -80,8 +80,8 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
   @PreDestroy
   def destroy(): Unit = {
     logger.info("Unregistering configuration listeners and shutting down service")
-    configurationService.unsubscribeFrom(DEFAULT_CONFIG, AtomFeedServiceConfigurationListener)
-    configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigurationListener)
+    configurationService.unsubscribeFrom(DefaultConfig, AtomFeedServiceConfigurationListener)
+    configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigurationListener)
 
     actorSystem.shutdown()
   }
@@ -94,7 +94,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
       case Some(FeedActorPair(manager, _)) =>
         manager
       case None =>
-        val manager = actorSystem.actorOf(Props[NotifierManager], name = feedId + NOTIFIER_MANAGER_TAG)
+        val manager = actorSystem.actorOf(Props[NotifierManager], name = feedId + NotifierManagerTag)
         feedActors = feedActors + (feedId -> FeedActorPair(manager, None))
 
         if (isServiceEnabled) {
@@ -149,7 +149,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
 
           val notifierManager = feedActors.get(newFeedConfig.getId)
             .map(_.notifierManager)
-            .getOrElse(actorSystem.actorOf(Props[NotifierManager], name = newFeedConfig.getId + NOTIFIER_MANAGER_TAG))
+            .getOrElse(actorSystem.actorOf(Props[NotifierManager], name = newFeedConfig.getId + NotifierManagerTag))
 
           val feedReader = actorSystem.actorOf(
             FeedReader.props(
@@ -162,7 +162,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
               newFeedConfig.getPollingFrequency,
               newFeedConfig.getEntryOrder,
               reposeVersion),
-            newFeedConfig.getId + FEED_READER_TAG)
+            newFeedConfig.getId + FeedReaderTag)
 
           feedActors = feedActors + (newFeedConfig.getId -> FeedActorPair(notifierManager, Some(feedReader)))
 
@@ -189,7 +189,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
 
         val systemModelInterrogator = new SystemModelInterrogator(clusterId, nodeId)
 
-        isServiceEnabled = systemModelInterrogator.getServiceForCluster(configurationObject, SERVICE_NAME).isPresent
+        isServiceEnabled = systemModelInterrogator.getServiceForCluster(configurationObject, ServiceName).isPresent
 
         if (isServiceEnabled) {
           feedActors foreach { case (_, actorPair) =>
@@ -209,12 +209,12 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
 }
 
 object AtomFeedServiceImpl {
-  final val SERVICE_NAME = "atom-feed-service"
+  final val ServiceName = "atom-feed-service"
 
-  private final val DEFAULT_CONFIG = SERVICE_NAME + ".cfg.xml"
-  private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
-  private final val NOTIFIER_MANAGER_TAG = "NotifierManager"
-  private final val FEED_READER_TAG = "FeedReader"
+  private final val DefaultConfig = ServiceName + ".cfg.xml"
+  private final val SystemModelConfig = "system-model.cfg.xml"
+  private final val NotifierManagerTag = "NotifierManager"
+  private final val FeedReaderTag = "FeedReader"
 
   def buildAuthenticatedRequestFactory(config: OpenStackIdentityV2AuthenticationType): AuthenticatedRequestFactory = {
     val fqcn = config.getFqcn
