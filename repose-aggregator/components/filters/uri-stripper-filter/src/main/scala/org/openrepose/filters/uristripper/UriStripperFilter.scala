@@ -297,7 +297,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
     def setupTransformer(xmlElement: HttpMessage.Xml): Templates = {
       val setupTransformer = setupTemplate.newTransformer
-      setupTransformer.setParameter("xpath", xmlElement.getXpath)
+      setupTransformer.setParameter("xpath", xmlElement.getXpath.getValue)
       setupTransformer.setParameter("namespaces", new StreamSource(
         <namespaces xmlns="http://www.rackspace.com/repose/params">
           {

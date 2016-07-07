@@ -53,7 +53,7 @@
         <xslout:transform version="2.0">
             <xsl:apply-templates mode="ns" select="$namespaces"/>
 
-            <xslout:param name="token" as="xs:string"/>
+            <xslout:param name="removedToken" as="xs:string"/>
             <xslout:param name="prefixToken" as="xs:string"/>
             <xslout:param name="postfixToken" as="xs:string"/>
 
@@ -85,7 +85,7 @@
                 Modify things
             -->
             <xslout:template match="{$xpath}">
-                <xslout:variable name="processed" as="xs:string" select="rax:process-url(., token, prefixToken, postfixToken)"/>
+                <xslout:variable name="processed" as="xs:string" select="rax:process-url(., $removedToken, $prefixToken, $postfixToken)"/>
                 <xslout:if test="$processed != '{$DROPCODE}'">
                     <xslout:choose>
                         <xslout:when test=". instance of attribute()">

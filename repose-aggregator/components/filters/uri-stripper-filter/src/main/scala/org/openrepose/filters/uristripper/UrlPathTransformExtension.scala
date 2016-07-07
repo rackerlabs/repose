@@ -21,7 +21,7 @@ class UrlPathTransformExtension(funName : String, namespacePrefix : String, name
 {
 
   override def getFunctionQName = new StructuredQName(namespacePrefix, namespaceURI, funName)
-  override def getArgumentTypes = Array(SequenceType.SINGLE_STRING)
+  override def getArgumentTypes = Array(SequenceType.SINGLE_STRING, SequenceType.SINGLE_STRING, SequenceType.SINGLE_STRING, SequenceType.SINGLE_STRING)
   override def getResultType(argTypes : Array[SequenceType]) = SequenceType.SINGLE_STRING
   override def makeCallExpression = new ExtensionFunctionCall {
     override def call (context : XPathContext, args : Array[Sequence]) = {
