@@ -41,7 +41,7 @@ import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, Htt
 import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.uristripper.config.LinkMismatchAction.FAIL
+import org.openrepose.filters.uristripper.config.LinkMismatchAction.{CONTINUE, FAIL, REMOVE}
 import org.openrepose.filters.uristripper.config._
 import org.xml.sax.SAXParseException
 import play.api.libs.json.Reads._
@@ -62,7 +62,6 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private var initialized = false
   private var config: UriStripperConfig = _
   private var templateMap: Map[String, List[Templates]] = _
-  private val FIRST_INDEX : Int = 3
   private val DROP_CODE : String = "[[DROP]]"
 
   override def init(filterConfig: FilterConfig): Unit = {
@@ -231,11 +230,11 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         case JsSuccess(transformedJson, _) =>
           logger.debug("Successfully transformed the link at: \"" + linkPath.getValue + "\"")
           transformedJson
-        case JsError(_) if linkPath.getLinkMismatchAction == LinkMismatchAction.CONTINUE =>
+        case JsError(_) if linkPath.getLinkMismatchAction == CONTINUE =>
           logger.debug("Failed to transform link at: \"" + linkPath.getValue +
             "\", configured to CONTINUE -- returning the response as-is")
           responseJson
-        case JsError(_) if linkPath.getLinkMismatchAction == LinkMismatchAction.REMOVE =>
+        case JsError(_) if linkPath.getLinkMismatchAction == REMOVE =>
           responseJson.transform(jsonPath.prune) match {
             case JsSuccess(jsObject, _) =>
               logger.debug("Failed to transform link at: \"" + linkPath.getValue +
@@ -265,13 +264,24 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     ////
   }
 
-  //private def xsltFunction():  = {}
-
   override def destroy(): Unit = {
     logger.trace("URI Stripper filter destroying...")
     configurationService.unsubscribeFrom(configurationFileName, this.asInstanceOf[UpdateListener[_]])
     logger.trace("URI Stripper filter destroyed.")
   }
+
+  private def xsltFunction(tokenIndex: Option[Int], failureBehavior: LinkMismatchAction):
+    (String, String, Option[String], Option[String]) => String  = (link, token, prefixToken, postfixToken) => {
+        Try(replaceIntoPath(link, token, prefixToken, postfixToken, tokenIndex)) match {
+          case Success(newLink) => newLink
+          case Failure(ex: PathRewriteException) =>
+            failureBehavior match {
+              case CONTINUE => link
+              case REMOVE => DROP_CODE
+              case FAIL => throw ex
+            }
+        }
+    }
 
   override def configurationUpdated(uriStripperConfig: UriStripperConfig): Unit = {
     val saxonTransformFactory = {
@@ -302,8 +312,8 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       setupTransformer.transform (new StreamSource(<ignore-input />), updateXPathXSLTDomResult)
 
       val config = saxonTransformFactory.asInstanceOf[TransformerFactoryImpl].getConfiguration()
-      config.registerExtensionFunction(new StringExtension("process-url","rax", "http://docs.rackspace.com/api",
-        replaceWith => "somefunction"))
+      config.registerExtensionFunction(new UrlPathTransformExtension("process-url","rax", "http://docs.rackspace.com/api",
+        xsltFunction(Option(xmlElement.getXpath.getTokenIndex).map(_.intValue()), xmlElement.getXpath.getLinkMismatchAction)))
 
       saxonTransformFactory.newTemplates(new DOMSource(updateXPathXSLTDomResult.getNode()))
     }
@@ -314,10 +324,6 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   }
 
   override def isInitialized: Boolean = initialized
-
-  case class PathRewriteException(message: String, ex: Throwable) extends Exception(message, ex) {
-    def this(message: String) = this(message, null)
-  }
 }
 
 object UriStripperFilter {
@@ -332,4 +338,8 @@ object UriStripperFilter {
 
   case class LinkTransformException(message: String)
     extends Exception(message)
+
+  case class PathRewriteException(message: String, ex: Throwable) extends Exception(message, ex) {
+    def this(message: String) = this(message, null)
+  }
 }
