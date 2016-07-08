@@ -10,6 +10,7 @@ dependencies {
     compile "org.apache.abdera:abdera-core"
     compile "org.apache.abdera:abdera-parser"
     compile "org.springframework:spring-beans"
+    compile "org.springframework:spring-context"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "org.apache.httpcomponents:httpclient"
 

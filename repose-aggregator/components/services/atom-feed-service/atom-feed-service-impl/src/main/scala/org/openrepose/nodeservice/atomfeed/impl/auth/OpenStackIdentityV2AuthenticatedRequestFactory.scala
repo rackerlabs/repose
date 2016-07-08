@@ -21,6 +21,7 @@ package org.openrepose.nodeservice.atomfeed.impl.auth
 
 import java.io.InputStream
 import java.util
+import javax.inject.Inject
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.client.methods.HttpPost
@@ -44,7 +45,7 @@ object OpenStackIdentityV2AuthenticatedRequestFactory {
 /**
   * Fetches a token from the OpenStack Identity service, if necessary, then adds the token to the request.
   */
-class OpenStackIdentityV2AuthenticatedRequestFactory(configuration: OpenStackIdentityV2AuthenticationType)
+class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(configuration: OpenStackIdentityV2AuthenticationType)
   extends AuthenticatedRequestFactory with LazyLogging {
 
   import OpenStackIdentityV2AuthenticatedRequestFactory._
