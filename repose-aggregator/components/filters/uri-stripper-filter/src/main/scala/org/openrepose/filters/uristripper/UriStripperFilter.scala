@@ -253,17 +253,6 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
-  private def transformXmlLink(xpath : String, namespaces : Map[String, String], uriIndex : Option[Int], uriMarker : Option[String],
-                               newComponent : Option[String], failOnMiss : Boolean = false, source : Source, result : Result) = {
-    if ((uriIndex == None) && (uriMarker == None)) {
-      throw new SAXParseException("You must specify a uriIndex or a uriMarker", null)
-    }
-    if ((uriIndex != None) && (uriMarker != None)) {
-      throw new SAXParseException("You cannot specify both uriIndex and uriMarker", null)
-    }
-    ////
-  }
-
   override def destroy(): Unit = {
     logger.trace("URI Stripper filter destroying...")
     configurationService.unsubscribeFrom(configurationFileName, this.asInstanceOf[UpdateListener[_]])
