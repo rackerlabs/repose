@@ -126,21 +126,25 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       if (token.isDefined && applicableLinkPaths.nonEmpty) {
         Option(wrappedResponse.getContentType) match {
           case Some(ct) if ct.toLowerCase.contains("json") =>
-            val tryParsedJson = Try(Json.parse(wrappedResponse.getOutputStreamAsInputStream))
-            applicableLinkPaths.foldLeft(tryParsedJson)(transformJsonLink(_, _, token.get, previousToken, nextToken)) match {
-              case Success(jsValue) =>
-                val jsValueBytes = jsValue.toString.getBytes(wrappedResponse.getCharacterEncoding)
-                wrappedResponse.setContentLength(jsValueBytes.length)
-                wrappedResponse.setOutput(new ByteArrayInputStream(jsValueBytes))
-              case Failure(e) =>
-                wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
-            }
+            handleJsonResponseLinks(wrappedResponse, previousToken, nextToken, token, applicableLinkPaths)
           case Some(ct) if ct.toLowerCase.contains("xml") =>
           case _ => //do nothing
         }
       }
 
       wrappedResponse.commitToResponse()
+    }
+  }
+
+  private def handleJsonResponseLinks(wrappedResponse: HttpServletResponseWrapper, previousToken: Option[String], nextToken: Option[String], token: Option[String], applicableLinkPaths: List[LinkPath]): Unit = {
+    val tryParsedJson = Try(Json.parse(wrappedResponse.getOutputStreamAsInputStream))
+    applicableLinkPaths.foldLeft(tryParsedJson)(transformJsonLink(_, _, token.get, previousToken, nextToken)) match {
+      case Success(jsValue) =>
+        val jsValueBytes = jsValue.toString.getBytes(wrappedResponse.getCharacterEncoding)
+        wrappedResponse.setContentLength(jsValueBytes.length)
+        wrappedResponse.setOutput(new ByteArrayInputStream(jsValueBytes))
+      case Failure(e) =>
+        wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
     }
   }
 
