@@ -20,7 +20,7 @@
 
 package org.openrepose.filters.uristripper
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import java.net.{URI, URL}
 import javax.inject.{Inject, Named}
 import javax.servlet._
@@ -43,7 +43,6 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.uristripper.config.LinkMismatchAction.{CONTINUE, FAIL, REMOVE}
 import org.openrepose.filters.uristripper.config._
-import org.xml.sax.SAXParseException
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 
@@ -127,7 +126,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         Option(wrappedResponse.getContentType) match {
           case Some(ct) if ct.toLowerCase.contains("json") =>
             handleJsonResponseLinks(wrappedResponse, previousToken, nextToken, token, applicableLinkPaths)
-          case Some(ct) if ct.toLowerCase.contains("xml") =>
+          case Some(ct) if ct.toLowerCase.contains("xml") => handleXmlResponseLinks(wrappedResponse, previousToken, nextToken, token, applicableLinkPaths)
           case _ => //do nothing
         }
       }
@@ -146,6 +145,20 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       case Failure(e) =>
         wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
     }
+  }
+
+  private def handleXmlResponseLinks(wrappedResponse: HttpServletResponseWrapper, previousToken: Option[String], nextToken: Option[String], token: Option[String], applicableLinkPaths: List[LinkPath]): Unit = {
+    val result = applicableLinkPaths.foldLeft(wrappedResponse.getOutputStreamAsInputStream) { (in: InputStream, linkPath: LinkPath) =>
+      val out = new ByteArrayOutputStream()
+      val transformer = templateMap.get(linkPath).get.newTransformer
+      transformer.asInstanceOf[Controller].addLogErrorListener
+      transformer.setParameter("removedToken", token.getOrElse(null))
+      transformer.setParameter("prefixToken", previousToken.getOrElse(null))
+      transformer.setParameter("postfixToken", nextToken.getOrElse(null))
+      transformer.transform(new StreamSource(in), new StreamResult(out))
+      new ByteArrayInputStream(out.toByteArray)
+    }
+    wrappedResponse.setOutput(result)
   }
 
   private def replaceIntoPath(uri: String, token: String, tokenPrefix: Option[String], tokenPostfix: Option[String], tokenIndex: Option[Int]): String = {
