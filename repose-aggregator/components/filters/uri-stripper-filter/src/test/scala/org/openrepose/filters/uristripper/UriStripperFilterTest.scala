@@ -1009,7 +1009,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |        <response>
               |            <xml>
               |                <namespace name="foo" url="bar"/>
-              |                <xpath>/foo:service/foo:link</xpath>
+              |                <xpath>/root/foo:service/foo:link</xpath>
               |            </xml>
               |        </response>
               |    </link-resource>
@@ -1018,9 +1018,11 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<foo:service xmlns:foo="bar">
-             |  <foo:link>http://example.com/v1/foo</foo:link>
-             |</foo:service>
+             |<root xmlns:foo="bar">
+             |  <foo:service>
+             |    <foo:link>http://example.com/v1/foo</foo:link>
+             |  </foo:service>
+             |</root>
             """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -1029,7 +1031,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         filter.doFilter(request, response, filterChain)
 
-        (XML.loadString(response.getContentAsString) \\ "foo:link").text shouldEqual "http://example.com/v1/12345/bar"
+        (XML.loadString(response.getContentAsString) \\ "foo:link").text shouldEqual "http://example.com/v1/12345/foo"
       }
 
       it("should update multiple links given multiple xpaths") {
@@ -1039,10 +1041,10 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |    <link-resource uri-path-regex=".*">
               |        <response>
               |            <xml>
-              |                <xpath>/link</xpath>
+              |                <xpath>/root/link</xpath>
               |            </xml>
               |            <xml>
-              |                <xpath>/linktwo</xpath>
+              |                <xpath>/root/linktwo</xpath>
               |            </xml>
               |        </response>
               |    </link-resource>
@@ -1052,8 +1054,8 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         val respBody =
           s"""<?xml version="1.0" encoding="UTF-8"?>
               |<root>
-              | <link>http://example.com/v1/bar</link>
-              | <linktwo>http://example.com/v1/bar</linktwo>
+              | <link>http://example.com/v1/foo</link>
+              | <linktwo>http://example.com/v1/foo</linktwo>
               |</root>
            """.stripMargin
 
@@ -1063,8 +1065,8 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         filter.doFilter(request, response, filterChain)
 
-        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual "http://example.com/v1/bar/12345"
-        (XML.loadString(response.getContentAsString) \\ "linktwo").text shouldEqual "http://example.com/v1/bar/12345"
+        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual "http://example.com/v1/12345/foo"
+        (XML.loadString(response.getContentAsString) \\ "linktwo").text shouldEqual "http://example.com/v1/12345/foo"
       }
 
       it("should update multiple links given multiple xpaths with independant failure behaviors (continue, remove)") {
@@ -1074,10 +1076,10 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
               |    <link-resource uri-path-regex=".*">
               |        <response>
               |            <xml>
-              |                <xpath>/link</xpath>
+              |                <xpath>/root/link</xpath>
               |            </xml>
               |            <xml>
-              |                <xpath link-mismatch-action="remove" token-index="5">/linknumerodos</xpath>
+              |                <xpath link-mismatch-action="remove" token-index="5">/root/linknumerodos</xpath>
               |            </xml>
               |            <xml>
               |                <xpath link-mismatch-action="continue">/dne</xpath>
@@ -1090,8 +1092,8 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         val respBody =
           s"""<?xml version="1.0" encoding="UTF-8"?>
               |<root>
-              |  <link>http://example.com/v1/bar</link>
-              |  <linknumerodos>http://example.com/v1/bar</linknumerodos>
+              |  <link>http://example.com/v1/foo</link>
+              |  <linknumerodos>http://example.com/v1/foo</linknumerodos>
               |</root>
            """.stripMargin
 
@@ -1101,7 +1103,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         filter.doFilter(request, response, filterChain)
 
-        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual "http://example.com/v1/bar/12345"
+        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual "http://example.com/v1/12345/foo"
         (XML.loadString(response.getContentAsString) \\ "linknumerodos").text shouldEqual ""
       }
     }
