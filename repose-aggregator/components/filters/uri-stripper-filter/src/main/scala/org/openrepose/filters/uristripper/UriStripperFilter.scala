@@ -43,6 +43,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.uristripper.config.LinkMismatchAction.{CONTINUE, FAIL, REMOVE}
 import org.openrepose.filters.uristripper.config._
+import org.xml.sax.SAXParseException
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 
@@ -148,18 +149,28 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   }
 
   private def handleXmlResponseLinks(wrappedResponse: HttpServletResponseWrapper, previousToken: Option[String], nextToken: Option[String], token: Option[String], applicableLinkPaths: List[LinkPath]): Unit = {
-    val result = applicableLinkPaths.foldLeft(wrappedResponse.getOutputStreamAsInputStream) { (in: InputStream, linkPath: LinkPath) =>
-      val out = new ByteArrayOutputStream()
-      val transformer = templateMap.get(linkPath).get.newTransformer
-      transformer.asInstanceOf[Controller].addLogErrorListener
-      transformer.setParameter("removedToken", token.getOrElse(""))
-      transformer.setParameter("prefixToken", previousToken.getOrElse(""))
-      transformer.setParameter("postfixToken", nextToken.getOrElse(""))
-      transformer.transform(new StreamSource(in), new StreamResult(out))
-      new ByteArrayInputStream(out.toByteArray)
-    }
+    try {
+      val result = applicableLinkPaths.foldLeft(wrappedResponse.getOutputStreamAsInputStream) { (in: InputStream, linkPath: LinkPath) =>
+        val out = new ByteArrayOutputStream()
+        val transformer = templateMap.get(linkPath).get.newTransformer
+        transformer.asInstanceOf[Controller].addLogErrorListener
+        transformer.setParameter("removedToken", token.getOrElse(""))
+        transformer.setParameter("prefixToken", previousToken.getOrElse(""))
+        transformer.setParameter("postfixToken", nextToken.getOrElse(""))
+        Try(transformer.transform(new StreamSource(in), new StreamResult(out)), linkPath.getLinkMismatchAction) match {
+          case Success(_) => new ByteArrayInputStream(out.toByteArray)
+          case Failure(e: SAXParseException) =>
+            if (linkPath.getLinkMismatchAction == FAIL) throw e
+            else new ByteArrayInputStream(out.toByteArray)
+          case Failure(e: PathRewriteException) => throw e
+        }
+      }
 
-    wrappedResponse.setOutput(result)
+      wrappedResponse.setOutput(result)
+    } catch {
+      case pre: PathRewriteException => wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, pre.getMessage)
+      case sax: SAXParseException => wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, sax.getMessage)
+    }
   }
 
   private def replaceIntoPath(uri: String, token: String, tokenPrefix: Option[String], tokenPostfix: Option[String], tokenIndex: Option[Int]): String = {

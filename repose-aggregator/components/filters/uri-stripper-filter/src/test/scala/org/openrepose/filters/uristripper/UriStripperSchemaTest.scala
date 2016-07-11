@@ -250,8 +250,6 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
       val config =
         s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
             |    <link-resource>
-            |        <request>
-            |        </request>
             |        <response>
             |            <xml>
             |                <namespace name="foo" url="http://foo.bar"/>

@@ -153,7 +153,7 @@
 
         <xs:assert vc:minVersion="1.1"
                    xpathDefaultNamespace="##targetNamespace"
-                   test="json or xml"
+                   test="count(json) + count(xml) > 0"
                    xerces:message="Either a json element or a xml element must be defined."
                    saxon:message="Either a json element or a xml element must be defined."/>
     </xs:complexType>
