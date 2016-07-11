@@ -125,8 +125,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
       if (token.isDefined && applicableLinkPaths.nonEmpty) {
         Option(wrappedResponse.getContentType) match {
-          case Some(ct) if ct.toLowerCase.contains("json") =>
-            handleJsonResponseLinks(wrappedResponse, previousToken, nextToken, token, applicableLinkPaths)
+          case Some(ct) if ct.toLowerCase.contains("json") => handleJsonResponseLinks(wrappedResponse, previousToken, nextToken, token, applicableLinkPaths)
           case Some(ct) if ct.toLowerCase.contains("xml") => handleXmlResponseLinks(wrappedResponse, previousToken, nextToken, token, applicableLinkPaths)
           case _ => //do nothing
         }
@@ -154,10 +153,10 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         val out = new ByteArrayOutputStream()
         val transformer = templateMap.get(linkPath).get.newTransformer
         transformer.asInstanceOf[Controller].addLogErrorListener
-        transformer.setParameter("removedToken", token.getOrElse(""))
+        transformer.setParameter("removedToken", token.getOrElse("")) //todo make optional
         transformer.setParameter("prefixToken", previousToken.getOrElse(""))
         transformer.setParameter("postfixToken", nextToken.getOrElse(""))
-        Try(transformer.transform(new StreamSource(in), new StreamResult(out)), linkPath.getLinkMismatchAction) match {
+        Try(transformer.transform(new StreamSource(in), new StreamResult(out))) match {
           case Success(_) => new ByteArrayInputStream(out.toByteArray)
           case Failure(e: SAXParseException) =>
             if (linkPath.getLinkMismatchAction == FAIL) throw e

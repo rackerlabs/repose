@@ -823,7 +823,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         filter.doFilter(request, response, filterChain)
 
-        response.getContentAsString shouldEqual "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual "http://example.com/v1/foo"
       }
 
       it("should remove the field if the token index is out of bounds (remove)") {
@@ -1051,8 +1051,10 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<link>http://example.com/v1/bar</link>
-              |<linktwo>http://example.com/v1/bar</linktwo>
+              |<root>
+              | <link>http://example.com/v1/bar</link>
+              | <linktwo>http://example.com/v1/bar</linktwo>
+              |</root>
            """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -1087,8 +1089,10 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         val respBody =
           s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<link>http://example.com/v1/bar</link>
-              |<linknumerodos>http://example.com/v1/bar</linknumerodos>
+              |<root>
+              |  <link>http://example.com/v1/bar</link>
+              |  <linknumerodos>http://example.com/v1/bar</linknumerodos>
+              |</root>
            """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
