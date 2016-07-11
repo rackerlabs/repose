@@ -617,7 +617,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
            """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
+          s"""
               |The link is http://example.com/v1/foo
            """.stripMargin
 
@@ -823,7 +823,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         filter.doFilter(request, response, filterChain)
 
-        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual ""
+        response.getContentAsString shouldEqual "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       }
 
       it("should remove the field if the token index is out of bounds (remove)") {
@@ -851,7 +851,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         filter.doFilter(request, response, filterChain)
 
-        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual ""
+        response.getContentAsString shouldEqual "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       }
 
       it("should remove the field if the stripped path segment cannot be re-inserted in the link (remove)") {
@@ -879,7 +879,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         filter.doFilter(request, response, filterChain)
 
-        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual ""
+        response.getContentAsString shouldEqual "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       }
 
       it("should fail if the link cannot be located (fail)") {
