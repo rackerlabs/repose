@@ -21,15 +21,25 @@ class UrlPathTransformExtension(funName : String, namespacePrefix : String, name
 {
 
   override def getFunctionQName = new StructuredQName(namespacePrefix, namespaceURI, funName)
-  override def getArgumentTypes = Array(SequenceType.SINGLE_STRING, SequenceType.SINGLE_STRING, SequenceType.SINGLE_STRING, SequenceType.SINGLE_STRING)
+  override def getArgumentTypes = Array(SequenceType.SINGLE_STRING, SequenceType.SINGLE_STRING, SequenceType.OPTIONAL_STRING, SequenceType.OPTIONAL_STRING)
   override def getResultType(argTypes : Array[SequenceType]) = SequenceType.SINGLE_STRING
   override def makeCallExpression = new ExtensionFunctionCall {
     override def call (context : XPathContext, args : Array[Sequence]) = {
-      new StringValue (fun(args(0).asInstanceOf[StringValue].getPrimitiveStringValue.toString,
-                            args(1).asInstanceOf[StringValue].getPrimitiveStringValue.toString,
-                            Option(args(2).asInstanceOf[StringValue].getPrimitiveStringValue.toString),
-                            Option(args(3).asInstanceOf[StringValue].getPrimitiveStringValue.toString)))
+      new StringValue(fun(args(0).head.asInstanceOf[StringValue].getPrimitiveStringValue.toString,
+        args(1).head.asInstanceOf[StringValue].getPrimitiveStringValue.toString,
+        { Option(args(2).head.asInstanceOf[StringValue].getPrimitiveStringValue.toString) match {
+            case Some(ct) if ct == "" => None
+            case Some(ct) => Some(ct)
+            case _ => None
+          }
+        },
+        { Option(args(2).head.asInstanceOf[StringValue].getPrimitiveStringValue.toString) match {
+            case Some(ct) if ct == "" => None
+            case Some(ct) => Some(ct)
+            case _ => None
+          }
+        }))
+      }
     }
-  }
   override def trustResultType = true
 }

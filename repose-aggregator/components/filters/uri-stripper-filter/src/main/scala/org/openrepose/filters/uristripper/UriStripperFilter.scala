@@ -152,12 +152,13 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val out = new ByteArrayOutputStream()
       val transformer = templateMap.get(linkPath).get.newTransformer
       transformer.asInstanceOf[Controller].addLogErrorListener
-      transformer.setParameter("removedToken", token.getOrElse(null))
-      transformer.setParameter("prefixToken", previousToken.getOrElse(null))
-      transformer.setParameter("postfixToken", nextToken.getOrElse(null))
+      transformer.setParameter("removedToken", token.getOrElse(""))
+      transformer.setParameter("prefixToken", previousToken.getOrElse(""))
+      transformer.setParameter("postfixToken", nextToken.getOrElse(""))
       transformer.transform(new StreamSource(in), new StreamResult(out))
       new ByteArrayInputStream(out.toByteArray)
     }
+
     wrappedResponse.setOutput(result)
   }
 

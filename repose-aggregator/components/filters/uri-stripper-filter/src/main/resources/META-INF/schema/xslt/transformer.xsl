@@ -53,9 +53,9 @@
         <xslout:transform version="2.0">
             <xsl:apply-templates mode="ns" select="$namespaces"/>
 
-            <xslout:param name="removedToken" as="xs:string"/>
-            <xslout:param name="prefixToken" as="xs:string"/>
-            <xslout:param name="postfixToken" as="xs:string"/>
+            <xslout:param name="removedToken" as="xs:string?"/>
+            <xslout:param name="prefixToken" as="xs:string?"/>
+            <xslout:param name="postfixToken" as="xs:string?"/>
 
 
             <xsl:if test="$failOnMiss">
