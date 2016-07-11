@@ -1031,6 +1031,75 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
         (XML.loadString(response.getContentAsString) \\ "foo:link").text shouldEqual "http://example.com/v1/12345/bar"
       }
+
+      it("should update multiple links given multiple xpaths") {
+        val config =
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+              |    <link-resource uri-path-regex=".*">
+              |        <response>
+              |            <xml>
+              |                <xpath>/link</xpath>
+              |            </xml>
+              |            <xml>
+              |                <xpath>/linktwo</xpath>
+              |            </xml>
+              |        </response>
+              |    </link-resource>
+              |</uri-stripper>
+           """.stripMargin
+
+        val respBody =
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+              |<link>http://example.com/v1/bar</link>
+              |<linktwo>http://example.com/v1/bar</linktwo>
+           """.stripMargin
+
+        filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+        request.setRequestURI("/v1/12345/foo")
+        setResponseBody(respBody, MimeType.APPLICATION_XML.toString)
+
+        filter.doFilter(request, response, filterChain)
+
+        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual "http://example.com/v1/bar/12345"
+        (XML.loadString(response.getContentAsString) \\ "linktwo").text shouldEqual "http://example.com/v1/bar/12345"
+      }
+
+      it("should update multiple links given multiple xpaths with independant failure behaviors (continue, remove)") {
+        val config =
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+              |    <link-resource uri-path-regex=".*">
+              |        <response>
+              |            <xml>
+              |                <xpath>/link</xpath>
+              |            </xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="remove" token-index="5">/linknumerodos</xpath>
+              |            </xml>
+              |            <xml>
+              |                <xpath link-mismatch-action="continue">/dne</xpath>
+              |            </xml>
+              |        </response>
+              |    </link-resource>
+              |</uri-stripper>
+           """.stripMargin
+
+        val respBody =
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+              |<link>http://example.com/v1/bar</link>
+              |<linknumerodos>http://example.com/v1/bar</linknumerodos>
+           """.stripMargin
+
+        filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+        request.setRequestURI("/v1/12345/foo")
+        setResponseBody(respBody, MimeType.APPLICATION_XML.toString)
+
+        filter.doFilter(request, response, filterChain)
+
+        (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual "http://example.com/v1/bar/12345"
+        (XML.loadString(response.getContentAsString) \\ "linknumerodos").text shouldEqual ""
+      }
     }
   }
 

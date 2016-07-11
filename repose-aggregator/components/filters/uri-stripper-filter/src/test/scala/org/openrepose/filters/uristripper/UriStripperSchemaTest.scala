@@ -231,5 +231,42 @@ class UriStripperSchemaTest extends FunSpec with Matchers {
       }
       exception.getLocalizedMessage should include("Attribute 'name' must appear on element 'namespace'.")
     }
+
+    it(s"should successfully validate with multiple json response configurations") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |        <response>
+            |            <json>$$.service.link</json>
+            |            <json token-index="5">$$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      validator.validateConfigString(config)
+    }
+
+    it(s"should successfully validate with multiple xml response configurations") {
+      val config =
+        s"""<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="true" token-index="1">
+            |    <link-resource>
+            |        <request>
+            |        </request>
+            |        <response>
+            |            <xml>
+            |                <namespace name="foo" url="http://foo.bar"/>
+            |                <namespace name="bar" url="http://bar.bar"/>
+            |                <namespace name="buzz" url="http://buzz.bar"/>
+            |                <xpath>/service/link</xpath>
+            |            </xml>
+            |            <xml>
+            |                <xpath>/service/linktwo</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>""".stripMargin
+
+      validator.validateConfigString(config)
+    }
   }
 }
