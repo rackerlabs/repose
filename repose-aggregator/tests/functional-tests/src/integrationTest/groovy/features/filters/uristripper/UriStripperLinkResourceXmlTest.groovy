@@ -140,7 +140,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
     def "when configured to continue on mismatch, the response body is not modified if the xpath to the link does not resolve"() {
         given: "the XML response doesn't contain the link field at all"
         def requestUrl = "/continue/foo/$tenantId/bar"
-        def body = "<bookstore/>"
+        def body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><bookstore/>"
         def responseHandler = { request -> new Response(200, null, responseHeaders, body) }
 
         when: "a request is made"
@@ -156,6 +156,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def requestUrl = "/continue-index/foo/$tenantId/bar"
         def stringWriter = new StringWriter()
         def xmlBuilder = new MarkupBuilder(stringWriter)
+        xmlBuilder.setDoubleQuotes(true)
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title 'Everyday French'
@@ -190,6 +192,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def responseBodyLink = "/a/b/c/d/e/f/g/h"
         def stringWriter = new StringWriter()
         def xmlBuilder = new MarkupBuilder(stringWriter)
+        xmlBuilder.setDoubleQuotes(true)
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title 'Everyday French'
@@ -233,6 +237,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def requestUrl = "/remove/foo/$tenantId/bar"
         def stringWriter = new StringWriter()
         def xmlBuilder = new MarkupBuilder(stringWriter)
+        xmlBuilder.setDoubleQuotes(true)
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title 'Everyday French'
@@ -248,7 +254,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response body is not modified"
-        mc.receivedResponse.body as String == body
+        (mc.receivedResponse.body as String).replace("\n","") == body.replace("\n","")
     }
 
     def "when configured to remove on mismatch, the response body link is removed if the token index is too high for the link"() {
@@ -284,6 +290,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def requestUrl = "/fail/foo/$tenantId/bar"
         def stringWriter = new StringWriter()
         def xmlBuilder = new MarkupBuilder(stringWriter)
+        xmlBuilder.setDoubleQuotes(true)
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title 'Everyday French'
@@ -325,7 +333,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def bookstore = xmlSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is modified"
-        bookstore.book[index as String]."$node" == "/xpath/foo/$tenantId/bar"
+        bookstore.book[index]."$node" == "/xpath/foo/$tenantId/bar"
 
         where:
         xPath                                           | index | node        | url                | body
@@ -351,7 +359,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def bookstore = xmlSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is modified"
-        (0..3).each { assert bookstore.book[it as String].link == "/xpath/foo/$tenantId/bar" }
+        (0..3).each { assert bookstore.book[it].link == "/xpath/foo/$tenantId/bar" }
 
         where:
         url                        | xPath
@@ -365,6 +373,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def requestUrl = "/continue/foo/$tenantId/bar"
         def stringWriter = new StringWriter()
         def xmlBuilder = new MarkupBuilder(stringWriter)
+        xmlBuilder.setDoubleQuotes(true)
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
         xmlBuilder.'x:bookstore'('xmlns:x': 'http://www.groovy-lang.org') {
             'x:book'(category: 'BAKING') {
                 'x:title' lang: 'en', 'Everyday French'
@@ -392,6 +402,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         and: "the XML response body has the configured links in the response body"
         def stringWriter = new StringWriter()
         def xmlBuilder = new MarkupBuilder(stringWriter)
+        xmlBuilder.setDoubleQuotes(true)
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title 'Everyday French'
@@ -417,6 +429,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def stringWriter = new StringWriter()
         def xmlBuilder = new MarkupBuilder(stringWriter)
 
+        xmlBuilder.setDoubleQuotes(true)
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title lang: 'en', 'Everyday French'
@@ -434,6 +448,8 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def stringWriter = new StringWriter()
         def xmlBuilder = new MarkupBuilder(stringWriter)
 
+        xmlBuilder.setDoubleQuotes(true)
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
         xmlBuilder.bookstore {
             book(category: 'BAKING') {
                 title lang: 'en', 'Everyday French'
