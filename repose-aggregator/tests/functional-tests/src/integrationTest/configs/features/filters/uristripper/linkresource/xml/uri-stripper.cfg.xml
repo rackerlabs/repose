@@ -12,7 +12,11 @@
         <response>
             <xml>
                 <xpath link-mismatch-action="continue" token-index="0">/bookstore/book/link-a</xpath>
+            </xml>
+            <xml>
                 <xpath link-mismatch-action="continue" token-index="1">/bookstore/book/link-b</xpath>
+            </xml>
+            <xml>
                 <xpath link-mismatch-action="continue" token-index="5">/bookstore/book/link-c</xpath>
             </xml>
         </response>
