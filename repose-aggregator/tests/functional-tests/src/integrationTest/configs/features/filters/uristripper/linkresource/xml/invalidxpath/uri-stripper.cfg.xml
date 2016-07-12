@@ -2,7 +2,9 @@
 <uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="2">
     <link-resource uri-path-regex="/invalid-xpath/.*">
         <response>
-            <xml>];/book//&amp;//*///$//</xml>
+            <xml>
+                <xpath>];/book//&amp;//*///$//</xpath>
+            </xml>
         </response>
     </link-resource>
 </uri-stripper>

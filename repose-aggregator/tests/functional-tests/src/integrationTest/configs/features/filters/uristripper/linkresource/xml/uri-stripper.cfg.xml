@@ -3,110 +3,152 @@
     <link-resource uri-path-regex="/continue/.*" http-methods="GET POST">
         <response>
             <json>$.bookstore.book.link</json>
-            <xml link-mismatch-action="continue">/bookstore/book/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/continue-index/.*">
         <response>
-            <xml link-mismatch-action="continue" token-index="0">/bookstore/book/link-a</xml>
-            <xml link-mismatch-action="continue" token-index="1">/bookstore/book/link-b</xml>
-            <xml link-mismatch-action="continue" token-index="5">/bookstore/book/link-c</xml>
+            <xml>
+                <xpath link-mismatch-action="continue" token-index="0">/bookstore/book/link-a</xpath>
+                <xpath link-mismatch-action="continue" token-index="1">/bookstore/book/link-b</xpath>
+                <xpath link-mismatch-action="continue" token-index="5">/bookstore/book/link-c</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/remove/.*">
         <response>
-            <xml link-mismatch-action="remove">/bookstore/book/link</xml>
+            <xml>
+                <xpath link-mismatch-action="remove">/bookstore/book/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/remove-index/.*">
         <response>
-            <xml link-mismatch-action="remove" token-index="5">/bookstore/book/link</xml>
+            <xml>
+                <xpath link-mismatch-action="remove" token-index="5">/bookstore/book/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/fail/.*">
         <response>
-            <xml>/bookstore/book/link</xml>
+            <xml>
+                <xpath>/bookstore/book/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/fail-index/.*">
         <response>
-            <xml token-index="5">/bookstore/book/link</xml>
+            <xml>
+                <xpath token-index="5">/bookstore/book/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/multi-format/.*">
         <response>
             <json link-mismatch-action="continue">$.bookstore.book.link</json>
-            <xml link-mismatch-action="continue">/bookstore/book/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/multi-url-a/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book/link-a</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book/link-a</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/.*/multi-url-b/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book/link-b</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book/link-b</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/basic/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/any-child/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore//link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore//link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/attribute/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book/@category</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book/@category</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/first/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book[1]/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book[1]/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/element-search/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book[price>45]/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book[price>45]/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/attribute-search/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book[@category='BAKING']/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book[@category='BAKING']/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/function-not/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book[not(@category='FLIGHT')]/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book[not(@category='FLIGHT')]/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/function-last/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book[last()]/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book[last()]/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/attribute-any/.*">
         <response>
-            <xml link-mismatch-action="continue">//link[@*]</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">//link[@*]</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/all-links-double-slash/.*">
         <response>
-            <xml link-mismatch-action="continue">//link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">//link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/all-links-bookstore-star/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/*/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/*/link</xpath>
+            </xml>
         </response>
     </link-resource>
     <link-resource uri-path-regex="/xpath/all-links-using-or/.*">
         <response>
-            <xml link-mismatch-action="continue">/bookstore/book[0]/link | /bookstore/book[1]/link | /bookstore/book[2]/link | /bookstore/book[3]/link</xml>
+            <xml>
+                <xpath link-mismatch-action="continue">/bookstore/book[0]/link | /bookstore/book[1]/link | /bookstore/book[2]/link | /bookstore/book[3]/link</xpath>
+            </xml>
         </response>
     </link-resource>
 </uri-stripper>
