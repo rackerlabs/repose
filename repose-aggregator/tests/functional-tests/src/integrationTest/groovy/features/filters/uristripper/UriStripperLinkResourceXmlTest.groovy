@@ -228,7 +228,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def bookstore = xmlSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is not modified"
-        !bookstore.book.link  // link should have been removed
+        bookstore.book.link.isEmpty() // link should have been removed
         bookstore.book.author == "Some person"  // unrelated field should remain unaltered
     }
 
@@ -268,7 +268,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def bookstore = xmlSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response body link is not modified"
-        !bookstore.book.link  // link should have been removed
+        bookstore.book.link.isEmpty() // link should have been removed
         bookstore.book.author == "Some person"  // unrelated field should remain unaltered
     }
 

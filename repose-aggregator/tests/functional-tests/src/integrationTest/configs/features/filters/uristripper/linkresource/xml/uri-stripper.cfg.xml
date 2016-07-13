@@ -159,7 +159,7 @@
         <response>
             <xml>
                 <namespace name="x" url="http://www.groovy-lang.org"/>
-                <xpath link-mismatch-action="continue">/bookstore/book/link</xpath>
+                <xpath link-mismatch-action="continue">/x:bookstore/x:book/x:link</xpath>
             </xml>
         </response>
     </link-resource>
