@@ -2,7 +2,7 @@
 <uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="2">
     <link-resource uri-path-regex="/continue/.*" http-methods="GET POST">
         <response>
-            <json>$.bookstore.book.link</json>
+            <json link-mismatch-action="continue">$.bookstore.book.link</json>
             <xml>
                 <xpath link-mismatch-action="continue">/bookstore/book/link</xpath>
             </xml>
@@ -152,6 +152,14 @@
         <response>
             <xml>
                 <xpath link-mismatch-action="continue">/bookstore/book[0]/link | /bookstore/book[1]/link | /bookstore/book[2]/link | /bookstore/book[3]/link</xpath>
+            </xml>
+        </response>
+    </link-resource>
+    <link-resource uri-path-regex="/namespacex/.*">
+        <response>
+            <xml>
+                <namespace name="x" url="http://www.groovy-lang.org"/>
+                <xpath link-mismatch-action="continue">/bookstore/book/link</xpath>
             </xml>
         </response>
     </link-resource>

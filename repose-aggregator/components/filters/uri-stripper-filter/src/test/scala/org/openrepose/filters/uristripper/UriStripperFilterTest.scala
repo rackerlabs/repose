@@ -1104,6 +1104,36 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
         (XML.loadString(response.getContentAsString) \\ "link").text shouldEqual "http://example.com/v1/12345/foo"
         (XML.loadString(response.getContentAsString) \\ "linknumerodos").text shouldEqual ""
       }
+
+      it("should not change the response if the application type is not xml") {
+        val config =
+          s"""<?xml version="1.0" encoding="UTF-8"?>
+              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+              |    <link-resource uri-path-regex=".*">
+              |        <response>
+              |            <xml>
+              |                <xpath>/root/link</xpath>
+              |            </xml>
+              |        </response>
+              |    </link-resource>
+              |</uri-stripper>
+           """.stripMargin
+
+        val respBody =
+          s"""
+             |{
+             |  "link": "http://example.com/v1/foo"
+             |}
+          """.stripMargin
+
+        filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+        request.setRequestURI("/v1/12345/foo")
+        setResponseBody(respBody, MimeType.APPLICATION_JSON.toString)
+
+        filter.doFilter(request, response, filterChain)
+
+        response.getContentAsString shouldEqual respBody
+      }
     }
   }
 

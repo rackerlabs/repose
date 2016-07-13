@@ -101,7 +101,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         where:
         contentType               | body
         MimeType.TEXT_PLAIN       | "There's a million things I haven't done, just you wait"
-        MimeType.APPLICATION_JSON | """{"name": "Requested donation","price": 3.50,"tags": ["Loch Ness Monster", "tree fiddy"]}"""
+        MimeType.APPLICATION_JSON | """{"name":"Requested donation","price":3.5,"tags":["Loch Ness Monster","tree fiddy"]}"""
     }
 
     @Unroll
@@ -370,7 +370,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
 
     def "when the XML response body has a namespace, the response body link is updated"() {
         given: "the XML response body has the configured link and a namespace"
-        def requestUrl = "/continue/foo/$tenantId/bar"
+        def requestUrl = "/namespacex/foo/$tenantId/bar"
         def stringWriter = new StringWriter()
         def xmlBuilder = new MarkupBuilder(stringWriter)
         xmlBuilder.setDoubleQuotes(true)
@@ -381,7 +381,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
                 'x:author' 'Some person'
                 'x:year' 2001
                 'x:price' 20.00
-                'x:link' '/continue/foo/bar'
+                'x:link' '/namespacex/foo/bar'
             }
         }
         def responseHandler = { request -> new Response(200, null, responseHeaders, stringWriter.toString()) }
@@ -392,7 +392,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
                 .declareNamespace(x: 'http://www.groovy-lang.org')
 
         then: "the response body link is modified"
-        bookstore.'x:book'.'x:link' == "/continue/foo/$tenantId/bar"
+        bookstore.'x:book'.'x:link' == "/namespacex/foo/$tenantId/bar"
     }
 
     def "when the request URL matches multiple link-resources, all are applied to the response body"() {
