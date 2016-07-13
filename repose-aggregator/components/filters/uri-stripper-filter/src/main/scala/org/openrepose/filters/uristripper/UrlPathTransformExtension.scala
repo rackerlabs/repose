@@ -33,7 +33,7 @@ class UrlPathTransformExtension(funName : String, namespacePrefix : String, name
             case _ => None
           }
         },
-        { Option(args(2).head.asInstanceOf[StringValue].getPrimitiveStringValue.toString) match {
+        { Option(args(3).head.asInstanceOf[StringValue].getPrimitiveStringValue.toString) match {
             case Some(ct) if ct == "" => None
             case Some(ct) => Some(ct)
             case _ => None
