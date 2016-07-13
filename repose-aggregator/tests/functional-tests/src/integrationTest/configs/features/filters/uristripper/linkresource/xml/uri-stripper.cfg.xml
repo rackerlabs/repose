@@ -95,7 +95,7 @@
     <link-resource uri-path-regex="/xpath/first/.*">
         <response>
             <xml>
-                <xpath link-mismatch-action="continue">/bookstore/book[1]/link</xpath>
+                <xpath link-mismatch-action="continue">/bookstore/book[2]/link</xpath>
             </xml>
         </response>
     </link-resource>
@@ -151,7 +151,7 @@
     <link-resource uri-path-regex="/xpath/all-links-using-or/.*">
         <response>
             <xml>
-                <xpath link-mismatch-action="continue">/bookstore/book[0]/link | /bookstore/book[1]/link | /bookstore/book[2]/link | /bookstore/book[3]/link</xpath>
+                <xpath link-mismatch-action="continue">/bookstore/book[1]/link | /bookstore/book[2]/link | /bookstore/book[3]/link | /bookstore/book[4]/link</xpath>
             </xml>
         </response>
     </link-resource>

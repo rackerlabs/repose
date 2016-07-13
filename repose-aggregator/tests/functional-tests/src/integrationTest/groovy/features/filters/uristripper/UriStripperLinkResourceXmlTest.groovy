@@ -432,7 +432,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         xmlBuilder.setDoubleQuotes(true)
         xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
         xmlBuilder.bookstore {
-            book(category: 'BAKING') {
+            book(category: responseBodyLink) {
                 title lang: 'en', 'Everyday French'
                 author 'Some person'
                 year 2001
