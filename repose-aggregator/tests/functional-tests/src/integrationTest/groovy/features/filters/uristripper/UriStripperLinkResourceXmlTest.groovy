@@ -232,6 +232,20 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         bookstore.book.author == "Some person"  // unrelated field should remain unaltered
     }
 
+    def "when configured to remove on mismatch, an attribute in the response body should be removed"() {
+        given: "the link in the XML response doesn't contain the previous nor following token"
+        def requestUrl = "/remove-attribute/foo/$tenantId/bar"
+        def responseBodyLink = "/a/b/c/d/e/f/g/h"
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
+
+        when: "a request is made and the XML response body is parsed"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
+        def bookstore = xmlSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the response body link is not modified"
+        bookstore.book.'@category'.isEmpty() // link should have been removed
+    }
+
     def "when configured to remove on mismatch, the response body is not modified if the xpath to the link does not resolve"() {
         given: "the XML response doesn't contain the link field at all"
         def requestUrl = "/remove/foo/$tenantId/bar"
@@ -279,6 +293,19 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink(responseBodyLink)) }
 
         when: "a request is made"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
+
+        then: "the response code is 500"
+        mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
+    }
+
+    def "when configured to fail on mismatch, Repose returns a 500 if the xpath to the attribute does not resolve"() {
+        given: "the link in the XML response doesn't contain the previous nor following token"
+        def requestUrl = "/fail-attribute/foo/$tenantId/bar"
+        def responseBodyLink = "/a/b/c/d/e/f/g/h"
+        def responseHandler = { request -> new Response(200, null, responseHeaders, simpleXmlWithLink("non/matching/link")) }
+
+        when: "a request is made and the XML response body is parsed"
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response code is 500"

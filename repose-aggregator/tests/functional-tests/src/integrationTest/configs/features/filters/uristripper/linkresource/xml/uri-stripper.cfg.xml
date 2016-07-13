@@ -35,6 +35,13 @@
             </xml>
         </response>
     </link-resource>
+    <link-resource uri-path-regex="/remove-attribute/.*">
+        <response>
+            <xml>
+                <xpath link-mismatch-action="remove">/bookstore/book/@category</xpath>
+            </xml>
+        </response>
+    </link-resource>
     <link-resource uri-path-regex="/fail/.*">
         <response>
             <xml>
@@ -46,6 +53,13 @@
         <response>
             <xml>
                 <xpath token-index="5">/bookstore/book/link</xpath>
+            </xml>
+        </response>
+    </link-resource>
+    <link-resource uri-path-regex="/fail-attribute/.*">
+        <response>
+            <xml>
+                <xpath link-mismatch-action="fail">/bookstore/book/@category</xpath>
             </xml>
         </response>
     </link-resource>
