@@ -22,6 +22,8 @@ package features.filters.uristripper
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
+import javax.servlet.http.HttpServletResponse
+
 class UriStripperLinkResourceXmlInvalidXpathTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -44,6 +46,8 @@ class UriStripperLinkResourceXmlInvalidXpathTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl)
 
         then:
-        false // todo: figure out what should happen
+        mc.receivedResponse.code == HttpServletResponse.SC_SERVICE_UNAVAILABLE as String
+        reposeLogSearch.searchByString("Configuration update error. Reason: Failed to compile stylesheet").size() > 0
+        reposeLogSearch.searchByString("Filter has not yet initialized... Please check your configuration files and your artifacts directory").size() > 0
     }
 }

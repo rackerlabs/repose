@@ -162,7 +162,6 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
             if (linkPath.getLinkMismatchAction == FAIL) throw e
             else new ByteArrayInputStream(out.toByteArray)
           case Failure(e: PathRewriteException) => throw e
-          case Failure(e: Exception) => throw e
         }
       }
 
@@ -170,7 +169,6 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     } catch {
       case e: PathRewriteException => wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
       case e: SAXParseException => wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
-      case e: Exception => wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
     }
   }
 
