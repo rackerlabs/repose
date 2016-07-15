@@ -101,6 +101,48 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest {
         "123456"       | "test-project" | "openstack"    | UUID.randomUUID() | "401"           | 2
     }
 
+    @Unroll("Default quality with request project: #reqProject")
+    def "when user token have multi-tenant will retrieve all tenants in the header with default quality"() {
+        given:
+        fakeIdentityV3Service.with {
+            client_token = clientToken
+            tokenExpiresAt = (new DateTime()).plusDays(1)
+            client_projectid = defaultProject
+            client_projectid2 = secondProject
+        }
+
+        when:
+        "User passes a request through repose with $reqProject"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqProject",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Subject-Token': fakeIdentityV3Service.client_token])
+
+        then: "Everything gets passed as is to the origin service (no matter the user)"
+        mc.receivedResponse.code == serviceRespCode
+
+        if (serviceRespCode != "200")
+            assert mc.handlings.size() == 0
+        else {
+            assert mc.handlings.size() == 1
+            assert mc.handlings[0].request.headers.findAll("x-project-id").size() == numberProjects
+            assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(defaultProject + ";q=0.9")
+            if (!reqProject.equals(defaultProject)) {
+                // base on default quality for tenant from url and roles
+                assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(secondProject + ";q=0.7")
+                assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(secondProject + ";q=0.5")
+            }
+        }
+
+        where:
+        defaultProject | secondProject  | reqProject     | clientToken       | serviceRespCode | numberProjects
+        "123456"       | "test-project" | "123456"       | UUID.randomUUID() | "200"           | 2
+        "test-project" | "12345"        | "12345"        | UUID.randomUUID() | "200"           | 2
+        "test-project" | "12345"        | "test-project" | UUID.randomUUID() | "200"           | 2
+        "123456"       | "123456"       | "test-proj-id" | UUID.randomUUID() | "401"           | 1
+        "123456"       | "test-project" | "openstack"    | UUID.randomUUID() | "401"           | 2
+    }
+
     @Unroll("No project id from token object: request project #reqProject")
     def "when no project id from token object"() {
         given:
