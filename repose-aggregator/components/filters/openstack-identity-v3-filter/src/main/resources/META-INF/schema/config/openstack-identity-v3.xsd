@@ -72,6 +72,16 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="default-project-quality" type="QualityType" default="0.9" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sets the project quality for the default x-project-id.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <!-- TODO: Remove these cache attributes in Repose 9 -->
         <xs:attribute name="token-cache-timeout" type="ZeroOrPositiveInteger" use="optional" default="0">
             <xs:annotation>
