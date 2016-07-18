@@ -72,7 +72,7 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/atomfeed", params)
         repose.start()
-        waitUntilReadyToServiceRequests()
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     @Unroll
