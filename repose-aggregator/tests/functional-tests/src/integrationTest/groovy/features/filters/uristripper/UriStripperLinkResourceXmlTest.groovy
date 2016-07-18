@@ -268,7 +268,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response body is not modified"
-        (mc.receivedResponse.body as String).replace("\n","") == body.replace("\n","")
+        (mc.receivedResponse.body as String).replace("\n", "") == body.replace("\n", "")
     }
 
     def "when configured to remove on mismatch, the response body link is removed if the token index is too high for the link"() {

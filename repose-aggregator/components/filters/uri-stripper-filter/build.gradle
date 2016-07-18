@@ -8,7 +8,7 @@ dependencies {
     compile "io.gatling:jsonpath_$scalaMajDotMin"
     compile "org.scala-lang.modules:scala-xml_$scalaMajDotMin"
     compile "com.rackspace.cloud.api:wadl-tools_$scalaMajDotMin"
-    compile "net.sf.saxon:Saxon-HE"
+    compile "net.sf.saxon:Saxon-EE"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"
