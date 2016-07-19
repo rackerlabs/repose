@@ -25,8 +25,8 @@ import akka.http.scaladsl.model._
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
-import org.openrepose.nodeservice.atomfeed.AuthenticationRequestException
-import org.openrepose.nodeservice.atomfeed.impl.{FeedReadRequestImpl, MockService}
+import org.openrepose.nodeservice.atomfeed.impl.MockService
+import org.openrepose.nodeservice.atomfeed.{AuthenticationRequestException, FeedReadRequest}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -65,7 +65,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+      val feedReadRequest = new FeedReadRequest(new URI("http://example.com"))
 
       intercept[AuthenticationRequestException] {
         osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
@@ -82,7 +82,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+      val feedReadRequest = new FeedReadRequest(new URI("http://example.com"))
 
       intercept[AuthenticationRequestException] {
         osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
@@ -97,7 +97,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+      val feedReadRequest = new FeedReadRequest(new URI("http://example.com"))
 
       intercept[AuthenticationRequestException] {
         osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
@@ -112,7 +112,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+      val feedReadRequest = new FeedReadRequest(new URI("http://example.com"))
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
 
@@ -130,13 +130,13 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       finishSetup()
 
-      var feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+      var feedReadRequest = new FeedReadRequest(new URI("http://example.com"))
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"
       numberOfInterations shouldEqual 1
 
-      feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+      feedReadRequest = new FeedReadRequest(new URI("http://example.com"))
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"
@@ -144,7 +144,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       osiarf.onInvalidCredentials()
 
-      feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
+      feedReadRequest = new FeedReadRequest(new URI("http://example.com"))
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"

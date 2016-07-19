@@ -30,7 +30,7 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.util.EntityUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
-import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -75,7 +75,7 @@ object AtomEntryStreamBuilder {
                      authenticator: Option[AuthenticatedRequestFactory] = None,
                      authenticationTimeout: Duration = 1 second,
                      firstAttempt: Boolean = true): Stream[Entry] = {
-    val feedReadRequest = new FeedReadRequestImpl(feedURI)
+    val feedReadRequest = new FeedReadRequest(feedURI)
 
     val authenticatedRequest = authenticator match {
       case Some(arf) =>
@@ -137,4 +137,5 @@ object AtomEntryStreamBuilder {
   case class ClientErrorException(message: String) extends Exception(message)
 
   case class AuthenticationException(message: String) extends Exception(message)
+
 }

@@ -22,15 +22,29 @@ package org.openrepose.nodeservice.atomfeed;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * A simple object which contains information related to a request that may be used during authentication.
  */
-public interface FeedReadRequest {
+public class FeedReadRequest {
+    private URI uri;
+    private Map<String, List<String>> headers;
 
-    URI getURI();
+    public FeedReadRequest(URI uri) {
+        setURI(uri);
+        headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    }
 
-    void setURI(URI uri);
+    public URI getURI() {
+        return this.uri;
+    }
 
-    Map<String, List<String>> getHeaders();
+    public void setURI(URI uri) {
+        this.uri = uri;
+    }
+
+    public Map<String, List<String>> getHeaders() {
+        return this.headers;
+    }
 }
