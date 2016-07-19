@@ -39,11 +39,11 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import play.api.libs.json.Json
+
 import scala.xml.XML
 
 @RunWith(classOf[JUnitRunner])
 class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
-
   import UriStripperFilterTest._
 
   var filter: UriStripperFilter = _
@@ -55,7 +55,6 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
     request = new MockHttpServletRequest
     response = new MockHttpServletResponse
     filterChain = mock[FilterChain]
-
     filter = new UriStripperFilter(null)
   }
 

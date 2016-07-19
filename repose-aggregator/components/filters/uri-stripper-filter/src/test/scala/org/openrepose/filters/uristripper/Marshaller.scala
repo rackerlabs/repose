@@ -19,33 +19,17 @@
  */
 package org.openrepose.filters.uristripper
 
-import java.net.URL
+import java.io.{ByteArrayInputStream, InputStream}
 import java.nio.charset.StandardCharsets
+import javax.xml.bind.{JAXBContext, JAXBElement, Unmarshaller}
 
-import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
-import org.openrepose.commons.config.resource.ConfigurationResource
-import org.openrepose.commons.config.resource.impl.ByteArrayConfigurationResource
 import org.openrepose.filters.uristripper.config.UriStripperConfig
 
-import scala.reflect.ClassTag
+import scala.reflect._
 
 object Marshaller {
-
-  private final val UriStripperXsd = getClass.getResource("/META-INF/schema/config/uri-stripper.xsd")
-
   def uriStripperConfigFromString(content: String): UriStripperConfig = {
-    configResource[UriStripperConfig](new ByteArrayConfigurationResource("uriStripperConfig", content.getBytes(StandardCharsets.UTF_8)), UriStripperXsd)
-  }
-
-  def configResource[T: ClassTag](configResource: ConfigurationResource, xsdURL: URL): T = {
-    import scala.reflect._
-
-    val ct = classTag[T]
-    val parser = JaxbConfigurationParser.getXmlConfigurationParser(
-      ct.runtimeClass.asInstanceOf[Class[T]],
-      xsdURL,
-      this.getClass.getClassLoader)
-
-    parser.read(configResource)
+    val jaxbContext: JAXBContext = JAXBContext.newInstance(classTag[UriStripperConfig].runtimeClass.asInstanceOf[Class[UriStripperConfig]].getPackage.getName, this.getClass.getClassLoader)
+    jaxbContext.createUnmarshaller().unmarshal(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))).asInstanceOf[JAXBElement[_]].getValue.asInstanceOf[UriStripperConfig]
   }
 }
