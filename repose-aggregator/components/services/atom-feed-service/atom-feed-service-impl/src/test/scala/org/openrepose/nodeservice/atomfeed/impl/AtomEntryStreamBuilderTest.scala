@@ -34,7 +34,7 @@ import org.mockito.Mockito._
 import org.mockito.{AdditionalAnswers, ArgumentCaptor}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContextImpl
-import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, AuthenticationRequestException, FeedReadRequest}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -122,11 +122,11 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
   test("should throw an AuthenticationException if the factory returns null") {
     reset(mockAuthRequestFactory)
     when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
-      .thenReturn(null)
+      .thenThrow(new AuthenticationRequestException("Failed to authenticate the request."))
 
     finishSetup()
 
-    intercept[AtomEntryStreamBuilder.AuthenticationException] {
+    intercept[AuthenticationRequestException] {
       AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
     }
   }

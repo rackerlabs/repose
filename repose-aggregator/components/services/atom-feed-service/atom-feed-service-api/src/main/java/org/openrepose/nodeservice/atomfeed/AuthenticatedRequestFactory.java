@@ -30,8 +30,9 @@ public interface AuthenticatedRequestFactory {
      * @param feedReadRequest A mutable container for request data that will be sent to the Atom service.
      * @param context         A context object which contains information related to the request.
      * @return The {@link FeedReadRequest} with authentication mutations applied.
+     * @throws AuthenticationRequestException if the request fails to authenticate.
      */
-    FeedReadRequest authenticateRequest(FeedReadRequest feedReadRequest, AuthenticationRequestContext context);
+    FeedReadRequest authenticateRequest(FeedReadRequest feedReadRequest, AuthenticationRequestContext context) throws AuthenticationRequestException;
 
     /**
      * This method will be called anytime authentication credentials on a request that has been processed by the

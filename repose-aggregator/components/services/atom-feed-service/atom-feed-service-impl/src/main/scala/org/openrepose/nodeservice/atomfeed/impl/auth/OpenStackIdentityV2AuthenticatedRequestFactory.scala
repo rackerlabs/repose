@@ -32,7 +32,7 @@ import org.apache.http.{HttpHeaders, HttpStatus}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
-import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, AuthenticationRequestException, FeedReadRequest}
 import play.api.libs.json.Json
 
 import scala.io.{Codec, Source}
@@ -71,7 +71,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(configuration: Op
         feedReadRequest.getHeaders.put(CommonHttpHeader.AUTH_TOKEN.toString, util.Arrays.asList(tkn))
         feedReadRequest
       case Failure(_) =>
-        null
+        throw new AuthenticationRequestException("Failed to authenticate the request.")
     }
   }
 

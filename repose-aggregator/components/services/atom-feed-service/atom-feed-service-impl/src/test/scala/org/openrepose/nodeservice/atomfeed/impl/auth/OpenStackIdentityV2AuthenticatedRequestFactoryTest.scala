@@ -23,9 +23,9 @@ import java.net.URI
 
 import akka.http.scaladsl.model._
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{eq => mEq}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
+import org.openrepose.nodeservice.atomfeed.AuthenticationRequestException
 import org.openrepose.nodeservice.atomfeed.impl.{FeedReadRequestImpl, MockService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -67,7 +67,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
 
-      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
+      intercept[AuthenticationRequestException] {
+        osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
+      }
 
       requestHeaders.exists(_.is(CommonHttpHeader.TRACE_GUID.toString)) shouldBe true
     }
@@ -82,7 +84,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
 
-      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", "")) shouldBe null
+      intercept[AuthenticationRequestException] {
+        osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
+      }
     }
 
     it("should handle a 4xx response") {
@@ -95,7 +99,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       val feedReadRequest = new FeedReadRequestImpl(new URI("http://example.com"))
 
-      osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", "")) shouldBe null
+      intercept[AuthenticationRequestException] {
+        osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
+      }
     }
 
     it("should send a valid payload and receive a valid token for the user provided") {
