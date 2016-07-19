@@ -33,7 +33,6 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.{AdditionalAnswers, ArgumentCaptor}
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.nodeservice.atomfeed.impl.AtomEntryStreamBuilder.ClientErrorException
 import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContextImpl
 import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
 import org.scalatest.junit.JUnitRunner
@@ -127,7 +126,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
 
     finishSetup()
 
-    intercept[AtomEntryStreamBuilder.AuthenticationException.type] {
+    intercept[AtomEntryStreamBuilder.AuthenticationException] {
       AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
     }
   }
@@ -247,7 +246,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
     when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
-    intercept[ClientErrorException.type] {
+    intercept[AtomEntryStreamBuilder.ClientErrorException] {
       AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("", ""), Some(mockAuthRequestFactory))
     }
 
@@ -293,7 +292,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
     when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
       .thenAnswer(AdditionalAnswers.returnsFirstArg())
 
-    intercept[ClientErrorException.type] {
+    intercept[AtomEntryStreamBuilder.ClientErrorException] {
       AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("", ""), Some(mockAuthRequestFactory))
     }
 

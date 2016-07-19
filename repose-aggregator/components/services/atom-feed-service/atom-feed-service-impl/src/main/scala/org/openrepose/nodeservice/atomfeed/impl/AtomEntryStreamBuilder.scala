@@ -117,7 +117,7 @@ object AtomEntryStreamBuilder {
               // Inform the authenticator that the request failed and retry once
               buildR(feedURI, httpClient, context, authenticator, authenticationTimeout, firstAttempt = false)
             } else {
-              throw ClientErrorException
+              throw ClientErrorException(s"Could not handle Atom service response code: $statusCode")
             }
           } else {
             throw ServerResponseException(s"Could not handle Atom service response code: $statusCode")
@@ -126,7 +126,7 @@ object AtomEntryStreamBuilder {
           EntityUtils.consume(httpResponse.getEntity)
         }
       case None =>
-        throw AuthenticationException
+        throw AuthenticationException("Authenticated Atom service request failed for unknown reasons.")
     }
   }
 
@@ -134,8 +134,7 @@ object AtomEntryStreamBuilder {
 
   case class ServerResponseException(message: String) extends Exception(message)
 
-  object ClientErrorException extends Exception
+  case class ClientErrorException(message: String) extends Exception(message)
 
-  object AuthenticationException extends Exception
-
+  case class AuthenticationException(message: String) extends Exception(message)
 }

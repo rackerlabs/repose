@@ -141,9 +141,9 @@ class FeedReader(feedURIString: String,
         firstReadDone = true
         highWaterMark = entryStream.headOption.map(_.getId)
       } catch {
-        case AuthenticationException =>
+        case AuthenticationException(_) =>
           logger.error("Authentication failed -- connection to Atom service could not be established")
-        case e@(_: UnknownServiceException | _: IOException | ClientErrorException) =>
+        case e@(_: UnknownServiceException | _: IOException | ClientErrorException(_)) =>
           logger.error("Connection to Atom service failed -- an invalid URI may have been provided, or " +
             "authentication credentials may be invalid", e)
         case pe: ParseException =>
