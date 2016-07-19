@@ -25,17 +25,15 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.impl.client.HttpClients
-import org.apache.http.ssl.PrivateKeyStrategy
 import org.apache.http.ssl.SSLContexts
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Shared
+import org.rackspace.deproxy.MessageChain
 
 import java.nio.file.Files
-
 /**
  * Make sure we can start up with SSL configuration parameters
  */
-class SSLClientAuthentication extends ReposeValveTest {
+class SSLClientAuthenticationTest extends ReposeValveTest {
 
     def setupSpec() {
         cleanLogDirectory()
@@ -92,5 +90,13 @@ class SSLClientAuthentication extends ReposeValveTest {
 
         then:
         response.getStatusLine().statusCode == 200
+    }
+
+    def "Requests without a client certificate fail"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
+
+        then:
+        mc.receivedResponse.code == "401"
     }
 }
