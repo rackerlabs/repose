@@ -19,12 +19,10 @@
  */
 package org.openrepose.filters.uristripper
 
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
-import javax.xml.bind.{JAXBContext, JAXBElement, Unmarshaller}
-
+import javax.xml.bind.{JAXBContext, JAXBElement}
 import org.openrepose.filters.uristripper.config.UriStripperConfig
-
 import scala.reflect._
 
 object Marshaller {

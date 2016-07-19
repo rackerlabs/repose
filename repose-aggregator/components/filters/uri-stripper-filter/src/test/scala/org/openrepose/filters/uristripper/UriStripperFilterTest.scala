@@ -39,7 +39,6 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import play.api.libs.json.Json
-
 import scala.xml.XML
 
 @RunWith(classOf[JUnitRunner])
