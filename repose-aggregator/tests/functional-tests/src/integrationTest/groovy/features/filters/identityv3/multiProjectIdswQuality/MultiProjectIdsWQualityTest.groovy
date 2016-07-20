@@ -126,11 +126,11 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest {
         else {
             assert mc.handlings.size() == 1
             assert mc.handlings[0].request.headers.findAll("x-project-id").size() == numberProjects
-            assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(defaultProject + ";q=0.9")
+            assert (mc.handlings[0].request.headers.findAll("x-project-id").toString()).contains(defaultProject + ";q=0.9")
             if (!reqProject.equals(defaultProject)) {
                 // base on default quality for tenant from url and roles
-                assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(secondProject + ";q=0.7")
-                assert (mc.handlings[0].request.headers.findAll("x-tenant-id").toString()).contains(secondProject + ";q=0.5")
+                assert (mc.handlings[0].request.headers.findAll("x-project-id").toString()).contains(secondProject + ";q=0.7")
+                assert (mc.handlings[0].request.headers.findAll("x-project-id").toString()).contains(secondProject + ";q=0.5")
             }
         }
 
