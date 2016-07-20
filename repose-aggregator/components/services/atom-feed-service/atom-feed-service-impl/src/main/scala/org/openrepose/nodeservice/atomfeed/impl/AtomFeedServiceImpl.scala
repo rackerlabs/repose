@@ -160,7 +160,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
             .map(_.notifierManager)
             .getOrElse(actorSystem.actorOf(Props[NotifierManager], name = newFeedConfig.getId + NotifierManagerTag))
 
-          def buildAuthenticatedRequestFactory(id: String, config: Any): AuthenticatedRequestFactory = {
+          def buildAuthenticatedRequestFactory(id: String, connectionPoolId: String, config: Any): AuthenticatedRequestFactory = {
 
             def getFqcnFromConfig(cfg: Any): String = {
               cfg match {
@@ -206,7 +206,9 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
             }
 
             Option(authenticatedRequestFactory.asInstanceOf[AuthenticatedRequestFactory]) match {
-              case Some(factory: AuthenticatedRequestFactory) => factory
+              case Some(factory: AuthenticatedRequestFactory) =>
+                factory.setConnectionPoolId(connectionPoolId)
+                factory
               case _ => throw new IllegalArgumentException("Unable to instantiate a valid AuthenticatedRequestFactory")
             }
           }
@@ -216,7 +218,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
               newFeedConfig.getUri,
               httpClientService,
               newFeedConfig.getConnectionPoolId,
-              authenticationConfig.map(buildAuthenticatedRequestFactory(newFeedConfig.getId, _)),
+              authenticationConfig.map(buildAuthenticatedRequestFactory(newFeedConfig.getId, newFeedConfig.getConnectionPoolId, _)),
               authenticationConfig.map(_.getTimeout).filterNot(_ == 0).map(_.milliseconds).getOrElse(Duration.Inf),
               notifierManager,
               newFeedConfig.getPollingFrequency,
