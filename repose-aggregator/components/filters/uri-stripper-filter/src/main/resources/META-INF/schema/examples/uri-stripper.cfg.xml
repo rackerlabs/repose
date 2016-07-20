@@ -5,6 +5,16 @@
         <response>
             <json>$.service.link</json>
             <json token-index="1" link-mismatch-action="fail">$.other-service.link</json>
+            <xml>
+                <namespace name="foo" url="http://foo.bar"/>
+                <xpath token-index="1" link-mismatch-action="fail">/service/link</xpath>
+            </xml>
+            <xml>
+                <namespace name="foo" url="http://foo.bar"/>
+                <namespace name="bar" url="http://bar.bar"/>
+                <namespace name="buzz" url="http://buzz.bar"/>
+                <xpath>/other-service/link</xpath>
+            </xml>
         </response>
     </link-resource>
 </uri-stripper>

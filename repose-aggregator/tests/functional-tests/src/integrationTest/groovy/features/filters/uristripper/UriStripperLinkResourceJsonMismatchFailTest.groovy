@@ -66,7 +66,7 @@ class UriStripperLinkResourceJsonMismatchFailTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
     }
 
-    def "when configured to fail on mismatch, the response body alt-link is removed if the token index is too high for the link"() {
+    def "when configured to fail on mismatch, Repose returns a 500 if the token index is too high for the link"() {
         given: "the alt-link in the JSON response doesn't contain enough tokens and the link is legit"
         def requestUrl = "/foo/$tenantId/bar"
         jsonBuilder {
