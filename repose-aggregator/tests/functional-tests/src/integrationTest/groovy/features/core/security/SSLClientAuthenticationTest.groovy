@@ -30,14 +30,16 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 import java.nio.file.Files
+import java.util.concurrent.TimeUnit
+
 /**
  * Make sure we can start up with SSL configuration parameters
  */
 class SSLClientAuthenticationTest extends ReposeValveTest {
 
     def setupSpec() {
-        cleanLogDirectory()
-        params = properties.getDefaultTemplateParams()
+        reposeLogSearch.cleanLog()
+        def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/security/clientauth", params)
@@ -55,14 +57,13 @@ class SSLClientAuthenticationTest extends ReposeValveTest {
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        reposeLogSearch.awaitByString("Repose ready", 1, 60, TimeUnit.SECONDS)
     }
 
     def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
+        deproxy?.shutdown()
+        repose?.stop()
     }
-
-    static def params
 
     def "Can execute a simple request via SSL"() {
         //A simple request should go through
