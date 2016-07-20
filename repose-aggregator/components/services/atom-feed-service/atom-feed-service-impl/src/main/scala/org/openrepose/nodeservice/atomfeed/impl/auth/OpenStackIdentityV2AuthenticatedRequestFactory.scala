@@ -130,9 +130,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(configuration: Op
 
   override def onInvalidCredentials(): Unit = cachedToken = None
 
-  override def setConnectionPoolId(value: String): Unit = {
+  override def setConnectionPoolId(poolId: String): Unit = {
     val akkaServiceClientOld = Option(akkaServiceClient)
-    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(Option(value).getOrElse("default"))
+    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(poolId)
     akkaServiceClientOld.foreach(_.destroy())
   }
 

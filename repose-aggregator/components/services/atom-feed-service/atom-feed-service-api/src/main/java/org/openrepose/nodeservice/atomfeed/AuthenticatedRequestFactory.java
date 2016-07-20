@@ -45,6 +45,6 @@ public interface AuthenticatedRequestFactory {
      * <p>
      * NOTE: This default implementation does nothing and will need to be overridden if the value is required.
      */
-    default void setConnectionPoolId(String value) {
+    default void setConnectionPoolId(String poolId) {
     }
 }
