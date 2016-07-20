@@ -107,7 +107,6 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError) // feature not yet supported
     def "when an authenticated atom feed is configured to #connectionPool, the authentication request uses the connection pool #expectedPoolId"() {
         given: "Keystone is configured to use the correct atom feed with the specified connection pool"
         startReposeWithConfigParams("atom-feed-id": atomFeedId)
