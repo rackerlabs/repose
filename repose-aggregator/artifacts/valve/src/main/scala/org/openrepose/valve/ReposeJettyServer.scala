@@ -110,7 +110,7 @@ class ReposeJettyServer(val clusterId: String,
         cf.setNeedClientAuth(needClientAuth)
         if (needClientAuth) {
           Option(ssl.getTruststoreFilename).foreach { truststoreFilename =>
-            cf.setTrustStorePath(truststoreFilename)
+            cf.setTrustStorePath(configRoot + File.separator + truststoreFilename)
             cf.setTrustStorePassword(ssl.getTruststorePassword)
           }
         }
