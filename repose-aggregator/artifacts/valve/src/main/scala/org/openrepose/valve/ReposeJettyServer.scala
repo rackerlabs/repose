@@ -103,14 +103,14 @@ class ReposeJettyServer(val clusterId: String,
       // See: http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html
       val configRoot = coreSpringProvider.getCoreContext.getEnvironment.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT))
       sslConfig.map { ssl =>
-        cf.setKeyStorePath(configRoot + File.separator + ssl.getKeystoreFilename)
+        cf.setKeyStorePath(new File(configRoot, ssl.getKeystoreFilename).getAbsolutePath)
         cf.setKeyStorePassword(ssl.getKeystorePassword)
         cf.setKeyManagerPassword(ssl.getKeyPassword)
         val needClientAuth = ssl.isNeedClientAuth
         cf.setNeedClientAuth(needClientAuth)
         if (needClientAuth) {
           Option(ssl.getTruststoreFilename).foreach { truststoreFilename =>
-            cf.setTrustStorePath(configRoot + File.separator + truststoreFilename)
+            cf.setTrustStorePath(new File(configRoot, truststoreFilename).getAbsolutePath)
             cf.setTrustStorePassword(ssl.getTruststorePassword)
           }
         }
