@@ -8,8 +8,9 @@
     <!-- when the page of new entries is passed to the service, they will be passed in reverse order -->
     <feed id="non-authenticating-reverse-feed" uri="http://reverse.atom.com/feed" entry-order="reverse-read"/>
 
-    <feed id="authenticating-feed" uri="http://private.atom.com/feed">
+    <feed id="authenticating-feed" uri="http://private.atom.com/feed" connection-pool-id="default">
         <authentication xsi:type="OpenStackIdentityV2AuthenticationType"
+                        timeout="5000"
                         uri="http://identity.jware.com"
                         username="zombiekid"
                         password="iliketurtles"/>

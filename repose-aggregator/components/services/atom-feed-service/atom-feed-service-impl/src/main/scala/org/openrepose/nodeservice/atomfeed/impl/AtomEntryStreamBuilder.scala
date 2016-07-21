@@ -19,21 +19,24 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl
 
-import java.io.IOException
-import java.net.URL
+import java.io.ByteArrayInputStream
+import java.net.URI
+import java.util
 
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.{Entry, Feed}
+import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.util.EntityUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
-import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext}
+import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
-import scala.util.Try
 
 /**
   * A container object for the build function.
@@ -43,75 +46,96 @@ object AtomEntryStreamBuilder {
   private val parser = Abdera.getInstance().getParser
 
   /**
-    * Calling this function will retrieve the first page of the Atom feed located at the provided baseFeedUrl.
+    * Calling this function will retrieve the first page of the Atom feed located at the provided baseFeedURI.
     * Subsequent pages will be retrieved lazily. To keep a reference to a Stream produced by this function without
     * making a request to the Atom feed, assign the result of this function to a lazy variable like so:
     * lazy val myFeed = build("http://my.feed.url", MyAuthenticatedRequestFactory)
     *
-    * @param baseFeedUrl             a static locator pointing to the "head" of an Atom feed (e.g., the subscription document)
-    * @param context                 a context object which contains information related to the request
-    * @param authenticator           a URL processor which authenticates connections
-    * @param authenticationTimeLimit a maximum [[Duration]] to wait on authentication before considering authentication
-    *                                a failure
+    * @param baseFeedURI           a static locator pointing to the "head" of an Atom feed (e.g., the subscription document)
+    * @param context               a context object which contains information related to the request
+    * @param authenticator         a URL processor which authenticates connections
+    * @param authenticationTimeout a maximum [[Duration]] to wait on authentication before considering authentication
+    *                              a failure
     * @return a Scala [[scala.collection.immutable.Stream]] which will yield Atom entries in an Atom feed located at the
-    *         provided baseFeedUrl. The entries will be yielded in the order in which they are read from the feed XML,
+    *         provided baseFeedURI. The entries will be yielded in the order in which they are read from the feed XML,
     *         from top to bottom.
     * @throws AuthenticationException when the authenticator fails to authenticate a request
     */
-  def build(baseFeedUrl: URL,
+  def build(baseFeedURI: URI,
+            httpClient: HttpClient,
             context: AuthenticationRequestContext,
             authenticator: Option[AuthenticatedRequestFactory] = None,
-            authenticationTimeLimit: Duration = 1 second): Stream[Entry] = {
-    buildR(baseFeedUrl, context, authenticator, authenticationTimeLimit)
+            authenticationTimeout: Duration = 1 second): Stream[Entry] = {
+    buildR(baseFeedURI, httpClient, context, authenticator, authenticationTimeout)
   }
 
-  private def buildR(baseFeedUrl: URL,
+  private def buildR(feedURI: URI,
+                     httpClient: HttpClient,
                      context: AuthenticationRequestContext,
                      authenticator: Option[AuthenticatedRequestFactory] = None,
-                     authenticationTimeLimit: Duration = 1 second,
+                     authenticationTimeout: Duration = 1 second,
                      firstAttempt: Boolean = true): Stream[Entry] = {
-    val baseFeedConnection = baseFeedUrl.openConnection()
+    val feedReadRequest = new FeedReadRequest(feedURI)
 
-    val authenticatedConnection = authenticator match {
+    val authenticatedRequest = authenticator match {
       case Some(arf) =>
-        val connectionFuture = Future(arf.authenticateRequest(baseFeedConnection, context))
-        Option(Await.result(connectionFuture, authenticationTimeLimit))
+        val connectionFuture = Future(arf.authenticateRequest(feedReadRequest, context))
+        Option(Await.result(connectionFuture, authenticationTimeout))
       case None =>
-        Some(baseFeedConnection)
+        Some(feedReadRequest)
     }
 
-    authenticatedConnection match {
-      case Some(urlConnection) =>
+    authenticatedRequest match {
+      case Some(readRequest) =>
         val tracingHeader = TracingHeaderHelper.createTracingHeader(context.getRequestId, "1.1 Repose (Repose/" + context.getReposeVersion + ")", None)
-        urlConnection.setRequestProperty(CommonHttpHeader.TRACE_GUID.toString, tracingHeader)
+        feedReadRequest.getHeaders.put(CommonHttpHeader.TRACE_GUID.toString, util.Arrays.asList(tracingHeader))
 
+        val httpGet = new HttpGet(feedReadRequest.getURI)
+        feedReadRequest.getHeaders foreach { case (key, values) =>
+          values.foreach(value => httpGet.addHeader(key, value))
+        }
+
+        val httpResponse = httpClient.execute(httpGet)
         try {
-          val feedInputStream = urlConnection.getInputStream
-          val feed = parser.parse[Feed](feedInputStream).getRoot
+          val statusCode = httpResponse.getStatusLine.getStatusCode
 
-          feed.getLinks.find(link => link.getRel.equals("next")) match {
-            case Some(nextPageLink) =>
-              feed.getEntries.toStream #::: buildR(nextPageLink.getResolvedHref.toURL, context, authenticator, authenticationTimeLimit)
-            case None =>
-              feed.getEntries.toStream
-          }
-        } catch {
-          case ioe: IOException =>
-            authenticator.foreach(_.onInvalidCredentials())
+          if (statusCode >= 200 && statusCode < 300) {
+            val content = Option(httpResponse.getEntity)
+              .map(_.getContent)
+              .getOrElse(new ByteArrayInputStream(Array.empty[Byte]))
+            val feed = parser.parse[Feed](content).getRoot
+
+            feed.getLinks.find(link => link.getRel.equals("next")) match {
+              case Some(nextPageLink) =>
+                feed.getEntries.toStream #::: buildR(nextPageLink.getResolvedHref.toURI, httpClient, context, authenticator, authenticationTimeout)
+              case None =>
+                feed.getEntries.toStream
+            }
+          } else if (statusCode >= 400 && statusCode < 500) {
+            authenticator.foreach(_.onInvalidCredentials)
             if (firstAttempt) {
               // Inform the authenticator that the request failed and retry once
-              buildR(baseFeedUrl, context, authenticator, authenticationTimeLimit, firstAttempt = false)
+              buildR(feedURI, httpClient, context, authenticator, authenticationTimeout, firstAttempt = false)
             } else {
-              throw UnrecoverableIOException(ioe)
+              throw ClientErrorException(s"Could not handle Atom service response code: $statusCode")
             }
+          } else {
+            throw ServerResponseException(s"Could not handle Atom service response code: $statusCode")
+          }
+        } finally {
+          EntityUtils.consume(httpResponse.getEntity)
         }
       case None =>
-        throw AuthenticationException
+        throw AuthenticationException("Authenticated Atom service request failed for unknown reasons.")
     }
   }
 
   case class UnrecoverableIOException(cause: Throwable) extends RuntimeException(cause)
 
-  object AuthenticationException extends Exception
+  case class ServerResponseException(message: String) extends Exception(message)
+
+  case class ClientErrorException(message: String) extends Exception(message)
+
+  case class AuthenticationException(message: String) extends Exception(message)
 
 }

@@ -19,8 +19,6 @@
  */
 package org.openrepose.nodeservice.atomfeed;
 
-import java.net.URLConnection;
-
 /**
  * A factory which will perform any necessary processing to authenticate a request to the Atom service.
  */
@@ -29,11 +27,12 @@ public interface AuthenticatedRequestFactory {
     /**
      * Mutates a request to adhere to some authentication scheme compatible with the Atom service.
      *
-     * @param atomFeedUrlConnection The unauthenticated feed {@link URLConnection} with the Atom service.
-     * @param context               A context object which contains information related to the request.
-     * @return The {@link URLConnection} with authentication mutations applied.
+     * @param feedReadRequest A mutable container for request data that will be sent to the Atom service.
+     * @param context         A context object which contains information related to the request.
+     * @return The {@link FeedReadRequest} with authentication mutations applied.
+     * @throws AuthenticationRequestException if the request fails to authenticate.
      */
-    URLConnection authenticateRequest(URLConnection atomFeedUrlConnection, AuthenticationRequestContext context);
+    FeedReadRequest authenticateRequest(FeedReadRequest feedReadRequest, AuthenticationRequestContext context) throws AuthenticationRequestException;
 
     /**
      * This method will be called anytime authentication credentials on a request that has been processed by the

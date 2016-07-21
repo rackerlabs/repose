@@ -21,6 +21,7 @@ package features.filters.keystonev2
 
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
+import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
 /**
@@ -83,7 +84,7 @@ class AtomFeedResponseSimulator {
     }
 
     def handlerWithEntries(List<String> entries) {
-        { request -> new Response(200, 'OK', headers, populateTemplate(atomWithEntryXml(entries))) }
+        { Request request -> new Response(200, 'OK', headers, populateTemplate(atomWithEntryXml(entries))) }
     }
 
     def populateTemplate(String template, Map params = [:]) {

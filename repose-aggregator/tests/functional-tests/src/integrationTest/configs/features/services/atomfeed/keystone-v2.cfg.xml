@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <cache>
+        <timeouts>
+            <token>60000</token>
+            <group>60000</group>
+        </timeouts>
+        <atom-feed id="${atom-feed-id}" />
+    </cache>
+
+    <identity-service username="admin_username"
+                      password="admin_password"
+                      uri="http://localhost:${identityPort}"
+                      connection-pool-id="keystone"/>
+    <white-list>
+        <uri-regex>.*</uri-regex>
+    </white-list>
+</keystone-v2>

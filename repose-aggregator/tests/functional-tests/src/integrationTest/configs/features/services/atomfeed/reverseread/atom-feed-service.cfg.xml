@@ -3,5 +3,5 @@
 <atom-feed-service xmlns="http://docs.openrepose.org/repose/atom-feed-service/v1.0"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <feed id="non-authenticating-feed" uri="http://localhost:${atomPort}/feed" entry-order="reverse-read"/>
+    <feed id="non-authenticating-feed" uri="http://localhost:${atomPort}/feed" entry-order="reverse-read" polling-frequency="2"/>
 </atom-feed-service>
