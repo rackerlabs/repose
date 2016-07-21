@@ -131,12 +131,6 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomF
 
   override def onInvalidCredentials(): Unit = cachedToken = None
 
-  def setConnectionPoolId(poolId: String): Unit = {
-    val akkaServiceClientOld = Option(akkaServiceClient)
-    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(poolId)
-    akkaServiceClientOld.foreach(_.destroy())
-  }
-
   @PreDestroy
   def destroy(): Unit = {
     Option(akkaServiceClient).foreach(_.destroy())

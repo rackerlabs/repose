@@ -168,35 +168,4 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       verify(mockAkkaServiceClient).destroy()
     }
   }
-
-  describe("authenticateRequest") {
-
-    def finishSetup(): Unit = {
-      mockAkkaServiceClient = mock[AkkaServiceClient]
-      alsoAkkaServiceClient = mock[AkkaServiceClient]
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String])))
-        .thenReturn(mockAkkaServiceClient)
-        .thenReturn(alsoAkkaServiceClient)
-
-      val afct = new AtomFeedConfigType
-      val osiat = new OpenStackIdentityV2AuthenticationType
-      osiat.setUsername("usr")
-      osiat.setPassword("pwd")
-
-      osiarf = new OpenStackIdentityV2AuthenticatedRequestFactory(afct, osiat, mockAkkaServiceClientFactory)
-    }
-
-    it("should destroy the previous akka service client") {
-      finishSetup()
-
-      // when: the connection pool ID is changed
-      osiarf.setConnectionPoolId("osiarf-pool-id")
-
-      // then: the factory is used twice, and the previous client is destroyed
-      verify(mockAkkaServiceClientFactory, times(2)).newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))
-      verify(mockAkkaServiceClient, times(1)).destroy()
-      verify(alsoAkkaServiceClient, never()).destroy()
-    }
-  }
 }
