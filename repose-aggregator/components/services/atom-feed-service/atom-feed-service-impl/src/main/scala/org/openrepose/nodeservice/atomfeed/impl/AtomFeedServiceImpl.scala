@@ -160,7 +160,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
             .map(_.notifierManager)
             .getOrElse(actorSystem.actorOf(Props[NotifierManager], name = newFeedConfig.getId + NotifierManagerTag))
 
-          def buildAuthenticatedRequestFactory(id: String, connectionPoolId: String, config: Any): AuthenticatedRequestFactory = {
+          def buildAuthenticatedRequestFactory(feedConfig: AtomFeedConfigType, authConfig: Any): AuthenticatedRequestFactory = {
 
             def getFqcnFromConfig(cfg: Any): String = {
               cfg match {
@@ -184,14 +184,15 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
 
             authenticationContext.setParent(applicationContext)
 
-            // Register the feed's authentication configuration as a Spring Bean so that it can be auto-wired when the
-            // AuthenticatedRequestFactory is created.
-            authenticationContext.getBeanFactory.registerSingleton(id, config)
+            // Register the feed's config and the authentication config as a Spring Bean so that it can be auto-wired
+            // when the AuthenticatedRequestFactory is created.
+            authenticationContext.getBeanFactory.registerSingleton(feedConfig.getId+"_FEED", feedConfig)
+            authenticationContext.getBeanFactory.registerSingleton(feedConfig.getId+"_AUTH", authConfig)
             authenticationContext.refresh()
 
             // Take the configured FQCN of the authentication component and create a complete Spring Bean in an
             // isolated context (thereby auto-wiring Repose services).
-            val authCls = getClassFromFqcn(getFqcnFromConfig(config))
+            val authCls = getClassFromFqcn(getFqcnFromConfig(authConfig))
             val authenticatedRequestFactory = Try(authenticationContext
               .getAutowireCapableBeanFactory
               .createBean(authCls, AUTOWIRE_CONSTRUCTOR, true)

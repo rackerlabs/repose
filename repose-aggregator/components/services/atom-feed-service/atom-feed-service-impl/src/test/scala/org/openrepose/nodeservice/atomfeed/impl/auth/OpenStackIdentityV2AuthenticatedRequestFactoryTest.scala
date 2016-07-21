@@ -33,7 +33,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
+import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.{AuthenticationRequestException, FeedReadRequest}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -62,11 +62,12 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
     def finishSetup(): Unit = {
       when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
 
-      val osiat = new OpenStackIdentityV2AuthenticationType()
+      val afct = new AtomFeedConfigType
+      val osiat = new OpenStackIdentityV2AuthenticationType
       osiat.setUsername("usr")
       osiat.setPassword("pwd")
 
-      osiarf = new OpenStackIdentityV2AuthenticatedRequestFactory(osiat, mockAkkaServiceClientFactory)
+      osiarf = new OpenStackIdentityV2AuthenticatedRequestFactory(afct, osiat, mockAkkaServiceClientFactory)
     }
 
     it("should add a tracing header to the request to Identity") {
@@ -178,11 +179,12 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
         .thenReturn(mockAkkaServiceClient)
         .thenReturn(alsoAkkaServiceClient)
 
-      val osiat = new OpenStackIdentityV2AuthenticationType()
+      val afct = new AtomFeedConfigType
+      val osiat = new OpenStackIdentityV2AuthenticationType
       osiat.setUsername("usr")
       osiat.setPassword("pwd")
 
-      osiarf = new OpenStackIdentityV2AuthenticatedRequestFactory(osiat, mockAkkaServiceClientFactory)
+      osiarf = new OpenStackIdentityV2AuthenticatedRequestFactory(afct, osiat, mockAkkaServiceClientFactory)
     }
 
     it("should destroy the previous akka service client") {

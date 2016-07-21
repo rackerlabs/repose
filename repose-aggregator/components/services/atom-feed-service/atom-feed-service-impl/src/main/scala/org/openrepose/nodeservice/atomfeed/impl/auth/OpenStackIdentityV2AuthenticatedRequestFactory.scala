@@ -29,7 +29,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.docs.repose.atom_feed_service.v1.OpenStackIdentityV2AuthenticationType
+import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, AuthenticationRequestException, FeedReadRequest}
 import play.api.libs.json.Json
 
@@ -45,18 +45,19 @@ object OpenStackIdentityV2AuthenticatedRequestFactory {
 /**
   * Fetches a token from the OpenStack Identity service, if necessary, then adds the token to the request.
   */
-class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(configuration: OpenStackIdentityV2AuthenticationType,
+class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomFeedConfigType,
+                                                               authConfig: OpenStackIdentityV2AuthenticationType,
                                                                akkaServiceClientFactory: AkkaServiceClientFactory)
   extends AuthenticatedRequestFactory with LazyLogging {
 
   import OpenStackIdentityV2AuthenticatedRequestFactory._
 
-  private val serviceUri = configuration.getUri
-  private val username = configuration.getUsername
-  private val password = configuration.getPassword
+  private val serviceUri = authConfig.getUri
+  private val username = authConfig.getUsername
+  private val password = authConfig.getPassword
 
   private var cachedToken: Option[String] = None
-  private var akkaServiceClient: AkkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient("default")
+  private var akkaServiceClient: AkkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(feedConfig.getConnectionPoolId)
 
   override def authenticateRequest(feedReadRequest: FeedReadRequest, context: AuthenticationRequestContext): FeedReadRequest = {
     lazy val tracingHeader = TracingHeaderHelper.createTracingHeader(context.getRequestId, "1.1 Repose (Repose/" + context.getReposeVersion + ")", username)
