@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Created by adrian on 7/19/16.
  */
-class ClientAuthenticationSingleSourceTest extends ReposeValveTest {
+class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
 
     def setupSpec() {
         reposeLogSearch.cleanLog()
