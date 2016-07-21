@@ -207,7 +207,6 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
 
             Option(authenticatedRequestFactory.asInstanceOf[AuthenticatedRequestFactory]) match {
               case Some(factory: AuthenticatedRequestFactory) =>
-                factory.setConnectionPoolId(connectionPoolId)
                 factory
               case _ => throw new IllegalArgumentException("Unable to instantiate a valid AuthenticatedRequestFactory")
             }
@@ -218,7 +217,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
               newFeedConfig.getUri,
               httpClientService,
               newFeedConfig.getConnectionPoolId,
-              authenticationConfig.map(buildAuthenticatedRequestFactory(newFeedConfig.getId, newFeedConfig.getConnectionPoolId, _)),
+              authenticationConfig.map(buildAuthenticatedRequestFactory(newFeedConfig, _)),
               authenticationConfig.map(_.getTimeout).filterNot(_ == 0).map(_.milliseconds).getOrElse(Duration.Inf),
               notifierManager,
               newFeedConfig.getPollingFrequency,

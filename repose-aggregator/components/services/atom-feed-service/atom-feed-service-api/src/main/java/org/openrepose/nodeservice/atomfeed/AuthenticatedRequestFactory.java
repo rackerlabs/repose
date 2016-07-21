@@ -39,12 +39,4 @@ public interface AuthenticatedRequestFactory {
      * authenticateRequest method are found to be invalid.
      */
     void onInvalidCredentials();
-
-    /**
-     * Sets the configured Connection Pool Id.
-     * <p>
-     * NOTE: This default implementation does nothing and will need to be overridden if the value is required.
-     */
-    default void setConnectionPoolId(String poolId) {
-    }
 }
