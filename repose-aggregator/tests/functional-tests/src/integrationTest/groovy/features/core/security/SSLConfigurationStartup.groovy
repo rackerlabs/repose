@@ -42,10 +42,11 @@ class SSLConfigurationStartup extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/security/simplessl", params)
 
-        //Have to manually copy the keystore, because the applyConfigs breaks everything :(
-        def destination = new FileOutputStream(new File(repose.configDir, "server.jks"))
-        def source = new File(repose.configurationProvider.configTemplatesDir, "common/server.jks")
-        Files.copy(source.toPath(), destination)
+        // Have to manually copy binary files, because the applyConfigs() attempts to substitute template parameters
+        // when they are found and it breaks everything. :(
+        def serverFileOrig = new File(repose.configurationProvider.configTemplatesDir, "common/server.jks")
+        def serverFileDest = new FileOutputStream(new File(repose.configDir, "server.jks"))
+        Files.copy(serverFileOrig.toPath(), serverFileDest)
 
         repose.start()
         deproxy = new Deproxy()
@@ -78,6 +79,4 @@ class SSLConfigurationStartup extends ReposeValveTest {
         then:
         response.getStatusLine().statusCode == 200
     }
-
-
 }
