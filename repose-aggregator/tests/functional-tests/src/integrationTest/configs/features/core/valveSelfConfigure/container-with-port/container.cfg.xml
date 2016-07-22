@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
-    <deployment-config
-    ${proto}-port="${con_port}">
-    <deployment-directory auto-clean="true">${repose.home}</deployment-directory>
-    <artifact-directory check-interval="1000">${repose.home}/artifacts</artifact-directory>
-    <logging-configuration href="file://${repose.config.directory}/log4j2-test.xml"/>
-    <ssl-configuration>
-        <keystore-filename>keystore.jks</keystore-filename>
-        <keystore-password>password</keystore-password>
-        <key-password>password</key-password>
-    </ssl-configuration>
-</deployment-config>
-        </repose-container>
+    <deployment-config ${proto}-port="${con_port}">
+        <deployment-directory auto-clean="true">${repose.home}</deployment-directory>
+        <artifact-directory check-interval="1000">${repose.home}/artifacts</artifact-directory>
+        <logging-configuration href="file://${repose.config.directory}/log4j2-test.xml"/>
+        <ssl-configuration>
+            <keystore-filename>server.jks</keystore-filename>
+            <keystore-password>password</keystore-password>
+            <key-password>password</key-password>
+        </ssl-configuration>
+    </deployment-config>
+</repose-container>

@@ -43,8 +43,8 @@ class SSLConfigurationStartup extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/security/simplessl", params)
 
         //Have to manually copy the keystore, because the applyConfigs breaks everything :(
-        def destination = new FileOutputStream(new File(repose.configDir, "keystore.jks"))
-        def source = new File(repose.configurationProvider.configTemplatesDir, "features/core/security/simplessl/keystore.jks")
+        def destination = new FileOutputStream(new File(repose.configDir, "server.jks"))
+        def source = new File(repose.configurationProvider.configTemplatesDir, "common/server.jks")
         Files.copy(source.toPath(), destination)
 
         repose.start()

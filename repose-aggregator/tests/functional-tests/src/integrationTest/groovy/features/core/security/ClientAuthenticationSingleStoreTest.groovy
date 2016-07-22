@@ -46,8 +46,8 @@ class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/security/clientauth/singlestore", params)
 
         //Have to manually copy the keystore, because the applyConfigs breaks everything :(
-        def sourceKeystore = new File(repose.configurationProvider.configTemplatesDir, "features/core/security/clientauth/singlestore/keystore.jks")
-        def keystoreFile = new File(repose.configDir, "keystore.jks")
+        def sourceKeystore = new File(repose.configurationProvider.configTemplatesDir, "common/single.jks")
+        def keystoreFile = new File(repose.configDir, "single.jks")
         def destinationKeystore = new FileOutputStream(keystoreFile)
         Files.copy(sourceKeystore.toPath(), destinationKeystore)
 
@@ -65,11 +65,11 @@ class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
     def "Can execute a simple request via SSL"() {
         //A simple request should go through
         given:
-        def keystoreFile = new File(repose.configDir, "keystore.jks")
-        def truststoreFile = new File(repose.configDir, "keystore.jks")
+        def keystoreFile = new File(repose.configDir, "single.jks")
+        def truststoreFile = new File(repose.configDir, "single.jks")
 
-        def keystorePass = "buttsbuttsbutts"
-        def truststorePass = "buttsbuttsbutts"
+        def keystorePass = "password"
+        def truststorePass = "password"
 
         def sslContext = SSLContexts.custom()
                 .loadKeyMaterial(truststoreFile, truststorePass.toCharArray()) // Key this client is presenting.

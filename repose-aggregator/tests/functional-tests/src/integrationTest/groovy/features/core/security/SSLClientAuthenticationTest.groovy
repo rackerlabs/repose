@@ -45,12 +45,12 @@ class SSLClientAuthenticationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/security/clientauth", params)
 
         //Have to manually copy the keystore, because the applyConfigs breaks everything :(
-        def sourceKeystore = new File(repose.configurationProvider.configTemplatesDir, "features/core/security/simplessl/keystore.jks")
-        def keystoreFile = new File(repose.configDir, "keystore.jks")
+        def sourceKeystore = new File(repose.configurationProvider.configTemplatesDir, "common/server.jks")
+        def keystoreFile = new File(repose.configDir, "server.jks")
         def destinationKeystore = new FileOutputStream(keystoreFile)
         Files.copy(sourceKeystore.toPath(), destinationKeystore)
-        def sourceTruststore = new File(repose.configurationProvider.configTemplatesDir, "features/core/security/clientauth/truststore.jks")
-        def truststoreFile = new File(repose.configDir, "truststore.jks")
+        def sourceTruststore = new File(repose.configurationProvider.configTemplatesDir, "common/client.jks")
+        def truststoreFile = new File(repose.configDir, "client.jks")
         def destinationTruststore = new FileOutputStream(truststoreFile)
         Files.copy(sourceTruststore.toPath(), destinationTruststore)
 
@@ -68,11 +68,11 @@ class SSLClientAuthenticationTest extends ReposeValveTest {
     def "Can execute a simple request via SSL"() {
         //A simple request should go through
         given:
-        def keystoreFile = new File(repose.configDir, "keystore.jks")
-        def truststoreFile = new File(repose.configDir, "truststore.jks")
+        def keystoreFile = new File(repose.configDir, "server.jks")
+        def truststoreFile = new File(repose.configDir, "client.jks")
 
-        def keystorePass = "buttsbuttsbutts"
-        def truststorePass = "truststore-secret"
+        def keystorePass = "password"
+        def truststorePass = "password"
 
         def sslContext = SSLContexts.custom()
                 .loadKeyMaterial(truststoreFile, truststorePass.toCharArray()) // Key this client is presenting.

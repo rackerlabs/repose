@@ -41,9 +41,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
     val tempDir = Files.createTempDirectory("reposeSSLTesting")
 
     //Have to copy over the keystore
-    val keystore = new File(tempDir.toFile, "keystore.jks")
+    val keystore = new File(tempDir.toFile, "server.jks")
     keystore.deleteOnExit()
-    Files.copy(getClass.getResourceAsStream("/valveTesting/sslTesting/keystore.jks"), keystore.toPath)
+    Files.copy(getClass.getResourceAsStream("/valveTesting/sslTesting/server.jks"), keystore.toPath)
 
     tempDir.toFile.deleteOnExit()
     tempDir.toString
@@ -112,9 +112,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
                 excludedCiphers: List[String] = List.empty[String],
                 tlsRenegotiation: Boolean = true): Option[SslConfiguration] = {
     val s = new SslConfiguration()
-    s.setKeyPassword("buttsbuttsbutts")
-    s.setKeystoreFilename("keystore.jks")
-    s.setKeystorePassword("buttsbuttsbutts")
+    s.setKeyPassword("password")
+    s.setKeystoreFilename("server.jks")
+    s.setKeystorePassword("password")
 
     implicit val listToSslCipherConfig: List[String] => SslCipherConfiguration = { list =>
       import scala.collection.JavaConverters._

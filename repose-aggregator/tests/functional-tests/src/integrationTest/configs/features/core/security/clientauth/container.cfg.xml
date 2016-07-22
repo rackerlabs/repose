@@ -6,11 +6,11 @@
         <logging-configuration href="file://${repose.config.directory}/log4j2-test.xml"/>
 
         <ssl-configuration need-client-auth="true">
-            <keystore-filename>keystore.jks</keystore-filename>
-            <keystore-password>buttsbuttsbutts</keystore-password>
-            <key-password>buttsbuttsbutts</key-password>
-            <truststore-filename>truststore.jks</truststore-filename>
-            <truststore-password>truststore-secret</truststore-password>
+            <keystore-filename>server.jks</keystore-filename>
+            <keystore-password>password</keystore-password>
+            <key-password>password</key-password>
+            <truststore-filename>client.jks</truststore-filename>
+            <truststore-password>password</truststore-password>
 
             <!-- here's a couple things to explicitly include only some ciphers, and exclude SSLv3 -->
             <included-ciphers>
