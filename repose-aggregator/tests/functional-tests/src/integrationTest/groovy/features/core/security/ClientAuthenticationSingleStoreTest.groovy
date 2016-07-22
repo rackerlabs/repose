@@ -20,6 +20,7 @@
 package features.core.security
 
 import framework.ReposeValveTest
+import org.apache.http.NoHttpResponseException
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
@@ -32,9 +33,6 @@ import org.rackspace.deproxy.MessageChain
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
-/**
- * Created by adrian on 7/19/16.
- */
 class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -45,11 +43,11 @@ class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/security/clientauth", params)
         repose.configurationProvider.applyConfigs("features/core/security/clientauth/singlestore", params)
 
-        //Have to manually copy the keystore, because the applyConfigs breaks everything :(
-        def sourceKeystore = new File(repose.configurationProvider.configTemplatesDir, "common/single.jks")
-        def keystoreFile = new File(repose.configDir, "single.jks")
-        def destinationKeystore = new FileOutputStream(keystoreFile)
-        Files.copy(sourceKeystore.toPath(), destinationKeystore)
+        // Have to manually copy binary files, because the applyConfigs() attempts to substitute template parameters
+        // when they are found and it breaks everything. :(
+        def singleFileOrig = new File(repose.configurationProvider.configTemplatesDir, "common/single.jks")
+        def singleFileDest = new FileOutputStream(new File(repose.configDir, "single.jks"))
+        Files.copy(singleFileOrig.toPath(), singleFileDest)
 
         repose.start()
         deproxy = new Deproxy()
@@ -65,15 +63,12 @@ class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
     def "Can execute a simple request via SSL"() {
         //A simple request should go through
         given:
-        def keystoreFile = new File(repose.configDir, "single.jks")
-        def truststoreFile = new File(repose.configDir, "single.jks")
-
-        def keystorePass = "password"
-        def truststorePass = "password"
+        def singleFile = new File(repose.configDir, "single.jks")
+        def singlePass = "password".toCharArray()
 
         def sslContext = SSLContexts.custom()
-                .loadKeyMaterial(truststoreFile, truststorePass.toCharArray()) // Key this client is presenting.
-                .loadTrustMaterial(keystoreFile, keystorePass.toCharArray(), TrustSelfSignedStrategy.INSTANCE) // Key that is being accepted from server.
+                .loadKeyMaterial(singleFile, singlePass, singlePass) // Key this client is presenting.
+                .loadTrustMaterial(singleFile, singlePass, TrustSelfSignedStrategy.INSTANCE) // Key that is being accepted from server.
                 .build()
         def sf = new SSLConnectionSocketFactory(
                 sslContext,
@@ -92,9 +87,10 @@ class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
 
     def "Requests without a client certificate fail"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
+        HttpClients.createDefault()
+                .execute(new HttpGet(reposeEndpoint))
 
         then:
-        mc.receivedResponse.code == "401"
+        thrown NoHttpResponseException
     }
 }

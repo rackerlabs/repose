@@ -20,6 +20,7 @@
 package features.core.security
 
 import framework.ReposeValveTest
+import org.apache.http.NoHttpResponseException
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
@@ -32,9 +33,6 @@ import org.rackspace.deproxy.MessageChain
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
-/**
- * Make sure we can start up with SSL configuration parameters
- */
 class SSLClientAuthenticationTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -44,15 +42,14 @@ class SSLClientAuthenticationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/security/clientauth", params)
 
-        //Have to manually copy the keystore, because the applyConfigs breaks everything :(
-        def sourceKeystore = new File(repose.configurationProvider.configTemplatesDir, "common/server.jks")
-        def keystoreFile = new File(repose.configDir, "server.jks")
-        def destinationKeystore = new FileOutputStream(keystoreFile)
-        Files.copy(sourceKeystore.toPath(), destinationKeystore)
-        def sourceTruststore = new File(repose.configurationProvider.configTemplatesDir, "common/client.jks")
-        def truststoreFile = new File(repose.configDir, "client.jks")
-        def destinationTruststore = new FileOutputStream(truststoreFile)
-        Files.copy(sourceTruststore.toPath(), destinationTruststore)
+        // Have to manually copy binary files, because the applyConfigs() attempts to substitute template parameters
+        // when they are found and it breaks everything. :(
+        def serverFileOrig = new File(repose.configurationProvider.configTemplatesDir, "common/server.jks")
+        def serverFileDest = new FileOutputStream(new File(repose.configDir, "server.jks"))
+        Files.copy(serverFileOrig.toPath(), serverFileDest)
+        def clientFileOrig = new File(repose.configurationProvider.configTemplatesDir, "common/client.jks")
+        def clientFileDest = new FileOutputStream(new File(repose.configDir, "client.jks"))
+        Files.copy(clientFileOrig.toPath(), clientFileDest)
 
         repose.start()
         deproxy = new Deproxy()
@@ -68,15 +65,15 @@ class SSLClientAuthenticationTest extends ReposeValveTest {
     def "Can execute a simple request via SSL"() {
         //A simple request should go through
         given:
-        def keystoreFile = new File(repose.configDir, "server.jks")
-        def truststoreFile = new File(repose.configDir, "client.jks")
+        def serverFile = new File(repose.configDir, "server.jks")
+        def clientFile = new File(repose.configDir, "client.jks")
 
-        def keystorePass = "password"
-        def truststorePass = "password"
+        def serverPass = "password".toCharArray()
+        def clientPass = "password".toCharArray()
 
         def sslContext = SSLContexts.custom()
-                .loadKeyMaterial(truststoreFile, truststorePass.toCharArray()) // Key this client is presenting.
-                .loadTrustMaterial(keystoreFile, keystorePass.toCharArray(), TrustSelfSignedStrategy.INSTANCE) // Key that is being accepted from server.
+                .loadKeyMaterial(clientFile, clientPass, clientPass) // Key this client is presenting.
+                .loadTrustMaterial(serverFile, serverPass, TrustSelfSignedStrategy.INSTANCE) // Key that is being accepted from server.
                 .build()
         def sf = new SSLConnectionSocketFactory(
                 sslContext,
@@ -95,9 +92,10 @@ class SSLClientAuthenticationTest extends ReposeValveTest {
 
     def "Requests without a client certificate fail"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
+        HttpClients.createDefault()
+                .execute(new HttpGet(reposeEndpoint))
 
         then:
-        mc.receivedResponse.code == "401"
+        thrown NoHttpResponseException
     }
 }
