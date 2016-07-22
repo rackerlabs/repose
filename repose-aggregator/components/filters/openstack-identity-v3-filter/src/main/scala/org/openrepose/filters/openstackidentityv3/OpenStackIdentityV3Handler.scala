@@ -261,12 +261,36 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
                                  writeAll: Boolean, sendQuality: Boolean, request: HttpServletRequestWrapper) {
     lazy val projectsFromRoles = (roles.collect { case Role(_, Some(projectId), _) => projectId } :::
       roles.collect { case Role( _, _, Some(raxId)) => raxId }).toSet
+    val defaultProjectQuality = Option(identityConfig.getDefaultProjectQuality).getOrElse(0.0)
+    val uriProjectQuality = Option(identityConfig.getUriProjectQuality).getOrElse(0.0)
+    val rolesProjectQuality = Option(identityConfig.getRolesProjectQuality).getOrElse(0.0)
+
+    case class PreferredProject(id: String, quality: Double)
+
+    val preferredProject = (defaultProject, projectFromUri) match {
+      case (Some(default), Some(uri)) =>
+        val quality = if (default.equals(uri)) {
+          math.max(defaultProjectQuality, uriProjectQuality)
+        } else {
+          uriProjectQuality
+        }
+        Some(PreferredProject(uri, quality))
+      case (None, Some(uri)) =>
+        Some(PreferredProject(uri, uriProjectQuality))
+      case (Some(default), None) =>
+        Some(PreferredProject(default, defaultProjectQuality))
+      case (None, None) =>
+        if ((roles map(_.projectId)).head.isDefined) Some(PreferredProject((roles map(_.projectId)).head.get, rolesProjectQuality))
+        else None
+    }
 
     if (writeAll && sendQuality) {
-      defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
+      defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, defaultProjectQuality))
+      projectFromUri.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, uriProjectQuality))
+
       projectsFromRoles foreach { rolePid =>
         if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
-          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, 0.5)
+          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, rolesProjectQuality)
         }
       }
     } else if (writeAll && !sendQuality) {
@@ -277,19 +301,9 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         }
       }
     } else if (!writeAll && sendQuality) {
-      projectFromUri match {
-        case Some(projectId) =>
-          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projectId, 1.0)
-        case None =>
-          defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
-      }
+          preferredProject.foreach(project => request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, project.id, project.quality))
     } else {
-      projectFromUri match {
-        case Some(projectId) =>
-          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projectId)
-        case None =>
-          defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
-      }
+          preferredProject.foreach(project => request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, project.id))
     }
   }
 
