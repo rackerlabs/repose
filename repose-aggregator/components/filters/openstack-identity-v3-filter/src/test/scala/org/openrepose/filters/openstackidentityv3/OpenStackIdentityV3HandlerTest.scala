@@ -448,7 +448,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), false, true, wrappedRequest)
-      verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(uriPid), mockitoEq(1.0))
+      verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(uriPid), mockitoEq(0.9))
     }
 
     it("should add qualities when flagged and writing all") {
@@ -456,7 +456,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), true, true, wrappedRequest)
-      verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid), mockitoEq(1.0))
+      verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid), mockitoEq(0.9))
       verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq("12345"), mockitoEq(0.5))
       verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq("67890"), mockitoEq(0.5))
     }

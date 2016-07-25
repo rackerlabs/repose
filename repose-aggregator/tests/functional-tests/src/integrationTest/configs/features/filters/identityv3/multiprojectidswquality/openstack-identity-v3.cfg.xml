@@ -7,4 +7,5 @@
                                 password="admin-password"
                                 uri="http://localhost:${identityPort}"
                                 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"/>
+    <send-project-id-quality default-project-quality="0.9" roles-project-quality="0.7"/>
 </openstack-identity-v3>

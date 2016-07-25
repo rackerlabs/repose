@@ -55,7 +55,6 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest {
 
     def cleanupSpec() {
         deproxy.shutdown()
-
         repose.stop()
     }
 
@@ -88,8 +87,8 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest {
         else {
             assert mc.handlings.size() == 1
             assert mc.handlings[0].request.headers.findAll("x-project-id").size() == numberProjects
-            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(defaultProject + ";q=1.0")
-            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(secondProject + ";q=0.5")
+            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(defaultProject + ";q=0.9")
+            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(secondProject + ";q=0.7")
         }
 
         where:
@@ -130,7 +129,6 @@ class MultiProjectIdsWQualityTest extends ReposeValveTest {
             if (!reqProject.equals(defaultProject)) {
                 // base on default quality for tenant from url and roles
                 assert (mc.handlings[0].request.headers.findAll("x-project-id").toString()).contains(secondProject + ";q=0.7")
-                assert (mc.handlings[0].request.headers.findAll("x-project-id").toString()).contains(secondProject + ";q=0.5")
             }
         }
 

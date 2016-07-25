@@ -200,16 +200,18 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         token.get.projectName foreach { projectName =>
           request.replaceHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
         }
+
+        val sendQuality: Boolean = Option(identityConfig.getSendProjectIdQuality).isDefined
         projectIdUriRegex match {
           case Some(regex) =>
             val defaultProjectId = token.flatMap(_.projectId)
             val uriProjectId = extractProjectIdFromUri(regex, request.getRequestURI)
             writeProjectHeader(defaultProjectId, token.get.roles, uriProjectId, identityConfig.isSendAllProjectIds,
-              identityConfig.isSendProjectIdQuality, request)
+              sendQuality, request)
           case None =>
             val defaultProjectId = token.flatMap(_.projectId)
             writeProjectHeader(defaultProjectId, token.get.roles, None, identityConfig.isSendAllProjectIds,
-              identityConfig.isSendProjectIdQuality, request)
+              sendQuality, request)
         }
         token.get.impersonatorId.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
         token.get.impersonatorName.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
@@ -261,9 +263,10 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
                                  writeAll: Boolean, sendQuality: Boolean, request: HttpServletRequestWrapper) {
     lazy val projectsFromRoles = (roles.collect { case Role(_, Some(projectId), _) => projectId } :::
       roles.collect { case Role( _, _, Some(raxId)) => raxId }).toSet
-    val defaultProjectQuality = Option(identityConfig.getDefaultProjectQuality).getOrElse(0.0)
-    val uriProjectQuality = Option(identityConfig.getUriProjectQuality).getOrElse(0.0)
-    val rolesProjectQuality = Option(identityConfig.getRolesProjectQuality).getOrElse(0.0)
+    val sendProjectIdQuality = Option(identityConfig.getSendProjectIdQuality)
+    val defaultProjectQuality = sendProjectIdQuality.map(_.getDefaultProjectQuality).getOrElse(0.0)
+    val uriProjectQuality = sendProjectIdQuality.map(_.getUriProjectQuality).getOrElse(0.0)
+    val rolesProjectQuality = sendProjectIdQuality.map(_.getRolesProjectQuality).getOrElse(0.0)
 
     case class PreferredProject(id: String, quality: Double)
 
@@ -285,8 +288,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     }
 
     if (writeAll && sendQuality) {
-      defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, defaultProjectQuality))
-      projectFromUri.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, uriProjectQuality))
+      preferredProject.foreach(project => request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, project.id, project.quality))
 
       projectsFromRoles foreach { rolePid =>
         if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {

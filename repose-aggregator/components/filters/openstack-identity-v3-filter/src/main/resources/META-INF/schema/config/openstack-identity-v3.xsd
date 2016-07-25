@@ -46,57 +46,31 @@
             <xs:element name="roles-which-bypass-project-id-check" type="IgnoreProjectIDRoles" minOccurs="0"
                         maxOccurs="1"/>
             <xs:element name="cache" type="CacheType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="send-project-id-quality" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            If set to false, a single X-Project-Id is sent.
+                            If set to true, all project IDs returned by the Identity service are added as multiple
+                            X-Project-Id headers.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:attribute name="default-project-quality" type="QualityType" default="0.9" use="optional"/>
+                    <xs:attribute name="uri-project-quality" type="QualityType" default="0.7" use="optional"/>
+                    <xs:attribute name="roles-project-quality" type="QualityType" default="0.5" use="optional"/>
+                </xs:complexType>
+            </xs:element>
         </xs:all>
 
         <xs:attribute name="send-all-project-ids" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        If set to false, a single X-Project-Id is sent.
-                        If set to true, all project IDs returned by the Identity service are added as multiple
-                        X-Project-Id headers.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="send-project-id-quality" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
                         If set to false, x-project-id headers are not sent with qualities.
                         If set to true, the default x-project-id will be given the highest quality, and qualities will
                         be attached to every x-project-id header.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="default-project-quality" type="QualityType" default="0.9" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Sets the project quality for the default x-project-id.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="uri-project-quality" type="QualityType" default="0.7" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Sets the project quality for the x-project-id that matches the uri.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="roles-project-quality" type="QualityType" default="0.5" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Sets the project quality for the x-project-id of the roles.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
