@@ -50,9 +50,9 @@
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
-                            If set to false, a single X-Project-Id is sent.
-                            If set to true, all project IDs returned by the Identity service are added as multiple
-                            X-Project-Id headers.
+                            If set to false, x-project-id headers are not sent with qualities.
+                            If set to true, the default x-project-id will be given the highest quality, and qualities will
+                            be attached to every x-project-id header.
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
@@ -68,9 +68,9 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        If set to false, x-project-id headers are not sent with qualities.
-                        If set to true, the default x-project-id will be given the highest quality, and qualities will
-                        be attached to every x-project-id header.
+                        If set to false, a single X-Project-Id is sent.
+                        If set to true, all project IDs returned by the Identity service are added as multiple
+                        X-Project-Id headers.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
