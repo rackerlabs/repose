@@ -29,6 +29,7 @@ import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, OpenStackServiceHeader}
 import org.openrepose.commons.utils.servlet.filter.FilterAction
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config.SendProjectIdQuality
 import org.openrepose.filters.openstackidentityv3.config._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
@@ -48,7 +49,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
   var identityConfig: OpenstackIdentityV3Config = _
   var identityAPI: OpenStackIdentityV3API = _
 
-  override def beforeEach() = {
+  def defaultConfig() = {
     identityConfig = new OpenstackIdentityV3Config()
     identityConfig.setOpenstackIdentityService(new OpenstackIdentityService())
     identityConfig.getOpenstackIdentityService.setUsername("user")
@@ -62,8 +63,21 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     identityConfig.setRolesWhichBypassProjectIdCheck(new IgnoreProjectIDRoles())
     identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("admin")
     identityConfig.setForwardGroups(false)
-    identityAPI = mock[OpenStackIdentityV3API]
+  }
 
+  def defaultHeaderConfig() = {
+    defaultConfig()
+    identityConfig.setSendProjectIdQuality(new SendProjectIdQuality)
+    identityConfig.getSendProjectIdQuality.setDefaultProjectQuality(0.9)
+    identityConfig.getSendProjectIdQuality.setUriProjectQuality(0.7)
+    identityConfig.getSendProjectIdQuality.setRolesProjectQuality(0.5)
+    identityAPI = mock[OpenStackIdentityV3API]
+    identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
+  }
+
+  override def beforeEach() = {
+    defaultConfig()
+    identityAPI = mock[OpenStackIdentityV3API]
     identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
   }
 
@@ -447,14 +461,24 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       val wrappedRequest = mock[HttpServletRequestWrapper]
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
+      defaultHeaderConfig()
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), false, true, wrappedRequest)
-      verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(uriPid), mockitoEq(0.9))
+      verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(uriPid), mockitoEq(0.7))
+    }
+
+    it("should add default quality when uriPid and defaultPid are matching") {
+      val wrappedRequest = mock[HttpServletRequestWrapper]
+      val defaultPid = java.util.UUID.randomUUID.toString
+      defaultHeaderConfig()
+      identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(defaultPid), false, true, wrappedRequest)
+      verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid), mockitoEq(0.9))
     }
 
     it("should add qualities when flagged and writing all") {
       val wrappedRequest = mock[HttpServletRequestWrapper]
       val defaultPid = java.util.UUID.randomUUID.toString
       val uriPid = java.util.UUID.randomUUID.toString
+      defaultHeaderConfig()
       identityV3Handler invokePrivate writeProjectHeader(Some(defaultPid), roles, Some(uriPid), true, true, wrappedRequest)
       verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq(defaultPid), mockitoEq(0.9))
       verify(wrappedRequest).addHeader(mockitoEq("X-Project-ID"), mockitoEq("12345"), mockitoEq(0.5))
