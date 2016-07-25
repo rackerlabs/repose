@@ -305,7 +305,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="quality" type="QualityType" use="optional">
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.7">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
