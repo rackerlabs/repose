@@ -267,6 +267,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     val defaultProjectQuality = sendProjectIdQuality.map(_.getDefaultProjectQuality).getOrElse(0.0)
     val uriProjectQuality = sendProjectIdQuality.map(_.getUriProjectQuality).getOrElse(0.0)
     val rolesProjectQuality = sendProjectIdQuality.map(_.getRolesProjectQuality).getOrElse(0.0)
+    val roleProjects = roles map(_.projectId)
 
     case class PreferredProject(id: String, quality: Double)
 
@@ -283,13 +284,12 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       case (Some(default), None) =>
         Some(PreferredProject(default, defaultProjectQuality))
       case (None, None) =>
-        if ((roles map(_.projectId)).head.isDefined) Some(PreferredProject((roles map(_.projectId)).head.get, rolesProjectQuality))
+        if (roleProjects.nonEmpty && roleProjects.head.isDefined) Some(PreferredProject(roleProjects.head.get, rolesProjectQuality))
         else None
     }
 
     if (writeAll && sendQuality) {
-      preferredProject.foreach(project => request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, project.id, project.quality))
-
+      defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, defaultProjectQuality))
       projectsFromRoles foreach { rolePid =>
         if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
           request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, rolesProjectQuality)
