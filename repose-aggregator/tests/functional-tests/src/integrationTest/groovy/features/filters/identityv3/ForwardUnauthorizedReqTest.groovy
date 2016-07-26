@@ -78,6 +78,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest {
                 headers: ['content-type': 'application/json'])
 
         then: "Request body sent from repose to the origin service should contain"
+        reposeLogSearch.searchByString("DEBUG org.openrepose.filters.openstackidentityv3.OpenStackIdentityV3Handler - No X-Subject-Token present -- a subject token was not provided to validate").size() > 0
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getFirstValue("X-authorization")
