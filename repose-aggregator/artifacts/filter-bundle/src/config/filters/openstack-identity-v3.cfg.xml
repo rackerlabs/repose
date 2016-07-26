@@ -13,6 +13,8 @@
             domain-id="some.domain"
             uri="http://identity.example.com"/>
 
+    <send-project-id-quality default-project-quality="0.9" roles-project-quality="0.7"/>
+
     <cache>
         <timeouts variance="10">
             <token>300</token>

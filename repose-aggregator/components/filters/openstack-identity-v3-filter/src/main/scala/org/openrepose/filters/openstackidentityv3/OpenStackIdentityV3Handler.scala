@@ -200,16 +200,18 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         token.get.projectName foreach { projectName =>
           request.replaceHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
         }
+
+        val sendQuality: Boolean = Option(identityConfig.getSendProjectIdQuality).isDefined
         projectIdUriRegex match {
           case Some(regex) =>
             val defaultProjectId = token.flatMap(_.projectId)
             val uriProjectId = extractProjectIdFromUri(regex, request.getRequestURI)
             writeProjectHeader(defaultProjectId, token.get.roles, uriProjectId, identityConfig.isSendAllProjectIds,
-              identityConfig.isSendProjectIdQuality, request)
+              sendQuality, request)
           case None =>
             val defaultProjectId = token.flatMap(_.projectId)
             writeProjectHeader(defaultProjectId, token.get.roles, None, identityConfig.isSendAllProjectIds,
-              identityConfig.isSendProjectIdQuality, request)
+              sendQuality, request)
         }
         token.get.impersonatorId.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
         token.get.impersonatorName.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
@@ -261,12 +263,36 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
                                  writeAll: Boolean, sendQuality: Boolean, request: HttpServletRequestWrapper) {
     lazy val projectsFromRoles = (roles.collect { case Role(_, Some(projectId), _) => projectId } :::
       roles.collect { case Role( _, _, Some(raxId)) => raxId }).toSet
+    val sendProjectIdQuality = Option(identityConfig.getSendProjectIdQuality)
+    val defaultProjectQuality = sendProjectIdQuality.map(_.getDefaultProjectQuality).getOrElse(0.0)
+    val uriProjectQuality = sendProjectIdQuality.map(_.getUriProjectQuality).getOrElse(0.0)
+    val rolesProjectQuality = sendProjectIdQuality.map(_.getRolesProjectQuality).getOrElse(0.0)
+    val roleProjects = roles map(_.projectId)
+
+    case class PreferredProject(id: String, quality: Double)
+
+    val preferredProject = (defaultProject, projectFromUri) match {
+      case (Some(default), Some(uri)) =>
+        val quality = if (default.equals(uri)) {
+          math.max(defaultProjectQuality, uriProjectQuality)
+        } else {
+          uriProjectQuality
+        }
+        Some(PreferredProject(uri, quality))
+      case (None, Some(uri)) =>
+        Some(PreferredProject(uri, uriProjectQuality))
+      case (Some(default), None) =>
+        Some(PreferredProject(default, defaultProjectQuality))
+      case (None, None) =>
+        if (roleProjects.nonEmpty && roleProjects.head.isDefined) Some(PreferredProject(roleProjects.head.get, rolesProjectQuality))
+        else None
+    }
 
     if (writeAll && sendQuality) {
-      defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
+      defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, defaultProjectQuality))
       projectsFromRoles foreach { rolePid =>
         if (!defaultProject.exists(defaultPid => rolePid.equals(defaultPid))) {
-          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, 0.5)
+          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, rolePid, rolesProjectQuality)
         }
       }
     } else if (writeAll && !sendQuality) {
@@ -277,19 +303,9 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         }
       }
     } else if (!writeAll && sendQuality) {
-      projectFromUri match {
-        case Some(projectId) =>
-          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projectId, 1.0)
-        case None =>
-          defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _, 1.0))
-      }
+          preferredProject.foreach(project => request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, project.id, project.quality))
     } else {
-      projectFromUri match {
-        case Some(projectId) =>
-          request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projectId)
-        case None =>
-          defaultProject.foreach(request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, _))
-      }
+          preferredProject.foreach(project => request.addHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, project.id))
     }
   }
 
