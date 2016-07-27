@@ -245,7 +245,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       case Some(token) =>
         identityAPI.validateToken(token, tracingHeader)
       case None =>
-        logger.error("No X-Subject-Token present -- a subject token was not provided to validate")
+        logger.debug("No X-Subject-Token present -- a subject token was not provided to validate")
         Failure(new InvalidSubjectTokenException("A subject token was not provided to validate"))
     }
   }
