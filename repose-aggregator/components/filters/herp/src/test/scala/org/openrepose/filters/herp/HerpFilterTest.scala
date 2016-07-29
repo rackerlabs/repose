@@ -96,7 +96,9 @@ class HerpFilterTest extends FunSpec with BeforeAndAfter with Matchers {
         |  "Response" : {
         |    "Code" : {{responseCode}},
         |    "CadfOutcome" : "{{cadfOutcome responseCode}}",
-        |    "Message" : "{{responseMessage}}"
+        |    "Message" : "{{responseMessage}}",
+        |    "UserResp" : "{{userResp}}",
+        |    "GroupsResp" : "{{groupsResp}}"
         |  }
         |}
         |""".stripMargin
@@ -479,6 +481,32 @@ class HerpFilterTest extends FunSpec with BeforeAndAfter with Matchers {
       def logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"MethodLabel\" : \"getServers\"")
+    }
+    it("should extract and log the X-PP-User header from the response") {
+      // given:
+      servletResponse.addHeader("X-PP-User", "Foo Baringson")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserResp\" : \"Foo Baringson\"")
+    }
+    it("should extract and log the X-PP-Groups header from the response") {
+      // given:
+      servletResponse.addHeader("X-PP-Groups", "some groups and stuff")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"GroupsResp\" : \"some groups and stuff\"")
     }
   }
 
