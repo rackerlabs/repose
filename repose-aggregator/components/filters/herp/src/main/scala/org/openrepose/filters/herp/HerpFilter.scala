@@ -54,6 +54,8 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
   private final val X_METHOD_LABEL: String = "X-METHOD-LABEL"
+  private final val X_PP_USER: String = "X-PP-User"
+  private final val X_PP_GROUPS: String = "X-PP-Groups"
 
   private var config: String = _
   private var initialized = false
@@ -152,7 +154,9 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "clusterId" -> clusterId,
       "nodeId" -> nodeId,
       "requestorIp" -> Option(stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString)))
-        .getOrElse(httpServletRequest.getRemoteAddr)
+        .getOrElse(httpServletRequest.getRemoteAddr),
+      "userResp" -> Option(stripHeaderParams(httpServletResponse.getHeader(X_PP_USER))).orNull,
+      "groupsResp" -> Option(stripHeaderParams(httpServletResponse.getHeader(X_PP_GROUPS))).orNull
     )
 
     val templateOutput: StringWriter = new StringWriter
