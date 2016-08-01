@@ -120,6 +120,41 @@ public class SchemaTest {
             assertInvalidConfig(xml, "'blah' is not a valid value for 'boolean'");
         }
 
+        @Test
+        public void shouldFailIfMissingKeystoreFilename() throws Exception {
+            String xml =
+                    "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
+                            "<pool id='clientAuthentication'" +
+                            " default='false'" +
+                            " keystore-password='password'" +
+                            " key-password='secret' /> " +
+                            "</http-connection-pools>";
+            assertInvalidConfig(xml, "IF a keystore filename, password, or key password is provided, THEN all must be provided");
+        }
+
+        @Test
+        public void shouldFailIfMissingKeystorePassword() throws Exception {
+            String xml =
+                    "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
+                            "<pool id='clientAuthentication'" +
+                            " default='false'" +
+                            " keystore-filename='keystore.jks'" +
+                            " key-password='secret' /> " +
+                            "</http-connection-pools>";
+            assertInvalidConfig(xml, "IF a keystore filename, password, or key password is provided, THEN all must be provided");
+        }
+
+        @Test
+        public void shouldFailIfMissingKeyPassword() throws Exception {
+            String xml =
+                    "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
+                            "<pool id='clientAuthentication'" +
+                            " default='false'" +
+                            " keystore-filename='keystore.jks'" +
+                            " keystore-password='password' /> " +
+                            "</http-connection-pools>";
+            assertInvalidConfig(xml, "IF a keystore filename, password, or key password is provided, THEN all must be provided");
+        }
 
         private void assertInvalidConfig(String xml, String errorMessage) {
             final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
@@ -135,6 +170,5 @@ public class SchemaTest {
 
             assertTrue(caught.getLocalizedMessage().contains(errorMessage));
         }
-
     }
 }
