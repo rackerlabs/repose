@@ -253,11 +253,60 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
+        <xs:attribute name="keystore-filename" type="xs:anyURI" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        IF this attribute is configured,
+                        THEN it is assumed that it points to the Java keystore containing the client certificate to
+                        present for client authentication (e.g keystore.jks)
+                        AND the keystore-password and key-password attributes are no longer optional.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="keystore-password" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The password for the client authentication keystore.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="key-password" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The password for the particular client authentication key in the keystore.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="truststore-filename" type="xs:anyURI" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The truststore used for validating the server this pool is connecting to.
+                        This is typically set to the same path as the client authentication keystore.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="truststore-password" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The password for the client authentication truststore.
+                        NOTE: This element is only used if the truststore-filename attribute is present.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:assert vc:minVersion="1.1"
                    test="(@http.conn-manager.max-per-route) &lt;= (@http.conn-manager.max-total)"
                    xerces:message="Max connections per route must be less than or equal to total max connections"
                    saxon:message="Max connections per route must be less than or equal to total max connections"/>
+        <xs:assert vc:minVersion="1.1"
+                   test="if (@keystore-filename or @keystore-password or @key-password) then (@keystore-filename and @keystore-password and @key-password) else true()"
+                   xerces:message="IF a keystore filename, password, or key password is provided, THEN all must be provided"
+                   saxon:message="IF a keystore filename, password, or key password is provided, THEN all must be provided"/>
     </xs:complexType>
 
     <xs:complexType name="headerListType">
