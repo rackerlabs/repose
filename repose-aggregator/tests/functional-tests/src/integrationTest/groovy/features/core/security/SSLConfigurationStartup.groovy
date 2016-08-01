@@ -53,11 +53,6 @@ class SSLConfigurationStartup extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     static def params
 
     def "Can execute a simple request via SSL"() {

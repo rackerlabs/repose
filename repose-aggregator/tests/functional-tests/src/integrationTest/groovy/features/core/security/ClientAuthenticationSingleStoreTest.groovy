@@ -55,11 +55,6 @@ class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("Repose ready", 1, 60, TimeUnit.SECONDS)
     }
 
-    def cleanupSpec() {
-        deproxy?.shutdown()
-        repose?.stop()
-    }
-
     def "Can execute a simple request via SSL"() {
         //A simple request should go through
         given:
