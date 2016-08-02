@@ -6,14 +6,16 @@
         <deployment-directory auto-clean="false">/var/repose</deployment-directory>
         <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
         <logging-configuration href="file:///etc/repose/log4j2.xml"/>
-        <ssl-configuration>
+        <ssl-configuration need-client-auth="false">
             <keystore-filename>keystore.repose</keystore-filename>
             <keystore-password>manage</keystore-password>
             <key-password>password</key-password>
-            
+
             <!-- Optional SSL configuration -->
 <!--
             See the XSD for documentation on all the options here
+            <truststore-filename>keystore.repose</truststore-filename>
+            <truststore-password>manage</truststore-password>
             <included-ciphers>
                 <cipher>.*TLS.*</cipher>
             </included-ciphers>

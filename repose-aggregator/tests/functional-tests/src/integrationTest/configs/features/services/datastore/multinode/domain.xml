@@ -182,9 +182,9 @@
             <transaction-service tx-log-dir="${project.build.directory}/glassfish/logs">
             </transaction-service>
             <java-config>
-                <jvm-options>-Djavax.net.ssl.keyStore=${project.build.directory}/glassfish/config/keystore.jks
+                <jvm-options>-Djavax.net.ssl.keyStore=${project.build.directory}/glassfish/config/server.jks
                 </jvm-options>
-                <jvm-options>-Djavax.net.ssl.trustStore=${project.build.directory}/glassfish/config/cacerts.jks
+                <jvm-options>-Djavax.net.ssl.trustStore=${project.build.directory}/glassfish/config/client.jks
                 </jvm-options>
                 <jvm-options>-Dorg.glassfish.jms.InitializeOnDemand=true</jvm-options>
             </java-config>

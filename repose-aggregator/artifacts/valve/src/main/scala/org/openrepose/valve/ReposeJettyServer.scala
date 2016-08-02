@@ -100,11 +100,19 @@ class ReposeJettyServer(val clusterId: String,
 
       //TODO: do we make this a URL for realsies?
       //Get the configuration root from the core spring context, because we haven't fired up the app Context yet.
+      // See: http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html
       val configRoot = coreSpringProvider.getCoreContext.getEnvironment.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT))
       sslConfig.map { ssl =>
-        cf.setKeyStorePath(configRoot + File.separator + ssl.getKeystoreFilename)
+        cf.setKeyStorePath(new File(configRoot, ssl.getKeystoreFilename).getAbsolutePath)
         cf.setKeyStorePassword(ssl.getKeystorePassword)
         cf.setKeyManagerPassword(ssl.getKeyPassword)
+        if (ssl.isNeedClientAuth) {
+          cf.setNeedClientAuth(true)
+          Option(ssl.getTruststoreFilename).foreach { truststoreFilename =>
+            cf.setTrustStorePath(new File(configRoot, truststoreFilename).getAbsolutePath)
+            cf.setTrustStorePassword(ssl.getTruststorePassword)
+          }
+        }
 
         val sslConnector = new ServerConnector(s, cf)
         if (testMode) {

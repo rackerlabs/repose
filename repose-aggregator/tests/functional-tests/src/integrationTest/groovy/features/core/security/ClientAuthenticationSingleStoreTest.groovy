@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@
 package features.core.security
 
 import framework.ReposeValveTest
+import org.apache.http.NoHttpResponseException
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
@@ -27,51 +28,64 @@ import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.ssl.SSLContexts
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 import java.nio.file.Files
+import java.util.concurrent.TimeUnit
 
-/**
- * Make sure we can start up with SSL configuration parameters
- */
-class SSLConfigurationStartup extends ReposeValveTest {
+class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
 
     def setupSpec() {
-        cleanLogDirectory()
-        params = properties.getDefaultTemplateParams()
+        reposeLogSearch.cleanLog()
+        def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/security/simplessl", params)
+        repose.configurationProvider.applyConfigs("features/core/security/clientauth", params)
+        repose.configurationProvider.applyConfigs("features/core/security/clientauth/singlestore", params)
 
         // Have to manually copy binary files, because the applyConfigs() attempts to substitute template parameters
         // when they are found and it breaks everything. :(
-        def serverFileOrig = new File(repose.configurationProvider.configTemplatesDir, "common/server.jks")
-        def serverFileDest = new FileOutputStream(new File(repose.configDir, "server.jks"))
-        Files.copy(serverFileOrig.toPath(), serverFileDest)
+        def singleFileOrig = new File(repose.configurationProvider.configTemplatesDir, "common/single.jks")
+        def singleFileDest = new FileOutputStream(new File(repose.configDir, "single.jks"))
+        Files.copy(singleFileOrig.toPath(), singleFileDest)
 
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        reposeLogSearch.awaitByString("Repose ready", 1, 60, TimeUnit.SECONDS)
     }
-
-    static def params
 
     def "Can execute a simple request via SSL"() {
         //A simple request should go through
-        when:
-        def sslContext = SSLContexts.custom().loadTrustMaterial(TrustSelfSignedStrategy.INSTANCE).build()
+        given:
+        def singleFile = new File(repose.configDir, "single.jks")
+        def singlePass = "password".toCharArray()
+
+        def sslContext = SSLContexts.custom()
+                .loadKeyMaterial(singleFile, singlePass, singlePass) // Key this client is presenting.
+                .loadTrustMaterial(singleFile, singlePass, TrustSelfSignedStrategy.INSTANCE) // Key that is being accepted from server.
+                .build()
         def sf = new SSLConnectionSocketFactory(
                 sslContext,
                 null,
                 null,
                 NoopHostnameVerifier.INSTANCE
         )
-
         def client = HttpClients.custom().setSSLSocketFactory(sf).build()
 
-        def get = new HttpGet("https://localhost:$properties.reposePort")
-        def response = client.execute(get)
+        when:
+        def response = client.execute(new HttpGet("https://localhost:$properties.reposePort"))
 
         then:
         response.getStatusLine().statusCode == 200
+    }
+
+    def "Requests without a client certificate fail"() {
+        when:
+        HttpClients.createDefault()
+                .execute(new HttpGet(reposeEndpoint))
+
+        then:
+        thrown NoHttpResponseException
     }
 }
