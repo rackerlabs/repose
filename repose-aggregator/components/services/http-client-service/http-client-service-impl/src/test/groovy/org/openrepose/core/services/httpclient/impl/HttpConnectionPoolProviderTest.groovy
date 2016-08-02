@@ -20,14 +20,25 @@
 package org.openrepose.core.services.httpclient.impl
 
 import org.apache.http.Header
+import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.params.ClientPNames
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.params.CoreConnectionPNames
+import org.eclipse.jetty.http.HttpVersion
+import org.eclipse.jetty.server.*
+import org.eclipse.jetty.server.handler.AbstractHandler
+import org.eclipse.jetty.util.resource.Resource
+import org.eclipse.jetty.util.ssl.SslContextFactory
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.core.service.httpclient.config.HeaderListType
 import org.openrepose.core.service.httpclient.config.HeaderType
 import org.openrepose.core.service.httpclient.config.PoolType
+
+import javax.servlet.ServletException
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 class HttpConnectionPoolProviderTest {
 
@@ -41,9 +52,11 @@ class HttpConnectionPoolProviderTest {
     private final static int MAX_TOTAL = 300
 
     private PoolType poolType
+    private Server server
+
 
     @Before
-    public final void beforeAll() {
+    public final void beforeEach() {
         poolType = new PoolType()
 
         poolType.setHttpConnectionMaxHeaderCount(MAX_HEADERS)
@@ -57,6 +70,11 @@ class HttpConnectionPoolProviderTest {
         poolType.setHttpTcpNodelay(TCP_NODELAY)
         poolType.setKeepaliveTimeout(6000)
         poolType.setId("testPool")
+    }
+
+    @After
+    public final void afterEach() {
+        server?.stop()
     }
 
     @Test
@@ -110,5 +128,119 @@ class HttpConnectionPoolProviderTest {
         DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType) as DefaultHttpClient
 
         assert !client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
+    }
+
+    @Test
+    public void "should create a pool that can connect to a server with client auth using keystore and truststore when configured"() {
+        server = new Server()
+
+        // SSL Context Factory
+        def sslContextFactory = new SslContextFactory()
+        sslContextFactory.keyStoreResource = Resource.newClassPathResource("server.jks")
+        sslContextFactory.keyStorePassword = "password"
+        sslContextFactory.keyManagerPassword = "password"
+        sslContextFactory.needClientAuth = true
+        sslContextFactory.trustStoreResource = Resource.newClassPathResource("client.jks")
+        sslContextFactory.trustStorePassword = "password"
+
+        // SSL HTTP Configuration
+        def https_config = new HttpConfiguration()
+        https_config.addCustomizer new SecureRequestCustomizer()
+
+        // SSL Connector
+        def sslConnector = new ServerConnector(
+                server,
+                new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+                new HttpConnectionFactory(https_config)
+        )
+        sslConnector.setPort(0)
+
+        // Start the server
+        def statusCode = HttpServletResponse.SC_OK
+        def responseContent = "The is the plain text test body data.".bytes
+        def contentType = "text/plain;charset=utf-8"
+        // Make this the only endpoint for the server
+        server.connectors = [sslConnector] as Connector[]
+        server.handler = new AbstractHandler() {
+            @Override
+            void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                response.status = statusCode
+                response.contentType = contentType
+                baseRequest.handled = true
+                response.outputStream.write responseContent
+            }
+        }
+        server.start()
+        def serverPort = ((ServerConnector) server.connectors[0]).getLocalPort()
+
+        // Add the client creds to the connection pool
+        poolType.setKeystoreFilename(HttpConnectionPoolProviderTest.class.getResource("/client.jks").getFile())
+        poolType.setKeystorePassword("password")
+        poolType.setKeyPassword("password")
+        poolType.setTruststoreFilename(HttpConnectionPoolProviderTest.class.getResource("/server.jks").getFile())
+        poolType.setTruststorePassword("password")
+
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType) as DefaultHttpClient
+        def httpGet = new HttpGet("https://localhost:" + serverPort)
+        def httpResponse = client.execute(httpGet)
+
+        assert httpResponse.statusLine.statusCode == statusCode
+        assert httpResponse.entity.contentType.value == contentType
+        assert Arrays.equals(httpResponse.entity.content.bytes, responseContent)
+    }
+
+    @Test
+    public void "should create a pool that can connect to a server with client auth using single keystore when configured"() {
+        server = new Server()
+
+        // SSL Context Factory
+        def sslContextFactory = new SslContextFactory()
+        sslContextFactory.keyStoreResource = Resource.newClassPathResource("single.jks")
+        sslContextFactory.keyStorePassword = "password"
+        sslContextFactory.keyManagerPassword = "password"
+        sslContextFactory.needClientAuth = true
+
+        // SSL HTTP Configuration
+        def https_config = new HttpConfiguration()
+        https_config.addCustomizer new SecureRequestCustomizer()
+
+        // SSL Connector
+        def sslConnector = new ServerConnector(
+                server,
+                new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+                new HttpConnectionFactory(https_config)
+        )
+        sslConnector.setPort(0)
+
+        // Start the server
+        def statusCode = HttpServletResponse.SC_OK
+        def responseContent = "The is the plain text test body data.".bytes
+        def contentType = "text/plain;charset=utf-8"
+        // Make this the only endpoint for the server
+        server.connectors = [sslConnector] as Connector[]
+        server.handler = new AbstractHandler() {
+            @Override
+            void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                response.status = statusCode
+                response.contentType = contentType
+                baseRequest.handled = true
+                response.outputStream.write responseContent
+            }
+        }
+        server.start()
+        def serverPort = ((ServerConnector) server.connectors[0]).getLocalPort()
+
+        // Add the client creds to the connection pool
+        poolType.setKeystoreFilename(HttpConnectionPoolProviderTest.class.getResource("/single.jks").getFile())
+        poolType.setKeystorePassword("password")
+        poolType.setKeyPassword("password")
+
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType) as DefaultHttpClient
+        def httpGet = new HttpGet("https://localhost:" + serverPort)
+        def httpResponse = client.execute(httpGet)
+
+        assert httpResponse.statusLine.statusCode == statusCode
+        assert httpResponse.entity.contentType.value == contentType
+        assert Arrays.equals(httpResponse.entity.content.bytes, responseContent)
     }
 }

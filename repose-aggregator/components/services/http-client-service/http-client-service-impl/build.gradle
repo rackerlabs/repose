@@ -9,6 +9,7 @@ dependencies {
 
     testCompile "junit:junit:4.12"
     testCompile "org.codehaus.groovy:groovy-all"
+    testCompile "org.eclipse.jetty:jetty-server"
     testCompile "org.mockito:mockito-all"
     testCompile "xerces:xerces-xsd11"
 }
