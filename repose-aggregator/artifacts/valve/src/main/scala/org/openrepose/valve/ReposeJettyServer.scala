@@ -38,19 +38,19 @@ import org.springframework.web.filter.DelegatingFilterProxy
 case class ServerInitializationException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
 /**
- * Each jetty server starts here. These are the unique things that identify a jetty.
- * A single jetty can listen on both an HTTP port and an HTTPS port. In theory, a single jetty could listen on many
- * ports, and just have many connectors. A clusterID and nodeID is all that is needed to figure out what jetty it is.
- * It will fail to build if there's no SSL configuration
- *
- * @param clusterId Repose Cluster ID
- * @param nodeId Repose Node ID
- * @param httpPort The port to listen on for HTTP traffic
- * @param httpsPort The port to listen on for HTTPS traffic
- * @param idleTimeout The time in milliseconds that the connection can be idle before it is closed.
- * @param soLingerTime A value >=0 sets the socket SO_LINGER value in milliseconds.
- * @param sslConfig The SSL Configuration to use
- */
+  * Each jetty server starts here. These are the unique things that identify a jetty.
+  * A single jetty can listen on both an HTTP port and an HTTPS port. In theory, a single jetty could listen on many
+  * ports, and just have many connectors. A clusterID and nodeID is all that is needed to figure out what jetty it is.
+  * It will fail to build if there's no SSL configuration
+  *
+  * @param clusterId    Repose Cluster ID
+  * @param nodeId       Repose Node ID
+  * @param httpPort     The port to listen on for HTTP traffic
+  * @param httpsPort    The port to listen on for HTTPS traffic
+  * @param idleTimeout  The time in milliseconds that the connection can be idle before it is closed.
+  * @param soLingerTime A value >=0 sets the socket SO_LINGER value in milliseconds.
+  * @param sslConfig    The SSL Configuration to use
+  */
 class ReposeJettyServer(val clusterId: String,
                         val nodeId: String,
                         val httpPort: Option[Int],
@@ -76,9 +76,9 @@ class ReposeJettyServer(val clusterId: String,
   appContext.setParent(nodeContext) //Use the local node context, not the core context
   appContext.scan(config.getString("powerFilterSpringContextPath"))
   /**
-   * Create the jetty server for this guy,
-   * and get back the connectors so I can ask for ports for them :D
-   */
+    * Create the jetty server for this guy,
+    * and get back the connectors so I can ask for ports for them :D
+    */
   val (httpConnector: Option[ServerConnector], httpsConnector: Option[ServerConnector], server: Server) = {
     val s = new Server()
 
@@ -96,6 +96,13 @@ class ReposeJettyServer(val clusterId: String,
     }
 
     val httpsConnector: Option[ServerConnector] = httpsPort.map { port =>
+
+      def guardedAbsoluteFile(parent: String, child: String): File = {
+        val childFile = new File(child)
+        if (childFile.isAbsolute) childFile
+        else new File(parent, child)
+      }
+
       val cf = new SslContextFactory()
 
       //TODO: do we make this a URL for realsies?
@@ -103,13 +110,13 @@ class ReposeJettyServer(val clusterId: String,
       // See: http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html
       val configRoot = coreSpringProvider.getCoreContext.getEnvironment.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT))
       sslConfig.map { ssl =>
-        cf.setKeyStorePath(new File(configRoot, ssl.getKeystoreFilename).getAbsolutePath)
+        cf.setKeyStorePath(guardedAbsoluteFile(configRoot, ssl.getKeystoreFilename).getAbsolutePath)
         cf.setKeyStorePassword(ssl.getKeystorePassword)
         cf.setKeyManagerPassword(ssl.getKeyPassword)
         if (ssl.isNeedClientAuth) {
           cf.setNeedClientAuth(true)
           Option(ssl.getTruststoreFilename).foreach { truststoreFilename =>
-            cf.setTrustStorePath(new File(configRoot, truststoreFilename).getAbsolutePath)
+            cf.setTrustStorePath(guardedAbsoluteFile(configRoot, truststoreFilename).getAbsolutePath)
             cf.setTrustStorePassword(ssl.getTruststorePassword)
           }
         }
@@ -209,17 +216,18 @@ class ReposeJettyServer(val clusterId: String,
   }
 
   /**
-   * Shuts this one down and returns a new one
-   * @return
-   */
+    * Shuts this one down and returns a new one
+    *
+    * @return
+    */
   def restart(): ReposeJettyServer = {
     shutdown()
     new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
   }
 
   /**
-   * destroys everything, this class won't be usable again
-   */
+    * destroys everything, this class won't be usable again
+    */
   def shutdown() = {
     isShutdown = true
     nodeContext.close()
