@@ -38,7 +38,9 @@ class HttpConnectionPoolImplTest {
     HttpConnectionPoolServiceImpl httpConnectionPoolService
     HealthCheckService healthCheckService
     HealthCheckServiceProxy healthCheckServiceProxy
-    ConfigurationService configurationService;
+    ConfigurationService configurationService
+    String configurationRoot
+
 
     @Before
     void setUp() {
@@ -47,7 +49,7 @@ class HttpConnectionPoolImplTest {
         healthCheckServiceProxy = mock(HealthCheckServiceProxy)
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
-        httpConnectionPoolService = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService)
+        httpConnectionPoolService = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService, configurationRoot)
     }
 
     @Test
