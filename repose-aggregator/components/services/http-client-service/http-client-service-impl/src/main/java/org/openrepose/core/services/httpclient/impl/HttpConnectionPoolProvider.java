@@ -58,7 +58,7 @@ public final class HttpConnectionPoolProvider {
     private HttpConnectionPoolProvider() {
     }
 
-    public static HttpClient genClient(PoolType poolConf) {
+    public static HttpClient genClient(String configRoot, PoolType poolConf) {
 
         PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
 
@@ -93,6 +93,9 @@ public final class HttpConnectionPoolProvider {
             SSLContextBuilder sslContextBuilder = SSLContexts.custom();
             try {
                 File keystoreFile = new File(poolConf.getKeystoreFilename());
+                if (!keystoreFile.isAbsolute()) {
+                    keystoreFile = new File(configRoot, poolConf.getKeystoreFilename());
+                }
                 char[] keystorePassword = poolConf.getKeystorePassword() == null ? null : poolConf.getKeystorePassword().toCharArray();
                 char[] keyPassword = poolConf.getKeyPassword() == null ? null : poolConf.getKeyPassword().toCharArray();
                 sslContextBuilder = sslContextBuilder.loadKeyMaterial(keystoreFile, keystorePassword, keyPassword);
@@ -101,6 +104,9 @@ public final class HttpConnectionPoolProvider {
                     sslContextBuilder = sslContextBuilder.loadTrustMaterial(keystoreFile, keystorePassword);
                 } else {
                     File truststoreFile = new File(poolConf.getTruststoreFilename());
+                    if (!truststoreFile.isAbsolute()) {
+                        truststoreFile = new File(configRoot, poolConf.getTruststoreFilename());
+                    }
                     char[] truststorePassword = poolConf.getTruststorePassword() == null ? null : poolConf.getTruststorePassword().toCharArray();
                     sslContextBuilder = sslContextBuilder.loadTrustMaterial(truststoreFile, truststorePassword);
                 }
