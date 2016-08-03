@@ -79,7 +79,7 @@ class HttpConnectionPoolProviderTest {
 
     @Test
     public void "should create client with passed-in configuration object"() {
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
 
         Map props = client.connectionManager.properties
         assert client.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH) == MAX_LINE
@@ -107,7 +107,7 @@ class HttpConnectionPoolProviderTest {
                  new HeaderType(name: "serious-business", value: "tomatoes")])
         poolType.setHeaders(headerListType)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
 
         def parameter = client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
         assert parameter
@@ -125,7 +125,7 @@ class HttpConnectionPoolProviderTest {
     public void "should not add header parameter when not configured"() {
         poolType.setHeaders(null)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
 
         assert !client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
     }
@@ -157,7 +157,7 @@ class HttpConnectionPoolProviderTest {
 
         // Start the server
         def statusCode = HttpServletResponse.SC_OK
-        def responseContent = "The is the plain text test body data.".bytes
+        def responseContent = "The is the plain text test body data.\n".bytes
         def contentType = "text/plain;charset=utf-8"
         // Make this the only endpoint for the server
         server.connectors = [sslConnector] as Connector[]
@@ -180,7 +180,8 @@ class HttpConnectionPoolProviderTest {
         poolType.setTruststoreFilename(HttpConnectionPoolProviderTest.class.getResource("/server.jks").getFile())
         poolType.setTruststorePassword("password")
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType) as DefaultHttpClient
+        def configRoot = new File(HttpConnectionPoolProviderTest.class.getResource("/client.jks").getFile()).getParent()
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(configRoot, poolType) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
@@ -214,7 +215,7 @@ class HttpConnectionPoolProviderTest {
 
         // Start the server
         def statusCode = HttpServletResponse.SC_OK
-        def responseContent = "The is the plain text test body data.".bytes
+        def responseContent = "The is the plain text test body data.\n".bytes
         def contentType = "text/plain;charset=utf-8"
         // Make this the only endpoint for the server
         server.connectors = [sslConnector] as Connector[]
@@ -235,7 +236,8 @@ class HttpConnectionPoolProviderTest {
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType) as DefaultHttpClient
+        def configRoot = new File(HttpConnectionPoolProviderTest.class.getResource("/single.jks").getFile()).getParent()
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(configRoot, poolType) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
