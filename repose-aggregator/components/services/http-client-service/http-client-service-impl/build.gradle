@@ -4,6 +4,7 @@ dependencies {
     compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
     compile "org.slf4j:slf4j-api"
     compile "org.slf4j:jcl-over-slf4j"
+    compile "org.springframework:spring-beans"
 
     provided "javax.inject:javax.inject"
 

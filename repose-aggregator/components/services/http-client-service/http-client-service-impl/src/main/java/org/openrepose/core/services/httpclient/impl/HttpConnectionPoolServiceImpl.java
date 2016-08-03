@@ -31,7 +31,9 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.spring.ReposeSpringProperties;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -57,6 +59,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     private final HttpClientUserManager httpClientUserManager;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private final ConfigurationListener configurationListener;
+    private final String configRoot;
 
     private boolean initialized = false;
     private String defaultClientId;
@@ -66,11 +69,14 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     @Inject
     public HttpConnectionPoolServiceImpl(
             ConfigurationService configurationService,
-            HealthCheckService healthCheckService) {
+            HealthCheckService healthCheckService,
+            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot
+    ) {
         LOG.debug("Creating New HTTP Connection Pool Service");
 
         this.configurationService = configurationService;
         this.healthCheckServiceProxy = healthCheckService.register();
+        this.configRoot = configRoot;
         this.poolMap = new HashMap<>();
         this.httpClientUserManager = new HttpClientUserManager();
         this.configurationListener = new ConfigurationListener();
@@ -164,7 +170,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
             if (poolType.isDefault()) {
                 defaultClientId = poolType.getId();
             }
-            newPoolMap.put(poolType.getId(), clientGenerator(poolType));
+            newPoolMap.put(poolType.getId(), clientGenerator(configRoot, poolType));
         }
 
         if (!poolMap.isEmpty()) {
@@ -180,8 +186,8 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
         }
     }
 
-    private HttpClient clientGenerator(PoolType poolType) {
-        return HttpConnectionPoolProvider.genClient(poolType);
+    private HttpClient clientGenerator(String configRoot, PoolType poolType) {
+        return HttpConnectionPoolProvider.genClient(configRoot, poolType);
     }
 
     private class ConfigurationListener implements UpdateListener<HttpConnectionPoolConfig> {
