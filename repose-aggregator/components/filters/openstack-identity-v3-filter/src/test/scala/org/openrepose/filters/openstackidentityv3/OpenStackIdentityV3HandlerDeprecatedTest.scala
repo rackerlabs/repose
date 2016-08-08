@@ -41,7 +41,7 @@ import org.springframework.http.HttpHeaders
 import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
-class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach with Matchers with PrivateMethodTester with MockitoSugar {
+class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAfterEach with Matchers with PrivateMethodTester with MockitoSugar {
 
   private final val SC_TOO_MANY_REQUESTS = 429
 
@@ -60,8 +60,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     identityConfig.setValidateProjectIdInUri(new ValidateProjectID())
     identityConfig.getValidateProjectIdInUri.setRegex("""/foo/(\d+)""")
     identityConfig.getValidateProjectIdInUri.setStripTokenProjectPrefixes("foo:/bar:")
-    identityConfig.setPreAuthorizedRoles(new PreAuthRolesList())
-    identityConfig.getPreAuthorizedRoles.getRole.add("admin")
+    identityConfig.setRolesWhichBypassProjectIdCheck(new PreAuthRolesList())
+    identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("admin")
     identityConfig.setForwardGroups(false)
   }
 
@@ -657,18 +657,18 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     }
 
     it("should return false if the user does not have a role which is in the bypass roles list") {
-      identityConfig.getPreAuthorizedRoles.getRole.add("a")
-      identityConfig.getPreAuthorizedRoles.getRole.add("b")
-      identityConfig.getPreAuthorizedRoles.getRole.add("c")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("a")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("b")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("c")
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
 
       identityV3Handler invokePrivate isUserPreAuthed(ValidToken(None, None, None, null, None, None, None, List(), List(Role("d"), Role("e")))) shouldBe false
     }
 
     it("should return true if the user does have a role which is in the bypass roles list") {
-      identityConfig.getPreAuthorizedRoles.getRole.add("a")
-      identityConfig.getPreAuthorizedRoles.getRole.add("b")
-      identityConfig.getPreAuthorizedRoles.getRole.add("c")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("a")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("b")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("c")
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
 
       identityV3Handler invokePrivate isUserPreAuthed(ValidToken(None, None, None, null, None, None, None, List(), List(Role("a"), Role("e")))) shouldBe true
