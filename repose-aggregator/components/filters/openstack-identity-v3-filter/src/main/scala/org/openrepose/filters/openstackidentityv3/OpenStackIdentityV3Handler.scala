@@ -46,6 +46,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private val delegatingWithQuality = Option(identityConfig.getDelegating).map(_.getQuality)
   private val projectIdUriRegex = Option(identityConfig.getValidateProjectIdInUri).map(_.getRegex.r)
   private val projectIdPrefixes = Try(identityConfig.getValidateProjectIdInUri.getStripTokenProjectPrefixes.split('/')).getOrElse(Array.empty[String])
+  private val preAuthorizedRoles = Option(identityConfig.getPreAuthorizedRoles).map(_.getRole.asScala.toList)
   private val bypassProjectIdCheckRoles = Option(identityConfig.getRolesWhichBypassProjectIdCheck).map(_.getRole.asScala.toList)
   private val configuredServiceEndpoint = Option(identityConfig.getServiceEndpoint) map { serviceEndpoint =>
     Endpoint(
@@ -333,7 +334,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   private def isUserPreAuthed(token: ValidToken): Boolean = {
     val userRoles = token.roles.map(_.name)
-    val ignoreProjectRoles = bypassProjectIdCheckRoles.getOrElse(List.empty[String])
+    val ignoreProjectRoles = preAuthorizedRoles.getOrElse(bypassProjectIdCheckRoles.getOrElse(List.empty[String]))
     userRoles.exists(userRole => ignoreProjectRoles.exists(ignoreRole => ignoreRole.equals(userRole)))
   }
 
