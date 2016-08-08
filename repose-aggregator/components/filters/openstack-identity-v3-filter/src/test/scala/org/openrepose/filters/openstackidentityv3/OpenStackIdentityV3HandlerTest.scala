@@ -602,10 +602,6 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       handler invokePrivate isProjectIdValid("", ValidToken(None, None, None, null, None, None, None, List(), null)) shouldBe true
     }
 
-    it("should return true if the user had a role which bypasses validation") {
-      identityV3Handler invokePrivate isProjectIdValid("", ValidToken(None, None, None, null, None, None, None, List(), List(Role("admin")))) shouldBe true
-    }
-
     it("should return false if no a project ID could not be extracted from the URI") {
       identityV3Handler invokePrivate isProjectIdValid("/foo/bar", ValidToken(None, None, None, null, None, None, None, List(), List())) shouldBe false
     }
@@ -653,21 +649,29 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     }
   }
 
-  describe("hasIgnoreEnabledRole") {
-    val hasIgnoreEnabledRole = PrivateMethod[Boolean]('hasIgnoreEnabledRole)
+  describe("isUserPreAuthed") {
+    val isUserPreAuthed = PrivateMethod[Boolean]('isUserPreAuthed)
+
+    it("should return true if the user had a role which bypasses validation") {
+      identityV3Handler invokePrivate isUserPreAuthed(ValidToken(None, None, None, null, None, None, None, List(), List(Role("admin")))) shouldBe true
+    }
 
     it("should return false if the user does not have a role which is in the bypass roles list") {
-      val ignoreRoles = List("a", "b", "c")
-      val userRoles = List("d", "e")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("a")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("b")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("c")
+      identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
 
-      identityV3Handler invokePrivate hasIgnoreEnabledRole(ignoreRoles, userRoles) shouldBe false
+      identityV3Handler invokePrivate isUserPreAuthed(ValidToken(None, None, None, null, None, None, None, List(), List(Role("d"), Role("e")))) shouldBe false
     }
 
     it("should return true if the user does have a role which is in the bypass roles list") {
-      val ignoreRoles = List("a", "b", "c")
-      val userRoles = List("a", "e")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("a")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("b")
+      identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("c")
+      identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
 
-      identityV3Handler invokePrivate hasIgnoreEnabledRole(ignoreRoles, userRoles) shouldBe true
+      identityV3Handler invokePrivate isUserPreAuthed(ValidToken(None, None, None, null, None, None, None, List(), List(Role("a"), Role("e")))) shouldBe true
     }
   }
 }
