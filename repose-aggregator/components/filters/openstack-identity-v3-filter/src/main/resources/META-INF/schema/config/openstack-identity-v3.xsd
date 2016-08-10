@@ -27,7 +27,6 @@
            xmlns:saxon="http://saxon.sf.net/"
            xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
-           xmlns:tns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
            elementFormDefault="qualified">
 
     <!-- Elements -->
@@ -148,9 +147,10 @@
         </xs:attribute>
 
         <xs:assert vc:minVersion="1.1"
-            test="not(tns:pre-authorized-roles and tns:roles-which-bypass-project-id-check)"
-            xerces:message="Cannot define the deprecated roles-which-bypass-project-id-check and pre-authorized-roles"
-            saxon:message="Cannot define the deprecated roles-which-bypass-project-id-check and pre-authorized-roles"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(pre-authorized-roles and roles-which-bypass-project-id-check)"
+                   xerces:message="Cannot define the deprecated roles-which-bypass-project-id-check and pre-authorized-roles"
+                   saxon:message="Cannot define the deprecated roles-which-bypass-project-id-check and pre-authorized-roles"
         />
     </xs:complexType>
 
