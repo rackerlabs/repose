@@ -33,6 +33,7 @@ import spock.lang.Shared
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
@@ -45,7 +46,7 @@ class HttpsClientAuthSingleStorePoolTest extends ReposeValveTest {
     @Shared
     def statusCode = HttpServletResponse.SC_OK
     @Shared
-    def responseContent = "The is the plain text test body data.\n".bytes
+    def responseContent = "The is the plain text test body data.\n".getBytes(Charset.forName("UTF-8"))
     @Shared
     def contentType = "text/plain;charset=utf-8"
     @Shared

@@ -39,6 +39,7 @@ import org.openrepose.core.service.httpclient.config.PoolType
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import java.nio.charset.Charset
 
 class HttpConnectionPoolProviderTest {
 
@@ -50,6 +51,7 @@ class HttpConnectionPoolProviderTest {
     private final static int SOC_BUFF_SZ = 1023
     private final static int MAX_PER_ROUTE = 50
     private final static int MAX_TOTAL = 300
+    private final static Charset CHARSET_UTF8 = Charset.forName("UTF-8")
 
     private PoolType poolType
     private Server server
@@ -157,7 +159,7 @@ class HttpConnectionPoolProviderTest {
 
         // Start the server
         def statusCode = HttpServletResponse.SC_OK
-        def responseContent = "The is the plain text test body data.\n".bytes
+        def responseContent = "The is the plain text test body data.\n".getBytes(CHARSET_UTF8)
         def contentType = "text/plain;charset=utf-8"
         // Make this the only endpoint for the server
         server.connectors = [sslConnector] as Connector[]
@@ -215,7 +217,7 @@ class HttpConnectionPoolProviderTest {
 
         // Start the server
         def statusCode = HttpServletResponse.SC_OK
-        def responseContent = "The is the plain text test body data.\n".bytes
+        def responseContent = "The is the plain text test body data.\n".getBytes(CHARSET_UTF8)
         def contentType = "text/plain;charset=utf-8"
         // Make this the only endpoint for the server
         server.connectors = [sslConnector] as Connector[]
