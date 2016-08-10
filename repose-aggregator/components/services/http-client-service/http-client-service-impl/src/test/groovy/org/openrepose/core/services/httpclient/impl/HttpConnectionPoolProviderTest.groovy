@@ -52,10 +52,12 @@ class HttpConnectionPoolProviderTest {
     private final static int MAX_PER_ROUTE = 50
     private final static int MAX_TOTAL = 300
     private final static Charset CHARSET_UTF8 = Charset.forName("UTF-8")
+    private final static URL CLIENT_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/client.jks")
+    private final static URL SERVER_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/server.jks")
+    private final static URL SINGLE_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/single.jks")
 
     private PoolType poolType
     private Server server
-
 
     @Before
     public final void beforeEach() {
@@ -176,13 +178,13 @@ class HttpConnectionPoolProviderTest {
         def serverPort = ((ServerConnector) server.connectors[0]).getLocalPort()
 
         // Add the client creds to the connection pool
-        poolType.setKeystoreFilename(HttpConnectionPoolProviderTest.class.getResource("/client.jks").getFile())
+        poolType.setKeystoreFilename(CLIENT_RESOURCE.file)
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
-        poolType.setTruststoreFilename(HttpConnectionPoolProviderTest.class.getResource("/server.jks").getFile())
+        poolType.setTruststoreFilename(SERVER_RESOURCE.file)
         poolType.setTruststorePassword("password")
 
-        def configRoot = new File(HttpConnectionPoolProviderTest.class.getResource("/client.jks").getFile()).getParent()
+        def configRoot = new File(CLIENT_RESOURCE.file).parent
         DefaultHttpClient client = HttpConnectionPoolProvider.genClient(configRoot, poolType) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
@@ -234,11 +236,11 @@ class HttpConnectionPoolProviderTest {
         def serverPort = ((ServerConnector) server.connectors[0]).getLocalPort()
 
         // Add the client creds to the connection pool
-        poolType.setKeystoreFilename(HttpConnectionPoolProviderTest.class.getResource("/single.jks").getFile())
+        poolType.setKeystoreFilename(SINGLE_RESOURCE.file)
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
 
-        def configRoot = new File(HttpConnectionPoolProviderTest.class.getResource("/single.jks").getFile()).getParent()
+        def configRoot = new File(SINGLE_RESOURCE.file).parent
         DefaultHttpClient client = HttpConnectionPoolProvider.genClient(configRoot, poolType) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
