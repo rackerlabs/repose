@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+    <resources base="http://localhost:${targetPort}/">
+        <resource id="standardResource" path="standard" rax:useMetadata="standardMeta"/>
+        <resource id="customResource" path="custom" rax:useMetadata="customMeta"/>
+    </resources>
+    <rax:metadata id="standardMeta">
+        <!-- I propose we support very simple patterns * and sameThing: (or anyOther string which will be prepended) -->
+        <rax:metaRole name="admin" pattern="*"/>
+        <rax:metaRole name="billing:role" pattern="billing:"/>
+        <rax:metaRole name="service:role" pattern="service:"/>
+    </rax:metadata>
+    <rax:metadata id="customMeta">
+        <!-- at least one pattern with '*' is required, this is the admin role,
+                 multiple admins are allowed...-->
+        <rax:metaRole name="admin" pattern="*"/>
+        <rax:metaRole name="superAdmin" pattern="*"/>
+        <!-- pattern is optional, if it is left off then the roleName followed by a colon is assumed.
+                 In this case the pattern is 'customer:role:' -->
+        <rax:metaRole name="customer:role"/>
+        <!-- multiple roles are allowed as well with the same pattern.
+                 One role per metaRole, since this is an edge case...
+             -->
+        <rax:metaRole name="service:role" pattern="service:"/>
+        <rax:metaRole name="another_role" pattern="service:"/>
+        <!-- Another edge case regex stuff in the pattern should not mess things up.
+                 This silly combination of role name and pattern should work.
+                 The pattern is not a regEx |||: is simply treated as a string.
+            -->
+        <rax:metaRole name="???" pattern="|||:"/>
+    </rax:metadata>
+</application>
