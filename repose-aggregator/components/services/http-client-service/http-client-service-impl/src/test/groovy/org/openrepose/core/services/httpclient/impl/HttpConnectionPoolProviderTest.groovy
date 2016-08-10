@@ -184,8 +184,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setTruststoreFilename(SERVER_RESOURCE.file)
         poolType.setTruststorePassword("password")
 
-        def configRoot = new File(CLIENT_RESOURCE.file).parent
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(configRoot, poolType) as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
@@ -240,8 +239,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
 
-        def configRoot = new File(SINGLE_RESOURCE.file).parent
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(configRoot, poolType) as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
