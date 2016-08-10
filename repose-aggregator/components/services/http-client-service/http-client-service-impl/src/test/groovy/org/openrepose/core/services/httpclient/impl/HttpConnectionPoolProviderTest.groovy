@@ -144,14 +144,14 @@ class HttpConnectionPoolProviderTest {
         sslContextFactory.trustStorePassword = "password"
 
         // SSL HTTP Configuration
-        def https_config = new HttpConfiguration()
-        https_config.addCustomizer new SecureRequestCustomizer()
+        def httpConfiguration = new HttpConfiguration()
+        httpConfiguration.addCustomizer new SecureRequestCustomizer()
 
         // SSL Connector
         def sslConnector = new ServerConnector(
                 server,
                 new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
-                new HttpConnectionFactory(https_config)
+                new HttpConnectionFactory(httpConfiguration)
         )
         sslConnector.setPort(0)
 
@@ -202,14 +202,14 @@ class HttpConnectionPoolProviderTest {
         sslContextFactory.needClientAuth = true
 
         // SSL HTTP Configuration
-        def https_config = new HttpConfiguration()
-        https_config.addCustomizer new SecureRequestCustomizer()
+        def httpConfiguration = new HttpConfiguration()
+        httpConfiguration.addCustomizer new SecureRequestCustomizer()
 
         // SSL Connector
         def sslConnector = new ServerConnector(
                 server,
                 new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
-                new HttpConnectionFactory(https_config)
+                new HttpConnectionFactory(httpConfiguration)
         )
         sslConnector.setPort(0)
 
