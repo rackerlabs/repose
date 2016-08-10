@@ -333,9 +333,9 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   }
 
   private def isUserPreAuthed(token: ValidToken): Boolean = {
-    val userRoles = token.roles.map(_.name)
-    val ignoreProjectRoles = preAuthorizedRoles.getOrElse(bypassProjectIdCheckRoles.getOrElse(List.empty[String]))
-    userRoles.exists(userRole => ignoreProjectRoles.exists(ignoreRole => ignoreRole.equals(userRole)))
+    val userRoles = token.roles.map(_.name).toSet
+    val ignoreProjectRoles = preAuthorizedRoles.getOrElse(bypassProjectIdCheckRoles.getOrElse(List.empty[String])).toSet
+    (userRoles intersect ignoreProjectRoles).nonEmpty
   }
 
   private def projectMatches(projectFromUri: String, defaultProjectId: Option[String], roles: List[Role]): Boolean = {
