@@ -108,5 +108,47 @@ class HttpConnectionPoolSchemaTest extends FunSpec with Matchers {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("Max connections per route must be less than or equal to total max connections")
     }
+
+    it("should reject config missing keystore-filename") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="clientAuthentication"
+                     |          default="false"
+                     |          keystore-password="password"
+                     |          key-password="secret"
+                     |          truststore-filename="truststore.jks"
+                     |          truststore-password="trusting"/>
+                     |</http-connection-pools>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include ("IF a keystore filename, password, or key password is provided, THEN all must be provided")
+    }
+
+    it("should reject config missing keystore-password") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="clientAuthentication"
+                     |          default="false"
+                     |          keystore-filename="keystore.jks"
+                     |          key-password="secret"
+                     |          truststore-filename="truststore.jks"
+                     |          truststore-password="trusting"/>
+                     |</http-connection-pools>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include ("IF a keystore filename, password, or key password is provided, THEN all must be provided")
+    }
+
+    it("should reject config missing key-password") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="clientAuthentication"
+                     |          default="false"
+                     |          keystore-filename="keystore.jks"
+                     |          keystore-password="password"
+                     |          truststore-filename="truststore.jks"
+                     |          truststore-password="trusting"/>
+                     |</http-connection-pools>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include ("IF a keystore filename, password, or key password is provided, THEN all must be provided")
+    }
   }
 }

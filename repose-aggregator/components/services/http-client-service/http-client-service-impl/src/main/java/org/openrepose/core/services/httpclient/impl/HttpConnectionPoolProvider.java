@@ -32,12 +32,17 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 import org.openrepose.core.service.httpclient.config.HeaderType;
 import org.openrepose.core.service.httpclient.config.PoolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,7 +58,7 @@ public final class HttpConnectionPoolProvider {
     private HttpConnectionPoolProvider() {
     }
 
-    public static HttpClient genClient(PoolType poolConf) {
+    public static HttpClient genClient(String configRoot, PoolType poolConf) {
 
         PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
 
@@ -83,6 +88,39 @@ public final class HttpConnectionPoolProvider {
         DefaultHttpClient client = new DefaultHttpClient(cm, params);
 
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
+
+        if (poolConf.getKeystoreFilename() != null) {
+            SSLContextBuilder sslContextBuilder = SSLContexts.custom();
+            try {
+                File keystoreFile = new File(poolConf.getKeystoreFilename());
+                if (!keystoreFile.isAbsolute()) {
+                    keystoreFile = new File(configRoot, poolConf.getKeystoreFilename());
+                }
+                char[] keystorePassword = poolConf.getKeystorePassword() == null ? null : poolConf.getKeystorePassword().toCharArray();
+                char[] keyPassword = poolConf.getKeyPassword() == null ? null : poolConf.getKeyPassword().toCharArray();
+                sslContextBuilder = sslContextBuilder.loadKeyMaterial(keystoreFile, keystorePassword, keyPassword);
+
+                if (poolConf.getTruststoreFilename() == null) {
+                    sslContextBuilder = sslContextBuilder.loadTrustMaterial(keystoreFile, keystorePassword);
+                } else {
+                    File truststoreFile = new File(poolConf.getTruststoreFilename());
+                    if (!truststoreFile.isAbsolute()) {
+                        truststoreFile = new File(configRoot, poolConf.getTruststoreFilename());
+                    }
+                    char[] truststorePassword = poolConf.getTruststorePassword() == null ? null : poolConf.getTruststorePassword().toCharArray();
+                    sslContextBuilder = sslContextBuilder.loadTrustMaterial(truststoreFile, truststorePassword);
+                }
+
+                sslContext = sslContextBuilder.build();
+            } catch (GeneralSecurityException | IOException e) {
+                LOG.warn("Failed to properly configure the SSL client for {} due to: {}", poolConf.getId(), e.getLocalizedMessage());
+                LOG.trace("", e);
+                LOG.info("Failing over to basic Trusting SSL context.");
+                sslContext = ProxyUtilities.getTrustingSslContext();
+            }
+        }
+
+        // The SSLSocketFactory will throw IllegalArgumentException if the sslContext is NULL
         SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         SchemeRegistry registry = cm.getSchemeRegistry();
         Scheme scheme = new Scheme("https", DEFAULT_HTTPS_PORT, ssf);

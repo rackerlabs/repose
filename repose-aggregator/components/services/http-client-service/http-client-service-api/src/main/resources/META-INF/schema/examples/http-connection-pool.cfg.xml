@@ -25,4 +25,13 @@
     <!-- Configuration for a custom pool that uses all default values -->
     <pool id="alldefaultspool" default="false"/>
 
+    <!-- Configuration for a connection pool that uses SSL/TLS Client Authentication -->
+    <pool id="clientAuthentication"
+          default="false"
+          keystore-filename="keystore.jks"
+          keystore-password="password"
+          key-password="secret"
+          truststore-filename="truststore.jks"
+          truststore-password="trusting"/>
+
 </http-connection-pools>
