@@ -67,21 +67,49 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
   val username2_0XML: UsernameParsingFunction = { is =>
     val xml = XML.load(is)
     val auth = xml \\ "auth"
+    val possibleDomains = List(
+      // These are actually prefixed with the "RAX-AUTH:" namespace.
+      (auth \ "domain" \ "@name").text
+      //// This is if we want to start caring about differentiating Scope'd items like MFA.
+      //, (auth \ "scope").text
+    )
     val possibleUsernames = List(
+      (auth \ "rsaCredentials" \ "@username").text,
       (auth \ "apiKeyCredentials" \ "@username").text,
       (auth \ "passwordCredentials" \ "@username").text,
       (auth \ "@tenantId").text,
       (auth \ "@tenantName").text
     )
+    val domains = possibleDomains.filterNot(_.isEmpty)
+    val usernames = possibleUsernames.filterNot(_.isEmpty)
 
-    possibleUsernames.filterNot(_.isEmpty).foldLeft[Option[String]](Option.empty[String]) {
-      (opt, it) =>
-        Some(it)
+    if (usernames.isEmpty) {
+      None
+    } else {
+      if (domains.isEmpty) {
+        Some(usernames.head)
+      } else {
+        Some(domains.head + ":" + usernames.head)
+      }
     }
   }
   val username2_0JSON: UsernameParsingFunction = { is =>
     val json = Json.parse(Source.fromInputStream(is).getLines() mkString)
+    val possibleDomains = List(
+      (json \ "auth" \ "RAX-AUTH:domain" \ "name").validate[String]
+      //// This is if we want to start caring about differentiating Scope'd items like MFA.
+      //, (json \ "auth" \ "RAX-AUTH:scope").validate[String]
+    )
+
+    val domains = possibleDomains.map {
+      case s: JsSuccess[String] => Some(s.get)
+      case f: JsError =>
+        logger.debug(s"2.0 JSON Parsing failure: ${JsError.toFlatJson(f)}")
+        None
+    }.filterNot(_.isEmpty)
+
     val possibleUsernames = List(
+      (json \ "auth" \ "RAX-AUTH:rsaCredentials" \ "username").validate[String],
       (json \ "auth" \ "passwordCredentials" \ "username").validate[String],
       (json \ "auth" \ "RAX-KSKEY:apiKeyCredentials" \ "username").validate[String],
       (json \ "auth" \ "tenantId").validate[String],
@@ -101,7 +129,11 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
     if (usernames.isEmpty) {
       None
     } else {
-      usernames.head
+      if (domains.isEmpty) {
+        usernames.head
+      } else {
+        Some(domains.head.get + ":" + usernames.head.get)
+      }
     }
   }
 
