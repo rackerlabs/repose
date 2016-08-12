@@ -19,68 +19,156 @@
  */
 package features.filters.rackspaceauthuser
 
-
 class RackspaceAuthPayloads {
     public static Map contentXml = ["content-type": "application/xml"]
-    public static Map contentJSON = ["content-type": "application/json"]
-
-    public static String xmlPasswordCred = """<?xml version="1.0" encoding="UTF-8"?>
-<auth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xmlns="http://docs.openstack.org/identity/api/v2.0">
-  <passwordCredentials username="demoauthor" password="theUsersPassword" tenantId="1100111"/>
-</auth>"""
-
-
-    public static String xmlPasswordCredEmptyKey = """<?xml version="1.0" encoding="UTF-8"?>
-<auth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xmlns="http://docs.openstack.org/identity/api/v2.0">
-  <passwordCredentials username="demoauthor" password="" tenantId="1100111"/>
-</auth>"""
-
+    public static Map contentJson = ["content-type": "application/json"]
     public static String invalidData = "Invalid data"
-    public
-    static String xmlOverLimit = "<auth xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://docs.openstack.org/identity/api/v2.0\"><credential xsi:type=\"PasswordCredentialsRequiredUsername\" username=\"012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\" password=\"testpwd\" /></auth>"
 
-    public static String jsonPasswordCred = """
-{
+    public static String userKeyXmlV11 =
+            """<credentials xmlns="http://docs.rackspacecloud.com/auth/api/v1.1" username="test-user" key="testpwd" />"""
+
+    public static String userKeyJsonV11 = """{
+    "credentials":{
+        "username": "test-user",
+        "key": "testpwd"
+    }
+}"""
+
+    public static String userKeyXmlEmptyV11 =
+            """<credentials xmlns="http://docs.rackspacecloud.com/auth/api/v1.1" username="test-user" key="" />"""
+
+    public static String userKeyJsonEmptyV11 = """{
+    "credentials":{
+        "username": "test-user",
+        "key": ""
+    }
+}"""
+
+    public static String userPasswordXmlV20 = """<?xml version="1.0" encoding="UTF-8"?>
+<auth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <passwordCredentials username="demoAuthor" password="myPassword01" tenantId="1100111"/>
+</auth>"""
+
+    public static String userPasswordJsonV20 = """{
     "auth":{
         "passwordCredentials":{
-            "username":"demoauthor",
-            "password":"theUsersPassword"
+            "username":"demoAuthor",
+            "password":"myPassword01"
         },
-        "tenantId": "12345678"
+        "tenantId": "1100111"
     }
-}
-"""
+}"""
 
-    public static String jsonPasswordCredAuthr2 = """
-{
+    public static String userApiKeyXmlV20 = """<?xml version="1.0" encoding="UTF-8"?>
+<auth>
+    <apiKeyCredentials xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+                       username="demoAuthor"
+                       apiKey="aaaaa-bbbbb-ccccc-12345678"/>
+</auth>"""
+
+    public static String userApiKeyJsonV20 = """{
     "auth":{
-        "passwordCredentials":{
-            "username":"demoauthr2",
-            "password":"theUsersPassword"
-        },
-        "tenantId": "12345678"
-    }
-}
-"""
-
-    public def static String jsonApiKeyCred = """{
-    "auth": {
         "RAX-KSKEY:apiKeyCredentials": {
-            "username": "demoauthor",
+            "username": "demoAuthor",
             "apiKey": "aaaaa-bbbbb-ccccc-12345678"
         },
         "tenantId": "1100111"
     }
-}
-"""
-    //v1.1
-    public static String jsonKeyCred11 = "{ \"credentials\": { \"username\": \"test-user\", \"key\": \"testpwd\"}}"
-    public static String jsonKeyCredEmptyKey11 = "{ \"credentials\": { \"username\": \"test-user\", \"key\": \"\"}}"
-    public
-    static String xmlKeyCred11 = "<credentials xmlns=\"http://docs.rackspacecloud.com/auth/api/v1.1\" username=\"test-user\" key=\"testpwd\" />"
-    public
-    static String xmlKeyCredEmptyKey11 = "<credentials xmlns=\"http://docs.rackspacecloud.com/auth/api/v1.1\" username=\"test-user\" key=\"\" />"
+}"""
 
+    // The example this was taken from is currently incorrect.
+    // This is the best guess at what it should be until it is corrected.
+    // The error will only effect the outcome if/when we start differentiating Scope'd items.
+    // TODO: Have the API documentation updated and update this payload.
+    public static String userMfaSetupXmlV20 = """<?xml version="1.0" encoding="UTF-8"?>
+<auth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <RAX-AUTH:scope>SETUP-MFA</RAX-AUTH:scope>
+    <passwordCredentials username="demoAuthor" password="myPassword01"/>
+</auth>"""
+
+    public static String userMfaSetupJsonV20 = """{
+    "auth":{
+        "RAX-AUTH:scope": "SETUP-MFA",
+        "passwordCredentials": {
+            "username": "demoAuthor",
+            "password": "myPassword01"
+        }
+    }
+}"""
+
+    public static String userPasswordXmlEmptyV20 = """<?xml version="1.0" encoding="UTF-8"?>
+<auth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <passwordCredentials username="demoAuthor" password="" tenantId="1100111"/>
+</auth>"""
+
+    public static String userPasswordJsonEmptyV20 = """{
+    "auth":{
+        "passwordCredentials":{
+            "username":"demoAuthor",
+            "password":""
+        },
+        "tenantId": "1100111"
+    }
+}"""
+
+    public static String userPasswordXmlOverV20 = """<auth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <credential xsi:type="PasswordCredentialsRequiredUsername"
+                username="012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
+                password="testpwd" />
+</auth>"""
+
+    public static String userPasswordJsonOverV20 = """{
+    "auth":{
+        "passwordCredentials":{
+            "username":"012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789",
+            "password":""
+        },
+        "tenantId": "1100111"
+    }
+}"""
+
+    public static String rackerPasswordXmlV20 = """<?xml version="1.0" encoding="UTF-8"?>
+<auth xmlns="http://docs.openstack.org/identity/api/v2.0"
+      xmlns:OS-KSADM="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+      xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+      xmlns:atom="http://www.w3.org/2005/Atom">
+    <passwordCredentials password="mypassword" username="jqsmith"/>
+    <RAX-AUTH:domain name="Rackspace"/>
+</auth>"""
+
+    public static String rackerPasswordJsonV20 = """{
+    "auth": {
+        "RAX-AUTH:domain": {
+            "name": "Rackspace"
+        },
+        "passwordCredentials": {
+            "username": "jqsmith",
+            "password": "mypassword"
+        }
+    }
+}"""
+
+    public static String rackerTokenKeyXmlV20 = """<?xml version="1.0" encoding="UTF-8"?>
+<auth xmlns="http://docs.openstack.org/identity/api/v2.0"
+      xmlns:OS-KSADM="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+      xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+      xmlns:atom="http://www.w3.org/2005/Atom">
+    <RAX-AUTH:rsaCredentials tokenKey="8723984574" username="jqsmith"/>
+    <RAX-AUTH:domain name="Rackspace"/>
+</auth>"""
+
+    public static String rackerTokenKeyJsonV20 = """{
+    "auth": {
+        "RAX-AUTH:domain": {
+            "name": "Rackspace"
+        },
+        "RAX-AUTH:rsaCredentials": {
+            "tokenKey": "8723984574",
+            "username": "jqsmith"
+        }
+    }
+}"""
 }
