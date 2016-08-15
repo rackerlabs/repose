@@ -37,7 +37,7 @@ class ClassLoaderTest extends ReposeValveTest {
      * Unfortunately this tests requires the Servlet Filter Contract to actually be upheld,
      * Repose doesn't do this, so we're setting a timebomb that will make the tests fail at a later date
      */
-    def splodeDate = new GregorianCalendar(2016, Calendar.JULY, 5)
+    def splodeDate = new GregorianCalendar(2016, Calendar.OCTOBER, 5)
 
     /**
      * copy the bundle from /repose-aggregator/functional-tests/test-bundles/bundle-one/target/

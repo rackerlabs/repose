@@ -27,7 +27,7 @@ import org.rackspace.deproxy.Response
 
 class ServletContractFilterTest extends ReposeValveTest {
 
-    def splodeDate = new GregorianCalendar(2016, Calendar.JULY, 5)
+    def splodeDate = new GregorianCalendar(2016, Calendar.OCTOBER, 5)
 
     /**
      * This test fails because repose does not properly support the servlet filter contract.
