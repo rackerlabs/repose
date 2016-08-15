@@ -171,4 +171,25 @@ class RackspaceAuthPayloads {
         }
     }
 }"""
+
+    public static String federatedPasswordXmlV20 = """<?xml version="1.0" encoding="UTF-8"?>
+<auth xmlns="http://docs.openstack.org/identity/api/v2.0"
+      xmlns:OS-KSADM="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+      xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+      xmlns:atom="http://www.w3.org/2005/Atom">
+    <passwordCredentials password="mypassword" username="jqsmith"/>
+    <RAX-AUTH:domain name="Federated"/>
+</auth>"""
+
+    public static String federatedPasswordJsonV20 = """{
+    "auth": {
+        "RAX-AUTH:domain": {
+            "name": "Federated"
+        },
+        "passwordCredentials": {
+            "username": "jqsmith",
+            "password": "mypassword"
+        }
+    }
+}"""
 }

@@ -65,7 +65,8 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |             key="a86850deb2742ec3cb41518e26aa2d89"/>
           """.stripMargin.trim()
 
-        val username = handler.username1_1XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username1_1XML(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe None
         username shouldBe Some("hub_cap")
       }
     }
@@ -81,7 +82,8 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin.trim()
 
-        val username = handler.username1_1JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username1_1JSON(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe None
         username shouldBe Some("hub_cap")
       }
     }
@@ -100,7 +102,8 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |</auth>
           """.stripMargin.trim()
 
-        val username = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe None
         username shouldBe Some("demoauthor")
       }
       it("parses the username out of an APIKey request") {
@@ -116,7 +119,8 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |</auth>
           """.stripMargin.trim()
 
-        val username = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe None
         username shouldBe Some("demoauthor")
       }
       it("parses the tenant ID out of a tenant token request") {
@@ -130,7 +134,8 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |</auth>
           """.stripMargin.trim()
 
-        val username = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe None
         username shouldBe Some("1100111")
       }
       it("parses the tenant name out of a tenant token request") {
@@ -144,7 +149,8 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |</auth>
           """.stripMargin.trim()
 
-        val username = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe None
         username shouldBe Some("nameOfTenant")
       }
 
@@ -161,10 +167,9 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    <passwordCredentials username="demoAuthor" password="myPassword01"/>
             |</auth>""".stripMargin
 
-        val username = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe None
         username shouldBe Some("demoAuthor")
-        // This is if we want to start caring about differentiating Scope'd items like MFA.
-        //username shouldBe Some("SETUP-MFA:demoAuthor")
       }
 
       it("parses the domain/username out of a Domain'd User/Password request") {
@@ -178,8 +183,9 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    <RAX-AUTH:domain name="Rackspace"/>
             |</auth>""".stripMargin
 
-        val username = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
-        username shouldBe Some("Rackspace:jqsmith")
+        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe Some("Rackspace")
+        username shouldBe Some("Racker:jqsmith")
       }
 
       it("parses the domain/username out of a RSA User/Token request") {
@@ -193,8 +199,9 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    <RAX-AUTH:domain name="Rackspace"/>
             |</auth>""".stripMargin
 
-        val username = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
-        username shouldBe Some("Rackspace:jqsmith")
+        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe Some("Rackspace")
+        username shouldBe Some("Racker:jqsmith")
       }
     }
 
@@ -213,7 +220,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin
 
-        val username = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         username shouldBe Some("demoauthor")
 
       }
@@ -231,7 +238,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin
 
-        val username = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         username shouldBe Some("demoauthor")
       }
       it("parses the tenant ID out of a tenant token request") {
@@ -247,7 +254,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin
 
-        val username = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         username shouldBe Some("1100111")
       }
       it("parses the tenant name out of a tenant token request") {
@@ -263,7 +270,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin
 
-        val username = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         username shouldBe Some("nameOfTenant")
       }
 
@@ -279,10 +286,8 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    }
             |}""".stripMargin
 
-        val username = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         username shouldBe Some("demoAuthor")
-        // This is if we want to start caring about differentiating Scope'd items like MFA.
-        //username shouldBe Some("SETUP-MFA:demoAuthor")
       }
 
       it("parses the domain/username out of a Domain'd User/Password request") {
@@ -299,8 +304,9 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    }
             |}""".stripMargin
 
-        val username = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
-        username shouldBe Some("Rackspace:jqsmith")
+        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe Some("Rackspace")
+        username shouldBe Some("Racker:jqsmith")
       }
 
       it("parses the domain/username out of a RSA User/Token request") {
@@ -317,8 +323,9 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    }
             |}""".stripMargin
 
-        val username = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
-        username shouldBe Some("Rackspace:jqsmith")
+        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        domain shouldBe Some("Rackspace")
+        username shouldBe Some("Racker:jqsmith")
       }
     }
   }

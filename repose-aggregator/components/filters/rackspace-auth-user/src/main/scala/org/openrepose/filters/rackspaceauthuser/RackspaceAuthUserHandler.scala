@@ -36,14 +36,14 @@ import scala.xml.XML
 
 class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends AbstractFilterLogicHandler with LazyLogging {
 
-  type UsernameParsingFunction = InputStream => Option[String]
+  type UsernameParsingFunction = InputStream => (Option[String], Option[String])
   val username1_1XML: UsernameParsingFunction = { is =>
     val xml = XML.load(is)
     val username = (xml \\ "credentials" \ "@username").text
     if (username.nonEmpty) {
-      Some(username)
+      (None, Some(username))
     } else {
-      None
+      (None, None)
     }
   }
   // https://www.playframework.com/documentation/2.3.x/ScalaJson
@@ -53,26 +53,31 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
     val username = (json \ "credentials" \ "username").validate[String]
     username match {
       case s: JsSuccess[String] =>
-        Some(s.get)
+        (None, Some(s.get))
       case f: JsError =>
         logger.debug(s"1.1 JSON parsing failure: ${
           JsError.toFlatJson(f)
         }")
-        None
+        (None, None)
     }
   }
+
+  def getUsername(domain: String, user: String): String = {
+    if (domain.equals("Rackspace")) {
+      "Racker:" + user
+    } else {
+      user
+    }
+  }
+
   /**
    * Many payloads to parse here, should be fun
    */
   val username2_0XML: UsernameParsingFunction = { is =>
     val xml = XML.load(is)
     val auth = xml \\ "auth"
-    val possibleDomains = List(
-      // These are actually prefixed with the "RAX-AUTH:" namespace.
-      (auth \ "domain" \ "@name").text
-      //// This is if we want to start caring about differentiating Scope'd items like MFA.
-      //, (auth \ "scope").text
-    )
+    // This is actually prefixed with the "RAX-AUTH:" namespace.
+    val domain = Option((auth \ "domain" \ "@name").text)
     val possibleUsernames = List(
       (auth \ "rsaCredentials" \ "@username").text,
       (auth \ "apiKeyCredentials" \ "@username").text,
@@ -80,33 +85,29 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
       (auth \ "@tenantId").text,
       (auth \ "@tenantName").text
     )
-    val domains = possibleDomains.filterNot(_.isEmpty)
     val usernames = possibleUsernames.filterNot(_.isEmpty)
 
     if (usernames.isEmpty) {
-      None
+      (None, None)
     } else {
-      if (domains.isEmpty) {
-        Some(usernames.head)
-      } else {
-        Some(domains.head + ":" + usernames.head)
+      domain match {
+        case Some(d) =>
+          (Some(d), Some(getUsername(d, usernames.head)))
+        case _ =>
+          (None, Some(usernames.head))
       }
     }
   }
+
   val username2_0JSON: UsernameParsingFunction = { is =>
     val json = Json.parse(Source.fromInputStream(is).getLines() mkString)
-    val possibleDomains = List(
-      (json \ "auth" \ "RAX-AUTH:domain" \ "name").validate[String]
-      //// This is if we want to start caring about differentiating Scope'd items like MFA.
-      //, (json \ "auth" \ "RAX-AUTH:scope").validate[String]
-    )
+    val possibleDomain = (json \ "auth" \ "RAX-AUTH:domain" \ "name").validate[String]
 
-    val domains = possibleDomains.map {
+    val domain = possibleDomain match {
       case s: JsSuccess[String] => Some(s.get)
       case f: JsError =>
-        logger.debug(s"2.0 JSON Parsing failure: ${JsError.toFlatJson(f)}")
         None
-    }.filterNot(_.isEmpty)
+    }
 
     val possibleUsernames = List(
       (json \ "auth" \ "RAX-AUTH:rsaCredentials" \ "username").validate[String],
@@ -127,12 +128,13 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
     // important to return than the tail. If we are empty, we didn't find anything,
     // If we've got at least one item, return just the first
     if (usernames.isEmpty) {
-      None
+      (None, None)
     } else {
-      if (domains.isEmpty) {
-        usernames.head
-      } else {
-        Some(domains.head.get + ":" + usernames.head.get)
+      domain match {
+        case Some(d) =>
+          (Some(d), Some(getUsername(d, usernames.head.get)))
+        case _ =>
+          (None, usernames.head)
       }
     }
   }
@@ -148,10 +150,15 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
       val contentType = request.getContentType
 
       //This logic is exactly the same regardless of the configuration, so lets reuse it
-      val updateHeaders: (IdentityGroupConfig, String) => Unit = { (config, username) =>
-        headerManager.appendHeader(PowerApiHeader.USER.toString, username, config.getQuality.toDouble)
-        headerManager.appendHeader(PowerApiHeader.GROUPS.toString, config.getGroup, config.getQuality.toDouble)
-        director.setFilterAction(FilterAction.PASS) //We don't want to muck with the response, just the headers
+      val updateHeaders: (IdentityGroupConfig, Option[String], Option[String]) => Unit = { (config, domainOpt, usernameOpt) =>
+        domainOpt.map { domain =>
+          headerManager.appendHeader(PowerApiHeader.DOMAIN.toString, domain)
+        }
+        usernameOpt.map { username =>
+          headerManager.appendHeader(PowerApiHeader.USER.toString, username, config.getQuality.toDouble)
+          headerManager.appendHeader(PowerApiHeader.GROUPS.toString, config.getGroup, config.getQuality.toDouble)
+          director.setFilterAction(FilterAction.PASS) //We don't want to muck with the response, just the headers
+        }
       }
 
       val inputStream = request.getInputStream()
@@ -173,13 +180,13 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
    * Build a function that takes our config, the request itself, functions to transform if given json, and if given XML
    * and then a resultant function that can take that config and the username to do the work with.
    */
-  def parseUsername(config: IdentityGroupConfig, inputStream: InputStream, contentType: String, json: UsernameParsingFunction, xml: UsernameParsingFunction)(usernameFunction: (IdentityGroupConfig, String) => Unit) = {
+  def parseUsername(config: IdentityGroupConfig, inputStream: InputStream, contentType: String, json: UsernameParsingFunction, xml: UsernameParsingFunction)(usernameFunction: (IdentityGroupConfig, Option[String], Option[String]) => Unit) = {
     val limit = BigInt(config.getContentBodyReadLimit).toLong
     //Copied this limited read stuff from the other content-identity filter...
     val limitedInputStream = new LimitedReadInputStream(limit, inputStream) //Allows me to reset?
     limitedInputStream.mark(limit.toInt)
     try {
-      val usernameOpt = if (contentType.contains("xml")) {
+      val (domainOpt, userOpt) = if (contentType.contains("xml")) {
         //It's probably xml, lets try to xpath it
         xml(limitedInputStream)
       } else {
@@ -187,9 +194,7 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
         json(limitedInputStream)
       }
 
-      usernameOpt.map { username =>
-        usernameFunction(config, username)
-      }
+      usernameFunction(config, domainOpt, userOpt)
     } catch {
       case e: Exception =>
         val identityRequestVersion = if (config.isInstanceOf[IdentityV11]) {

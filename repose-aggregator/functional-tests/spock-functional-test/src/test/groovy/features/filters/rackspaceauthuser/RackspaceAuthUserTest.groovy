@@ -71,7 +71,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         userMfaSetupJsonV20      | contentJson | "demoAuthor" | "userMfaSetupJsonV20"
     }
 
-    @Unroll("When request contains Identity 2.0 in Domain'd/Scope'd content #testName Expected user is #expectedDomain:#expectedUser")
+    @Unroll("When request contains Identity 2.0 in Domain'd content #testName Expected user is #expectedUser")
     def "when identifying requests by header with domain"() {
 
         when: "Request body contains user credentials"
@@ -82,7 +82,13 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
 
         and: "Repose will send user from Request body"
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-user").equals(expectedDomain + ":" + expectedUser + ";q=0.8")
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expectedUser + ";q=0.8")
+
+        and: "Repose will send two values for x-pp-domain"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 1
+
+        and: "Repose will send 'My Group' for x-pp-domain"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").contains(expectedDomain)
 
         and: "Repose will send a single value for x-pp-groups"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
@@ -91,13 +97,13 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-groups").equals("2_0 Group;q=0.8")
 
         where:
-        requestBody           | contentType | expectedDomain | expectedUser | testName
-        rackerPasswordXmlV20  | contentXml  | "Rackspace"    | "jqsmith"    | "rackerPasswordXmlV20"
-        rackerPasswordJsonV20 | contentJson | "Rackspace"    | "jqsmith"    | "rackerPasswordJsonV20"
-        rackerTokenKeyXmlV20  | contentXml  | "Rackspace"    | "jqsmith"    | "rackerTokenKeyXmlV20"
-        rackerTokenKeyJsonV20 | contentJson | "Rackspace"    | "jqsmith"    | "rackerTokenKeyJsonV20"
-        //userMfaSetupXmlV20  | contentXml  | "SETUP-MFA"    | "demoAuthor" | "userMfaSetupXmlV20"
-        //userMfaSetupJsonV20 | contentJson | "SETUP-MFA"    | "demoAuthor" | "userMfaSetupJsonV20"
+        requestBody              | contentType | expectedDomain | expectedUser     | testName
+        rackerPasswordXmlV20     | contentXml  | "Rackspace"    | "Racker:jqsmith" | "rackerPasswordXmlV20"
+        rackerPasswordJsonV20    | contentJson | "Rackspace"    | "Racker:jqsmith" | "rackerPasswordJsonV20"
+        rackerTokenKeyXmlV20     | contentXml  | "Rackspace"    | "Racker:jqsmith" | "rackerTokenKeyXmlV20"
+        rackerTokenKeyJsonV20    | contentJson | "Rackspace"    | "Racker:jqsmith" | "rackerTokenKeyJsonV20"
+        federatedPasswordXmlV20  | contentXml  | "Federated"    | "jqsmith"        | "federatedTokenKeyXmlV20"
+        federatedPasswordJsonV20 | contentJson | "Federated"    | "jqsmith"        | "federatedTokenKeyJsonV20"
     }
 
     @Unroll("When bad requests pass through repose #testName")
@@ -114,10 +120,10 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
 
         where:
-        requestBody             | contentType | testName
-        invalidData             | contentXml  | "invalidData XML"
-        invalidData             | contentJson | "invalidData JSON"
-        userPasswordXmlOverV20  | contentXml  | "userPasswordXmlOverV20"
+        requestBody            | contentType | testName
+        invalidData            | contentXml  | "invalidData XML"
+        invalidData            | contentJson | "invalidData JSON"
+        userPasswordXmlOverV20 | contentXml  | "userPasswordXmlOverV20"
         // TODO: We evidently don't care about the length in JSON
         //userPasswordJsonOverV20 | contentJson | "userPasswordJsonOverV20"
     }
