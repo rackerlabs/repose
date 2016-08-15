@@ -91,7 +91,7 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
       (None, None)
     } else {
       domain match {
-        case Some(d) =>
+        case Some(d) if d.nonEmpty =>
           (Some(d), Some(getUsername(d, usernames.head)))
         case _ =>
           (None, Some(usernames.head))
