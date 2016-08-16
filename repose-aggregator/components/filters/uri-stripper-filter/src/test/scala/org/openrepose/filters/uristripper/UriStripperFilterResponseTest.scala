@@ -30,15 +30,14 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
-import org.openrepose.filters.uristripper.config.UriStripperConfig
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import play.api.libs.json.Json
+
 import scala.xml.XML
 
 @RunWith(classOf[JUnitRunner])
@@ -59,21 +58,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
     describe("json") {
       it("should not alter the body if the uri does not match the configured regex") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex="/v1/[^/]+/bar">
-              |        <response>
-              |            <json>$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex="/v1/[^/]+/bar">
+            |        <response>
+            |            <json>$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/bar"
-             |}
+          """{
+            |  "link": "http://example.com/v1/bar"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -87,21 +85,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the method does not match the configured method") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*" http-methods="POST">
-              |        <response>
-              |            <json>$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*" http-methods="POST">
+            |        <response>
+            |            <json>$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/foo"
-             |}
+          """{
+            |  "link": "http://example.com/v1/foo"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -116,19 +113,18 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the content-type is not supported") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json>$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json>$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |The link is http://example.com/v1/foo
+          """The link is http://example.com/v1/foo
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -142,21 +138,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should update a link by replacing the stripped token after the previous token from the request URI") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json>$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json>$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/bar"
-             |}
+          """{
+            |  "link": "http://example.com/v1/bar"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -170,21 +165,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should update a link by replacing the stripped token before the next token from the request URI") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json>$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json>$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v2/foo"
-             |}
+          """{
+            |  "link": "http://example.com/v2/foo"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -198,21 +192,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should update a link by replacing the stripped token at the configured index") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json token-index="2">$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json token-index="2">$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/bar"
-             |}
+          """{
+            |  "link": "http://example.com/v1/bar"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -226,21 +219,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the link cannot be located (continue)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json link-mismatch-action="continue">$$.dne</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json link-mismatch-action="continue">$.dne</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/foo"
-             |}
+          """{
+            |  "link": "http://example.com/v1/foo"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -254,21 +246,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the link's token index is out of bounds (continue)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json link-mismatch-action="continue" token-index="5">$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json link-mismatch-action="continue" token-index="5">$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/foo"
-             |}
+          """{
+            |  "link": "http://example.com/v1/foo"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -282,21 +273,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the stripped path segment cannot be re-inserted in the link (continue)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json link-mismatch-action="continue">$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json link-mismatch-action="continue">$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v2/bar"
-             |}
+          """{
+            |  "link": "http://example.com/v2/bar"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -310,21 +300,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the link cannot be located (remove)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json link-mismatch-action="remove">$$.dne</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json link-mismatch-action="remove">$.dne</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/foo"
-             |}
+          """{
+            |  "link": "http://example.com/v1/foo"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -338,21 +327,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should remove the field if the token index is out of bounds (remove)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json link-mismatch-action="remove" token-index="5">$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json link-mismatch-action="remove" token-index="5">$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/foo"
-             |}
+          """{
+            |  "link": "http://example.com/v1/foo"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -366,21 +354,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should remove the field if the stripped path segment cannot be re-inserted in the link (remove)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json link-mismatch-action="remove">$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json link-mismatch-action="remove">$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v2/bar"
-             |}
+          """{
+            |  "link": "http://example.com/v2/bar"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -394,21 +381,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should fail if the link cannot be located (fail)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json link-mismatch-action="fail">$$.dne</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json link-mismatch-action="fail">$.dne</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/foo"
-             |}
+          """{
+            |  "link": "http://example.com/v1/foo"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -423,21 +409,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should fail if the link's token index is out of bounds (fail)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json link-mismatch-action="fail" token-index="5">$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json link-mismatch-action="fail" token-index="5">$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/foo"
-             |}
+          """{
+            |  "link": "http://example.com/v1/foo"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -452,21 +437,20 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should fail if the stripped path segment cannot be re-inserted in the link (fail)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <json link-mismatch-action="fail">$$.link</json>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <json link-mismatch-action="fail">$.link</json>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
           """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v2/bar"
-             |}
+          """{
+            |  "link": "http://example.com/v2/bar"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
@@ -483,22 +467,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
     describe("xml") {
       it("should not alter the body if the uri does not match the configured regex") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex="/v1/[^/]+/bar">
-              |        <response>
-              |            <xml>
-              |                <xpath>/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex="/v1/[^/]+/bar">
+            |        <response>
+            |            <xml>
+            |                <xpath>/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v1/bar</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/bar</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -511,22 +495,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the method does not match the configured method") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*" http-methods="POST">
-              |        <response>
-              |            <xml>
-              |                <xpath>/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*" http-methods="POST">
+            |        <response>
+            |            <xml>
+            |                <xpath>/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v1/foo</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/foo</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setMethod("GET")
@@ -540,22 +524,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the content-type is not supported") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath>/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath>/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""
-              |The link is http://example.com/v1/foo
-           """.stripMargin
+          """
+            |The link is http://example.com/v1/foo
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -568,22 +552,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should update a link by replacing the stripped token after the previous token from the request URI") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath>/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath>/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v1/bar</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/bar</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -596,22 +580,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should update a link by replacing the stripped token before the next token from the request URI") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath>/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath>/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v2/foo</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v2/foo</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -624,22 +608,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should update a link by replacing the stripped token at the configured index") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath token-index="2">/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath token-index="2">/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v1/bar</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/bar</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -652,22 +636,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the link cannot be located (continue)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath link-mismatch-action="continue">/dne</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath link-mismatch-action="continue">/dne</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v1/foo</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/foo</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -680,22 +664,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the link's token index is out of bounds (continue)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath link-mismatch-action="continue" token-index="5">/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath link-mismatch-action="continue" token-index="5">/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<link>http://example.com/v1/foo</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/foo</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -708,22 +692,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the stripped path segment cannot be re-inserted in the link (continue)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath link-mismatch-action="continue">/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath link-mismatch-action="continue">/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v2/bar</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v2/bar</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -736,22 +720,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not alter the body if the link cannot be located (remove)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath link-mismatch-action="remove">/dne</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath link-mismatch-action="remove">/dne</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v1/foo</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/foo</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -764,22 +748,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should remove the field if the token index is out of bounds (remove)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath link-mismatch-action="remove" token-index="5">/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath link-mismatch-action="remove" token-index="5">/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v1/foo</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/foo</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -792,22 +776,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should remove the field if the stripped path segment cannot be re-inserted in the link (remove)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath link-mismatch-action="remove">/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath link-mismatch-action="remove">/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v2/bar</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v2/bar</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -820,22 +804,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should fail if the link cannot be located (fail)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath link-mismatch-action="fail">/dne</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath link-mismatch-action="fail">/dne</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<link>http://example.com/v1/foo</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/foo</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -849,22 +833,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should fail if the link's token index is out of bounds (fail)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath link-mismatch-action="fail" token-index="5">/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath link-mismatch-action="fail" token-index="5">/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v1/foo</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v1/foo</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -878,22 +862,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should fail if the stripped path segment cannot be re-inserted in the link (fail)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath link-mismatch-action="fail">/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-         """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath link-mismatch-action="fail">/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<link>http://example.com/v2/bar</link>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<link>http://example.com/v2/bar</link>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -907,25 +891,25 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should fail if the namespaces used in the response are not specified in the config (fail)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <namespace name="foo" url="bar"/>
-              |                <xpath link-mismatch-action="fail">/service/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-         """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <namespace name="foo" url="bar"/>
+            |                <xpath link-mismatch-action="fail">/service/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-             |<badnamespace:service xmlns:badnamespace="bar">
-             |  <badnamespace:link>http://example.com/v1/foo</badnamespace:link>
-             |</badnamespace:service>
-            """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<badnamespace:service xmlns:badnamespace="bar">
+            |  <badnamespace:link>http://example.com/v1/foo</badnamespace:link>
+            |</badnamespace:service>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -939,25 +923,25 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should pass if the namespaces used in the response are specified in the config") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <namespace name="foo" url="bar"/>
-              |                <xpath>/root/foo:service/foo:link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-         """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <namespace name="foo" url="bar"/>
+            |                <xpath>/root/foo:service/foo:link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?><root xmlns:foo="bar">
-             |  <foo:service>
-             |    <foo:link>http://example.com/v1/foo</foo:link>
-             |  </foo:service>
-             |</root>""".stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?><root xmlns:foo="bar">
+            |  <foo:service>
+            |    <foo:link>http://example.com/v1/foo</foo:link>
+            |  </foo:service>
+            |</root>""".stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -970,28 +954,28 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should update multiple links given multiple xpaths") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath>/root/link</xpath>
-              |            </xml>
-              |            <xml>
-              |                <xpath>/root/linktwo</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath>/root/link</xpath>
+            |            </xml>
+            |            <xml>
+            |                <xpath>/root/linktwo</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<root>
-              | <link>http://example.com/v1/foo</link>
-              | <linktwo>http://example.com/v1/foo</linktwo>
-              |</root>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<root>
+            | <link>http://example.com/v1/foo</link>
+            | <linktwo>http://example.com/v1/foo</linktwo>
+            |</root>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -1005,31 +989,31 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should update multiple links given multiple xpaths with independant failure behaviors (continue, remove)") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath>/root/link</xpath>
-              |            </xml>
-              |            <xml>
-              |                <xpath link-mismatch-action="remove" token-index="5">/root/linknumerodos</xpath>
-              |            </xml>
-              |            <xml>
-              |                <xpath link-mismatch-action="continue">/dne</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath>/root/link</xpath>
+            |            </xml>
+            |            <xml>
+            |                <xpath link-mismatch-action="remove" token-index="5">/root/linknumerodos</xpath>
+            |            </xml>
+            |            <xml>
+            |                <xpath link-mismatch-action="continue">/dne</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<root>
-              |  <link>http://example.com/v1/foo</link>
-              |  <linknumerodos>http://example.com/v1/foo</linknumerodos>
-              |</root>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<root>
+            |  <link>http://example.com/v1/foo</link>
+            |  <linknumerodos>http://example.com/v1/foo</linknumerodos>
+            |</root>
+          """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
         request.setRequestURI("/v1/12345/foo")
@@ -1043,23 +1027,22 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
       it("should not change the response if the application type is not xml") {
         val config =
-          s"""<?xml version="1.0" encoding="UTF-8"?>
-              |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
-              |    <link-resource uri-path-regex=".*">
-              |        <response>
-              |            <xml>
-              |                <xpath>/root/link</xpath>
-              |            </xml>
-              |        </response>
-              |    </link-resource>
-              |</uri-stripper>
-           """.stripMargin
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <response>
+            |            <xml>
+            |                <xpath>/root/link</xpath>
+            |            </xml>
+            |        </response>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
 
         val respBody =
-          s"""
-             |{
-             |  "link": "http://example.com/v1/foo"
-             |}
+          """{
+            |  "link": "http://example.com/v1/foo"
+            |}
           """.stripMargin
 
         filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))

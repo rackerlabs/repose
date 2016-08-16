@@ -20,9 +20,7 @@
 
 package org.openrepose.filters.uristripper
 
-import java.io.ByteArrayInputStream
 import javax.servlet.FilterChain
-import javax.servlet.http.HttpServletResponse
 
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -31,18 +29,16 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.filters.uristripper.config.UriStripperConfig
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
-import play.api.libs.json.Json
-import scala.xml.XML
 
 @RunWith(classOf[JUnitRunner])
 class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
+
   import UriStripperFilterTest._
 
   var filter: UriStripperFilter = _
@@ -59,6 +55,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
   describe("URI stripping") {
     List(
+      // @formatter:off
       ("/v1/12345/woot/butts" , 1 , "/v1/woot/butts"),
       ("/path/to/your/mom"    , 3 , "/path/to/your" ),
       ("/lol/butts"           , 0 , "/butts"        ),
@@ -68,6 +65,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       ("/"                    , 1 , "/"             ),
       ("/v2"                  , 0 , "/"             ),
       ("/v2"                  , 1 , "/v2"           )
+      // @formatter:on
     ) foreach { case (resourcePath, index, strippedPath) =>
       it(s"properly strips the URI $resourcePath with configured index $index to $strippedPath") {
         filter.configurationUpdated(createConfig(index = index))
@@ -82,6 +80,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 
   describe("location header") {
     List(
+      // @formatter:off
       ("/v1/12345/some/resource"    , 1 , "http://example.com/v1/some/resource"            , "http://example.com/v1/12345/some/resource"           ), // before token
       ("/your/mom/is/a/classy/lady" , 3 , "http://example.com/your/mom/is/classy/lady"     , "http://example.com/your/mom/is/a/classy/lady"        ), // before token
       ("/product/123/item/123"      , 1 , "http://example.com/product/item/123"            , "http://example.com/product/123/item/123"             ), // before token
@@ -93,6 +92,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       ("/r789/status"               , 0 , "http://service.com/server/status"               , "http://service.com/server/r789/status"               ), // after token, first index
       ("/v1/datastores/d913/delete" , 2 , "http://service.com/unrelated/url/lol"           , "http://service.com/unrelated/url/lol"                ), // no token in Location header
       ("/v1/servers"                , 2 , "http://service.com/server/all"                  , "http://service.com/server/all"                       )  // no token at all
+      // @formatter:on
     ) foreach { case (resourcePath, index, originalLocation, newLocation) =>
       it(s"properly updates Location header $originalLocation to $newLocation for URI $resourcePath with index $index") {
         filter.configurationUpdated(createConfig(index = index, rewriteLocationHeader = true))
@@ -148,5 +148,7 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
 }
 
 object UriStripperFilterTest {
+
   case class SimpleHeader(name: String, value: String)
+
 }
