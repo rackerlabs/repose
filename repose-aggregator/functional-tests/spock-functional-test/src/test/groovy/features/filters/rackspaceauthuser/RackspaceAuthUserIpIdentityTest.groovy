@@ -84,10 +84,10 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
         and: "Repose will send user from Request body"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expectedUser + ";q=0.8")
 
-        and: "Repose will send two values for x-pp-domain"
+        and: "Repose will send two values for x-domain"
         ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 1
 
-        and: "Repose will send 'My Group' for x-pp-domain"
+        and: "Repose will send 'My Group' for x-domain"
         ((Handling) sentRequest).request.getHeaders().findAll("x-domain").contains(expectedDomain)
 
         and: "Repose will send two values for x-pp-groups"
