@@ -46,6 +46,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private val delegatingWithQuality = Option(identityConfig.getDelegating).map(_.getQuality)
   private val projectIdUriRegex = Option(identityConfig.getValidateProjectIdInUri).map(_.getRegex.r)
   private val projectIdPrefixes = Try(identityConfig.getValidateProjectIdInUri.getStripTokenProjectPrefixes.split('/')).getOrElse(Array.empty[String])
+  private val preAuthorizedRoles = Option(identityConfig.getPreAuthorizedRoles).map(_.getRole.asScala.toList)
   private val bypassProjectIdCheckRoles = Option(identityConfig.getRolesWhichBypassProjectIdCheck).map(_.getRole.asScala.toList)
   private val configuredServiceEndpoint = Option(identityConfig.getServiceEndpoint) map { serviceEndpoint =>
     Endpoint(
@@ -127,22 +128,26 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           None
       }
 
-      // Attempt to check the project ID if configured to do so
-      if (!failureInValidation && !isProjectIdValid(request.getRequestURI, token.get)) {
-        failureInValidation = true
-        delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, "Invalid project ID for token: " + token.get) {
-          response.setHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
-          filterAction = FilterAction.RETURN
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
-        }
-      }
+      // Check to see if the user has a role configured to bypass Project ID check
+      if (!failureInValidation && !isUserPreAuthed(token.get)) {
 
-      // Attempt to authorize the token against a configured endpoint
-      if (!failureInValidation && !isAuthorized(token.get)) {
-        failureInValidation = true
-        delegateOrElse(HttpServletResponse.SC_FORBIDDEN, "Invalid endpoints for token: " + token.get) {
-          filterAction = FilterAction.RETURN
-          response.setStatus(HttpServletResponse.SC_FORBIDDEN)
+        // Attempt to check the project ID if configured to do so
+        if (!failureInValidation && !isProjectIdValid(request.getRequestURI, token.get)) {
+          failureInValidation = true
+          delegateOrElse(HttpServletResponse.SC_UNAUTHORIZED, "Invalid project ID for token: " + token.get) {
+            response.setHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
+            filterAction = FilterAction.RETURN
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
+          }
+        }
+
+        // Attempt to authorize the token against a configured endpoint
+        if (!failureInValidation && !isAuthorized(token.get)) {
+          failureInValidation = true
+          delegateOrElse(HttpServletResponse.SC_FORBIDDEN, "Invalid endpoints for token: " + token.get) {
+            filterAction = FilterAction.RETURN
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN)
+          }
         }
       }
 
@@ -312,31 +317,26 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private def isProjectIdValid(requestUri: String, token: ValidToken): Boolean = {
     projectIdUriRegex match {
       case Some(regex) =>
-        // Check whether or not this user should bypass project ID validation
-        val userRoles = token.roles.map(_.name)
-        val bypassProjectIdCheck = hasIgnoreEnabledRole(bypassProjectIdCheckRoles.getOrElse(List.empty[String]), userRoles)
+        // Extract the project ID from the URI
+        val extractedProjectId = extractProjectIdFromUri(regex, requestUri)
 
-        if (bypassProjectIdCheck) {
-          true
-        } else {
-          // Extract the project ID from the URI
-          val extractedProjectId = extractProjectIdFromUri(regex, requestUri)
+        // Bind the default project ID, if available
+        val defaultProjectId = token.projectId
 
-          // Bind the default project ID, if available
-          val defaultProjectId = token.projectId
-
-          // Attempt to match the extracted project ID against the project IDs in the token
-          extractedProjectId match {
-            case Some(projectId) => projectMatches(projectId, defaultProjectId, token.roles)
-            case None => false
-          }
+        // Attempt to match the extracted project ID against the project IDs in the token
+        extractedProjectId match {
+          case Some(projectId) => projectMatches(projectId, defaultProjectId, token.roles)
+          case None => false
         }
       case None => true
     }
   }
 
-  private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[String]): Boolean =
-    userRoles.exists(userRole => ignoreProjectRoles.exists(ignoreRole => ignoreRole.equals(userRole)))
+  private def isUserPreAuthed(token: ValidToken): Boolean = {
+    val userRoles = token.roles.map(_.name).toSet
+    val ignoreProjectRoles = preAuthorizedRoles.getOrElse(bypassProjectIdCheckRoles.getOrElse(List.empty[String])).toSet
+    (userRoles intersect ignoreProjectRoles).nonEmpty
+  }
 
   private def projectMatches(projectFromUri: String, defaultProjectId: Option[String], roles: List[Role]): Boolean = {
     val allProjectIds = defaultProjectId.toSet ++

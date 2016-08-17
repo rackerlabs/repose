@@ -22,6 +22,9 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
            elementFormDefault="qualified">
@@ -43,16 +46,25 @@
             <xs:element name="openstack-identity-service" type="OpenstackIdentityService" minOccurs="1" maxOccurs="1"/>
             <xs:element name="service-endpoint" type="ServiceEndpoint" minOccurs="0" maxOccurs="1"/>
             <xs:element name="validate-project-id-in-uri" type="ValidateProjectID" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="roles-which-bypass-project-id-check" type="IgnoreProjectIDRoles" minOccurs="0"
-                        maxOccurs="1"/>
+            <xs:element name="roles-which-bypass-project-id-check" type="PreAuthRolesList" minOccurs="0"
+                        maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Deprecated: This attribute is deprecated. Use pre-authorized-roles instead.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="pre-authorized-roles" type="PreAuthRolesList" minOccurs="0" maxOccurs="1"/>
             <xs:element name="cache" type="CacheType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="send-project-id-quality" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
                             If set to false, x-project-id headers are not sent with qualities.
-                            If set to true, the default x-project-id will be given the highest quality, and qualities will
-                            be attached to every x-project-id header.
+                            If set to true, the default x-project-id will be given the highest quality, and qualities
+                            will be attached to every x-project-id header.
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
@@ -133,6 +145,13 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(pre-authorized-roles and roles-which-bypass-project-id-check)"
+                   xerces:message="Cannot define the deprecated roles-which-bypass-project-id-check and pre-authorized-roles"
+                   saxon:message="Cannot define the deprecated roles-which-bypass-project-id-check and pre-authorized-roles"
+        />
     </xs:complexType>
 
     <xs:complexType name="WhiteList">
@@ -277,12 +296,12 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="IgnoreProjectIDRoles">
+    <xs:complexType name="PreAuthRolesList">
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    A list of roles to bypass the project id check.
-                    Users with any of the roles specified will not be required to have a project id.
+                    A list of roles that bypass the project id and endpoint checks.
+                    Users with any of the roles specified will be considered pre-authorized.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
