@@ -80,7 +80,6 @@ class IdentityV3AuthZBypassTest extends ReposeValveTest {
                 url: "$reposeEndpoint/servers/$requestProject/",
                 method: 'GET',
                 headers: [
-                        'content-type'   : 'application/json',
                         'X-Subject-Token': fakeIdentityV3Service.client_token
                 ]
         )
