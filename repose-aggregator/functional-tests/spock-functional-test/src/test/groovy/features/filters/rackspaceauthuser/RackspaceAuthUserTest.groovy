@@ -87,7 +87,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         and: "Repose will send two values for x-domain"
         ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 1
 
-        and: "Repose will send 'My Group' for x-domain"
+        and: "Repose will send #expectedDomain x-domain"
         ((Handling) sentRequest).request.getHeaders().findAll("x-domain").contains(expectedDomain)
 
         and: "Repose will send a single value for x-pp-groups"
