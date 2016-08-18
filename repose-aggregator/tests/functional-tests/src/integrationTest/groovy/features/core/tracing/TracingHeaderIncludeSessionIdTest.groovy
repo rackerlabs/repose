@@ -347,4 +347,33 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         reposeLogSearch.searchByString(Pattern.quote("Trans-Id:$tracingHeader"))
         reposeLogSearch.searchByString(Pattern.quote(tracingHeader))
     }
+
+    def 'Parse externally provided X-Trans-Id header and do not add the request id header'() {
+        given:
+        fakeIdentityService.with {
+            client_tenantid = 1212
+            client_userid = 1212
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        def tracingId = UUID.randomUUID().toString()
+        def sessionId = UUID.randomUUID().toString()
+        def jsonTracingHeader = JsonOutput.toJson([sessionId: sessionId, requestId: tracingId, user: 'a', domain: 'b'])
+        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
+        def headers = [
+                'content-type'                          : 'application/json',
+                'X-Auth-Token'                          : fakeIdentityService.client_token,
+                (CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
+
+        when: 'User passes a request through repose'
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/1212",
+                method: 'GET',
+                headers: headers)
+
+        then: 'Make sure the request and response contain a new X-Trans-Id header'
+        mc.receivedResponse.code == '200'
+        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.REQUEST_ID.toString()) == null
+    }
 }

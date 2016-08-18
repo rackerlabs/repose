@@ -32,6 +32,7 @@ public enum CommonHttpHeader implements HeaderConstant {
 
     //Tracing
     TRACE_GUID("X-Trans-Id"),
+    REQUEST_ID("X-Request-Id"),
 
     //Standards
     HOST("Host"),
