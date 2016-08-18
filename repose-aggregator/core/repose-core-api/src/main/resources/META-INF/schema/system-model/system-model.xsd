@@ -138,6 +138,16 @@
 
         <xs:attribute name="enabled" type="xs:boolean" use="optional" default="true"/>
         <xs:attribute name="rewrite-header" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="secondary-plain-text" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Determines whether or not you'd like the uuid contained within the tracing header to be written
+                        out in plain text in the additional header x-request-id.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="NodeList">
