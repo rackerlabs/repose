@@ -78,6 +78,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.openrepose.commons.utils.http.CommonHttpHeader.REQUEST_ID;
+
 /**
  * This class implements the Filter API and is managed by the servlet container.  This filter then loads
  * and runs the FilterChain which contains the individual filter instances listed in the system-model.cfg.xml.
@@ -397,6 +399,11 @@ public class PowerFilter extends DelegatingFilterProxy {
                     if (StringUtilities.isBlank(wrappedRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString()))) {
                         wrappedRequest.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
                                 TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(CommonHttpHeader.VIA.toString())));
+                    }
+                    if ((currentSystemModel.get().getTracingHeader() != null) &&
+                            currentSystemModel.get().getTracingHeader().isSecondaryPlainText()) {
+                        LOG.trace("Adding plain text trans id to request: {}", traceGUID);
+                        wrappedRequest.replaceHeader(REQUEST_ID.toString(), traceGUID);
                     }
                     String tracingHeader = wrappedRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString());
                     LOG.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader));
