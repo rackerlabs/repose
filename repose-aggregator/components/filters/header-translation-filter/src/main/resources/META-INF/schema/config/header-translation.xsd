@@ -110,6 +110,16 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="overwrite-target" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sets whether or not you'd like this translation to replace any existing values
+                        in the new location.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
     </xs:complexType>
 
