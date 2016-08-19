@@ -369,4 +369,23 @@ class HeaderTranslationTest extends ReposeValveTest {
         //"content-type" | "application/xMl"
         //"Content-Type" | "APPLICATION/xml"
     }
+
+    def "Headers should be overwritten as appropriate"() {
+        given:
+        def headers = [ "x-overwrite"     : "banana",
+                        "x-new-overwrite" : "phone",
+                        "x-add"           : "banana",
+                        "x-new-add"       : "phone"]
+
+        when: "make a request with the headers"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
+        def addHeader = mc.handlings[0].request.headers.findAll("x-new-add")
+        def overwriteHeader = mc.handlings[0].request.headers.findAll("x-new-overwrite")
+
+        then: "the received request should have the appropriate values"
+        overwriteHeader.size() == 1
+        overwriteHeader[0] == "banana"
+        addHeader.size() == 2
+        addHeader.containsAll(["banana", "phone"])
+    }
 }
