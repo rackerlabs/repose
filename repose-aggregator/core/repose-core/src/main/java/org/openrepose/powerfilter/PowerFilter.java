@@ -334,7 +334,10 @@ public class PowerFilter extends DelegatingFilterProxy {
                 //Update the JMX bean with our status
                 configurationInformation.updateNodeStatus(clusterId, nodeId, false);
             } else {
-                requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService);
+                requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService,
+                        Optional.ofNullable(currentSystemModel.get().getReposeCluster().stream()
+                                .filter(cluster -> cluster.getId().equals(clusterId)).findFirst()
+                                .get().getFilters()).map(FilterList::getBypassUriRegex));
             }
         } catch (PowerFilterChainException ex) {
             LOG.warn("{}:{} -- Error creating filter chain", clusterId, nodeId, ex);
