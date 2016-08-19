@@ -218,6 +218,16 @@
         <xs:sequence>
             <xs:element name="filter" type="mod:Filter" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="bypass-uri-regex" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A regex that will be used to determine what requests will bypass the filter chain.
+                        Useful for doing health checks on the underlying origin service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:filter/@id)) = count(mod:filter/@id)"
                    xerces:message="Filters must have ids unique within their containing filter list"
                    saxon:message="Filters must have ids unique within their containing filter list">
