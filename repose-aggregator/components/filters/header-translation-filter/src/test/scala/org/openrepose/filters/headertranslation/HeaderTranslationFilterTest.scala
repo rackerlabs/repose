@@ -100,6 +100,11 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfterEach with M
     headerEight.setQuality(0.82)
     headerEight.setSplittable(false)
 
+    val headerNine = new Header
+    headerNine.setOriginalName("X-Nine")
+    headerNine.getNewName.add("X-New-Nine")
+    headerNine.setOverwriteTarget(true)
+
     config.getHeader.add(headerOne)
     config.getHeader.add(headerTwo)
     config.getHeader.add(headerThree)
@@ -108,6 +113,7 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfterEach with M
     config.getHeader.add(headerSix)
     config.getHeader.add(headerSeven)
     config.getHeader.add(headerEight)
+    config.getHeader.add(headerNine)
 
     filter.configurationUpdated(config)
   }
@@ -274,6 +280,18 @@ class HeaderTranslationFilterTest extends FunSpec with BeforeAndAfterEach with M
       filter.doFilter(mockRequest, null, mockFilterChain)
 
       getCapturedRequest.getHeaders("X-New-Seven-One").toSeq should contain theSameElementsAs Seq("mustard;q=0.71", "mayo;q=0.71", "cheese;q=0.71")
+    }
+  }
+
+  describe("when configured to overwrite the target") {
+    it("correctly overwrites the target header") {
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.addHeader("X-Nine", "banana")
+      mockRequest.addHeader("X-New-Nine", "phone")
+
+      filter.doFilter(mockRequest, null, mockFilterChain)
+
+      getCapturedRequest.getHeaders("X-New-Nine").toSeq should contain theSameElementsAs Seq("banana")
     }
   }
 
