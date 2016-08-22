@@ -29,6 +29,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+import java.nio.charset.Charset
 import java.util.regex.Pattern
 
 /**
@@ -360,7 +361,7 @@ class TracingHeaderIncludeSessionIdTest extends ReposeValveTest {
         def tracingId = UUID.randomUUID().toString()
         def sessionId = UUID.randomUUID().toString()
         def jsonTracingHeader = JsonOutput.toJson([sessionId: sessionId, requestId: tracingId, user: 'a', domain: 'b'])
-        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
+        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.getBytes(Charset.forName("UTF-8")))
         def headers = [
                 'content-type'                          : 'application/json',
                 'X-Auth-Token'                          : fakeIdentityService.client_token,

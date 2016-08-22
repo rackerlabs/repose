@@ -26,6 +26,8 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+import java.nio.charset.Charset
+
 /**
  * Created by adrian on 8/18/16.
  */
@@ -52,7 +54,7 @@ class TracingHeaderPlainTextTest extends ReposeValveTest {
         def tracingId = UUID.randomUUID().toString()
         def sessionId = UUID.randomUUID().toString()
         def jsonTracingHeader = JsonOutput.toJson([sessionId: sessionId, requestId: tracingId, user: 'a', domain: 'b'])
-        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
+        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.getBytes(Charset.forName("UTF-8")))
         def headers = [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
 
         when: 'User passes a request through repose'
@@ -72,7 +74,7 @@ class TracingHeaderPlainTextTest extends ReposeValveTest {
         def tracingId = UUID.randomUUID().toString()
         def sessionId = UUID.randomUUID().toString()
         def jsonTracingHeader = JsonOutput.toJson([sessionId: sessionId, requestId: tracingId, user: 'a', domain: 'b'])
-        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.bytes)
+        def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.getBytes(Charset.forName("UTF-8")))
         def headers = [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeader,
                        (CommonHttpHeader.REQUEST_ID.toString()): "bob"]
 
