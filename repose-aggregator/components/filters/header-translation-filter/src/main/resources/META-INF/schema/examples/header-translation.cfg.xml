@@ -3,7 +3,7 @@
                     xsi:schemaLocation="http://docs.openrepose.org/repose/header-translation/v1.0 ../config/header-translation.xsd"
                     xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
 
-    <header original-name="Content-Type" new-name="rax-content-type"/>
+    <header original-name="Content-Type" new-name="rax-content-type" overwrite-target="true"/>
     <header original-name="Content-Length" new-name="rax-content-length not-rax-content-length something-else"
             remove-original="true"/>
 

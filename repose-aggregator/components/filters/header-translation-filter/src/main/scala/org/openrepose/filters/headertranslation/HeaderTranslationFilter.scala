@@ -74,10 +74,19 @@ class HeaderTranslationFilter @Inject()(configurationService: ConfigurationServi
         if (originalHeaderValues.nonEmpty) {
           sourceHeader.getNewName foreach { newHeaderName =>
             originalHeaderValues foreach { originalHeaderValue =>
-              if (quality.isEmpty) {
-                httpRequest.addHeader(newHeaderName, originalHeaderValue)
+              def writeHeaders(writeWithoutQuality: (String, String) => Unit,
+                               writeWithQuality: (String, String, Double) => Unit): Unit = {
+                if (quality.isEmpty) {
+                  writeWithoutQuality(newHeaderName, originalHeaderValue)
+                } else {
+                  writeWithQuality(newHeaderName, withoutQuality(originalHeaderValue), quality.get)
+                }
+              }
+
+              if (sourceHeader.isOverwriteTarget) {
+                writeHeaders(httpRequest.replaceHeader, httpRequest.replaceHeader)
               } else {
-                httpRequest.addHeader(newHeaderName, withoutQuality(originalHeaderValue), quality.get)
+                writeHeaders(httpRequest.addHeader, httpRequest.addHeader)
               }
             }
             logger.trace("Header added: {}", newHeaderName)
