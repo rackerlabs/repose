@@ -9,7 +9,7 @@
             <!-- node id="node2" hostname="other-host" http-port="8088"/--> <!-- other hosts are not started, only commmunicated with -->
         </nodes>
 
-        <filters>
+        <filters bypass-uri-regex="/healthcheck">
             <filter name="client-auth" uri-regex=".*/servers/([-|\w]+)/?.*"/>
             <!--filter name="api-validator" /-->
         </filters>

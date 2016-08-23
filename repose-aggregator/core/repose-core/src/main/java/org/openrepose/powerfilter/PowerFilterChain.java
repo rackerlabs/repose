@@ -49,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE;
 import static org.openrepose.commons.utils.servlet.http.ResponseMode.PASSTHROUGH;
@@ -78,16 +79,19 @@ public class PowerFilterChain implements FilterChain {
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
     private TimerByCategory filterTimer;
+    private Optional<String> bypassUrl;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy,
                             FilterChain containerFilterChain,
                             PowerFilterRouter router,
-                            MetricsService metricsService)
+                            MetricsService metricsService,
+                            Optional<String> bypassUrl)
             throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.router = router;
+        this.bypassUrl = bypassUrl;
         if (metricsService != null) {
             filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
                     TimeUnit.MILLISECONDS);
@@ -143,9 +147,13 @@ public class PowerFilterChain implements FilterChain {
      */
     private List<FilterContext> getFilterChainForRequest(String uri) {
         List<FilterContext> filters = new LinkedList<>();
-        for (FilterContext filter : filterChainCopy) {
-            if (filter.getUriPattern() == null || filter.getUriPattern().matcher(uri).matches()) {
-                filters.add(filter);
+        if (bypassUrl.map(url -> Pattern.compile(url).matcher(uri).matches()).orElse(false)) {
+            LOG.debug("URI: {} matched bypass criteria using empty filter chain", uri);
+        } else {
+            for (FilterContext filter : filterChainCopy) {
+                if (filter.getUriPattern() == null || filter.getUriPattern().matcher(uri).matches()) {
+                    filters.add(filter);
+                }
             }
         }
 
