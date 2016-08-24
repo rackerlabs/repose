@@ -1,19 +1,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-require 'getoptlong'
 
-opts = GetoptLong.new(
-    [ '--repose-version', GetoptLong::OPTIONAL_ARGUMENT ]
-)
-
+# TODO: Make this a CLI option somehow.
 reposeVersion=''
-
-opts.each do |opt, arg|
-  case opt
-    when '--repose-version'
-      reposeVersion=arg
-  end
-end
+#reposeVersion='local'
+#reposeVersion='7.3.7.0'
 
 $update_yum = <<SCRIPT
 echo "-------------------------------------------------------------------------------------------------------------------"
@@ -24,6 +15,28 @@ echo "--------------------------------------------------------------------------
 yum update -y --quiet
 SCRIPT
 
+$install_old_repose_dependencies = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Repose package dependencies (old Daemonize)"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+# install potentially missing packages needed to install Repose
+yum install -y --quiet git ruby-devel gcc make rpm-build
+# get the daemonize source and build it.
+git clone https://github.com/bmc/daemonize.git
+cd daemonize
+sh configure
+make
+make install
+cd /usr/sbin/
+ln -s ../local/sbin/daemonize
+
+# install a fake daemonize package to make older Repose versions happy.
+gem install fpm
+/usr/local/bin/fpm -s empty -t rpm -n daemonize -v 0.0.0 --iteration 0 --architecture noarch
+rpm --install --ignorearch daemonize-0.0.0-0.noarch.rpm
+SCRIPT
+
 $install_repose_dependencies = <<SCRIPT
 echo "-------------------------------------------------------------------------------------------------------------------"
 echo "Installing Repose package dependencies"
@@ -31,9 +44,6 @@ echo "--------------------------------------------------------------------------
 
 # install potentially missing packages needed to install Repose
 yum install -y --quiet wget
-wget --quiet http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-rpm -Uh --quiet rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-yum install -y --quiet daemonize
 
 # add openrepose.org repository
 wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
@@ -110,6 +120,10 @@ Vagrant.configure(2) do |config|
   config.vm.box = "centos/7"
 
   config.vm.provision "shell", inline: $update_yum
+  # IF the Repose version is < 8.1.0.0,
+  # THEN the old Daemonize needs to be manually installed since it is no longer packaged.
+  # TODO: Make this conditional.
+  config.vm.provision "shell", inline: $install_old_repose_dependencies
   config.vm.provision "shell", inline: $install_repose_dependencies
   config.vm.provision "shell", inline: $other_tools
   config.vm.provision "shell", inline: $install_python

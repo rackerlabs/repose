@@ -19,65 +19,69 @@ git clone https://github.com/rackerlabs/repose.git # HTTPS
 ```
 git clone git@github.com:rackerlabs/repose.git     # SSH
 ```
+### --------------------------------------------------------------------------------
+```
+cd ~/Projects/repose
+```
 
 
 
 # Build the Repose artifacts locally then install and run them in a Vagrant VM.
 ```
-cd ~/Projects/repose
 #gradle clean # Optional
-~/Projects/repose/repose-aggregator/artifacts/build-system-packages.sh
+./repose-aggregator/artifacts/build-system-packages.sh
 ```
 ### --------------------------------------------------------------------------------
 ```
-cd ~/Projects/repose/repose-aggregator/artifacts/build/Vagrant/deb
+cd ./repose-aggregator/artifacts/build/Vagrant/deb
 ```
 *OR*
 ```
-cd ~/Projects/repose/repose-aggregator/artifacts/build/Vagrant/rpm
-```
-### --------------------------------------------------------------------------------
-```
-vagrant destroy
-vagrant --repose-version='local' up
-```
-###### NOTE: The following is only needed if scripting this sequence in order to give the VM enough time to start listening on the port.
-```
-sleep 1
-vagrant ssh
-```
-
-
-
-# Install and run the latest Repose artifacts OR a specific version in a Vagrant VM.
-```
-mkdir -p ~/Projects/repose/repose-aggregator/artifacts/build/Vagrant/
-cp -R ~/Projects/repose/repose-aggregator/artifacts/src/vagrant/* \
-      ~/Projects/repose/repose-aggregator/artifacts/build/Vagrant/
-```
-### --------------------------------------------------------------------------------
-```
-cd ~/Projects/repose/repose-aggregator/artifacts/build/Vagrant/deb
-```
-*OR*
-```
-cd ~/Projects/repose/repose-aggregator/artifacts/build/Vagrant/rpm
+cd ./repose-aggregator/artifacts/build/Vagrant/rpm
 ```
 ### --------------------------------------------------------------------------------
 ```
 vagrant destroy
 ```
 ### --------------------------------------------------------------------------------
+###### NOTE: Since a version other than the latest published artifacts is to be used, edit the top of the `Vagrantfile`.
+### --------------------------------------------------------------------------------
 ```
-vagrant up
+vagrant up &&
+sleep 1 &&
+vagrant ssh
+```
+###### NOTE: The `sleep` is only needed if scripting this sequence in order to give the VM enough time to start listening on the port.
+
+
+
+# Install and run the latest published Repose artifacts OR a specific version in a Vagrant VM.
+```
+mkdir -p ./repose-aggregator/artifacts/build/Vagrant/ &&
+cd ./repose-aggregator/artifacts/build/Vagrant/ &&
+cp -R ../../src/vagrant/* \
+      ./ &&
+```
+### --------------------------------------------------------------------------------
+```
+cd ./deb &&
 ```
 *OR*
 ```
-vagrant --repose-version='8.0.0.0' up
+cd ./rpm &&
 ```
 ### --------------------------------------------------------------------------------
-###### NOTE: The following is only needed if scripting this sequence in order to give the VM enough time to start listening on the port.
+###### NOTE: If a version other than the latest published artifacts is to be used, then edit the top of the `Vagrantfile`.
+### --------------------------------------------------------------------------------
 ```
-sleep 1
+mkdir -p ./etc_repose &&
+cp ../test/common/* \
+   ./etc_repose/ &&
+cp ../test/REP-4077_Verify7-3-6-0/* \
+   ./etc_repose/ &&
+vagrant destroy &&
+vagrant up &&
+sleep 1 &&
 vagrant ssh
 ```
+###### NOTE: The `sleep` is only needed if scripting this sequence in order to give the VM enough time to start listening on the port.
