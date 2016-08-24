@@ -1,19 +1,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-require 'getoptlong'
 
-opts = GetoptLong.new(
-    [ '--repose-version', GetoptLong::OPTIONAL_ARGUMENT ]
-)
-
+# TODO: Make this a CLI option somehow.
 reposeVersion=''
-
-opts.each do |opt, arg|
-  case opt
-    when '--repose-version'
-      reposeVersion=arg
-  end
-end
+#reposeVersion='local'
+#reposeVersion='7.3.7.0'
 
 $update_yum = <<SCRIPT
 echo "-------------------------------------------------------------------------------------------------------------------"
