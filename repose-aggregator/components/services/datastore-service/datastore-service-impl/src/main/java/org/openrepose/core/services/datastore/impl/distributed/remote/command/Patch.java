@@ -53,8 +53,8 @@ public class Patch extends AbstractRemoteCommand {
     private final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly")
-    public Patch(TimeUnit timeUnit, SerializablePatch patch, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint) {
-        super(cacheObjectKey, remoteEndpoint);
+    public Patch(TimeUnit timeUnit, SerializablePatch patch, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId) {
+        super(cacheObjectKey, remoteEndpoint, connPoolId);
         this.timeUnit = timeUnit;
         this.ttl = ttl;
         byte[] deferredValue = null;
@@ -95,7 +95,7 @@ public class Patch extends AbstractRemoteCommand {
 
     @Override
     public ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
-        return proxyService.patch(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior), getBody());
+        return proxyService.patch(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior), getBody(), getConnectionPoolId());
     }
 
 }

@@ -32,13 +32,13 @@ import java.net.InetSocketAddress;
  */
 public class Delete extends AbstractRemoteCommand {
 
-    public Delete(String cacheObjectKey, InetSocketAddress remoteEndpoint) {
-        super(cacheObjectKey, remoteEndpoint);
+    public Delete(String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId) {
+        super(cacheObjectKey, remoteEndpoint, connPoolId);
     }
 
     @Override
     public ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
-        return proxyService.delete(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior));
+        return proxyService.delete(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior), getConnectionPoolId());
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.InputStreamEntity;
@@ -129,9 +130,18 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         return httpClientService.getDefaultClient();
     }
 
+    private HttpClientContainer getClient(String clientId) {
+        return httpClientService.getClient(clientId);
+    }
+
     @Override
     public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpClientContainer httpClientContainer = getClient();
+        return proxyRequest(targetHost, request, response, null);
+    }
+
+    @Override
+    public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response, String connPoolId) throws IOException {
+        HttpClientContainer httpClientContainer = getClient(connPoolId);
 
         try {
             final boolean isChunkedConfigured = httpClientContainer.getHttpClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
@@ -143,7 +153,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             if (method != null) {
                 HttpRequestBase processedMethod = method.process(processor);
 
-                return executeProxyRequest(processedMethod, response);
+                return executeProxyRequest(httpClientContainer.getHttpClient(), processedMethod, response);
             }
         } catch (URISyntaxException | HttpException ex) {
             LOG.error("Error processing request", ex);
@@ -155,11 +165,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         return -1;
     }
 
-    private int executeProxyRequest(HttpRequestBase httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
-        HttpClientContainer httpClientContainer = getClient();
-
+    private int executeProxyRequest(HttpClient httpClient, HttpRequestBase httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
         try {
-            HttpResponse httpResponse = httpClientContainer.getHttpClient().execute(httpMethodProxyRequest);
+            HttpResponse httpResponse = httpClient.execute(httpMethodProxyRequest);
             int responseCode = httpResponse.getStatusLine().getStatusCode();
             HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
 
@@ -180,8 +188,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
                 LOG.error("Error processing outgoing request", ex);
                 return -1;
             }
-        } finally {
-            httpClientService.releaseClient(httpClientContainer);
         }
         return 1;
 
@@ -204,8 +210,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         }
     }
 
-    private ServiceClientResponse execute(HttpRequestBase base) {
-        HttpClientContainer httpClientContainer = getClient();
+    private ServiceClientResponse execute(HttpRequestBase base, String connPoolId) {
+        HttpClientContainer httpClientContainer = getClient(connPoolId);
         try {
             HttpResponse httpResponse = httpClientContainer.getHttpClient().execute(base);
             HttpEntity entity = httpResponse.getEntity();
@@ -230,54 +236,76 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     @Override
     public ServiceClientResponse get(String uri, Map<String, String> headers) {
+        return get(uri, headers, null);
+    }
+
+    @Override
+    public ServiceClientResponse get(String uri, Map<String, String> headers, String connPoolId) {
         HttpGet get = new HttpGet(uri);
         setHeaders(get, headers);
-        return execute(get);
+        return execute(get, connPoolId);
     }
 
     @Override
     public ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers) {
-        HttpGet get = new HttpGet(StringUriUtilities.appendPath(baseUri, extraUri));
-        setHeaders(get, headers);
-        return execute(get);
+        return get(baseUri, extraUri, headers, null);
+    }
+
+    @Override
+    public ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers, String connPoolId) {
+        return get(StringUriUtilities.appendPath(baseUri, extraUri), headers, connPoolId);
     }
 
     @Override
     public ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers) {
+        return delete(baseUri, extraUri, headers, null);
+    }
+
+    @Override
+    public ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers, String connPoolId) {
         HttpDelete delete = new HttpDelete(StringUriUtilities.appendPath(baseUri, extraUri));
         setHeaders(delete, headers);
-        return execute(delete);
+        return execute(delete, connPoolId);
     }
 
     @Override
     public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body) {
+        return put(uri, headers, body, null);
+    }
+
+    @Override
+    public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, String connPoolId) {
         HttpPut put = new HttpPut(uri);
         setHeaders(put, headers);
         if (body != null && body.length > 0) {
             put.setEntity(new InputStreamEntity(new ByteArrayInputStream(body), body.length));
         }
-        return execute(put);
+        return execute(put, connPoolId);
     }
 
-    //todo: chain these
     @Override
     public ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body) {
-        HttpPut put = new HttpPut(StringUriUtilities.appendPath(baseUri, path));
-        setHeaders(put, headers);
-        if (body != null && body.length > 0) {
-            put.setEntity(new InputStreamEntity(new ByteArrayInputStream(body), body.length));
-        }
-        return execute(put);
+        return put(baseUri, path, headers, body, null);
+    }
+
+    @Override
+    public ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body, String connPoolId) {
+        return put(StringUriUtilities.appendPath(baseUri, path), headers, body, connPoolId);
     }
 
     @Override
     public ServiceClientResponse patch(String baseUri, String path, Map<String, String> headers, byte[] body) {
+        return patch(baseUri, path, headers, body, null);
+    }
+
+    @Override
+    public ServiceClientResponse patch(String baseUri, String path, Map<String, String> headers, byte[] body, String connPoolId) {
         HttpPatch patch = new HttpPatch(StringUriUtilities.appendPath(baseUri, path));
         setHeaders(patch, headers);
         if (body != null && body.length > 0) {
             patch.setEntity(new InputStreamEntity(new ByteArrayInputStream(body), body.length));
         }
-        return execute(patch);
+        return execute(patch, connPoolId);
     }
 
     @Override

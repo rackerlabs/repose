@@ -38,10 +38,12 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     private final String cacheObjectKey;
     private String hostKey;
     private String tracingHeader;
+    private String connPoolId;
 
-    public AbstractRemoteCommand(String cacheObjectKey, InetSocketAddress remoteEndpoint) {
+    public AbstractRemoteCommand(String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId) {
         this.cacheObjectKey = cacheObjectKey;
         this.remoteEndpoint = remoteEndpoint;
+        this.connPoolId = connPoolId;
     }
 
     public String getUrl() {
@@ -50,6 +52,10 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
 
     public String getBaseUrl() {
         return CacheRequest.urlFor(remoteEndpoint);
+    }
+
+    public String getConnectionPoolId() {
+        return connPoolId;
     }
 
     @Override

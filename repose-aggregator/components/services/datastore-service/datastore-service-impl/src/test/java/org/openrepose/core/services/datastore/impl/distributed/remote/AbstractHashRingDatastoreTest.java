@@ -117,7 +117,7 @@ public class AbstractHashRingDatastoreTest {
     public static class TestingHashRingDatastore extends HashRingDatastore {
 
         public TestingHashRingDatastore(ClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
-            super(null, clusterView, datastorePrefix, localDatastore, hashProvider, encodingProvider);
+            super(null, clusterView, datastorePrefix, localDatastore, hashProvider, encodingProvider, null);
         }
     }
 }

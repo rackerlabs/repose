@@ -30,6 +30,7 @@ public interface DatastoreService {
     /**
      * Get the default datastore
      */
+    // TODO: Rename this to getLocalDatastore for clarity?
     Datastore getDefaultDatastore() throws DatastoreUnavailableException;
 
     /**
@@ -39,6 +40,7 @@ public interface DatastoreService {
      * @return
      * @throws DatastoreUnavailableException if no datastore exists with the given datastoreName
      */
+    // TODO: Rename this to getDistributedDatastore for clarity?
     Datastore getDatastore(String datastoreName) throws DatastoreUnavailableException;
 
     /**
@@ -54,6 +56,7 @@ public interface DatastoreService {
      *
      * @param datastoreName
      */
+    // TODO: Rename this to destroyDistributedDatastore for clairty?
     void destroyDatastore(String datastoreName);
 
     /**
@@ -65,7 +68,20 @@ public interface DatastoreService {
      * @return
      * @throws DatastoreServiceException if the datastore creation fails
      */
+    // TODO: Rename this to createDistributedDatastore for clarity?
     DistributedDatastore createDatastore(String datastoreName, ClusterConfiguration configuration)
+            throws DatastoreServiceException;
+
+    /**
+     * Create and return a distributed datastore using the provided configuration.  The created
+     * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
+     *
+     * @param datastoreName
+     * @param configuration
+     * @return
+     * @throws DatastoreServiceException if the datastore creation fails
+     */
+    DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId)
             throws DatastoreServiceException;
 
     /**
