@@ -112,8 +112,9 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         Try(wrappedResponse.replaceHeader(
           CommonHttpHeader.LOCATION.toString,
           replaceIntoPath(originalLocation, token.get, previousToken, nextToken, None))) match {
-          case Failure(ex: PathRewriteException) => logger.warn("Failed while trying to rewrite the location header", ex)
           case Success(_) => //don't care
+          case Failure(e: PathRewriteException) => logger.warn("Failed while trying to rewrite the location header", e)
+          case Failure(e) => throw e
         }
       }
 
@@ -161,7 +162,10 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
           case Failure(e: SAXParseException) =>
             if (linkPath.getLinkMismatchAction == FAIL) throw e
             else new ByteArrayInputStream(out.toByteArray)
-          case Failure(e: PathRewriteException) => throw e
+          case Failure(e: PathRewriteException) =>
+            logger.warn("Failed while trying to rewrite the location header", e)
+            throw e
+          case Failure(e) => throw e
         }
       }
 
@@ -180,21 +184,22 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       uri
     } else {
       Try(new URI(uri)) match {
-        case Failure(ex) =>
-          logger.warn("Unable to parse uri", ex)
-          throw PathRewriteException("Couldn't parse the uri.", ex)
         case Success(parsedUri) =>
           val pathTokens = splitPathIntoTokens(parsedUri.getRawPath)
           val replacementIndex = tokenIndex
             .getOrElse(findReplacementTokenIndex(pathTokens, tokenPrefix, tokenPostfix)
               .getOrElse(throw new PathRewriteException("Replacement index could not be determined")))
           Try(pathTokens.insert(replacementIndex, token)) match {
-            case Failure(ex: IndexOutOfBoundsException) =>
-              logger.warn("Determined index outside of uri path length", ex)
-              throw PathRewriteException("Determined index is out side the number of parsed path segments", ex)
             case Success(_) => //don't care
+            case Failure(e: IndexOutOfBoundsException) =>
+              logger.warn("Determined index outside of uri path length", e)
+              throw PathRewriteException("Determined index is out side the number of parsed path segments", e)
+            case Failure(e) => throw e
           }
           replacePath(parsedUri, joinTokensIntoPath(pathTokens))
+        case Failure(e) =>
+          logger.warn("Unable to parse uri", e)
+          throw PathRewriteException("Couldn't parse the uri.", e)
       }
     }
   }
@@ -295,12 +300,13 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   (String, String, Option[String], Option[String]) => String = (link, token, prefixToken, postfixToken) => {
     Try(replaceIntoPath(link, token, prefixToken, postfixToken, tokenIndex)) match {
       case Success(newLink) => newLink
-      case Failure(ex: PathRewriteException) =>
+      case Failure(e: PathRewriteException) =>
         failureBehavior match {
           case CONTINUE => link
           case REMOVE => DROP_CODE
-          case FAIL => throw ex
+          case FAIL => throw e
         }
+      case Failure(e) => throw e
     }
   }
 
