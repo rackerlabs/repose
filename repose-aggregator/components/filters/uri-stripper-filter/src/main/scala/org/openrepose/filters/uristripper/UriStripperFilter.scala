@@ -62,7 +62,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private var initialized = false
   private var config: UriStripperConfig = _
   private var templateMap: Map[LinkPath, Templates] = _
-  private val DROP_CODE : String = "[[DROP]]"
+  private val DROP_CODE: String = "[[DROP]]"
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("URI Stripper filter initializing...")
@@ -151,7 +151,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     try {
       val result = applicableLinkPaths.foldLeft(wrappedResponse.getOutputStreamAsInputStream) { (in: InputStream, linkPath: LinkPath) =>
         val out = new ByteArrayOutputStream()
-        val transformer = templateMap.get(linkPath).get.newTransformer
+        val transformer = templateMap(linkPath).newTransformer
         transformer.asInstanceOf[Controller].addLogErrorListener
         transformer.setParameter("removedToken", token.getOrElse(""))
         transformer.setParameter("prefixToken", previousToken.getOrElse(""))
@@ -182,7 +182,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       Try(new URI(uri)) match {
         case Failure(ex) =>
           logger.warn("Unable to parse uri", ex)
-          throw new PathRewriteException("Couldn't parse the uri.", ex)
+          throw PathRewriteException("Couldn't parse the uri.", ex)
         case Success(parsedUri) =>
           val pathTokens = splitPathIntoTokens(parsedUri.getRawPath)
           val replacementIndex = tokenIndex
@@ -191,7 +191,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
           Try(pathTokens.insert(replacementIndex, token)) match {
             case Failure(ex: IndexOutOfBoundsException) =>
               logger.warn("Determined index outside of uri path length", ex)
-              throw new PathRewriteException("Determined index is out side the number of parsed path segments", ex)
+              throw PathRewriteException("Determined index is out side the number of parsed path segments", ex)
             case Success(_) => //don't care
           }
           replacePath(parsedUri, joinTokensIntoPath(pathTokens))
@@ -227,7 +227,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private def getPathsForContentType(contentType: String, resource: HttpMessage): List[LinkPath] = {
     Option(contentType) match {
       case Some(ct) if ct.toLowerCase.contains("json") => resource.getJson.toList
-      case Some(ct) if ct.toLowerCase.contains("xml") => resource.getXml.toList map(_.getXpath)
+      case Some(ct) if ct.toLowerCase.contains("xml") => resource.getXml.toList map (_.getXpath)
       case _ => List.empty
     }
   }
@@ -288,17 +288,17 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   }
 
   private def xsltFunction(tokenIndex: Option[Int], failureBehavior: LinkMismatchAction):
-    (String, String, Option[String], Option[String]) => String  = (link, token, prefixToken, postfixToken) => {
-        Try(replaceIntoPath(link, token, prefixToken, postfixToken, tokenIndex)) match {
-          case Success(newLink) => newLink
-          case Failure(ex: PathRewriteException) =>
-            failureBehavior match {
-              case CONTINUE => link
-              case REMOVE => DROP_CODE
-              case FAIL => throw ex
-            }
+  (String, String, Option[String], Option[String]) => String = (link, token, prefixToken, postfixToken) => {
+    Try(replaceIntoPath(link, token, prefixToken, postfixToken, tokenIndex)) match {
+      case Success(newLink) => newLink
+      case Failure(ex: PathRewriteException) =>
+        failureBehavior match {
+          case CONTINUE => link
+          case REMOVE => DROP_CODE
+          case FAIL => throw ex
         }
     }
+  }
 
   override def configurationUpdated(uriStripperConfig: UriStripperConfig): Unit = {
     val saxonTransformFactory = {
@@ -306,7 +306,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val cast = f.asInstanceOf[TransformerFactoryImpl]
       cast.getConfiguration.getDynamicLoader.setClassLoader(this.getClass.getClassLoader)
       // Recover silently from recoverable errors. These may occur depending on XPath passed in.
-      f.setAttribute("http://saxon.sf.net/feature/recoveryPolicyName","recoverSilently")
+      f.setAttribute("http://saxon.sf.net/feature/recoveryPolicyName", "recoverSilently")
       f
     }
 
@@ -317,29 +317,27 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       setupTransformer.setParameter("xpath", xmlElement.getXpath.getValue)
       setupTransformer.setParameter("namespaces", new StreamSource(
         <namespaces xmlns="http://www.rackspace.com/repose/params">
-          {
-          for (namespace <- xmlElement.getNamespace) yield
-              <ns prefix={namespace.getName} uri={namespace.getUrl}/>
-          }
+          {for (namespace <- xmlElement.getNamespace) yield
+            <ns prefix={namespace.getName} uri={namespace.getUrl}/>}
         </namespaces>
       ))
-      setupTransformer.setParameter("failOnMiss", (xmlElement.getXpath.getLinkMismatchAction == FAIL))
+      setupTransformer.setParameter("failOnMiss", xmlElement.getXpath.getLinkMismatchAction == FAIL)
       setupTransformer.asInstanceOf[Controller].addLogErrorListener
       val updateXPathXSLTDomResult = new DOMResult()
-      setupTransformer.transform (new StreamSource(<ignore-input />), updateXPathXSLTDomResult)
+      setupTransformer.transform(new StreamSource(<ignore-input/>), updateXPathXSLTDomResult)
 
-      val config = saxonTransformFactory.asInstanceOf[TransformerFactoryImpl].getConfiguration()
-      config.registerExtensionFunction(new UrlPathTransformExtension("process-url","rax", "http://docs.rackspace.com/api",
+      val config = saxonTransformFactory.asInstanceOf[TransformerFactoryImpl].getConfiguration
+      config.registerExtensionFunction(new UrlPathTransformExtension("process-url", "rax", "http://docs.rackspace.com/api",
         xsltFunction(Option(xmlElement.getXpath.getTokenIndex).map(_.intValue()), xmlElement.getXpath.getLinkMismatchAction)))
 
-      saxonTransformFactory.newTemplates(new DOMSource(updateXPathXSLTDomResult.getNode()))
+      saxonTransformFactory.newTemplates(new DOMSource(updateXPathXSLTDomResult.getNode))
     }
 
     config = uriStripperConfig
 
     templateMap = (for (resource <- config.getLinkResource;
                         xml <- Option(resource.getResponse).map(_.getXml.toList).getOrElse(List.empty))
-                        yield xml.getXpath -> setupTransformer(xml)).toMap
+      yield xml.getXpath -> setupTransformer(xml)).toMap
     initialized = true
   }
 
@@ -362,4 +360,5 @@ object UriStripperFilter {
   case class PathRewriteException(message: String, ex: Throwable) extends Exception(message, ex) {
     def this(message: String) = this(message, null)
   }
+
 }
