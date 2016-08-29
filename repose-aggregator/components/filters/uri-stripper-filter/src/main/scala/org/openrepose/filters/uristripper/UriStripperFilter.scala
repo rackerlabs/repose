@@ -22,6 +22,7 @@ package org.openrepose.filters.uristripper
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import java.net.{URI, URL}
+import java.nio.charset.Charset
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -37,6 +38,7 @@ import net.sf.saxon.{Controller, TransformerFactoryImpl}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.FilterConfigHelper
@@ -102,7 +104,30 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         wrappedRequest.setRequestURI(joinTokensIntoPath(uriTokens))
       }
 
-      filterChain.doFilter(wrappedRequest, wrappedResponse)
+      val requestLinkPaths = config.getLinkResource
+        .filter(resource => resource.getUriPathRegex =~ wrappedRequest.getRequestURI)
+        .filter(resource => isMatchingMethod(resource.getHttpMethods.toSet, wrappedRequest.getMethod))
+        .map(resource => getPathsForContentType(wrappedRequest.getContentType, resource.getRequest))
+        .fold(List.empty[LinkPath])(_ ++ _)
+
+      val filterChainRequest = {
+        if (token.isDefined && requestLinkPaths.nonEmpty) {
+          Option(wrappedRequest.getContentType) match {
+            case Some(ct) if ct.toLowerCase.contains("json") => handleJsonRequestLinks(wrappedRequest, previousToken, nextToken, token, requestLinkPaths)
+            case Some(ct) if ct.toLowerCase.contains("xml") => handleXmlRequestLinks(wrappedRequest, previousToken, nextToken, token, requestLinkPaths)
+            case _ => Success(wrappedRequest)
+          }
+        } else {
+          Success(wrappedRequest)
+        }
+      }
+
+      filterChainRequest match {
+        case Success(request) =>
+          filterChain.doFilter(request, wrappedResponse)
+        case Failure(e) =>
+          wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
+      }
 
       wrappedResponse.uncommit()
 
@@ -133,6 +158,44 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       }
 
       wrappedResponse.commitToResponse()
+    }
+  }
+
+  private def handleJsonRequestLinks(wrappedRequest: HttpServletRequestWrapper, previousToken: Option[String], nextToken: Option[String], token: Option[String], applicableLinkPaths: List[LinkPath]): Try[HttpServletRequestWrapper] = {
+    val tryParsedJson = Try(Json.parse(wrappedRequest.getInputStream))
+    applicableLinkPaths.foldLeft(tryParsedJson)(transformJsonLink(_, _, token.get, previousToken, nextToken, isRequest = true)) match {
+      case Success(jsValue) =>
+        val jsValueBytes = jsValue.toString.getBytes(Charset.forName(Option(wrappedRequest.getCharacterEncoding).getOrElse("UTF-8")))
+        Success(new HttpServletRequestWrapper(wrappedRequest, new ServletInputStreamWrapper(new ByteArrayInputStream(jsValueBytes))))
+      case Failure(e) => Failure(e)
+    }
+  }
+
+  private def handleXmlRequestLinks(wrappedRequest: HttpServletRequestWrapper, previousToken: Option[String], nextToken: Option[String], token: Option[String], applicableLinkPaths: List[LinkPath]): Try[HttpServletRequestWrapper] = {
+    try {
+      val result = applicableLinkPaths.foldLeft(wrappedRequest.getInputStream) { (in: InputStream, linkPath: LinkPath) =>
+        val out = new ByteArrayOutputStream()
+        val transformer = templateMap(linkPath).newTransformer
+        transformer.asInstanceOf[Controller].addLogErrorListener
+        transformer.setParameter("removedToken", token.getOrElse(""))
+        transformer.setParameter("prefixToken", previousToken.getOrElse(""))
+        transformer.setParameter("postfixToken", nextToken.getOrElse(""))
+        Try(transformer.transform(new StreamSource(in), new StreamResult(out))) match {
+          case Success(_) => new ServletInputStreamWrapper(new ByteArrayInputStream(out.toByteArray))
+          case Failure(e: SAXParseException) =>
+            if (linkPath.getLinkMismatchAction == FAIL) throw e
+            else new ServletInputStreamWrapper(new ByteArrayInputStream(out.toByteArray))
+          case Failure(e: PathRewriteException) =>
+            logger.warn("Failed while trying to rewrite the location header", e)
+            throw e
+          case Failure(e) => throw e
+        }
+      }
+
+      Success(new HttpServletRequestWrapper(wrappedRequest, new ServletInputStreamWrapper(result)))
+    } catch {
+      case e: PathRewriteException => Failure(e)
+      case e: SAXParseException => Failure(e)
     }
   }
 
@@ -173,6 +236,25 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     } catch {
       case e: PathRewriteException => wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
       case e: SAXParseException => wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
+    }
+  }
+
+  private def removeFromPath(uri: String, tokenIndex: Int): String = {
+    logger.debug("Attempting to remove index: {} into uri: {}", tokenIndex.toString, uri)
+    Try(new URI(uri)) match {
+      case Success(parsedUri) =>
+        val pathTokens = splitPathIntoTokens(parsedUri.getRawPath)
+        Try(pathTokens.remove(tokenIndex)) match {
+          case Success(_) => //don't care
+          case Failure(e: IndexOutOfBoundsException) =>
+            logger.warn("Determined index outside of uri path length", e)
+            throw PathRewriteException("Determined index is out side the number of parsed path segments", e)
+          case Failure(e) => throw e
+        }
+        replacePath(parsedUri, joinTokensIntoPath(pathTokens))
+      case Failure(e) =>
+        logger.warn("Unable to parse uri", e)
+        throw PathRewriteException("Couldn't parse the uri.", e)
     }
   }
 
@@ -256,7 +338,11 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val linkTransform = jsonPath.update(
         of[JsString] map { case JsString(link) =>
           if(isRequest) {
-            // TODO: Implement this.
+            val tokenIndex: Int = Option(linkPath.getTokenIndex) match {
+              case Some(index) => index.intValue()
+              case _ => config.getTokenIndex
+            }
+            JsString(removeFromPath(link, tokenIndex))
           } else {
             JsString(replaceIntoPath(link, strippedToken, previousToken, nextToken, Option(linkPath.getTokenIndex).map(_.intValue())))
           }
