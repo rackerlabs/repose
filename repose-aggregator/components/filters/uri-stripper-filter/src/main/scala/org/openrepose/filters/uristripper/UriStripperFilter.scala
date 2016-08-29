@@ -117,16 +117,16 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         }
       }
 
-      val applicableLinkPaths = config.getLinkResource
+      val responseLinkPaths = config.getLinkResource
         .filter(resource => resource.getUriPathRegex =~ wrappedRequest.getRequestURI)
         .filter(resource => isMatchingMethod(resource.getHttpMethods.toSet, wrappedRequest.getMethod))
         .map(resource => getPathsForContentType(wrappedResponse.getContentType, resource.getResponse))
         .fold(List.empty[LinkPath])(_ ++ _)
 
-      if (token.isDefined && applicableLinkPaths.nonEmpty) {
+      if (token.isDefined && responseLinkPaths.nonEmpty) {
         Option(wrappedResponse.getContentType) match {
-          case Some(ct) if ct.toLowerCase.contains("json") => handleJsonResponseLinks(wrappedResponse, previousToken, nextToken, token, applicableLinkPaths)
-          case Some(ct) if ct.toLowerCase.contains("xml") => handleXmlResponseLinks(wrappedResponse, previousToken, nextToken, token, applicableLinkPaths)
+          case Some(ct) if ct.toLowerCase.contains("json") => handleJsonResponseLinks(wrappedResponse, previousToken, nextToken, token, responseLinkPaths)
+          case Some(ct) if ct.toLowerCase.contains("xml") => handleXmlResponseLinks(wrappedResponse, previousToken, nextToken, token, responseLinkPaths)
           case _ => //do nothing
         }
       }
@@ -137,7 +137,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
   private def handleJsonResponseLinks(wrappedResponse: HttpServletResponseWrapper, previousToken: Option[String], nextToken: Option[String], token: Option[String], applicableLinkPaths: List[LinkPath]): Unit = {
     val tryParsedJson = Try(Json.parse(wrappedResponse.getOutputStreamAsInputStream))
-    applicableLinkPaths.foldLeft(tryParsedJson)(transformJsonLink(_, _, token.get, previousToken, nextToken)) match {
+    applicableLinkPaths.foldLeft(tryParsedJson)(transformJsonLink(_, _, token.get, previousToken, nextToken, isRequest = false)) match {
       case Success(jsValue) =>
         val jsValueBytes = jsValue.toString.getBytes(wrappedResponse.getCharacterEncoding)
         wrappedResponse.setContentLength(jsValueBytes.length)
@@ -245,12 +245,16 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       }
   }
 
-  private def transformJsonLink(tryResponseJson: Try[JsValue], linkPath: LinkPath, strippedToken: String, previousToken: Option[String], nextToken: Option[String]): Try[JsValue] = {
+  private def transformJsonLink(tryResponseJson: Try[JsValue], linkPath: LinkPath, strippedToken: String, previousToken: Option[String], nextToken: Option[String], isRequest: Boolean): Try[JsValue] = {
     tryResponseJson map { responseJson =>
       val jsonPath = stringToJsPath(linkPath.getValue).json
       val linkTransform = jsonPath.update(
         of[JsString] map { case JsString(link) =>
-          JsString(replaceIntoPath(link, strippedToken, previousToken, nextToken, Option(linkPath.getTokenIndex).map(_.intValue())))
+          if(isRequest) {
+            // TODO: Implement this.
+          } else {
+            JsString(replaceIntoPath(link, strippedToken, previousToken, nextToken, Option(linkPath.getTokenIndex).map(_.intValue())))
+          }
         }
       )
 
