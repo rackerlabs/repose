@@ -68,7 +68,6 @@ public interface DatastoreService {
      * @return
      * @throws DatastoreServiceException if the datastore creation fails
      */
-    // TODO: Rename this to createDistributedDatastore for clarity?
     DistributedDatastore createDatastore(String datastoreName, ClusterConfiguration configuration)
             throws DatastoreServiceException;
 
