@@ -30,7 +30,6 @@ import org.apache.http.message.BasicHttpResponse
 import org.apache.http.params.BasicHttpParams
 import org.apache.logging.log4j.ThreadContext
 import org.mockito.ArgumentCaptor
-import org.mockito.exceptions.base.MockitoAssertionError
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.core.services.config.ConfigurationService
@@ -179,7 +178,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.proxyRequest("http://www.google.com", new MockHttpServletRequest(), new MockHttpServletResponse())
 
         then:
-        noAssertionError { verify(httpClientService).getClient(null) }
+        verification { verify(httpClientService).getClient(null) }
     }
 
     def "proxyRequest(host, request, response, connPoolId) will try to use a given connection pool"() {
@@ -193,7 +192,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.proxyRequest("http://www.google.com", new MockHttpServletRequest(), new MockHttpServletResponse(), testPoolId)
 
         then:
-        noAssertionError { verify(httpClientService).getClient(testPoolId) }
+        verification { verify(httpClientService).getClient(testPoolId) }
     }
 
     def "get(uri, headers) will try to use a given connection pool"() {
@@ -205,7 +204,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.get("http://www.google.com", Collections.emptyMap())
 
         then:
-        noAssertionError { verify(httpClientService).getClient(null) }
+        verification { verify(httpClientService).getClient(null) }
     }
 
     def "get(uri, headers, connPoolId) will try to use a given connection pool"() {
@@ -217,7 +216,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.get("http://www.google.com", Collections.emptyMap(), testPoolId)
 
         then:
-        noAssertionError { verify(httpClientService).getClient(testPoolId) }
+        verification { verify(httpClientService).getClient(testPoolId) }
     }
 
     def "get(uri, extraUri, headers) will try to use a given connection pool"() {
@@ -228,7 +227,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.get("http://www.google.com", "key", Collections.emptyMap())
 
         then:
-        noAssertionError { verify(httpClientService).getClient(null) }
+        verification { verify(httpClientService).getClient(null) }
     }
 
     def "get(uri, extraUri, headers, connPoolId) will try to use a given connection pool"() {
@@ -241,7 +240,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.get("http://www.google.com", "key", Collections.emptyMap(), testPoolId)
 
         then:
-        noAssertionError { verify(httpClientService).getClient(testPoolId) }
+        verification { verify(httpClientService).getClient(testPoolId) }
     }
 
     def "put(uri, headers, body) will try to use a given connection pool"() {
@@ -253,7 +252,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.put("http://www.google.com", Collections.emptyMap(), [] as byte[])
 
         then:
-        noAssertionError { verify(httpClientService).getClient(null) }
+        verification { verify(httpClientService).getClient(null) }
     }
 
     def "put(uri, headers, body, connPoolId) will try to use a given connection pool"() {
@@ -266,7 +265,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.put("http://www.google.com", Collections.emptyMap(), [] as byte[], testPoolId)
 
         then:
-        noAssertionError { verify(httpClientService).getClient(testPoolId) }
+        verification { verify(httpClientService).getClient(testPoolId) }
     }
 
     def "put(uri, path, headers, body) will try to use a given connection pool"() {
@@ -278,7 +277,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.put("http://www.google.com", "", Collections.emptyMap(), [] as byte[])
 
         then:
-        noAssertionError { verify(httpClientService).getClient(null) }
+        verification { verify(httpClientService).getClient(null) }
     }
 
     def "put(uri, path, headers, body, connPoolId) will try to use a given connection pool"() {
@@ -291,7 +290,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.put("http://www.google.com", "", Collections.emptyMap(), [] as byte[], testPoolId)
 
         then:
-        noAssertionError { verify(httpClientService).getClient(testPoolId) }
+        verification { verify(httpClientService).getClient(testPoolId) }
     }
 
     def "patch(uri, path, headers, body) will try to use a given connection pool"() {
@@ -303,7 +302,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.patch("http://www.google.com", "", Collections.emptyMap(), [] as byte[])
 
         then:
-        noAssertionError { verify(httpClientService).getClient(null) }
+        verification { verify(httpClientService).getClient(null) }
     }
 
     def "patch(uri, path, headers, body, connPoolId) will try to use a given connection pool"() {
@@ -316,7 +315,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.patch("http://www.google.com", "", Collections.emptyMap(), [] as byte[], testPoolId)
 
         then:
-        noAssertionError { verify(httpClientService).getClient(testPoolId) }
+        verification { verify(httpClientService).getClient(testPoolId) }
     }
 
     def "delete(uri, path, headers) will try to use a given connection pool"() {
@@ -328,7 +327,7 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.patch("http://www.google.com", "", Collections.emptyMap())
 
         then:
-        noAssertionError { verify(httpClientService).getClient(null) }
+        verification { verify(httpClientService).getClient(null) }
     }
 
     def "delete(uri, path, headers, connPoolId) will try to use a given connection pool"() {
@@ -341,16 +340,11 @@ class RequestProxyServiceImplTest extends Specification {
         requestProxyService.delete("http://www.google.com", "", Collections.emptyMap(), testPoolId)
 
         then:
-        noAssertionError { verify(httpClientService).getClient(testPoolId) }
+        verification { verify(httpClientService).getClient(testPoolId) }
     }
 
-    // TODO: Use Spock Mocking framework to avoid this hack (caused by Mockito mocks returning null)
-    def noAssertionError(Closure verification) {
-        try {
-            verification()
-            return true
-        } catch (MockitoAssertionError mae) {
-            return false
-        }
+    def verification(Closure closure) {
+        closure()
+        return true
     }
 }
