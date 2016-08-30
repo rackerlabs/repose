@@ -34,7 +34,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsDefined, JsUndefined, Json}
 
 import scala.xml.XML
 
@@ -420,6 +420,71 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
 
         response.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         response.getContentLength shouldEqual 0
+      }
+
+      it("should update multiple links given multiple JSON paths") {
+        val config =
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <request>
+            |            <json>$.link</json>
+            |            <json>$.linktwo</json>
+            |        </request>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
+
+        val requestBody =
+          """{
+            |  "link": "http://example.com/v1/12345/foo",
+            |  "linktwo": "http://example.com/v1/12345/foo"
+            |}
+          """.stripMargin
+
+        filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+        request.setRequestURI("/v1/12345/foo")
+        request.setContent(requestBody.getBytes(CHARSET_UTF8))
+        request.setContentType(MimeType.APPLICATION_JSON.toString)
+
+        filter.doFilter(request, response, filterChain)
+
+        val jsonBody = Json.parse(getPostFilterRequestBody)
+        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual "\"http://example.com/v1/foo\""
+        (jsonBody \ "linktwo").asInstanceOf[JsDefined].value.toString() shouldEqual "\"http://example.com/v1/foo\""
+      }
+
+      it("should update multiple links given multiple JSON paths with independent failure behaviors (continue, remove)") {
+        val config =
+          """<?xml version="1.0" encoding="UTF-8"?>
+            |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+            |    <link-resource uri-path-regex=".*">
+            |        <request>
+            |            <json>$.link</json>
+            |            <json link-mismatch-action="remove" token-index="5">$.linknumerodos</json>
+            |            <json link-mismatch-action="continue">$.dne</json>
+            |        </request>
+            |    </link-resource>
+            |</uri-stripper>
+          """.stripMargin
+
+        val requestBody =
+          """{
+            |  "link": "http://example.com/v1/12345/foo",
+            |  "linknumerodos": "http://example.com/v1/12345/foo"
+            |}
+          """.stripMargin
+
+        filter.configurationUpdated(Marshaller.uriStripperConfigFromString(config))
+        request.setRequestURI("/v1/12345/foo")
+        request.setContent(requestBody.getBytes(CHARSET_UTF8))
+        request.setContentType(MimeType.APPLICATION_JSON.toString)
+
+        filter.doFilter(request, response, filterChain)
+
+        val jsonBody = Json.parse(getPostFilterRequestBody)
+        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual "\"http://example.com/v1/foo\""
+        (jsonBody \ "linknumerodos").isInstanceOf[JsUndefined] shouldEqual true
       }
     }
 
