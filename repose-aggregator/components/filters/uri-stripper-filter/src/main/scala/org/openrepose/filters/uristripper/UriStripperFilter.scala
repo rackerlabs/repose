@@ -312,9 +312,9 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       configuredMethods.contains(HttpMethod.fromValue(requestMethod))
 
   private def getPathsForContentType(contentType: String, resource: HttpMessage): List[LinkPath] = {
-    Option(contentType) match {
-      case Some(ct) if ct.toLowerCase.contains("json") => resource.getJson.toList
-      case Some(ct) if ct.toLowerCase.contains("xml") => resource.getXml.toList map (_.getXpath)
+    (Option(contentType), Option(resource)) match {
+      case (Some(ct), Some(res)) if ct.toLowerCase.contains("json") => res.getJson.toList
+      case (Some(ct), Some(res)) if ct.toLowerCase.contains("xml") => res.getXml.toList map (_.getXpath)
       case _ => List.empty
     }
   }
@@ -337,8 +337,8 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val jsonPath = stringToJsPath(linkPath.getValue).json
       val linkTransform = jsonPath.update(
         of[JsString] map { case JsString(link) =>
-          if(isRequest) {
-            val tokenIndex: Int = Option(linkPath.getTokenIndex) match {
+          if (isRequest) {
+            val tokenIndex = Option(linkPath.getTokenIndex) match {
               case Some(index) => index.intValue()
               case _ => config.getTokenIndex
             }
