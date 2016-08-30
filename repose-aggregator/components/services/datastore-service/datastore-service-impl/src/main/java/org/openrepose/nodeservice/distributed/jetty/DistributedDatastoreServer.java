@@ -23,7 +23,11 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.nodeservice.distributed.servlet.DistributedDatastoreServlet;
+
+import java.io.File;
 
 /**
  * Perhaps encapsulate the monitoring bits better
@@ -33,17 +37,20 @@ public class DistributedDatastoreServer {
     private final String clusterId;
     private final String nodeId;
     private final DistributedDatastoreServlet ddServlet;
+    private final DistributedDatastoreConfiguration ddConfig;
 
     private int port;
     private Server server;
 
     public DistributedDatastoreServer(String clusterId,
                                       String nodeId,
-                                      DistributedDatastoreServlet ddServlet
+                                      DistributedDatastoreServlet ddServlet,
+                                      DistributedDatastoreConfiguration ddConfig
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
         this.ddServlet = ddServlet;
+        this.ddConfig = ddConfig;
     }
 
     /**
@@ -53,14 +60,34 @@ public class DistributedDatastoreServer {
      * @param port
      * @throws Exception
      */
-    public void runServer(int port) throws Exception {
+    public void runServer(int port, String configRoot) throws Exception {
         if (this.port != port) {
             if (server != null) {
                 server.stop();
             }
 
             server = new Server();
-            ServerConnector conn = new ServerConnector(server);
+
+            ServerConnector conn;
+            if (ddConfig.getKeystoreFilename() != null) {
+                SslContextFactory cf = new SslContextFactory();
+                cf.setKeyStorePath(guardedAbsoluteFile(configRoot, ddConfig.getKeystoreFilename()).getAbsolutePath());
+                cf.setKeyStorePassword(ddConfig.getKeystorePassword());
+                cf.setKeyManagerPassword(ddConfig.getKeyPassword());
+                cf.setNeedClientAuth(true);
+
+                if (ddConfig.getTruststoreFilename() != null) {
+                    cf.setTrustStorePath(guardedAbsoluteFile(configRoot, ddConfig.getTruststoreFilename()).getAbsolutePath());
+                    cf.setTrustStorePassword(ddConfig.getTruststorePassword());
+                }
+
+                // TODO: Always use a certain protocol/cipher?
+
+                conn = new ServerConnector(server, cf);
+            } else {
+                conn = new ServerConnector(server);
+            }
+
             conn.setPort(port);
             this.port = port; //Save the port so we know if it's changed
             server.addConnector(conn);
@@ -84,5 +111,18 @@ public class DistributedDatastoreServer {
 
     public int getPort() {
         return port;
+    }
+
+    private File guardedAbsoluteFile(String parent, String child) {
+        File returnFile;
+
+        File childFile = new File(child);
+        if (childFile.isAbsolute()) {
+            returnFile = childFile;
+        } else {
+            returnFile = new File(parent, child);
+        }
+
+        return returnFile;
     }
 }

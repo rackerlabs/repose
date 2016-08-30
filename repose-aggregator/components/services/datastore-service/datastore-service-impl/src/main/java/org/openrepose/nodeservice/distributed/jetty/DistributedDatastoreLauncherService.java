@@ -57,6 +57,7 @@ public class DistributedDatastoreLauncherService {
 
     private final String clusterId;
     private final String nodeId;
+    private final String configRoot;
     private final ConfigurationService configurationService;
     private final RequestProxyService requestProxyService;
     private final SystemModelListener systemModelListener = new SystemModelListener();
@@ -76,6 +77,7 @@ public class DistributedDatastoreLauncherService {
     public DistributedDatastoreLauncherService(
             @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
             @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
+            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot,
             DatastoreService datastoreService,
             ConfigurationService configurationService,
             HealthCheckService healthCheckService,
@@ -83,6 +85,7 @@ public class DistributedDatastoreLauncherService {
 
         this.clusterId = clusterId;
         this.nodeId = nodeId;
+        this.configRoot = configRoot;
         this.datastoreService = datastoreService;
         this.configurationService = configurationService;
         this.requestProxyService = requestProxyService;
@@ -162,13 +165,13 @@ public class DistributedDatastoreLauncherService {
                             new DatastoreAccessControl(Collections.EMPTY_LIST, false),
                             ddConfig);
 
-                    DistributedDatastoreServer server = new DistributedDatastoreServer(clusterId, nodeId, ddServlet);
+                    DistributedDatastoreServer server = new DistributedDatastoreServer(clusterId, nodeId, ddServlet, ddConfig);
                     this.ddServer = Optional.of(server);
 
                     //Make sure the server is running now -- the dist datastore is up
                     try {
                         LOG.info("Starting Distributed Datastore listener on port {} ", ddPort);
-                        server.runServer(ddPort);
+                        server.runServer(ddPort, configRoot);
                         //Only resolving config problems after it's fully started
                         healthCheckServiceProxy.resolveIssue(DD_CONFIG_ISSUE);
                     } catch (Exception e) {
@@ -184,7 +187,7 @@ public class DistributedDatastoreLauncherService {
                     try {
                         int existingPort = ddServer.get().getPort();
                         LOG.info("Updating existing Distributed Datastore Server instance on {} to {}", existingPort, ddPort);
-                        ddServer.get().runServer(ddPort);
+                        ddServer.get().runServer(ddPort, configRoot);
                         healthCheckServiceProxy.resolveIssue(DD_CONFIG_ISSUE);
                     } catch (Exception e) {
                         LOG.error("Unable to start Distributed Datastore Server instance on {}", ddPort, e);
