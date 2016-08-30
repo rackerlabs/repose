@@ -63,7 +63,8 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private var configurationFileName: String = DefaultConfigFileName
   private var initialized = false
   private var config: UriStripperConfig = _
-  private var templateMap: Map[LinkPath, Templates] = _
+  private var templateMapRequest: Map[LinkPath, Templates] = _
+  private var templateMapResponse: Map[LinkPath, Templates] = _
   private val DROP_CODE: String = "[[DROP]]"
 
   override def init(filterConfig: FilterConfig): Unit = {
@@ -175,7 +176,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     try {
       val result = applicableLinkPaths.foldLeft(wrappedRequest.getInputStream) { (in: InputStream, linkPath: LinkPath) =>
         val out = new ByteArrayOutputStream()
-        val transformer = templateMap(linkPath).newTransformer
+        val transformer = templateMapRequest(linkPath).newTransformer
         transformer.asInstanceOf[Controller].addLogErrorListener
         transformer.setParameter("removedToken", token.getOrElse(""))
         transformer.setParameter("prefixToken", previousToken.getOrElse(""))
@@ -215,7 +216,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     try {
       val result = applicableLinkPaths.foldLeft(wrappedResponse.getOutputStreamAsInputStream) { (in: InputStream, linkPath: LinkPath) =>
         val out = new ByteArrayOutputStream()
-        val transformer = templateMap(linkPath).newTransformer
+        val transformer = templateMapResponse(linkPath).newTransformer
         transformer.asInstanceOf[Controller].addLogErrorListener
         transformer.setParameter("removedToken", token.getOrElse(""))
         transformer.setParameter("prefixToken", previousToken.getOrElse(""))
@@ -382,9 +383,21 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
     logger.trace("URI Stripper filter destroyed.")
   }
 
-  private def xsltFunction(tokenIndex: Option[Int], failureBehavior: LinkMismatchAction):
+  private def xsltFunction(tokenIndexOpt: Option[Int], failureBehavior: LinkMismatchAction, isRequest: Boolean):
   (String, String, Option[String], Option[String]) => String = (link, token, prefixToken, postfixToken) => {
-    Try(replaceIntoPath(link, token, prefixToken, postfixToken, tokenIndex)) match {
+    val updatePath = {
+      if (isRequest) {
+        val tokenIndex = tokenIndexOpt match {
+          case Some(index) => index.intValue()
+          case _ => config.getTokenIndex
+        }
+        Try(removeFromPath(link, tokenIndex))
+      } else {
+        Try(replaceIntoPath(link, token, prefixToken, postfixToken, tokenIndexOpt))
+      }
+    }
+
+    updatePath match {
       case Success(newLink) => newLink
       case Failure(e: PathRewriteException) =>
         failureBehavior match {
@@ -408,7 +421,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
     val setupTemplate = saxonTransformFactory.newTemplates(new StreamSource(getClass.getResource("/META-INF/schema/xslt/transformer.xsl").toString))
 
-    def setupTransformer(xmlElement: HttpMessage.Xml): Templates = {
+    def setupTransformer(xmlElement: HttpMessage.Xml, isRequest: Boolean): Templates = {
       val setupTransformer = setupTemplate.newTransformer
       setupTransformer.setParameter("xpath", xmlElement.getXpath.getValue)
       setupTransformer.setParameter("namespaces", new StreamSource(
@@ -424,16 +437,19 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
       val config = saxonTransformFactory.asInstanceOf[TransformerFactoryImpl].getConfiguration
       config.registerExtensionFunction(new UrlPathTransformExtension("process-url", "rax", "http://docs.rackspace.com/api",
-        xsltFunction(Option(xmlElement.getXpath.getTokenIndex).map(_.intValue()), xmlElement.getXpath.getLinkMismatchAction)))
+        xsltFunction(Option(xmlElement.getXpath.getTokenIndex).map(_.intValue()), xmlElement.getXpath.getLinkMismatchAction, isRequest)))
 
       saxonTransformFactory.newTemplates(new DOMSource(updateXPathXSLTDomResult.getNode))
     }
 
     config = uriStripperConfig
 
-    templateMap = (for (resource <- config.getLinkResource;
-                        xml <- Option(resource.getResponse).map(_.getXml.toList).getOrElse(List.empty))
-      yield xml.getXpath -> setupTransformer(xml)).toMap
+    templateMapRequest = (for (resource <- config.getLinkResource;
+                               xml <- Option(resource.getRequest).map(_.getXml.toList).getOrElse(List.empty))
+      yield xml.getXpath -> setupTransformer(xml, isRequest = true)).toMap
+    templateMapResponse = (for (resource <- config.getLinkResource;
+                                xml <- Option(resource.getResponse).map(_.getXml.toList).getOrElse(List.empty))
+      yield xml.getXpath -> setupTransformer(xml, isRequest = false)).toMap
     initialized = true
   }
 
