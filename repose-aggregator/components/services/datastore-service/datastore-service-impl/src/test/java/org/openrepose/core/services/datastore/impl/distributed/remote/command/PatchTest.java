@@ -48,7 +48,7 @@ public class PatchTest {
         final String key = "someKey";
         final Patch patchCommand = new Patch(TimeUnit.MINUTES,
                 new TestPatch(), ttl, key,
-                new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null);
+                new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
         Assert.assertEquals("Get command must target expected URL", "http://127.0.0.1:1000" +
                 CacheRequest.CACHE_URI_PATH + key, patchCommand.getUrl());
@@ -58,7 +58,7 @@ public class PatchTest {
     public void processResponse_shouldReturnPatchedValueOnSuccess() throws Exception {
         final int ttl = 30;
         final Patch patchCommand = new Patch(TimeUnit.MINUTES, new TestPatch(),
-                ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null);
+                ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
         // RemoteBehavior.ALLOW_FORWARDING
         final ServiceClientResponse response = mock(ServiceClientResponse.class);
@@ -77,7 +77,7 @@ public class PatchTest {
     public void processResponse_shouldThrowExeptionOnUnauthorized() throws Exception {
         final int ttl = 30;
         final Patch patchCommand = new Patch(TimeUnit.MINUTES, new TestPatch(),
-                ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null);
+                ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
         final ServiceClientResponse response = mock(ServiceClientResponse.class);
         when(response.getStatus()).thenReturn(HttpServletResponse.SC_UNAUTHORIZED);
 

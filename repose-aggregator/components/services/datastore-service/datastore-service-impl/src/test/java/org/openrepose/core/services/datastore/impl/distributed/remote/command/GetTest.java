@@ -48,7 +48,7 @@ public class GetTest {
 
         @Test
         public void shouldTargetCorrectDeletionUrl() throws UnknownHostException {
-            final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null);
+            final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
             Assert.assertEquals("Get command must target expected URL", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + "object-key", getCommand.getUrl());
         }
@@ -58,7 +58,7 @@ public class GetTest {
 
         @Test
         public void shouldReturnTrueOnSuccess() throws Exception {
-            final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null);
+            final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
             // RemoteBehavior.ALLOW_FORWARDING
             final ServiceClientResponse response = mock(ServiceClientResponse.class);
@@ -74,7 +74,7 @@ public class GetTest {
 
         @Test(expected = DatastoreOperationException.class)
         public void shouldThrowExeptionOnUnauthorized() throws Exception {
-            final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null);
+            final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
             final ServiceClientResponse response = mock(ServiceClientResponse.class);
             when(response.getStatus()).thenReturn(HttpServletResponse.SC_UNAUTHORIZED);

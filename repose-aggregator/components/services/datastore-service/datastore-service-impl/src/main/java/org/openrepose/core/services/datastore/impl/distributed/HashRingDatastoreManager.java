@@ -31,7 +31,7 @@ public class HashRingDatastoreManager implements DatastoreManager {
     private static final String TRACING_HEADER = "temp-tracing-header";
     private final HashRingDatastore datastore;
 
-    public HashRingDatastoreManager(ClusterConfiguration configuration, Datastore localDatastore, String connPoolId) {
+    public HashRingDatastoreManager(ClusterConfiguration configuration, Datastore localDatastore, String connPoolId, boolean useHttps) {
         datastore = new HashRingDatastore(
                 new RemoteCommandExecutor(configuration.getProxyService(), HOST_KEY, TRACING_HEADER),
                 configuration.getClusterView(),
@@ -39,7 +39,8 @@ public class HashRingDatastoreManager implements DatastoreManager {
                 localDatastore,
                 MD5MessageDigestFactory.getInstance(),
                 configuration.getEncodingProvider(),
-                connPoolId);
+                connPoolId,
+                useHttps);
     }
 
     @Override

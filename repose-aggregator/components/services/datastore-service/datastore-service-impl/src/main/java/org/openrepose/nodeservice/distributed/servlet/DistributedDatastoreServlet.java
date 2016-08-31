@@ -94,7 +94,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
         super.init(config);
         LOG.info("Registering datastore: {}", DISTRIBUTED_HASH_RING);
 
-        datastoreService.createDistributedDatastore(DISTRIBUTED_HASH_RING, clusterConfiguration, ddConfig.getConnectionPoolId());
+        boolean useHttps = ddConfig.getKeystoreFilename() != null;
+        datastoreService.createDistributedDatastore(DISTRIBUTED_HASH_RING, clusterConfiguration, ddConfig.getConnectionPoolId(), useHttps);
     }
 
     @Override

@@ -93,9 +93,41 @@ public class CacheRequestTest {
         @Test
         public void shouldMarshallGetRequests() throws UnknownHostException {
             final InetSocketAddress addr = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000);
-            final String urlFor = CacheRequest.urlFor(addr, RESOURCE);
+            final String urlFor = CacheRequest.urlFor(addr, RESOURCE, false);
 
             assertEquals("Cache request must generate valid cache URLs", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + RESOURCE, urlFor);
+        }
+
+        @Test
+        public void shouldBuildHttpRequestWithoutKey() throws UnknownHostException {
+            final InetSocketAddress addr = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000);
+            final String urlFor = CacheRequest.urlFor(addr, false);
+
+            assertEquals("Cache request must generate valid cache URLs", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH, urlFor);
+        }
+
+        @Test
+        public void shouldBuildHttpRequestWithKey() throws UnknownHostException {
+            final InetSocketAddress addr = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000);
+            final String urlFor = CacheRequest.urlFor(addr, RESOURCE, false);
+
+            assertEquals("Cache request must generate valid cache URLs", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + RESOURCE, urlFor);
+        }
+
+        @Test
+        public void shouldBuildHttpsRequestWithoutKey() throws UnknownHostException {
+            final InetSocketAddress addr = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000);
+            final String urlFor = CacheRequest.urlFor(addr, true);
+
+            assertEquals("Cache request must generate valid cache URLs", "https://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH, urlFor);
+        }
+
+        @Test
+        public void shouldBuildHttpsRequestWithKey() throws UnknownHostException {
+            final InetSocketAddress addr = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000);
+            final String urlFor = CacheRequest.urlFor(addr, RESOURCE, true);
+
+            assertEquals("Cache request must generate valid cache URLs", "https://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + RESOURCE, urlFor);
         }
     }
 

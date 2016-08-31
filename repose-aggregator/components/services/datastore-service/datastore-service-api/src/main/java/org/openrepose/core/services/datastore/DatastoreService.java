@@ -80,7 +80,7 @@ public interface DatastoreService {
      * @return
      * @throws DatastoreServiceException if the datastore creation fails
      */
-    DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId)
+    DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId, boolean useHttps)
             throws DatastoreServiceException;
 
     /**

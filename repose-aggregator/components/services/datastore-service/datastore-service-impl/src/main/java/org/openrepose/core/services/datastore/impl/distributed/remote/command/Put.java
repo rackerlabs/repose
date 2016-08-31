@@ -41,8 +41,8 @@ public class Put extends AbstractRemoteCommand {
     private final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly")
-    public Put(TimeUnit timeUnit, Serializable value, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId) {
-        super(cacheObjectKey, remoteEndpoint, connPoolId);
+    public Put(TimeUnit timeUnit, Serializable value, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId, boolean useHttps) {
+        super(cacheObjectKey, remoteEndpoint, connPoolId, useHttps);
         this.timeUnit = timeUnit;
         this.ttl = ttl;
         this.value = value;

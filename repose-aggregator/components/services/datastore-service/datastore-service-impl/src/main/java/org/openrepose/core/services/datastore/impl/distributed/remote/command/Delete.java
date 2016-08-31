@@ -32,8 +32,8 @@ import java.net.InetSocketAddress;
  */
 public class Delete extends AbstractRemoteCommand {
 
-    public Delete(String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId) {
-        super(cacheObjectKey, remoteEndpoint, connPoolId);
+    public Delete(String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId, boolean useHttps) {
+        super(cacheObjectKey, remoteEndpoint, connPoolId, useHttps);
     }
 
     @Override
