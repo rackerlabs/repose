@@ -116,10 +116,6 @@ class DistDatastoreClientAuthMultiTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("Repose ready", 1, 60, TimeUnit.SECONDS)
     }
 
-//    def "should not be able to put an object in the datastore as an anonymous client"() {
-//        // TODO: Move to another test
-//    }
-
     def "should be able to put an object in the datastore as an authenticated client"() {
         given:
         def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']

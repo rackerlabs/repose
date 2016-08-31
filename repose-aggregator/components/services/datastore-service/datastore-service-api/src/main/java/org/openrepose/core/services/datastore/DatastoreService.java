@@ -30,7 +30,6 @@ public interface DatastoreService {
     /**
      * Get the default datastore
      */
-    // TODO: Rename this to getLocalDatastore for clarity?
     Datastore getDefaultDatastore() throws DatastoreUnavailableException;
 
     /**
@@ -40,7 +39,6 @@ public interface DatastoreService {
      * @return
      * @throws DatastoreUnavailableException if no datastore exists with the given datastoreName
      */
-    // TODO: Rename this to getDistributedDatastore for clarity?
     Datastore getDatastore(String datastoreName) throws DatastoreUnavailableException;
 
     /**
@@ -56,7 +54,6 @@ public interface DatastoreService {
      *
      * @param datastoreName
      */
-    // TODO: Rename this to destroyDistributedDatastore for clairty?
     void destroyDatastore(String datastoreName);
 
     /**
