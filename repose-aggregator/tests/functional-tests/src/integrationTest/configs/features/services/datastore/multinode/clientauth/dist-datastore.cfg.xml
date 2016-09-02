@@ -2,7 +2,8 @@
 <distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'
                        keystore-filename="server.jks"
                        keystore-password="password"
-                       key-password="password">
+                       key-password="password"
+                       connection-pool-id="dist-datastore">
     <allowed-hosts allow-all="true"/>
     <port-config>
         <port port="${datastorePort1}" cluster="repose1" node="node1"/>
