@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
+    <!--TODO: Why use multiple link-resources? Multiple json elements should work.-->
+    <link-resource>
+        <request>
+            <json link-mismatch-action="continue" token-index="0">$.link-a</json>
+        </request>
+    </link-resource>
+    <link-resource>
+        <request>
+            <json link-mismatch-action="continue" token-index="1">$.link-b</json>
+        </request>
+    </link-resource>
+    <link-resource>
+        <request>
+            <json link-mismatch-action="continue" token-index="5">$.link-c</json>
+        </request>
+    </link-resource>
+    <link-resource>
+        <request>
+            <json link-mismatch-action="continue">$.foo.bar.baz.link</json>
+        </request>
+    </link-resource>
+</uri-stripper>
