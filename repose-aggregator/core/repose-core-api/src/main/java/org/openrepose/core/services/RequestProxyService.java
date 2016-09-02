@@ -29,7 +29,6 @@ import java.util.Map;
 public interface RequestProxyService {
 
     //TODO: this is the most terrible return value ever
-    //TODO: Deprecate the methods which don't take a connection pool id?
     int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException;
 
     int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response, String connPoolId)
@@ -37,26 +36,32 @@ public interface RequestProxyService {
 
     void setRewriteHostHeader(boolean value);
 
+    @Deprecated
     ServiceClientResponse get(String uri, Map<String, String> headers);
 
     ServiceClientResponse get(String uri, Map<String, String> headers, String connPoolId);
 
+    @Deprecated
     ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers);
 
     ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers, String connPoolId);
 
+    @Deprecated
     ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers);
 
     ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers, String connPoolId);
 
+    @Deprecated
     ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body);
 
     ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, String connPoolId);
 
+    @Deprecated
     ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body);
 
     ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body, String connPoolId);
 
+    @Deprecated
     ServiceClientResponse patch(String baseUri, String path, Map<String, String> headers, byte[] body);
 
     ServiceClientResponse patch(String baseUri, String path, Map<String, String> headers, byte[] body, String connPoolId);
