@@ -389,7 +389,7 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
 
         filter.doFilter(request, response, filterChain)
 
-        response.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        response.getStatus shouldEqual HttpServletResponse.SC_BAD_REQUEST
         response.getContentLength shouldEqual 0
       }
 
@@ -418,7 +418,7 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
 
         filter.doFilter(request, response, filterChain)
 
-        response.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        response.getStatus shouldEqual HttpServletResponse.SC_BAD_REQUEST
         response.getContentLength shouldEqual 0
       }
 
@@ -836,7 +836,7 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
 
         filter.doFilter(request, response, filterChain)
 
-        response.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        response.getStatus shouldEqual HttpServletResponse.SC_BAD_REQUEST
         response.getContentLength shouldEqual 0
       }
 
@@ -866,7 +866,7 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
 
         filter.doFilter(request, response, filterChain)
 
-        response.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        response.getStatus shouldEqual HttpServletResponse.SC_BAD_REQUEST
         response.getContentLength shouldEqual 0
       }
 
@@ -1010,7 +1010,7 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
 
         filter.doFilter(request, response, filterChain)
 
-        response.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        response.getStatus shouldEqual HttpServletResponse.SC_BAD_REQUEST
         response.getContentLength shouldEqual 0
       }
     }

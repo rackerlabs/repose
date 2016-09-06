@@ -127,7 +127,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         case Success(request) =>
           filterChain.doFilter(request, wrappedResponse)
         case Failure(e) =>
-          wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
+          wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage)
       }
 
       wrappedResponse.uncommit()
