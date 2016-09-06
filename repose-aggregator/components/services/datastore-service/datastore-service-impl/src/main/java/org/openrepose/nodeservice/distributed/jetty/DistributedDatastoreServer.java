@@ -24,10 +24,9 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.openrepose.commons.utils.io.FileUtilities;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.nodeservice.distributed.servlet.DistributedDatastoreServlet;
-
-import java.io.File;
 
 /**
  * Perhaps encapsulate the monitoring bits better
@@ -71,13 +70,13 @@ public class DistributedDatastoreServer {
             ServerConnector conn;
             if (ddConfig.getKeystoreFilename() != null) {
                 SslContextFactory cf = new SslContextFactory();
-                cf.setKeyStorePath(guardedAbsoluteFile(configRoot, ddConfig.getKeystoreFilename()).getAbsolutePath());
+                cf.setKeyStorePath(FileUtilities.guardedAbsoluteFile(configRoot, ddConfig.getKeystoreFilename()).getAbsolutePath());
                 cf.setKeyStorePassword(ddConfig.getKeystorePassword());
                 cf.setKeyManagerPassword(ddConfig.getKeyPassword());
                 cf.setNeedClientAuth(true);
 
                 if (ddConfig.getTruststoreFilename() != null) {
-                    cf.setTrustStorePath(guardedAbsoluteFile(configRoot, ddConfig.getTruststoreFilename()).getAbsolutePath());
+                    cf.setTrustStorePath(FileUtilities.guardedAbsoluteFile(configRoot, ddConfig.getTruststoreFilename()).getAbsolutePath());
                     cf.setTrustStorePassword(ddConfig.getTruststorePassword());
                 }
 
@@ -111,18 +110,5 @@ public class DistributedDatastoreServer {
 
     public int getPort() {
         return port;
-    }
-
-    private File guardedAbsoluteFile(String parent, String child) {
-        File returnFile;
-
-        File childFile = new File(child);
-        if (childFile.isAbsolute()) {
-            returnFile = childFile;
-        } else {
-            returnFile = new File(parent, child);
-        }
-
-        return returnFile;
     }
 }

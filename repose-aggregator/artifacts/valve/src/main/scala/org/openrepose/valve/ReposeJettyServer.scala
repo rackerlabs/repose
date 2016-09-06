@@ -19,7 +19,6 @@
  */
 package org.openrepose.valve
 
-import java.io.File
 import java.util
 import javax.servlet.DispatcherType
 
@@ -27,6 +26,7 @@ import com.typesafe.config.ConfigFactory
 import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
 import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
 import org.eclipse.jetty.util.ssl.SslContextFactory
+import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.openrepose.powerfilter.EmptyServlet
@@ -96,13 +96,6 @@ class ReposeJettyServer(val clusterId: String,
     }
 
     val httpsConnector: Option[ServerConnector] = httpsPort.map { port =>
-
-      def guardedAbsoluteFile(parent: String, child: String): File = {
-        val childFile = new File(child)
-        if (childFile.isAbsolute) childFile
-        else new File(parent, child)
-      }
-
       val cf = new SslContextFactory()
 
       //TODO: do we make this a URL for realsies?
@@ -110,13 +103,13 @@ class ReposeJettyServer(val clusterId: String,
       // See: http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html
       val configRoot = coreSpringProvider.getCoreContext.getEnvironment.getProperty(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT))
       sslConfig.map { ssl =>
-        cf.setKeyStorePath(guardedAbsoluteFile(configRoot, ssl.getKeystoreFilename).getAbsolutePath)
+        cf.setKeyStorePath(FileUtilities.guardedAbsoluteFile(configRoot, ssl.getKeystoreFilename).getAbsolutePath)
         cf.setKeyStorePassword(ssl.getKeystorePassword)
         cf.setKeyManagerPassword(ssl.getKeyPassword)
         if (ssl.isNeedClientAuth) {
           cf.setNeedClientAuth(true)
           Option(ssl.getTruststoreFilename).foreach { truststoreFilename =>
-            cf.setTrustStorePath(guardedAbsoluteFile(configRoot, truststoreFilename).getAbsolutePath)
+            cf.setTrustStorePath(FileUtilities.guardedAbsoluteFile(configRoot, truststoreFilename).getAbsolutePath)
             cf.setTrustStorePassword(ssl.getTruststorePassword)
           }
         }
