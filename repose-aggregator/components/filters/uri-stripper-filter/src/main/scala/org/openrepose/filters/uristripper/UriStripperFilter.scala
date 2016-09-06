@@ -108,8 +108,8 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val requestLinkPaths = config.getLinkResource
         .filter(resource => resource.getUriPathRegex =~ wrappedRequest.getRequestURI)
         .filter(resource => isMatchingMethod(resource.getHttpMethods.toSet, wrappedRequest.getMethod))
-        .map(resource => getPathsForContentType(wrappedRequest.getContentType, resource.getRequest))
-        .fold(List.empty[LinkPath])(_ ++ _)
+        .flatMap(resource => getPathsForContentType(wrappedRequest.getContentType, resource.getRequest))
+        .toList
 
       val filterChainRequest = {
         if (token.isDefined && requestLinkPaths.nonEmpty) {
@@ -147,8 +147,8 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val responseLinkPaths = config.getLinkResource
         .filter(resource => resource.getUriPathRegex =~ wrappedRequest.getRequestURI)
         .filter(resource => isMatchingMethod(resource.getHttpMethods.toSet, wrappedRequest.getMethod))
-        .map(resource => getPathsForContentType(wrappedResponse.getContentType, resource.getResponse))
-        .fold(List.empty[LinkPath])(_ ++ _)
+        .flatMap(resource => getPathsForContentType(wrappedResponse.getContentType, resource.getResponse))
+        .toList
 
       if (token.isDefined && responseLinkPaths.nonEmpty) {
         Option(wrappedResponse.getContentType) match {
