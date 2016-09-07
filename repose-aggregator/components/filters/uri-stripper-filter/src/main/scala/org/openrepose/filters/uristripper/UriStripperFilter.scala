@@ -450,10 +450,10 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
     templateMapRequest = (for (resource <- config.getLinkResource;
                                xml <- Option(resource.getRequest).map(_.getXml.toList).getOrElse(List.empty))
-      yield xml.getXpath -> setupTransformer(xml, isRequest = true)).toMap
+                               yield xml.getXpath -> setupTransformer(xml, isRequest = true)).toMap
     templateMapResponse = (for (resource <- config.getLinkResource;
                                 xml <- Option(resource.getResponse).map(_.getXml.toList).getOrElse(List.empty))
-      yield xml.getXpath -> setupTransformer(xml, isRequest = false)).toMap
+                                yield xml.getXpath -> setupTransformer(xml, isRequest = false)).toMap
     initialized = true
   }
 
