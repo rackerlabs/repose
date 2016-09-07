@@ -22,8 +22,8 @@ package org.openrepose.core.container.config
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
@@ -140,6 +140,48 @@ class ContainerSchemaTest extends FunSpec with Matchers {
         validator.validateConfigString(config)
       }
       exception.getLocalizedMessage should include ("is not facet-valid with respect to maxInclusive")
+    }
+
+    it("should reject a config where ssl-configuration is partially patched but not in the base") {
+      val config =
+        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+          |    <deployment-config>
+          |        <deployment-directory>/var/repose</deployment-directory>
+          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+          |    </deployment-config>
+          |
+          |    <cluster-config cluster="foo">
+          |        <ssl-configuration>
+          |            <key-password>password</key-password>
+          |        </ssl-configuration>
+          |    </cluster-config>
+          |</repose-container>""".stripMargin
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include("When defining a new keystore to use, the keystore and key passwords are required")
+    }
+
+    it("should successfully validate a config where ssl-configuration is partially patched and is in the base") {
+      val config =
+        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+          |    <deployment-config>
+          |        <deployment-directory>/var/repose</deployment-directory>
+          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+          |        <ssl-configuration>
+          |            <keystore-filename>keystore.jks</keystore-filename>
+          |            <keystore-password>password</keystore-password>
+          |            <key-password>password</key-password>
+          |        </ssl-configuration>
+          |    </deployment-config>
+          |
+          |    <cluster-config cluster="foo">
+          |        <ssl-configuration>
+          |            <key-password>other-password</key-password>
+          |        </ssl-configuration>
+          |    </cluster-config>
+          |</repose-container>""".stripMargin
+      validator.validateConfigString(config)
     }
   }
 }
