@@ -80,7 +80,7 @@ class RequestProxyServiceImplTest extends Specification {
 
         when:
         byte[] sentBytes = [4, 5, 6] as byte[]
-        def response = requestProxyService.patch("http://www.google.com", "key", ["thing": "other thing"], sentBytes)
+        def response = requestProxyService.patch("http://www.google.com", "key", ["thing": "other thing"], sentBytes, null)
         def request = captor.getValue()
         byte[] readBytes = new byte[3]
         request.getEntity().getContent().read(readBytes)
@@ -112,7 +112,7 @@ class RequestProxyServiceImplTest extends Specification {
 
         when:
         byte[] sentBytes = [4, 5, 6] as byte[]
-        def response = requestProxyService.patch("http://www.google.com", "key", ["thing": "other thing"], sentBytes)
+        def response = requestProxyService.patch("http://www.google.com", "key", ["thing": "other thing"], sentBytes, null)
         def request = captor.getValue()
         byte[] readBytes = new byte[3]
         request.getEntity().getContent().read(readBytes)
@@ -149,7 +149,7 @@ class RequestProxyServiceImplTest extends Specification {
 
         when:
         byte[] sentBytes = [4, 5, 6] as byte[]
-        def response = requestProxyService.patch("http://www.google.com", "key", ["thing": "other thing"], sentBytes)
+        def response = requestProxyService.patch("http://www.google.com", "key", ["thing": "other thing"], sentBytes, null)
         def request = captor.getValue()
         byte[] readBytes = new byte[3]
         request.getEntity().getContent().read(readBytes)
@@ -168,7 +168,7 @@ class RequestProxyServiceImplTest extends Specification {
         ThreadContext.clearAll()
     }
 
-    def "proxyRequest(host, request, response) will try to use a given connection pool"() {
+    def "proxyRequest(host, request, response, null) will try to use the default connection pool"() {
         given:
         when(httpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"))
@@ -195,13 +195,13 @@ class RequestProxyServiceImplTest extends Specification {
         verification { verify(httpClientService).getClient(testPoolId) }
     }
 
-    def "get(uri, headers) will try to use a given connection pool"() {
+    def "get(uri, headers, null) will try to use the default connection pool"() {
         given:
         when(httpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"))
 
         when:
-        requestProxyService.get("http://www.google.com", Collections.emptyMap())
+        requestProxyService.get("http://www.google.com", Collections.emptyMap(), null)
 
         then:
         verification { verify(httpClientService).getClient(null) }
@@ -219,12 +219,12 @@ class RequestProxyServiceImplTest extends Specification {
         verification { verify(httpClientService).getClient(testPoolId) }
     }
 
-    def "get(uri, extraUri, headers) will try to use a given connection pool"() {
+    def "get(uri, extraUri, headers, null) will try to use the default connection pool"() {
         given:
         when(httpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"))
         when:
-        requestProxyService.get("http://www.google.com", "key", Collections.emptyMap())
+        requestProxyService.get("http://www.google.com", "key", Collections.emptyMap(), null)
 
         then:
         verification { verify(httpClientService).getClient(null) }
@@ -243,13 +243,13 @@ class RequestProxyServiceImplTest extends Specification {
         verification { verify(httpClientService).getClient(testPoolId) }
     }
 
-    def "put(uri, headers, body) will try to use a given connection pool"() {
+    def "put(uri, headers, body, null) will try to use the default connection pool"() {
         given:
         when(httpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
 
         when:
-        requestProxyService.put("http://www.google.com", Collections.emptyMap(), [] as byte[])
+        requestProxyService.put("http://www.google.com", Collections.emptyMap(), [] as byte[], null)
 
         then:
         verification { verify(httpClientService).getClient(null) }
@@ -268,13 +268,13 @@ class RequestProxyServiceImplTest extends Specification {
         verification { verify(httpClientService).getClient(testPoolId) }
     }
 
-    def "put(uri, path, headers, body) will try to use a given connection pool"() {
+    def "put(uri, path, headers, body, null) will try to use the default connection pool"() {
         given:
         when(httpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
 
         when:
-        requestProxyService.put("http://www.google.com", "", Collections.emptyMap(), [] as byte[])
+        requestProxyService.put("http://www.google.com", "", Collections.emptyMap(), [] as byte[], null)
 
         then:
         verification { verify(httpClientService).getClient(null) }
@@ -293,13 +293,13 @@ class RequestProxyServiceImplTest extends Specification {
         verification { verify(httpClientService).getClient(testPoolId) }
     }
 
-    def "patch(uri, path, headers, body) will try to use a given connection pool"() {
+    def "patch(uri, path, headers, body, null) will try to use the default connection pool"() {
         given:
         when(httpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
 
         when:
-        requestProxyService.patch("http://www.google.com", "", Collections.emptyMap(), [] as byte[])
+        requestProxyService.patch("http://www.google.com", "", Collections.emptyMap(), [] as byte[], null)
 
         then:
         verification { verify(httpClientService).getClient(null) }
@@ -318,13 +318,13 @@ class RequestProxyServiceImplTest extends Specification {
         verification { verify(httpClientService).getClient(testPoolId) }
     }
 
-    def "delete(uri, path, headers) will try to use a given connection pool"() {
+    def "delete(uri, path, headers, null) will try to use the default connection pool"() {
         given:
         when(httpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
 
         when:
-        requestProxyService.patch("http://www.google.com", "", Collections.emptyMap())
+        requestProxyService.patch("http://www.google.com", "", Collections.emptyMap(), [] as byte[], null)
 
         then:
         verification { verify(httpClientService).getClient(null) }

@@ -235,20 +235,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
-    public ServiceClientResponse get(String uri, Map<String, String> headers) {
-        return get(uri, headers, null);
-    }
-
-    @Override
     public ServiceClientResponse get(String uri, Map<String, String> headers, String connPoolId) {
         HttpGet get = new HttpGet(uri);
         setHeaders(get, headers);
         return execute(get, connPoolId);
-    }
-
-    @Override
-    public ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers) {
-        return get(baseUri, extraUri, headers, null);
     }
 
     @Override
@@ -257,20 +247,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
-    public ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers) {
-        return delete(baseUri, extraUri, headers, null);
-    }
-
-    @Override
     public ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers, String connPoolId) {
         HttpDelete delete = new HttpDelete(StringUriUtilities.appendPath(baseUri, extraUri));
         setHeaders(delete, headers);
         return execute(delete, connPoolId);
-    }
-
-    @Override
-    public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body) {
-        return put(uri, headers, body, null);
     }
 
     @Override
@@ -284,18 +264,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
-    public ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body) {
-        return put(baseUri, path, headers, body, null);
-    }
-
-    @Override
     public ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body, String connPoolId) {
         return put(StringUriUtilities.appendPath(baseUri, path), headers, body, connPoolId);
-    }
-
-    @Override
-    public ServiceClientResponse patch(String baseUri, String path, Map<String, String> headers, byte[] body) {
-        return patch(baseUri, path, headers, body, null);
     }
 
     @Override
