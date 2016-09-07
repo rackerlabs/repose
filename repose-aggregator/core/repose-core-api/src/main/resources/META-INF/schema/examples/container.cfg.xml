@@ -32,4 +32,10 @@
 -->
         </ssl-configuration>
     </deployment-config>
+
+    <cluster-config cluster-id="internal-cluster">
+        <ssl-configuration need-client-auth="true">
+            <truststore-filename>external.truststore</truststore-filename>
+        </ssl-configuration>
+    </cluster-config>
 </repose-container>

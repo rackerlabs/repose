@@ -40,22 +40,20 @@
 
         <xs:sequence>
             <xs:element name="deployment-config" type="papic:DeploymentConfiguration"/>
+            <xs:element name="cluster-config" type="papic:PatchDeploymentConfiguration" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="DeploymentConfiguration">
+    <xs:complexType name="DeploymentConfigurationBase">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Contains deployment configuration attributes.</html:p>
             </xs:documentation>
         </xs:annotation>
 
-        <xs:all>
-            <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1"/>
+        <xs:sequence>
             <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="ssl-configuration" type="papic:SslConfiguration" minOccurs="0" maxOccurs="1"/>
-        </xs:all>
+        </xs:sequence>
 
         <xs:attribute name="http-port" type="xs:int" use="optional">
             <xs:annotation>
@@ -135,6 +133,40 @@
         </xs:attribute>
     </xs:complexType>
 
+    <xs:complexType name="DeploymentConfiguration">
+        <xs:complexContent>
+            <xs:extension base="papic:DeploymentConfigurationBase">
+                <xs:sequence>
+                    <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="1" maxOccurs="1"/>
+                    <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1"/>
+                    <xs:element name="ssl-configuration" type="papic:SslConfiguration" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="PatchDeploymentConfiguration">
+        <xs:complexContent>
+            <xs:extension base="papic:DeploymentConfigurationBase">
+                <xs:sequence>
+                    <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="ssl-configuration" type="papic:PatchSslConfiguration" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+
+                <xs:attribute name="cluster-id" type="xs:ID" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The ID which specifies which cluster this configuration patch should be applied to.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <xs:complexType name="ArtifactDirectory">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -183,7 +215,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="SslConfiguration">
+    <xs:complexType name="SslConfigurationBase">
         <xs:annotation>
             <xs:documentation>
                 <html:p>
@@ -191,28 +223,7 @@
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        <xs:all>
-            <xs:element name="keystore-filename" type="xs:anyURI" minOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Name of the application keystore file, e.g keystore.repose</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="keystore-password" type="xs:string" minOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>The password for the entire application keystore.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="key-password" type="xs:string" minOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>The password for the particular application key in the keystore.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
+        <xs:sequence>
             <xs:element name="truststore-filename" type="xs:anyURI" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
@@ -272,7 +283,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-        </xs:all>
+        </xs:sequence>
         <xs:attribute name="need-client-auth" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
@@ -280,6 +291,69 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="SslConfiguration">
+        <xs:complexContent>
+            <xs:extension base="papic:SslConfigurationBase">
+                <xs:sequence>
+                    <xs:element name="keystore-filename" type="xs:anyURI" minOccurs="1" maxOccurs="1">
+                        <xs:annotation>
+                            <xs:documentation>
+                                <html:p>Name of the application keystore file, e.g keystore.repose</html:p>
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="keystore-password" type="xs:string" minOccurs="1" maxOccurs="1">
+                        <xs:annotation>
+                            <xs:documentation>
+                                <html:p>The password for the entire application keystore.</html:p>
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="key-password" type="xs:string" minOccurs="1" maxOccurs="1">
+                        <xs:annotation>
+                            <xs:documentation>
+                                <html:p>The password for the particular application key in the keystore.</html:p>
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="PatchSslConfiguration">
+        <xs:complexContent>
+            <xs:extension base="papic:SslConfigurationBase">
+                <xs:sequence>
+                    <!-- TODO: What if this doesn't exist in the base? All of the elements should be optional, but they are also required.
+                        That is, if the base is missing this configuration, these elements are required. Otherwise, they are optional and
+                        treated as patches. -->
+                    <xs:element name="keystore-filename" type="xs:anyURI" minOccurs="0" maxOccurs="1">
+                        <xs:annotation>
+                            <xs:documentation>
+                                <html:p>Name of the application keystore file, e.g keystore.repose</html:p>
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="keystore-password" type="xs:string" minOccurs="0" maxOccurs="1">
+                        <xs:annotation>
+                            <xs:documentation>
+                                <html:p>The password for the entire application keystore.</html:p>
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="key-password" type="xs:string" minOccurs="0" maxOccurs="1">
+                        <xs:annotation>
+                            <xs:documentation>
+                                <html:p>The password for the particular application key in the keystore.</html:p>
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="sslProtocolConfiguration">
@@ -322,10 +396,6 @@
                    xerces:message="Don't duplicate ciphers"
                    saxon:message="Don't duplicate ciphers">
         </xs:assert>
-    </xs:complexType>
-
-    <xs:complexType name="cipherList">
-
     </xs:complexType>
 
     <xs:simpleType name="intGTZero">
