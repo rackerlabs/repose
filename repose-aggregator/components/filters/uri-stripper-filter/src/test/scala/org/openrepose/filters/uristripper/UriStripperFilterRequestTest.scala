@@ -548,7 +548,7 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
         getPostFilterRequestBody shouldEqual requestBody
       }
 
-      it("should not alter the body if the method does not match the configured resource type") {
+      it("should not alter the body if the method does not match the configured resource type (response in lieu of request") {
         val config =
           """<?xml version="1.0" encoding="UTF-8"?>
             |<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="1">
