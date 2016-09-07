@@ -42,6 +42,19 @@
             <xs:element name="deployment-config" type="papic:DeploymentConfiguration"/>
             <xs:element name="cluster-config" type="papic:PatchDeploymentConfiguration" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="
+                   if (exists(deployment-config/ssl-configuration)) then
+                     true()
+                   else
+                     (if (cluster-config/ssl-configuration/keystore-filename or cluster-config/ssl-configuration/keystore-password or cluster-config/ssl-configuration/key-password) then
+                       cluster-config/ssl-configuration/keystore-filename and cluster-config/ssl-configuration/keystore-password and cluster-config/ssl-configuration/key-password
+                     else
+                       true())"
+                   xerces:message="When defining a new keystore to use, the keystore and key passwords are required"
+                   saxon:message="When defining a new keystore to use, the keystore and key passwords are required"/>
     </xs:complexType>
 
     <xs:complexType name="DeploymentConfigurationBase">
@@ -327,9 +340,6 @@
         <xs:complexContent>
             <xs:extension base="papic:SslConfigurationBase">
                 <xs:sequence>
-                    <!-- TODO: What if this doesn't exist in the base? All of the elements should be optional, but they are also required.
-                        That is, if the base is missing this configuration, these elements are required. Otherwise, they are optional and
-                        treated as patches. -->
                     <xs:element name="keystore-filename" type="xs:anyURI" minOccurs="0" maxOccurs="1">
                         <xs:annotation>
                             <xs:documentation>
@@ -394,8 +404,7 @@
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(cipher)) = count(cipher)"
                    xpathDefaultNamespace="##targetNamespace"
                    xerces:message="Don't duplicate ciphers"
-                   saxon:message="Don't duplicate ciphers">
-        </xs:assert>
+                   saxon:message="Don't duplicate ciphers"/>
     </xs:complexType>
 
     <xs:simpleType name="intGTZero">
