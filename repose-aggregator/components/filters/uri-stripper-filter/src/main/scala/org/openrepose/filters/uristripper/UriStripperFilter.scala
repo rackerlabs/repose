@@ -195,7 +195,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
             if (linkPath.getLinkMismatchAction == FAIL) throw e
             else new ServletInputStreamWrapper(new ByteArrayInputStream(out.toByteArray))
           case Failure(e: PathRewriteException) =>
-            logger.warn("Failed while trying to rewrite the location header", e)
+            logger.warn("Failed while trying to rewrite request body link", e)
             throw e
           case Failure(e) => throw e
         }
@@ -239,7 +239,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
             if (linkPath.getLinkMismatchAction == FAIL) throw e
             else new ByteArrayInputStream(out.toByteArray)
           case Failure(e: PathRewriteException) =>
-            logger.warn("Failed while trying to rewrite the location header", e)
+            logger.warn("Failed while trying to rewrite response body link", e)
             throw e
           case Failure(e) => throw e
         }
