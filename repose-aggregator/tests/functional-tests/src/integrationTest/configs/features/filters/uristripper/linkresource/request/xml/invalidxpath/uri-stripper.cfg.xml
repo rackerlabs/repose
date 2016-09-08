@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-stripper xmlns="http://docs.openrepose.org/repose/uri-stripper/v1.0" rewrite-location="false" token-index="2">
+    <link-resource uri-path-regex="/invalid-xpath/.*">
+        <request>
+            <xml>
+                <xpath>];/book//&amp;//*///$//</xpath>
+            </xml>
+        </request>
+    </link-resource>
+</uri-stripper>
