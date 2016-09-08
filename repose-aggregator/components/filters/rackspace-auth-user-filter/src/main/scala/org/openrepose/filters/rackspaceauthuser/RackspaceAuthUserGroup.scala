@@ -20,4 +20,4 @@
 
 package org.openrepose.filters.rackspaceauthuser
 
-case class RackspaceAuthUserGroup(user: String, group: String, quality: Double)
+case class RackspaceAuthUserGroup(domain: Option[String], user: String, group: String, quality: Double)

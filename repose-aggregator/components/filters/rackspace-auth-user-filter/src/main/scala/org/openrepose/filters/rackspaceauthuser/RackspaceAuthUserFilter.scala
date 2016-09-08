@@ -64,6 +64,9 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
       } else {
         val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest)
         handler.get.parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType) foreach { rackspaceAuthUserGroup =>
+          rackspaceAuthUserGroup.domain.foreach { domainVal =>
+            wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
+          }
           wrappedRequest.addHeader(PowerApiHeader.USER.toString, rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.quality)
           wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
         }

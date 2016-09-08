@@ -40,19 +40,8 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
-
-    @Unroll("When request contains identity 2.0 in content preceded by ip-user #testName Expected user is #expectedUser")
-    def "Verifying that x-pp-user and x-pp-groups are added for an auth2.0 payload, not replacing existing headers"() {
+    @Unroll("When request contains Identity 2.0 in User content preceded by ip-user #testName Expected user is #expectedUser")
+    def "Verifying that x-pp-user and x-pp-groups are added for a User auth2.0 payload, not replacing existing headers"() {
 
         when: "Request body contains user credentials"
         def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
@@ -71,13 +60,51 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("2_0-Group;q=0.8")
 
         where:
-        requestBody             | contentType | expectedUser | testName
-        xmlPasswordCred         | contentXml  | "demoauthor" | "xmlPasswordCred"
-        xmlPasswordCredEmptyKey | contentXml  | "demoauthor" | "xmlPasswordCredEmptyKey"
-        jsonPasswordCred        | contentJSON | "demoauthor" | "jsonPasswordKey"
-        jsonApiKeyCred          | contentJSON | "demoauthor" | "jsonApiKey"
+        requestBody              | contentType | expectedUser | testName
+        userPasswordXmlV20       | contentXml  | "demoAuthor" | "userPasswordXmlV20"
+        userPasswordJsonV20      | contentJson | "demoAuthor" | "userPasswordJsonV20"
+        userApiKeyXmlV20         | contentXml  | "demoAuthor" | "userApiKeyXmlV20"
+        userApiKeyJsonV20        | contentJson | "demoAuthor" | "userApiKeyJsonV20"
+        userPasswordXmlEmptyV20  | contentXml  | "demoAuthor" | "userPasswordXmlEmptyV20"
+        userPasswordJsonEmptyV20 | contentJson | "demoAuthor" | "userPasswordJsonEmptyV20"
+        userMfaSetupXmlV20       | contentXml  | "demoAuthor" | "userMfaSetupXmlV20"
+        userMfaSetupJsonV20      | contentJson | "demoAuthor" | "userMfaSetupJsonV20"
     }
 
+    @Unroll("When request contains Identity 2.0 in Domain'd content preceded by ip-user #testName Expected user is #expectedUser")
+    def "Verifying that x-pp-user and x-pp-groups are added for a domain'd auth2.0 payload, not replacing existing headers"() {
+
+        when: "Request body contains user credentials"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
+        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+
+        then: "Repose will send x-pp-user with two values"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 2
+
+        and: "Repose will send user from Request body"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expectedUser + ";q=0.8")
+
+        and: "Repose will send two values for x-domain"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 1
+
+        and: "Repose will send #expectedDomain x-domain"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").contains(expectedDomain)
+
+        and: "Repose will send two values for x-pp-groups"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 2
+
+        and: "Repose will send 'My Group' for x-pp-groups"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("2_0-Group;q=0.8")
+
+        where:
+        requestBody              | contentType | expectedDomain | expectedUser     | testName
+        rackerPasswordXmlV20     | contentXml  | "Rackspace"    | "Racker:jqsmith" | "rackerPasswordXmlV20"
+        rackerPasswordJsonV20    | contentJson | "Rackspace"    | "Racker:jqsmith" | "rackerPasswordJsonV20"
+        rackerTokenKeyXmlV20     | contentXml  | "Rackspace"    | "Racker:jqsmith" | "rackerTokenKeyXmlV20"
+        rackerTokenKeyJsonV20    | contentJson | "Rackspace"    | "Racker:jqsmith" | "rackerTokenKeyJsonV20"
+        federatedPasswordXmlV20  | contentXml  | "Federated"    | "jqsmith"        | "federatedTokenKeyXmlV20"
+        federatedPasswordJsonV20 | contentJson | "Federated"    | "jqsmith"        | "federatedTokenKeyJsonV20"
+    }
 
     @Unroll("When bad requests pass through repose #testName")
     def "Verifying that x-pp-user and x-pp-groups are untouched if the filter does nothing"() {
@@ -99,10 +126,14 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("ip-standard;q=0.4")
 
         where:
-        requestBody  | contentType | testName
-        invalidData  | contentXml  | "invalidData"
-        xmlOverLimit | contentXml  | "xmlOverLimit"
+        requestBody            | contentType | testName
+        invalidData            | contentXml  | "invalidData XML"
+        invalidData            | contentJson | "invalidData JSON"
+        userPasswordXmlOverV20 | contentXml  | "userPasswordXmlOverV20"
+        // TODO: We evidently don't care about the length in JSON
+        //userPasswordJsonOverV20 | contentJson | "userPasswordJsonOverV20"
     }
+
     // Joe Savak - we don't need to do other v1.1 internal contracts
     @Unroll("When request contains identity 1.1 in content, with preceding ip-user, #testName Expected user is #expectedUser")
     def "Verifying that x-pp-user and x-pp-groups are added for an auth1.1 payload, not replacing existing headers"() {
@@ -124,11 +155,11 @@ class RackspaceAuthUserIpIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("1_1-Group;q=0.75")
 
         where:
-        requestBody           | contentType | expectedUser | testName
-        xmlKeyCred11          | contentXml  | "test-user"  | "xmlKeyCred11"
-        xmlKeyCredEmptyKey11  | contentXml  | "test-user"  | "xmlKeyCredEmptyKey11"
-        jsonKeyCred11         | contentJSON | "test-user"  | "jsonKeyCred11"
-        jsonKeyCredEmptyKey11 | contentJSON | "test-user"  | "jsonKeyCredEmptyKey11"
+        requestBody         | contentType | expectedUser | testName
+        userKeyXmlV11       | contentXml  | "test-user"  | "userKeyXmlV11"
+        userKeyJsonV11      | contentJson | "test-user"  | "userKeyJsonV11"
+        userKeyXmlEmptyV11  | contentXml  | "test-user"  | "userKeyXmlEmptyV11"
+        userKeyJsonEmptyV11 | contentJson | "test-user"  | "userKeyJsonEmptyV11"
     }
 
     @Unroll("Does not affect #method requests")
