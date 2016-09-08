@@ -90,7 +90,12 @@ public class DatastoreServiceImpl implements DatastoreService {
 
     @Override
     public DistributedDatastore createDatastore(String datastoreName, ClusterConfiguration configuration) {
-        DatastoreManager manager = new HashRingDatastoreManager(configuration, localDatastoreManager.getDatastore());
+        return createDistributedDatastore(datastoreName, configuration, null, false);
+    }
+
+    @Override
+    public DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId, boolean useHttps) {
+        DatastoreManager manager = new HashRingDatastoreManager(configuration, localDatastoreManager.getDatastore(), connPoolId, useHttps);
         distributedManagers.put(datastoreName, manager);
         return (DistributedDatastore) manager.getDatastore();
     }

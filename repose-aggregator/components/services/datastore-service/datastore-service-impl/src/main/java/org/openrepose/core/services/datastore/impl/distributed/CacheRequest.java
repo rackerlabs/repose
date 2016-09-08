@@ -79,12 +79,20 @@ public class CacheRequest {
         return request.getRequestURI().startsWith(CACHE_URI_PATH);
     }
 
-    public static String urlFor(InetSocketAddress remoteEndpoint, String key) {
-        return new StringBuilder("http://").append(remoteEndpoint.getAddress().getHostAddress()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).append(key).toString();
+    public static String urlFor(InetSocketAddress remoteEndpoint, String key, boolean useHttps) {
+        String proto = "http";
+        if (useHttps) {
+            proto = "https";
+        }
+        return new StringBuilder(proto).append("://").append(remoteEndpoint.getAddress().getHostAddress()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).append(key).toString();
     }
 
-    public static String urlFor(InetSocketAddress remoteEndpoint) {
-        return new StringBuilder("http://").append(remoteEndpoint.getAddress().getHostAddress()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).toString();
+    public static String urlFor(InetSocketAddress remoteEndpoint, boolean useHttps) {
+        String proto = "http";
+        if (useHttps) {
+            proto = "https";
+        }
+        return new StringBuilder(proto).append("://").append(remoteEndpoint.getAddress().getHostAddress()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).toString();
     }
 
     public static RemoteBehavior getRequestedRemoteBehavior(HttpServletRequest request) {

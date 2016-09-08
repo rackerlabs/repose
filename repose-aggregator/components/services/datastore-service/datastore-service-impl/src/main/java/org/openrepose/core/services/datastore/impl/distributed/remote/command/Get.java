@@ -37,13 +37,13 @@ import java.net.InetSocketAddress;
 public class Get extends AbstractRemoteCommand {
     private final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
 
-    public Get(String cacheObjectKey, InetSocketAddress remoteEndpoint) {
-        super(cacheObjectKey, remoteEndpoint);
+    public Get(String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId, boolean useHttps) {
+        super(cacheObjectKey, remoteEndpoint, connPoolId, useHttps);
     }
 
     @Override
     public ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
-        return proxyService.get(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior));
+        return proxyService.get(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior), getConnectionPoolId());
     }
 
     @Override

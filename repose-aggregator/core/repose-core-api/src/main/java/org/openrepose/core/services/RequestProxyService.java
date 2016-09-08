@@ -31,17 +31,20 @@ public interface RequestProxyService {
     //TODO: this is the most terrible return value ever
     int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException;
 
+    int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response, String connPoolId)
+            throws IOException;
+
     void setRewriteHostHeader(boolean value);
 
-    ServiceClientResponse get(String uri, Map<String, String> headers);
+    ServiceClientResponse get(String uri, Map<String, String> headers, String connPoolId);
 
-    ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers);
+    ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers, String connPoolId);
 
-    ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers);
+    ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers, String connPoolId);
 
-    ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body);
+    ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, String connPoolId);
 
-    ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body);
+    ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body, String connPoolId);
 
-    ServiceClientResponse patch(String baseUri, String path, Map<String, String> headers, byte[] body);
+    ServiceClientResponse patch(String baseUri, String path, Map<String, String> headers, byte[] body, String connPoolId);
 }

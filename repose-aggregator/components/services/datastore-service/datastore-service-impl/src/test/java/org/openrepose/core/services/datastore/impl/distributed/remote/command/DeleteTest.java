@@ -40,7 +40,7 @@ public class DeleteTest {
 
         @Test
         public void shouldTargetCorrectDeletionUrl() throws UnknownHostException {
-            final Delete deleteCommand = new Delete("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+            final Delete deleteCommand = new Delete("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
             assertEquals("Delete command must target expected URL", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + "object-key", deleteCommand.getUrl());
         }
@@ -50,7 +50,7 @@ public class DeleteTest {
 
         @Test
         public void shouldReturnTrueOnSuccess() throws Exception {
-            final Delete deleteCommand = new Delete("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+            final Delete deleteCommand = new Delete("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
             // RemoteBehavior.ALLOW_FORWARDING
             final ServiceClientResponse response = mock(ServiceClientResponse.class);
@@ -61,7 +61,7 @@ public class DeleteTest {
 
         @Test
         public void shouldReturnFalseOnFailure() throws Exception {
-            final Delete deleteCommand = new Delete("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+            final Delete deleteCommand = new Delete("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
             final ServiceClientResponse response = mock(ServiceClientResponse.class);
             when(response.getStatus()).thenReturn(404);

@@ -22,8 +22,8 @@ package org.openrepose.core.services.datastore.distributed.config
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
@@ -70,6 +70,57 @@ class DistDatastoreSchemaTest extends FunSpec with Matchers {
         validator.validateConfigString(config)
       }
       exception.getLocalizedMessage should include ("If allow-all is true then allow elements not allowed.")
+    }
+
+    it("should reject config missing keystore-filename") {
+      val config =
+        """<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'
+          |                       keystore-password="password"
+          |                       key-password="secret"
+          |                       truststore-filename="truststore.jks"
+          |                       truststore-password="trusting">
+          |    <allowed-hosts allow-all="true"/>
+          |    <port-config>
+          |        <port port="3888" cluster="38"/>
+          |    </port-config>
+          |</distributed-datastore>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include("IF a keystore filename, password, or key password is provided, THEN all must be provided")
+    }
+
+    it("should reject config missing keystore-password") {
+      val config =
+        """<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'
+          |                       keystore-filename="keystore.jks"
+          |                       key-password="secret"
+          |                       truststore-filename="truststore.jks"
+          |                       truststore-password="trusting">
+          |    <allowed-hosts allow-all="true"/>
+          |    <port-config>
+          |        <port port="3888" cluster="38"/>
+          |    </port-config>
+          |</distributed-datastore>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include("IF a keystore filename, password, or key password is provided, THEN all must be provided")
+    }
+
+    it("should reject config missing key-password") {
+      val config =
+        """<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'
+          |                       keystore-filename="keystore.jks"
+          |                       keystore-password="password"
+          |                       truststore-filename="truststore.jks"
+          |                       truststore-password="trusting">
+          |    <allowed-hosts allow-all="true"/>
+          |    <port-config>
+          |        <port port="3888" cluster="38"/>
+          |    </port-config>
+          |</distributed-datastore>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include("IF a keystore filename, password, or key password is provided, THEN all must be provided")
     }
   }
 }

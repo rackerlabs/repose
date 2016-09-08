@@ -38,18 +38,26 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     private final String cacheObjectKey;
     private String hostKey;
     private String tracingHeader;
+    private String connPoolId;
+    private boolean useHttps;
 
-    public AbstractRemoteCommand(String cacheObjectKey, InetSocketAddress remoteEndpoint) {
+    public AbstractRemoteCommand(String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId, boolean useHttps) {
         this.cacheObjectKey = cacheObjectKey;
         this.remoteEndpoint = remoteEndpoint;
+        this.connPoolId = connPoolId;
+        this.useHttps = useHttps;
     }
 
     public String getUrl() {
-        return CacheRequest.urlFor(getRemoteEndpoint(), getCacheObjectKey());
+        return CacheRequest.urlFor(getRemoteEndpoint(), getCacheObjectKey(), useHttps);
     }
 
     public String getBaseUrl() {
-        return CacheRequest.urlFor(remoteEndpoint);
+        return CacheRequest.urlFor(remoteEndpoint, useHttps);
+    }
+
+    public String getConnectionPoolId() {
+        return connPoolId;
     }
 
     @Override

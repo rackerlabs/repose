@@ -58,16 +58,20 @@ public class HashRingDatastore implements DistributedDatastore {
     private final MessageDigestFactory hashProvider;
     private final String datasetPrefix;
     private final String name;
+    private final String connPoolId;
+    private boolean useHttps = false;
     private boolean clusterMemberWarning = false;
 
     public HashRingDatastore(RemoteCommandExecutor remoteCommandExecutor, ClusterView clusterView,
                              String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider,
-                             EncodingProvider encodingProvider) {
+                             EncodingProvider encodingProvider, String connPoolId, boolean useHttps) {
 
         this.name = DATASTORE_NAME;
         this.encodingProvider = encodingProvider;
         this.hashProvider = hashProvider;
         this.datasetPrefix = datastorePrefix;
+        this.connPoolId = connPoolId;
+        this.useHttps = useHttps;
 
         this.clusterView = clusterView;
         this.localDatastore = localDatastore;
@@ -175,7 +179,7 @@ public class HashRingDatastore implements DistributedDatastore {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-                return remoteCommandExecutor.execute(new Get(name, target), remoteBehavior);
+                return remoteCommandExecutor.execute(new Get(name, target, connPoolId, useHttps), remoteBehavior);
             }
 
             @Override
@@ -210,7 +214,7 @@ public class HashRingDatastore implements DistributedDatastore {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-                return remoteCommandExecutor.execute(new Put(timeUnit, value, ttl, name, target), remoteBehavior);
+                return remoteCommandExecutor.execute(new Put(timeUnit, value, ttl, name, target, connPoolId, useHttps), remoteBehavior);
             }
 
             @Override
@@ -240,7 +244,7 @@ public class HashRingDatastore implements DistributedDatastore {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-                return remoteCommandExecutor.execute(new Delete(name, target), remoteBehavior);
+                return remoteCommandExecutor.execute(new Delete(name, target, connPoolId, useHttps), remoteBehavior);
             }
 
             @Override
@@ -274,7 +278,7 @@ public class HashRingDatastore implements DistributedDatastore {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-                return remoteCommandExecutor.execute(new org.openrepose.core.services.datastore.impl.distributed.remote.command.Patch(timeUnit, patch, ttl, name, target), remoteBehavior);
+                return remoteCommandExecutor.execute(new org.openrepose.core.services.datastore.impl.distributed.remote.command.Patch(timeUnit, patch, ttl, name, target, connPoolId, useHttps), remoteBehavior);
             }
 
             @Override

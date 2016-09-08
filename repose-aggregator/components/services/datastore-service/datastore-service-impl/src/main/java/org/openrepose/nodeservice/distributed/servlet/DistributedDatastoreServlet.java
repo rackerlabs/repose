@@ -26,6 +26,7 @@ import org.openrepose.commons.utils.logging.TracingKey;
 import org.openrepose.core.services.datastore.*;
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.distributed.ClusterView;
+import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.core.services.datastore.impl.distributed.MalformedCacheRequestException;
 import org.slf4j.Logger;
@@ -56,19 +57,20 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private final AtomicReference<DatastoreAccessControl> hostAcl;
     private final DatastoreService datastoreService;
     private final ClusterConfiguration clusterConfiguration;
+    private final DistributedDatastoreConfiguration ddConfig;
     private Datastore localDatastore;
 
     public DistributedDatastoreServlet(
             DatastoreService datastore,
             ClusterConfiguration clusterConfiguration,
-            DatastoreAccessControl acl
+            DatastoreAccessControl acl,
+            DistributedDatastoreConfiguration ddConfig
     ) {
         this.datastoreService = datastore;
         this.clusterConfiguration = clusterConfiguration;
+        this.ddConfig = ddConfig;
         this.hostAcl = new AtomicReference<>(acl);
         localDatastore = datastore.getDefaultDatastore();
-
-        new org.openrepose.core.services.ratelimit.cache.UserRateLimit();
     }
 
     /**
@@ -92,7 +94,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
         super.init(config);
         LOG.info("Registering datastore: {}", DISTRIBUTED_HASH_RING);
 
-        datastoreService.createDatastore(DISTRIBUTED_HASH_RING, clusterConfiguration);
+        boolean useHttps = ddConfig.getKeystoreFilename() != null;
+        datastoreService.createDistributedDatastore(DISTRIBUTED_HASH_RING, clusterConfiguration, ddConfig.getConnectionPoolId(), useHttps);
     }
 
     @Override

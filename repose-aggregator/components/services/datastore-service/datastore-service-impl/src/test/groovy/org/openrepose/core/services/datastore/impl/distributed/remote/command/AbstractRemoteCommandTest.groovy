@@ -36,7 +36,7 @@ class AbstractRemoteCommandTest {
 
     @Before
     public void setUp() {
-        arc = new AbstractRemoteCommand("", new InetSocketAddress(0)) {
+        arc = new AbstractRemoteCommand("", new InetSocketAddress(0), null, false) {
             @Override
             ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
                 return null

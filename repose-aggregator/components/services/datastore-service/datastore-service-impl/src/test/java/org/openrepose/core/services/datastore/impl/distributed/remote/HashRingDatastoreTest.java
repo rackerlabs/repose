@@ -67,7 +67,7 @@ public class HashRingDatastoreTest {
         when(clusterView.hasDamagedMembers()).thenReturn(false);
 
         hashRingDatastore = spy(new HashRingDatastore(remoteCommandExecutor, clusterView, "", localDatastore,
-                MD5MessageDigestFactory.getInstance(), UUIDEncodingProvider.getInstance()));
+                MD5MessageDigestFactory.getInstance(), UUIDEncodingProvider.getInstance(), null, false));
     }
 
     @Test

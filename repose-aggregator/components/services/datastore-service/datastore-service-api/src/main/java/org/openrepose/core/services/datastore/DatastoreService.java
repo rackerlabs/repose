@@ -69,6 +69,18 @@ public interface DatastoreService {
             throws DatastoreServiceException;
 
     /**
+     * Create and return a distributed datastore using the provided configuration.  The created
+     * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
+     *
+     * @param datastoreName
+     * @param configuration
+     * @return
+     * @throws DatastoreServiceException if the datastore creation fails
+     */
+    DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId, boolean useHttps)
+            throws DatastoreServiceException;
+
+    /**
      * Shutdown all datastores
      */
     void shutdown();
