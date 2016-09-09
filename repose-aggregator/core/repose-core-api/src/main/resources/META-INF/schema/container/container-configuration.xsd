@@ -40,7 +40,7 @@
 
         <xs:sequence>
             <xs:element name="deployment-config" type="papic:DeploymentConfiguration"/>
-            <xs:element name="cluster-config" type="papic:PatchDeploymentConfiguration" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="cluster-config" type="papic:DeploymentConfigurationPatch" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
@@ -110,40 +110,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="jmx-reset-time" type="papic:intGTZero" use="optional" default="15">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The number of seconds the JMX reporting service keeps data.
-                        The data will be reset after this amount of time.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="idleTimeout" type="xs:long" use="optional" default="30000">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        The time in milliseconds that a connection can be idle before it is closed (Default: 30000).
-                        See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="soLingerTime" type="xs:int" use="optional" default="-1">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        A value >=0 sets the socket SO_LINGER value in milliseconds.
-                        Repose (Jetty) attempts to gently close all TCP/IP connections with proper half close semantics,
-                        so a linger timeout should not be required and thus the default is -1.
-                        See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="DeploymentConfiguration">
@@ -154,17 +120,51 @@
                     <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1"/>
                     <xs:element name="ssl-configuration" type="papic:SslConfiguration" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
+
+                <xs:attribute name="jmx-reset-time" type="papic:intGTZero" use="optional" default="15">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>The number of seconds the JMX reporting service keeps data.
+                                The data will be reset after this amount of time.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="idleTimeout" type="xs:long" use="optional" default="30000">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The time in milliseconds that a connection can be idle before it is closed (Default: 30000).
+                                See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="soLingerTime" type="xs:int" use="optional" default="-1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                A value >=0 sets the socket SO_LINGER value in milliseconds.
+                                Repose (Jetty) attempts to gently close all TCP/IP connections with proper half close semantics,
+                                so a linger timeout should not be required and thus the default is -1.
+                                See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="PatchDeploymentConfiguration">
+    <xs:complexType name="DeploymentConfigurationPatch">
         <xs:complexContent>
             <xs:extension base="papic:DeploymentConfigurationBase">
                 <xs:sequence>
-                    <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="ssl-configuration" type="papic:PatchSslConfiguration" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="deployment-directory" type="papic:DeploymentDirectoryPatch" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="artifact-directory" type="papic:ArtifactDirectoryPatch" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="ssl-configuration" type="papic:SslConfigurationPatch" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
 
                 <xs:attribute name="cluster-id" type="xs:ID" use="required">
@@ -172,6 +172,40 @@
                         <xs:documentation>
                             <html:p>
                                 The ID which specifies which cluster this configuration patch should be applied to.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="jmx-reset-time" type="papic:intGTZero" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>The number of seconds the JMX reporting service keeps data.
+                                The data will be reset after this amount of time.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="idleTimeout" type="xs:long" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The time in milliseconds that a connection can be idle before it is closed (Default: 30000).
+                                See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="soLingerTime" type="xs:int" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                A value >=0 sets the socket SO_LINGER value in milliseconds.
+                                Repose (Jetty) attempts to gently close all TCP/IP connections with proper half close semantics,
+                                so a linger timeout should not be required and thus the default is -1.
+                                See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
@@ -194,6 +228,20 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <xs:complexType name="ArtifactDirectoryPatch">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="check-interval" type="papic:intGTZero" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Directory check interval in milliseconds</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <xs:complexType name="DeploymentDirectory">
         <xs:simpleContent>
             <xs:extension base="xs:anyURI">
@@ -204,6 +252,20 @@
                 </xs:annotation>
 
                 <xs:attribute name="auto-clean" type="xs:boolean" use="optional" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Clean up undeployed resources</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="DeploymentDirectoryPatch">
+        <xs:simpleContent>
+            <xs:extension base="xs:anyURI">
+                <xs:attribute name="auto-clean" type="xs:boolean" use="optional">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Clean up undeployed resources</html:p>
@@ -289,21 +351,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="tls-renegotiation-allowed" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Whether to allow TLS Renegotiation. Default is to disallow.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
         </xs:sequence>
-        <xs:attribute name="need-client-auth" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Indicates whether or not SSL client authentication is required.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="SslConfiguration">
@@ -331,12 +379,26 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:element>
+                    <xs:element name="tls-renegotiation-allowed" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1">
+                        <xs:annotation>
+                            <xs:documentation>
+                                <html:p>Whether to allow TLS Renegotiation. Default is to disallow.</html:p>
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
                 </xs:sequence>
+                <xs:attribute name="need-client-auth" type="xs:boolean" use="optional" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Indicates whether or not SSL client authentication is required.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="PatchSslConfiguration">
+    <xs:complexType name="SslConfigurationPatch">
         <xs:complexContent>
             <xs:extension base="papic:SslConfigurationBase">
                 <xs:sequence>
@@ -361,7 +423,21 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:element>
+                    <xs:element name="tls-renegotiation-allowed" type="xs:boolean" minOccurs="0" maxOccurs="1">
+                        <xs:annotation>
+                            <xs:documentation>
+                                <html:p>Whether to allow TLS Renegotiation. Default is to disallow.</html:p>
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
                 </xs:sequence>
+                <xs:attribute name="need-client-auth" type="xs:boolean" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Indicates whether or not SSL client authentication is required.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
