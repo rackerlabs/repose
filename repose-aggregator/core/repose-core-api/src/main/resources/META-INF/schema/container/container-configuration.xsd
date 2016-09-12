@@ -45,8 +45,13 @@
 
         <xs:assert vc:minVersion="1.1"
                    xpathDefaultNamespace="##targetNamespace"
+                   test="cluster-config"
+                   xerces:message="When defining per-cluster configuration, all cluster IDs must be unique"
+                   saxon:message="When defining per-cluster configuration, all cluster IDs must be unique"/>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
                    test="
-                   if (exists(deployment-config/ssl-configuration)) then
+                   if (deployment-config/ssl-configuration) then
                      true()
                    else
                      (if (cluster-config/ssl-configuration/keystore-filename or cluster-config/ssl-configuration/keystore-password or cluster-config/ssl-configuration/key-password) then

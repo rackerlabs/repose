@@ -142,6 +142,47 @@ class ContainerSchemaTest extends FunSpec with Matchers {
       exception.getLocalizedMessage should include ("is not facet-valid with respect to maxInclusive")
     }
 
+    it("should reject a config where cluster IDs are not unique across all patches") {
+      val config =
+        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+          |    <deployment-config>
+          |        <deployment-directory>/var/repose</deployment-directory>
+          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+          |    </deployment-config>
+          |
+          |    <cluster-config cluster="foo">
+          |        <deployment-directory>/var/foo</deployment-directory>
+          |    </cluster-config>
+          |
+          |    <cluster-config cluster="foo">
+          |        <deployment-directory>/var/bar</deployment-directory>
+          |    </cluster-config>
+          |</repose-container>""".stripMargin
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include("When defining per-cluster configuration, all cluster IDs must be unique")
+    }
+
+    it("should accept a config where cluster IDs are unique across all patches") {
+      val config =
+        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+          |    <deployment-config>
+          |        <deployment-directory>/var/repose</deployment-directory>
+          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+          |    </deployment-config>
+          |
+          |    <cluster-config cluster="foo">
+          |        <deployment-directory>/var/foo</deployment-directory>
+          |    </cluster-config>
+          |
+          |    <cluster-config cluster="bar">
+          |        <deployment-directory>/var/bar</deployment-directory>
+          |    </cluster-config>
+          |</repose-container>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
     it("should reject a config where ssl-configuration is partially patched but not in the base") {
       val config =
         """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
