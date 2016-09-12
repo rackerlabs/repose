@@ -150,11 +150,11 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
           |    </deployment-config>
           |
-          |    <cluster-config cluster="foo">
+          |    <cluster-config cluster-id="foo">
           |        <deployment-directory>/var/foo</deployment-directory>
           |    </cluster-config>
           |
-          |    <cluster-config cluster="foo">
+          |    <cluster-config cluster-id="foo">
           |        <deployment-directory>/var/bar</deployment-directory>
           |    </cluster-config>
           |</repose-container>""".stripMargin
@@ -172,11 +172,11 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
           |    </deployment-config>
           |
-          |    <cluster-config cluster="foo">
+          |    <cluster-config cluster-id="foo">
           |        <deployment-directory>/var/foo</deployment-directory>
           |    </cluster-config>
           |
-          |    <cluster-config cluster="bar">
+          |    <cluster-config cluster-id="bar">
           |        <deployment-directory>/var/bar</deployment-directory>
           |    </cluster-config>
           |</repose-container>""".stripMargin
@@ -191,7 +191,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
           |    </deployment-config>
           |
-          |    <cluster-config cluster="foo">
+          |    <cluster-config cluster-id="foo">
           |        <ssl-configuration>
           |            <key-password>password</key-password>
           |        </ssl-configuration>
@@ -216,7 +216,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |        </ssl-configuration>
           |    </deployment-config>
           |
-          |    <cluster-config cluster="foo">
+          |    <cluster-config cluster-id="foo">
           |        <ssl-configuration>
           |            <key-password>other-password</key-password>
           |        </ssl-configuration>

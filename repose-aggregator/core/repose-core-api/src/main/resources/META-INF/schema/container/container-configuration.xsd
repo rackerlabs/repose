@@ -170,7 +170,7 @@
                     <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1"/>
                 </xs:all>
 
-                <xs:attribute name="cluster-id" type="xs:ID" use="required">
+                <xs:attribute name="cluster-id" type="xs:string" use="required">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
