@@ -93,10 +93,13 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
   }
 
   private def initializationCheck(): Unit =
-    if (!isInitialized) throw new IllegalStateException(NotInitializedMessage)
+    if (!isInitialized) {
+      logger.error(NotInitializedMessage)
+      throw new IllegalStateException(NotInitializedMessage)
+    }
 }
 
 object ContainerConfigurationServiceImpl {
   final val ContainerConfigurationFilename = "container.cfg.xml"
-  final val NotInitializedMessage = "Service has not yet been initialized"
+  final val NotInitializedMessage = "The ContainerConfigurationService has not yet been initialized"
 }
