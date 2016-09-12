@@ -45,7 +45,7 @@
 
         <xs:assert vc:minVersion="1.1"
                    xpathDefaultNamespace="##targetNamespace"
-                   test="cluster-config"
+                   test="count(distinct-values(cluster-config/@cluster-id)) = count(cluster-config/@cluster-id)"
                    xerces:message="When defining per-cluster configuration, all cluster IDs must be unique"
                    saxon:message="When defining per-cluster configuration, all cluster IDs must be unique"/>
         <xs:assert vc:minVersion="1.1"
