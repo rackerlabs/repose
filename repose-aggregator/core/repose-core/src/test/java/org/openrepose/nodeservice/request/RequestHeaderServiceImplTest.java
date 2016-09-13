@@ -28,6 +28,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
+import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 
 import static org.mockito.Mockito.*;
 
@@ -43,7 +44,7 @@ public class RequestHeaderServiceImplTest {
         public void setup() {
             request = mock(HttpServletRequestWrapper.class);
             viaBuilder = mock(ViaHeaderBuilder.class);
-            instance = new RequestHeaderServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), "cluster", "node", "1.0");
+            instance = new RequestHeaderServiceImpl(mock(ConfigurationService.class), mock(ContainerConfigurationService.class), mock(HealthCheckService.class), "cluster", "node", "1.0");
         }
 
         @Test

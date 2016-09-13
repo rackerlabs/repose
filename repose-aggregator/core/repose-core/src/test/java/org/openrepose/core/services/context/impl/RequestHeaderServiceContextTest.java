@@ -40,6 +40,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.systemmodel.*;
+import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 import org.openrepose.nodeservice.request.RequestHeaderServiceImpl;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -63,6 +64,7 @@ public class RequestHeaderServiceContextTest {
     private HealthCheckService healthCheckService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private ConfigurationService configurationService;
+    private ContainerConfigurationService containerConfigurationService;
     private ListAppender app;
 
     /*
@@ -121,6 +123,7 @@ public class RequestHeaderServiceContextTest {
         healthCheckService = mock(HealthCheckService.class);
         healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
         configurationService = mock(ConfigurationService.class);
+        containerConfigurationService = mock(ContainerConfigurationService.class);
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
     }
 
@@ -128,6 +131,7 @@ public class RequestHeaderServiceContextTest {
     public void systemModelListener_configurationUpdated_localhostFound() throws Exception {
         RequestHeaderServiceImpl requestHeaderService = new RequestHeaderServiceImpl(
                 configurationService,
+                containerConfigurationService,
                 healthCheckService,
                 "cluster1",
                 "node1",
@@ -154,6 +158,7 @@ public class RequestHeaderServiceContextTest {
     public void systemModelListener_configurationUpdated_localhostNotFound() throws Exception {
         RequestHeaderServiceImpl requestHeaderServiceContext = new RequestHeaderServiceImpl(
                 configurationService,
+                containerConfigurationService,
                 healthCheckService,
                 "clusterId",
                 "nodeId",

@@ -32,6 +32,7 @@ import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.SystemModel;
+import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +50,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     private static final Logger LOG = LoggerFactory.getLogger(RequestHeaderServiceImpl.class);
     private final ContainerConfigurationListener containerConfigurationListener;
+    private final ContainerConfigurationService containerConfigurationService;
     private final SystemModelListener systemModelListener;
     private final ConfigurationService configurationService;
     private final String clusterId;
@@ -62,11 +64,13 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
 
     @Inject
     public RequestHeaderServiceImpl(ConfigurationService configurationService,
+                                    ContainerConfigurationService containerConfigurationService,
                                     HealthCheckService healthCheckService,
                                     @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
                                     @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
                                     @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion) {
         this.configurationService = configurationService;
+        this.containerConfigurationService = containerConfigurationService;
         this.clusterId = clusterId;
         this.nodeId = nodeId;
         this.reposeVersion = reposeVersion;
@@ -118,7 +122,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
             if (configurationObject.getDeploymentConfig() != null) {
-                viaReceivedBy = configurationObject.getDeploymentConfig().getVia();
+                viaReceivedBy = containerConfigurationService.getVia().orElse(null);
 
                 final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
                 updateConfig(viaBuilder);
