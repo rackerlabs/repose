@@ -45,4 +45,8 @@ public interface ContainerConfigurationService {
      * @return the full deployment configuration patched for the node this service is running on.
      */
     DeploymentConfiguration getDeploymentConfiguration();
+
+    // TODO: Should the service allow users to register callbacks? By doing so, the service could fully replace
+    //       container configuration listeners for any component operating at the node level. Without such a mechanism,
+    //       components like the RequestHeaderService must listen to the container configuration to respond to changes.
 }
