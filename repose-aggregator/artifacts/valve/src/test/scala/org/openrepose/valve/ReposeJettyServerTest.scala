@@ -24,14 +24,14 @@ import org.junit.runner.RunWith
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
+import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll {
+class ReposeJettyServerTest extends FunSpec with Matchers {
 
-  override def beforeAll() = {
-    CoreSpringProvider.getInstance().reInitializeCoreContext("/config/root", false)
-  }
+  CoreSpringProvider.getInstance().reInitializeCoreContext("/config/root", false)
+
+  val nodeContext = CoreSpringProvider.getInstance().getNodeContext("cluster", "le_node_id")
 
   val httpPort = Some(10234)
   val httpsPort = Some(10235)
@@ -51,6 +51,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("can create a jetty server listening on an HTTP port") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       httpPort,
@@ -69,6 +70,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("can create a jetty server listening on an HTTPS port") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
@@ -87,6 +89,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("can create a jetty server listening on both an HTTP port and an HTTPS port") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       httpPort,
@@ -102,6 +105,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("the jetty server listening on an HTTP port and having a non-default idleTimeout") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       httpPort,
@@ -121,6 +125,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("the jetty server listening on an HTTPS port and a non-default soLingerTime") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
@@ -140,6 +145,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout & soLingerTime") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       httpPort,
@@ -159,6 +165,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
   it("raises an exception when an HTTPS port is specified, but no ssl config is provided") {
     intercept[ServerInitializationException] {
       new ReposeJettyServer(
+        nodeContext,
         "cluster",
         "node",
         None,
@@ -173,6 +180,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
   it("raises an exception when neither HTTP nor HTTPS port are specified") {
     intercept[ServerInitializationException] {
       new ReposeJettyServer(
+        nodeContext,
         "cluster",
         "node",
         None,
@@ -186,6 +194,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("Can terminate a server, shutting down the node's entire context") {
     val server = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       httpPort,
@@ -210,6 +219,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("can be restarted, terminating and restarting everything") {
     val server = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       httpPort,
@@ -242,6 +252,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("Fails when attempting to start a shutdown server") {
     val server = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       httpPort,
@@ -265,6 +276,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with BeforeAndAfterAll
 
   it("has the spring properties we need at this stage") {
     val server = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "le_node_id",
       Some(8080),

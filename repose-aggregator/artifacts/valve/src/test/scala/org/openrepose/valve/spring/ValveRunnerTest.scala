@@ -22,7 +22,9 @@ package org.openrepose.valve.spring
 import org.junit.runner.RunWith
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
+import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.nodeservice.test.FakeContainerConfigurationService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.slf4j.LoggerFactory
@@ -35,6 +37,8 @@ class ValveRunnerTest extends FunSpec with Matchers {
   val log = LoggerFactory.getLogger(this.getClass)
 
   val fakeConfigService = new FakeConfigService()
+  val fakeContainerConfigurationService =
+    CoreSpringProvider.getInstance().getNodeContext("cluster", "node").getBean(classOf[FakeContainerConfigurationService])
 
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._
@@ -64,6 +68,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
     val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
     val containerConfig = Marshaller.containerConfig(resource)
     containerListener.configurationUpdated(containerConfig)
+    fakeContainerConfigurationService.deploymentConfiguration = containerConfig.getDeploymentConfig
     containerListener
   }
 

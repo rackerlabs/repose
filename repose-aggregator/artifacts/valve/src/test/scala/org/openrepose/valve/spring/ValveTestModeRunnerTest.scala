@@ -26,7 +26,9 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.junit.runner.RunWith
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
+import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.nodeservice.test.FakeContainerConfigurationService
 import org.openrepose.valve.jmx.ValvePortMXBean
 import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
@@ -41,6 +43,8 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
   val log = LoggerFactory.getLogger(this.getClass)
 
   val fakeConfigService = new FakeConfigService()
+  val fakeContainerConfigurationService =
+    CoreSpringProvider.getInstance().getNodeContext("cluster", "node").getBean(classOf[FakeContainerConfigurationService])
 
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._
@@ -96,6 +100,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
     val containerListener = fakeConfigService.getListener[ContainerConfiguration]("container.cfg.xml")
     val containerConfig = Marshaller.containerConfig(resource)
     containerListener.configurationUpdated(containerConfig)
+    fakeContainerConfigurationService.deploymentConfiguration = containerConfig.getDeploymentConfig
     containerListener
   }
 

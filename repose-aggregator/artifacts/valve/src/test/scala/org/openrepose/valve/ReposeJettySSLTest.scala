@@ -37,6 +37,8 @@ import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
+  val nodeContext = CoreSpringProvider.getInstance().getNodeContext("cluster", "node")
+
   val configDir: String = {
     val tempDir = Files.createTempDirectory("reposeSSLTesting")
 
@@ -163,6 +165,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
   it("creates a jetty server excluding a list of protocols") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
@@ -184,6 +187,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
   }
   it("creates a jetty server including only a list of protocols") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
@@ -206,6 +210,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
   it("creates a jetty server excluding a list of ciphers") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
@@ -226,6 +231,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
   it("creates a jetty server including only a list of ciphers") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
@@ -246,6 +252,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
   }
   it("creates a jetty server that does not allow TLS renegotiation") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
@@ -267,6 +274,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
   it("creates a jetty server that does allow TLS renegotiation") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
@@ -288,6 +296,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
   it("excludes ciphers via regular expression") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
@@ -316,6 +325,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
   it("includes ciphers via regular expression") {
     val repose = new ReposeJettyServer(
+      nodeContext,
       "cluster",
       "node",
       None,
