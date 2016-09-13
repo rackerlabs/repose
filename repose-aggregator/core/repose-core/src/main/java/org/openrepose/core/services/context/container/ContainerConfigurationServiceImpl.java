@@ -31,7 +31,12 @@ import javax.inject.Named;
 import java.net.URL;
 import java.util.Optional;
 
+/**
+ * This service has been deprecated. Use
+ * {@link org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService} instead.
+ */
 @Named
+@Deprecated
 public class ContainerConfigurationServiceImpl implements ContainerConfigurationService {
 
     private final ConfigurationService configurationService;

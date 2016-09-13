@@ -21,6 +21,11 @@ package org.openrepose.core.services.context.container;
 
 import java.util.Optional;
 
+/**
+ * This service has been deprecated. Use
+ * {@link org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService} instead.
+ */
+@Deprecated
 public interface ContainerConfigurationService {
 
     String getVia();
