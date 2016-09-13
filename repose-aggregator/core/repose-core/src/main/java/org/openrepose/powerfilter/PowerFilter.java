@@ -39,7 +39,7 @@ import org.openrepose.core.services.event.Event;
 import org.openrepose.core.services.event.EventListener;
 import org.openrepose.core.services.event.EventService;
 import org.openrepose.core.services.event.PowerFilterEvent;
-import org.openrepose.core.services.headers.response.ResponseHeaderService;
+import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;

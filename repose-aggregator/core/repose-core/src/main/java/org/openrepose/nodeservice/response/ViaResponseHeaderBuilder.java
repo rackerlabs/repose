@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.headers.response;
+package org.openrepose.nodeservice.response;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.core.services.headers.common.ViaHeaderBuilder;

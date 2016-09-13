@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.headers.response;
+package org.openrepose.nodeservice.response;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
@@ -27,6 +27,7 @@ import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 import org.openrepose.core.spring.ReposeSpringProperties;
+import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -46,6 +47,7 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     private final String reposeVersion;
     private final ConfigurationService configurationService;
+    private final ContainerConfigurationService containerConfigurationService;
     private final ContainerConfigurationListener configurationListener;
 
     private ViaHeaderBuilder viaHeaderBuilder;
@@ -53,8 +55,10 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     @Inject
     public ResponseHeaderServiceImpl(ConfigurationService configurationService,
+                                     ContainerConfigurationService containerConfigurationService,
                                      @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion) {
         this.configurationService = configurationService;
+        this.containerConfigurationService = containerConfigurationService;
         this.configurationListener = new ContainerConfigurationListener();
         this.reposeVersion = reposeVersion;
     }
@@ -113,8 +117,8 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
-            if (configurationObject.getDeploymentConfig() != null) {
-                final String viaReceivedBy = configurationObject.getDeploymentConfig().getVia();
+            if (containerConfigurationService.getDeploymentConfiguration() != null) {
+                final String viaReceivedBy = containerConfigurationService.getDeploymentConfiguration().getVia();
 
                 final ViaResponseHeaderBuilder viaBuilder = new ViaResponseHeaderBuilder(reposeVersion, viaReceivedBy);
                 final LocationHeaderBuilder locationBuilder = new LocationHeaderBuilder();
