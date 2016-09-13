@@ -164,10 +164,7 @@
         <xs:complexContent>
             <xs:extension base="papic:DeploymentConfigurationBase">
                 <xs:all>
-                    <xs:element name="deployment-directory" type="papic:DeploymentDirectoryPatch" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="artifact-directory" type="papic:ArtifactDirectoryPatch" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="ssl-configuration" type="papic:SslConfigurationPatch" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1"/>
                 </xs:all>
 
                 <xs:attribute name="cluster-id" type="xs:string" use="required">
@@ -175,16 +172,6 @@
                         <xs:documentation>
                             <html:p>
                                 The ID which specifies which cluster this configuration patch should be applied to.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-
-                <xs:attribute name="jmx-reset-time" type="papic:intGTZero" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>The number of seconds the JMX reporting service keeps data.
-                                The data will be reset after this amount of time.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
@@ -255,20 +242,6 @@
                 </xs:annotation>
 
                 <xs:attribute name="auto-clean" type="xs:boolean" use="optional" default="true">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>Clean up undeployed resources</html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <xs:complexType name="DeploymentDirectoryPatch">
-        <xs:simpleContent>
-            <xs:extension base="xs:anyURI">
-                <xs:attribute name="auto-clean" type="xs:boolean" use="optional">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Clean up undeployed resources</html:p>

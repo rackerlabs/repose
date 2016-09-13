@@ -150,13 +150,9 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
           |    </deployment-config>
           |
-          |    <cluster-config cluster-id="foo">
-          |        <deployment-directory>/var/foo</deployment-directory>
-          |    </cluster-config>
+          |    <cluster-config cluster-id="foo" via="test"/>
           |
-          |    <cluster-config cluster-id="foo">
-          |        <deployment-directory>/var/bar</deployment-directory>
-          |    </cluster-config>
+          |    <cluster-config cluster-id="foo" via="test"/>
           |</repose-container>""".stripMargin
       val exception = intercept[SAXParseException] {
         validator.validateConfigString(config)
@@ -172,13 +168,9 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
           |    </deployment-config>
           |
-          |    <cluster-config cluster-id="foo">
-          |        <deployment-directory>/var/foo</deployment-directory>
-          |    </cluster-config>
+          |    <cluster-config cluster-id="foo" via="test"/>
           |
-          |    <cluster-config cluster-id="bar">
-          |        <deployment-directory>/var/bar</deployment-directory>
-          |    </cluster-config>
+          |    <cluster-config cluster-id="bar" via="test"/>
           |</repose-container>""".stripMargin
       validator.validateConfigString(config)
     }

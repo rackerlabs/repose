@@ -49,17 +49,20 @@ object DeploymentConfigPatchUtil {
     Option(patch.getJmxResetTime).foreach(baseClone.setJmxResetTime)
     Option(patch.getIdleTimeout).foreach(baseClone.setIdleTimeout)
     Option(patch.getSoLingerTime).foreach(baseClone.setSoLingerTime)
-    Option(patch.getDeploymentDirectory) foreach { deploymentDirectory =>
-      patchDeploymentDirectory(baseClone.getDeploymentDirectory, deploymentDirectory)
-    }
-    Option(patch.getArtifactDirectory) foreach { artifactDirectory =>
-      patchArtifactDirectory(baseClone.getArtifactDirectory, artifactDirectory)
-    }
     Option(patch.getSslConfiguration) foreach { sslConfiguration =>
       if (Option(baseClone.getSslConfiguration).isEmpty) {
         baseClone.setSslConfiguration(new SslConfiguration())
       }
       patchSslConfiguration(baseClone.getSslConfiguration, sslConfiguration)
+    }
+    /* TODO: These calls are commented out as patching for those nodes is not yet supported. A future update may
+           add more patching support, so the code is being left in.
+
+    Option(patch.getDeploymentDirectory) foreach { deploymentDirectory =>
+      patchDeploymentDirectory(baseClone.getDeploymentDirectory, deploymentDirectory)
+    }
+    Option(patch.getArtifactDirectory) foreach { artifactDirectory =>
+      patchArtifactDirectory(baseClone.getArtifactDirectory, artifactDirectory)
     }
     Option(patch.getLoggingConfiguration) foreach { loggingConfiguration =>
       if (Option(baseClone.getLoggingConfiguration).isEmpty) {
@@ -67,9 +70,13 @@ object DeploymentConfigPatchUtil {
       }
       patchLoggingConfiguration(baseClone.getLoggingConfiguration, loggingConfiguration)
     }
+    */
 
     baseClone
   }
+
+  /* TODO: These functions are commented out as patching for those nodes is not yet supported. A future update may
+         add more patching support, so the code is being left in.
 
   /**
     * This function does not return a copy of the base configuration, but instead mutates it directly.
@@ -115,6 +122,7 @@ object DeploymentConfigPatchUtil {
 
     base
   }
+  */
 
   /**
     * This function does not return a copy of the base configuration, but instead mutates it directly.
