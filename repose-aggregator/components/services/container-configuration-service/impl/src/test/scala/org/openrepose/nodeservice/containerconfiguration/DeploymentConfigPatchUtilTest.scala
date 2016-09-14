@@ -69,7 +69,10 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
     }
   }
 
-  ignore("patchLoggingConfiguration") {
+  /* TODO: These tests are commented out as patching for those nodes is not yet supported. A future update may
+           add more patching support, so the tests are being left in.
+
+  describe("patchLoggingConfiguration") {
     val baseConfig = new LoggingConfiguration()
     baseConfig.setValue("base")
     baseConfig.setHref("baseHref")
@@ -92,7 +95,7 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
     }
   }
 
-  ignore("patchDeploymentDirectory") {
+  describe("patchDeploymentDirectory") {
     val baseConfig = new DeploymentDirectory()
     baseConfig.setValue("base")
     baseConfig.setAutoClean(true)
@@ -115,7 +118,7 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
     }
   }
 
-  ignore("patchArtifactDirectory") {
+  describe("patchArtifactDirectory") {
     val baseConfig = new ArtifactDirectory()
     baseConfig.setValue("base")
     baseConfig.setCheckInterval(1000)
@@ -137,6 +140,7 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
       baseConfig.getCheckInterval shouldEqual 2000
     }
   }
+  */
 
   describe("patchSslConfiguration") {
     val baseConfig = new SslConfiguration()

@@ -133,34 +133,32 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
       }
     }
 
-    it("should return an un-patched deployment configuration is no patch matches the cluster ID") {
+    it("should return an un-patched deployment configuration if no patch matches the cluster ID") {
       val config = minimalContainerConfiguration()
+      config.getDeploymentConfig.setVia("base-via")
       val clusterConfig = new DeploymentConfigurationPatch()
-      val deploymentDirectoryPatch = new DeploymentDirectoryPatch()
-      deploymentDirectoryPatch.setValue("/repose/patch/deployments")
       clusterConfig.setClusterId("foo-cluster-id")
-      clusterConfig.setDeploymentDirectory(deploymentDirectoryPatch)
+      clusterConfig.setVia("patch-via")
       config.getClusterConfig.add(clusterConfig)
 
       containerConfigurationService.configurationUpdated(config)
 
       containerConfigurationService.getDeploymentConfiguration should be theSameInstanceAs config.getDeploymentConfig
-      containerConfigurationService.getDeploymentConfiguration.getDeploymentDirectory.getValue shouldEqual "/repose/deployments"
+      containerConfigurationService.getDeploymentConfiguration.getVia shouldEqual "base-via"
     }
 
     it("should return the patched deployment configuration") {
       val config = minimalContainerConfiguration()
+      config.getDeploymentConfig.setVia("base-via")
       val clusterConfig = new DeploymentConfigurationPatch()
-      val deploymentDirectoryPatch = new DeploymentDirectoryPatch()
-      deploymentDirectoryPatch.setValue("/repose/patch/deployments")
       clusterConfig.setClusterId(DefaultClusterId)
-      clusterConfig.setDeploymentDirectory(deploymentDirectoryPatch)
+      clusterConfig.setVia("patch-via")
       config.getClusterConfig.add(clusterConfig)
 
       containerConfigurationService.configurationUpdated(config)
 
       containerConfigurationService.getDeploymentConfiguration should not be theSameInstanceAs(config.getDeploymentConfig)
-      containerConfigurationService.getDeploymentConfiguration.getDeploymentDirectory.getValue shouldEqual "/repose/patch/deployments"
+      containerConfigurationService.getDeploymentConfiguration.getVia shouldEqual "patch-via"
     }
   }
 
