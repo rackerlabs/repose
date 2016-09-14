@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+    <!-- content-body-read-limit="patchable" -->
+    <cluster-config cluster-id="repose1"
+
+                    idleTimeout="10000"
+                    soLingerTime="10000"
+                    via="repose1">
+        <ssl-configuration need-client-auth="true">
+            <keystore-filename>server.jks</keystore-filename>
+            <keystore-password>password</keystore-password>
+            <key-password>password</key-password>
+            <truststore-filename>client.jks</truststore-filename>
+            <truststore-password>password</truststore-password>
+            <!-- here's a couple things to explicitly include only some ciphers, and exclude SSLv3 -->
+            <included-ciphers>
+                <cipher>.*TLS.*</cipher>
+            </included-ciphers>
+            <excluded-protocols>
+                <protocol>SSLv3</protocol>
+            </excluded-protocols>
+            <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
+        </ssl-configuration>
+    </cluster-config>
+</repose-container>
