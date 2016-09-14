@@ -63,7 +63,7 @@ class ClientAuthenticationSingleStoreTest extends ReposeValveTest {
 
         def sslContext = SSLContexts.custom()
                 .loadKeyMaterial(singleFile, singlePass, singlePass) // Key this client is presenting.
-                .loadTrustMaterial(singleFile, singlePass, TrustSelfSignedStrategy.INSTANCE) // Key that is being accepted from server.
+                .loadTrustMaterial(singleFile, singlePass) // Key that is being accepted from server.
                 .build()
         def sf = new SSLConnectionSocketFactory(
                 sslContext,
