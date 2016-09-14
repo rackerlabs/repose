@@ -46,7 +46,7 @@ object DeploymentConfigPatchUtil {
     Option(patch.getHttpsPort).foreach(baseClone.setHttpsPort)
     Option(patch.getVia).foreach(baseClone.setVia)
     Option(patch.getContentBodyReadLimit).foreach(baseClone.setContentBodyReadLimit)
-    Option(patch.getJmxResetTime).foreach(baseClone.setJmxResetTime)
+    // Option(patch.getJmxResetTime).foreach(baseClone.setJmxResetTime)
     Option(patch.getIdleTimeout).foreach(baseClone.setIdleTimeout)
     Option(patch.getSoLingerTime).foreach(baseClone.setSoLingerTime)
     Option(patch.getSslConfiguration) foreach { sslConfiguration =>
