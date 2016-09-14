@@ -85,6 +85,7 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
   }
 
   override def subscribeTo(listener: UpdateListener[DeploymentConfiguration], sendNotificationNow: Boolean): Unit = {
+    initializationCheck()
     logger.debug("Subscribing listener with hash code: {}", listener.hashCode.toString)
 
     // TODO: Clean this up with Scala 2.12 support for Scala function -> Java 8 function
@@ -97,6 +98,7 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
   }
 
   override def unsubscribeFrom(listener: UpdateListener[DeploymentConfiguration]): Unit = {
+    initializationCheck()
     logger.debug("Unsubscribing listener with hash code: {}", listener.hashCode.toString)
 
     updateListeners.updateAndGet(new UnaryOperator[Set[UpdateListener[DeploymentConfiguration]]] {
@@ -121,6 +123,8 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     updateListeners.get().foreach(_.configurationUpdated(patchedDeploymentConfig))
   }
 
+  // Note: The container configuration should be read on init of this class. As such, this check
+  //       should not ever fail.
   private def initializationCheck(): Unit =
     if (!isInitialized) {
       logger.error(NotInitializedMessage)

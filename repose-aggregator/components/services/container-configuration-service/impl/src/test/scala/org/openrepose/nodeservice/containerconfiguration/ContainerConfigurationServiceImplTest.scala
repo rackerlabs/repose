@@ -163,6 +163,15 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
   }
 
   describe("subscribeTo") {
+    it("should throw an Exception if the service is not yet initialized") {
+      intercept[IllegalStateException] {
+        containerConfigurationService.subscribeTo(mock[UpdateListener[DeploymentConfiguration]])
+      }
+      intercept[IllegalStateException] {
+        containerConfigurationService.subscribeTo(mock[UpdateListener[DeploymentConfiguration]], false)
+      }
+    }
+
     it("should send an initial notification") {
       val mockListener = mock[UpdateListener[DeploymentConfiguration]]
 
@@ -202,6 +211,12 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
   }
 
   describe("unsubscribeFrom") {
+    it("should throw an Exception if the service is not yet initialized") {
+      intercept[IllegalStateException] {
+        containerConfigurationService.unsubscribeFrom(mock[UpdateListener[DeploymentConfiguration]])
+      }
+    }
+
     it("should accept an invalid listener and do nothing") {
       containerConfigurationService.unsubscribeFrom(mock[UpdateListener[DeploymentConfiguration]])
     }
