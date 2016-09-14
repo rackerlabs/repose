@@ -22,6 +22,7 @@ package org.openrepose.nodeservice.containerconfiguration
 import java.lang.Long
 import java.util.Optional
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
+import java.util.function.UnaryOperator
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
@@ -43,6 +44,7 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
 
   private val initialized = new AtomicBoolean(false)
   private val patchedDeploymentConfiguration = new AtomicReference[DeploymentConfiguration]()
+  private val updateListeners = new AtomicReference[Set[UpdateListener[DeploymentConfiguration]]](Set.empty)
 
   @PostConstruct
   def init(): Unit = {
@@ -78,18 +80,45 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     patchedDeploymentConfiguration.get()
   }
 
+  override def subscribeTo(listener: UpdateListener[DeploymentConfiguration]): Unit = {
+    subscribeTo(listener, sendNotificationNow = true)
+  }
+
+  override def subscribeTo(listener: UpdateListener[DeploymentConfiguration], sendNotificationNow: Boolean): Unit = {
+    logger.debug("Subscribing listener with hash code: {}", listener.hashCode.toString)
+
+    // TODO: Clean this up with Scala 2.12 support for Scala function -> Java 8 function
+    updateListeners.updateAndGet(new UnaryOperator[Set[UpdateListener[DeploymentConfiguration]]] {
+      override def apply(t: Set[UpdateListener[DeploymentConfiguration]]): Set[UpdateListener[DeploymentConfiguration]] =
+        t + listener
+    })
+
+    if (sendNotificationNow) listener.configurationUpdated(patchedDeploymentConfiguration.get())
+  }
+
+  override def unsubscribeFrom(listener: UpdateListener[DeploymentConfiguration]): Unit = {
+    logger.debug("Unsubscribing listener with hash code: {}", listener.hashCode.toString)
+
+    updateListeners.updateAndGet(new UnaryOperator[Set[UpdateListener[DeploymentConfiguration]]] {
+      override def apply(t: Set[UpdateListener[DeploymentConfiguration]]): Set[UpdateListener[DeploymentConfiguration]] =
+        t - listener
+    })
+  }
+
   override def isInitialized: Boolean =
     initialized.get()
 
   override def configurationUpdated(containerConfiguration: ContainerConfiguration): Unit = {
     val baseConfig = containerConfiguration.getDeploymentConfig
-
-    patchedDeploymentConfiguration.set(containerConfiguration.getClusterConfig
+    val patchedDeploymentConfig = containerConfiguration.getClusterConfig
       .find(patchConfig => clusterId.equals(patchConfig.getClusterId))
       .map(patchConfig => DeploymentConfigPatchUtil.patch(baseConfig, patchConfig))
-      .getOrElse(baseConfig))
+      .getOrElse(baseConfig)
 
+    patchedDeploymentConfiguration.set(patchedDeploymentConfig)
     initialized.set(true)
+
+    updateListeners.get().foreach(_.configurationUpdated(patchedDeploymentConfig))
   }
 
   private def initializationCheck(): Unit =

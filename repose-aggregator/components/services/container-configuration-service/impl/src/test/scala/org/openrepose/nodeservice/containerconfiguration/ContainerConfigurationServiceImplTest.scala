@@ -22,7 +22,7 @@ package org.openrepose.nodeservice.containerconfiguration
 import java.net.URL
 
 import org.junit.runner.RunWith
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.{never, verify}
 import org.mockito.{Matchers => MockitoMatchers}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config._
@@ -159,6 +159,61 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
 
       containerConfigurationService.getDeploymentConfiguration should not be theSameInstanceAs(config.getDeploymentConfig)
       containerConfigurationService.getDeploymentConfiguration.getVia shouldEqual "patch-via"
+    }
+  }
+
+  describe("subscribeTo") {
+    it("should send an initial notification") {
+      val mockListener = mock[UpdateListener[DeploymentConfiguration]]
+
+      containerConfigurationService.configurationUpdated(minimalContainerConfiguration())
+      containerConfigurationService.subscribeTo(mockListener, sendNotificationNow = true)
+
+      verify(mockListener).configurationUpdated(MockitoMatchers.any[DeploymentConfiguration])
+    }
+
+    it("should not send an initial notification") {
+      val mockListener = mock[UpdateListener[DeploymentConfiguration]]
+
+      containerConfigurationService.configurationUpdated(minimalContainerConfiguration())
+      containerConfigurationService.subscribeTo(mockListener, sendNotificationNow = false)
+
+      verify(mockListener, never).configurationUpdated(MockitoMatchers.any[DeploymentConfiguration])
+    }
+
+    it("should default to sending an initial notification") {
+      val mockListener = mock[UpdateListener[DeploymentConfiguration]]
+
+      containerConfigurationService.configurationUpdated(minimalContainerConfiguration())
+      containerConfigurationService.subscribeTo(mockListener)
+
+      verify(mockListener).configurationUpdated(MockitoMatchers.any[DeploymentConfiguration])
+    }
+
+    it("should send a notification when the container configuration is updated") {
+      val mockListener = mock[UpdateListener[DeploymentConfiguration]]
+
+      containerConfigurationService.configurationUpdated(minimalContainerConfiguration())
+      containerConfigurationService.subscribeTo(mockListener, sendNotificationNow = false)
+      containerConfigurationService.configurationUpdated(minimalContainerConfiguration())
+
+      verify(mockListener).configurationUpdated(MockitoMatchers.any[DeploymentConfiguration])
+    }
+  }
+
+  describe("unsubscribeFrom") {
+    it("should accept an invalid listener and do nothing") {
+      containerConfigurationService.unsubscribeFrom(mock[UpdateListener[DeploymentConfiguration]])
+    }
+
+    it("should not send a notification when the container configuration is updated") {
+      val mockListener = mock[UpdateListener[DeploymentConfiguration]]
+
+      containerConfigurationService.subscribeTo(mockListener, sendNotificationNow = false)
+      containerConfigurationService.unsubscribeFrom(mockListener)
+      containerConfigurationService.configurationUpdated(minimalContainerConfiguration())
+
+      verify(mockListener, never).configurationUpdated(MockitoMatchers.any[DeploymentConfiguration])
     }
   }
 

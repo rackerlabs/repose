@@ -19,6 +19,7 @@
  */
 package org.openrepose.nodeservice.containerconfiguration;
 
+import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.container.config.DeploymentConfiguration;
 
 import java.util.Optional;
@@ -49,4 +50,35 @@ public interface ContainerConfigurationService {
     // TODO: Should the service allow users to register callbacks? By doing so, the service could fully replace
     //       container configuration listeners for any component operating at the node level. Without such a mechanism,
     //       components like the RequestHeaderService must listen to the container configuration to respond to changes.
+
+    /**
+     * Subscribe an {@link UpdateListener} which should be notified when the container configuration is updated.
+     * <p>
+     * Enables users to perform some action in response to a container configuration update.
+     * <p>
+     * Notifies the {@link UpdateListener} of the current configuration immediately.
+     *
+     * @param listener the {@link UpdateListener} to be notified when the container configuration is updated.
+     */
+    void subscribeTo(UpdateListener<DeploymentConfiguration> listener);
+
+    /**
+     * Subscribe an {@link UpdateListener} which should be notified when the container configuration is updated.
+     * <p>
+     * Enables users to perform some action in response to a container configuration update.
+     *
+     * @param listener            the {@link UpdateListener} to be notified when the container configuration is updated.
+     * @param sendNotificationNow whether or not the listener should be notified of the current configuration
+     *                            immediately.
+     */
+    void subscribeTo(UpdateListener<DeploymentConfiguration> listener, boolean sendNotificationNow);
+
+    /**
+     * Un-subscribe an {@link UpdateListener} which should no longer be notified when the container configuration
+     * is updated.
+     *
+     * @param listener the subscribed {@link UpdateListener} which should no longer be notified when the container
+     *                 configuration is updated.
+     */
+    void unsubscribeFrom(UpdateListener<DeploymentConfiguration> listener);
 }
