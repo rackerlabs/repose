@@ -28,7 +28,6 @@ import org.openrepose.core.services.reporting.destinations.DestinationInfo;
 import org.openrepose.core.services.reporting.destinations.impl.DestinationInfoLogic;
 import org.openrepose.core.services.reporting.repose.ReposeInfoLogic;
 import org.openrepose.core.systemmodel.*;
-import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -49,7 +48,6 @@ public class ReportingServiceImpl implements ReportingService {
     private final List<String> destinationIds = new ArrayList<>();
     private final ConfigurationService configurationService;
     private final ContainerConfigurationListener containerConfigurationListener;
-    private final ContainerConfigurationService containerConfigurationService;
     private final SystemModelListener systemModelListener;
 
     private int jmxResetTime = DEFAULT_JMX_RESET_TIME_SECONDS;
@@ -59,10 +57,8 @@ public class ReportingServiceImpl implements ReportingService {
     private ReportingTimerTask reportingTimerTask;
 
     @Inject
-    public ReportingServiceImpl(ConfigurationService configurationService,
-                                ContainerConfigurationService containerConfigurationService) {
+    public ReportingServiceImpl(ConfigurationService configurationService) {
         this.configurationService = configurationService;
-        this.containerConfigurationService = containerConfigurationService;
         this.containerConfigurationListener = new ContainerConfigurationListener();
         this.systemModelListener = new SystemModelListener();
 
@@ -214,10 +210,10 @@ public class ReportingServiceImpl implements ReportingService {
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
-            if (containerConfigurationService.getDeploymentConfiguration() != null) {
+            if (configurationObject.getDeploymentConfig() != null) {
 
                 synchronized (jmxResetTimeKey) {
-                    jmxResetTime = containerConfigurationService.getDeploymentConfiguration().getJmxResetTime();
+                    jmxResetTime = configurationObject.getDeploymentConfig().getJmxResetTime();
                 }
 
                 updateConfiguration(destinationIds, jmxResetTime);

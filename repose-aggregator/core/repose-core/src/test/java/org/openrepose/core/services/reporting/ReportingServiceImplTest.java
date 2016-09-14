@@ -26,7 +26,6 @@ import org.junit.runner.RunWith;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.destinations.DestinationInfo;
 import org.openrepose.core.services.reporting.impl.ReportingServiceImpl;
-import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ public class ReportingServiceImplTest {
             destinationIds.add("id_2");
             destinationIds.add("id_7");
 
-            reportingService = new ReportingServiceImpl(mock(ConfigurationService.class), mock(ContainerConfigurationService.class));
+            reportingService = new ReportingServiceImpl(mock(ConfigurationService.class));
             reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
         }
 

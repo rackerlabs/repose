@@ -26,7 +26,6 @@ import org.junit.runner.RunWith;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.impl.ReportingServiceImpl;
-import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
@@ -53,7 +52,7 @@ public class ReposeReportTest {
             destinationIds.add("id_2");
             destinationIds.add("id_7");
 
-            reportingService = new ReportingServiceImpl(mock(ConfigurationService.class), mock(ContainerConfigurationService.class));
+            reportingService = new ReportingServiceImpl(mock(ConfigurationService.class));
             reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
 
             report = new ReposeReport(reportingService);
