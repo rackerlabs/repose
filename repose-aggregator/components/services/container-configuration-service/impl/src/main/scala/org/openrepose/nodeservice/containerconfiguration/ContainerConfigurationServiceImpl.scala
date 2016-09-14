@@ -120,7 +120,15 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     patchedDeploymentConfiguration.set(patchedDeploymentConfig)
     initialized.set(true)
 
-    updateListeners.get().foreach(_.configurationUpdated(patchedDeploymentConfig))
+    updateListeners.get() foreach { listener =>
+      try {
+        listener.configurationUpdated(patchedDeploymentConfig)
+      } catch {
+        case ex: Exception =>
+          logger.error("Configuration update error. Reason: {}", ex.getLocalizedMessage)
+          logger.trace("", ex)
+      }
+    }
   }
 
   // Note: The container configuration should be read on init of this class. As such, this check
