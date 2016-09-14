@@ -22,7 +22,7 @@ package org.openrepose.nodeservice.request;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
-import org.openrepose.core.container.config.ContainerConfiguration;
+import org.openrepose.core.container.config.DeploymentConfiguration;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
@@ -49,7 +49,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
 
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     private static final Logger LOG = LoggerFactory.getLogger(RequestHeaderServiceImpl.class);
-    private final ContainerConfigurationListener containerConfigurationListener;
+    private final DeploymentConfigurationListener deploymentConfigurationListener;
     private final ContainerConfigurationService containerConfigurationService;
     private final SystemModelListener systemModelListener;
     private final ConfigurationService configurationService;
@@ -75,24 +75,23 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
         this.nodeId = nodeId;
         this.reposeVersion = reposeVersion;
 
-        this.containerConfigurationListener = new ContainerConfigurationListener();
+        this.deploymentConfigurationListener = new DeploymentConfigurationListener();
         this.systemModelListener = new SystemModelListener();
         healthCheckServiceProxy = healthCheckService.register(); //Sometimes we might deregister before we get to init
     }
 
     @PostConstruct
     public void init() {
-        URL containerXsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
         URL systemModelXsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
 
-        configurationService.subscribeTo("container.cfg.xml", containerXsdURL, containerConfigurationListener, ContainerConfiguration.class);
+        containerConfigurationService.subscribeTo(deploymentConfigurationListener);
         configurationService.subscribeTo("system-model.cfg.xml", systemModelXsdURL, systemModelListener, SystemModel.class);
     }
 
     @PreDestroy
     public void destroy() {
         healthCheckServiceProxy.deregister();
-        configurationService.unsubscribeFrom("container.cfg.xml", containerConfigurationListener);
+        containerConfigurationService.unsubscribeFrom(deploymentConfigurationListener);
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
     }
 
@@ -115,18 +114,17 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
      * Listens for updates to the container.cfg.xml file which holds the via
      * header receivedBy value.
      */
-    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+    private class DeploymentConfigurationListener implements UpdateListener<DeploymentConfiguration> {
 
         private boolean isInitialized = false;
 
         @Override
-        public void configurationUpdated(ContainerConfiguration configurationObject) {
-            if (configurationObject.getDeploymentConfig() != null) {
-                viaReceivedBy = containerConfigurationService.getVia().orElse(null);
+        public void configurationUpdated(DeploymentConfiguration configurationObject) {
+            viaReceivedBy = configurationObject.getVia();
 
-                final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
-                updateConfig(viaBuilder);
-            }
+            final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
+            updateConfig(viaBuilder);
+
             isInitialized = true;
         }
 

@@ -23,8 +23,7 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
-import org.openrepose.core.container.config.ContainerConfiguration;
-import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.container.config.DeploymentConfiguration;
 import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
@@ -46,20 +45,17 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ResponseHeaderServiceImpl.class);
 
     private final String reposeVersion;
-    private final ConfigurationService configurationService;
     private final ContainerConfigurationService containerConfigurationService;
-    private final ContainerConfigurationListener configurationListener;
+    private final DeploymentConfigurationListener configurationListener;
 
     private ViaHeaderBuilder viaHeaderBuilder;
     private LocationHeaderBuilder locationHeaderBuilder;
 
     @Inject
-    public ResponseHeaderServiceImpl(ConfigurationService configurationService,
-                                     ContainerConfigurationService containerConfigurationService,
+    public ResponseHeaderServiceImpl(ContainerConfigurationService containerConfigurationService,
                                      @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion) {
-        this.configurationService = configurationService;
         this.containerConfigurationService = containerConfigurationService;
-        this.configurationListener = new ContainerConfigurationListener();
+        this.configurationListener = new DeploymentConfigurationListener();
         this.reposeVersion = reposeVersion;
     }
 
@@ -67,12 +63,12 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
     public void init() {
         URL xsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
 
-        configurationService.subscribeTo("container.cfg.xml", xsdURL, configurationListener, ContainerConfiguration.class);
+        containerConfigurationService.subscribeTo(configurationListener);
     }
 
     @PreDestroy
     public void destroy() {
-        configurationService.unsubscribeFrom("container.cfg.xml", configurationListener);
+        containerConfigurationService.unsubscribeFrom(configurationListener);
     }
 
     public synchronized void updateConfig(ViaHeaderBuilder viaHeaderBuilder, LocationHeaderBuilder locationHeaderBuilder) {
@@ -111,19 +107,18 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
      * Listens for updates to the container.cfg.xml file which holds the via
      * header receivedBy value.
      */
-    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+    private class DeploymentConfigurationListener implements UpdateListener<DeploymentConfiguration> {
 
         private boolean isInitialized = false;
 
         @Override
-        public void configurationUpdated(ContainerConfiguration configurationObject) {
-            if (containerConfigurationService.getDeploymentConfiguration() != null) {
-                final String viaReceivedBy = containerConfigurationService.getDeploymentConfiguration().getVia();
+        public void configurationUpdated(DeploymentConfiguration configurationObject) {
+            final String viaReceivedBy = configurationObject.getVia();
 
-                final ViaResponseHeaderBuilder viaBuilder = new ViaResponseHeaderBuilder(reposeVersion, viaReceivedBy);
-                final LocationHeaderBuilder locationBuilder = new LocationHeaderBuilder();
-                updateConfig(viaBuilder, locationBuilder);
-            }
+            final ViaResponseHeaderBuilder viaBuilder = new ViaResponseHeaderBuilder(reposeVersion, viaReceivedBy);
+            final LocationHeaderBuilder locationBuilder = new LocationHeaderBuilder();
+            updateConfig(viaBuilder, locationBuilder);
+
             isInitialized = true;
         }
 
