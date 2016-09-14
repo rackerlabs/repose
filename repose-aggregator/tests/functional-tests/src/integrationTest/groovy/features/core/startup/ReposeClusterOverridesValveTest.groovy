@@ -20,7 +20,6 @@
 package features.core.startup
 
 import framework.*
-import org.apache.http.NoHttpResponseException
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
@@ -135,7 +134,7 @@ class ReposeClusterOverridesValveTest extends Specification {
         response.getFirstHeader("via").getValue().contains(via)
 
         where:
-        keystore     | truststore  | port        | via
+        keystore     | truststore   | port        | via
         "client.jks" | "server.jks" | reposePort1 | "repose1"
         "server.jks" | "client.jks" | reposePort2 | "repose2"
     }
@@ -161,12 +160,12 @@ class ReposeClusterOverridesValveTest extends Specification {
         client.execute(new HttpGet("https://localhost:${port}"))
 
         then:
-        thrown NoHttpResponseException
+        thrown IOException
 
         where:
         keystore     | truststore  | port
-        "server.jks" | "client.jks" | reposePort1
-        "client.jks" | "server.jks" | reposePort2
+        "client.jks" | "bogus.jks" | reposePort1
+        "server.jks" | "bogus.jks" | reposePort2
     }
 
     def cleanupSpec() {
