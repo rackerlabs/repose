@@ -218,20 +218,6 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="ArtifactDirectoryPatch">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="check-interval" type="papic:intGTZero" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>Directory check interval in milliseconds</html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-
     <xs:complexType name="DeploymentDirectory">
         <xs:simpleContent>
             <xs:extension base="xs:anyURI">
