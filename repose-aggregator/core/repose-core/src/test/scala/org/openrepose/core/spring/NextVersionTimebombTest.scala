@@ -56,8 +56,6 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 3. Remove these attributes from container-configuration.xsd:
        *    a. http-port
        *    b. https-port
-       *
-       * 4. Remove org.openrepose.core.services.context.container.ContainerConfigurationService and Impl
        */
     }
   }
