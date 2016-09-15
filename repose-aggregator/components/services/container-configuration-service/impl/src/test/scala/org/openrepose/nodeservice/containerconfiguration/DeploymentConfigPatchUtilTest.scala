@@ -41,7 +41,7 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
     patchConfig.setHttpPort(8080)
     patchConfig.setHttpsPort(44300)
     patchConfig.setIdleTimeout(2000L)
-    // TODO: This assertion is commented out as patching for this field not yet supported. A future update may
+    // INFO: This assertion is commented out as patching for this field not yet supported. A future update may
     //       add more patching support, so the code is being left in.
     // patchConfig.setJmxResetTime(3000)
     patchConfig.setSoLingerTime(4000)
@@ -60,7 +60,7 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
       patchedConfig.getHttpPort shouldEqual 8080
       patchedConfig.getHttpsPort shouldEqual 44300
       patchedConfig.getIdleTimeout shouldEqual 2000L
-      // TODO: This assertion is commented out as patching for this field not yet supported. A future update may
+      // INFO: This assertion is commented out as patching for this field not yet supported. A future update may
       //       add more patching support, so the code is being left in.
       // patchedConfig.getJmxResetTime shouldEqual 3000
       patchedConfig.getSoLingerTime shouldEqual 4000
@@ -69,7 +69,7 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
     }
   }
 
-  /* TODO: These tests are commented out as patching for those nodes is not yet supported. A future update may
+  /* INFO: These tests are commented out as patching for those nodes is not yet supported. A future update may
            add more patching support, so the tests are being left in.
 
   describe("patchLoggingConfiguration") {

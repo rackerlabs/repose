@@ -55,7 +55,7 @@ object DeploymentConfigPatchUtil {
       }
       patchSslConfiguration(baseClone.getSslConfiguration, sslConfiguration)
     }
-    /* TODO: These calls are commented out as patching for those nodes is not yet supported. A future update may
+    /* INFO: These calls are commented out as patching for those nodes is not yet supported. A future update may
            add more patching support, so the code is being left in.
 
     Option(patch.getDeploymentDirectory) foreach { deploymentDirectory =>
@@ -75,7 +75,7 @@ object DeploymentConfigPatchUtil {
     baseClone
   }
 
-  /* TODO: These functions are commented out as patching for those nodes is not yet supported. A future update may
+  /* INFO: These functions are commented out as patching for those nodes is not yet supported. A future update may
          add more patching support, so the code is being left in.
 
   /**
