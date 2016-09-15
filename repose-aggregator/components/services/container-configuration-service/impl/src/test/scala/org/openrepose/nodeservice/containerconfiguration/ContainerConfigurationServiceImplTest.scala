@@ -101,6 +101,19 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
 
       containerConfigurationService.getVia.get shouldEqual "via"
     }
+
+    it("should return the patched via string") {
+      val config = minimalContainerConfiguration()
+      val configPatch = new DeploymentConfigurationPatch()
+      config.getDeploymentConfig.setVia("via")
+      configPatch.setVia("patch-via")
+      configPatch.setClusterId(DefaultClusterId)
+      config.getClusterConfig.add(configPatch)
+
+      containerConfigurationService.configurationUpdated(config)
+
+      containerConfigurationService.getVia.get shouldEqual "patch-via"
+    }
   }
 
   describe("getContentBodyReadLimit") {
@@ -123,6 +136,19 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
       containerConfigurationService.configurationUpdated(config)
 
       containerConfigurationService.getContentBodyReadLimit.get shouldEqual 1000L
+    }
+
+    it("should return the patched content body read limit") {
+      val config = minimalContainerConfiguration()
+      val configPatch = new DeploymentConfigurationPatch()
+      config.getDeploymentConfig.setContentBodyReadLimit(1000L)
+      configPatch.setContentBodyReadLimit(2000L)
+      configPatch.setClusterId(DefaultClusterId)
+      config.getClusterConfig.add(configPatch)
+
+      containerConfigurationService.configurationUpdated(config)
+
+      containerConfigurationService.getContentBodyReadLimit.get shouldEqual 2000L
     }
   }
 
