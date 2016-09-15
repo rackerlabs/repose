@@ -23,6 +23,7 @@ import java.lang.Long
 import java.util.Optional
 import javax.inject.Named
 
+import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.{ArtifactDirectory, DeploymentConfiguration, DeploymentDirectory}
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
 
@@ -52,4 +53,10 @@ class FakeContainerConfigurationService extends ContainerConfigurationService {
   override def getContentBodyReadLimit: Optional[Long] = contentBodyReadLimit
 
   override def getDeploymentConfiguration: DeploymentConfiguration = deploymentConfiguration
+
+  override def subscribeTo(listener: UpdateListener[DeploymentConfiguration]): Unit = {}
+
+  override def subscribeTo(listener: UpdateListener[DeploymentConfiguration], sendNotificationNow: Boolean): Unit = {}
+
+  override def unsubscribeFrom(listener: UpdateListener[DeploymentConfiguration]): Unit = {}
 }
