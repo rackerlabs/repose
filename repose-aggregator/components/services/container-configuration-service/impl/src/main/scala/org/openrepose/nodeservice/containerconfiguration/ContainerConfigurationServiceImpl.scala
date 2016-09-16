@@ -21,8 +21,6 @@ package org.openrepose.nodeservice.containerconfiguration
 
 import java.lang.Long
 import java.util.Optional
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
-import java.util.function.UnaryOperator
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
@@ -42,9 +40,9 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
 
   import ContainerConfigurationServiceImpl._
 
-  private val initialized = new AtomicBoolean(false)
-  private val patchedDeploymentConfiguration = new AtomicReference[DeploymentConfiguration]()
-  private val updateListeners = new AtomicReference[Set[UpdateListener[DeploymentConfiguration]]](Set.empty)
+  private var initialized: Boolean = false
+  private var patchedDeploymentConfiguration: DeploymentConfiguration = _
+  private var updateListeners: Set[UpdateListener[DeploymentConfiguration]] = Set.empty
 
   @PostConstruct
   def init(): Unit = {
@@ -67,17 +65,17 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
 
   override def getVia: Optional[String] = {
     initializationCheck()
-    Optional.ofNullable(patchedDeploymentConfiguration.get().getVia)
+    Optional.ofNullable(patchedDeploymentConfiguration.getVia)
   }
 
   override def getContentBodyReadLimit: Optional[Long] = {
     initializationCheck()
-    Optional.ofNullable(patchedDeploymentConfiguration.get().getContentBodyReadLimit)
+    Optional.ofNullable(patchedDeploymentConfiguration.getContentBodyReadLimit)
   }
 
   override def getDeploymentConfiguration: DeploymentConfiguration = {
     initializationCheck()
-    patchedDeploymentConfiguration.get()
+    patchedDeploymentConfiguration
   }
 
   override def subscribeTo(listener: UpdateListener[DeploymentConfiguration]): Unit = {
@@ -89,26 +87,20 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     logger.debug("Subscribing listener with hash code: {}", listener.hashCode.toString)
 
     // TODO: Clean this up with Scala 2.12 support for Scala function -> Java 8 function
-    updateListeners.updateAndGet(new UnaryOperator[Set[UpdateListener[DeploymentConfiguration]]] {
-      override def apply(t: Set[UpdateListener[DeploymentConfiguration]]): Set[UpdateListener[DeploymentConfiguration]] =
-        t + listener
-    })
+    updateListeners = updateListeners + listener
 
-    if (sendNotificationNow) listener.configurationUpdated(patchedDeploymentConfiguration.get())
+    if (sendNotificationNow) listener.configurationUpdated(patchedDeploymentConfiguration)
   }
 
   override def unsubscribeFrom(listener: UpdateListener[DeploymentConfiguration]): Unit = {
     initializationCheck()
     logger.debug("Unsubscribing listener with hash code: {}", listener.hashCode.toString)
 
-    updateListeners.updateAndGet(new UnaryOperator[Set[UpdateListener[DeploymentConfiguration]]] {
-      override def apply(t: Set[UpdateListener[DeploymentConfiguration]]): Set[UpdateListener[DeploymentConfiguration]] =
-        t - listener
-    })
+    updateListeners = updateListeners - listener
   }
 
   override def isInitialized: Boolean =
-    initialized.get()
+    initialized
 
   override def configurationUpdated(containerConfiguration: ContainerConfiguration): Unit = {
     val baseConfig = containerConfiguration.getDeploymentConfig
@@ -117,10 +109,10 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
       .map(patchConfig => DeploymentConfigPatchUtil.patch(baseConfig, patchConfig))
       .getOrElse(baseConfig)
 
-    patchedDeploymentConfiguration.set(patchedDeploymentConfig)
-    initialized.set(true)
+    patchedDeploymentConfiguration = patchedDeploymentConfig
+    initialized = true
 
-    updateListeners.get() foreach { listener =>
+    updateListeners foreach { listener =>
       try {
         listener.configurationUpdated(patchedDeploymentConfig)
       } catch {
