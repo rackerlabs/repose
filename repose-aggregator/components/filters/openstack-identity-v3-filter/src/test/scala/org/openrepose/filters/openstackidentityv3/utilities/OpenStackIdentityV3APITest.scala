@@ -82,7 +82,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       val mockServiceClientResponse = mock[ServiceClientResponse]
 
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_UNAUTHORIZED)
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       identityV3API.getAdminToken(None, checkCache = true)
@@ -96,7 +96,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
             |{"auth":{"identity":{"methods":["password"],"password":{"user":{"domain":{"id":"867530nieeein"},"name":"user","password":"password"}}}}}
           """.stripMargin.trim
         ),
-        any[MediaType]
+        any[MediaType],
+        anyBoolean()
       )
     }
 
@@ -104,7 +105,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       val mockServiceClientResponse = mock[ServiceClientResponse]
 
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_UNAUTHORIZED)
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       identityV3API.getAdminToken(None, checkCache = true)
@@ -114,7 +115,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         anyString,
         anyMap.asInstanceOf[java.util.Map[String, String]],
         contains("{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\":{\"user\":{\"name\":\"user\",\"password\":\"password\"}}}}}"),
-        any[MediaType]
+        any[MediaType],
+        anyBoolean()
       )
     }
 
@@ -123,7 +125,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
       identityConfig.getOpenstackIdentityService.setProjectId("projectId")
 
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_UNAUTHORIZED)
 
@@ -134,7 +136,8 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         anyString,
         anyMap.asInstanceOf[java.util.Map[String, String]],
         contains("{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\":{\"user\":{\"name\":\"user\",\"password\":\"password\"}}},\"scope\":{\"project\":{\"id\":\"projectId\"}}}}"),
-        any[MediaType]
+        any[MediaType],
+        anyBoolean()
       )
     }
 
@@ -142,7 +145,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       val mockServiceClientResponse = mock[ServiceClientResponse]
 
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_UNAUTHORIZED)
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       identityV3API.getAdminToken(None, checkCache = true) shouldBe a[Failure[_]]
@@ -157,7 +160,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
           when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
           when(mockServiceClientResponse.getHeaders).thenReturn(List.empty[Header].toArray)
-          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.getAdminToken(None, checkCache = true)
@@ -181,7 +184,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockHeader.getName).thenReturn(HttpHeaders.RETRY_AFTER)
           when(mockHeader.getValue).thenReturn(retryString)
           when(mockServiceClientResponse.getHeaders).thenReturn(List(mockHeader).toArray)
-          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.getAdminToken(None, checkCache = true)
@@ -209,7 +212,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_CREATED)
       when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
       when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       identityV3API.getAdminToken(None, checkCache = true) shouldBe a[Success[_]]
@@ -223,7 +226,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_CREATED)
       when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
       when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       identityV3API.getAdminToken(None, checkCache = false) shouldBe a[Success[_]]
@@ -236,7 +239,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_CREATED)
       when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
       when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       identityV3API.getAdminToken(None, checkCache = true)
@@ -253,7 +256,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_CREATED)
       when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
       when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(returnJson.getBytes))
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
       identityV3API.getAdminToken(None, checkCache = true)
@@ -269,7 +272,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
 
       when(mockGetServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_NOT_FOUND)
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyBoolean())).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Failure[_]]
@@ -290,7 +293,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
         "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
           .getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyBoolean())).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true) shouldBe a[Success[_]]
@@ -304,7 +307,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
         "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\", \"RAX-AUTH:defaultRegion\":\"ORD\"}}}"
           .getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyBoolean())).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
@@ -318,7 +321,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
         "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
           .getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyBoolean())).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
@@ -332,7 +335,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
         "{\"token\":{\"RAX-AUTH:impersonator\":{ \"id\": \"567\", \"name\": \"impersonator.joe\"}, \"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
           .getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyBoolean())).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
@@ -347,7 +350,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
         "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
           .getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyBoolean())).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[ValidToken] = identityV3API validateToken("test-subject-token", None, true)
@@ -363,7 +366,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
       when(mockGetServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_OK)
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(returnJson.getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyBoolean())).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate validateSubjectToken("test-subject-token", None, true)
@@ -379,7 +382,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
           when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
           when(mockServiceClientResponse.getHeaders).thenReturn(List.empty[Header].toArray)
-          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.validateToken("test-subject-token", None, checkCache = true)
@@ -403,7 +406,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockHeader.getName).thenReturn(HttpHeaders.RETRY_AFTER)
           when(mockHeader.getValue).thenReturn(retryString)
           when(mockServiceClientResponse.getHeaders).thenReturn(List(mockHeader).toArray)
-          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.validateToken("test-subject-token", None, checkCache = true)
@@ -426,7 +429,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
 
       when(mockGetServiceClientResponse.getStatus).thenReturn(HttpServletResponse.SC_NOT_FOUND)
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyBoolean())).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate getGroups("test-user-id", "test-token", None, true) shouldBe a[Failure[_]]
@@ -440,7 +443,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
           when(mockServiceClientResponse.getStatus).thenReturn(statusCode)
           when(mockServiceClientResponse.getHeaders).thenReturn(List.empty[Header].toArray)
-          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.getGroups("test-user-id", "test-token", None, checkCache = true)
@@ -464,7 +467,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
           when(mockHeader.getName).thenReturn(HttpHeaders.RETRY_AFTER)
           when(mockHeader.getValue).thenReturn(retryString)
           when(mockServiceClientResponse.getHeaders).thenReturn(List(mockHeader).toArray)
-          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
+          when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), anyBoolean())).
             thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
           val value = identityV3API.getGroups("test-user-id", "test-token", None, checkCache = true)
@@ -493,7 +496,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
         "{\"groups\":[{\"description\":\"Developersclearedforworkonallgeneralprojects\",\"domain_id\":\"--domain-id--\",\"id\":\"--group-id--\",\"links\":{\"self\":\"http://identity:35357/v3/groups/--group-id--\"},\"name\":\"Developers\"},{\"description\":\"Developersclearedforworkonsecretprojects\",\"domain_id\":\"--domain-id--\",\"id\":\"--group-id--\",\"links\":{\"self\":\"http://identity:35357/v3/groups/--group-id--\"},\"name\":\"SecureDevelopers\"}],\"links\":{\"self\":\"http://identity:35357/v3/users/--user-id--/groups\",\"previous\":null,\"next\":null}}"
           .getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyBoolean())).thenReturn(mockGetServiceClientResponse)
       when(mockDatastore.get(argThat(equalTo(AdminTokenKey)))).thenReturn("test-admin-token", Nil: _*)
 
       identityV3API invokePrivate getGroups("test-user-id", "test-token", None, true) shouldBe a[Success[_]]

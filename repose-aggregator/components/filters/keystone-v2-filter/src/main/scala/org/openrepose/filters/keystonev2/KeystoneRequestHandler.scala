@@ -67,7 +67,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       (Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
       Json.stringify(authenticationPayload),
-      MediaType.APPLICATION_JSON_TYPE
+      MediaType.APPLICATION_JSON_TYPE,
+      true
     ))
 
     akkaResponse match {
@@ -136,7 +137,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       s"$identityServiceUri$TOKEN_ENDPOINT/$validatableToken",
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> validatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava))
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
+      true))
 
     handleResponse("validate token", akkaResponse, extractUserInformation)
   }
@@ -167,7 +169,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       s"$identityServiceUri${ENDPOINTS_ENDPOINT(forToken)}",
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava))
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
+      true))
 
     handleResponse("endpoints", akkaResponse, extractEndpointInfo)
   }
@@ -186,7 +189,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       s"$identityServiceUri${GROUPS_ENDPOINT(forToken)}",
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava))
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
+      true))
 
     handleResponse("groups", akkaResponse, extractGroupInfo)
   }

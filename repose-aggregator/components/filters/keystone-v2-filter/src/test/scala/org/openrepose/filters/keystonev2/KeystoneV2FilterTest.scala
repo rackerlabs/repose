@@ -252,7 +252,7 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockAkkaClient.get(anyString(), anyString(), anyMapOf(classOf[String], classOf[String])))
+      when(mockAkkaClient.get(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyBoolean()))
         .thenReturn(AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()), Nil: _*)
 
       val response = new MockHttpServletResponse
@@ -261,7 +261,7 @@ with HttpDelegationManager {
 
       filterChain.getLastRequest shouldNot be(null)
       filterChain.getLastResponse shouldNot be(null)
-      verify(mockAkkaClient).get(anyString(), mockitoEq(s"https://some.identity.com$TOKEN_ENDPOINT/$VALID_TOKEN"), any())
+      verify(mockAkkaClient).get(anyString(), mockitoEq(s"https://some.identity.com$TOKEN_ENDPOINT/$VALID_TOKEN"), any(), anyBoolean())
       mockAkkaServiceClient.validate()
     }
 

@@ -90,7 +90,8 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomF
           "passwordCredentials" -> Json.obj(
             "username" -> username,
             "password" -> password)))),
-      MediaType.APPLICATION_JSON_TYPE
+      MediaType.APPLICATION_JSON_TYPE,
+      true
     ))
 
     akkaResponse match {

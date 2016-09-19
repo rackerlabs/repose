@@ -79,7 +79,7 @@ trait MockedAkkaServiceClient {
      * @param headers
      * @return
      */
-    override def get(tokenKey: String, uri: String, headers: util.Map[String, String]): ServiceClientResponse = {
+    override def get(tokenKey: String, uri: String, headers: util.Map[String, String], checkCache: Boolean): ServiceClientResponse = {
       def noResponses = {
         logger.error("NO GET RESPONSES AVAILABLE!")
         oversteppedGetRequests.set(true)
@@ -106,7 +106,8 @@ trait MockedAkkaServiceClient {
                       uri: String,
                       headers: util.Map[String, String],
                       payload: String,
-                      contentMediaType: MediaType): ServiceClientResponse = {
+                      contentMediaType: MediaType,
+                      checkCache: Boolean): ServiceClientResponse = {
       if (postResponses.nonEmpty) {
         postResponses.pop() match {
           case Left(x) => x
