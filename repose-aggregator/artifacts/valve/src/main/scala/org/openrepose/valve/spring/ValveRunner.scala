@@ -30,7 +30,9 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
 import org.openrepose.valve.ReposeJettyServer
 import org.openrepose.valve.jmx.{ValvePortMXBean, ValvePortMXBeanImpl}
 import org.springframework.beans.factory.DisposableBean
@@ -110,10 +112,6 @@ class ValveRunner @Inject()(
       val containerConfig = currentContainerConfig.get
 
       if (Option(systemModel).isDefined && Option(containerConfig).isDefined) {
-        val sslConfig = Option(containerConfig.getDeploymentConfig.getSslConfiguration)
-        val idleTimeout = Option(containerConfig.getDeploymentConfig.getIdleTimeout)
-        val soLingerTime = Option(containerConfig.getDeploymentConfig.getSoLingerTime)
-
         def isLocal(host: String): Boolean = {
           try {
             localAddresses.contains(InetAddress.getByName(host))
@@ -209,7 +207,13 @@ class ValveRunner @Inject()(
 
             //Start up all the new nodes, replacing the existing nodes list with a new one
             activeNodes = activeNodes ++ startList.flatMap { n =>
-              val node = new ReposeJettyServer(n.clusterId, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
+              val nodeContext = CoreSpringProvider.getInstance().getNodeContext(n.clusterId, n.nodeId)
+              val containerConfigurationService = nodeContext.getBean(classOf[ContainerConfigurationService])
+              val deploymentConfiguration = containerConfigurationService.getDeploymentConfiguration
+              val sslConfig = Option(deploymentConfiguration.getSslConfiguration)
+              val idleTimeout = Option(deploymentConfiguration.getIdleTimeout)
+              val soLingerTime = Option(deploymentConfiguration.getSoLingerTime)
+              val node = new ReposeJettyServer(nodeContext, n.clusterId, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
               try {
                 node.start()
                 //Update the MX bean with port info

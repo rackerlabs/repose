@@ -30,7 +30,7 @@ import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.openrepose.powerfilter.EmptyServlet
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
+import org.springframework.context.support.{AbstractApplicationContext, PropertySourcesPlaceholderConfigurer}
 import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 import org.springframework.web.filter.DelegatingFilterProxy
@@ -51,7 +51,8 @@ case class ServerInitializationException(message: String, cause: Throwable = nul
   * @param soLingerTime A value >=0 sets the socket SO_LINGER value in milliseconds.
   * @param sslConfig    The SSL Configuration to use
   */
-class ReposeJettyServer(val clusterId: String,
+class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
+                        val clusterId: String,
                         val nodeId: String,
                         val httpPort: Option[Int],
                         val httpsPort: Option[Int],
@@ -65,8 +66,6 @@ class ReposeJettyServer(val clusterId: String,
   val appContext = new AnnotationConfigWebApplicationContext()
 
   val coreSpringProvider = CoreSpringProvider.getInstance()
-  //Safe to use here, it's been initialized earlier
-  val nodeContext = coreSpringProvider.getNodeContext(clusterId, nodeId)
 
   //NOTE: have to add this manually each time we fire up a spring context so that we can ensure that @Value works
   val propConfig = new PropertySourcesPlaceholderConfigurer()
@@ -215,7 +214,7 @@ class ReposeJettyServer(val clusterId: String,
     */
   def restart(): ReposeJettyServer = {
     shutdown()
-    new ReposeJettyServer(clusterId, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
+    new ReposeJettyServer(nodeContext, clusterId, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
   }
 
   /**

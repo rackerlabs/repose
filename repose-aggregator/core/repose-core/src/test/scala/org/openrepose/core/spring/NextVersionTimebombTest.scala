@@ -52,6 +52,10 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 2. Remove the functional tests for the above attributes:
        *    a. IdentityV3CacheOffSetOldTest
        *    b. IdentityV3NoCacheOffSetOldTest
+       *
+       * 3. Remove these attributes from container-configuration.xsd:
+       *    a. http-port
+       *    b. https-port
        */
     }
   }

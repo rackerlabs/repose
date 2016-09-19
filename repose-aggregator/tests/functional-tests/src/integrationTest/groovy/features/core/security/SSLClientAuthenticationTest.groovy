@@ -68,7 +68,7 @@ class SSLClientAuthenticationTest extends ReposeValveTest {
 
         def sslContext = SSLContexts.custom()
                 .loadKeyMaterial(clientFile, clientPass, clientPass) // Key this client is presenting.
-                .loadTrustMaterial(serverFile, serverPass, TrustSelfSignedStrategy.INSTANCE) // Key that is being accepted from server.
+                .loadTrustMaterial(serverFile, serverPass) // Key that is being accepted from server.
                 .build()
         def sf = new SSLConnectionSocketFactory(
                 sslContext,

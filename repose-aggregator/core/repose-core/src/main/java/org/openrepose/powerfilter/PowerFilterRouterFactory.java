@@ -20,7 +20,7 @@
 package org.openrepose.powerfilter;
 
 import org.openrepose.core.filter.routing.DestinationLocationBuilder;
-import org.openrepose.core.services.headers.response.ResponseHeaderService;
+import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
