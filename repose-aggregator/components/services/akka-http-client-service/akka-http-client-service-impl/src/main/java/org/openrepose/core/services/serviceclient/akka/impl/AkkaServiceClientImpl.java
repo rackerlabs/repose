@@ -46,7 +46,6 @@ import scala.concurrent.Future;
 
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -98,11 +97,11 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
     }
 
     @Override
-    public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers) throws AkkaServiceClientException {
+    public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers, boolean checkCache) throws AkkaServiceClientException {
         AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
         try {
             Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
-            Future<ServiceClientResponse> future = getFuture(authGetRequest, timeout);
+            Future<ServiceClientResponse> future = getFuture(authGetRequest, timeout, checkCache);
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (GET) or the cache. Reason: {}", e.getLocalizedMessage());
@@ -112,11 +111,11 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
     }
 
     @Override
-    public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws AkkaServiceClientException {
+    public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, boolean checkCache) throws AkkaServiceClientException {
         AuthPostRequest authPostRequest = new AuthPostRequest(hashKey, uri, headers, payload, contentMediaType);
         try {
             Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
-            Future<ServiceClientResponse> future = getFuture(authPostRequest, timeout);
+            Future<ServiceClientResponse> future = getFuture(authPostRequest, timeout, checkCache);
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (POST) or the cache. Reason: {}", e.getLocalizedMessage());
@@ -125,19 +124,22 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
         }
     }
 
-    private Future getFuture(final ConsistentHashable hashableRequest, final Timeout timeout) throws ExecutionException {
+    private Future getFuture(ConsistentHashable hashableRequest, Timeout timeout, boolean checkCache) throws ExecutionException {
         Object hashKey = hashableRequest.consistentHashKey();
         LOG.trace("Getting future for: {}", hashKey);
 
-        //http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/Cache.html#get%28K,%20java.util.concurrent.Callable%29
-        // Using this method, according to guava, is the right way to do the "cache pattern"
-        return quickFutureCache.get(hashKey, new Callable<Future<Object>>() {
-            @Override
-            public Future<Object> call() throws Exception {
-                LOG.trace("Call for: {}", hashKey);
-                return ask(tokenActorRef, hashableRequest, timeout);
-            }
-        });
+        if (checkCache) {
+            //http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/Cache.html#get%28K,%20java.util.concurrent.Callable%29
+            // Using this method, according to guava, is the right way to do the "cache pattern"
+            return quickFutureCache.get(hashKey, () -> makeRequest(hashableRequest, timeout));
+        } else {
+            return makeRequest(hashableRequest, timeout);
+        }
+    }
+
+    private Future makeRequest(ConsistentHashable hashableRequest, Timeout timeout) {
+        LOG.trace("Call for: {}", hashableRequest.consistentHashKey());
+        return ask(tokenActorRef, hashableRequest, timeout);
     }
 
     @Override

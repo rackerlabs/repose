@@ -128,7 +128,7 @@ public class ServiceClient {
             HttpResponse httpResponse = client.execute(base);
             HttpEntity entity = httpResponse.getEntity();
 
-            InputStream stream = null;
+            InputStream stream = new ByteArrayInputStream(new byte[0]);
             if (entity != null) {
                 stream = new ByteArrayInputStream(RawInputStreamReader.instance().readFully(entity.getContent()));
                 EntityUtils.consume(entity);
