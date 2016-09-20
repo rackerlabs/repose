@@ -291,7 +291,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               case _: AdminTokenUnauthorizedException =>
                 // Force acquiring of the admin token, and call the validation function again (retry once)
                 getValidatingToken(authToken, force = true) match {
-                  case Success(newValidatingToken) => requestHandler.validateToken(newValidatingToken, authToken)
+                  case Success(newValidatingToken) => requestHandler.validateToken(newValidatingToken, authToken, checkCache = false)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
             } cacheOnSuccess { validToken =>
@@ -367,7 +367,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 case _: AdminTokenUnauthorizedException =>
                   // Force acquiring of the admin token, and call the endpoints function again (retry once)
                   getValidatingToken(authToken, force = true) match {
-                    case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken)
+                    case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken, checkCache = false)
                     case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                   }
               } cacheOnSuccess { endpointsJson =>
@@ -413,7 +413,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 case _: AdminTokenUnauthorizedException =>
                   // Force acquiring of the admin token, and call the endpoints function again (retry once)
                   getValidatingToken(authToken, force = true) match {
-                    case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId)
+                    case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId, checkCache = false)
                     case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                   }
                 case _: NotFoundException =>

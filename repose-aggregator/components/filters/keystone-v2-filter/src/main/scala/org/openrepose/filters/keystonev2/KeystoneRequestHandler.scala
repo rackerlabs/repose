@@ -48,10 +48,18 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
   import KeystoneRequestHandler._
 
   /**
-   * Call to the Keystone service to get the admin token
-   * @return a Successful token, or a Failure
-   */
-  final def getAdminToken(adminUsername: String, adminPassword: String): Try[String] = {
+    * Call to the Keystone service to get the admin token
+    *
+    * Note that the checkCache parameter was provided for the sake of consistency across the API of this class.
+    * Generally speaking, checkCache should have a value of true. The reason is that the admin token is shared by
+    * all users, whereas a token, groups, or endpoints are user specific. If checkCache were to be false on retry,
+    * then every time the admin token expires, every user request currently in flight is likely to force a unique
+    * connection to be made to the Identity service. That is exactly the problem that the Akka service client was
+    * made to solve.
+    *
+    * @return a Successful token, or a Failure
+    */
+  final def getAdminToken(adminUsername: String, adminPassword: String, checkCache: Boolean = true): Try[String] = {
     //authenticate, or get the admin token
     val authenticationPayload = Json.obj(
       "auth" -> Json.obj(
@@ -68,7 +76,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
       Json.stringify(authenticationPayload),
       MediaType.APPLICATION_JSON_TYPE,
-      true
+      checkCache
     ))
 
     akkaResponse match {
@@ -92,7 +100,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
     }
   }
 
-  final def validateToken(validatingToken: String, validatableToken: String): Try[ValidToken] = {
+  final def validateToken(validatingToken: String, validatableToken: String, checkCache: Boolean = true): Try[ValidToken] = {
     def extractUserInformation(keystoneResponse: InputStream): Try[ValidToken] = {
       val input: String = Source.fromInputStream(keystoneResponse).getLines mkString ""
       try {
@@ -138,12 +146,12 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> validatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
-      true))
+      checkCache))
 
     handleResponse("validate token", akkaResponse, extractUserInformation)
   }
 
-  final def getEndpointsForToken(authenticatingToken: String, forToken: String): Try[EndpointsData] = {
+  final def getEndpointsForToken(authenticatingToken: String, forToken: String, checkCache: Boolean = true): Try[EndpointsData] = {
     def extractEndpointInfo(inputStream: InputStream): Try[EndpointsData] = {
       implicit val endpointsReader = (
         (JsPath \ "region").readNullable[String] and
@@ -170,12 +178,12 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
-      true))
+      checkCache))
 
     handleResponse("endpoints", akkaResponse, extractEndpointInfo)
   }
 
-  final def getGroups(authenticatingToken: String, forToken: String): Try[Vector[String]] = {
+  final def getGroups(authenticatingToken: String, forToken: String, checkCache: Boolean = true): Try[Vector[String]] = {
     def extractGroupInfo(inputStream: InputStream): Try[Vector[String]] = {
       Try {
         val input: String = Source.fromInputStream(inputStream).getLines mkString ""
@@ -190,7 +198,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       (Map(CommonHttpHeader.AUTH_TOKEN.toString -> authenticatingToken,
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
-      true))
+      checkCache))
 
     handleResponse("groups", akkaResponse, extractGroupInfo)
   }

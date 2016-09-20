@@ -46,6 +46,7 @@ trait MockedAkkaServiceClient {
     //todo: use a queue
     val postResponses: mutable.ArrayStack[AkkaResponse] = new mutable.ArrayStack[AkkaResponse]()
     val requestHeaders: mutable.Queue[Map[String, String]] = new mutable.Queue[Map[String, String]]()
+    val checkCacheValues: mutable.ArrayBuffer[Boolean] = new mutable.ArrayBuffer[Boolean]()
     val oversteppedGetRequests = new AtomicBoolean(false)
     val oversteppedPostRequests = new AtomicBoolean(false)
 
@@ -70,6 +71,7 @@ trait MockedAkkaServiceClient {
       requestHeaders.clear()
       getResponses.clear()
       postResponses.clear()
+      checkCacheValues.clear()
     }
 
     /**
@@ -85,6 +87,8 @@ trait MockedAkkaServiceClient {
         oversteppedGetRequests.set(true)
         throw new Exception("OVERSTEPPED BOUNDARIES")
       }
+
+      checkCacheValues += checkCache
 
       logger.debug(getResponses.mkString("\n"))
       val adminToken = headers.get("x-auth-token")
@@ -108,6 +112,8 @@ trait MockedAkkaServiceClient {
                       payload: String,
                       contentMediaType: MediaType,
                       checkCache: Boolean): ServiceClientResponse = {
+      checkCacheValues += checkCache
+
       if (postResponses.nonEmpty) {
         postResponses.pop() match {
           case Left(x) => x

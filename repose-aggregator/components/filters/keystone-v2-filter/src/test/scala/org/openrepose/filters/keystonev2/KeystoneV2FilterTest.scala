@@ -2566,6 +2566,96 @@ with HttpDelegationManager {
     }
   }
 
+  describe("Configured to make all requests") {
+    def configuration = Marshaller.keystoneV2ConfigFromString(
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+        |    <identity-service
+        |            username="username"
+        |            password="password"
+        |            uri="https://some.identity.com"
+        |            set-groups-in-header="true"
+        |            set-catalog-in-header="true"
+        |            />
+        |</keystone-v2>
+      """.stripMargin)
+
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+
+    filter.init(mockFilterConfig)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+    it("does not use the akka cache on retry for token validation") {
+      val filterChain = new MockFilterChain()
+      val response = new MockHttpServletResponse
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      mockAkkaGetResponses(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") {
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse())
+        )
+      }
+      when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty[Endpoint]), Nil: _*)
+      when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector("group"), Nil: _*)
+
+      filter.doFilter(request, response, filterChain)
+
+      mockAkkaServiceClient.checkCacheValues should contain inOrderOnly(true, false)
+      mockAkkaServiceClient.validate()
+    }
+
+    it("does not use the akka cache on retry for endpoint retrieval") {
+      val filterChain = new MockFilterChain()
+      val response = new MockHttpServletResponse
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
+      mockAkkaGetResponses(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") {
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_OK, oneEndpointResponse())
+        )
+      }
+      when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector("group"), Nil: _*)
+
+      filter.doFilter(request, response, filterChain)
+
+      mockAkkaServiceClient.checkCacheValues should contain inOrderOnly(true, false)
+      mockAkkaServiceClient.validate()
+    }
+
+    it("does not use the akka cache on retry for groups retrieval") {
+      val filterChain = new MockFilterChain()
+      val response = new MockHttpServletResponse
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(userId = "userId"), Nil: _*)
+      when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty[Endpoint]), Nil: _*)
+      mockAkkaGetResponses(s"${GROUPS_KEY_PREFIX}userId") {
+        Seq(
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
+          "glibglob" -> AkkaServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse())
+        )
+      }
+
+      filter.doFilter(request, response, filterChain)
+
+      mockAkkaServiceClient.checkCacheValues should contain inOrderOnly(true, false)
+      mockAkkaServiceClient.validate()
+    }
+  }
+
   object TestValidToken {
     def apply(expirationDate: String = "",
               userId: String = "",
