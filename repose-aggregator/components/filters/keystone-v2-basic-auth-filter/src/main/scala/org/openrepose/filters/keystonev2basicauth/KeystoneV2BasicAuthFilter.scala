@@ -217,7 +217,8 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
           identityServiceUri + TOKEN_ENDPOINT,
           requestTracingHeader.asJava,
           createAuthRequest(authValue).toString(),
-          MediaType.APPLICATION_XML_TYPE))
+          MediaType.APPLICATION_XML_TYPE,
+          true))
 
         authTokenResponse.map { tokenResponse =>
           val statusCode = tokenResponse.getStatus
