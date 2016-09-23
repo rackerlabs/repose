@@ -34,7 +34,8 @@ import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
 import _root_.io.gatling.jsonpath.Parser
 import com.rackspace.cloud.api.wadl.Converters._
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import net.sf.saxon.{Controller, TransformerFactoryImpl}
+import net.sf.saxon.TransformerFactoryImpl
+import net.sf.saxon.jaxp.TransformerImpl
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -185,7 +186,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val result = applicableLinkPaths.foldLeft(wrappedRequest.getInputStream) { (in: InputStream, linkPath: LinkPath) =>
         val out = new ByteArrayOutputStream()
         val transformer = templateMapRequest(linkPath).newTransformer
-        transformer.asInstanceOf[Controller].addLogErrorListener
+        transformer.asInstanceOf[TransformerImpl].addLogErrorListener
         transformer.setParameter("removedToken", "")
         transformer.setParameter("prefixToken", "")
         transformer.setParameter("postfixToken", "")
@@ -229,7 +230,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
       val result = applicableLinkPaths.foldLeft(wrappedResponse.getOutputStreamAsInputStream) { (in: InputStream, linkPath: LinkPath) =>
         val out = new ByteArrayOutputStream()
         val transformer = templateMapResponse(linkPath).newTransformer
-        transformer.asInstanceOf[Controller].addLogErrorListener
+        transformer.asInstanceOf[TransformerImpl].addLogErrorListener
         transformer.setParameter("removedToken", token.getOrElse(""))
         transformer.setParameter("prefixToken", previousToken.getOrElse(""))
         transformer.setParameter("postfixToken", nextToken.getOrElse(""))
@@ -435,7 +436,7 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
         </namespaces>
       ))
       setupTransformer.setParameter("failOnMiss", xmlElement.getXpath.getLinkMismatchAction == FAIL)
-      setupTransformer.asInstanceOf[Controller].addLogErrorListener
+      setupTransformer.asInstanceOf[TransformerImpl].addLogErrorListener
       val updateXPathXSLTDomResult = new DOMResult()
       setupTransformer.transform(new StreamSource(<ignore-input/>), updateXPathXSLTDomResult)
 
