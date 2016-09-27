@@ -331,14 +331,12 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         case (Some(username), Some(password)) =>
           Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
             valkyrieServer.getUri + uri,
-            Map("X-Auth-User" -> username, "X-Auth-Token" -> password) ++ requestTracingHeader,
-            true)
+            Map("X-Auth-User" -> username, "X-Auth-Token" -> password) ++ requestTracingHeader)
           )
         case _ =>
           Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
             valkyrieServer.getUri + uri,
-            authToken.map(token => Map("X-Auth-Token" -> token)).getOrElse(Map.empty) ++ requestTracingHeader,
-            true)
+            authToken.map(token => Map("X-Auth-Token" -> token)).getOrElse(Map.empty) ++ requestTracingHeader)
           )
       }
     }

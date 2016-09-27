@@ -174,8 +174,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
           collectionUri,
           updateHeaders,
           message,
-          MediaType.APPLICATION_JSON_TYPE,
-          true
+          MediaType.APPLICATION_JSON_TYPE
         )
 
         // Handle error status codes

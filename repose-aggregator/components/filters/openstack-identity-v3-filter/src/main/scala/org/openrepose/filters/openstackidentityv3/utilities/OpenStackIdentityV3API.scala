@@ -107,8 +107,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
           identityServiceUri + TOKEN_ENDPOINT,
           headerMap.asJava,
           createAdminAuthRequest(),
-          MediaType.APPLICATION_JSON_TYPE,
-          true
+          MediaType.APPLICATION_JSON_TYPE
         ))
 
         // Since we *might* get a null back from the akka service client, we have to map it, and then match
@@ -164,8 +163,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             val validateTokenResponse = Option(akkaServiceClient.get(
               getTokenKey(subjectToken),
               identityServiceUri + TOKEN_ENDPOINT,
-              headerMap.asJava,
-              true
+              headerMap.asJava
             ))
 
             // Since we *might* get a null back from the akka service client, we have to map it, and then match
@@ -250,8 +248,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             val groupsResponse = Option(akkaServiceClient.get(
               getGroupsKey(subjectToken),
               identityServiceUri + GROUPS_ENDPOINT(userId),
-              headerMap.asJava,
-              true
+              headerMap.asJava
             ))
 
             // Since we *might* get a null back from the akka service client, we have to map it, and then match

@@ -310,7 +310,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     List(null, new DelegatingType).foreach { delegation =>
       val delegating = Option(delegation).isDefined
       it(s"should return a 502 and delegation is $delegating with appropriate message when unable to communicate with Valkyrie") {
-        Mockito.when(akkaServiceClient.get(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.anyBoolean())).thenThrow(new AkkaServiceClientException("Valkyrie is missing", new Exception()))
+        Mockito.when(akkaServiceClient.get(Matchers.any(), Matchers.any(), Matchers.any())).thenThrow(new AkkaServiceClientException("Valkyrie is missing", new Exception()))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(delegation))
@@ -405,8 +405,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       Mockito.verify(akkaServiceClient, Mockito.times(1)).get(
         "VALKYRIE-FILTERanysomeTenant" + request.headers.get("X-Contact-Id").get,
         s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.get("X-Contact-Id").get}/effective",
-        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"),
-        true)
+        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"))
     }
 
     List(null, new DelegatingType).foreach { delegation =>
@@ -509,8 +508,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       Mockito.when(akkaServiceClient.get(
         "VALKYRIE-FILTERanysomeTenant123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective",
-        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"),
-        true))
+        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid")))
         .thenReturn(new ServiceClientResponse(SC_OK, new ByteArrayInputStream(createValkyrieResponse(devicePermissions("123456", "view_product")).getBytes)))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
@@ -526,8 +524,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       Mockito.verify(akkaServiceClient).get("VALKYRIE-FILTERanysomeTenant123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective",
-        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"),
-        true)
+        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
     }
   }
 
@@ -694,8 +691,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       setup()
       Mockito.when(akkaServiceClient.get(Matchers.any(classOf[String]),
         Matchers.eq(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective"),
-        Matchers.any(classOf[java.util.Map[String, String]]),
-        Matchers.anyBoolean())).thenThrow(new AkkaServiceClientException("test exception", null))
+        Matchers.any(classOf[java.util.Map[String, String]]))).thenThrow(new AkkaServiceClientException("test exception", null))
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
@@ -840,8 +836,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       setup()
       Mockito.when(akkaServiceClient.get(Matchers.any(classOf[String]),
         Matchers.eq(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective"),
-        Matchers.any(classOf[java.util.Map[String, String]]),
-        Matchers.anyBoolean())).thenThrow(new AkkaServiceClientException("test exception", null))
+        Matchers.any(classOf[java.util.Map[String, String]]))).thenThrow(new AkkaServiceClientException("test exception", null))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -1429,8 +1424,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       Mockito.when(akkaServiceClient.get(
         CACHE_PREFIX + "any" + "someTenant" + "123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective",
-        Map("X-Auth-Token" -> "someToken"),
-        true))
+        Map("X-Auth-Token" -> "someToken")))
         .thenReturn(new ServiceClientResponse(SC_OK, new ByteArrayInputStream(createValkyrieResponse(devicePermissions("123456", "view_product")).getBytes)))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
@@ -1480,8 +1474,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
           Mockito.when(akkaServiceClient.get(
             CACHE_PREFIX + "any" + "someTenant" + "123456",
             "http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective",
-            Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"),
-            true))
+            Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
             .thenReturn(new ServiceClientResponse(valkyrie.valkyrieStatusCode,
                         valkyrie.valkyrieHeaders,
                         new ByteArrayInputStream(createValkyrieResponse(devicePermissions("123456", "view_product")).getBytes)))
@@ -1517,8 +1510,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
           Mockito.when(akkaServiceClient.get(
             CACHE_PREFIX + "any" + "someTenant" + "123456",
             "http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective",
-            Map("X-Auth-Token" -> "someToken"),
-            true))
+            Map("X-Auth-Token" -> "someToken")))
             .thenReturn(new ServiceClientResponse(valkyrie.valkyrieStatusCode,
                         valkyrie.valkyrieHeaders,
                         new ByteArrayInputStream(createValkyrieResponse(devicePermissions("123456", "view_product")).getBytes)))
@@ -1597,8 +1589,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     Mockito.when(akkaServiceClient.get(
       CACHE_PREFIX + "any" + tenant + contactHeader,
       s"http://foo.com:8080/account/$tenant/permissions/contacts/any/by_contact/$contactHeader/effective",
-      Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"),
-      true))
+      Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
       .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
   }
 
@@ -1606,8 +1597,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     Mockito.when(akkaServiceClient.get(
       CACHE_PREFIX + "account_admin" + tenant + contactHeader,
       s"http://foo.com:8080/account/$tenant/inventory",
-      Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"),
-      true))
+      Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword")))
       .thenReturn(new ServiceClientResponse(valkyrieCode, new ByteArrayInputStream(valkyriePayload.getBytes)))
   }
 

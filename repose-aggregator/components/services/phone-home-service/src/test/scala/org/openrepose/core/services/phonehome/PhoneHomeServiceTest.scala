@@ -110,8 +110,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
           anyString(),
           anyMapOf(classOf[String], classOf[String]),
           anyString(),
-          any(),
-          anyBoolean())
+          any())
       ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
 
       val phoneHomeService = new PhoneHomeService(
@@ -127,8 +126,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
         mockitoEq(collectionUri),
         anyMapOf(classOf[String], classOf[String]),
         anyString(),
-        mockitoEq(MediaType.APPLICATION_JSON_TYPE),
-        anyBoolean())
+        mockitoEq(MediaType.APPLICATION_JSON_TYPE))
     }
 
     it("should not call sendUpdate if the service is not enabled") {
@@ -160,8 +158,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
           anyString(),
           anyMapOf(classOf[String], classOf[String]),
           anyString(),
-          any(),
-          anyBoolean())
+          any())
       ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
 
       val phoneHomeService = new PhoneHomeService(
@@ -177,8 +174,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
         mockitoEq(collectionUri),
         anyMapOf(classOf[String], classOf[String]),
         anyString(),
-        mockitoEq(MediaType.APPLICATION_JSON_TYPE),
-        anyBoolean())
+        mockitoEq(MediaType.APPLICATION_JSON_TYPE))
     }
 
     it("should log the message if the phone-home element is not present") {
@@ -284,8 +280,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
           anyString(),
           anyMapOf(classOf[String], classOf[String]),
           anyString(),
-          any(),
-          anyBoolean())
+          any())
       ).thenReturn(new ServiceClientResponse(400, new ByteArrayInputStream("".getBytes)))
 
       val phoneHomeService = new PhoneHomeService(
@@ -306,8 +301,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
         anyString(),
         anyMapOf(classOf[String], classOf[String]),
         anyString(),
-        any[MediaType](),
-        anyBoolean())
+        any[MediaType]())
       msgLogEvents.size() should be > 0
       filterLogEvents.size() should be > 0
       updateMsg should include("foo-service")
@@ -346,8 +340,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
           anyString(),
           anyMapOf(classOf[String], classOf[String]),
           anyString(),
-          any(),
-          anyBoolean())
+          any())
       ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
 
       val phoneHomeService = new PhoneHomeService(
@@ -363,8 +356,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
         mockitoEq(collectionUri),
         argThat(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID.toString).asInstanceOf[Matcher[java.util.Map[String, String]]]),
         anyString(),
-        any[MediaType](),
-        anyBoolean())
+        any[MediaType]())
     }
 
     it("should not send a tracing header to the data collection point if configured not to") {
@@ -399,8 +391,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
           anyString(),
           anyMapOf(classOf[String], classOf[String]),
           anyString(),
-          any(),
-          anyBoolean())
+          any())
       ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
 
       val phoneHomeService = new PhoneHomeService(
@@ -416,8 +407,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
         mockitoEq(collectionUri),
         argThat(HMatchers.not(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID.toString)).asInstanceOf[Matcher[java.util.Map[String, String]]]),
         anyString(),
-        any[MediaType](),
-        anyBoolean())
+        any[MediaType]())
     }
 
     it("should send a JSON message to the data collection point") {
@@ -464,8 +454,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
           anyString(),
           anyMapOf(classOf[String], classOf[String]),
           anyString(),
-          any(),
-          anyBoolean())
+          any())
       ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
 
       val phoneHomeService = new PhoneHomeService(
@@ -505,8 +494,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
         mockitoEq(collectionUri),
         anyMapOf(classOf[String], classOf[String]),
         org.mockito.Matchers.matches(expectedBuilder.toString()),
-        mockitoEq(MediaType.APPLICATION_JSON_TYPE),
-        anyBoolean())
+        mockitoEq(MediaType.APPLICATION_JSON_TYPE))
     }
   }
 }

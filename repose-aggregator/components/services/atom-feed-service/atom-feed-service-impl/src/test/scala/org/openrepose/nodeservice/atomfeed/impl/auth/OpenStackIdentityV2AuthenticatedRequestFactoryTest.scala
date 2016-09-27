@@ -78,12 +78,12 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       }
 
       val headersCaptor = ArgumentCaptor.forClass(classOf[java.util.Map[String, String]])
-      verify(mockAkkaServiceClient).post(anyString(), anyString(), headersCaptor.capture(), anyString(), any[MediaType](), anyBoolean())
+      verify(mockAkkaServiceClient).post(anyString(), anyString(), headersCaptor.capture(), anyString(), any[MediaType]())
       headersCaptor.getValue.containsKey(CommonHttpHeader.TRACE_GUID.toString) shouldBe true
     }
 
     it("should handle a non-JSON response") {
-      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType](), anyBoolean()))
+      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]()))
         .thenReturn(new ServiceClientResponse(
           SC_OK,
           Array[Header](new BasicHeader("ContentTypes", "text/plain")),
@@ -97,7 +97,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
     }
 
     it("should handle a 4xx response") {
-      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType](), anyBoolean()))
+      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]()))
         .thenReturn(new ServiceClientResponse(
           SC_FORBIDDEN,
           Array[Header](new BasicHeader("ContentTypes", "text/plain")),
@@ -111,7 +111,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
     }
 
     it("should send a valid payload and receive a valid token for the user provided") {
-      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType](), anyBoolean()))
+      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]()))
         .thenReturn(new ServiceClientResponse(
           SC_OK,
           Array[Header](new BasicHeader("ContentTypes", "application/json")),
@@ -125,7 +125,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
     it("should cache a token until invalidated") {
       def resetAkkaServiceClient = {
-        when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType](), anyBoolean()))
+        when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]()))
           .thenReturn(new ServiceClientResponse(
             SC_OK,
             Array[Header](new BasicHeader("ContentTypes", "application/json")),
@@ -137,7 +137,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"
-      verify(mockAkkaServiceClient, times(1)).post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType](), anyBoolean())
+      verify(mockAkkaServiceClient, times(1)).post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]())
       resetAkkaServiceClient
 
       feedReadRequest.setURI(new URI("http://example.com"))
@@ -145,7 +145,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"
-      verify(mockAkkaServiceClient, times(1)).post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType](), anyBoolean())
+      verify(mockAkkaServiceClient, times(1)).post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]())
       resetAkkaServiceClient
 
       osiarf.onInvalidCredentials()
@@ -155,7 +155,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN.toString) should contain only "test-token"
-      verify(mockAkkaServiceClient, times(2)).post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType](), anyBoolean())
+      verify(mockAkkaServiceClient, times(2)).post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]())
     }
 
     it("should destroy the akka service client when destroying the AuthenticatedRequestFactory") {
