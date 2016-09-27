@@ -97,6 +97,11 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
     }
 
     @Override
+    public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers) throws AkkaServiceClientException {
+        return get(hashKey, uri, headers, true);
+    }
+
+    @Override
     public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers, boolean checkCache) throws AkkaServiceClientException {
         AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
         try {
@@ -108,6 +113,11 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
             LOG.trace("", e);
             throw new AkkaServiceClientException("Error acquiring value from akka (GET) or the cache.", e);
         }
+    }
+
+    @Override
+    public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws AkkaServiceClientException {
+        return post(hashKey, uri, headers, payload, contentMediaType, true);
     }
 
     @Override

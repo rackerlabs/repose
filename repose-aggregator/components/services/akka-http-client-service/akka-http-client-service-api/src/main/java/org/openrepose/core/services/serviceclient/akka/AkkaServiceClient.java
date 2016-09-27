@@ -29,9 +29,11 @@ import java.util.Map;
  */
 public interface AkkaServiceClient {
 
-    // TODO: Should backwards compatible get and post methods be added? If so, the commit to use the new methods can be reverted.
+    ServiceClientResponse get(String token, String uri, Map<String, String> headers) throws AkkaServiceClientException;
 
     ServiceClientResponse get(String token, String uri, Map<String, String> headers, boolean checkCache) throws AkkaServiceClientException;
+
+    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) throws AkkaServiceClientException;
 
     ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, boolean checkCache) throws AkkaServiceClientException;
 
