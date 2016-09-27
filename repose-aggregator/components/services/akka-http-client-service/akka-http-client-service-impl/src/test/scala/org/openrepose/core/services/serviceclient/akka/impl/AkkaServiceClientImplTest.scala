@@ -108,8 +108,8 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
     methods.foreach { method =>
       describe(s"using the HTTP request method $method") {
         def akkaServiceClientImplDo(akkaServiceClientImpl: AkkaServiceClientImpl, headers: Map[String, String]): ServiceClientResponse = method match {
-          case "GET" => akkaServiceClientImpl.get(hashKey, uri, headers, true)
-          case "POST" => akkaServiceClientImpl.post(hashKey, uri, headers, BODY_STRING, MediaType.APPLICATION_XML_TYPE, true)
+          case "GET" => akkaServiceClientImpl.get(hashKey, uri, headers)
+          case "POST" => akkaServiceClientImpl.post(hashKey, uri, headers, BODY_STRING, MediaType.APPLICATION_XML_TYPE)
         }
         describe(s"with no headers") {
           val headers = Map[String, String]()
