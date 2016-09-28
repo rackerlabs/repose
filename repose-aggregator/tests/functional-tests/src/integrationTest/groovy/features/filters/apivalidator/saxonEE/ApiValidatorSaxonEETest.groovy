@@ -63,14 +63,6 @@ class ApiValidatorSaxonEETest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
-
     def "Happy path: when no role passed, should get default wadl"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain

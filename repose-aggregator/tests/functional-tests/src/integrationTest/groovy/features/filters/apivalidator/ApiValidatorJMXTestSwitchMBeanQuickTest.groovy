@@ -43,14 +43,6 @@ class ApiValidatorJMXTestSwitchMBeanQuickTest extends ReposeValveTest {
     String validatorBeanDomain = 'com.rackspace.com.papi.components.checker:*'
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
 
-    def setupSpec() {
-        //Nothing
-    }
-
-    def cleanupSpec() {
-        //AlsoNothing
-    }
-
     def setup() {
         params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory() //Ensure it's clean!!!1
@@ -68,7 +60,6 @@ class ApiValidatorJMXTestSwitchMBeanQuickTest extends ReposeValveTest {
         deproxy.shutdown()
         repose.stop()
     }
-
 
     def "when loading validators on startup, should register Configuration MXBeans"() {
 

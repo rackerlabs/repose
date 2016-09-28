@@ -47,15 +47,6 @@ class DistDatastoreServiceBurstTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests("401")
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-
-        if (repose)
-            repose.stop()
-
-    }
-
     def "under heavy load should not go over specified rate limit"() {
 
         given:

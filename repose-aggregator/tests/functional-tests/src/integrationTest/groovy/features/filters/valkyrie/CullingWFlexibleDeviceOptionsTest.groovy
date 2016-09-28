@@ -154,16 +154,6 @@ class CullingWFlexibleDeviceOptionsTest extends ReposeValveTest {
         valkyrieEndpoint = deproxy.addEndpoint(properties.valkyriePort, 'valkyrie service', null, fakeValkyrie.handler)
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("Fail default - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test device uri mismatch with default (fail)"() {
         given: "a list permission devices defined in Valkyrie"

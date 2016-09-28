@@ -55,12 +55,6 @@ class TraceHeaderTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def "Tracing header should include in request to Identity"() {
 
         fakeIdentityV2Service.with {

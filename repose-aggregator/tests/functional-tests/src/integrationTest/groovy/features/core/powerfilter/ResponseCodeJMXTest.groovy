@@ -58,12 +58,6 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        repose.stop()
-    }
-
     // Greg/Dimitry: Is it expected that all2XX and repose2XX are equal?  It's not the sum of repose responses + origin service
     // responses?
     @Unroll("When sending requests, the counters should be incremented: iteration #loop")

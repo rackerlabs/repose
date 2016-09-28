@@ -94,9 +94,4 @@ class Slf4jHttpLoggingTest extends ReposeValveTest {
         'DELETE' | 404
 
     }
-
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-    }
 }

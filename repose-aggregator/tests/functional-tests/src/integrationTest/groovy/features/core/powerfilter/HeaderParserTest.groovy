@@ -38,12 +38,6 @@ class HeaderParserTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def "when expecting a comma-separated location header"() {
         given: "Origin service returns a comma-separated location header"
         def headerResp = { request ->

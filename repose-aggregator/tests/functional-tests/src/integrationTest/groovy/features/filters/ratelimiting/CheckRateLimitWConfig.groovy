@@ -40,13 +40,6 @@ class CheckRateLimitWConfig extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("Check absolute and remaining limit for limit group #limitgroup ")
     def "Check absolute limit on json"() {
         when: "the user send request to get rate limit with endpoint doesn't match with limit group"

@@ -41,11 +41,6 @@ class AddHeaderTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     def "When using add-header filter the expect header(s) in config is added to request/response"() {
         given:
         def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]

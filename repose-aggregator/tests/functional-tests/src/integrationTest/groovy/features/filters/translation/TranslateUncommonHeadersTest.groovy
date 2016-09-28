@@ -67,16 +67,6 @@ class TranslateUncommonHeadersTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
-
     @Unroll("when translating requests with uncommon headers - #reqHeaders")
     def "when translating requests with uncommon headers"() {
 

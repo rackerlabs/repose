@@ -64,11 +64,6 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         KEY = UUID.randomUUID().toString()
     }
 
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-    }
-
     def "PUT a new cache object should return 202 response"() {
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: BODY])

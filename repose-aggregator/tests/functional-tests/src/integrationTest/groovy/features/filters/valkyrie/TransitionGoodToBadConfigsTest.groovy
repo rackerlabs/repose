@@ -75,16 +75,6 @@ class TransitionGoodToBadConfigsTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/accountadmin/enablebypass", params);
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "start with good configs, change to bad, should get log message"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
         fakeIdentityService.with {

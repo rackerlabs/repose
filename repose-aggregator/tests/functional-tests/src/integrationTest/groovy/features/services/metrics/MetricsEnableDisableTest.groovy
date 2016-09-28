@@ -35,20 +35,12 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
 
     def setupSpec() {
-
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanup() {
-
         repose.stop()
-
-    }
-
-    def cleanupSpec() {
-
-        deproxy.shutdown()
     }
 
     def "when metrics are enabled, reporting should occur"() {

@@ -37,16 +37,6 @@ class PassThruTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
-
     @Unroll("Should pass path #requestpath")
     def "should pass all '/' characters to origin service"() {
 

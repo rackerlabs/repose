@@ -55,13 +55,4 @@ class InvalidURITest extends ReposeValveTest {
                 [['[', ']', '{', '}', '`', '^', '|', '\\', '<', '>'],
                  ["POST", "GET", "PUT", "DELETE", "TRACE", "OPTIONS", "PATCH"]].combinations()
     }
-
-    def cleanupSpec() {
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
 }

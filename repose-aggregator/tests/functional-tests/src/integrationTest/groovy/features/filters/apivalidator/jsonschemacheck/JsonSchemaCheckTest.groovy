@@ -40,13 +40,6 @@ class JsonSchemaCheckTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def "PUT to /path/to/test Json checking should get 200"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain

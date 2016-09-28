@@ -38,11 +38,6 @@ class AddForwardedProtoHeaderTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     def "When using forwarded-proto filter, Repose addes the x-forwarded-proto header to the request"() {
         given:
         def Map headers = ["x-rax-user": "test-user-a", "x-rax-groups": "reposegroup11"]

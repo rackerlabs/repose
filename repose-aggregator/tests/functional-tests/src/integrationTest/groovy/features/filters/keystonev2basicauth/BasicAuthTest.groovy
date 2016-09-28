@@ -62,16 +62,6 @@ class BasicAuthTest extends ReposeValveTest {
         }
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "Retrieve a token for an HTTP Basic authentication header with UserName/ApiKey"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [

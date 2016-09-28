@@ -46,19 +46,6 @@ class UrlExtractorToHeaderTest extends ReposeValveTest {
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
     }
 
-    def setup() {
-    }
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("#method with deviceID: #deviceID should return a #responseCode")
     def "Test regex extract deviceId from url set to header"() {
         given: "A device ID in the url request"

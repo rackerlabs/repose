@@ -61,19 +61,6 @@ class RaxDeviceValkyrieTest extends ReposeValveTest {
         valkyrieEndpoint = deproxy.addEndpoint(properties.valkyriePort, 'valkyrie service', null, fakeValkyrie.handler)
     }
 
-    def setup() {
-    }
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
     def "Test fine grain access of resources based on Valkyrie permissions (no rbac)"() {
         given: "A device ID with a particular permission level defined in Valkyrie"

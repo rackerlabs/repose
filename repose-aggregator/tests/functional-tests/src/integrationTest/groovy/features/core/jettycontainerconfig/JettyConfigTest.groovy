@@ -42,16 +42,6 @@ class JettyConfigTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "Repose should start and handle request normaly when the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout & soLingerTime"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)

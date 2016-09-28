@@ -37,11 +37,6 @@ class PasswordLogging extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     static def params
 
     def "identity passwords in auth configs are not logged in plaintext"() {

@@ -42,13 +42,6 @@ class RatelimitingMultiUserStateTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("Validate limits for #limitgroup match configuration")
     def "Validate limits in JSON that match the config"() {
         when: "I send a request to repose to get the limits for the rate limiting filter"

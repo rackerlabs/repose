@@ -53,14 +53,6 @@ class IdentityV3AuthZBypassTest extends ReposeValveTest {
         //targetPort = properties.targetPort
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-
-        if (repose)
-            repose.stop()
-    }
-
     @Unroll("With Project ID: #requestProject, return from identity with response project: #responseProject, and role: #serviceAdminRole, return 200")
     def "when authenticating project id and roles that bypass"() {
         given:

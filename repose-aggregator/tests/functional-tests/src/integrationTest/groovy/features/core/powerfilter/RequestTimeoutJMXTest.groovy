@@ -48,12 +48,6 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        repose.stop()
-    }
-
     def "when responses have timed out, should increment RequestTimeout mbeans for specific endpoint"() {
         given:
         def target = repose.jmx.quickMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count")

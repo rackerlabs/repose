@@ -99,13 +99,6 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def cleanup() {
         waitForLimitReset()
         reposeLogSearch.cleanLog()

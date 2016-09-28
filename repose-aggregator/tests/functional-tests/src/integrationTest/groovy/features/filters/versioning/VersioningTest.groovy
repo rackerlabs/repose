@@ -65,11 +65,6 @@ class VersioningTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     @Unroll
     def "when retrieving all versions: #reqHeaders"() {
         when: "User sends requests through repose"

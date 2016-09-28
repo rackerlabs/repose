@@ -53,14 +53,6 @@ class ClientAuthZDelegatingTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV2Service.handler)
     }
 
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
     @Unroll("When user role #roles not in ignore-tenant-role list")
     def "Check non-tenanted AuthZ with #roles and expected response code #respcode"() {
         given:

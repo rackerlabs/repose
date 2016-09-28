@@ -40,16 +40,6 @@ class ChunkedTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("When set to #method chunked encoding to true and sending #reqBody.")
     def "When set to send chunked encoding to true. Repose should send requests chunked"() {
 

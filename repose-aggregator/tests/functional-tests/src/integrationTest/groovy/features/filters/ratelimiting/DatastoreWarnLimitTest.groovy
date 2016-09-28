@@ -38,11 +38,6 @@ class DatastoreWarnLimitTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-    }
-
     @Unroll
     def "when sending requests that match capture group with different cache keys should warn when exceeds #totalRequests"() {
 

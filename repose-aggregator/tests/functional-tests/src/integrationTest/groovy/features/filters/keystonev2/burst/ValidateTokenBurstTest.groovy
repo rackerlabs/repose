@@ -64,15 +64,6 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         deproxy.defaultHandler = missingResponseErrorHandler
     }
 
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
-
     def "under heavy load should not drop validate token response"() {
 
         given:

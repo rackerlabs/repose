@@ -70,16 +70,6 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
         fakeValkyrie.resetParameters()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("#method device #deviceID with permission #permission, tenant: #tenantID should return a #responseCode")
     def "Test verify only user request device permission will be added to x-roles"() {
         given: "A device ID with a particular permission level defined in Valkyrie"

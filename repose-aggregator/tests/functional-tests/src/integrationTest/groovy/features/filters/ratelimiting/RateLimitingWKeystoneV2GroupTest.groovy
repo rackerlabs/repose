@@ -51,13 +51,6 @@ class RateLimitingWKeystoneV2GroupTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityService.handler)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def setup() {
         fakeIdentityService.resetHandlers()
     }

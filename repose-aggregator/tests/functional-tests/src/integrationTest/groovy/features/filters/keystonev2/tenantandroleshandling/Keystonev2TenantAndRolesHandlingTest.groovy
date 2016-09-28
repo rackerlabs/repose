@@ -59,13 +59,6 @@ class Keystonev2TenantAndRolesHandlingTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def setup() {
         fakeIdentityV2Service.resetDefaultParameters()
     }

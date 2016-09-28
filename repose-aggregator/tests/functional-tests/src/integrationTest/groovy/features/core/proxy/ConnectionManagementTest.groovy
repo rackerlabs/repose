@@ -43,15 +43,6 @@ class ConnectionManagementTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
-
     @Unroll("When sending a #reqMethod with a huge body through repose returns a 413")
     def "should return 413 on request body that is too large"() {
         given: "I have a request body that exceed the header size limit"

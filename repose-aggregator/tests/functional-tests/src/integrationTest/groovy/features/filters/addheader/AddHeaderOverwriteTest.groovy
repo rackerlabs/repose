@@ -40,11 +40,6 @@ class AddHeaderOverwriteTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     def "When using add-header filter the expect header(s) in config is added to request/response"() {
         given:
         def Map headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1", "repose-test": "no-overwrite", "overwrite-test": "will-be-overwrite"]

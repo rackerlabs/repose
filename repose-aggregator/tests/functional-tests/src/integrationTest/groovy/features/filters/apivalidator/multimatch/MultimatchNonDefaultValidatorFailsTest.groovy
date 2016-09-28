@@ -59,12 +59,4 @@ class MultimatchNonDefaultValidatorFailsTest extends ReposeValveTest {
         "role-3" | "405"        | 0
     }
 
-    def cleanupSpec() {
-
-        if (repose)
-            repose.stop()
-
-        if (deproxy)
-            deproxy.shutdown()
-    }
 }

@@ -44,13 +44,6 @@ class FilterProcessingDelayJMXTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def "when a request is sent through Repose, should record per filter delay metrics"() {
         given:
         def ipIdentityCount = repose.jmx.getMBeanAttribute(IP_IDENTITY, "Count")

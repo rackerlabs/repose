@@ -62,13 +62,6 @@ class BasicAuthHerpDerpRMSMultiMatchAuthTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def setup() {
         fakeIdentityService.with {
             // This is required to ensure that one piece of the authentication data is changed

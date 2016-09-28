@@ -55,13 +55,6 @@ class KeystoneV2FilterAddHeadersTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def setup() {
         fakeIdentityV2Service.resetHandlers()
         fakeIdentityV2Service.resetDefaultParameters()

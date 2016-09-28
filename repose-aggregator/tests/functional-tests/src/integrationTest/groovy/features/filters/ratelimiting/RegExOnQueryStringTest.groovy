@@ -38,13 +38,6 @@ class RegExOnQueryStringTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("Request with uri query #url through RL group #group should resp #respcode")
     def "Requests to urls with query string should apply limit on capture group"() {
 

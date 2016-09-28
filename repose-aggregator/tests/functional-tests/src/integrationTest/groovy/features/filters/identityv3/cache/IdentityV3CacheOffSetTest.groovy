@@ -38,13 +38,6 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests("401")
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     /**
      * Cache offset test will test the following scenario:
      * - a burst of requests will be sent for a specified number of users

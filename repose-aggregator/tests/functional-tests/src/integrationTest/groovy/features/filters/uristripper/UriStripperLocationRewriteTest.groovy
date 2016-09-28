@@ -45,16 +45,6 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "when removing tenant id from request"() {
 
         when: "Request is sent through repose"

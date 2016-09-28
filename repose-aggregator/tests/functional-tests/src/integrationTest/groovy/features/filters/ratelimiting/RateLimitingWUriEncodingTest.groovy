@@ -40,13 +40,6 @@ class RateLimitingWUriEncodingTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(properties.reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("Request with uri #uri should be applied the same limit group #group")
     def "Requests with encoded url should be decode before applying RL"() {
 

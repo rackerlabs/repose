@@ -43,16 +43,6 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("Test filterout for Herp with method #method, username #username and origin service respCode #responseCode")
     def "Events match filterout condition will not go to post filter log"() {
         setup: "declare messageChain to be of type MessageChain"

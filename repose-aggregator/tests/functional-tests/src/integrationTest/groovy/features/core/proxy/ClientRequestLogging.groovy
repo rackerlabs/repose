@@ -62,10 +62,6 @@ class ClientRequestLogging extends ReposeValveTest {
         }
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-    }
-
     def "test with client request logging true"() {
 
         given: "Repose configs are updated"

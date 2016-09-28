@@ -71,16 +71,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "when start repose with basic auth, send request without credential"() {
         when: "send request without credential"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')

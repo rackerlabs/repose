@@ -68,13 +68,6 @@ class TranslationEmptyRequestTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     @Unroll("response: xml, request: #reqHeaders - #reqBody")
     def "when translating requests"() {
 

@@ -73,13 +73,6 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def "when translating json within xml in the request body"() {
 
         given: "Repose is configured to translate request headers"

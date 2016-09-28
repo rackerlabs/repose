@@ -30,11 +30,6 @@ class DistDataShutdownTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def "when configured with dist datastore as a service should shutdown nicely when asked"() {
         given: "repose is configured with dist datastore"
         def params = properties.getDefaultTemplateParams()

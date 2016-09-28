@@ -50,12 +50,6 @@ class NonTenantedAuthTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def "Validates a racker token"() {
 
         fakeIdentityV2Service.with {

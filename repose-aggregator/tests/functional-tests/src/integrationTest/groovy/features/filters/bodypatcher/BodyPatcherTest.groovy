@@ -49,13 +49,6 @@ class BodyPatcherTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("OP with Request path, headers: #headers")
     def "OP applying patches on Request"() {
         when: "send request match replace path"

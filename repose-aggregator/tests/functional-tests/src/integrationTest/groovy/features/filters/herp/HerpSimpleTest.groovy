@@ -41,16 +41,6 @@ class HerpSimpleTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "simple simple test"() {
         setup:
         List listattr = ["GUI", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",

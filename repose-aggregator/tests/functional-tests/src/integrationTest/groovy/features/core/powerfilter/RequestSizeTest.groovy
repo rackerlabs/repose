@@ -43,11 +43,6 @@ class RequestSizeTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     @Unroll("request with header size of #headerSize should respond with 413")
     def "max header size allowed is not influenced by content-body-read-limit"() {
 

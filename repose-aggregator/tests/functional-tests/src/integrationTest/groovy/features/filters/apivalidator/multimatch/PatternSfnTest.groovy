@@ -58,12 +58,4 @@ class PatternSfnTest extends ReposeValveTest {
         "role-2" | "404"        | 0
     }
 
-    def cleanupSpec() {
-
-        if (repose)
-            repose.stop()
-
-        if (deproxy)
-            deproxy.shutdown()
-    }
 }

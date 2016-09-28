@@ -51,12 +51,6 @@ class HeaderNormalizationTest extends ReposeValveTest {
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-
-    }
-
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
     }
 
     def "When Filtering Based on URI and Method"() {

@@ -43,12 +43,6 @@ class ApiValidatorDelegatingTest extends ReposeValveTest {
 
     def static params
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
     /*
         When delegating is set to true, the invalid/fail request will be forwarded to
         - next filter (if exists) with failed message

@@ -42,16 +42,6 @@ class HeaderTranslationWQualityTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "When translate header with quality"() {
 
         when: "Send request with headers to translate"

@@ -53,11 +53,6 @@ class TranslationMultiMatchTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     @Unroll("response headers: #reqHeaders")
     def "when translating responses"() {
         given: "Repose is configured to translate responses using multimatch"

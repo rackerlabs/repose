@@ -390,17 +390,4 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         headerName        | headerValue
         "X-Random-Header" | "Value1,Value2"
     }
-
-
-    def cleanupSpec() {
-
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
-
-
 }

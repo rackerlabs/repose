@@ -74,12 +74,4 @@ class PatternsMpAndMsTest extends ReposeValveTest {
         "role-1" | "200"        | 1
     }
 
-    def cleanupSpec() {
-
-        if (repose)
-            repose.stop()
-
-        if (deproxy)
-            deproxy.shutdown()
-    }
 }

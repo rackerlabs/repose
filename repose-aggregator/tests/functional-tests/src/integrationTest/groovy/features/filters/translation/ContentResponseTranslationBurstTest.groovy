@@ -60,11 +60,6 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     def "under heavy load should not drop headers"() {
 
         given:

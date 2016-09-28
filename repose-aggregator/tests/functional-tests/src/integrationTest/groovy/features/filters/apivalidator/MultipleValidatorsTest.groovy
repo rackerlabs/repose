@@ -51,8 +51,6 @@ class MultipleValidatorsTest extends ReposeValveTest {
         if (repose)
         // TODO: Figure out a more elegant way for this test to shutdown.
             repose.stop(throwExceptionOnKill: false)
-        if (deproxy)
-            deproxy.shutdown()
     }
 
     @Unroll("Roles of #headers with request body of #requestBody should pass through second validator")

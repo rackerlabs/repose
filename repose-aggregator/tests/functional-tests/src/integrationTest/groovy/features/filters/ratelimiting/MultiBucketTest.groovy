@@ -624,15 +624,4 @@ class MultiBucketTest extends ReposeValveTest {
         and:
         time2 - time1 < 60000
     }
-
-    def cleanupSpec() {
-
-        if (repose) {
-            repose.stop()
-        }
-
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
 }

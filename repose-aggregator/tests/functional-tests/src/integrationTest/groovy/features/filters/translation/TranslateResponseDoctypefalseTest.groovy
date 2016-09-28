@@ -64,11 +64,6 @@ class TranslateResponseDoctypefalseTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     @Unroll("response: #respBody")
     def "when translating xml responses with doctype set to failse"() {
 

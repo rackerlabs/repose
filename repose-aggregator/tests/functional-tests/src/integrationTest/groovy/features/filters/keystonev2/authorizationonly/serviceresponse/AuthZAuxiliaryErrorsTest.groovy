@@ -57,13 +57,6 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV2Service.handler)
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
     def setup() {
         sleep 500
         reposeLogSearch.cleanLog()

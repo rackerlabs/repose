@@ -38,12 +38,6 @@ class IpUserTest extends ReposeValveTest {
         }
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
-
     def "verify classifying with other config"() {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)

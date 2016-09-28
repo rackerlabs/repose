@@ -68,16 +68,6 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         //fakeIdentityService.checkTokenValid = true
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "Verify Phone home service when start repose"() {
         given:
         // repose start up with no filter

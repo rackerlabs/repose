@@ -57,15 +57,4 @@ class RoleOrderTest extends ReposeValveTest {
         roles           | responseCode | numHandlings
         "role-1,role-2" | "200"        | 1
     }
-
-    def cleanupSpec() {
-
-        if (repose) {
-            repose.stop()
-        }
-
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
 }

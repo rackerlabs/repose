@@ -56,12 +56,6 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV2Service.handler)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def setup() {
         fakeIdentityV2Service.resetHandlers()
     }

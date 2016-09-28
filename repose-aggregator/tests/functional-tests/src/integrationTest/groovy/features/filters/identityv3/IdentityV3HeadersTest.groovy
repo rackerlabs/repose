@@ -48,13 +48,6 @@ class IdentityV3HeadersTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV3Service.handler)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def setup() {
         fakeIdentityV3Service.resetCounts()
         fakeIdentityV3Service.resetHandlers()

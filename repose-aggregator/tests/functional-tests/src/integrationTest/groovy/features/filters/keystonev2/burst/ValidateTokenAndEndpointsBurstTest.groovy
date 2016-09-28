@@ -63,13 +63,6 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
         deproxy.defaultHandler = missingResponseErrorHandler
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
     def "under heavy load should not drop endpoints in headers"() {
 
         given:

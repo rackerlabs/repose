@@ -72,17 +72,6 @@ class UrlExtractorToHeaderWValkyrieTest extends ReposeValveTest {
         fakeValkyrie.resetParameters()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
-
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
     def "Test Valkyrie with url-extractor-to-header"() {
         given: "A device ID with a particular permission level defined in Valkyrie"

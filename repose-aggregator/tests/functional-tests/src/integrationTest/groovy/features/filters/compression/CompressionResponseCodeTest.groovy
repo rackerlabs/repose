@@ -35,11 +35,6 @@ class CompressionResponseCodeTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        repose?.stop()
-        deproxy?.shutdown()
-    }
-
     def "when decompression fails with EOF Exception, return 400"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST",

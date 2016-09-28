@@ -40,13 +40,6 @@ class ConnectionFrameworkTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def "When accept header is absent"() {
         setup:
         MessageChain messageChain

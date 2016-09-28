@@ -34,11 +34,6 @@ class PerformanceTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-    }
-
-
     def "performance test configs produce expected responses"() {
         when: "I make a request through header translation filter"
         def params = properties.defaultTemplateParams

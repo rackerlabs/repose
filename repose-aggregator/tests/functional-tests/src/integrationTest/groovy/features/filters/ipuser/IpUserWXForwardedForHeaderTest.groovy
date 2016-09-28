@@ -39,15 +39,6 @@ class IpUserWXForwardedForHeaderTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "classifying a request by its IP"() {
         when: "Request is sent through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get')

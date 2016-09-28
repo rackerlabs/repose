@@ -60,13 +60,6 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         deproxy.defaultHandler = missingResponseErrorHandler
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
     @Unroll("Testing with #numClients clients for #callsPerClient clients")
     def "under heavy load should not drop get endpoints response"() {
 

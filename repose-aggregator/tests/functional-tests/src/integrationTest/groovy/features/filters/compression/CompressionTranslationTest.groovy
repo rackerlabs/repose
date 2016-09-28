@@ -79,11 +79,6 @@ class CompressionTranslationTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     @Unroll("Requesting with XML Entities: #reqBody")
     def "when translating request"() {
 

@@ -54,12 +54,6 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def setup() {
         fakeIdentityV2Service.resetDefaultParameters()
     }

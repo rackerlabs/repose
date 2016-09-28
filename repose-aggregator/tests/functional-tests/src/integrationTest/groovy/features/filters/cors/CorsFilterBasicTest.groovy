@@ -42,13 +42,6 @@ class CorsFilterBasicTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("Non-CORS request with method OPTIONS and a CORS header request Method: #method")
     def "OPTIONS request without origin header will bypass CORS and make to origin service"() {
         def headers = [

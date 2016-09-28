@@ -49,11 +49,6 @@ class RateLimitingByRolesTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV3Service.handler)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     def "Test ratelimit on x-roles with translate header to x-pp-groups"() {
         given:
         def reqDomain = fakeIdentityV3Service.client_domainid

@@ -41,11 +41,6 @@ class HeaderTranslationSchemaAssertionTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     @Unroll("Test with method:#method and #reqHeaders")
     def "when translating request headers one-to-one without removal"() {
 

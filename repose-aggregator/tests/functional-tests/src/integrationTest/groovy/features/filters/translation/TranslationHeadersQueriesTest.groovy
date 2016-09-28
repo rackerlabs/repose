@@ -59,11 +59,6 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     def "when translating request headers"() {
 
         when: "User passes a request through repose"

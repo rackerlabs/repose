@@ -53,16 +53,6 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "Verify intra filter log for current filter no longer have 'null' in the description" () {
         given:
         // repose start up

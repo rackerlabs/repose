@@ -54,11 +54,6 @@ class ReliabilityTest extends ReposeValveTest {
         Thread.sleep(10000)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     def "under heavy load should not drop headers"() {
 
         given:

@@ -46,11 +46,6 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     static def params
 
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-    }
-
     @Unroll("URI Normalization of queryParameters should #behaviorExpected")
     def "query parameter normalization"() {
         given:

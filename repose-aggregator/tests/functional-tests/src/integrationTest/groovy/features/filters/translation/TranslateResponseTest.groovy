@@ -71,11 +71,6 @@ class TranslateResponseTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     @Unroll("when translating responses - request: xml, response: #respHeaders - #respBody")
     def "when translating responses"() {
 

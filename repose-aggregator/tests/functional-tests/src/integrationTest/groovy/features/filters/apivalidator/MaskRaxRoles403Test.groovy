@@ -44,12 +44,6 @@ class MaskRaxRoles403Test extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
     /*
         when enable-rax-role is set to false, all user roles will allow to access all methods
         available in wadl

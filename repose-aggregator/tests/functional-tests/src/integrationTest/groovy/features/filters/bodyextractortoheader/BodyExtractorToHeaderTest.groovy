@@ -52,13 +52,6 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
     def static malformedJson = """{"bodyData": {"name":"test", "server": "abc123", "something": "foo"}"""
     def static malformedJson2 = """{"bodyData"{"name":"test", "device": "12345", "something": "foo"}}"""
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll
     def "When request with match config jsonpath will add header as config and its value"() {
         Map headers = ["content-type": contentheader]
