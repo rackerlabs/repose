@@ -38,16 +38,6 @@ class RequestVerbTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("When sending a request through repose with a verb of #verb")
     def "sending a simple request with a specific verb"() {
 

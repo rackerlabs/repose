@@ -36,16 +36,6 @@ class HeaderSplittingTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
-
     def "Should not split request headers according to rfc"() {
         given:
         def reqHeaders = ["user-agent"                                                                 : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +

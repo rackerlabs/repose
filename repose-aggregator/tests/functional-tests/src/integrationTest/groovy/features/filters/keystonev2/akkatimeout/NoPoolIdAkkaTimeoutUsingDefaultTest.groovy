@@ -58,13 +58,6 @@ class NoPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def setup() {
         fakeIdentityV2Service.resetHandlers()
     }

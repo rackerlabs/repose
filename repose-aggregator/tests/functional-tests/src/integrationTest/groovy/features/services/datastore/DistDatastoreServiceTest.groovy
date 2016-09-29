@@ -56,12 +56,6 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        repose.stop()
-    }
-
     def "when configured with DD service, repose should start and successfully execute calls"() {
         when:
         MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/cluster", headers: ['x-trace-request': 'true']])

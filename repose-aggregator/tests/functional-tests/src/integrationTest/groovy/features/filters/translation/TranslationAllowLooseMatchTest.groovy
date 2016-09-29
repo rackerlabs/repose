@@ -49,11 +49,6 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     @Unroll("Req with content-type: #contenttype with resp from origin #response_from_origin and resp to client #response_to_client ")
     def "Allow looser matches on Content-type configuration setting"() {
         given:

@@ -38,11 +38,6 @@ class IRIValidatorTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     def "When using iri-validator filter, Repose guards the request to the origin services"() {
         given:
         def path = "/" + requestpath + query

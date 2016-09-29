@@ -75,16 +75,6 @@ class AccountAdminTest extends ReposeValveTest {
         fakeValkyrie.resetParameters()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll
     def "user with account_admin role can access a device it has permissions to for method #method"() {
         given:

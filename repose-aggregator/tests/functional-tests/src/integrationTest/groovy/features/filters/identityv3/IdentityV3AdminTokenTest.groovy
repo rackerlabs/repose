@@ -49,13 +49,6 @@ class IdentityV3AdminTokenTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV3Service.handler)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def setup() {
         sleep 500
         fakeIdentityV3Service.resetHandlers()

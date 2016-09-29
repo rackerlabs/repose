@@ -52,13 +52,6 @@ class ApiValidatorEnableCoverageTest extends ReposeValveTest {
 
     def static params
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def setup() {
         reposeLogSearch.cleanLog()
     }

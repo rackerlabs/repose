@@ -48,13 +48,6 @@ class AdminDomainTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV3Service.handler)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def "Test send request with user token"() {
         given:
         def reqDomain = fakeIdentityV3Service.client_domainid

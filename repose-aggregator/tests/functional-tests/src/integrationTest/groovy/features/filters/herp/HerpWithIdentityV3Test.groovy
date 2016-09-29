@@ -50,13 +50,6 @@ class HerpWithIdentityV3Test extends ReposeValveTest {
                 'identity service', null, fakeIdentityV3Service.handler)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
 
     def "When using herp filter with identity V3 filter the set of headers include projectId will be added to log"() {
         given:

@@ -61,15 +61,6 @@ class TranslatePermissionsToRolesTest extends ReposeValveTest {
         valkyrieEndpoint = deproxy.addEndpoint(properties.valkyriePort, 'valkyrie service', null, fakeValkyrie.handler)
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
     def "Get Account level permissions and translate to roles" () {
         given:
         fakeIdentityService.with {

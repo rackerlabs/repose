@@ -60,13 +60,6 @@ class GlobalRateLimitingTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def "When Repose config with Global Rate Limit, user limit should hit first"() {
         given: "the rate-limit has not been reached"
         def methods = ["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH"]

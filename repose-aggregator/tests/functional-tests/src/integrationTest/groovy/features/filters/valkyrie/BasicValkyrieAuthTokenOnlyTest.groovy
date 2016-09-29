@@ -68,16 +68,6 @@ class BasicValkyrieAuthTokenOnlyTest extends ReposeValveTest {
         fakeValkyrie.resetParameters()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("authentication: device with #validAuth is passed auth #requestedAuth should return a #responseCode")
     def "Test validity of requested auth codes"() {
         given: "A device with a valid authentication token"

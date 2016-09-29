@@ -106,12 +106,4 @@ class PatternMssfsffpnnTest extends ReposeValveTest {
         "role-7,role-3" | "200"        | 1
     }
 
-    def cleanupSpec() {
-
-        if (repose)
-            repose.stop()
-
-        if (deproxy)
-            deproxy.shutdown()
-    }
 }

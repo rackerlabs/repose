@@ -66,14 +66,6 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
         deproxy.defaultHandler = missingResponseErrorHandler
     }
 
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
     /**
      * This test occasionally fails because threading problems
      * https://repose.atlassian.net/browse/REP-558

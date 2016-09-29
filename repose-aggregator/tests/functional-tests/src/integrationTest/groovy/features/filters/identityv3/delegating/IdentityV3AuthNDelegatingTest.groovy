@@ -55,13 +55,6 @@ class IdentityV3AuthNDelegatingTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests('200')
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def setup() {
         sleep(500)
         fakeIdentityV3Service.resetHandlers()

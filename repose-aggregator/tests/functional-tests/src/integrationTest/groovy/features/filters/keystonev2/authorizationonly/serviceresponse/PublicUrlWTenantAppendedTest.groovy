@@ -50,14 +50,6 @@ class PublicUrlWTenantAppendedTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV2Service.handler)
     }
 
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
     def setup() {
         fakeIdentityV2Service.resetDefaultParameters()
         fakeIdentityV2Service.resetHandlers()

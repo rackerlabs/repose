@@ -49,13 +49,6 @@ class IdentityV3CacheTokenExpirationTest extends ReposeValveTest {
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def "When Identity responds with a TTL > MAX_INT, Repose should cache for a duration of MAX_INT"() {
 
         given:

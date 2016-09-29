@@ -38,15 +38,6 @@ class NoFiltersTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("Repose should act as a basic reverse proxy (pass thru) for HTTP method #method")
     def "Repose should act as a basic reverse proxy (pass thru) for HTTP methods"() {
         given:

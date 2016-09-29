@@ -43,11 +43,6 @@ class CacheOffsetTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests('401')
     }
 
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-    }
-
     /**
      * Cache offset test will test the following scenario:
      * - a burst of requests will be sent for a specified number of users

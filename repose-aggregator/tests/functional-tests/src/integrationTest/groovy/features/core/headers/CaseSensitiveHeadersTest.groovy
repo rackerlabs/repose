@@ -123,14 +123,4 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
         //"content-type" | "application/xMl"
         //"Content-Type" | "APPLICATION/xml"
     }
-
-    def cleanupSpec() {
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
-
 }

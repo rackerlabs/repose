@@ -21,7 +21,6 @@ package features.filters.compression
 
 import framework.ReposeValveTest
 import framework.category.Slow
-import org.apache.http.HttpHeaders
 import org.apache.http.HttpStatus
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
@@ -43,11 +42,6 @@ class CompressionBinaryTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/compression", params)
         repose.configurationProvider.applyConfigs("features/filters/compression/binary", params)
         repose.start()
-    }
-
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
     }
 
     @Unroll("A GET request with Accept-Encoding header set to #encoding is honored on the output")

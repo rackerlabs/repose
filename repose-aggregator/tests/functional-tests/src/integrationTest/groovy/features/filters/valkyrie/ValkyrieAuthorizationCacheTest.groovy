@@ -61,19 +61,6 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
         valkyrieEndpoint = deproxy.addEndpoint(properties.valkyriePort, 'valkyrie service', null, fakeValkyrie.handler)
     }
 
-    def setup() {
-    }
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "Test Valkyrie Authorization Cache"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
         def tenantID = randomTenant()

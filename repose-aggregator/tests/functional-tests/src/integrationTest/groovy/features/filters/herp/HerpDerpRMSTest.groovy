@@ -45,13 +45,6 @@ class HerpDerpRMSTest extends ReposeValveTest {
 
     def static params
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("req method: #method, #path, #roles")
     def "when req without token, non tenanted and delegable mode (2) with quality"() {
         given:

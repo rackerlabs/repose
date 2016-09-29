@@ -52,16 +52,6 @@ class ClientAuthZCheckRegionTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV2Service.handler)
     }
 
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "When user's service endpoint has correct region and service endpoint should receive a 200 response"() {
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"

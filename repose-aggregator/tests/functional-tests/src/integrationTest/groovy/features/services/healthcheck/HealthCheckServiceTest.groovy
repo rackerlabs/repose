@@ -35,17 +35,6 @@ class HealthCheckServiceTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/services/datastore/badconfig", params)
         repose.start(true, false, "repose", "node1")
         repose.waitForDesiredResponseCodeFromUrl(reposeEndpoint, [503], 120)
-
-    }
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
     }
 
     @Unroll("Should return 503 when sent #method")

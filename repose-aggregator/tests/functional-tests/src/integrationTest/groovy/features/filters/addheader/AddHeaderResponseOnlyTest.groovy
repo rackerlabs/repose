@@ -40,11 +40,6 @@ class AddHeaderResponseOnlyTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
     def "When using add-header filter the expected header in config is added to response"() {
         given:
         def headers = ["x-rax-user": "test-user", "x-rax-groups": "reposegroup1"]

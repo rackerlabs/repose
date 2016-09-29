@@ -38,16 +38,6 @@ class ContentTypeStripperTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("Reg with method:#method, req body:#requestBody - #desc")
     def "should maintain the content-type header when there is a body #desc and maintain the integrity of the body on a #method request"() {
         when:

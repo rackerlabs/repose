@@ -64,16 +64,6 @@ class BasicAuthCacheTimeoutTest extends ReposeValveTest {
         }
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "Ensure that subsequent calls within the cache timeout are retrieving the token from the cache"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [

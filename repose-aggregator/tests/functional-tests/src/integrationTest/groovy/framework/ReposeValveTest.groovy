@@ -90,11 +90,8 @@ abstract class ReposeValveTest extends Specification {
     }
 
     def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-
-        if (repose?.isUp())
-            repose.stop()
+        deproxy?.shutdown()
+        repose?.stop()
     }
 
     def cleanLogDirectory() {

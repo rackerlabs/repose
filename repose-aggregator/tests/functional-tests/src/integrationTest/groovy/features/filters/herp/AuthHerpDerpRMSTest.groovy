@@ -57,13 +57,6 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     def setup() {
         fakeIdentityService.resetHandlers()
     }

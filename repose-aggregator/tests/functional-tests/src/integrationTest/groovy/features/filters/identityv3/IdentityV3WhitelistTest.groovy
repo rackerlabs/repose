@@ -50,13 +50,6 @@ class IdentityV3WhitelistTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV3Service.handler)
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-        if (repose)
-            repose.stop()
-    }
-
     @Unroll("#uriPattern expect #responseCode")
     def "Test request with uri in whitelist pattern req should pass without authenticate"() {
         when: "User passes a request through repose"

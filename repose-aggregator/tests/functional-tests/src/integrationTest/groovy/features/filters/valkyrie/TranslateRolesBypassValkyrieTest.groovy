@@ -62,16 +62,6 @@ class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
         valkyrieEndpoint = deproxy.addEndpoint(properties.valkyriePort, 'valkyrie service', null, fakeValkyrie.handler)
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def setup() {
         fakeIdentityV2Service.resetDefaultParameters()
     }

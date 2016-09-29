@@ -59,12 +59,6 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def setup() {
         sleep 500
         fakeIdentityService.resetHandlers()

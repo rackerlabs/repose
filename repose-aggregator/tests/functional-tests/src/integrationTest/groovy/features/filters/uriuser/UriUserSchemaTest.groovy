@@ -36,16 +36,6 @@ class UriUserSchemaTest extends ReposeValveTest {
         params = properties.getDefaultTemplateParams()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "Verify id must be unique if it's defined"() {
         given:
         repose.configurationProvider.applyConfigs("common", params)

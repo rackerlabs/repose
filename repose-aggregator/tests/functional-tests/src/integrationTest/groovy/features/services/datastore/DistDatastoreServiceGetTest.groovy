@@ -63,11 +63,6 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         KEY = UUID.randomUUID().toString()
     }
 
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-    }
-
     def "GET with empty host key returns 401"() {
         when:
         MessageChain mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: ['X-PP-Host-Key': '', 'X-TTL': '1']])

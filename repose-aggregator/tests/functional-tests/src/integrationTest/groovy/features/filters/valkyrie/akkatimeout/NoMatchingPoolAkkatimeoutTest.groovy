@@ -74,16 +74,6 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
         fakeValkyrie.resetParameters()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "Akka service client using connection pool test - before time out is reached"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
 

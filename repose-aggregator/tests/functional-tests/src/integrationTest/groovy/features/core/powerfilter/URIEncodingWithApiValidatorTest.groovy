@@ -52,14 +52,4 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/+messages?ids=locations" | "/+messages?ids=locations"
         "/messages/+add-nodes"     | "/messages/+add-nodes"
     }
-
-    def cleanupSpec() {
-        if (repose) {
-            repose.stop()
-        }
-
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
 }

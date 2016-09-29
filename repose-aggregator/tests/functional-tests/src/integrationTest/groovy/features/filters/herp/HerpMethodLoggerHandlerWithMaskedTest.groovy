@@ -41,12 +41,6 @@ class HerpMethodLoggerHandlerWithMaskedTest extends ReposeValveTest {
 
     def static params
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
     /*
         When enable-api-coverage is set to true, enable-rax-role is set to true,
         certain user roles will allow to access certain methods according to config in the wadl.

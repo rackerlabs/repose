@@ -58,13 +58,6 @@ class RateLimitingTest extends ReposeValveTest {
         rlmu = new RateLimitMeasurementUtilities(deproxy, reposeEndpoint, groupHeaderDefault, userHeaderDefault)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def cleanup() {
         rlmu.waitForLimitReset()
     }

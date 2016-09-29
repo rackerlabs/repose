@@ -37,11 +37,6 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         reposeLogSearch.cleanLog()
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def "on startup, HttpClientService should log out when pools are created"() {
 
         given:

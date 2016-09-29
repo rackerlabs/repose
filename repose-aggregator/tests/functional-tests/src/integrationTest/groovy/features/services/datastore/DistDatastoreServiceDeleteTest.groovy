@@ -61,12 +61,6 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
         KEY = UUID.randomUUID().toString()
     }
 
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-    }
-
-
     def "DELETE of existing item in datastore should return 204 and no longer be available"() {
         when: "Adding the object to the datastore"
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: BODY])

@@ -50,11 +50,6 @@ class HttpClientHeaderTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests("200", false, true)
     }
 
-    def cleanupSpec() {
-        repose?.stop()
-        deproxy?.shutdown()
-    }
-
     def "configured connection pool headers are added to requests using that pool"() {
         when:
         MessageChain mc = deproxy.makeRequest(

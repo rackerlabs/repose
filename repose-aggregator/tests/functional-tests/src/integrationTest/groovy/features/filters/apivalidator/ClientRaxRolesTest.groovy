@@ -42,13 +42,6 @@ class ClientRaxRolesTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("client_a:method=#method,headers=#headers,request=#request expected response=#responseCode")
     def "when enable-rax-roles is true, validate with wadl method level roles"() {
         given:

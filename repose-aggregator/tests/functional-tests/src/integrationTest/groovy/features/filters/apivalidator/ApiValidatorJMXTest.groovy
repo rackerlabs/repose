@@ -56,12 +56,6 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     static def params
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
-    }
-
-
     def "when request is for role-1, should increment invalid request for ApiValidator mbeans for role 1"() {
         given:
         def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")

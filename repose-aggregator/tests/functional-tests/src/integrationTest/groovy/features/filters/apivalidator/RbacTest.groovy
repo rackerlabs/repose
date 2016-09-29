@@ -41,13 +41,6 @@ class RbacTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("#method #path with roles: #roles should return a 405 METHOD NOT ALLOWED response")
     def "A user with the right role to access a resource, attempts to use a method not allowed for their role"() {
         when:

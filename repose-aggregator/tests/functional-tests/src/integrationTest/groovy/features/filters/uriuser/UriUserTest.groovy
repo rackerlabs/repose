@@ -39,16 +39,6 @@ class UriUserTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "when identifying requests by uri"() {
 
         when: "Request contains the user within the uri"

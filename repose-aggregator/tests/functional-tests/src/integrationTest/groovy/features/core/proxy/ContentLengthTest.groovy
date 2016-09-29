@@ -39,16 +39,6 @@ class ContentLengthTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        if (repose) {
-            repose.stop()
-        }
-
-    }
-
     @Unroll("When set to #method chunked encoding to false and sending #reqBody.")
     def "When set to send chunked encoding to false. Repose should not send requests chunked"() {
 

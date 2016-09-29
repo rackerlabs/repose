@@ -47,13 +47,6 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def setup() {
         reposeLogSearch.cleanLog()
     }

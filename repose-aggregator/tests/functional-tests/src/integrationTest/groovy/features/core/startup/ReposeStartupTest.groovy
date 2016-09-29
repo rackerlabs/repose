@@ -46,10 +46,6 @@ class ReposeStartupTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-    }
-
     static def params
 
     def "repose should start with installation configs"() {

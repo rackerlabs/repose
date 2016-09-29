@@ -56,12 +56,6 @@ class IdentityAdminTokenTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def setup() {
         sleep 500
         fakeIdentityV2Service.resetHandlers()

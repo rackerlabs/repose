@@ -85,13 +85,6 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def "When Repose is configured with multiple nodes, rate-limiting info should be shared"() {
         given: "load the configs for multiple nodes, and use all remaining requests"
         useAllRemainingRequests()

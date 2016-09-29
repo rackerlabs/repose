@@ -48,13 +48,6 @@ class ApiValidatorSaxonFailTest extends ReposeValveTest {
         assert saxonHome != null
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def "GET on /path/to/test (XML) should fail without header X-TEST"() {
         setup: "declare messageChain to be of type MessageChain"
         def params = properties.getDefaultTemplateParams()

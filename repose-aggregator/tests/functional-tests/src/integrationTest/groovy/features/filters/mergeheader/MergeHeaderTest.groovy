@@ -41,11 +41,6 @@ class MergeHeaderTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-    }
-
     def "Should not split request headers when configured as such with merge-header filter"() {
         given: "configurged to to split headers using the merge-header filter"
 

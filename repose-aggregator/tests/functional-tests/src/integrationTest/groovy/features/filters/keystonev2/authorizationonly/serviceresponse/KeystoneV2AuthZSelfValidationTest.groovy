@@ -52,14 +52,6 @@ class KeystoneV2AuthZSelfValidationTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV2Service.handler)
     }
 
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
     def "User's service endpoint test"() {
         given:
         fakeIdentityV2Service.endpointUrl = "localhost"

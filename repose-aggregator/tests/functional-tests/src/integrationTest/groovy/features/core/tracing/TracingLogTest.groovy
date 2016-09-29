@@ -53,12 +53,6 @@ class TracingLogTest extends ReposeValveTest {
         reposeLogSearch.cleanLog()
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def setup() {
         sleep 500
         fakeIdentityService.resetHandlers()

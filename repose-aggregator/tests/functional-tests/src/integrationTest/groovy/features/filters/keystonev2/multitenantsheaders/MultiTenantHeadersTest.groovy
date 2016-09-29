@@ -56,12 +56,6 @@ class MultiTenantHeadersTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def setup() {
         fakeIdentityV2Service.resetHandlers()
     }

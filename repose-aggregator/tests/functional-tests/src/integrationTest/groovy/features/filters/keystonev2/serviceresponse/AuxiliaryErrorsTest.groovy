@@ -61,13 +61,6 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
     @Unroll("Identity Service Broken Admin Call: #adminBroken Broken Token Validation Call: #validateBroken Broken Groups Call: #groupsBroken Error Code: #errorCode")
     def "When the identity service endpoint returns failed or unexpected responses"() {
 

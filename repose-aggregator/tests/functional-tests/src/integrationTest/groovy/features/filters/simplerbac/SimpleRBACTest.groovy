@@ -45,13 +45,6 @@ class SimpleRBACTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("Test with #path, #method, #roles")
     def "Test simple RBAC with single role"() {
         when:

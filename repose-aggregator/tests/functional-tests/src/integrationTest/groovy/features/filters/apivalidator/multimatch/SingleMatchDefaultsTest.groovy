@@ -74,12 +74,4 @@ class SingleMatchDefaultsTest extends ReposeValveTest {
         "role-0" | "405"        | 0
     }
 
-    def cleanupSpec() {
-
-        if (repose)
-            repose.stop()
-
-        if (deproxy)
-            deproxy.shutdown()
-    }
 }

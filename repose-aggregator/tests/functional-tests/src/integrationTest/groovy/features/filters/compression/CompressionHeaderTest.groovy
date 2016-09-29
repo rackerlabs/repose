@@ -79,11 +79,6 @@ class CompressionHeaderTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-    }
-
     @Unroll
     def "when a compressed request is sent to Repose, Content-Encoding header is removed after decompression (#encoding)"() {
         when:

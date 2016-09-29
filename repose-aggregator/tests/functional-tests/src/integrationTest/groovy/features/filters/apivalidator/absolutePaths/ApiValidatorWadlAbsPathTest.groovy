@@ -45,10 +45,6 @@ class ApiValidatorWadlAbsPathTest extends ReposeValveTest {
         }
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-    }
-
     def errorMessage = "WADL Processing Error:"
 
     def "when loading validators on startup, should also pass with related path config"() {

@@ -114,16 +114,6 @@ class CullingBypassValkyrieAuthorizationTest extends ReposeValveTest {
         fakeIdentityV2Service.resetDefaultParameters()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Category(Slow)
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test get match resource list"() {

@@ -54,12 +54,6 @@ class MultiProjectIdsHeadersTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
     def setup() {
         fakeIdentityV3Service.resetHandlers()
     }

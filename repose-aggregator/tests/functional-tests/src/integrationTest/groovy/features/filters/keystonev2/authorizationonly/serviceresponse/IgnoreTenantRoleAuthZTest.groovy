@@ -51,14 +51,6 @@ class IgnoreTenantRoleAuthZTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV2Service.handler)
     }
 
-
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
-    }
-
     @Unroll
     def "Check non-tenanted AuthZ with #role and expected response code #respcode"() {
         fakeIdentityV2Service.with {

@@ -71,12 +71,4 @@ class SingleMatchQValueTest extends ReposeValveTest {
         "role-3; q=0.9, role-2; q=0.1, role-1; q=0.9" | "404"        | 0            | "test_use_all_roles_with_the_same_high_qvalue"
     }
 
-    def cleanupSpec() {
-
-        if (repose)
-            repose.stop()
-
-        if (deproxy)
-            deproxy.shutdown()
-    }
 }

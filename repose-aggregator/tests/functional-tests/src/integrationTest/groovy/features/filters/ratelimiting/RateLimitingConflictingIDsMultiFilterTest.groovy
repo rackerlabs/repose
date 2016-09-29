@@ -43,13 +43,6 @@ class RateLimitingConflictingIDsMultiFilterTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     def "Verify that we don't clobber IDs when multiple rate limiting filters are used"() {
         when: "I send a request through repose that has a conflicting Limit ID in a separate filter file"
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",

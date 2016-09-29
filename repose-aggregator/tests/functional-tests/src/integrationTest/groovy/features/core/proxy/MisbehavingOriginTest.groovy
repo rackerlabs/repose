@@ -25,16 +25,10 @@ import org.rackspace.deproxy.MessageChain
 
 class MisbehavingOriginTest extends ReposeValveTest {
 
-    volatile boolean running = true;
-    NullLoop loop = new NullLoop()
+    static volatile boolean running = true
+    static NullLoop loop = new NullLoop()
 
     def setupSpec() {
-    }
-
-    def cleanupSpec() {
-    }
-
-    def setup() {
         //Create a runloop thing
 
         Thread t = new Thread(loop)
@@ -52,13 +46,7 @@ class MisbehavingOriginTest extends ReposeValveTest {
         repose.start([waitOnJmxAfterStarting: true])
     }
 
-    def cleanup() {
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
+    def cleanupSpec() {
         running = false
     }
 
@@ -74,7 +62,7 @@ class MisbehavingOriginTest extends ReposeValveTest {
         mc.receivedResponse.code == "500"
     }
 
-    private class NullLoop implements Runnable {
+    private static class NullLoop implements Runnable {
 
         ServerSocket serverSocket = null;
         public int port = 0

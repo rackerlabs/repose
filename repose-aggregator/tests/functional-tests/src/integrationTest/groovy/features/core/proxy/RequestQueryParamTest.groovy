@@ -134,14 +134,4 @@ class RequestQueryParamTest extends ReposeValveTest {
         messageChain.handlings.size() == 1
         messageChain.handlings[0].request.path.endsWith(pathWithQuery)
     }
-
-    def cleanupSpec() {
-
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
 }

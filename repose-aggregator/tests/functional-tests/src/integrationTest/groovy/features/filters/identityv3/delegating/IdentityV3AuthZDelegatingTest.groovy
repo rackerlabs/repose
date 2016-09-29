@@ -53,14 +53,6 @@ class IdentityV3AuthZDelegatingTest extends ReposeValveTest {
         //targetPort = properties.targetPort
     }
 
-    def cleanupSpec() {
-        if (deproxy)
-            deproxy.shutdown()
-
-        if (repose)
-            repose.stop()
-    }
-
     @Unroll("#method request to #endpointResponse")
     def "When user is authorized should forward request with failure msg to origin service"() {
         given:

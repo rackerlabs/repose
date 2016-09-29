@@ -44,16 +44,6 @@ class HeaderUserTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     @Unroll("When mapping header: #incomingHeaders to x-pp-user Should use first user in the list: #expecteduser")
     def "when identifying requests by header"() {
 

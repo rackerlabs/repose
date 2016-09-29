@@ -46,13 +46,6 @@ class FilterChainUnstableTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
-        sleep(3000)
-
-    }
-
     def "when sending requests on failure to startup repose due to bad configurations"() {
 
         given:

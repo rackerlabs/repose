@@ -71,16 +71,6 @@ class BasicAuthAkkatimeoutUsingPoolNotExistTest extends ReposeValveTest {
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-
-        if (repose) {
-            repose.stop()
-        }
-    }
-
     def "akka timeout test, auth response time out is less than socket connection time out"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [

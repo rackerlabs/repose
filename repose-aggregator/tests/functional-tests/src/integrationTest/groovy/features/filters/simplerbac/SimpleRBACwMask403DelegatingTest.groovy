@@ -40,13 +40,6 @@ class SimpleRBACwMask403DelegatingTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
     @Unroll("Delegating with mask403 Test with #path, #method, #roles")
     def "Delegating with mask403 Test"() {
         when:

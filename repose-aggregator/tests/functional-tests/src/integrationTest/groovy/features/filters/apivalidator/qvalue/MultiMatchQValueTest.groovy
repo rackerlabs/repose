@@ -55,12 +55,4 @@ class MultiMatchQValueTest extends ReposeValveTest {
         "role-1; q=0.9, role-2; q=0.1" | "404"        | 0            | "test_multi_match_qvalue"
     }
 
-    def cleanupSpec() {
-
-        if (repose)
-            repose.stop()
-
-        if (deproxy)
-            deproxy.shutdown()
-    }
 }

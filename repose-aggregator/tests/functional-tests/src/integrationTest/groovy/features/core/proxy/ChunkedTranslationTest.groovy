@@ -46,16 +46,6 @@ class ChunkedTranslationTest extends ReposeValveTest {
         repose.start()
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        if (repose) {
-            repose.stop()
-        }
-
-    }
-
     def "When set to send chunked encoding to false. Repose should send content length of translated request"() {
         def reqHeaders = ["accept": "application/xml", "content-type": "application/xml"]
 

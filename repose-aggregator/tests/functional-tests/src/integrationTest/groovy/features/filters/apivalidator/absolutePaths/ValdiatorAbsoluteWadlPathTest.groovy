@@ -39,14 +39,9 @@ class ValdiatorAbsoluteWadlPathTest extends ReposeValveTest {
     }
 
     def cleanup() {
-
         if (repose) {
             repose.stop()
         }
-    }
-
-    def cleanupSpec() {
-        deproxy.shutdown()
     }
 
     def errorMessage = "WADL Processing Error:"
