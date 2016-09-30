@@ -28,7 +28,6 @@ import spock.lang.Unroll
 class ContentLengthTest extends ReposeValveTest {
 
     def setupSpec() {
-
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
@@ -41,7 +40,6 @@ class ContentLengthTest extends ReposeValveTest {
 
     @Unroll("When set to #method chunked encoding to false and sending #reqBody.")
     def "When set to send chunked encoding to false. Repose should not send requests chunked"() {
-
         when:
         MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: method, requestBody: reqBody])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
@@ -64,7 +62,32 @@ class ContentLengthTest extends ReposeValveTest {
         "PUT"   | null    | 0            | 1              | 0
         "TRACE" | "blah"  | 1            | 0              | 0
         "TRACE" | null    | 0            | 0              | 0
-
     }
 
+    @Unroll("should not send chunked request for incoming chunked #method request with request body: #reqBody")
+    def "when chunked encoding is set to false and the incoming request is chunked, Repose should not send chunked requests"() {
+        when:
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint,
+                method: method,
+                requestBody: reqBody,
+                chunked: true)
+        Handling requestHandling = messageChain.getHandlings().get(0)
+
+        then:
+        messageChain.getSentRequest().getHeaders().contains("Transfer-Encoding")
+        !requestHandling.getRequest().getHeaders().contains("Transfer-Encoding")
+        requestHandling.getRequest().getHeaders().contains("content-length") == contentLength
+
+        if (contentLength)
+            requestHandling.getRequest().getHeaders().getFirstValue("content-length").toInteger() == ((reqBody == null) ? 0 : reqBody.length())
+
+        where:
+        method  | reqBody | contentLength
+        "POST"  | "blah"  | true
+        "POST"  | null    | true
+        "PUT"   | "blah"  | true
+        "PUT"   | null    | true
+        "TRACE" | "blah"  | false
+        "TRACE" | null    | false
+    }
 }

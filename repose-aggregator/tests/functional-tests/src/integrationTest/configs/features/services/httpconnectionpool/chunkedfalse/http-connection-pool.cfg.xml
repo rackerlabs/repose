@@ -7,16 +7,6 @@
     -->
     <pool id="default"
           default="true"
-          chunked-encoding="false"
-          http.conn-manager.max-total="10"
-          http.conn-manager.max-per-route="2"
-          http.socket.timeout="30000"
-          http.socket.buffer-size="8192"
-          http.connection.timeout="30000"
-          http.connection.max-line-length="8192"
-          http.connection.max-header-count="100"
-          http.connection.max-status-line-garbage="100"
-          http.tcp.nodelay="true"
-          keepalive.timeout="0"/>
+          chunked-encoding="false"/>
 
 </http-connection-pools>
