@@ -269,7 +269,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         if (force) datastore.remove(ADMIN_TOKEN_KEY)
 
         Option(datastore.get(ADMIN_TOKEN_KEY).asInstanceOf[String]) match {
-          case Some(cachedAdminToken) => Success(cachedAdminToken)
+          case Some(cachedAdminToken) =>
+            logger.trace("Found cached admin token to use")
+            Success(cachedAdminToken)
           case None =>
             requestHandler.getAdminToken(username, password) match {
               case Success(adminToken) =>
@@ -284,14 +286,18 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         logger.trace(s"Validating token: $authToken")
 
         Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[ValidToken]) map { validationResult =>
+          logger.trace("Found cached user token to use")
           Success(validationResult)
         } getOrElse {
           getValidatingToken(authToken, force = false) flatMap { validatingToken =>
             requestHandler.validateToken(validatingToken, authToken) recoverWith {
               case _: AdminTokenUnauthorizedException =>
                 // Force acquiring of the admin token, and call the validation function again (retry once)
+                logger.trace("Forcing acquisition of new admin token")
                 getValidatingToken(authToken, force = true) match {
-                  case Success(newValidatingToken) => requestHandler.validateToken(newValidatingToken, authToken, checkCache = false)
+                  case Success(newValidatingToken) =>
+                    logger.trace("Obtained admin token on second chance")
+                    requestHandler.validateToken(newValidatingToken, authToken, checkCache = false)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
             } cacheOnSuccess { validToken =>
@@ -360,7 +366,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
         // todo: extract the "make call with admin token and retry" logic since that pattern is used elsewhere
         Option(datastore.get(s"$ENDPOINTS_KEY_PREFIX$authToken").asInstanceOf[EndpointsData]) match {
-          case Some(endpointsData) => Success(endpointsData)
+          case Some(endpointsData) =>
+            logger.trace("Found cached endpoints to use")
+            Success(endpointsData)
           case None =>
             getValidatingToken(authToken, force = false) flatMap { adminToken =>
               requestHandler.getEndpointsForToken(adminToken, authToken) recoverWith {
@@ -406,7 +414,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         logger.trace(s"Getting groups for: $authToken")
 
         Option(datastore.get(s"$GROUPS_KEY_PREFIX$authToken").asInstanceOf[Vector[String]]) match {
-          case Some(groups) => Success(groups)
+          case Some(groups) =>
+            logger.trace("Found cached groups to use")
+            Success(groups)
           case None =>
             getValidatingToken(authToken, force = false) flatMap { adminToken =>
               requestHandler.getGroups(adminToken, validToken.userId) recoverWith {
