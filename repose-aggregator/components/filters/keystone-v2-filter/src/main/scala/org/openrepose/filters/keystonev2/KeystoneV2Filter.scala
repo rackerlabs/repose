@@ -526,6 +526,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, X_AUTH_PROXY)
             }
         }
+
+        // Construct and add authenticatedBy, if available
+        token.authenticatedBy foreach {
+          _ foreach {
+            request.addHeader(OpenStackServiceHeader.AUTHENTICATED_BY.toString, _)
+          }
+        }
       }
 
       def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
