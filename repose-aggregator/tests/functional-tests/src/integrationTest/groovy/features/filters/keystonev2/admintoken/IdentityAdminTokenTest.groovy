@@ -27,6 +27,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.*
+
 /**
  * Specific tests for admin token
  */
@@ -52,13 +54,12 @@ class IdentityAdminTokenTest extends ReposeValveTest {
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityV2Service.handler)
-
-
     }
 
     def setup() {
         sleep 500
         fakeIdentityV2Service.resetHandlers()
+        fakeIdentityV2Service.resetCounts()
     }
 
     @Unroll("Sending request with admin response set to HTTP #adminResponseCode")
@@ -102,4 +103,47 @@ class IdentityAdminTokenTest extends ReposeValveTest {
         1111      | 200               | "200"        | fakeIdentityV2Service.identitySuccessXmlTemplate | 3
     }
 
+    def "when a token fails for unauthorized admin token, then it should get a new admin and try again without hitting the Akka cache."() {
+        given: "an Identity service that will fail with UNAUTHORIZED (401) on the first token validation attempt"
+        fakeIdentityV2Service.with {
+            client_tenantid = 'un-cached-tenant'
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        def counter = 0
+        fakeIdentityV2Service.validateTokenHandler = {
+            tokenId, tenantid, request, xml = false ->
+                counter++
+                switch (counter) {
+                    case 1:
+                        new Response(SC_UNAUTHORIZED)
+                        break;
+                    case 2:
+                        fakeIdentityV2Service.validateToken(tokenId, tenantid, request, xml)
+                        break;
+                    default:
+                        new Response(SC_INTERNAL_SERVER_ERROR)
+                }
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/${fakeIdentityV2Service.client_tenantid}/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
+                ]
+        )
+
+        then: "the response should be OK (200)"
+        fakeIdentityV2Service.generateTokenCount == 1
+        fakeIdentityV2Service.validateTokenCount == 2
+        fakeIdentityV2Service.getGroupsCount == 1
+        mc.receivedResponse.code == Integer.toString(SC_OK)
+        mc.handlings.size() == 1
+        // The second admin token request will hit the Akka cache so it isn't 5.
+        mc.orphanedHandlings.size() == 4
+    }
 }

@@ -31,7 +31,7 @@ import org.mockito.Mockito._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.PatchableSet
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config.AtomFeedType
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
@@ -41,7 +41,6 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterCacheInvalidationTest extends FunSpec
-with MockedAkkaServiceClient
 with IdentityResponses
 with Matchers
 with MockitoSugar
@@ -49,6 +48,7 @@ with BeforeAndAfterEach {
 
   private val mockConfigurationService = mock[ConfigurationService]
   private val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+  private val mockAkkaServiceClient = mock[AkkaServiceClient]
   when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
   private val mockDatastoreService = mock[DatastoreService]
   private val mockDatastore = mock[Datastore]
@@ -57,7 +57,7 @@ with BeforeAndAfterEach {
   override def beforeEach() = {
     reset(mockDatastore)
     reset(mockConfigurationService)
-    mockAkkaServiceClient.reset()
+    reset(mockAkkaServiceClient)
   }
 
   describe("The Atom feed (un)registration") {
@@ -78,7 +78,7 @@ with BeforeAndAfterEach {
     atomFeedType4.setId(atomFeedId4)
     atomFeedType5.setId(atomFeedId5)
 
-    def getMockAtomFeedService(): AtomFeedService = {
+    def getMockAtomFeedService: AtomFeedService = {
       val mockAtomFeedService = mock[AtomFeedService]
       when(mockAtomFeedService.registerListener(mockitoEq(atomFeedId1), mockitoAny[AtomFeedListener])).thenReturn(atomFeedPre + atomFeedId1)
       when(mockAtomFeedService.registerListener(mockitoEq(atomFeedId2), mockitoAny[AtomFeedListener])).thenReturn(atomFeedPre + atomFeedId2)
@@ -214,7 +214,6 @@ with BeforeAndAfterEach {
       verify(mockDatastore).remove(s"$ENDPOINTS_KEY_PREFIX$tokenOne")
       verify(mockDatastore).remove(s"$GROUPS_KEY_PREFIX$tokenOne")
       verify(mockDatastore, never()).put(mockitoAny(), mockitoAny(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
-      mockAkkaServiceClient.validate()
     }
 
     List("USER", "TRR_USER").foreach { resourceType =>
@@ -268,7 +267,6 @@ with BeforeAndAfterEach {
         verify(mockDatastore).remove(s"$TOKEN_KEY_PREFIX$tokenTwo")
         verify(mockDatastore).remove(s"$ENDPOINTS_KEY_PREFIX$tokenTwo")
         verify(mockDatastore).remove(s"$GROUPS_KEY_PREFIX$tokenTwo")
-        mockAkkaServiceClient.validate()
       }
     }
 
@@ -318,7 +316,6 @@ with BeforeAndAfterEach {
       verify(mockDatastore, never()).remove(s"$TOKEN_KEY_PREFIX$tokenTwo")
       verify(mockDatastore, never()).remove(s"$ENDPOINTS_KEY_PREFIX$tokenTwo")
       verify(mockDatastore, never()).remove(s"$GROUPS_KEY_PREFIX$tokenTwo")
-      mockAkkaServiceClient.validate()
     }
 
     it("doesn't have any problems with bogus content") {
@@ -333,7 +330,6 @@ with BeforeAndAfterEach {
       )
 
       verify(mockDatastore, never()).remove(anyString())
-      mockAkkaServiceClient.validate()
     }
 
     it("doesn't have any problems with corrupted content") {
@@ -353,7 +349,6 @@ with BeforeAndAfterEach {
       )
 
       verify(mockDatastore, never()).remove(anyString())
-      mockAkkaServiceClient.validate()
     }
   }
 }
