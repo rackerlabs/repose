@@ -728,10 +728,12 @@ class HerpFilterTest extends FunSpec with BeforeAndAfter with Matchers {
     val methods: Map[String, String] = Map(
       "get" -> "read/get",
       "head" -> "read/head",
+      "options" -> "read/options",
       "post" -> "update/post",
       "put" -> "update/put",
       "delete" -> "update/delete",
-      "patch" -> "update/patch"
+      "patch" -> "update/patch",
+      "foo" -> "unknown/foo"
     )
     methods.foreach { method =>
       it(s"should translate ${method._1} into ${method._2}") {
