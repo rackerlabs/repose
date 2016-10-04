@@ -86,14 +86,13 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        If enabled (true), the Valkyrie filter WILL NOT ensure that the tenant ID presented is a
-                        dedicated tenant ID (i.e., starts with "hybrid:"). If it is not, the Valkyrie filter will
-                        pass the request to the next filter in the filter chain.
+                        If enabled (true), the Valkyrie filter WILL pass the request to the next filter in the filter
+                        chain IF the tenant ID presented is NOT a dedicated tenant ID (i.e., starts with "hybrid:").
                     </html:p>
                     <html:p>
-                        If disabled (false), the Valkyrie filter WILL ensure that the tenant ID presented is a dedicated
-                        tenant ID (i.e., starts with "hybrid:"). If it is not, the Valkyrie filter will consider the
-                        request unauthorized.
+                        If disabled (false), the Valkyrie filter WILL NOT pass the request to the next filter in the
+                        filter chain IF the tenant ID presented is NOT a dedicated tenant ID
+                        (i.e., starts with "hybrid:"). Instead, the request will be considered unauthorized.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
