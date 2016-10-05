@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="wadl.xsl"?>
+
+<!-- (C) 2012 Rackspace Hosting, All Rights Reserved -->
+<application xmlns:rax="http://docs.rackspace.com/api"
+             xmlns="http://wadl.dev.java.net/2009/02"
+>
+    <!-- ALL RESOURCES -->
+    <resources base="http://localhost:${targetPort}">
+        <resource id="versionNumber" path="v0">
+            <resource id="safe" path="safe" rax:authenticatedBy="password">
+                <method id="safePost"    name="POST"/>   <!-- Create         -->
+                <method id="safeGet"     name="GET"/>    <!-- Read           -->
+                <method id="safePut"     name="PUT"/>    <!-- Update/Replace -->
+                <method id="safePatch"   name="PATCH"/>  <!-- Update/Modify  -->
+                <method id="safeDelete"  name="DELETE"/> <!-- Delete         -->
+                <method id="safeHead"    name="HEAD"/>
+                <method id="safeOptions" name="OPTIONS"/>
+                <method id="safeTrace"   name="TRACE"/>
+            </resource>
+            <resource id="open" path="open" rax:authenticatedBy="#all">
+                <method id="openPost"    name="POST"/>   <!-- Create         -->
+                <method id="openGet"     name="GET"/>    <!-- Read           -->
+                <method id="openPut"     name="PUT"/>    <!-- Update/Replace -->
+                <method id="openPatch"   name="PATCH"/>  <!-- Update/Modify  -->
+                <method id="openDelete"  name="DELETE"/> <!-- Delete         -->
+                <method id="openHead"    name="HEAD"/>
+                <method id="openOptions" name="OPTIONS"/>
+                <method id="openTrace"   name="TRACE"/>
+            </resource>
+            <resource id="none" path="none">
+                <method id="nonePost"    name="POST"/>   <!-- Create         -->
+                <method id="noneGet"     name="GET"/>    <!-- Read           -->
+                <method id="nonePut"     name="PUT"/>    <!-- Update/Replace -->
+                <method id="nonePatch"   name="PATCH"/>  <!-- Update/Modify  -->
+                <method id="noneDelete"  name="DELETE"/> <!-- Delete         -->
+                <method id="noneHead"    name="HEAD"/>
+                <method id="noneOptions" name="OPTIONS"/>
+                <method id="noneTrace"   name="TRACE"/>
+            </resource>
+            <resource id="vary" path="vary">
+                <method id="varyPost"    name="POST"   rax:authenticatedBy="password MFA"/>     <!-- Create         -->
+                <method id="varyGet"     name="GET"/>                                           <!-- Read           -->
+                <method id="varyPut"     name="PUT"    rax:authenticatedBy="MFA"/>              <!-- Update/Replace -->
+                <method id="varyPatch"   name="PATCH"  rax:authenticatedBy="#all"/>             <!-- Update/Modify  -->
+                <method id="varyDelete"  name="DELETE" rax:authenticatedBy="Super&#xA0;Duper"/> <!-- Delete         -->
+            </resource>
+        </resource>
+    </resources>
+</application>
