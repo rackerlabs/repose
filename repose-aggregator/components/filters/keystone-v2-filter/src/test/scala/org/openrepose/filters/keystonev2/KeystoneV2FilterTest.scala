@@ -519,7 +519,7 @@ with HttpDelegationManager {
     }
 
     it("forwards all values from the authenticatedBy field") {
-      val authMethods = Seq("password", "MFA")
+      val authMethods = Seq("PASSWORD", "PASSCODE")
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -532,7 +532,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       filterChain.getLastRequest should not be null
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeaders(OpenStackServiceHeader.AUTHENTICATED_BY.toString).asScala.toSeq should contain only("password", "MFA")
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeaders(OpenStackServiceHeader.AUTHENTICATED_BY.toString).asScala.toSeq should contain only("PASSWORD", "PASSCODE")
     }
   }
 

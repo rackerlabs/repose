@@ -1057,7 +1057,7 @@ class MockIdentityV2Service {
             },
             "RAX-AUTH:authenticatedBy": [
                 "PASSWORD",
-                "MFA"
+                "PASSCODE"
             ]
         },
         "user":{
