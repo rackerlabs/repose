@@ -250,10 +250,12 @@ class CadfMethod extends Helper[String] {
     context.toLowerCase match {
       case "get" => "read/get"
       case "head" => "read/head"
+      case "options" => "read/options"
       case "post" => "update/post"
       case "put" => "update/put"
       case "delete" => "update/delete"
       case "patch" => "update/patch"
+      case method => "unknown/" + method
     }
   }
 }

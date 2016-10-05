@@ -58,12 +58,14 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
     def "Events match filterout condition will not go to post filter log"() {
         setup: "declare messageChain to be of type MessageChain"
         def Map<String, String> actionmap = [
-                'GET'   : 'read/get',
-                'HEAD'  : 'read/head',
-                'POST'  : 'update/post',
-                'PUT'   : 'update/put',
-                'DELETE': 'update/delete',
-                'PATCH' : 'update/patch'
+                'GET'    : 'read/get',
+                'HEAD'   : 'read/head',
+                'OPTIONS': 'read/options',
+                'POST'   : 'update/post',
+                'PUT'    : 'update/put',
+                'DELETE' : 'update/delete',
+                'PATCH'  : 'update/patch',
+                'TRACE'  : 'unknown/trace'
         ]
 
         reposeLogSearch.cleanLog()
@@ -129,13 +131,17 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
         event.attachments.attachment.content."au:auditData"."au:roles" == "default"
 
         where:
-        responseCode | username      | request                      | method  | reqBody     | respMsg
-        "404"        | "User"        | "/resource1/id/aaaaaaaaaaaa" | "GET"   | ""          | "NOT_FOUND"
-        "405"        | "testUser"    | "/resource1/id"              | "POST"  | ""          | "METHOD_NOT_ALLOWED"
-        "400"        | "reposeUser"  | "/resource1/id/cccccccccccc" | "PUT"   | "some data" | "BAD_REQUEST"
-        "415"        | "reposeUser1" | "/resource1/id/dddddddddddd" | "PATCH" | "some data" | "UNSUPPORTED_MEDIA_TYPE"
-        "413"        | "reposeTest"  | "/resource1/id/eeeeeeeeeeee" | "PUT"   | "some data" | "PAYLOAD_TOO_LARGE"
-        "500"        | "reposeTest1" | "/resource1/id/ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
+        responseCode | username      | request                      | method    | reqBody     | respMsg
+        "404"        | "User"        | "/resource1/id/aaaaaaaaaaaa" | "GET"     | ""          | "NOT_FOUND"
+        "405"        | "testUser"    | "/resource1/id"              | "POST"    | ""          | "METHOD_NOT_ALLOWED"
+        "405"        | "testUser"    | "/resource1/id"              | "HEAD"    | ""          | "METHOD_NOT_ALLOWED"
+        "405"        | "testUser"    | "/resource1/id"              | "OPTIONS" | ""          | "METHOD_NOT_ALLOWED"
+        "405"        | "testUser"    | "/resource1/id"              | "DELETE"  | ""          | "METHOD_NOT_ALLOWED"
+        "405"        | "testUser"    | "/resource1/id"              | "TRACE"   | ""          | "METHOD_NOT_ALLOWED"
+        "400"        | "reposeUser"  | "/resource1/id/cccccccccccc" | "PUT"     | "some data" | "BAD_REQUEST"
+        "415"        | "reposeUser1" | "/resource1/id/dddddddddddd" | "PATCH"   | "some data" | "UNSUPPORTED_MEDIA_TYPE"
+        "413"        | "reposeTest"  | "/resource1/id/eeeeeeeeeeee" | "PUT"     | "some data" | "PAYLOAD_TOO_LARGE"
+        "500"        | "reposeTest1" | "/resource1/id/ffffffffffff" | "PUT"     | "some data" | "INTERNAL_SERVER_ERROR"
     }
 
     def "Check Tracing header through HERP filter with UAE"() {
