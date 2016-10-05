@@ -24,6 +24,7 @@ import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 9/22/15.
  */
@@ -75,7 +76,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-name") == "mytenantname"
 
         and: "The X-Authenticated-By headers should be present at the origin service."
-        mc.getHandlings().get(0).getRequest().getHeaders().findAll("X-Authenticated-By").sort() == ["MFA", "PASSWORD"]
+        mc.getHandlings().get(0).getRequest().getHeaders().findAll("X-Authenticated-By").sort() == ["PASSCODE", "PASSWORD"]
     }
 
     def "Validate client token with belongsTo test"() {
