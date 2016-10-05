@@ -20,10 +20,60 @@
 package features.filters.valkyrie
 
 import framework.ReposeValveTest
+import framework.mocks.MockValkyrie
+import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
+import spock.lang.Shared
 
 class PassNonDedicatedTenantTest extends ReposeValveTest {
+
+    @Shared
+    MockValkyrie mockValkyrie
+
+    @Shared
+    String deviceId1 = "520707"
+    @Shared
+    String deviceId2 = "520708"
+
+    @Shared
+    String responseBody = """{
+        "values": [
+            {
+                "id": "en6bShuX7a",
+                "label": "brad@morgabra.com",
+                "ip_addresses": null,
+                "metadata": {
+                    "userId": "325742",
+                    "email": "brad@morgabra.com"
+                },
+                "managed": false,
+                "uri": "http://core.rackspace.com/accounts/123456/devices/$deviceId1",
+                "agent_id": "e333a7d9-6f98-43ea-aed3-52bd06ab929f",
+                "active_suppressions": [],
+                "scheduled_suppressions": []
+            },
+            {
+                "id": "enADqSly1y",
+                "label": "test",
+                "ip_addresses": null,
+                "metadata": null,
+                "managed": false,
+                "uri": "http://core.rackspace.com/accounts/123456/devices/$deviceId2",
+                "agent_id": null,
+                "active_suppressions": [],
+                "scheduled_suppressions": []
+            }
+        ],
+        "metadata": {
+            "count": 2,
+            "limit": 2,
+            "marker": null,
+            "next_marker": "enB11JvqNv",
+            "next_href": "https://monitoring.api.rackspacecloud.com/v1.0/731078/entities?limit=2&marker=enB11JvqNv"
+        }
+    }"""
 
     def setupSpec() {
         Map params = properties.getDefaultTemplateParams()
@@ -32,8 +82,19 @@ class PassNonDedicatedTenantTest extends ReposeValveTest {
 
         repose.start()
 
+        mockValkyrie = new MockValkyrie(properties.valkyriePort)
+
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort, 'origin service')
+        deproxy.addEndpoint(port: properties.targetPort, name: "origin service", defaultHandler: {
+            new Response(200, "OK", ["Content-Type": "application/json", "Content-Length": responseBody.length()], responseBody)
+        })
+        deproxy.addEndpoint(port: properties.valkyriePort, name: "valkyrie service", defaultHandler: mockValkyrie.getHandler())
+    }
+
+    def setup() {
+        mockValkyrie.resetCounts()
+        mockValkyrie.resetHandlers()
+        mockValkyrie.resetParameters()
     }
 
     def "when handling a request for a non-dedicated tenant's resource, the request should be passed without modification"() {
@@ -42,12 +103,49 @@ class PassNonDedicatedTenantTest extends ReposeValveTest {
 
         when:
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint + "/" + tenantId + "/foo",
+                url: reposeEndpoint + "/resources/foo",
                 method: "GET",
                 headers: ["X-Tenant-Id": tenantId])
 
         then:
+        mockValkyrie.getAuthorizationCount() == 0
+        mc.getOrphanedHandlings().size() == 0
+        mc.getHandlings().size() == 1
+        mc.getHandlings().get(0).getRequest().getPath() == "/resources/foo"
+        mc.getHandlings().get(0).getRequest().getHeaders().contains("X-Tenant-Id")
+        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("X-Tenant-Id") == tenantId
+        mc.getReceivedResponse().getCode().toInteger() == 200
+        mc.getReceivedResponse().getBody() == responseBody
+    }
+
+    def "when handling a request for a dedicated tenant's resource, authorization and culling are performed"() {
+        given:
+        String tenantId = "hybrid:12345"
+        String contactId = "20583"
+        String permission = "view_product"
+
+        mockValkyrie.with {
+            device_id = deviceId1
+            device_perm = permission
+        }
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint + "/resources/foo",
+                method: "GET",
+                headers: ["X-Tenant-Id" : tenantId,
+                          "X-Contact-Id": contactId,
+                          "X-Device-Id" : deviceId1])
+        def body = new String(mc.receivedResponse.body)
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(body)
+
+        then:
+        mockValkyrie.getAuthorizationCount() == 1
+        mc.getOrphanedHandlings().size() == 1
         mc.getHandlings().size() == 1
         mc.getReceivedResponse().getCode().toInteger() == 200
+        result.values.size == 1
+        result.metadata.count == 1
     }
 }
