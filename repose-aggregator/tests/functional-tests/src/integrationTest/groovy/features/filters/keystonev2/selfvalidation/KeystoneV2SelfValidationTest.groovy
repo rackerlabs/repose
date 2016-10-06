@@ -74,6 +74,9 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-id") == "mytenant"
         mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("x-tenant-name") == "mytenantname"
+
+        and: "The X-Authenticated-By headers should be present at the origin service."
+        mc.getHandlings().get(0).getRequest().getHeaders().findAll("X-Authenticated-By").sort() == ["PASSCODE", "PASSWORD"]
     }
 
     def "Validate client token with belongsTo test"() {

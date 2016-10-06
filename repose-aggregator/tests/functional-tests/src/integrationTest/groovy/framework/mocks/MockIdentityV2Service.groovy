@@ -1054,7 +1054,11 @@ class MockIdentityV2Service {
             "tenant":{
                 "id": "\${tenantid}",
                 "name": "\${tenantname}"
-            }
+            },
+            "RAX-AUTH:authenticatedBy": [
+                "PASSWORD",
+                "PASSCODE"
+            ]
         },
         "user":{
             "RAX-AUTH:defaultRegion": "DFW",

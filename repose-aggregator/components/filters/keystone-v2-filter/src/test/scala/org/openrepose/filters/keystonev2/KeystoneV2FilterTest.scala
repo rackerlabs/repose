@@ -484,6 +484,56 @@ with HttpDelegationManager {
       filterChain.getLastRequest should be(null)
       filterChain.getLastResponse should be(null)
     }
+
+    it("does not forward the authenticatedBy field if it is an empty array") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, "glibglob")), anyBoolean()))
+        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseAuthenticatedBy()))
+
+      val response = new MockHttpServletResponse()
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest should not be null
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.AUTHENTICATED_BY.toString) shouldBe null
+    }
+
+    it("forwards the authenticatedBy field if present and non-empty") {
+      val authMethods = Seq("password")
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, "glibglob")), anyBoolean()))
+        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods)))
+
+      val response = new MockHttpServletResponse()
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest should not be null
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.AUTHENTICATED_BY.toString) shouldBe "password"
+    }
+
+    it("forwards all values from the authenticatedBy field") {
+      val authMethods = Seq("PASSWORD", "PASSCODE")
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, "glibglob")), anyBoolean()))
+        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods)))
+
+      val response = new MockHttpServletResponse()
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getLastRequest should not be null
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeaders(OpenStackServiceHeader.AUTHENTICATED_BY.toString).asScala.toSeq should contain only("PASSWORD", "PASSCODE")
+    }
   }
 
   describe("Configured to authenticate and authorize a specific service endpoint") {
@@ -2443,7 +2493,8 @@ with HttpDelegationManager {
               impersonatorName: Option[String] = None,
               impersonatorRoles: Seq[String] = Seq.empty[String],
               defaultRegion: Option[String] = None,
-              contactId: Option[String] = None) = {
+              contactId: Option[String] = None,
+              authenticatedBy: Option[Seq[String]] = None) = {
       ValidToken(expirationDate,
         userId,
         roles,
@@ -2455,7 +2506,8 @@ with HttpDelegationManager {
         impersonatorName,
         impersonatorRoles,
         defaultRegion,
-        contactId)
+        contactId,
+        authenticatedBy)
     }
   }
 

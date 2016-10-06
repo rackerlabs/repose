@@ -110,6 +110,10 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         val roles = (json \ "access" \ "user" \ "roles").as[JsArray].value
           .map(jsRole => Role((jsRole \ "name").as[String], (jsRole \ "tenantId").asOpt[String]))
           .toVector
+        val authenticatedBy = (json \ "access" \ "token" \ "RAX-AUTH:authenticatedBy").asOpt[JsArray]
+          .map(_.value)
+          .map(_.map(_.as[String]))
+          .map(_.toVector)
         val expirationDate = iso8601ToRfc1123((json \ "access" \ "token" \ "expires").as[String])
         val username = (json \ "access" \ "user" \ "name").asOpt[String]
         val defaultTenantId = (json \ "access" \ "token" \ "tenant" \ "id").asOpt[String]
@@ -131,7 +135,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
           impersonatorName,
           impersonatorRoles,
           defaultRegion,
-          contactId)
+          contactId,
+          authenticatedBy)
 
         Success(validToken)
       } catch {
@@ -283,7 +288,8 @@ object KeystoneRequestHandler {
                         impersonatorName: Option[String],
                         impersonatorRoles: Seq[String],
                         defaultRegion: Option[String],
-                        contactId: Option[String])
+                        contactId: Option[String],
+                        authenticatedBy: Option[Seq[String]])
 
   case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
     /**

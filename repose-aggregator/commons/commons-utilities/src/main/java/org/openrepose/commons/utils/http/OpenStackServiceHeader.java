@@ -60,6 +60,11 @@ public enum OpenStackServiceHeader implements HeaderConstant {
      */
     ROLES("X-Roles"),
 
+    /**
+     * Comma-delimited list of authentication methods used
+     */
+    AUTHENTICATED_BY("X-Authenticated-By"),
+
     IMPERSONATOR_ID("X-Impersonator-Id"),
     IMPERSONATOR_NAME("X-Impersonator-Name"),
     IMPERSONATOR_ROLES("X-Impersonator-Roles"),

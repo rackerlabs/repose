@@ -475,6 +475,45 @@ trait IdentityResponses {
     """.stripMargin
   }
 
+  def validateTokenResponseAuthenticatedBy(token: String = VALID_TOKEN,
+                                           expires: DateTime = DateTime.now().plusDays(1),
+                                           userId: String = VALID_USER_ID,
+                                           authenticatedBy: Seq[String] = Seq.empty): String = {
+
+    val expiryTime = tokenDateFormat(expires)
+
+    s"""
+       |{
+       |    "access":{
+       |        "token":{
+       |            "id":"$token",
+       |            "expires":"$expiryTime",
+       |            "tenant":{
+       |                "id": "345",
+       |                "name": "My Project"
+       |            },
+       |            "RAX-AUTH:authenticatedBy":[${authenticatedBy.map('"' + _ + '"').mkString(",")}]
+       |        },
+       |        "user":{
+       |            "RAX-AUTH:defaultRegion": "DFW",
+       |            "RAX-AUTH:contactId": "abc123",
+       |            "id":"$userId",
+       |            "name":"testuser",
+       |            "roles":[{
+       |                    "id":"123",
+       |                    "name":"compute:admin"
+       |                },
+       |                {
+       |                    "id":"234",
+       |                    "name":"object-store:admin"
+       |                }
+       |            ]
+       |        }
+       |    }
+       |}
+    """.stripMargin
+  }
+
   def oneEndpointResponse(): String = {
     """
       |{
