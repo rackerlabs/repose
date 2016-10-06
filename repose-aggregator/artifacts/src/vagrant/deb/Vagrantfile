@@ -1,10 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# TODO: Make this a CLI option somehow.
-reposeVersion=''
-#reposeVersion='local'
-#reposeVersion='7.3.7.0'
+ENV['REPOSE_VERSION'] ||= "local"
+reposeVersion = ENV['REPOSE_VERSION']
 
 $update_yum = <<SCRIPT
 echo "-------------------------------------------------------------------------------------------------------------------"
@@ -12,7 +10,7 @@ echo "Updating Apt packages"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 # update package lists from the server
-apt-get update -q
+apt-get update -qq
 #apt-get upgrade -yq
 SCRIPT
 
