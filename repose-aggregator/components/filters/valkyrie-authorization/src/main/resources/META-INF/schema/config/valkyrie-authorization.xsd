@@ -82,6 +82,21 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="pass-non-dedicated-tenant" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If enabled (true), the Valkyrie filter WILL pass the request to the next filter in the filter
+                        chain IF the tenant ID presented is NOT a dedicated tenant ID (i.e., starts with "hybrid:").
+                    </html:p>
+                    <html:p>
+                        If disabled (false), the Valkyrie filter WILL NOT pass the request to the next filter in the
+                        filter chain IF the tenant ID presented is NOT a dedicated tenant ID
+                        (i.e., starts with "hybrid:"). Instead, the request will be considered unauthorized.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="ValkyrieServer">
