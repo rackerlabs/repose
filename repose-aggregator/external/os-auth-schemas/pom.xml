@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>external-lib-support</artifactId>
-        <version>7.3.8.0</version>
+        <version>7.3.8.1-SNAPSHOT</version>
     </parent>
 
     <name>OpenStack Auth XML Schemas</name>
