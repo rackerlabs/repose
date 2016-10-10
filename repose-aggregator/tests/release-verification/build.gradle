@@ -1,0 +1,62 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-vagrant-plugin:2.0'
+    }
+}
+
+import com.bmuschko.gradle.vagrant.tasks.VagrantUp
+import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
+
+apply plugin: 'com.bmuschko.vagrant-base'
+
+// TODO: Don't hardcode this -- since it's just a flat directory, we can't add a dependency... move those files to
+//       this project?
+String baseBoxDir = project.projectDir.absolutePath + '/../../artifacts/src/vagrant/'
+File debBoxDir = file(baseBoxDir + 'deb')
+File rpmBoxDir = file(baseBoxDir + 'rpm')
+
+vagrant {
+    environmentVariables {
+        variable 'REPOSE_VERSION', property('release-version')
+    }
+}
+
+task vagrantUpDeb(type: VagrantUp) {
+    boxDir = debBoxDir
+}
+
+task vagrantDestroyDeb(type: VagrantDestroy) {
+    boxDir = debBoxDir
+}
+
+task vagrantUpRpm(type: VagrantUp) {
+    boxDir = rpmBoxDir
+}
+
+task vagrantDestroyRpm(type: VagrantDestroy) {
+    boxDir = rpmBoxDir
+}
+
+task('smokeTestDeb', description: 'tests if the DEB Repose instance can handle basic requests', dependsOn: 'vagrantUpDeb') << {
+    // TODO: Throw some load at the VM!
+    // TODO: How do we know when Repose is ready?
+
+    def failure = false
+    if (failure) throw new GradleException('requests to the Repose instance')
+}
+
+task('smokeTestRpm', description: 'tests if the RPM Repose instance can handle basic requests', dependsOn: 'vagrantUpRpm') << {
+    def failure = false
+    if (failure) throw new GradleException('requests to the Repose instance')
+}
+
+task('smokeTestAggregator', description: 'tests if the Repose instance can handle basic requests', dependsOn: ['smokeTestDeb', 'smokeTestRpm'])
+
+task('smokeTest', description: 'tests if the Repose instance can handle basic requests and cleans up afterwards', group: 'release', dependsOn: ['smokeTestAggregator', 'vagrantDestroyDeb', 'vagrantDestroyRpm'])
+
+// Note: At this time, release verification will be handled out-of-band with the release. Therefore,
+//       no wiring was added to place the 'smokeTest' task into existing task flows.
