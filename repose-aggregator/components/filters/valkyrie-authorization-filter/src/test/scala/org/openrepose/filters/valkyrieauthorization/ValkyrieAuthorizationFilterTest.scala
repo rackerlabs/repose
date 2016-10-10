@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequestWrapper, HttpServletResponse, HttpServletResponseWrapper}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
-import com.mockrunner.mock.web.{MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
+import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
 import org.apache.http.message.BasicHeader
 import org.apache.http.{Header, HttpHeaders}
@@ -714,6 +714,27 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
   }
 
+  describe("when pass-non-dedicated-tenant is enabled") {
+    val config = createGenericValkyrieConfiguration(passNonDedicatedTenant = true)
+    val filter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
+    filter.configurationUpdated(config)
+
+    it("should pass the request when tenant is non-hybrid") {
+      val mockServletRequest = new MockHttpServletRequest()
+      val mockServletResponse = new MockHttpServletResponse()
+      val mockFilterChain = new MockFilterChain()
+
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setRequestURL("http://foo.com:8080")
+      mockServletRequest.setHeader("X-Tenant-Id", "987654")
+      mockServletRequest.setHeader("X-Contact-Id", "12345")
+
+      filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
+
+      mockFilterChain.getLastRequest should not be null
+    }
+  }
+
   describe("when permission to role translation and delegation is turned on") {
     val config = createGenericValkyrieConfiguration(null)
     config.setTranslatePermissionsToRoles(new Object)
@@ -1393,7 +1414,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         setMockAkkaBehavior("someTenant", "123456", SC_OK, createValkyrieResponse(devicePermissions("98765", "view_product")))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
-        val valkyrieAuthorizationConfig: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null, enableBypassAccountAdmin = true, configured)
+        val valkyrieAuthorizationConfig: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(enableBypassAccountAdmin = true, httpMethods = configured)
         filter.configurationUpdated(setNullDeviceIdAction(valkyrieAuthorizationConfig, DeviceIdMismatchAction.REMOVE))
 
         val mockServletRequest = new MockHttpServletRequest
@@ -1539,15 +1560,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
   }
 
-  def createGenericValkyrieConfiguration(delegation: DelegatingType): ValkyrieAuthorizationConfig = {
-    createGenericValkyrieConfiguration(delegation, enableBypassAccountAdmin = true)
-  }
-
-  def createGenericValkyrieConfiguration(delegation: DelegatingType, enableBypassAccountAdmin: Boolean): ValkyrieAuthorizationConfig = {
-    createGenericValkyrieConfiguration(delegation, enableBypassAccountAdmin, List(HttpMethod.ALL))
-  }
-
-  def createGenericValkyrieConfiguration(delegation: DelegatingType, enableBypassAccountAdmin: Boolean, httpMethods: List[HttpMethod]): ValkyrieAuthorizationConfig = {
+  def createGenericValkyrieConfiguration(delegation: DelegatingType = null,
+                                         enableBypassAccountAdmin: Boolean = true,
+                                         httpMethods: List[HttpMethod] = List(HttpMethod.ALL),
+                                         passNonDedicatedTenant: Boolean = false): ValkyrieAuthorizationConfig = {
     val configuration = new ValkyrieAuthorizationConfig
     val server = new ValkyrieServer
     server.setUri("http://foo.com:8080")
@@ -1577,6 +1593,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     collectionResources.getResource.add(resource)
     configuration.setCollectionResources(collectionResources)
     configuration.setEnableBypassAccountAdmin(enableBypassAccountAdmin)
+    configuration.setPassNonDedicatedTenant(passNonDedicatedTenant)
     configuration
   }
 
