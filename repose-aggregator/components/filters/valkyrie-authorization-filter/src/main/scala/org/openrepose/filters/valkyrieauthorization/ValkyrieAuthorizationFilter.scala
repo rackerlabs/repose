@@ -121,7 +121,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       def checkHeaders(tenantId: Option[String], contactId: Option[String]): ValkyrieResult = {
         (requestedTenantId, requestedContactId) match {
           case (None, _) => ResponseResult(SC_UNAUTHORIZED, "No tenant ID specified")
-          case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty => ResponseResult(SC_FORBIDDEN, "Not Authorized")
+          case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty =>
+            if (configuration.isPassNonDedicatedTenant) ResponseResult(200, "Pass non-dedicated tenant")
+            else ResponseResult(403, "Not Authorized")
           case (_, None) => ResponseResult(SC_UNAUTHORIZED, "No contact ID specified")
           case (Some(tenant), Some(contact)) => UserInfo(tenant.substring(tenant.indexOf(":") + 1), contact)
         }

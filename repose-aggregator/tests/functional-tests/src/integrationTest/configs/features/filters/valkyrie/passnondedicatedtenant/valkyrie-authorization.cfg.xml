@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<valkyrie-authorization xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+                        pass-non-dedicated-tenant="true">
+    <valkyrie-server uri="http://localhost:${valkyriePort}" username="user1" password="$6**YYLGrimey"/>
+    <collection-resources>
+        <resource>
+            <path-regex>/resources.*</path-regex>
+            <collection>
+                <json>
+                    <path-to-collection>$.values</path-to-collection>
+                    <path-to-device-id>
+                        <path>$.uri</path>
+                        <regex>http://core.rackspace.com/accounts/\d*/devices/(\d*)</regex>
+                    </path-to-device-id>
+                    <path-to-item-count>$.metadata.count</path-to-item-count>
+                </json>
+            </collection>
+        </resource>
+    </collection-resources>
+</valkyrie-authorization>
