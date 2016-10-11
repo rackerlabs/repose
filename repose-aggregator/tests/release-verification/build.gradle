@@ -22,7 +22,9 @@ File rpmBoxDir = file(baseBoxDir + 'rpm')
 
 vagrant {
     environmentVariables {
-        variable 'REPOSE_VERSION', property('release-version')
+        // TODO: Should this be defaulted, or should we explicitly check for
+        //       the property when the task is run?
+        variable 'REPOSE_VERSION', hasProperty('release-version') ? property('release-version') : 'local'
     }
 }
 
