@@ -8,8 +8,9 @@ buildscript {
     }
 }
 
-import com.bmuschko.gradle.vagrant.tasks.VagrantUp
+
 import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
+import com.bmuschko.gradle.vagrant.tasks.VagrantUp
 
 apply plugin: 'com.bmuschko.vagrant-base'
 
@@ -26,6 +27,7 @@ vagrant {
 }
 
 task vagrantUpDeb(type: VagrantUp) {
+    finalizedBy 'vagrantDestroyDeb'
     boxDir = debBoxDir
 }
 
@@ -34,6 +36,7 @@ task vagrantDestroyDeb(type: VagrantDestroy) {
 }
 
 task vagrantUpRpm(type: VagrantUp) {
+    finalizedBy 'vagrantDestroyRpm'
     boxDir = rpmBoxDir
 }
 
@@ -54,9 +57,7 @@ task('smokeTestRpm', description: 'tests if the RPM Repose instance can handle b
     if (failure) throw new GradleException('requests to the Repose instance')
 }
 
-task('smokeTestAggregator', description: 'tests if the Repose instance can handle basic requests', dependsOn: ['smokeTestDeb', 'smokeTestRpm'])
-
-task('smokeTest', description: 'tests if the Repose instance can handle basic requests and cleans up afterwards', group: 'release', dependsOn: ['smokeTestAggregator', 'vagrantDestroyDeb', 'vagrantDestroyRpm'])
+task('smokeTest', description: 'tests if the Repose instance can handle basic requests', group: 'release', dependsOn: ['smokeTestDeb', 'smokeTestRpm'])
 
 // Note: At this time, release verification will be handled out-of-band with the release. Therefore,
 //       no wiring was added to place the 'smokeTest' task into existing task flows.
