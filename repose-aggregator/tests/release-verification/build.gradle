@@ -14,6 +14,7 @@ buildscript {
 
 import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
 import com.bmuschko.gradle.vagrant.tasks.VagrantUp
+import com.bmuschko.gradle.vagrant.tasks.VagrantSsh
 import org.apache.http.client.fluent.Request
 
 apply plugin: 'com.bmuschko.vagrant-base'
@@ -34,6 +35,13 @@ task vagrantUpDeb(type: VagrantUp) {
     boxDir = debBoxDir
 }
 
+task vagrantSshSmokeTestDeb(type: VagrantSsh) {
+    dependsOn 'vagrantUpDeb'
+    finalizedBy 'vagrantDestroyDeb'
+
+    boxDir = debBoxDir
+}
+
 task vagrantDestroyDeb(type: VagrantDestroy) {
     boxDir = debBoxDir
 }
@@ -41,6 +49,13 @@ task vagrantDestroyDeb(type: VagrantDestroy) {
 task vagrantUpRpm(type: VagrantUp) {
     finalizedBy 'vagrantDestroyRpm'
     boxDir = rpmBoxDir
+}
+
+task vagrantSshSmokeTestRpm(type: VagrantSsh) {
+    dependsOn 'vagrantUpRpm'
+    finalizedBy 'vagrantDestroyRpm'
+
+    boxDir = debBoxDir
 }
 
 task vagrantDestroyRpm(type: VagrantDestroy) {
