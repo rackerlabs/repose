@@ -18,11 +18,8 @@ import org.apache.http.client.fluent.Request
 
 apply plugin: 'com.bmuschko.vagrant-base'
 
-// TODO: Don't hardcode this -- since it's just a flat directory, we can't add a dependency... move those files to
-//       this project?
-String baseBoxDir = project.projectDir.absolutePath + '/../../artifacts/src/vagrant/'
-File debBoxDir = file(baseBoxDir + 'deb')
-File rpmBoxDir = file(baseBoxDir + 'rpm')
+File debBoxDir = file("$buildDir/deb")
+File rpmBoxDir = file("$buildDir/rpm")
 
 vagrant {
     environmentVariables {
