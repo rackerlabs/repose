@@ -80,7 +80,7 @@ task vagrantSshSmokeTestDeb(type: VagrantSsh) {
     finalizedBy 'vagrantDestroyDeb'
 
     boxDir = debBoxDir
-    sshCommand "sh /vagrant/scripts/test.sh"
+    sshCommand "sh /vagrant/scripts/isReposeReady.sh"
 }
 
 task vagrantDestroyDeb(type: VagrantDestroy) {
@@ -142,7 +142,7 @@ task vagrantSshSmokeTestRpm(type: VagrantSsh) {
     finalizedBy 'vagrantDestroyRpm'
 
     boxDir = debBoxDir
-    sshCommand "sh /vagrant/scripts/test.sh"
+    sshCommand "sh /vagrant/scripts/isReposeReady.sh"
 }
 
 task vagrantDestroyRpm(type: VagrantDestroy) {
