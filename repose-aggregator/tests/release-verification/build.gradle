@@ -1,16 +1,20 @@
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
     }
 
     dependencies {
         classpath 'com.bmuschko:gradle-vagrant-plugin:2.0'
+        classpath 'org.apache.httpcomponents:httpclient:4.4.1'
+        classpath 'org.apache.httpcomponents:fluent-hc:4.4.1'
     }
 }
 
 
 import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
 import com.bmuschko.gradle.vagrant.tasks.VagrantUp
+import org.apache.http.client.fluent.Request
 
 apply plugin: 'com.bmuschko.vagrant-base'
 
@@ -47,16 +51,39 @@ task vagrantDestroyRpm(type: VagrantDestroy) {
 }
 
 task('smokeTestDeb', description: 'tests if the DEB Repose instance can handle basic requests', dependsOn: 'vagrantUpDeb') << {
-    // TODO: Throw some load at the VM!
-    // TODO: How do we know when Repose is ready?
+    // TODO: Replace retry logic. How do we know when Repose is ready?
+    // TODO: Don't repeat this logic in multiple tasks -- make this task a type?
+    def responseCode = -1
+    def attempt = 0
+    while (responseCode != 200 && attempt < 10) {
+      attempt++
+      responseCode = Request.get("http://localhost:8080")
+        .execute()
+        .returnResponse()
+        .getStatusLine()
+        .getStatusCode()
+    }
 
-    def failure = false
-    if (failure) throw new GradleException('requests to the Repose instance')
+    if (responseCode != 200) {
+      throw new GradleException('HTTP requests to the Repose instance failed')
+    }
 }
 
 task('smokeTestRpm', description: 'tests if the RPM Repose instance can handle basic requests', dependsOn: 'vagrantUpRpm') << {
-    def failure = false
-    if (failure) throw new GradleException('requests to the Repose instance')
+    def responseCode = -1
+    def attempt = 0
+    while (responseCode != 200 && attempt < 10) {
+      attempt++
+      responseCode = Request.get("http://localhost:8080")
+        .execute()
+        .returnResponse()
+        .getStatusLine()
+        .getStatusCode()
+    }
+
+    if (responseCode != 200) {
+      throw new GradleException('HTTP requests to the Repose instance failed')
+    }
 }
 
 task('smokeTest', description: 'tests if the Repose instance can handle basic requests', group: 'release', dependsOn: ['smokeTestDeb', 'smokeTestRpm'])
