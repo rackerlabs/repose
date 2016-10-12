@@ -30,8 +30,47 @@ vagrant {
     }
 }
 
+task copyDebFiles() {
+    inputs.files(file("$projectDir/src/vagrant/deb"),
+                 file("$projectDir/src/vagrant/scripts"),
+                 file("$projectDir/src/vagrant/fake-services"),
+                 file("$projectDir/src/config"))
+    outputs.dir debBoxDir
+
+    doLast {
+        //make the deb directory
+        debBoxDir.mkdirs()
+
+        //copy the vagrant file
+        copy {
+            from "$projectDir/src/vagrant/deb"
+            into debBoxDir
+        }
+
+        //copy the scripts
+        copy {
+            from "$projectDir/src/vagrant/scripts"
+            into "$debBoxDir/scripts"
+        }
+
+        //copy the fake services
+        copy {
+            from "$projectDir/src/vagrant/fake-services"
+            into "$debBoxDir/fake-services"
+        }
+
+        //copy the configs
+        copy {
+            from "$projectDir/src/config"
+            into "$debBoxDir/etc_repose"
+        }
+    }
+}
+
 task vagrantUpDeb(type: VagrantUp) {
+    dependsOn 'copyDebFiles'
     finalizedBy 'vagrantDestroyDeb'
+
     boxDir = debBoxDir
 }
 
@@ -46,8 +85,47 @@ task vagrantDestroyDeb(type: VagrantDestroy) {
     boxDir = debBoxDir
 }
 
+task copyRpmFiles() {
+    inputs.files(file("$projectDir/src/vagrant/rpm"),
+            file("$projectDir/src/vagrant/scripts"),
+            file("$projectDir/src/vagrant/fake-services"),
+            file("$projectDir/src/config"))
+    outputs.dir rpmBoxDir
+
+    doLast {
+        //make the rpm directory
+        rpmBoxDir.mkdirs()
+
+        //copy the vagrant file
+        copy {
+            from "$projectDir/src/vagrant/rpm"
+            into rpmBoxDir
+        }
+
+        //copy the scripts
+        copy {
+            from "$projectDir/src/vagrant/scripts"
+            into "$rpmBoxDir/scripts"
+        }
+
+        //copy the fake services
+        copy {
+            from "$projectDir/src/vagrant/fake-services"
+            into "$rpmBoxDir/fake-services"
+        }
+
+        //copy the configs
+        copy {
+            from "$projectDir/src/config"
+            into "$rpmBoxDir/etc_repose"
+        }
+    }
+}
+
 task vagrantUpRpm(type: VagrantUp) {
+    dependsOn 'copyRpmFiles'
     finalizedBy 'vagrantDestroyRpm'
+
     boxDir = rpmBoxDir
 }
 
