@@ -1,10 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# TODO: Make this a CLI option somehow.
-reposeVersion=''
-#reposeVersion='local'
-#reposeVersion='7.3.7.0'
+repose_version = ENV['REPOSE_VERSION'] || 'default'
 
 $update_yum = <<SCRIPT
 echo "-------------------------------------------------------------------------------------------------------------------"
@@ -89,6 +86,8 @@ version=''
 if [ $# -ne 0 ] ; then
   if [ "X_${1}_X" = "X_local_X" ] ; then
     name="${1}"
+  elif [ "X_${1}_X" = "X_default_X" ] ; then
+    name="${1}"
   else
     name="v${1}"
     version="-${1}-1"
@@ -98,12 +97,13 @@ echo "--------------------------------------------------------------------------
 echo "Installing Repose ${name} package"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
-
 if [ "X_${name}_X" = "X_local_X" ] ; then
   yum --nogpgcheck localinstall -y /vagrant/repose-valve-*.noarch.rpm /vagrant/repose-filter-bundle-*.noarch.rpm /vagrant/repose-extensions-filter-bundle-*.noarch.rpm
 else
   yum install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version}
 fi
+mkdir -p /etc/systemd/system/repose-valve.service.d && echo "[Service]\nEnvironment=\"JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n\"" > /etc/systemd/system/repose-valve.service.d/local.conf
+sed -i '/JAVA_OPTS/c\JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n"' /etc/sysconfig/repose
 SCRIPT
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -119,6 +119,12 @@ Vagrant.configure(2) do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "centos/7"
 
+  # Expose the Repose Java Debug Wire Protocol (JDWP) port
+  config.vm.network :forwarded_port, guest: 10037, host: 10039
+  #config.vm.network "private_network", ip: "192.168.33.39"
+  # Expose the Repose port
+  config.vm.network :forwarded_port, guest: 8080, host: 10089
+
   config.vm.provision "shell", inline: $update_yum
   # IF the Repose version is < 8.1.0.0,
   # THEN the old Daemonize needs to be manually installed since it is no longer packaged.
@@ -128,7 +134,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: $other_tools
   config.vm.provision "shell", inline: $install_python
   config.vm.provision "shell", inline: $install_nodejs
-  config.vm.provision "shell", path: "../scripts/python_installs.sh"
+  #config.vm.provision "shell", path: "../scripts/python_installs.sh"
 
   config.vm.provision "shell", path: "../scripts/fake_keystone_prepare.sh"
   # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/tracing/master/package.json
@@ -138,18 +144,24 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", privileged: false, path: "../scripts/fake_keystone_install.sh"
   config.vm.provision "shell", path: "../scripts/fake_keystone_run.sh", run: "always"
 
-  config.vm.provision "shell", path: "../scripts/fake_valkyrie_prepare.sh"
-  # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/valkyrie/master/package.json
-  config.vm.provision "file", source: "../fake-valkyrie2/package.json", destination: "/opt/fake-valkyrie/package.json"
-  # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/valkyrie/master/valkyrie_backend.js
-  config.vm.provision "file", source: "../fake-valkyrie2/app.js", destination: "/opt/fake-valkyrie/app.js"
-  config.vm.provision "shell", privileged: false, path: "../scripts/fake_valkyrie_install.sh"
-  config.vm.provision "shell", path: "../scripts/fake_valkyrie_run.sh", run: "always"
+  # config.vm.provision "shell", path: "../scripts/fake_valkyrie_prepare.sh"
+  # # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/valkyrie/master/package.json
+  # config.vm.provision "file", source: "../fake-valkyrie2/package.json", destination: "/opt/fake-valkyrie/package.json"
+  # # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/valkyrie/master/valkyrie_backend.js
+  # config.vm.provision "file", source: "../fake-valkyrie2/app.js", destination: "/opt/fake-valkyrie/app.js"
+  # config.vm.provision "shell", privileged: false, path: "../scripts/fake_valkyrie_install.sh"
+  # config.vm.provision "shell", path: "../scripts/fake_valkyrie_run.sh", run: "always"
 
-  config.vm.provision "shell", path: "../scripts/httpbin_run.sh", run: "always"
+  # config.vm.provision "shell", path: "../scripts/httpbin_run.sh", run: "always"
+
+  config.vm.provision "shell", path: "../scripts/fake_origin_prepare.sh"
+  config.vm.provision "file", source: "../fake-origin/package.json", destination: "/opt/fake-origin/package.json"
+  config.vm.provision "file", source: "../fake-origin/app.js", destination: "/opt/fake-origin/app.js"
+  config.vm.provision "shell", privileged: false, path: "../scripts/fake_origin_install.sh"
+  config.vm.provision "shell", path: "../scripts/fake_origin_run.sh", run: "always"
 
   config.vm.provision "shell", inline: $install_repose do |s|
-    s.args = "#{reposeVersion}"
+    s.args = "#{repose_version}"
   end
   config.vm.provision "shell", path: "../scripts/repose_run.sh"
 
