@@ -19,6 +19,21 @@ File debBoxDir = file("$buildDir/deb")
 File rpmBoxDir = file("$buildDir/rpm")
 String configDir = project.hasProperty('config-dir') ? project.property('config-dir') : "$projectDir/src/config"
 
+FileCollection commonFiles = files("$projectDir/src/vagrant/scripts", "$projectDir/src/vagrant/fake-services", configDir)
+FileCollection debFiles = files("$projectDir/src/vagrant/deb")
+FileCollection rpmFiles = files("$projectDir/src/vagrant/deb")
+
+if(!project.hasProperty('release-version')) {
+    debFiles = debFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').getOutputs().getFiles(),
+            project.tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').getOutputs().getFiles(),
+            project.tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb').getOutputs().getFiles(),
+            project.tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb').getOutputs().getFiles())
+    rpmFiles = rpmFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').getOutputs().getFiles(),
+            project.tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').getOutputs().getFiles(),
+            project.tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').getOutputs().getFiles(),
+            project.tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm').getOutputs().getFiles())
+}
+
 vagrant {
     environmentVariables {
         variable 'REPOSE_VERSION', project.hasProperty('release-version') ? project.property('release-version') : 'default'
@@ -26,10 +41,7 @@ vagrant {
 }
 
 task copyDebFiles() {
-    inputs.files(file("$projectDir/src/vagrant/deb"),
-                 file("$projectDir/src/vagrant/scripts"),
-                 file("$projectDir/src/vagrant/fake-services"),
-                 file(configDir))
+    inputs.files(commonFiles, debFiles)
     outputs.dir debBoxDir
 
     doLast {
@@ -38,7 +50,7 @@ task copyDebFiles() {
 
         //copy the vagrant file
         copy {
-            from "$projectDir/src/vagrant/deb"
+            from debFiles
             into debBoxDir
         }
 
@@ -88,10 +100,7 @@ task vagrantDestroyDeb(type: VagrantDestroy) {
 }
 
 task copyRpmFiles() {
-    inputs.files(file("$projectDir/src/vagrant/rpm"),
-            file("$projectDir/src/vagrant/scripts"),
-            file("$projectDir/src/vagrant/fake-services"),
-            file(configDir))
+    inputs.files(commonFiles, rpmFiles)
     outputs.dir rpmBoxDir
 
     doLast {
@@ -100,7 +109,7 @@ task copyRpmFiles() {
 
         //copy the vagrant file
         copy {
-            from "$projectDir/src/vagrant/rpm"
+            from rpmFiles
             into rpmBoxDir
         }
 
