@@ -64,13 +64,19 @@ task copyDebFiles() {
 
 task vagrantUpDeb(type: VagrantUp) {
     dependsOn 'copyDebFiles'
+
+    boxDir = debBoxDir
+}
+
+task vagrantUpSmokeTestDeb(type: VagrantUp) {
+    dependsOn 'copyDebFiles'
     finalizedBy 'vagrantDestroyDeb'
 
     boxDir = debBoxDir
 }
 
 task vagrantSshSmokeTestDeb(type: VagrantSsh) {
-    dependsOn 'vagrantUpDeb'
+    dependsOn 'vagrantUpSmokeTestDeb'
     finalizedBy 'vagrantDestroyDeb'
 
     boxDir = debBoxDir
@@ -120,13 +126,19 @@ task copyRpmFiles() {
 
 task vagrantUpRpm(type: VagrantUp) {
     dependsOn 'copyRpmFiles'
+
+    boxDir = rpmBoxDir
+}
+
+task vagrantUpSmokeTestRpm(type: VagrantUp) {
+    dependsOn 'copyRpmFiles'
     finalizedBy 'vagrantDestroyRpm'
 
     boxDir = rpmBoxDir
 }
 
 task vagrantSshSmokeTestRpm(type: VagrantSsh) {
-    dependsOn 'vagrantUpRpm'
+    dependsOn 'vagrantUpSmokeTestRpm'
     finalizedBy 'vagrantDestroyRpm'
 
     boxDir = debBoxDir
