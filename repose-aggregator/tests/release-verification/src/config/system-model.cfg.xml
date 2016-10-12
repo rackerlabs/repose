@@ -11,7 +11,6 @@
       <filter name="add-header"/>
       <filter name="keystone-v2"/>
       <filter name="api-validator"/>
-      <!--filter name="valkyrie-authorization"/-->
     </filters>
 
     <destinations>
