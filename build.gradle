@@ -75,7 +75,7 @@ task('tagVersion', description: 'Tag the repository with the current version.', 
 }
 
 task('exportVersion', description: 'Write the current build version out to a properties file.') << {
-    file("$buildDir/release-version.properties").text = 'RELEASE_VERSION=' + version + System.lineSeparator()
+    file("$rootDir/repose-aggregator/build/release-version.properties").text = 'RELEASE_VERSION=' + version + System.lineSeparator()
 }
 
 task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion, publishToPackageRepo])
