@@ -28,7 +28,7 @@ import spock.lang.Unroll
 
 class ContentLengthTest extends ReposeValveTest {
 
-    def timeBombDate = new GregorianCalendar(2017, Calendar.JANUARY, 5)
+    public static def TIME_BOMB_DATE = new GregorianCalendar(2017, Calendar.JANUARY, 5)
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -67,7 +67,7 @@ class ContentLengthTest extends ReposeValveTest {
         "TRACE" | null    | 0            | 0              | 0
     }
 
-    @IgnoreIf({ new Date() < timeBombDate.getTime() })
+    @IgnoreIf({ new Date() < ContentLengthTest.TIME_BOMB_DATE.getTime() })
     @Unroll("should not send chunked request for incoming chunked #method request with request body: #reqBody")
     def "when chunked encoding is set to false and the incoming request is chunked, Repose should not send chunked requests"() {
         when:
