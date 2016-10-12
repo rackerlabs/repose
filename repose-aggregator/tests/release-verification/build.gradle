@@ -1,13 +1,10 @@
 buildscript {
     repositories {
         jcenter()
-        mavenCentral()
     }
 
     dependencies {
         classpath 'com.bmuschko:gradle-vagrant-plugin:2.0'
-        classpath 'org.apache.httpcomponents:httpclient:4.4.1'
-        classpath 'org.apache.httpcomponents:fluent-hc:4.4.1'
     }
 }
 
