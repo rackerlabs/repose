@@ -12,10 +12,10 @@ buildscript {
 }
 
 
+
 import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
-import com.bmuschko.gradle.vagrant.tasks.VagrantUp
 import com.bmuschko.gradle.vagrant.tasks.VagrantSsh
-import org.apache.http.client.fluent.Request
+import com.bmuschko.gradle.vagrant.tasks.VagrantUp
 
 apply plugin: 'com.bmuschko.vagrant-base'
 
@@ -77,6 +77,7 @@ task vagrantSshSmokeTestDeb(type: VagrantSsh) {
     finalizedBy 'vagrantDestroyDeb'
 
     boxDir = debBoxDir
+    sshCommand "sh /vagrant/scripts/test.sh"
 }
 
 task vagrantDestroyDeb(type: VagrantDestroy) {
@@ -132,49 +133,14 @@ task vagrantSshSmokeTestRpm(type: VagrantSsh) {
     finalizedBy 'vagrantDestroyRpm'
 
     boxDir = debBoxDir
+    sshCommand "sh /vagrant/scripts/test.sh"
 }
 
 task vagrantDestroyRpm(type: VagrantDestroy) {
     boxDir = rpmBoxDir
 }
 
-task('smokeTestDeb', description: 'tests if the DEB Repose instance can handle basic requests', dependsOn: 'vagrantUpDeb') << {
-    // TODO: Replace retry logic. How do we know when Repose is ready?
-    // TODO: Don't repeat this logic in multiple tasks -- make this task a type?
-    def responseCode = -1
-    def attempt = 0
-    while (responseCode != 200 && attempt < 10) {
-      attempt++
-      responseCode = Request.get("http://localhost:8080")
-        .execute()
-        .returnResponse()
-        .getStatusLine()
-        .getStatusCode()
-    }
-
-    if (responseCode != 200) {
-      throw new GradleException('HTTP requests to the Repose instance failed')
-    }
-}
-
-task('smokeTestRpm', description: 'tests if the RPM Repose instance can handle basic requests', dependsOn: 'vagrantUpRpm') << {
-    def responseCode = -1
-    def attempt = 0
-    while (responseCode != 200 && attempt < 10) {
-      attempt++
-      responseCode = Request.get("http://localhost:8080")
-        .execute()
-        .returnResponse()
-        .getStatusLine()
-        .getStatusCode()
-    }
-
-    if (responseCode != 200) {
-      throw new GradleException('HTTP requests to the Repose instance failed')
-    }
-}
-
-task('smokeTest', description: 'tests if the Repose instance can handle basic requests', group: 'release', dependsOn: ['smokeTestDeb', 'smokeTestRpm'])
+task('smokeTest', description: 'tests if the Repose instance can handle basic requests', group: 'release', dependsOn: ['vagrantSshSmokeTestDeb', 'vagrantSshSmokeTestRpm'])
 
 // Note: At this time, release verification will be handled out-of-band with the release. Therefore,
 //       no wiring was added to place the 'smokeTest' task into existing task flows.
