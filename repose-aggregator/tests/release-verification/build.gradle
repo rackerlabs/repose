@@ -24,7 +24,7 @@ File rpmBoxDir = file("$buildDir/rpm")
 
 vagrant {
     environmentVariables {
-        variable 'REPOSE_VERSION', hasProperty('release-version') ? property('release-version') : 'default'
+        variable 'REPOSE_VERSION', project.hasProperty('release-version') ? property('release-version') : 'default'
     }
 }
 
