@@ -12,7 +12,6 @@ buildscript {
 }
 
 
-
 import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
 import com.bmuschko.gradle.vagrant.tasks.VagrantSsh
 import com.bmuschko.gradle.vagrant.tasks.VagrantUp
@@ -21,10 +20,11 @@ apply plugin: 'com.bmuschko.vagrant-base'
 
 File debBoxDir = file("$buildDir/deb")
 File rpmBoxDir = file("$buildDir/rpm")
+String configDir = project.hasProperty('config-dir') ? project.property('config-dir') : "$projectDir/src/config"
 
 vagrant {
     environmentVariables {
-        variable 'REPOSE_VERSION', project.hasProperty('release-version') ? property('release-version') : 'default'
+        variable 'REPOSE_VERSION', project.hasProperty('release-version') ? project.property('release-version') : 'default'
     }
 }
 
@@ -32,7 +32,7 @@ task copyDebFiles() {
     inputs.files(file("$projectDir/src/vagrant/deb"),
                  file("$projectDir/src/vagrant/scripts"),
                  file("$projectDir/src/vagrant/fake-services"),
-                 file("$projectDir/src/config"))
+                 file(configDir))
     outputs.dir debBoxDir
 
     doLast {
@@ -59,7 +59,7 @@ task copyDebFiles() {
 
         //copy the configs
         copy {
-            from "$projectDir/src/config"
+            from configDir
             into "$debBoxDir/etc_repose"
         }
     }
@@ -88,7 +88,7 @@ task copyRpmFiles() {
     inputs.files(file("$projectDir/src/vagrant/rpm"),
             file("$projectDir/src/vagrant/scripts"),
             file("$projectDir/src/vagrant/fake-services"),
-            file("$projectDir/src/config"))
+            file(configDir))
     outputs.dir rpmBoxDir
 
     doLast {
@@ -115,7 +115,7 @@ task copyRpmFiles() {
 
         //copy the configs
         copy {
-            from "$projectDir/src/config"
+            from configDir
             into "$rpmBoxDir/etc_repose"
         }
     }
