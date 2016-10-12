@@ -25,12 +25,19 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
-import static org.junit.Assert.assertEquals
 
 /**
  * A test to verify that a user can validate authentication mechanisms via api-checker.
  */
 class AuthenticatedByTest extends ReposeValveTest {
+
+    static def AUTH_BY_HEADER = 'X-Authenticated-By'
+    static def HTTP_METHODS = ['POST', 'GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE']
+    static def AUTH_BY_METHODS = ['PASSWORD', 'APIKEY', 'PASSCODE', 'OTPPASSCODE', 'IMPERSONATION', 'RSAKEY', 'FEDERATED']
+
+    def authByHeader(String value) {
+        [(AUTH_BY_HEADER): value]
+    }
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -45,133 +52,163 @@ class AuthenticatedByTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    @Unroll("A #method call to /v0/safe with the headers #headers should be Unauthorized.")
-    def 'All calls to the /v0/safe resource without the correct authentication method should be Unauthorized.'() {
-        given:
-        MessageChain messageChain
-
+    @Unroll
+    def 'A #method call to /v0/safe with the headers #headers should be Unauthorized.'() {
         when:
-        messageChain = deproxy.makeRequest(
+        MessageChain messageChain = deproxy.makeRequest(
                 url: reposeEndpoint + '/v0/safe',
                 method: method,
                 headers: headers
         )
 
         then:
-        assertEquals(SC_UNAUTHORIZED, Integer.valueOf(messageChain.getReceivedResponse().getCode()))
+        messageChain.getReceivedResponse().getCode() == SC_UNAUTHORIZED.toString()
 
         where:
         [method, headers] << [
-                ['POST', 'GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE'],
-                [null, ['X-Authenticated-By': 'Some-Auth, MFA'], ['X-Authenticated-By': 'Some-Auth, Any'], ['X-Authenticated-By': 'Some-Auth, Super Duper']]
+                HTTP_METHODS,
+                AUTH_BY_METHODS.findAll{ it != 'PASSWORD' }.collect{ authByHeader(it) } + [null]
         ].combinations()
     }
 
-    @Unroll("A #method call to /v0/safe with the headers [X-Authenticated-By: Some-Auth, password] should be Ok.")
-    def 'All calls to the /v0/safe resource with the correct authentication method should be Ok.'() {
-        given:
-        MessageChain messageChain
-
+    @Unroll
+    def 'A #method call to /v0/safe with the headers [X-Authenticated-By: PASSWORD] should be Ok.'() {
         when:
-        messageChain = deproxy.makeRequest(
+        MessageChain messageChain = deproxy.makeRequest(
                 url: reposeEndpoint + '/v0/safe',
                 method: method,
-                headers: ['X-Authenticated-By': 'Some-Auth, password']
+                headers: ['X-Authenticated-By': 'PASSWORD']
         )
 
         then:
-        assertEquals(SC_OK, Integer.valueOf(messageChain.getReceivedResponse().getCode()))
+        messageChain.getReceivedResponse().getCode() == SC_OK.toString()
 
         where:
-        method << ['POST', 'GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE']
+        method << HTTP_METHODS
     }
 
-    @Unroll("A #method call to /v0/#target with the headers #headers should be Ok.")
-    def 'All calls to the /v0/open and /v0/none resources should be Ok.'() {
-        given:
-        MessageChain messageChain
-
+    @Unroll
+    def 'A #method call to /v0/parent/inherited with the headers [X-Authenticated-By: APIKEY] should be Ok.'() {
         when:
-        messageChain = deproxy.makeRequest(
+        MessageChain messageChain = deproxy.makeRequest(
+                url: reposeEndpoint + '/v0/parent/inherited',
+                method: method,
+                headers: ['X-Authenticated-By': 'APIKEY']
+        )
+
+        then:
+        messageChain.getReceivedResponse().getCode() == SC_OK.toString()
+
+        where:
+        method << HTTP_METHODS
+    }
+
+    @Unroll
+    def 'A #method call to /v0/#target with the headers #headers should be Ok.'() {
+        when:
+        MessageChain messageChain = deproxy.makeRequest(
                 url: reposeEndpoint + "/v0/$target",
                 method: method,
                 headers: headers
         )
 
         then:
-        assertEquals(SC_OK, Integer.valueOf(messageChain.getReceivedResponse().getCode()))
+        messageChain.getReceivedResponse().getCode() == SC_OK.toString()
 
         where:
         [target, method, headers] << [
-                ['open', 'none'],
-                ['POST', 'GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE'],
-                [null, ['X-Authenticated-By': 'Some-Auth, password'], ['X-Authenticated-By': 'Some-Auth, MFA'], ['X-Authenticated-By': 'Some-Auth, Any'], ['X-Authenticated-By': 'Some-Auth, Super Duper']]
+                ['parent/open', 'none'],
+                HTTP_METHODS,
+                AUTH_BY_METHODS.collect{ authByHeader(it) } + [null]
         ].combinations()
     }
 
-    @Unroll("A #method call to /v0/vary with the headers #headers should be #responseCode.")
-    def 'Calls to the /v0/vary resource should vary.'() {
-        given:
-        MessageChain messageChain
-
+    @Unroll
+    def 'A #method call to /v0/parent/child with the headers #headers should be Ok'() {
         when:
-        messageChain = deproxy.makeRequest(
-                url: reposeEndpoint + '/v0/vary',
+        MessageChain messageChain = deproxy.makeRequest(
+                url: reposeEndpoint + "/v0/parent/child",
                 method: method,
                 headers: headers
         )
 
         then:
-        assertEquals(responseCode, Integer.valueOf(messageChain.getReceivedResponse().getCode()))
+        messageChain.getReceivedResponse().getCode() == SC_OK.toString()
 
         where:
-        method   | headers                                                | responseCode
-        'POST'   | null                                                   | SC_UNAUTHORIZED
-        'POST'   | ['X-Authenticated-By': 'Some-Auth, password']          | SC_OK
-        'POST'   | ['X-Authenticated-By': 'Some-Auth, MFA']               | SC_OK
-        'POST'   | ['X-Authenticated-By': 'Some-Auth, Any']               | SC_UNAUTHORIZED
-        'POST'   | ['X-Authenticated-By': 'Some-Auth, Super Duper']       | SC_UNAUTHORIZED
-        'GET'    | null                                                   | SC_OK
-        'GET'    | ['X-Authenticated-By': 'Some-Auth, password']          | SC_OK
-        'GET'    | ['X-Authenticated-By': 'Some-Auth, MFA']               | SC_OK
-        'GET'    | ['X-Authenticated-By': 'Some-Auth, Any']               | SC_OK
-        'GET'    | ['X-Authenticated-By': 'Some-Auth, Super Duper']       | SC_OK
-        'PUT'    | null                                                   | SC_UNAUTHORIZED
-        'PUT'    | ['X-Authenticated-By': 'Some-Auth, password']          | SC_UNAUTHORIZED
-        'PUT'    | ['X-Authenticated-By': 'Some-Auth, MFA']               | SC_OK
-        'PUT'    | ['X-Authenticated-By': 'Some-Auth, Any']               | SC_UNAUTHORIZED
-        'PUT'    | ['X-Authenticated-By': 'Some-Auth, Super Duper']       | SC_UNAUTHORIZED
-        'PATCH'  | null                                                   | SC_OK
-        'PATCH'  | ['X-Authenticated-By': 'Some-Auth, password']          | SC_OK
-        'PATCH'  | ['X-Authenticated-By': 'Some-Auth, MFA']               | SC_OK
-        'PATCH'  | ['X-Authenticated-By': 'Some-Auth, Any']               | SC_OK
-        'PATCH'  | ['X-Authenticated-By': 'Some-Auth, Super Duper']       | SC_OK
-        'DELETE' | null                                                   | SC_UNAUTHORIZED
-        'DELETE' | ['X-Authenticated-By': 'Some-Auth, password']          | SC_UNAUTHORIZED
-        'DELETE' | ['X-Authenticated-By': 'Some-Auth, MFA']               | SC_UNAUTHORIZED
-        'DELETE' | ['X-Authenticated-By': 'Some-Auth, Any']               | SC_UNAUTHORIZED
-        'DELETE' | ['X-Authenticated-By': 'Some-Auth, Super Duper']       | SC_OK
+        [method, headers] << [
+                HTTP_METHODS,
+                ['APIKEY', 'RSAKEY', 'IMPERSONATION'].collect{ authByHeader(it) }
+        ].combinations()
     }
 
-    @Unroll("A #method call to /v0/vary with the headers #headers should be Not Allowed.")
-    def 'Disallowed calls to the /v0/vary resource should be Not Allowed.'() {
-        given:
-        MessageChain messageChain
-
+    @Unroll
+    def 'A #method call to /v0/vary with the headers #headers should be #responseCode.'() {
         when:
-        messageChain = deproxy.makeRequest(
+        MessageChain messageChain = deproxy.makeRequest(
                 url: reposeEndpoint + '/v0/vary',
                 method: method,
                 headers: headers
         )
 
         then:
-        assertEquals(SC_METHOD_NOT_ALLOWED, Integer.valueOf(messageChain.getReceivedResponse().getCode()))
+        messageChain.getReceivedResponse().getCode() == responseCode.toString()
+
+        where:
+        method   | headers                                    | responseCode
+        'POST'   | null                                       | SC_UNAUTHORIZED
+        'POST'   | [(AUTH_BY_HEADER): 'PASSWORD']             | SC_OK
+        'POST'   | [(AUTH_BY_HEADER): 'FEDERATED']            | SC_OK
+        'POST'   | [(AUTH_BY_HEADER): 'PASSWORD,FEDERATED']   | SC_OK
+        'POST'   | [(AUTH_BY_HEADER): 'OTPPASSCODE,PASSWORD'] | SC_OK
+        'POST'   | [(AUTH_BY_HEADER): 'PASSCODE,FEDERATED']   | SC_OK
+        'POST'   | [(AUTH_BY_HEADER): 'PASSCODE']             | SC_UNAUTHORIZED
+        'POST'   | [(AUTH_BY_HEADER): 'OTPPASSCODE']          | SC_UNAUTHORIZED
+        'GET'    | null                                       | SC_OK
+        'GET'    | [(AUTH_BY_HEADER): 'PASSWORD']             | SC_OK
+        'GET'    | [(AUTH_BY_HEADER): 'APIKEY']               | SC_OK
+        'GET'    | [(AUTH_BY_HEADER): 'PASSCODE']             | SC_OK
+        'GET'    | [(AUTH_BY_HEADER): 'OTPPASSCODE']          | SC_OK
+        'GET'    | [(AUTH_BY_HEADER): 'IMPERSONATION']        | SC_OK
+        'GET'    | [(AUTH_BY_HEADER): 'RSAKEY']               | SC_OK
+        'GET'    | [(AUTH_BY_HEADER): 'FEDERATED']            | SC_OK
+        'PUT'    | null                                       | SC_UNAUTHORIZED
+        'PUT'    | [(AUTH_BY_HEADER): 'PASSCODE']             | SC_OK
+        'PUT'    | [(AUTH_BY_HEADER): 'PASSCODE,PASSCODE']    | SC_OK
+        'PUT'    | [(AUTH_BY_HEADER): 'FEDERATED']            | SC_UNAUTHORIZED
+        'PUT'    | [(AUTH_BY_HEADER): 'APIKEY']               | SC_UNAUTHORIZED
+        'PATCH'  | null                                       | SC_OK
+        'PATCH'  | [(AUTH_BY_HEADER): 'PASSWORD']             | SC_OK
+        'PATCH'  | [(AUTH_BY_HEADER): 'APIKEY']               | SC_OK
+        'PATCH'  | [(AUTH_BY_HEADER): 'PASSCODE']             | SC_OK
+        'PATCH'  | [(AUTH_BY_HEADER): 'OTPPASSCODE']          | SC_OK
+        'PATCH'  | [(AUTH_BY_HEADER): 'IMPERSONATION']        | SC_OK
+        'PATCH'  | [(AUTH_BY_HEADER): 'RSAKEY']               | SC_OK
+        'PATCH'  | [(AUTH_BY_HEADER): 'FEDERATED']            | SC_OK
+        'DELETE' | null                                       | SC_UNAUTHORIZED
+        'DELETE' | [(AUTH_BY_HEADER): 'OTPPASSCODE']          | SC_OK
+        'DELETE' | [(AUTH_BY_HEADER): 'OTPPASSCODE,PASSCODE'] | SC_OK
+        'DELETE' | [(AUTH_BY_HEADER): 'RSAKEY']               | SC_UNAUTHORIZED
+        'DELETE' | [(AUTH_BY_HEADER): 'APIKEY']               | SC_UNAUTHORIZED
+        'DELETE' | [(AUTH_BY_HEADER): 'IMPERSONATION']        | SC_UNAUTHORIZED
+    }
+
+    @Unroll
+    def 'A #method call to /v0/vary with the headers #headers should be Not Allowed.'() {
+        when:
+        MessageChain messageChain = deproxy.makeRequest(
+                url: reposeEndpoint + '/v0/vary',
+                method: method,
+                headers: headers
+        )
+
+        then:
+        messageChain.getReceivedResponse().getCode() == SC_METHOD_NOT_ALLOWED.toString()
 
         where:
         [method, headers] << [
                 ['HEAD', 'OPTIONS', 'TRACE'],
-                [null, ['X-Authenticated-By': 'Some-Auth, password'], ['X-Authenticated-By': 'Some-Auth, MFA'], ['X-Authenticated-By': 'Some-Auth, Any'], ['X-Authenticated-By': 'Some-Auth, Super Duper']]
+                AUTH_BY_METHODS.collect{ authByHeader(it) } + [null]
         ].combinations()
     }
 }

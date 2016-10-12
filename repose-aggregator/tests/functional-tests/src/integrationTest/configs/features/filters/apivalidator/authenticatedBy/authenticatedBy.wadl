@@ -3,12 +3,11 @@
 
 <!-- (C) 2012 Rackspace Hosting, All Rights Reserved -->
 <application xmlns:rax="http://docs.rackspace.com/api"
-             xmlns="http://wadl.dev.java.net/2009/02"
->
+             xmlns="http://wadl.dev.java.net/2009/02">
     <!-- ALL RESOURCES -->
     <resources base="http://localhost:${targetPort}">
         <resource id="versionNumber" path="v0">
-            <resource id="safe" path="safe" rax:authenticatedBy="password">
+            <resource id="safe" path="safe" rax:authenticatedBy="PASSWORD">
                 <method id="safePost"    name="POST"/>   <!-- Create         -->
                 <method id="safeGet"     name="GET"/>    <!-- Read           -->
                 <method id="safePut"     name="PUT"/>    <!-- Update/Replace -->
@@ -18,15 +17,37 @@
                 <method id="safeOptions" name="OPTIONS"/>
                 <method id="safeTrace"   name="TRACE"/>
             </resource>
-            <resource id="open" path="open" rax:authenticatedBy="#all">
-                <method id="openPost"    name="POST"/>   <!-- Create         -->
-                <method id="openGet"     name="GET"/>    <!-- Read           -->
-                <method id="openPut"     name="PUT"/>    <!-- Update/Replace -->
-                <method id="openPatch"   name="PATCH"/>  <!-- Update/Modify  -->
-                <method id="openDelete"  name="DELETE"/> <!-- Delete         -->
-                <method id="openHead"    name="HEAD"/>
-                <method id="openOptions" name="OPTIONS"/>
-                <method id="openTrace"   name="TRACE"/>
+            <resource id="parent" path="parent" rax:authenticatedBy="APIKEY">
+                <resource id="child" path="child" rax:authenticatedBy="RSAKEY">
+                    <method id="childPost"    name="POST"    rax:authenticatedBy="IMPERSONATION"/> <!-- Create         -->
+                    <method id="childGet"     name="GET"     rax:authenticatedBy="IMPERSONATION"/> <!-- Read           -->
+                    <method id="childPut"     name="PUT"     rax:authenticatedBy="IMPERSONATION"/> <!-- Update/Replace -->
+                    <method id="childPatch"   name="PATCH"   rax:authenticatedBy="IMPERSONATION"/> <!-- Update/Modify  -->
+                    <method id="childDelete"  name="DELETE"  rax:authenticatedBy="IMPERSONATION"/> <!-- Delete         -->
+                    <method id="childHead"    name="HEAD"    rax:authenticatedBy="IMPERSONATION"/>
+                    <method id="childOptions" name="OPTIONS" rax:authenticatedBy="IMPERSONATION"/>
+                    <method id="childTrace"   name="TRACE"   rax:authenticatedBy="IMPERSONATION"/>
+                </resource>
+                <resource id="open" path="open" rax:authenticatedBy="#all">
+                    <method id="openPost"    name="POST"/>   <!-- Create         -->
+                    <method id="openGet"     name="GET"/>    <!-- Read           -->
+                    <method id="openPut"     name="PUT"/>    <!-- Update/Replace -->
+                    <method id="openPatch"   name="PATCH"/>  <!-- Update/Modify  -->
+                    <method id="openDelete"  name="DELETE"/> <!-- Delete         -->
+                    <method id="openHead"    name="HEAD"/>
+                    <method id="openOptions" name="OPTIONS"/>
+                    <method id="openTrace"   name="TRACE"/>
+                </resource>
+                <resource id="inherited" path="inherited">
+                    <method id="inheritedPost"    name="POST"/>   <!-- Create         -->
+                    <method id="inheritedGet"     name="GET"/>    <!-- Read           -->
+                    <method id="inheritedPut"     name="PUT"/>    <!-- Update/Replace -->
+                    <method id="inheritedPatch"   name="PATCH"/>  <!-- Update/Modify  -->
+                    <method id="inheritedDelete"  name="DELETE"/> <!-- Delete         -->
+                    <method id="inheritedHead"    name="HEAD"/>
+                    <method id="inheritedOptions" name="OPTIONS"/>
+                    <method id="inheritedTrace"   name="TRACE"/>
+                </resource>
             </resource>
             <resource id="none" path="none">
                 <method id="nonePost"    name="POST"/>   <!-- Create         -->
@@ -39,11 +60,11 @@
                 <method id="noneTrace"   name="TRACE"/>
             </resource>
             <resource id="vary" path="vary">
-                <method id="varyPost"    name="POST"   rax:authenticatedBy="password MFA"/>     <!-- Create         -->
-                <method id="varyGet"     name="GET"/>                                           <!-- Read           -->
-                <method id="varyPut"     name="PUT"    rax:authenticatedBy="MFA"/>              <!-- Update/Replace -->
-                <method id="varyPatch"   name="PATCH"  rax:authenticatedBy="#all"/>             <!-- Update/Modify  -->
-                <method id="varyDelete"  name="DELETE" rax:authenticatedBy="Super&#xA0;Duper"/> <!-- Delete         -->
+                <method id="varyPost"    name="POST"   rax:authenticatedBy="PASSWORD FEDERATED"/> <!-- Create         -->
+                <method id="varyGet"     name="GET"/>                                             <!-- Read           -->
+                <method id="varyPut"     name="PUT"    rax:authenticatedBy="PASSCODE"/>           <!-- Update/Replace -->
+                <method id="varyPatch"   name="PATCH"  rax:authenticatedBy="#all"/>               <!-- Update/Modify  -->
+                <method id="varyDelete"  name="DELETE" rax:authenticatedBy="OTPPASSCODE"/>        <!-- Delete         -->
             </resource>
         </resource>
     </resources>
