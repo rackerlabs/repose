@@ -5,7 +5,7 @@ require('date-utils');
 var app = express();
 app.disable('etag');
 
-function generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username) {
+function generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid) {
     console.log('JSON: token=%s', token);
     console.log('JSON: tenantId=%s', tenantid);
     return '{' +
@@ -69,6 +69,7 @@ function generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenant
         '      }' +
         '    ],' +
         '    "user" : {' +
+        '      "RAX-AUTH:contactId" : "' + contactid + '",' +
         '      "roles" : [' +
         '        {' +
         '          "tenantId" : "' + tenantid + '",' +
@@ -104,7 +105,7 @@ function generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenant
         '}'
 }
 
-function generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username) {
+function generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid) {
     console.log('XML: token=%s', token);
     console.log('XML: tenantId=%s', tenantid);
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
@@ -117,7 +118,8 @@ function generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantn
         '    <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"' +
         '          id="' + userid + '"' +
         '          name="' + username + '"' +
-        '          rax-auth:defaultRegion="the-default-region">' +
+        '          rax-auth:defaultRegion="the-default-region"' +
+        '          rax-auth:contactId="' + contactid + '">'+
         '        <roles>' +
         '            <role id="684"' +
         '                  name="compute:default"' +
@@ -186,14 +188,15 @@ app.post('/v2.0/tokens', function (req, res) {
     var tenantidtwo = 12345;
     var userid = '67890';
     var username = 'admin-username';
+    var contactid = 654321;
 
     var headerAccept = req.get('accept');
     if (headerAccept == undefined || headerAccept.indexOf('json') < 0) {
         res.set('Content-Type', 'application/xml');
-        res.send(200, generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username));
+        res.send(200, generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
     } else {
         res.set('Content-Type', 'application/json');
-        res.send(200, generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username));
+        res.send(200, generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
     }
 });
 
@@ -205,14 +208,15 @@ app.get('/v2.0/tokens/:token_id', function (req, res) {
     var tenantname = 'this-is-the-tenant-name';
     var userid = token.substr(0, 10);
     var username = 'username';
+    var contactid = 654321;
 
     var headerAccept = req.get('accept');
     if (headerAccept == undefined || headerAccept.indexOf('json') < 0) {
         res.set('Content-Type', 'application/xml');
-        res.send(200, generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username));
+        res.send(200, generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
     } else {
         res.set('Content-Type', 'application/json');
-        res.send(200, generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username));
+        res.send(200, generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
     }
 });
 
