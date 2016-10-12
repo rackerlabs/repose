@@ -1,17 +1,8 @@
 {
-  "name": "responders",
+  "name": "ReposeFakeValkyrie",
   "version": "0.1.0",
-  "description": "Mock responders",
-  "author": "Dimitry Ushakov <dimitry.ushakov@rackspace.com>",
-  "contributors": [
-  {
-    "name": "Jenny Vo",
-    "email": "jenny.vo@rackspace.com"
-  },
-  {
-    "name": "Freddy Pedraza",
-    "email": "freddy.pedraza@rackspace.com"
-  }],
+  "description": "Mock Valkyrie Service",
+  "author": "Open Repose Team <ReposeCore@Rackspace.com> (http://www.openrepose.org/)",
   "engines": {
     "node": "0.10.x",
     "npm": "1.4.x"
@@ -24,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rackerlabs/repose-ansible-stuff"
+    "url": "https://github.com/rackerlabs/repose"
   },
-  "license": "MIT"
+  "license": "Apache-2.0"
 }
