@@ -29,7 +29,9 @@ vagrant box update &&
 export REPOSE_VERSION=7.3.8.0 &&
 vagrant up &&
 vagrant ssh -c 'echo "~~~TRUNCATED~~~" > /vagrant/default.log 2>&1
-/vagrant/scripts/isReposeReady.sh /var/log/repose/current.log
+cp /vagrant/scripts/isReposeReady.sh /tmp/
+chmod a+x /tmp/isReposeReady.sh
+/tmp/isReposeReady.sh /var/log/repose/current.log
 if [ $? -ne 0 ]; then
    echo -en "\n\n~~~~~ ERROR - REPOSE FAILED TO START - VM Left Running ~~~~~\n\n"
    exit 199
@@ -46,7 +48,7 @@ sudo mkdir -p /etc/repose/orig
 sudo sh -c "cp /etc/repose/*.* /etc/repose/orig/"
 sudo cp /vagrant/etc_repose/*.* /etc/repose/
 echo "~~~TRUNCATED~~~" > /vagrant/validation.log 2>&1
-/vagrant/scripts/isReposeReady.sh /vagrant/var-log-repose-current.log
+/tmp/isReposeReady.sh /vagrant/var-log-repose-current.log
 if [ $? -ne 0 ]; then
    echo -en "\n\n~~~~~ ERROR - REPOSE FAILED TO START - VM Left Running ~~~~~\n\n"
    exit 199
