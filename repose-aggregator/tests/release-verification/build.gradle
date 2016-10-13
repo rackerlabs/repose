@@ -150,7 +150,7 @@ task vagrantSshSmokeTestRpm(type: VagrantSsh) {
     dependsOn 'vagrantUpSmokeTestRpm'
     finalizedBy 'vagrantDestroyRpm'
 
-    boxDir = debBoxDir
+    boxDir = rpmBoxDir
     sshCommand "sh /vagrant/scripts/isReposeReady.sh"
 }
 
