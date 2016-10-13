@@ -1,6 +1,8 @@
 #!/bin/bash
 
-sh isReposeReady.sh /vagrant/var-log-repose-current.log
+cp /vagrant/scripts/isReposeReady.sh /tmp/
+chmod a+x /tmp/isReposeReady.sh
+/tmp/isReposeReady.sh /vagrant/var-log-repose-current.log
 echo "~~~TRUNCATED~~~" > /vagrant/validation.log 2>&1
 if [ $? -eq 0 ]; then
    sleep 30
