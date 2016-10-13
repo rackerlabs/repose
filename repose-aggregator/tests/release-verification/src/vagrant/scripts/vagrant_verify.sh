@@ -1,11 +1,10 @@
 #!/bin/bash
 
+echo "~~~TRUNCATED~~~" > /vagrant/validation.log 2>&1
 cp /vagrant/scripts/isReposeReady.sh /tmp/
 chmod a+x /tmp/isReposeReady.sh
 /tmp/isReposeReady.sh /vagrant/var-log-repose-current.log
-echo "~~~TRUNCATED~~~" > /vagrant/validation.log 2>&1
 if [ $? -eq 0 ]; then
-   sleep 30
    curl -vs http://localhost:8080/resource/this-is-an-id > /vagrant/validation.log 2>&1
 fi
 grep -qs "200 OK" /vagrant/validation.log
