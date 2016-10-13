@@ -22,44 +22,57 @@ cp -R ${BUILD_DIR}/scripts \
 cp -R ${BUILD_DIR}/fake-services \
       ${VERIFY_DIR}/
 
-vagrant destroy --force &&
-vagrant box update &&
-#export REPOSE_VERSION=local &&
-#export REPOSE_VERSION=default &&
-export REPOSE_VERSION=7.3.8.0 &&
-vagrant up &&
-vagrant ssh -c 'echo "~~~TRUNCATED~~~" > /vagrant/default.log 2>&1
-cp /vagrant/scripts/isReposeReady.sh /tmp/
-chmod a+x /tmp/isReposeReady.sh
-/tmp/isReposeReady.sh /var/log/repose/current.log
-if [ $? -ne 0 ]; then
-   echo -en "\n\n~~~~~ ERROR - REPOSE FAILED TO START - VM Left Running ~~~~~\n\n"
-   exit 199
-else
-   echo -en "\n\nRepose is ready.\n"
-   sleep 3
+vagrant destroy --force
+vagrant box update
+#export REPOSE_VERSION=local
+#export REPOSE_VERSION=default
+export REPOSE_VERSION=7.3.8.0
+vagrant up
+
+# Make sure the script has executable permissions.
+vagrant ssh -c '
+cp /vagrant/scripts/vagrant_verify.sh /tmp/
+chmod a+x /tmp/vagrant_verify.sh
+'
+
+# Test the default install; should result in a Moved Permanently (301) status.
+vagrant ssh -c '
+echo "~~~TRUNCATED~~~" > /vagrant/default.log 2>&1
+/tmp/vagrant_verify.sh /var/log/repose/current.log
+if [ $? -eq 0 ]; then
    curl -vs http://localhost:8080 > /vagrant/default.log 2>&1
-fi'
-mkdir -p ${VERIFY_DIR}/etc_repose &&
-cp ${SOURCE_DIR}/config/* \
-   ${VERIFY_DIR}/etc_repose/ &&
-vagrant ssh -c 'echo "~~~TRUNCATED~~~" > /vagrant/var-log-repose-current.log  2>&1
-sudo mkdir -p /etc/repose/orig
-sudo sh -c "cp /etc/repose/*.* /etc/repose/orig/"
-sudo cp /vagrant/etc_repose/*.* /etc/repose/
-echo "~~~TRUNCATED~~~" > /vagrant/validation.log 2>&1
-/tmp/isReposeReady.sh /vagrant/var-log-repose-current.log
+fi
+'
+grep -qs '301 Moved Permanently' ${VERIFY_DIR}/default.log
 if [ $? -ne 0 ]; then
-   echo -en "\n\n~~~~~ ERROR - REPOSE FAILED TO START - VM Left Running ~~~~~\n\n"
-   exit 199
+   echo -en "\n\n~~~~~ ERROR - Default Install FAILED ~~~~~\n\n"
+   cat ${VERIFY_DIR}/default.log
+   echo -en "\n\n"
 else
-   echo -en "\n\nRepose is ready.\n"
-   sleep 3
+   echo -en "\n\n~~~~~ SUCCESS - Default Install SUCCESS ~~~~~\n\n"
+fi
+
+# Test the filter bundle install; should result in an Ok (200) status.
+mkdir -p ${VERIFY_DIR}/etc_repose
+cp ${SOURCE_DIR}/config/* \
+   ${VERIFY_DIR}/etc_repose/
+vagrant ssh -c '
+echo "~~~TRUNCATED~~~" > /vagrant/validation.log 2>&1
+/tmp/vagrant_verify.sh /vagrant/var-log-repose-current.log /vagrant/etc_repose
+if [ $? -eq 0 ]; then
+   sleep 15
    curl -vs http://localhost:8080/resource/this-is-an-id > /vagrant/validation.log 2>&1
-fi'
-cat ${VERIFY_DIR}/default.log
-echo -en "\n\n"
-cat ${VERIFY_DIR}/validation.log
+fi
+'
+grep -qs '200 OK' ${VERIFY_DIR}/validation.log
+if [ $? -ne 0 ]; then
+   echo -en "\n\n~~~~~ ERROR - Validation Install FAILED ~~~~~\n\n"
+   cat ${VERIFY_DIR}/validation.log
+   echo -en "\n\n"
+else
+   echo -en "\n\n~~~~~ SUCCESS - Validation Install SUCCESS ~~~~~\n\n"
+fi
+
 STOP=$(date +"%s")
 DIFF=$(($STOP-$START))
 echo -en "\nTime to complete: $(($DIFF / 60)) minutes and $(($DIFF % 60)) seconds\n\n"
