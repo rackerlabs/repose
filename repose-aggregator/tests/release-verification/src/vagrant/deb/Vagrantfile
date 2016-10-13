@@ -115,14 +115,14 @@ fi
 SCRIPT
 
   # Expose the Repose Java Debug Wire Protocol (JDWP) port
-  config.vm.network :forwarded_port, guest: 10037, host: 10038
+  config.vm.network :forwarded_port, guest: 10037, host: 18038
   #config.vm.network "private_network", ip: "192.168.33.38"
   # Expose the Repose port
-  config.vm.network :forwarded_port, guest: 8080, host: 10088
+  config.vm.network :forwarded_port, guest: 8080, host: 18088
 
   config.vm.provision "shell", inline: $update_yum
   config.vm.provision "shell", inline: $install_repose_dependencies
-  config.vm.provision "shell", inline: $other_tools
+  #config.vm.provision "shell", inline: $other_tools
   config.vm.provision "shell", inline: $install_python
   config.vm.provision "shell", inline: $install_nodejs
   #config.vm.provision "shell", path: "./scripts/python_installs.sh"

@@ -120,10 +120,10 @@ Vagrant.configure(2) do |config|
   config.vm.box = "centos/7"
 
   # Expose the Repose Java Debug Wire Protocol (JDWP) port
-  config.vm.network :forwarded_port, guest: 10037, host: 10039
+  config.vm.network :forwarded_port, guest: 10037, host: 18039
   #config.vm.network "private_network", ip: "192.168.33.39"
   # Expose the Repose port
-  config.vm.network :forwarded_port, guest: 8080, host: 10089
+  config.vm.network :forwarded_port, guest: 8080, host: 18089
 
   config.vm.provision "shell", inline: $update_yum
   # IF the Repose version is < 8.1.0.0,
@@ -131,7 +131,7 @@ Vagrant.configure(2) do |config|
   # TODO: Make this conditional.
   config.vm.provision "shell", inline: $install_old_repose_dependencies
   config.vm.provision "shell", inline: $install_repose_dependencies
-  config.vm.provision "shell", inline: $other_tools
+  #config.vm.provision "shell", inline: $other_tools
   config.vm.provision "shell", inline: $install_python
   config.vm.provision "shell", inline: $install_nodejs
   #config.vm.provision "shell", path: "./scripts/python_installs.sh"
