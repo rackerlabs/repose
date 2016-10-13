@@ -11,7 +11,7 @@ READY=0
 COUNT=0
 TIMEOUT=60
 while [ $READY -eq 0 ]; do
-   sudo grep "Repose ready" $LOG_FILE >> /dev/null 2>&1
+   sudo grep -qs "Repose ready" $LOG_FILE
    if [ "$?" -eq 0 ]; then
       READY=1
    else
@@ -24,6 +24,5 @@ while [ $READY -eq 0 ]; do
    fi
 done
 if [ $READY -eq 0 ]; then
-   echo -en "\n\n~~~~~ ERROR - REPOSE FAILED TO START - VM Left Running ~~~~~\n\n"
    exit 199
 fi
