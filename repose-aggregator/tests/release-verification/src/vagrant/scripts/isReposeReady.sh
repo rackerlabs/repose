@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if [[ -n $1 && -f "${1}" ]] ; then
+if [ -n $1 ] ; then
     LOG_FILE="${1}"
 else
     LOG_FILE="/var/log/repose/current.log"
 fi
-
-echo -en "\nWaiting for Repose to be ready ..."
+echo -e "\nMonitoring Repose log at: $LOG_FILE"
+echo -en "Waiting for Repose to be ready ..."
 READY=0
 COUNT=0
 TIMEOUT=60
