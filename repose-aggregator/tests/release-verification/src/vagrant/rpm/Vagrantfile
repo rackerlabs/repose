@@ -98,12 +98,22 @@ echo "Installing Repose ${name} package"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 if [ "X_${name}_X" = "X_local_X" ] ; then
-  yum --nogpgcheck localinstall -y /vagrant/repose-valve-*.noarch.rpm /vagrant/repose-filter-bundle-*.noarch.rpm /vagrant/repose-extensions-filter-bundle-*.noarch.rpm
+  yum --nogpgcheck localinstall -y /vagrant/repose-valve-*.noarch.rpm /vagrant/repose-filter-bundle-*.noarch.rpm /vagrant/repose-extensions-filter-bundle-*.noarch.rpm /vagrant/repose-experimental-filter-bundle-*.noarch.rpm
 else
-  yum install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version}
+  yum install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version} repose-experimental-filter-bundle${version}
 fi
 mkdir -p /etc/systemd/system/repose-valve.service.d && echo "[Service]\nEnvironment=\"JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n\"" > /etc/systemd/system/repose-valve.service.d/local.conf
 sed -i '/JAVA_OPTS/c\JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n"' /etc/sysconfig/repose
+SCRIPT
+
+$copy_configs = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Copying configs"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+if [[ -d "/vagrant/etc_repose" ]] ; then
+    sudo cp --force /vagrant/etc_repose/* /etc/repose/
+fi
 SCRIPT
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -163,6 +173,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: $install_repose do |s|
     s.args = "#{repose_version}"
   end
+  config.vm.provision "shell", inline: $copy_configs
   config.vm.provision "shell", path: "./scripts/repose_run.sh"
 
   config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
