@@ -140,6 +140,7 @@ public class ValidatorConfigurator {
         config.setEnableRaxRolesExtension(validatorItem.isEnableRaxRoles());
         config.setMaskRaxRoles403(validatorItem.isMaskRaxRoles403());
         config.setSetParamDefaults(true);
+        config.setEnableAuthenticatedByExtension(true);
 
         return config;
     }
