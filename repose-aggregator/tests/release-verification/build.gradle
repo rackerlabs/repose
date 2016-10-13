@@ -21,7 +21,7 @@ String configDir = project.hasProperty('config-dir') ? project.property('config-
 
 FileCollection commonFiles = files("$projectDir/src/vagrant/scripts", "$projectDir/src/vagrant/fake-services", configDir)
 FileCollection debFiles = files("$projectDir/src/vagrant/deb")
-FileCollection rpmFiles = files("$projectDir/src/vagrant/deb")
+FileCollection rpmFiles = files("$projectDir/src/vagrant/rpm")
 
 if(!project.hasProperty('release-version')) {
     debFiles = debFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').getOutputs().getFiles(),
