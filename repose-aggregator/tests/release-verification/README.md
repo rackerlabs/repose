@@ -28,7 +28,7 @@ following command form to invoke a Gradle task:
 | release-version | local                  | The version of Repose to set up in the environment. |
 
 The release-version property should either match a release tag in the
-Repose repository, or be one of {local, latest}. A value of "local" will
+Repose repository, or be one of {local, current}. A value of "local" will
 build the project locally and set up the built artifacts. A value of
 "current" will set up the latest published release.
 
