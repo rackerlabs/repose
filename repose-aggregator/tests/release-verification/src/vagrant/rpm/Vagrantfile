@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-repose_version = ENV['REPOSE_VERSION'] || 'default'
+repose_version = ENV['REPOSE_VERSION'] || 'local'
 
 $update_yum = <<SCRIPT
 echo "-------------------------------------------------------------------------------------------------------------------"
@@ -86,7 +86,7 @@ version=''
 if [ $# -ne 0 ] ; then
   if [ "X_${1}_X" = "X_local_X" ] ; then
     name="${1}"
-  elif [ "X_${1}_X" = "X_default_X" ] ; then
+  elif [ "X_${1}_X" = "X_current_X" ] ; then
     name="${1}"
   else
     name="v${1}"
