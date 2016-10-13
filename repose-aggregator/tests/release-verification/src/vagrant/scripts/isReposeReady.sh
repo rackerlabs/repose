@@ -24,5 +24,8 @@ while [ $READY -eq 0 ]; do
    fi
 done
 if [ $READY -eq 0 ]; then
+   echo -en "\n\n~~~~~ ERROR - REPOSE FAILED TO START ~~~~~\n\n"
    exit 199
+else
+   echo -en "\n\nRepose is ready.\n"
 fi
