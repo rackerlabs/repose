@@ -30,13 +30,13 @@ following command form to invoke a Gradle task:
 The release-version property should either match a release tag in the
 Repose repository, or be one of {local, latest}. A value of "local" will
 build the project locally and set up the built artifacts. A value of
-"latest" will set up the latest release.
+"current" will set up the latest published release.
 
 # Verifying A Release
 Gradle tasks have been set up to allow for verifying either the DEB
 packages, the RPM packages, or both. To verify a release, simply
-run `gradle smokeTest -Prelease-version=<version>` from this project.
-If the build succeeds, then the release succeeded!
+run `gradle smokeTest -Prelease-version=<version>` (e.g. 8.1.0.0) from
+this project. If the build succeeds, then the release succeeded!
 
 # Repose As A Sandbox
 To start the sandbox, run the `vagrantUpDeb` or `vagrantUpRpm` task
@@ -45,6 +45,8 @@ can be accessed directly by running the `vagrant ssh` command from the
 directory containing the Vagrantfile (e.g., src/vagrant/deb relative to
 this project directory if the `vagrantUpDeb` task was run). To debug the
 instance of Repose running in the sandbox, connect a remote debugger to
-port 18038 on the local host. This port is forwarded by Vagrant to connect
-to the JDWP port of Repose in Vagrant's guest VM.
-
+port 18038 on the local host for Debian builds and 18039 for RPM builds.
+This port is forwarded by Vagrant to connect to the JDWP port of Repose
+in Vagrant's guest VM. The ports 18088 and 18089 for the Debian and RPM
+builds are also exposed and are forwarded to the Repose port in Vagrant's
+guest VM.
