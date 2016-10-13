@@ -20,7 +20,7 @@ A number of Gradle properties are used as the parameters for the
 Repose sandbox environment. These properties are described by the
 table below. Remember that Gradle accepts properties by using the
 following command form to invoke a Gradle task:
-`gradle <task> -P <property-key>=<property-value>`
+`gradle <task> -P<property-key>=<property-value>`
 
 | Property Name   | Default Value          | Description |
 | --------------- | ---------------------- | ----------- |
