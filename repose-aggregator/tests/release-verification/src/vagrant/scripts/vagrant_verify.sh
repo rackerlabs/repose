@@ -1,21 +1,15 @@
 #!/bin/bash
 
-if [[ -n $1 && -f "${1}" ]] ; then
-    LOG_FILE="${1}"
-else
-    LOG_FILE="/var/log/repose/current.log"
+sh isReposeReady.sh /vagrant/var-log-repose-current.log
+echo "~~~TRUNCATED~~~" > /vagrant/validation.log 2>&1
+if [ $? -eq 0 ]; then
+   sleep 30
+   curl -vs http://localhost:8080/resource/this-is-an-id > /vagrant/validation.log 2>&1
 fi
-#sudo sh -c "echo '~~~~~ TRUNCATED ~~~~~' > ${LOG_FILE}  2>&1"
-if [[ -n $2 && -d "${2}" ]] ; then
-    sudo cp --force ${2}/* /etc/repose/
+grep -qs "200 OK" /vagrant/validation.log
+STATUS=$?
+if [ "$STATUS" -ne 0 ]; then
+   cat /vagrant/validation.log
+   echo -en "\n\n"
 fi
-cp /vagrant/scripts/isReposeReady.sh /tmp/
-chmod a+x /tmp/isReposeReady.sh
-/tmp/isReposeReady.sh ${LOG_FILE}
-if [ $? -ne 0 ]; then
-   echo -en "\n\n~~~~~ ERROR - REPOSE FAILED TO START - VM Left Running ~~~~~\n\n"
-   exit 199
-else
-   echo -en "\n\nRepose is ready.\n"
-   sleep 3
-fi
+exit $STATUS
