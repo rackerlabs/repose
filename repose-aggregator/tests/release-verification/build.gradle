@@ -151,7 +151,7 @@ task vagrantSshSmokeTestRpm(type: VagrantSsh) {
     finalizedBy 'vagrantDestroyRpm'
 
     boxDir = rpmBoxDir
-    sshCommand "sh /vagrant/scripts/isReposeReady.sh"
+    sshCommand "sh /vagrant/scripts/vagrant_verify.sh"
 }
 
 task vagrantDestroyRpm(type: VagrantDestroy) {
