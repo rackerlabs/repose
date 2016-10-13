@@ -36,7 +36,7 @@ if(!project.hasProperty('release-version')) {
 
 vagrant {
     environmentVariables {
-        variable 'REPOSE_VERSION', project.hasProperty('release-version') ? project.property('release-version') : 'default'
+        variable 'REPOSE_VERSION', project.hasProperty('release-version') ? project.property('release-version') : 'local'
     }
 }
 
