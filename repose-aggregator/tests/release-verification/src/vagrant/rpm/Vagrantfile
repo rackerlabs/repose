@@ -148,17 +148,13 @@ Vagrant.configure(2) do |config|
   #config.vm.provision "shell", path: "./scripts/python_installs.sh"
 
   config.vm.provision "shell", path: "./scripts/fake_keystone_prepare.sh"
-  # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/tracing/master/package.json
   config.vm.provision "file", source: "./fake-services/fake-keystone2/package.json", destination: "/opt/fake-keystone/package.json"
-  # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/tracing/master/auth_backend.js.j2
   config.vm.provision "file", source: "./fake-services/fake-keystone2/app.js", destination: "/opt/fake-keystone/app.js"
   config.vm.provision "shell", privileged: false, path: "./scripts/fake_keystone_install.sh"
   config.vm.provision "shell", path: "./scripts/fake_keystone_run.sh", run: "always"
 
   # config.vm.provision "shell", path: "./scripts/fake_valkyrie_prepare.sh"
-  # # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/valkyrie/master/package.json
   # config.vm.provision "file", source: "./fake-services/fake-valkyrie2/package.json", destination: "/opt/fake-valkyrie/package.json"
-  # # original file contents taken from: https://github.com/rackerlabs/repose-perf-infrastructure/blob/master/src/repose_performance/valkyrie/master/valkyrie_backend.js
   # config.vm.provision "file", source: "./fake-services/fake-valkyrie2/app.js", destination: "/opt/fake-valkyrie/app.js"
   # config.vm.provision "shell", privileged: false, path: "./scripts/fake_valkyrie_install.sh"
   # config.vm.provision "shell", path: "./scripts/fake_valkyrie_run.sh", run: "always"
