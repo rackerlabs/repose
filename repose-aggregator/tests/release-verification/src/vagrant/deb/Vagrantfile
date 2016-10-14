@@ -10,7 +10,6 @@ echo "--------------------------------------------------------------------------
 
 # update package lists from the server
 apt-get update -qq
-#apt-get upgrade -yq
 SCRIPT
 
 $install_repose_dependencies = <<SCRIPT
