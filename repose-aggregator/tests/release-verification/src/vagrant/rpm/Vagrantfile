@@ -111,8 +111,9 @@ echo "--------------------------------------------------------------------------
 echo "Copying configs"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
+chmod a+rwx /vagrant
 if [[ -d "/vagrant/etc_repose" ]] ; then
-    sudo cp --force /vagrant/etc_repose/* /etc/repose/
+    cp --force /vagrant/etc_repose/* /etc/repose/
 fi
 SCRIPT
 
