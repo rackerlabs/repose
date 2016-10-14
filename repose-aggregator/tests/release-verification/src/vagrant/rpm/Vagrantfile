@@ -3,7 +3,7 @@
 
 repose_version = ENV['REPOSE_VERSION'] || 'local'
 
-$update_yum = <<SCRIPT
+$update_packages = <<SCRIPT
 echo "-------------------------------------------------------------------------------------------------------------------"
 echo "Updating Yum packages"
 echo "-------------------------------------------------------------------------------------------------------------------"
@@ -136,7 +136,7 @@ Vagrant.configure(2) do |config|
   # Expose the Repose port
   config.vm.network :forwarded_port, guest: 8080, host: 18089
 
-  config.vm.provision "shell", inline: $update_yum
+  config.vm.provision "shell", inline: $update_packages
   # IF the Repose version is < 8.1.0.0,
   # THEN the old Daemonize needs to be manually installed since it is no longer packaged.
   # TODO: Make this conditional.
