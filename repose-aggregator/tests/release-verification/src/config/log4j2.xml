@@ -24,13 +24,11 @@
         <Logger name="org.apache" level="warn"/>
         <Logger name="org.eclipse.jetty" level="off"/>
         <Logger name="org.openrepose" level="debug"/>
-        <Logger name="org.openrepose.filters.valkyrieauthorization" level="trace"/>
         <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="trace"/>
         <Logger name="org.apache.http.wire" level="trace"/>
         <Logger name="api-coverage-logger" level="trace"/>
-        <!--<Logger name="org.openrepose.core.services.serviceclient.akka.impl.AkkaServiceClientImpl" level="trace"/>-->
 
         <!-- I need debug info from JMX! -->
         <!-- useful: http://docs.oracle.com/javase/1.5.0/docs/guide/jmx/logging.html -->
