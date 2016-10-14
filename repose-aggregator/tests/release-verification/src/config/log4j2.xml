@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration packages="org.apache.logging.log4j.flume.appender">
+<Configuration monitorInterval="15" packages="org.apache.logging.log4j.flume.appender">
     <Appenders>
+        <Console name="STDOUT">
+            <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
+        </Console>
         <RollingFile name="RollingFile" fileName="/vagrant/var-log-repose-current.log"
                      filePattern="/vagrant/var-log-repose-current-%d{yyyy-MM-dd_HHmmss}.log">
             <PatternLayout pattern="Trans-Id:%X{traceGuid} - %d %-4r [%t] %-5p %c - %m%n"/>
@@ -17,6 +20,7 @@
     </Appenders>
     <Loggers>
         <Root level="debug">
+            <AppenderRef ref="STDOUT"/>
             <AppenderRef ref="RollingFile"/>
         </Root>
         <Logger name="com.sun.jersey" level="off"/>
@@ -24,21 +28,10 @@
         <Logger name="org.apache" level="warn"/>
         <Logger name="org.eclipse.jetty" level="off"/>
         <Logger name="org.openrepose" level="debug"/>
-        <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="trace"/>
         <Logger name="org.apache.http.wire" level="trace"/>
         <Logger name="api-coverage-logger" level="trace"/>
-
-        <!-- I need debug info from JMX! -->
-        <!-- useful: http://docs.oracle.com/javase/1.5.0/docs/guide/jmx/logging.html -->
-        <!-- also useful: http://logging.apache.org/log4j/2.x/log4j-jul/index.html -->
-        <!-- set these to FINEST to get log analysis of when mbeans were started and where -->
-        <Logger name="javax.management" level="debug"/>
-        <Logger name="javax.management.remote" level="debug"/>
-
-        <!-- because adding the JUL bridge, I need to silence a bunch of internal sun stuff -->
-        <Logger name="com.sun.xml.internal" level="warn"/>
         <Logger name="phone-home-message" level="info" additivity="false">
             <AppenderRef ref="PhoneHomeMessages"/>
         </Logger>
