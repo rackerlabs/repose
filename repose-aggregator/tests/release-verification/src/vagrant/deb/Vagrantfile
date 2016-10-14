@@ -3,7 +3,7 @@
 
 repose_version = ENV['REPOSE_VERSION'] || 'local'
 
-$update_yum = <<SCRIPT
+$update_packages = <<SCRIPT
 echo "-------------------------------------------------------------------------------------------------------------------"
 echo "Updating Apt packages"
 echo "-------------------------------------------------------------------------------------------------------------------"
@@ -130,7 +130,7 @@ SCRIPT
   # Expose the Repose port
   config.vm.network :forwarded_port, guest: 8080, host: 18088
 
-  config.vm.provision "shell", inline: $update_yum
+  config.vm.provision "shell", inline: $update_packages
   config.vm.provision "shell", inline: $install_repose_dependencies
   #config.vm.provision "shell", inline: $other_tools
   config.vm.provision "shell", inline: $install_python
