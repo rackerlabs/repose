@@ -101,9 +101,9 @@ app.get('/account/:tenant/permissions/contacts/:devices/by_contact/:contact/effe
     var tenant = req.params.tenant;
     var devices = req.params.devices;
     var contact = req.params.contact;
-    console.log('JSON: tenantId=%s', tenant);
+    console.log('JSON: tenant =%s', tenant);
     console.log('JSON: devices=%s', devices);
-    console.log('JSON: tenantId=%s', contact);
+    console.log('JSON: contact=%s', contact);
     var deviceID = generateDeviceID();
     var deviceID2 = generateDeviceID();
     var deviceID3 = generateDeviceID();
