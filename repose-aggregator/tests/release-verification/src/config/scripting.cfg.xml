@@ -4,4 +4,5 @@
     if (request.getHeader('X-Auth-Token') == null) {
         request.addHeader('X-Auth-Token', '12345678901234567890')
     }
+    filterChain.doFilter(request, response)
 </scripting>
