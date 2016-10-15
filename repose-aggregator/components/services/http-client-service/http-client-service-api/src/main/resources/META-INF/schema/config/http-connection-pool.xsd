@@ -239,14 +239,22 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="chunked-encoding" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="chunked-encoding" type="chunkedEncodingType" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
                         Determines whether or not this client should send chunked data when forwarding requests.
                     </html:p>
                     <html:p>
-                        WARNING: Setting this attribute will cause repose to attempt to retrieve the
+                        If set to true, chunked data will always be sent.
+                        If set to false, chunked data will never be sent.
+                        If set to auto, chunked data will only be sent if the original request to Repose was chunked.
+                        Note that the auto setting only has meaning for the default connection pool, and only when
+                        requests are forwarded to the origin service. A value of auto for non-default pools will
+                        behave identically to a value of true.
+                    </html:p>
+                    <html:p>
+                        WARNING: Setting this attribute to false may cause repose to attempt to retrieve the
                         actual content length through reading the ServletInputStream. This will cause some performance
                         degradation as request body is no longer always streamed through.
                     </html:p>
@@ -332,4 +340,11 @@
         <xs:attribute name="value" type="xs:string" use="required"/>
     </xs:complexType>
 
+    <xs:simpleType name="chunkedEncodingType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+            <xs:enumeration value="auto"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
