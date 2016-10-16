@@ -246,8 +246,8 @@
                         Determines whether or not this client should send chunked data when forwarding requests.
                     </html:p>
                     <html:p>
-                        If set to true, chunked data will always be sent.
-                        If set to false, chunked data will never be sent.
+                        If set to true or 1, chunked data will always be sent.
+                        If set to false or 0, chunked data will never be sent.
                         If set to auto, chunked data will only be sent if the original request to Repose was chunked.
                         Note that the auto setting only has meaning for the default connection pool, and only when
                         requests are forwarded to the origin service. A value of auto for non-default pools will
@@ -343,7 +343,9 @@
     <xs:simpleType name="chunkedEncodingType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="true"/>
+            <xs:enumeration value="1"/>
             <xs:enumeration value="false"/>
+            <xs:enumeration value="0"/>
             <xs:enumeration value="auto"/>
         </xs:restriction>
     </xs:simpleType>
