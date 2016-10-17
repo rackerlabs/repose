@@ -30,7 +30,7 @@ class NoFiltersTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
+        deproxy.addEndpoint(port: properties.targetPort, name: "Origin Service")
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
@@ -42,10 +42,9 @@ class NoFiltersTest extends ReposeValveTest {
     def "Repose should act as a basic reverse proxy (pass thru) for HTTP methods"() {
         given:
         String requestBody = "request body"
-        String deproxyEndpoint = "http://localhost:${properties.targetPort}"
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: deproxyEndpoint, method: method, requestBody: requestBody)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, requestBody: requestBody)
 
         then:
         mc.getReceivedResponse().getCode() == HttpServletResponse.SC_OK.toString()
