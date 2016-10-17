@@ -193,8 +193,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                             LOG.error("Error reading request content", e);
                             servletResponse.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content");
                         } else {
-                            LOG.error("Error communicating with {}", location.getUri());
-                            LOG.trace("", e);
+                            LOG.error("Error communicating with {}", location.getUri(), e);
                             servletResponse.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                         }
                     }
