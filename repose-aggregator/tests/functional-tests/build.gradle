@@ -30,11 +30,11 @@ dependencies {
     integrationTestBundle project(path: ":repose-aggregator:artifacts:filter-bundle", configuration: "archives")
     integrationTestBundle project(path: ":repose-aggregator:artifacts:extensions-filter-bundle", configuration: "archives")
     integrationTestBundle project(path: ":repose-aggregator:artifacts:experimental-filter-bundle", configuration: "archives")
-    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-one"
-    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-two"
-    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-three"
-    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-four"
-    integrationTestBundle "org.openrepose.filters.core.test:classloader-bundle-five"
+    integrationTestBundle project(path: ":repose-aggregator:tests:test-bundles:classloader-bundle-one", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:tests:test-bundles:classloader-bundle-two", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:tests:test-bundles:classloader-bundle-three", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:tests:test-bundles:classloader-bundle-four", configuration: "archives")
+    integrationTestBundle project(path: ":repose-aggregator:tests:test-bundles:classloader-bundle-five", configuration: "archives")
 }
 
 task copyArtifacts() {
@@ -47,7 +47,12 @@ task copyArtifacts() {
               ":repose-aggregator:tests:mocks-servlet:war",
               ":repose-aggregator:artifacts:filter-bundle:ear",
               ":repose-aggregator:artifacts:extensions-filter-bundle:ear",
-              ":repose-aggregator:artifacts:experimental-filter-bundle:ear")
+              ":repose-aggregator:artifacts:experimental-filter-bundle:ear",
+              ":repose-aggregator:tests:test-bundles:classloader-bundle-one:ear",
+              ":repose-aggregator:tests:test-bundles:classloader-bundle-two:ear",
+              ":repose-aggregator:tests:test-bundles:classloader-bundle-three:ear",
+              ":repose-aggregator:tests:test-bundles:classloader-bundle-four:ear",
+              ":repose-aggregator:tests:test-bundles:classloader-bundle-five:ear")
     ext.outputDir = "$buildDir/repose_home"
     inputs.files(configurations.integrationTestRunnable.files,
                  configurations.integrationTestBundle.files)
