@@ -45,7 +45,7 @@ class NoFiltersTest extends ReposeValveTest {
         String deproxyEndpoint = "http://localhost:${properties.targetPort}"
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: deproxyEndpoint, requestBody: requestBody)
+        MessageChain mc = deproxy.makeRequest(url: deproxyEndpoint, method: method, requestBody: requestBody)
 
         then:
         mc.getReceivedResponse().getCode() == HttpServletResponse.SC_OK.toString()
