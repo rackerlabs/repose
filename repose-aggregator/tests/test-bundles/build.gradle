@@ -1,0 +1,107 @@
+subprojects {
+    group = 'org.openrepose.filters.core.test'
+
+    dependencies {
+        compile "org.scala-lang:scala-library"
+    }
+}
+
+/**
+ * Because an Ear project is always the same, this is a function to clean up our build script
+ * @param projectName The name of the ear project
+ * @param deps a list of dependencies that will go in this ear
+ * @return
+ */
+def filterBundleProject(String projectName, List<String> deps) {
+    project(projectName) {
+        apply plugin: 'ear'
+
+        dependencies {
+            deps.each { proj ->
+                earlib project(proj)
+            }
+        }
+    }
+
+}
+
+
+project(':repose-aggregator:tests:test-bundles:core-test-filter') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+    }
+}
+
+filterBundleProject(':repose-aggregator:tests:test-bundles:core-test-filter-bundle', [':repose-aggregator:tests:test-bundles:core-test-filter'])
+
+project(':repose-aggregator:tests:test-bundles:second-filter') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+    }
+}
+
+filterBundleProject(':repose-aggregator:tests:test-bundles:second-filter-bundle', [':repose-aggregator:tests:test-bundles:second-filter'])
+
+filterBundleProject(':repose-aggregator:tests:test-bundles:busted-application-name-ear', [])
+
+filterBundleProject(':repose-aggregator:tests:test-bundles:busted-web-fragment-ear', [])
+
+project(':repose-aggregator:tests:test-bundles:classloader-dependency-one') {
+}
+
+project(':repose-aggregator:tests:test-bundles:classloader-dependency-two') {
+}
+
+project(':repose-aggregator:tests:test-bundles:filter-one') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+        compile 'org.apache.commons:commons-lang3'
+        compile project(':repose-aggregator:tests:test-bundles:classloader-dependency-one')
+    }
+}
+
+project(':repose-aggregator:tests:test-bundles:filter-two') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+    }
+}
+
+project(':repose-aggregator:tests:test-bundles:filter-three') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+        compile project(':repose-aggregator:tests:test-bundles:classloader-dependency-one')
+    }
+}
+
+project(':repose-aggregator:tests:test-bundles:filter-four') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+        provided 'org.apache.commons:commons-lang3'
+        compile project(':repose-aggregator:tests:test-bundles:classloader-dependency-one')
+    }
+}
+
+project(':repose-aggregator:tests:test-bundles:filter-five') {
+    dependencies {
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+        provided 'org.apache.commons:commons-lang3'
+        compile project(':repose-aggregator:tests:test-bundles:classloader-dependency-two')
+    }
+}
+
+filterBundleProject(':repose-aggregator:tests:test-bundles:classloader-bundle-one', [':repose-aggregator:tests:test-bundles:filter-one'])
+
+filterBundleProject(':repose-aggregator:tests:test-bundles:classloader-bundle-two', [':repose-aggregator:tests:test-bundles:filter-two'])
+
+filterBundleProject(':repose-aggregator:tests:test-bundles:classloader-bundle-three', [':repose-aggregator:tests:test-bundles:filter-three'])
+
+filterBundleProject(':repose-aggregator:tests:test-bundles:classloader-bundle-four', [':repose-aggregator:tests:test-bundles:filter-four'])
+
+filterBundleProject(':repose-aggregator:tests:test-bundles:classloader-bundle-five', [':repose-aggregator:tests:test-bundles:filter-five'])
