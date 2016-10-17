@@ -1,0 +1,9 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  # Using a modified boot2docker box as the official (and default) box uses
+  # password authentication which does not play well with rsync.
+  # See: https://github.com/mitchellh/boot2docker-vagrant-box/issues/79
+  config.vm.box = "dduportal/boot2docker"
+end
