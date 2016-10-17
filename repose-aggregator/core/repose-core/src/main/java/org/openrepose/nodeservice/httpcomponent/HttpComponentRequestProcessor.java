@@ -55,14 +55,14 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     private final URI targetHost;
 
     private HttpServletRequest sourceRequest;
-    private boolean isConfiguredChunked;
+    private String chunkedEncoding;
 
     public HttpComponentRequestProcessor(HttpServletRequest request, URI host, boolean rewriteHostHeader,
-                                         boolean isConfiguredChunked) {
+                                         String chunkedEncoding) {
         this.sourceRequest = request;
         this.targetHost = host;
         this.rewriteHostHeader = rewriteHostHeader;
-        this.isConfiguredChunked = isConfiguredChunked;
+        this.chunkedEncoding = chunkedEncoding;
     }
 
     private void setQueryString(URIBuilder builder) throws URISyntaxException {
@@ -153,18 +153,31 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     }
 
     private int getEntityLength() throws IOException {
-        if (StringUtilities.nullSafeEqualsIgnoreCase(sourceRequest.getHeader("transfer-encoding"), "chunked") ||
-                isConfiguredChunked) {
-            return -1;
-        } else {
-            // todo: optimize so subsequent calls to this method do not need to read/copy the entity
-            final ByteArrayOutputStream sourceEntity = new ByteArrayOutputStream();
-            RawInputStreamReader.instance().copyTo(sourceRequest.getInputStream(), sourceEntity);
+        // Default to -1, which will be treated as an unknown entity length leading to the usage of chunked encoding.
+        int entityLength = -1;
+        switch (chunkedEncoding.toLowerCase()) {
+            case "true":
+            case "1":
+                break;
+            case "auto":
+                if (StringUtilities.nullSafeEqualsIgnoreCase(sourceRequest.getHeader("transfer-encoding"), "chunked")) {
+                    break;
+                }
+            case "false":
+            case "0":
+                // todo: optimize so subsequent calls to this method do not need to read/copy the entity
+                final ByteArrayOutputStream sourceEntity = new ByteArrayOutputStream();
+                RawInputStreamReader.instance().copyTo(sourceRequest.getInputStream(), sourceEntity);
 
-            final ServletInputStream readableEntity = new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray()));
-            sourceRequest = new HttpServletRequestWrapper(sourceRequest, readableEntity);
+                final ServletInputStream readableEntity = new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray()));
+                sourceRequest = new HttpServletRequestWrapper(sourceRequest, readableEntity);
 
-            return sourceEntity.size();
+                entityLength = sourceEntity.size();
+                break;
+            default:
+                LOG.warn("Invalid chunked encoding value -- using chunked encoding");
+                break;
         }
+        return entityLength;
     }
 }

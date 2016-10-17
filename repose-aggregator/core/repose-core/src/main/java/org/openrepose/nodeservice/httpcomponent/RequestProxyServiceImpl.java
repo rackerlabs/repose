@@ -144,10 +144,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         HttpClientContainer httpClientContainer = getClient(connPoolId);
 
         try {
-            final boolean isChunkedConfigured = httpClientContainer.getHttpClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
+            final String chunkedEncoding = (String) httpClientContainer.getHttpClient().getParams().getParameter(CHUNKED_ENCODING_PARAM);
             final HttpHost proxiedHost = getProxiedHost(targetHost);
             final String target = proxiedHost.toURI() + request.getRequestURI();
-            final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader, isChunkedConfigured);
+            final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader, chunkedEncoding);
             final HttpComponentProcessableRequest method = HttpComponentFactory.getMethod(request.getMethod(), processor.getUri(target));
 
             if (method != null) {

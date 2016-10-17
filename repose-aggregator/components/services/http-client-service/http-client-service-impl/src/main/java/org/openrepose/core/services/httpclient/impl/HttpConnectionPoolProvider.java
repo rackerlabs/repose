@@ -75,7 +75,7 @@ public final class HttpConnectionPoolProvider {
         params.setParameter(CoreConnectionPNames.MAX_HEADER_COUNT, poolConf.getHttpConnectionMaxHeaderCount());
         params.setParameter(CoreConnectionPNames.MAX_LINE_LENGTH, poolConf.getHttpConnectionMaxLineLength());
         params.setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, poolConf.getHttpSocketBufferSize());
-        params.setBooleanParameter(CHUNKED_ENCODING_PARAM, poolConf.isChunkedEncoding());
+        params.setParameter(CHUNKED_ENCODING_PARAM, poolConf.getChunkedEncoding());
 
         if (poolConf.getHeaders() != null) {
             params.setParameter(ClientPNames.DEFAULT_HEADERS, createHeaders(poolConf.getHeaders().getHeader()));
