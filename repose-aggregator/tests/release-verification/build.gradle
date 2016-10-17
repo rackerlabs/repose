@@ -35,6 +35,8 @@ if(!project.hasProperty('release-version')) {
 }
 
 vagrant {
+    provider = 'docker'
+
     environmentVariables {
         variable 'REPOSE_VERSION', project.hasProperty('release-version') ? project.property('release-version') : 'local'
     }
