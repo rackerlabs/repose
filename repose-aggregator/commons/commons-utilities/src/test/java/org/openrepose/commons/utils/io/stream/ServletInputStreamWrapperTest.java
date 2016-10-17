@@ -46,6 +46,26 @@ public class ServletInputStreamWrapperTest {
     }
 
     @Test
+    public void shouldReadBytesFromInputStream() throws IOException {
+        byte[] bArr = new byte[10];
+        wrapper.read(bArr);
+        verify(stream).read(bArr);
+    }
+
+    @Test
+    public void shouldReadConstrainedBytesFromInputStream() throws IOException {
+        byte[] bArr = new byte[10];
+        wrapper.read(bArr, 2, 2);
+        verify(stream).read(bArr, 2, 2);
+    }
+
+    @Test
+    public void shouldDelegateSkip() throws IOException {
+        wrapper.skip(10L);
+        verify(stream).skip(10L);
+    }
+
+    @Test
     public void shouldDelegateForAvailablity() throws Exception {
         wrapper.available();
         verify(stream).available();
@@ -55,5 +75,23 @@ public class ServletInputStreamWrapperTest {
     public void shouldDelegateForClose() throws Exception {
         wrapper.close();
         verify(stream).close();
+    }
+
+    @Test
+    public void shouldDelegateMark() throws IOException {
+        wrapper.mark(10);
+        verify(stream).mark(10);
+    }
+
+    @Test
+    public void shouldDelegateReset() throws IOException {
+        wrapper.reset();
+        verify(stream).reset();
+    }
+
+    @Test
+    public void shouldDelegateMarkSupported() throws IOException {
+        wrapper.markSupported();
+        verify(stream).markSupported();
     }
 }
