@@ -200,13 +200,13 @@ subprojects {
             java {
                 srcDirs += generatedDir
             }
+            output.classesDir = sourceSets.main.output.classesDir
         }
         main {
             java {
                 compileClasspath += generated.output
                 runtimeClasspath += generated.output
             }
-            output.dir(sourceSets.generated.output.classesDir, builtBy: 'compileGeneratedJava')
         }
     }
 
