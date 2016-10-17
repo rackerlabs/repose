@@ -19,6 +19,11 @@
  */
 package org.openrepose.filters.core.filterthree
 
+import javax.inject.Named
+import javax.servlet._
+
+import scala.util.{Failure, Success}
+
 @Named
 class FilterThree extends Filter {
   override def init(p1: FilterConfig): Unit = {

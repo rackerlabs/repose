@@ -19,6 +19,10 @@
  */
 package org.openrepose.filters.core.filtertwo
 
+import javax.inject.Named
+import javax.servlet._
+import javax.servlet.http.HttpServletRequest
+
 
 /**
  * Created by dimi5963 on 1/6/15.

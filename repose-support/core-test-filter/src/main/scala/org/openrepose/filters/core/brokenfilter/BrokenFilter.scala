@@ -19,6 +19,9 @@
  */
 package org.openrepose.filters.core.brokenfilter
 
+import javax.inject.Named
+import javax.servlet._
+
 @Named
 class BrokenFilter extends Filter {
   override def init(p1: FilterConfig): Unit = {

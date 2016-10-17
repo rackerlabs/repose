@@ -19,6 +19,11 @@
  */
 package org.openrepose.filters.core.filterfive
 
+import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper}
+
+import org.apache.commons.lang3.StringUtils
+import org.openrepose.others.SimplicityDivine
+
 /**
  * Created by dimi5963 on 1/6/15.
  */
