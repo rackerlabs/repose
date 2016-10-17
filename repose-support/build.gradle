@@ -1,47 +1,8 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven { url "http://repository.jboss.org/nexus/content/groups/public/" }
-        maven { url 'https://repo.spring.io/plugins-release' }
-    }
-    dependencies {
-        classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
-        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
-    }
-}
-
-configure(allprojects) {
-    apply plugin: 'propdeps'
-    apply plugin: 'propdeps-maven'
-    apply plugin: 'propdeps-idea'
-}
-
-allprojects {
-    apply plugin: 'idea'
-}
-
 subprojects {
-    apply plugin: 'scala'
     group = 'org.openrepose.filters.core.test'
-    version = '3.0'
-
-    repositories {
-        mavenCentral()
-    }
 
     dependencies {
-        compile "org.scala-lang:scala-library:2.10.4"
-    }
-
-    tasks.withType(ScalaCompile) {
-        scalaCompileOptions.useAnt = false
-    }
-
-    task 'create-dirs' << {
-        sourceSets.all { set ->
-            set.allSource.srcDirs.each { it.mkdirs() }
-        }
+        compile "org.scala-lang:scala-library"
     }
 }
 
@@ -54,28 +15,10 @@ subprojects {
 def filterBundleProject(String projectName, List<String> deps) {
     project(projectName) {
         apply plugin: 'ear'
-        apply plugin: 'maven'
-        apply plugin: 'maven-publish'
-        apply plugin: 'maven-publish-auth'
 
         dependencies {
             deps.each { proj ->
-                deploy project(proj)
-                earlib project(proj).configurations.runtime
-            }
-        }
-
-        publishing {
-            publications {
-                maven(MavenPublication) {
-                    artifact ear
-                }
-            }
-            repositories {
-                maven {
-                    name "releases.maven.research.rackspace.com"
-                    url "http://maven.research.rackspacecloud.com/content/repositories/releases"
-                }
+                earlib project(proj)
             }
         }
     }
@@ -83,82 +26,82 @@ def filterBundleProject(String projectName, List<String> deps) {
 }
 
 
-project(':core-test-filter') {
+project(':repose-support:core-test-filter') {
     dependencies {
-        provided 'javax.servlet:javax.servlet-api:3.1.0'
-        provided 'javax:javaee-api:6.0'
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
     }
 }
 
-filterBundleProject(':core-test-filter-bundle', [':core-test-filter'])
+filterBundleProject(':repose-support:core-test-filter-bundle', [':repose-support:core-test-filter'])
 
-project(':second-filter') {
+project(':repose-support:second-filter') {
     dependencies {
-        provided 'javax.servlet:javax.servlet-api:3.1.0'
-        provided 'javax:javaee-api:6.0'
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
     }
 }
 
-filterBundleProject(':second-filter-bundle', [':second-filter'])
+filterBundleProject(':repose-support:second-filter-bundle', [':repose-support:second-filter'])
 
-filterBundleProject(':busted-application-name-ear', [])
+filterBundleProject(':repose-support:busted-application-name-ear', [])
 
-filterBundleProject(':busted-web-fragment-ear', [])
+filterBundleProject(':repose-support:busted-web-fragment-ear', [])
 
-project(':classloader-dependency-one') {
+project(':repose-support:classloader-dependency-one') {
 }
 
-project(':classloader-dependency-two') {
+project(':repose-support:classloader-dependency-two') {
 }
 
-project(':filter-one') {
+project(':repose-support:filter-one') {
     dependencies {
-        provided 'javax.servlet:javax.servlet-api:3.1.0'
-        provided 'javax:javaee-api:6.0'
-        compile 'org.apache.commons:commons-lang3:3.3.2'
-        compile project(':classloader-dependency-one')
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+        compile 'org.apache.commons:commons-lang3'
+        compile project(':repose-support:classloader-dependency-one')
     }
 }
 
-project(':filter-two') {
+project(':repose-support:filter-two') {
     dependencies {
-        provided 'javax.servlet:javax.servlet-api:3.1.0'
-        provided 'javax:javaee-api:6.0'
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
     }
 }
 
-project(':filter-three') {
+project(':repose-support:filter-three') {
     dependencies {
-        provided 'javax.servlet:javax.servlet-api:3.1.0'
-        provided 'javax:javaee-api:6.0'
-        compile project(':classloader-dependency-one')
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+        compile project(':repose-support:classloader-dependency-one')
     }
 }
 
-project(':filter-four') {
+project(':repose-support:filter-four') {
     dependencies {
-        provided 'javax.servlet:javax.servlet-api:3.1.0'
-        provided 'javax:javaee-api:6.0'
-        provided 'org.apache.commons:commons-lang3:3.3.2'
-        compile project(':classloader-dependency-one')
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+        provided 'org.apache.commons:commons-lang3'
+        compile project(':repose-support:classloader-dependency-one')
     }
 }
 
-project(':filter-five') {
+project(':repose-support:filter-five') {
     dependencies {
-        provided 'javax.servlet:javax.servlet-api:3.1.0'
-        provided 'javax:javaee-api:6.0'
-        provided 'org.apache.commons:commons-lang3:3.3.2'
-        compile project(':classloader-dependency-two')
+        provided 'javax.servlet:javax.servlet-api'
+        provided 'javax.inject:javax.inject'
+        provided 'org.apache.commons:commons-lang3'
+        compile project(':repose-support:classloader-dependency-two')
     }
 }
 
-filterBundleProject(':classloader-bundle-one', [':filter-one'])
+filterBundleProject(':repose-support:classloader-bundle-one', [':repose-support:filter-one'])
 
-filterBundleProject(':classloader-bundle-two', [':filter-two'])
+filterBundleProject(':repose-support:classloader-bundle-two', [':repose-support:filter-two'])
 
-filterBundleProject(':classloader-bundle-three', [':filter-three'])
+filterBundleProject(':repose-support:classloader-bundle-three', [':repose-support:filter-three'])
 
-filterBundleProject(':classloader-bundle-four', [':filter-four'])
+filterBundleProject(':repose-support:classloader-bundle-four', [':repose-support:filter-four'])
 
-filterBundleProject(':classloader-bundle-five', [':filter-five'])
+filterBundleProject(':repose-support:classloader-bundle-five', [':repose-support:filter-five'])
