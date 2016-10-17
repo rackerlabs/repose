@@ -47,7 +47,7 @@ class NoFiltersTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, requestBody: requestBody)
 
         then:
-        mc.getReceivedResponse().getCode() == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
 
         where:
         method << ["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"]
