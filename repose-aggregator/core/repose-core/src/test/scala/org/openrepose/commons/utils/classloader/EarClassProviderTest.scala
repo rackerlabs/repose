@@ -113,8 +113,8 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val files = p.outputDir.listFiles.toList
 
-      files should contain(new File(p.outputDir, s"core-test-filter-${version}.jar"))
-      files should contain(new File(p.outputDir, "WEB-INF"))
+      val libDir = new File(p.outputDir, "lib")
+      libDir.listFiles.toList should contain(new File(libDir, s"core-test-filter-${version}.jar"))
 
       val webInfDir = new File(p.outputDir, "WEB-INF")
       webInfDir.listFiles.toList should contain(new File(webInfDir, "web-fragment.xml"))
