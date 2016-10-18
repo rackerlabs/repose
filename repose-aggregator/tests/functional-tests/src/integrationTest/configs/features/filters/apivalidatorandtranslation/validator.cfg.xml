@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
+    <validator default="true"
+               role="default"
+               wadl="pass.wadl"/>
+</validators>

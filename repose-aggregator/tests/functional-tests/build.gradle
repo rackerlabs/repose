@@ -1,3 +1,6 @@
+evaluationDependsOn(':repose-aggregator:tests:test-containers:test-container-glassfish')
+evaluationDependsOn(':repose-aggregator:tests:test-containers:test-container-tomcat')
+
 configurations {
     integrationTestRunnable
     integrationTestBundle

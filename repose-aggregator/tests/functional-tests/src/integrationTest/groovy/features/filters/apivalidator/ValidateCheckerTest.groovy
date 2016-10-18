@@ -93,7 +93,7 @@ class ValidateCheckerTest extends ReposeValveTest {
 
         then:
         thrown(TimeoutException.class) // Thrown at initialization, and when processing requests
-        reposeLogSearch.searchByString("/xsl/meta-check.xsl; lineNumber: 37; cvc-id.1: " +
+        reposeLogSearch.searchByString("/xsl/meta-check.xsl; lineNumber: 38; columnNumber: 3; cvc-id.1: " +
                 "There is no ID/IDREF binding for IDREF 'SE9001'").size() >= 1
 
         where:
