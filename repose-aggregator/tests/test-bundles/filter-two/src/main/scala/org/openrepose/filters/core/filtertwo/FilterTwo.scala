@@ -35,7 +35,7 @@ class FilterTwo extends Filter {
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
     val r: HttpServletRequest = request.asInstanceOf[HttpServletRequest]
-    if (r.getHeader("FOO") != null && !r.getHeader("FOO").equals("BAR")) {
+    if (r.getHeader("FOO") != "BAR") {
       throw new IllegalArgumentException("this ain't right!")
     }
     chain.doFilter(r, response)

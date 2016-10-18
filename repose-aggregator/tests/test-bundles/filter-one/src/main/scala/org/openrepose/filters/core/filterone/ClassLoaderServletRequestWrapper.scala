@@ -29,7 +29,7 @@ class ClassLoaderServletRequestWrapper(request: HttpServletRequest) extends Http
     println("\n\n\n")
     println(s"Requesting header ${headerString}")
     println("\n\n\n")
-    if (StringUtils.startsWith(headerString, "FOO")) {
+    if (StringUtils.startsWith(headerString, "FOO") && (super.getHeader(headerString) != null)) {
       return new SimplicityDivine().createBar
     } else {
       return super.getHeader(headerString)
