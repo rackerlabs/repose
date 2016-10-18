@@ -1,0 +1,13 @@
+apply plugin: 'ear'
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            artifact source: ear, extension: 'ear'
+
+            pom.withXml {
+                asNode().appendNode('packaging', 'ear')
+            }
+        }
+    }
+}
