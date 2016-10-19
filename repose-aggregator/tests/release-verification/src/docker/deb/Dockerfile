@@ -32,6 +32,8 @@ COPY fake-services /release-verification/fake-services
 COPY scripts /release-verification/scripts
 COPY *.deb /release-verification/
 
+RUN rm /release-verification/DELETE-ME.deb
+
 RUN sh /release-verification/scripts/fake_keystone_prepare.sh
 RUN cp /release-verification/fake-services/fake-keystone2/package.json /opt/fake-keystone/package.json
 RUN cp /release-verification/fake-services/fake-keystone2/app.js /opt/fake-keystone/app.js
