@@ -56,6 +56,10 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 3. Remove these attributes from container-configuration.xsd:
        *    a. http-port
        *    b. https-port
+       *
+       * 4. Remove these values from the chunkedEncodingType enumeration in http-connection-pool.xsd:
+       *    a. 1
+       *    b. 0
        */
     }
   }
