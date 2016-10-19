@@ -111,8 +111,6 @@ Vagrant.configure(2) do |config|
     # docker.vagrant_vagrantfile = "/Users/dami6356/dev/repose/repose-aggregator/tests/release-verification/src/vagrant/base/Vagrantfile"
   end
 
-  config.vm.provision "docker"
-
   config.vm.provision "shell", inline: <<SCRIPT
 grep -q $(hostname) /etc/hosts
 if [ $? -ne 0 ]; then
