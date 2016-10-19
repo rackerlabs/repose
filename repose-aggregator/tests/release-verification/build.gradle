@@ -1,3 +1,13 @@
+import com.bmuschko.gradle.vagrant.tasks.VagrantUp
+import com.bmuschko.gradle.vagrant.tasks.VagrantSsh
+import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
 buildscript {
     repositories {
         jcenter()
@@ -5,160 +15,241 @@ buildscript {
 
     dependencies {
         classpath 'com.bmuschko:gradle-vagrant-plugin:2.0'
+        // TODO: Update to 3.0.4 to resolve Mac OS X junix issue (https://github.com/docker-java/docker-java/issues/537)
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.3'
     }
 }
 
-
-import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
-import com.bmuschko.gradle.vagrant.tasks.VagrantSsh
-import com.bmuschko.gradle.vagrant.tasks.VagrantUp
-
 apply plugin: 'com.bmuschko.vagrant-base'
+apply plugin: 'com.bmuschko.docker-remote-api'
 
-File debBoxDir = file("$buildDir/deb")
-File rpmBoxDir = file("$buildDir/rpm")
+String releaseVersion = project.hasProperty('release-version') ? project.property('release-version') : 'local'
+
+File debDir = file("$buildDir/deb")
+File rpmDir = file("$buildDir/rpm")
 String configDir = project.hasProperty('config-dir') ? project.property('config-dir') : "$projectDir/src/config"
 
-FileCollection commonFiles = files("$projectDir/src/vagrant/scripts", "$projectDir/src/vagrant/fake-services", configDir)
-FileCollection debFiles = files("$projectDir/src/vagrant/deb")
-FileCollection rpmFiles = files("$projectDir/src/vagrant/rpm")
+FileCollection commonFiles = files("$projectDir/src/scripts", "$projectDir/src/fake-services", configDir)
+FileCollection debFiles = files("$projectDir/src/vagrant/deb", "$projectDir/src/docker/deb")
+FileCollection rpmFiles = files("$projectDir/src/vagrant/rpm", "$projectDir/src/docker/rpm")
 
-if(!project.hasProperty('release-version')) {
+// TODO: The conditional has been commented out since Docker does not support conditional COPY
+//       A better way of handling that would be to build an additional image that COPYs the build artifacts if desired
+//       Doing so would require more Gradle tasks which would be linked together
+//if(!project.hasProperty('release-version')) {
     debFiles = debFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb').getOutputs().getFiles())
+    // TODO: This seems to break when -Prelease is not provided due to how ospackage (or redline-rpm) handles
+    //       SNAPSHOT versions
+    // Execution failed for task ':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm'.
+    // version with value: '8.1.0.0~SNAPSHOT' contains illegal character ~
     rpmFiles = rpmFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm').getOutputs().getFiles())
-}
-
-vagrant {
-    environmentVariables {
-        variable 'REPOSE_VERSION', project.hasProperty('release-version') ? project.property('release-version') : 'local'
-    }
-}
+//}
 
 task copyDebFiles() {
     inputs.files(commonFiles, debFiles)
-    outputs.dir debBoxDir
+    outputs.dir debDir
 
     doLast {
         //make the deb directory
-        debBoxDir.mkdirs()
+        debDir.mkdirs()
 
         //copy the vagrant file
         copy {
             from debFiles
-            into debBoxDir
+            into debDir
         }
 
         //copy the scripts
         copy {
-            from "$projectDir/src/vagrant/scripts"
-            into "$debBoxDir/scripts"
+            from "$projectDir/src/scripts"
+            into "$debDir/scripts"
         }
 
         //copy the fake services
         copy {
-            from "$projectDir/src/vagrant/fake-services"
-            into "$debBoxDir/fake-services"
+            from "$projectDir/src/fake-services"
+            into "$debDir/fake-services"
         }
 
         //copy the configs
         copy {
             from configDir
-            into "$debBoxDir/etc_repose"
+            into "$debDir/etc_repose"
         }
+    }
+}
+
+task copyRpmFiles() {
+    inputs.files(commonFiles, rpmFiles)
+    outputs.dir rpmDir
+
+    doLast {
+        //make the rpm directory
+        rpmDir.mkdirs()
+
+        //copy the vagrant file
+        copy {
+            from rpmFiles
+            into rpmDir
+        }
+
+        //copy the scripts
+        copy {
+            from "$projectDir/src/scripts"
+            into "$rpmDir/scripts"
+        }
+
+        //copy the fake services
+        copy {
+            from "$projectDir/src/fake-services"
+            into "$rpmDir/fake-services"
+        }
+
+        //copy the configs
+        copy {
+            from configDir
+            into "$rpmDir/etc_repose"
+        }
+    }
+}
+
+vagrant {
+    environmentVariables {
+        variable 'REPOSE_VERSION', releaseVersion
     }
 }
 
 task vagrantUpDeb(type: VagrantUp) {
     dependsOn 'copyDebFiles'
 
-    boxDir = debBoxDir
-}
-
-task vagrantUpSmokeTestDeb(type: VagrantUp) {
-    dependsOn 'copyDebFiles'
-    finalizedBy 'vagrantDestroyDeb'
-
-    boxDir = debBoxDir
+    boxDir = debDir
 }
 
 task vagrantSshSmokeTestDeb(type: VagrantSsh) {
-    dependsOn 'vagrantUpSmokeTestDeb'
+    dependsOn 'vagrantUpDeb'
     finalizedBy 'vagrantDestroyDeb'
 
-    boxDir = debBoxDir
-    sshCommand "sh /vagrant/scripts/vagrant_verify.sh"
+    boxDir = debDir
+    sshCommand "sh /scripts/vagrant_verify.sh"
 }
 
 task vagrantDestroyDeb(type: VagrantDestroy) {
-    boxDir = debBoxDir
-}
-
-task copyRpmFiles() {
-    inputs.files(commonFiles, rpmFiles)
-    outputs.dir rpmBoxDir
-
-    doLast {
-        //make the rpm directory
-        rpmBoxDir.mkdirs()
-
-        //copy the vagrant file
-        copy {
-            from rpmFiles
-            into rpmBoxDir
-        }
-
-        //copy the scripts
-        copy {
-            from "$projectDir/src/vagrant/scripts"
-            into "$rpmBoxDir/scripts"
-        }
-
-        //copy the fake services
-        copy {
-            from "$projectDir/src/vagrant/fake-services"
-            into "$rpmBoxDir/fake-services"
-        }
-
-        //copy the configs
-        copy {
-            from configDir
-            into "$rpmBoxDir/etc_repose"
-        }
-    }
+    boxDir = debDir
 }
 
 task vagrantUpRpm(type: VagrantUp) {
     dependsOn 'copyRpmFiles'
 
-    boxDir = rpmBoxDir
-}
-
-task vagrantUpSmokeTestRpm(type: VagrantUp) {
-    dependsOn 'copyRpmFiles'
-    finalizedBy 'vagrantDestroyRpm'
-
-    boxDir = rpmBoxDir
+    boxDir = rpmDir
 }
 
 task vagrantSshSmokeTestRpm(type: VagrantSsh) {
-    dependsOn 'vagrantUpSmokeTestRpm'
+    dependsOn 'vagrantUpRpm'
     finalizedBy 'vagrantDestroyRpm'
 
-    boxDir = rpmBoxDir
-    sshCommand "sh /vagrant/scripts/vagrant_verify.sh"
+    boxDir = rpmDir
+    sshCommand "sh /scripts/vagrant_verify.sh"
 }
 
 task vagrantDestroyRpm(type: VagrantDestroy) {
-    boxDir = rpmBoxDir
+    boxDir = rpmDir
 }
 
-task('smokeTest', description: 'tests if the Repose instance can handle basic requests', group: 'release', dependsOn: ['vagrantSshSmokeTestDeb', 'vagrantSshSmokeTestRpm'])
+task vagrantSmokeTest {
+    description = 'tests if the Repose instance can handle basic requests using Vagrant'
+    group = 'release'
+    dependsOn = ['vagrantSshSmokeTestDeb',
+                 'vagrantSshSmokeTestRpm']
+}
+
+docker {
+    url = "unix:///var/run/docker.sock"
+}
+
+task buildDebImage(type: DockerBuildImage) {
+    dependsOn copyDebFiles
+    inputDir = file("$buildDir/deb")
+    tag = 'repose/deb-release-verification'
+    // TODO: Add withBuildArg to gradle-docker-plugin
+    // buildArg = ['REPOSE_VERSION=' + releaseVersion]
+}
+
+task buildRpmImage(type: DockerBuildImage) {
+    dependsOn copyRpmFiles
+    inputDir = file("$buildDir/rpm")
+    tag = 'repose/rpm-release-verification'
+    // TODO: Add withBuildArg to gradle-docker-plugin
+    // buildArg = ['REPOSE_VERSION=' + releaseVersion]
+}
+
+task createDebContainer(type: DockerCreateContainer) {
+    dependsOn buildDebImage
+    targetImageId { buildDebImage.getImageId() }
+}
+
+task createRpmContainer(type: DockerCreateContainer) {
+    dependsOn buildRpmImage
+    targetImageId { buildRpmImage.getImageId() }
+}
+
+task startDebContainer(type: DockerStartContainer) {
+    dependsOn createDebContainer
+    targetContainerId { createDebContainer.getContainerId() }
+    portBindings = ['10037:18038', '8080:18088']
+}
+
+task startRpmContainer(type: DockerStartContainer) {
+    dependsOn createRpmContainer
+    targetContainerId { createRpmContainer.getContainerId() }
+    portBindings = ['10037:18038', '8080:18088']
+}
+
+task stopDebContainer(type: DockerStopContainer) {
+    dependsOn startDebContainer
+    targetContainerId { startDebContainer.getContainerId() }
+}
+
+task stopRpmContainer(type: DockerStopContainer) {
+    dependsOn startRpmContainer
+    targetContainerId { startRpmContainer.getContainerId() }
+}
+
+task removeDebContainer(type: DockerRemoveContainer) {
+    dependsOn createDebContainer
+    targetContainerId { createDebContainer.getContainerId() }
+}
+
+task removeRpmContainer(type: DockerRemoveContainer) {
+    dependsOn createRpmContainer
+    targetContainerId { createRpmContainer.getContainerId() }
+}
+
+task removeDebImage(type: DockerRemoveImage) {
+    targetImageId { buildDebImage.getContainerId() }
+}
+
+task removeRpmImage(type: DockerRemoveImage) {
+    targetImageId { buildRpmImage.getContainerId() }
+}
+
+task dockerSmokeTest {
+    description = 'tests if the Repose instance can handle basic requests using Docker'
+    group = 'release'
+    dependsOn = ['startDebContainer',
+                 'startRpmContainer']
+    finalizedBy = ['stopDebContainer',
+                   'stopDebContainer',
+                   'removeDebContainer',
+                   'removeRpmContainer',
+                   'removeDebImage',
+                   'removeRpmImage']
+}
 
 // Note: At this time, release verification will be handled out-of-band with the release. Therefore,
-//       no wiring was added to place the 'smokeTest' task into existing task flows.
+//       no wiring was added to place 'smokeTest' tasks into existing task flows.
