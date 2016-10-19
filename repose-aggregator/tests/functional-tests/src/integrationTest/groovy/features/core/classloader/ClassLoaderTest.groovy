@@ -138,11 +138,13 @@ class ClassLoaderTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
 
+        reposeLogSearch.cleanLog()
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/classloader/two", params)
 
         repose.start()
+        reposeLogSearch.awaitByString("Repose ready", 1, 30)
 
         when: "make a request with the FOO header"
         def headers = [
