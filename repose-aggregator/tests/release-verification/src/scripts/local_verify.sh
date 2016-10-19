@@ -9,19 +9,19 @@ BUILD_DIR=`readlink -f ${REPOSE_DIR}/repose-aggregator/tests/release-verificatio
 mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR}
 
-if [[ -n $1 && -d "${SOURCE_DIR}/vagrant/${1}" ]] ; then
-    cp -R ${SOURCE_DIR}/vagrant/${1} \
+if [[ -n $1 && -d "${SOURCE_DIR}/release-verification/${1}" ]] ; then
+    cp -R ${SOURCE_DIR}/release-verification/${1} \
           ${BUILD_DIR}
     VERIFY_DIR=${BUILD_DIR}/${1}
 else
-    cp -R ${SOURCE_DIR}/vagrant/deb \
+    cp -R ${SOURCE_DIR}/release-verification/deb \
           ${BUILD_DIR}
     VERIFY_DIR=${BUILD_DIR}/deb
 fi
 cd ${VERIFY_DIR}
-cp -R ${SOURCE_DIR}/vagrant/scripts \
+cp -R ${SOURCE_DIR}/release-verification/scripts \
       ${VERIFY_DIR}/
-cp -R ${SOURCE_DIR}/vagrant/fake-services \
+cp -R ${SOURCE_DIR}/release-verification/fake-services \
       ${VERIFY_DIR}/
 mkdir -p ${VERIFY_DIR}/etc_repose
 cp ${SOURCE_DIR}/config/* \
@@ -37,17 +37,17 @@ vagrant up
 
 ## Test the default install; should result in a Moved Permanently (301) status.
 #vagrant ssh -c '
-#cp /vagrant/scripts/isReposeReady.sh /tmp/
+#cp /release-verification/scripts/isReposeReady.sh /tmp/
 #chmod a+x /tmp/isReposeReady.sh
-#echo "~~~TRUNCATED~~~" > /vagrant/default.log 2>&1
+#echo "~~~TRUNCATED~~~" > /release-verification/default.log 2>&1
 #/tmp/isReposeReady.sh /var/log/repose/current.log
 #if [ $? -eq 0 ]; then
-#   curl -vs http://localhost:8080 > /vagrant/default.log 2>&1
+#   curl -vs http://localhost:8080 > /release-verification/default.log 2>&1
 #fi
-#grep -qs "301 Moved Permanently" /vagrant/default.log
+#grep -qs "301 Moved Permanently" /release-verification/default.log
 #STATUS=$?
 #if [ "$STATUS" -ne 0 ]; then
-#   cat /vagrant/default.log
+#   cat /release-verification/default.log
 #   echo -en "\n\n"
 #fi
 #'
@@ -58,7 +58,7 @@ vagrant up
 #fi
 
 # Test the filter bundle install; should result in an Ok (200) status.
-vagrant ssh -c 'sh /vagrant/scripts/vagrant_verify.sh'
+vagrant ssh -c 'sh /release-verification/scripts/vagrant_verify.sh'
 if [ $? -ne 0 ]; then
    echo -en "\n\n~~~~~ ERROR - Validation Install FAILED ~~~~~\n\n"
 else

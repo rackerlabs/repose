@@ -3,7 +3,7 @@ echo "Starting Fake Valkyrie"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 cd /opt/fake-valkyrie
-node app.js 2>&1 >> /vagrant/fake-valkyrie.log &
+node app.js 2>&1 >> /release-verification/fake-valkyrie.log &
 sleep 2
 
 echo "-------------------------------------------------------------------------------------------------------------------"

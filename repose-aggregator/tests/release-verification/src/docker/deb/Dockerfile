@@ -27,24 +27,24 @@ RUN wget -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add -
 RUN echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list
 
 # TODO: Should these copy commands be replaced by volume mounting from the command line?
-COPY etc_repose /etc_repose
-COPY fake-services /fake-services
-COPY scripts /scripts
-COPY *.deb /
+COPY etc_repose /release-verification/etc_repose
+COPY fake-services /release-verification/fake-services
+COPY scripts /release-verification/scripts
+COPY *.deb /release-verification/
 
-RUN sh /scripts/fake_keystone_prepare.sh
-RUN cp fake-services/fake-keystone2/package.json /opt/fake-keystone/package.json
-RUN cp fake-services/fake-keystone2/app.js /opt/fake-keystone/app.js
-RUN sh /scripts/docker_fake_keystone_install.sh
+RUN sh /release-verification/scripts/fake_keystone_prepare.sh
+RUN cp /release-verification/fake-services/fake-keystone2/package.json /opt/fake-keystone/package.json
+RUN cp /release-verification/fake-services/fake-keystone2/app.js /opt/fake-keystone/app.js
+RUN sh /release-verification/scripts/docker_fake_keystone_install.sh
 
-RUN sh /scripts/fake_origin_prepare.sh
-RUN cp fake-services/fake-origin/package.json /opt/fake-origin/package.json
-RUN cp fake-services/fake-origin/app.js /opt/fake-origin/app.js
-RUN sh /scripts/docker_fake_origin_install.sh
+RUN sh /release-verification/scripts/fake_origin_prepare.sh
+RUN cp /release-verification/fake-services/fake-origin/package.json /opt/fake-origin/package.json
+RUN cp /release-verification/fake-services/fake-origin/app.js /opt/fake-origin/app.js
+RUN sh /release-verification/scripts/docker_fake_origin_install.sh
 
-RUN apt-get update -qq && sh /scripts/repose_install_deb.sh $REPOSE_VERSION
-RUN cp --force /etc_repose/* /etc/repose/
-RUN sh /scripts/repose_run.sh
+RUN apt-get update -qq && sh /release-verification/scripts/repose_install_deb.sh $REPOSE_VERSION
+RUN cp --force /release-verification/etc_repose/* /etc/repose/
+RUN sh /release-verification/scripts/repose_run.sh
 
 # TODO: Switch to an ENTRYPOINT to make the Dockerfile executable
-CMD ["sh", "/scripts/docker_verify.sh"]
+CMD ["sh", "/release-verification/scripts/docker_verify.sh"]

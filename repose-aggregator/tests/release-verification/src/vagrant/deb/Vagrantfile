@@ -73,7 +73,7 @@ echo "Installing Repose ${name} package"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 if [ "X_${name}_X" = "X_local_X" ] ; then
-  dpkg -i /vagrant/repose-valve*_all.deb /vagrant/repose-filter-bundle*_all.deb /vagrant/repose-extensions-filter-bundle*_all.deb /vagrant/repose-experimental-filter-bundle*_all.deb
+  dpkg -i /release-verification/repose-valve*_all.deb /release-verification/repose-filter-bundle*_all.deb /release-verification/repose-extensions-filter-bundle*_all.deb /release-verification/repose-experimental-filter-bundle*_all.deb
   apt-get install -y -f
 else
   apt-get install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version} repose-experimental-filter-bundle${version}
@@ -87,8 +87,8 @@ echo "--------------------------------------------------------------------------
 echo "Copying configs"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
-if [[ -d "/vagrant/etc_repose" ]] ; then
-    cp --force /vagrant/etc_repose/* /etc/repose/
+if [[ -d "/release-verification/etc_repose" ]] ; then
+    cp --force /release-verification/etc_repose/* /etc/repose/
 fi
 SCRIPT
 
@@ -145,5 +145,5 @@ SCRIPT
   config.vm.provision "shell", path: "./scripts/repose_run.sh"
 
   config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
-  config.vm.synced_folder ".", "/vagrant", mount_options: ["dmode=777,fmode=666"]
+  config.vm.synced_folder ".", "/release-verification", mount_options: ["dmode=777,fmode=666"]
 end
