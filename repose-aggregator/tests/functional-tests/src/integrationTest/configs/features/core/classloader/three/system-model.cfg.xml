@@ -8,8 +8,8 @@
         </nodes>
 
         <filters>
-            <filter name="filter-one"/>
-            <filter name="filter-two"/>
+            <filter name="filter-four"/>
+            <filter name="filter-five"/>
         </filters>
 
         <destinations>
