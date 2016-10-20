@@ -20,6 +20,9 @@ buildscript {
         classpath 'com.netflix.nebula:gradle-git-scm-plugin:3.0.1'
         classpath 'com.netflix.nebula:gradle-ospackage-plugin:3.4.0'
         classpath 'org.hidetake:gradle-ssh-plugin:1.0.5'
+        classpath 'com.bmuschko:gradle-vagrant-plugin:2.0'
+        // TODO: Update to 3.0.4 to resolve Mac OS X junix issue (https://github.com/docker-java/docker-java/issues/537)
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.3'
     }
 }
 
