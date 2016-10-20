@@ -8,18 +8,6 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'com.bmuschko:gradle-vagrant-plugin:2.0'
-        // TODO: Update to 3.0.4 to resolve Mac OS X junix issue (https://github.com/docker-java/docker-java/issues/537)
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.3'
-    }
-}
-
 apply plugin: 'com.bmuschko.vagrant-base'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
