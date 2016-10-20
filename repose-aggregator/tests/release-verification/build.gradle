@@ -174,23 +174,23 @@ task buildRpmImage(type: DockerBuildImage) {
 task createDebContainer(type: DockerCreateContainer) {
     dependsOn buildDebImage
     targetImageId { buildDebImage.getImageId() }
+    portBindings = ['10037:18038', '8080:18088']
 }
 
 task createRpmContainer(type: DockerCreateContainer) {
     dependsOn buildRpmImage
     targetImageId { buildRpmImage.getImageId() }
+    portBindings = ['10037:18038', '8080:18088']
 }
 
 task startDebContainer(type: DockerStartContainer) {
     dependsOn createDebContainer
     targetContainerId { createDebContainer.getContainerId() }
-    portBindings = ['10037:18038', '8080:18088']
 }
 
 task startRpmContainer(type: DockerStartContainer) {
     dependsOn createRpmContainer
     targetContainerId { createRpmContainer.getContainerId() }
-    portBindings = ['10037:18038', '8080:18088']
 }
 
 task stopDebContainer(type: DockerStopContainer) {
