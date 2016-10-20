@@ -211,12 +211,14 @@ task buildRpmImage {
 
 task createDebContainer(type: DockerCreateContainer) {
     dependsOn buildDebImage
-    targetImageId { buildDebImage.getImageId() }
+    targetImageId { 'repose:deb-release-verification' }
+    // targetImageId { buildDebImage.getImageId() }
 }
 
 task createRpmContainer(type: DockerCreateContainer) {
     dependsOn buildRpmImage
-    targetImageId { buildRpmImage.getImageId() }
+    targetImageId { 'repose:rpm-release-verification' }
+    // targetImageId { buildRpmImage.getImageId() }
 }
 
 task startDebContainer(type: DockerStartContainer) {
