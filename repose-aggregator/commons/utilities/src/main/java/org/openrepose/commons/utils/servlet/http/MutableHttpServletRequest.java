@@ -118,6 +118,10 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         return values.getQueryParameters().getParameterValues(name);
     }
 
+    public long getStreamLimit() {
+        return streamLimit;
+    }
+
     @Override
     public ServletInputStream getInputStream() throws IOException {
 
