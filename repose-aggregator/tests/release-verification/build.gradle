@@ -157,56 +157,28 @@ docker {
     url = "unix:///var/run/docker.sock"
 }
 
-// TODO: Replace the task below once the Docker plugin supports buildArgs
-//task buildDebImage(type: DockerBuildImage) {
-//    dependsOn copyDebFiles
-//    inputDir = file("$buildDir/deb")
-//    tag = 'repose:deb-release-verification'
-//    buildArg = ["REPOSE_VERSION=$releaseVersion"]
-//}
-task buildDebImage {
+task buildDebImage(type: DockerBuildImage) {
     dependsOn copyDebFiles
-
-    doLast {
-        def dockerProc = "docker build --build-arg REPOSE_VERSION=$releaseVersion -t repose:deb-release-verification $buildDir/deb/".execute()
-        dockerProc.consumeProcessOutput(System.out, System.err)
-        int exitCode = dockerProc.waitFor()
-        if (exitCode != 0) {
-            throw new GradleException("Could not build the Docker image for the DEB packages with version: $releaseVersion, exit code: $exitCode")
-        }
-    }
+    inputDir = file("$buildDir/deb")
+    tag = 'repose:deb-release-verification'
+    buildArgs = ['REPOSE_VERSION': releaseVersion]
 }
 
-// TODO: Replace the task below once the Docker plugin supports buildArgs
-//task buildRpmImage(type: DockerBuildImage) {
-//    dependsOn copyRpmFiles
-//    inputDir = file("$buildDir/rpm")
-//    tag = 'repose:rpm-release-verification'
-//    buildArg = ["REPOSE_VERSION=$releaseVersion"]
-//}
-task buildRpmImage {
+task buildRpmImage(type: DockerBuildImage) {
     dependsOn copyRpmFiles
-
-    doLast {
-        def dockerProc = "docker build --build-arg REPOSE_VERSION=$releaseVersion -t repose:rpm-release-verification $buildDir/deb/".execute()
-        dockerProc.consumeProcessOutput(System.out, System.err)
-        int exitCode = dockerProc.waitFor()
-        if (exitCode != 0) {
-            throw new GradleException("Could not build the Docker image for the RPM packages with version: $releaseVersion, exit code: $exitCode")
-        }
-    }
+    inputDir = file("$buildDir/rpm")
+    tag = 'repose:rpm-release-verification'
+    buildArgs = ['REPOSE_VERSION': releaseVersion]
 }
 
 task createDebContainer(type: DockerCreateContainer) {
     dependsOn buildDebImage
-    targetImageId { 'repose:deb-release-verification' }
-    // targetImageId { buildDebImage.getImageId() }
+    targetImageId { buildDebImage.getImageId() }
 }
 
 task createRpmContainer(type: DockerCreateContainer) {
     dependsOn buildRpmImage
-    targetImageId { 'repose:rpm-release-verification' }
-    // targetImageId { buildRpmImage.getImageId() }
+    targetImageId { buildRpmImage.getImageId() }
 }
 
 task startDebContainer(type: DockerStartContainer) {
