@@ -24,8 +24,9 @@ import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.PowerApiHeader
+import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
+import org.openrepose.commons.utils.servlet.http.{MutableHttpServletRequest, ReadableHttpServletResponse}
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
@@ -71,8 +72,8 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
   }
 
   /**
-   * Many payloads to parse here, should be fun
-   */
+    * Many payloads to parse here, should be fun
+    */
   val username2_0XML: UsernameParsingFunction = { is =>
     val xml = XML.load(is)
     val auth = xml \\ "auth"
@@ -140,14 +141,32 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
   }
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
+    // Even though the contract for FilterLogicHandler only guarantees an HttpServletRequest,
+    // The FilterLogicHandlerDelegate actually supplies a MutableHttpServletRequest.
+    // Since the MutableHttpServletRequest will simply return itself if it is already a MutableHttpServletRequest,
+    // this should only return the original HttpServletRequest now cast as a MutableHttpServletRequest.
+    // In turn we, when we modify the InputStream of the MutableHttpServletRequest it will set it for this and all remaining filters.
+    // This is necessary, because this filter will read the body and need to reset the stream.
+    // This is all fixed in the v8.0.0.0 with the new wrappers.
+    val mutableHttpRequest = MutableHttpServletRequest.wrap(request)
+    val origInputStream = mutableHttpRequest.getInputStream
+    if (!origInputStream.markSupported()) {
+      mutableHttpRequest.getStreamLimit match {
+        case streamLimit if streamLimit > 0 =>
+          mutableHttpRequest.setInputStream(new BufferedServletInputStream(new LimitedReadInputStream(streamLimit, origInputStream)))
+        case _ =>
+          mutableHttpRequest.setInputStream(new BufferedServletInputStream(origInputStream))
+      }
+    }
+
     val director = new FilterDirectorImpl()
     //By default, if nothing happens we're going to pass
     director.setFilterAction(FilterAction.PASS)
 
     //Only operate on things if it's a POST, else there's no body to manipulate.
-    if (request.getMethod == "POST") {
+    if (mutableHttpRequest.getMethod == "POST") {
       val headerManager = director.requestHeaderManager()
-      val contentType = request.getContentType
+      val contentType = mutableHttpRequest.getContentType
 
       //This logic is exactly the same regardless of the configuration, so lets reuse it
       val updateHeaders: (IdentityGroupConfig, Option[String], Option[String]) => Unit = { (config, domainOpt, usernameOpt) =>
@@ -161,7 +180,7 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
         }
       }
 
-      val inputStream = request.getInputStream()
+      val inputStream = mutableHttpRequest.getInputStream
 
       //If the config for v11 is set, do the work
       Option(filterConfig.getV11).map { config =>
@@ -177,13 +196,12 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends Ab
   }
 
   /**
-   * Build a function that takes our config, the request itself, functions to transform if given json, and if given XML
-   * and then a resultant function that can take that config and the username to do the work with.
-   */
+    * Build a function that takes our config, the request itself, functions to transform if given json, and if given XML
+    * and then a resultant function that can take that config and the username to do the work with.
+    */
   def parseUsername(config: IdentityGroupConfig, inputStream: InputStream, contentType: String, json: UsernameParsingFunction, xml: UsernameParsingFunction)(usernameFunction: (IdentityGroupConfig, Option[String], Option[String]) => Unit) = {
     val limit = BigInt(config.getContentBodyReadLimit).toLong
-    //Copied this limited read stuff from the other content-identity filter...
-    val limitedInputStream = new LimitedReadInputStream(limit, inputStream) //Allows me to reset?
+    val limitedInputStream = new LimitedReadInputStream(limit, inputStream)
     limitedInputStream.mark(limit.toInt)
     try {
       val (domainOpt, userOpt) = if (contentType.contains("xml")) {
