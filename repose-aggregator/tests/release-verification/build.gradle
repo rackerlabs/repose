@@ -227,11 +227,11 @@ task removeRpmContainer(type: DockerRemoveContainer) {
 }
 
 task removeDebImage(type: DockerRemoveImage) {
-    targetImageId { buildDebImage.getContainerId() }
+    targetImageId { buildDebImage.getImageId() }
 }
 
 task removeRpmImage(type: DockerRemoveImage) {
-    targetImageId { buildRpmImage.getContainerId() }
+    targetImageId { buildRpmImage.getImageId() }
 }
 
 task dockerSmokeTest {
