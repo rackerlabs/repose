@@ -154,7 +154,8 @@ task vagrantSmokeTest {
 }
 
 // This forces the usage of a more recent unix-socket-factory which makes Mac OS X happy
-// TODO: Remove this after upgrading to gradle-docker-plugin 3.0.4
+// It also forces the usage of jackson dependencies which were not being brought in as expected
+// TODO: Remove unix-socket-factory after upgrading to gradle-docker-plugin 3.0.4
 configurations {
     dockerJava {
         resolutionStrategy {
