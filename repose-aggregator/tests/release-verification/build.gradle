@@ -184,47 +184,48 @@ task buildRpmImage(type: DockerBuildImage) {
     buildArgs = ['REPOSE_VERSION': releaseVersion]
 }
 
-task createDebContainer(type: DockerCreateContainer) {
-    dependsOn buildDebImage
-    targetImageId { buildDebImage.getImageId() }
-    portBindings = ['10037:18038', '8080:18088']
-}
-
-task createRpmContainer(type: DockerCreateContainer) {
-    dependsOn buildRpmImage
-    targetImageId { buildRpmImage.getImageId() }
-    portBindings = ['10037:18038', '8080:18088']
-}
-
-task startDebContainer(type: DockerStartContainer) {
-    dependsOn createDebContainer
-    targetContainerId { createDebContainer.getContainerId() }
-}
-
-task startRpmContainer(type: DockerStartContainer) {
-    dependsOn createRpmContainer
-    targetContainerId { createRpmContainer.getContainerId() }
-}
-
-task stopDebContainer(type: DockerStopContainer) {
-    dependsOn startDebContainer
-    targetContainerId { startDebContainer.getContainerId() }
-}
-
-task stopRpmContainer(type: DockerStopContainer) {
-    dependsOn startRpmContainer
-    targetContainerId { startRpmContainer.getContainerId() }
-}
-
-task removeDebContainer(type: DockerRemoveContainer) {
-    dependsOn stopDebContainer
-    targetContainerId { stopDebContainer.getContainerId() }
-}
-
-task removeRpmContainer(type: DockerRemoveContainer) {
-    dependsOn stopRpmContainer
-    targetContainerId { stopRpmContainer.getContainerId() }
-}
+// TODO: These can be re-added for sandboxing Repose, but are not needed for automated release verification
+//task createDebContainer(type: DockerCreateContainer) {
+//    dependsOn buildDebImage
+//    targetImageId { buildDebImage.getImageId() }
+//    portBindings = ['10037:18038', '8080:18088']
+//}
+//
+//task createRpmContainer(type: DockerCreateContainer) {
+//    dependsOn buildRpmImage
+//    targetImageId { buildRpmImage.getImageId() }
+//    portBindings = ['10037:18038', '8080:18088']
+//}
+//
+//task startDebContainer(type: DockerStartContainer) {
+//    dependsOn createDebContainer
+//    targetContainerId { createDebContainer.getContainerId() }
+//}
+//
+//task startRpmContainer(type: DockerStartContainer) {
+//    dependsOn createRpmContainer
+//    targetContainerId { createRpmContainer.getContainerId() }
+//}
+//
+//task stopDebContainer(type: DockerStopContainer) {
+//    dependsOn startDebContainer
+//    targetContainerId { startDebContainer.getContainerId() }
+//}
+//
+//task stopRpmContainer(type: DockerStopContainer) {
+//    dependsOn startRpmContainer
+//    targetContainerId { startRpmContainer.getContainerId() }
+//}
+//
+//task removeDebContainer(type: DockerRemoveContainer) {
+//    dependsOn stopDebContainer
+//    targetContainerId { stopDebContainer.getContainerId() }
+//}
+//
+//task removeRpmContainer(type: DockerRemoveContainer) {
+//    dependsOn stopRpmContainer
+//    targetContainerId { stopRpmContainer.getContainerId() }
+//}
 
 task removeDebImage(type: DockerRemoveImage) {
     dependsOn buildDebImage
@@ -239,11 +240,9 @@ task removeRpmImage(type: DockerRemoveImage) {
 task dockerSmokeTest {
     description = 'tests if the Repose instance can handle basic requests using Docker'
     group = 'release'
-    dependsOn = ['startDebContainer',
-                 'startRpmContainer']
-    finalizedBy = ['removeDebContainer',
-                   'removeRpmContainer',
-                   'removeDebImage',
+    dependsOn = ['buildDebImage',
+                 'buildRpmImage']
+    finalizedBy = ['removeDebImage',
                    'removeRpmImage']
 }
 
