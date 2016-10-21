@@ -26,7 +26,7 @@ RUN apt-get install -y -f
 RUN wget -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add -
 RUN echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list
 
-# TODO: Should these copy commands be replaced by volume mounting from the command line?
+# Note: The COPY instruction was used rather than VOLUME since the behave of VOLUME varies based on the host OS
 COPY etc_repose /release-verification/etc_repose
 COPY fake-services /release-verification/fake-services
 COPY scripts /release-verification/scripts
@@ -48,5 +48,4 @@ RUN apt-get update -qq && sh /release-verification/scripts/repose_install_deb.sh
 RUN cp --force /release-verification/etc_repose/* /etc/repose/
 RUN sh /release-verification/scripts/repose_run.sh
 
-# TODO: Switch to an ENTRYPOINT to make the Dockerfile executable
 CMD ["sh", "/release-verification/scripts/docker_verify.sh"]
