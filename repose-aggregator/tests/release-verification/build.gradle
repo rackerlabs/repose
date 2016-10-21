@@ -217,20 +217,22 @@ task stopRpmContainer(type: DockerStopContainer) {
 }
 
 task removeDebContainer(type: DockerRemoveContainer) {
-    dependsOn createDebContainer
-    targetContainerId { createDebContainer.getContainerId() }
+    dependsOn stopDebContainer
+    targetContainerId { stopDebContainer.getContainerId() }
 }
 
 task removeRpmContainer(type: DockerRemoveContainer) {
-    dependsOn createRpmContainer
-    targetContainerId { createRpmContainer.getContainerId() }
+    dependsOn stopRpmContainer
+    targetContainerId { stopRpmContainer.getContainerId() }
 }
 
 task removeDebImage(type: DockerRemoveImage) {
+    dependsOn buildDebImage
     targetImageId { buildDebImage.getImageId() }
 }
 
 task removeRpmImage(type: DockerRemoveImage) {
+    dependsOn buildRpmImage
     targetImageId { buildRpmImage.getImageId() }
 }
 
@@ -239,9 +241,7 @@ task dockerSmokeTest {
     group = 'release'
     dependsOn = ['startDebContainer',
                  'startRpmContainer']
-    finalizedBy = ['stopDebContainer',
-                   'stopDebContainer',
-                   'removeDebContainer',
+    finalizedBy = ['removeDebContainer',
                    'removeRpmContainer',
                    'removeDebImage',
                    'removeRpmImage']
