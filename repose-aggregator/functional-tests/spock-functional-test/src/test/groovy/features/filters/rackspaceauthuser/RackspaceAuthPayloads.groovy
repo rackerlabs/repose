@@ -19,6 +19,8 @@
  */
 package features.filters.rackspaceauthuser
 
+import groovy.transform.Canonical
+
 class RackspaceAuthPayloads {
     public static Map contentXml = ["content-type": "application/xml"]
     public static Map contentJson = ["content-type": "application/json"]
@@ -83,6 +85,7 @@ class RackspaceAuthPayloads {
     // TODO: Have the API documentation updated and update this payload.
     public static String userMfaSetupXmlV20 = """<?xml version="1.0" encoding="UTF-8"?>
 <auth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
       xmlns="http://docs.openstack.org/identity/api/v2.0">
     <RAX-AUTH:scope>SETUP-MFA</RAX-AUTH:scope>
     <passwordCredentials username="demoAuthor" password="myPassword01"/>
@@ -192,4 +195,32 @@ class RackspaceAuthPayloads {
         }
     }
 }"""
+
+    def static payloadTests = [
+            new PayloadTest("userPasswordXmlV20", userPasswordXmlV20, contentXml, "demoAuthor"),
+            new PayloadTest("userPasswordJsonV20", userPasswordJsonV20, contentJson, "demoAuthor"),
+            new PayloadTest("userApiKeyXmlV20", userApiKeyXmlV20, contentXml, "demoAuthor"),
+            new PayloadTest("userApiKeyJsonV20", userApiKeyJsonV20, contentJson, "demoAuthor"),
+            new PayloadTest("userPasswordXmlEmptyV20", userPasswordXmlEmptyV20, contentXml, "demoAuthor"),
+            new PayloadTest("userPasswordJsonEmptyV20", userPasswordJsonEmptyV20, contentJson, "demoAuthor"),
+            new PayloadTest("userMfaSetupXmlV20", userMfaSetupXmlV20, contentXml, "demoAuthor"),
+            new PayloadTest("userMfaSetupJsonV20", userMfaSetupJsonV20, contentJson, "demoAuthor"),
+            new PayloadTest("rackerPasswordXmlV20", rackerPasswordXmlV20, contentXml, "Racker:jqsmith"),
+            new PayloadTest("rackerPasswordJsonV20", rackerPasswordJsonV20, contentJson, "Racker:jqsmith"),
+            new PayloadTest("rackerTokenKeyXmlV20", rackerTokenKeyXmlV20, contentXml, "Racker:jqsmith"),
+            new PayloadTest("rackerTokenKeyJsonV20", rackerTokenKeyJsonV20, contentJson, "Racker:jqsmith"),
+            new PayloadTest("federatedTokenKeyXmlV20", federatedPasswordXmlV20, contentXml, "jqsmith"),
+            new PayloadTest("federatedTokenKeyJsonV20", federatedPasswordJsonV20, contentJson, "jqsmith"),
+            new PayloadTest("userKeyXmlV11", userKeyXmlV11, contentXml, "test-user"),
+            new PayloadTest("userKeyJsonV11", userKeyJsonV11, contentJson, "test-user"),
+            new PayloadTest("userKeyXmlEmptyV11", userKeyXmlEmptyV11, contentXml, "test-user"),
+            new PayloadTest("userKeyJsonEmptyV11", userKeyJsonEmptyV11, contentJson, "test-user")]
+
+    @Canonical
+    static class PayloadTest {
+        String testName
+        String requestBody
+        Map contentType
+        String expectedUser
+    }
 }

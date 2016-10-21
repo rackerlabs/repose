@@ -7,6 +7,7 @@
         </nodes>
 
         <filters>
+            <filter name="${preceding-filter}"/>
             <filter name="rackspace-auth-user"/>
         </filters>
 
