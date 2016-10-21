@@ -7,8 +7,8 @@ sh /release-verification/scripts/fake_keystone_run.sh
 sh /release-verification/scripts/fake_origin_run.sh
 
 echo "~~~TRUNCATED~~~" > /release-verification/validation.log 2>&1
-cp /release-verification/scripts/isReposeReady.sh /tmp/
-chmod a+x /tmp/isReposeReady.sh
+cp /release-verification/scripts/docker_isReposeReady.sh /tmp/
+chmod a+x /tmp/docker_isReposeReady.sh
 /tmp/isReposeReady.sh /release-verification/var-log-repose-current.log
 if [ $? -eq 0 ]; then
    curl -vs http://localhost:8080/resource/this-is-an-id > /release-verification/validation.log 2>&1
