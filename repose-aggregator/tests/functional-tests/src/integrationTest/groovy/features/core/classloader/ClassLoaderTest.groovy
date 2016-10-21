@@ -22,22 +22,14 @@ package features.core.classloader
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.ReposeValveTest
-import org.junit.Assume
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-
 
 class ClassLoaderTest extends ReposeValveTest {
     static int originServicePort
     static int reposePort
     static String url
     static ReposeConfigurationProvider reposeConfigProvider
-
-    /**
-     * Unfortunately this tests requires the Servlet Filter Contract to actually be upheld,
-     * Repose doesn't do this, so we're setting a timebomb that will make the tests fail at a later date
-     */
-    def splodeDate = new GregorianCalendar(2017, Calendar.JANUARY, 5)
 
     /**
      * copy the bundle from /repose-aggregator/tests/test-bundles/bundle-one/target/
@@ -64,8 +56,6 @@ class ClassLoaderTest extends ReposeValveTest {
      *
      */
     def "An ear file can access a dependency that is not present in another ear"() {
-        Assume.assumeTrue(new Date() > splodeDate.getTime())
-
         deproxy = new Deproxy()
         originServicePort = properties.targetPort
         deproxy.addEndpoint(originServicePort)
@@ -92,7 +82,8 @@ class ClassLoaderTest extends ReposeValveTest {
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
 
-        repose.waitForNon500FromUrl(url)
+        reposeLogSearch.awaitByString("Repose ready", 1, 30)
+
         when: "make a request with the FOO header"
         def headers = [
                 'FOO': 'stuff'
@@ -104,7 +95,6 @@ class ClassLoaderTest extends ReposeValveTest {
         then: "the request header should equal BAR"
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
-        mc.handlings[0].request.headers.getFirstValue("FOO") == "BAR"
 
         when: "make a request with the BAR header"
         headers = [
@@ -121,14 +111,6 @@ class ClassLoaderTest extends ReposeValveTest {
     }
 
     /**
-     * copy the bundle from /repose-aggregator/tests/test-bundles/bundle-one/target/
-     * and copy the bundle from /repose-aggregator/tests/test-bundles/bundle-three/target/
-     * to artifacts directory
-     *
-     * set up config that has in system model:
-     *  filter-one
-     *  filter-three
-     *
      * Test Scenario #2: An ear file cannot access a dependency from another ear on its own
      * 1. EAR 3 : contains a filter that simply tries to instantiate the simple class create in filter 1.
      *   The filter does not list the jar as a dependency. (using class.forName to try to instantiate a string)
@@ -156,11 +138,13 @@ class ClassLoaderTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
 
+        reposeLogSearch.cleanLog()
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/classloader/two", params)
 
         repose.start()
+        reposeLogSearch.awaitByString("Repose ready", 1, 30)
 
         when: "make a request with the FOO header"
         def headers = [
@@ -175,21 +159,12 @@ class ClassLoaderTest extends ReposeValveTest {
     }
 
     /**
-     * copy the bundle from /repose-aggregator/tests/test-bundles/bundle-four/target/
-     * and copy the bundle from /repose-aggregator/tests/test-bundles/bundle-five/target/
-     * to artifacts directory
-     *
-     * set up config that has in system model:
-     *  filter-one
-     *  filter-two
-     *
      * start repose with the launcher
      * make a request with header foo. validate that BAR is logged in repose.log
      * validate that BARRR is logged in repose.log
      */
 
     def "test class loader three"() {
-        Assume.assumeTrue(new Date() > splodeDate.getTime())
         deproxy = new Deproxy()
         originServicePort = properties.targetPort
         deproxy.addEndpoint(originServicePort)
@@ -209,14 +184,15 @@ class ClassLoaderTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
 
+        reposeLogSearch.cleanLog()
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/core/classloader/two", params)
+        reposeConfigProvider.applyConfigs("features/core/classloader/three", params)
 
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
 
-        repose.waitForNon500FromUrl(url)
+        reposeLogSearch.awaitByString("Repose ready", 1, 30)
 
         when: "make a request with the FOO header"
         def headers = [

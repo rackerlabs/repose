@@ -62,10 +62,10 @@ dependencies {
     testCompile "org.spockframework:spock-core"
     testCompile "org.jetbrains:annotations"
 
-    testEar "org.openrepose.filters.core.test:core-test-filter-bundle"
-    testEar "org.openrepose.filters.core.test:busted-application-name-ear"
-    testEar "org.openrepose.filters.core.test:busted-web-fragment-ear"
-    testEar "org.openrepose.filters.core.test:second-filter-bundle"
+    testEar project(path: ":repose-aggregator:tests:test-bundles:core-test-filter-bundle", configuration: "archives")
+    testEar project(path: ":repose-aggregator:tests:test-bundles:busted-application-name-ear", configuration: "archives")
+    testEar project(path: ":repose-aggregator:tests:test-bundles:busted-web-fragment-ear", configuration: "archives")
+    testEar project(path: ":repose-aggregator:tests:test-bundles:second-filter-bundle", configuration: "archives")
 
 }
 
@@ -76,6 +76,10 @@ compileTestGroovy.dependsOn compileTestScala
 
 task copyEars() {
     description "Copies over ears needed for tests"
+    dependsOn(":repose-aggregator:tests:test-bundles:core-test-filter-bundle:ear",
+              ":repose-aggregator:tests:test-bundles:busted-application-name-ear:ear",
+              ":repose-aggregator:tests:test-bundles:busted-web-fragment-ear:ear",
+              ":repose-aggregator:tests:test-bundles:second-filter-bundle:ear")
     ext.outputDir = "$buildDir/earFiles/"
     inputs.files(configurations.testEar.files)
     outputs.dir outputDir
@@ -96,7 +100,7 @@ processResources {
 }
 
 processTestResources {
-    expand(earDirectory: copyEars.outputDir, earVersion: versionProperties.get('testEarVersion'))
+    expand(earDirectory: copyEars.outputDir, earVersion: version)
 }
 
 license {

@@ -1,0 +1,17 @@
+apply plugin: 'ear'
+
+dependencies {
+    earlib project(':repose-aggregator:tests:test-bundles:filter-two')
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            artifact source: ear, extension: 'ear'
+
+            pom.withXml {
+                asNode().appendNode('packaging', 'ear')
+            }
+        }
+    }
+}
