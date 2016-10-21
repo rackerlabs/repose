@@ -159,6 +159,9 @@ configurations {
     dockerJava {
         resolutionStrategy {
             force 'de.gesellix:unix-socket-factory:2016-04-06T22-21-19'
+            force 'com.fasterxml.jackson.core:jackson-databind:2.6.4'
+            force 'com.fasterxml.jackson.core:jackson-core:2.6.4'
+            force 'com.fasterxml.jackson.core:jackson-annotations:2.6.4'
         }
     }
 }
