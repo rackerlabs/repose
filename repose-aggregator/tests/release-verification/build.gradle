@@ -153,6 +153,16 @@ task vagrantSmokeTest {
                  'vagrantSshSmokeTestRpm']
 }
 
+// This forces the usage of a more recent unix-socket-factory which makes Mac OS X happy
+// TODO: Remove this after upgrading to gradle-docker-plugin 3.0.4
+configurations {
+    dockerJava {
+        resolutionStrategy {
+            force 'de.gesellix:unix-socket-factory:2016-04-06T22-21-19'
+        }
+    }
+}
+
 docker {
     url = "unix:///var/run/docker.sock"
 }
