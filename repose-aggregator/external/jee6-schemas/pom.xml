@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>external-lib-support</artifactId>
-        <version>7.3.8.1</version>
+        <version>7.3.8.2-SNAPSHOT</version>
     </parent>
 
     <name>JavaEE 6 - XML Schema Library</name>
