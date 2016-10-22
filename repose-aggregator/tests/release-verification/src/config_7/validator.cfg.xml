@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
+
+    <validator role="raxRolesDisabled" default="true" enable-rax-roles="false" dot-output="/vagrant/default.dot">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <resources base="http://localhost:8080">
+                <resource path="/resource">
+                    <resource id="device" path="{id}">
+                        <param name="id" type="xsd:string" rax:captureHeader="X-DEVICE-ID" style="template">
+                            <doc>Identifies a device ID at this resource level</doc>
+                        </param>
+                        <method name="GET"/>
+                        <method name="HEAD"/>
+                        <method name="POST"/>
+                        <method name="PUT"/>
+                        <method name="DELETE"/>
+                        <method name="PATCH"/>
+                    </resource>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+</validators>
