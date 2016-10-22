@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<add-headers xmlns="http://docs.openrepose.org/repose/add-header/v1.0">
+    <request>
+        <header name="X-Auth-Token" overwrite="false">12345678901234567890</header>
+    </request>
+</add-headers>
