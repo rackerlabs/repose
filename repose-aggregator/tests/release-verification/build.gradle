@@ -44,7 +44,7 @@ task copyDebFiles() {
         //make the deb directory
         debDir.mkdirs()
 
-        //copy the vagrant file
+        //copy the docker/vagrant files
         copy {
             from debFiles
             into debDir
@@ -78,7 +78,7 @@ task copyRpmFiles() {
         //make the rpm directory
         rpmDir.mkdirs()
 
-        //copy the vagrant file
+        //copy the docker/vagrant files
         copy {
             from rpmFiles
             into rpmDir

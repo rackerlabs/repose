@@ -2,8 +2,8 @@ The primary objective of this project is to provide an automated way of
 verifying releases.
 
 To accomplish that objective, a consistent, stable environment is provided
-by Vagrant along with a supporting set of scripts. Gradle tasks provide
-simple management of the Vagrant environment.
+by Docker or Vagrant and a supporting set of scripts. Gradle tasks provide
+simple management of the Docker or Vagrant environment.
 
 Tangentially, the scaffolding put in place by this project provides a
 relatively simple way of standing up a Repose sandbox. A Repose sandbox
@@ -42,6 +42,23 @@ To verify a v7.x release from the main project dir, run something like
 `gradle :repose-aggregator:tests:release-verification:vagrantSmokeTest -Prelease-version=7.3.7.1 -Pconfig-dir=/Fully/Qualified/Path/repose/repose-aggregator/tests/release-verification/src/config_7`
 
 # Repose As A Sandbox
+A sandbox can be started in either Docker or Vagrant.
+
+To start the Docker sandbox, run the `buildDebImage` or `buildRpmImage`
+task with the desired properties. Once the Docker image has been built,
+a shell session can be started within the container to enable open
+access. The easiest way to do so is to override the Docker `CMD`
+instruction by providing a command when invoking Docker run. For example,
+the following command may be used:
+`docker run -ti repose:deb-release-verification /bin/bash`
+To debug the instance of Repose running in the sandbox, connect a remote
+debugger to the port mapped by docker to the exposed JDWP port. So if
+the Docker container was started with
+`docker run -p 127.0.0.1:18028:10037 -t repose:deb-release-verification tail -f /var/log/repose.log`
+then a debugger can be connected to the localhost on port 18038.
+Note that we overrode the Docker `CMD` instruction with
+`tail -f /var/log/repose.log` to keep the Docker container running.
+
 To start the sandbox, run the `vagrantUpDeb` or `vagrantUpRpm` task
 with the desired properties. Once the sandbox is running, the environment
 can be accessed directly by running the `vagrant ssh` command from the
