@@ -173,14 +173,14 @@ docker {
 
 task buildDebImage(type: DockerBuildImage) {
     dependsOn copyDebFiles
-    inputDir = file("$buildDir/deb")
+    inputDir = file(debDir)
     tag = 'repose:deb-release-verification'
     buildArgs = ['REPOSE_VERSION': releaseVersion]
 }
 
 task buildRpmImage(type: DockerBuildImage) {
     dependsOn copyRpmFiles
-    inputDir = file("$buildDir/rpm")
+    inputDir = file(rpmDir)
     tag = 'repose:rpm-release-verification'
     buildArgs = ['REPOSE_VERSION': releaseVersion]
 }
