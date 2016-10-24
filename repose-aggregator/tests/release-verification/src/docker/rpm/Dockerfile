@@ -58,6 +58,5 @@ RUN sh /release-verification/scripts/docker_fake_origin_install.sh
 
 RUN yum update -y --quiet && sh /release-verification/scripts/repose_install_rpm.sh $REPOSE_VERSION
 RUN cp --force /release-verification/etc_repose/* /etc/repose/
-RUN sh /release-verification/scripts/repose_run.sh
 
-CMD ["sh", "/release-verification/scripts/docker_verify.sh"]
+CMD ["/bin/bash", "/release-verification/scripts/docker_verify.sh"]
