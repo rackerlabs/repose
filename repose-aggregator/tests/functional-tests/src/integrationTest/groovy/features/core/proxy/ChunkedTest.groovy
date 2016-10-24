@@ -21,8 +21,6 @@ package features.core.proxy
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Handling
-import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 class ChunkedTest extends ReposeValveTest {
@@ -42,29 +40,25 @@ class ChunkedTest extends ReposeValveTest {
 
     @Unroll("When set to #method chunked encoding to true and sending #reqBody.")
     def "When set to send chunked encoding to true. Repose should send requests chunked"() {
-
         when:
-        MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: method, requestBody: reqBody])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(
+                url: reposeEndpoint,
+                method: method,
+                requestBody: reqBody
+        )
+        def clientRequestHeaders = messageChain.sentRequest.headers
+        def originRequestHeaders = messageChain.getHandlings()[0].request.headers
 
         then:
-        ((Handling) sentRequest).request.getHeaders().findAll("transfer-encoding").size() == transfer_encoding
-        ((Handling) sentRequest).request.getHeaders().findAll("content-type").size() == content_type
-        ((Handling) sentRequest).request.getHeaders().findAll("content-length").size() == content_length
+        clientRequestHeaders.findAll("Transfer-Encoding").size() == 0
+        originRequestHeaders.findAll("Transfer-Encoding").size() == (method.equalsIgnoreCase("TRACE") ? 0 : 1)
+        originRequestHeaders.findAll("Content-Type").size() == ((reqBody == null) ? 0 : 1)
+        originRequestHeaders.findAll("Content-Length").size() == 0
 
-        if (transfer_encoding > 0)
-            assert ((Handling) sentRequest).request.getHeaders().getFirstValue("transfer-encoding").equalsIgnoreCase("chunked")
+        if (originRequestHeaders.findAll("Transfer-Encoding").size() > 0)
+            assert originRequestHeaders.getFirstValue("Transfer-Encoding").equalsIgnoreCase("Chunked")
 
         where:
-        method  | reqBody | content_type | content_length | transfer_encoding
-        "POST"  | "blah"  | 1            | 0              | 1
-        "POST"  | null    | 0            | 0              | 1
-        "PUT"   | "blah"  | 1            | 0              | 1
-        "PUT"   | null    | 0            | 0              | 1
-        "TRACE" | "blah"  | 1            | 0              | 0
-        "TRACE" | null    | 0            | 0              | 0
-
+        [method, reqBody] << [["POST", "PUT", "TRACE"], ["blah", null]].combinations()
     }
-
-
 }
