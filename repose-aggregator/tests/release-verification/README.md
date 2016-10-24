@@ -36,7 +36,10 @@ build the project locally and set up the built artifacts. A value of
 Gradle tasks have been set up to allow for verifying either the DEB
 packages, the RPM packages, or both. To verify a release, simply
 run `gradle smokeTest -Prelease-version=<version>` (e.g. 8.1.0.0) from
-this project. If the build succeeds, then the release succeeded!
+this project. If the build succeeds, then the release succeeded! Different
+versions require different configurations to test all of the artifacts.
+To verify a v7.x release from the main project dir, run something like
+`gradle :repose-aggregator:tests:release-verification:vagrantSmokeTest -Prelease-version=7.3.7.1 -Pconfig-dir=/Fully/Qualified/Path/repose/repose-aggregator/tests/release-verification/src/config_7`
 
 # Repose As A Sandbox
 To start the sandbox, run the `vagrantUpDeb` or `vagrantUpRpm` task
