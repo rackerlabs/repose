@@ -249,7 +249,6 @@ task startDebContainer(type: DockerStartContainer) {
 
 task startDebSmokeTestContainer(type: DockerStartContainer) {
     dependsOn 'createDebSmokeTestContainer'
-    finalizedBy 'stopDebSmokeTestContainer'
     targetContainerId { createDebSmokeTestContainer.getContainerId() }
 }
 
@@ -260,7 +259,6 @@ task startRpmContainer(type: DockerStartContainer) {
 
 task startRpmSmokeTestContainer(type: DockerStartContainer) {
     dependsOn 'createRpmSmokeTestContainer'
-    finalizedBy 'stopRpmSmokeTestContainer'
     targetContainerId { createRpmSmokeTestContainer.getContainerId() }
 }
 
