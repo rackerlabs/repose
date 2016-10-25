@@ -44,6 +44,13 @@ class ChunkedAutoTest extends ReposeValveTest {
         def messageChain = deproxy.makeRequest(
                 url: reposeEndpoint,
                 method: method,
+                headers: [
+                        (chunked ?
+                                ["Transfer-Encoding": "chunked"] :
+                                ["Content-Length": ((reqBody == null) ? 0 : reqBody.length())]
+                        ),
+                        ["Content-Type": "plain/text"]
+                ],
                 requestBody: reqBody,
                 chunked: chunked
         )
@@ -51,19 +58,10 @@ class ChunkedAutoTest extends ReposeValveTest {
         def originRequestHeaders = messageChain.getHandlings()[0].request.headers
 
         then:
-        //clientRequestHeaders.findAll("Transfer-Encoding").size() == (chunked ? 1 : 0)
-        // @TODO This seems to work.??? This may be a Deproxy thing.
-        clientRequestHeaders.findAll("Transfer-Encoding").size() == (chunked && (reqBody != null) ? 1 : 0)
-        originRequestHeaders.findAll("Transfer-Encoding").size() == (chunked && (reqBody != null) && !method.equalsIgnoreCase("TRACE") ? 1 : 0)
-        originRequestHeaders.findAll("Content-Type").size() == ((reqBody == null) ? 0 : 1)
-        // @TODO This seems to work.???
-        //originRequestHeaders.findAll("Content-Type").size() == (chunked || (reqBody == null) ? 0 : 1)
-        originRequestHeaders.findAll("Content-Length").size() == (chunked ? 0 : 1)
-        // @TODO Next guess based on what works in the ContentLengthTest.
-        //originRequestHeaders.findAll("Content-Length").size() == (chunked || method.equalsIgnoreCase("TRACE") ? 0 : 1)
-        // @TODO This seems to work.???
-        //originRequestHeaders.findAll("Content-Length").size() ==
-        //        (!method.equalsIgnoreCase("TRACE") && (!chunked || (chunked && (reqBody == null))) ? 1 : 0)
+        clientRequestHeaders.findAll("Transfer-Encoding").size() == (chunked ? 1 : 0)
+        originRequestHeaders.findAll("Transfer-Encoding").size() == (chunked && !method.equalsIgnoreCase("TRACE") ? 1 : 0)
+        originRequestHeaders.findAll("Content-Type").size() == 1
+        originRequestHeaders.findAll("Content-Length").size() == (chunked || method.equalsIgnoreCase("TRACE") ? 0 : 1)
 
         if (originRequestHeaders.findAll("Transfer-Encoding").size() > 0)
             assert originRequestHeaders.getFirstValue("Transfer-Encoding").equalsIgnoreCase("Chunked")
@@ -72,32 +70,5 @@ class ChunkedAutoTest extends ReposeValveTest {
 
         where:
         [method, reqBody, chunked] << [["POST", "PUT", "TRACE"], ["blah", null], [true, false]].combinations()
-
-//        // @TODO This seems to work.???
-//        then:
-//        clientRequestHeaders.findAll("Transfer-Encoding").size() == client_encoding
-//        originRequestHeaders.findAll("Transfer-Encoding").size() == origin_encoding
-//        originRequestHeaders.findAll("Content-Type").size() == content_type
-//        originRequestHeaders.findAll("Content-Length").size() == content_length
-//
-//        if (originRequestHeaders.findAll("Transfer-Encoding").size() > 0)
-//            assert originRequestHeaders.getFirstValue("Transfer-Encoding").equalsIgnoreCase("Chunked")
-//        if (originRequestHeaders.findAll("Content-Length").size())
-//            originRequestHeaders.getFirstValue("Content-Length").toInteger() == ((reqBody == null) ? 0 : reqBody.length())
-//
-//        where:
-//        method  | reqBody | chunked | client_encoding | origin_encoding | content_type | content_length
-//        "POST"  | "blah"  | true    | 1               | 1               | 0            | 0
-//        "POST"  | null    | true    | 0               | 0               | 0            | 1
-//        "PUT"   | "blah"  | true    | 1               | 1               | 0            | 0
-//        "PUT"   | null    | true    | 0               | 0               | 0            | 1
-//        "TRACE" | "blah"  | true    | 1               | 0               | 0            | 0
-//        "TRACE" | null    | true    | 0               | 0               | 0            | 0
-//        "POST"  | "blah"  | false   | 0               | 0               | 1            | 1
-//        "POST"  | null    | false   | 0               | 0               | 0            | 1
-//        "PUT"   | "blah"  | false   | 0               | 0               | 1            | 1
-//        "PUT"   | null    | false   | 0               | 0               | 0            | 1
-//        "TRACE" | "blah"  | false   | 0               | 0               | 1            | 0
-//        "TRACE" | null    | false   | 0               | 0               | 0            | 0
     }
 }

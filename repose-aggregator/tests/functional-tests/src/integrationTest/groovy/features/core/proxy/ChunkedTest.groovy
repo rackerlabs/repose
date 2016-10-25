@@ -44,6 +44,7 @@ class ChunkedTest extends ReposeValveTest {
         def messageChain = deproxy.makeRequest(
                 url: reposeEndpoint,
                 method: method,
+                headers: [["Content-Type":"plain/text"]],
                 requestBody: reqBody
         )
         def clientRequestHeaders = messageChain.sentRequest.headers
@@ -52,7 +53,7 @@ class ChunkedTest extends ReposeValveTest {
         then:
         clientRequestHeaders.findAll("Transfer-Encoding").size() == 0
         originRequestHeaders.findAll("Transfer-Encoding").size() == (method.equalsIgnoreCase("TRACE") ? 0 : 1)
-        originRequestHeaders.findAll("Content-Type").size() == ((reqBody == null) ? 0 : 1)
+        originRequestHeaders.findAll("Content-Type").size() == 1
         originRequestHeaders.findAll("Content-Length").size() == 0
 
         if (originRequestHeaders.findAll("Transfer-Encoding").size() > 0)

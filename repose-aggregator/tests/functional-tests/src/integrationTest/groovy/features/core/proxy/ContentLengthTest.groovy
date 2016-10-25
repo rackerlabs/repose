@@ -42,6 +42,7 @@ class ContentLengthTest extends ReposeValveTest {
         def messageChain = deproxy.makeRequest(
                 url: reposeEndpoint,
                 method: method,
+                headers: [["Content-Type": "plain/text"]],
                 requestBody: reqBody
         )
         def clientRequestHeaders = messageChain.sentRequest.headers
@@ -50,7 +51,7 @@ class ContentLengthTest extends ReposeValveTest {
         then:
         clientRequestHeaders.findAll("Transfer-Encoding").size() == 0
         originRequestHeaders.findAll("Transfer-Encoding").size() == 0
-        originRequestHeaders.findAll("Content-Type").size() == ((reqBody == null) ? 0 : 1)
+        originRequestHeaders.findAll("Content-Type").size() == 1
         originRequestHeaders.findAll("Content-Length").size() == (!method.equalsIgnoreCase("TRACE") ? 1 : 0)
 
         if (originRequestHeaders.findAll("Content-Length").size() > 0)
@@ -66,6 +67,7 @@ class ContentLengthTest extends ReposeValveTest {
         def messageChain = deproxy.makeRequest(
                 url: reposeEndpoint,
                 method: method,
+                headers: [["Transfer-Encoding": "chunked"], ["Content-Type": "plain/text"]],
                 requestBody: reqBody,
                 chunked: true
         )
@@ -73,13 +75,9 @@ class ContentLengthTest extends ReposeValveTest {
         def originRequestHeaders = messageChain.getHandlings()[0].request.headers
 
         then:
-        //clientRequestHeaders.findAll("Transfer-Encoding").size() == 1
-        // @TODO This seems to work.??? This may be a Deproxy thing.
-        clientRequestHeaders.findAll("Transfer-Encoding").size() == ((reqBody == null) ? 0 : 1)
+        clientRequestHeaders.findAll("Transfer-Encoding").size() == 1
         originRequestHeaders.findAll("Transfer-Encoding").size() == 0
-        originRequestHeaders.findAll("Content-Type").size() == ((reqBody == null) ? 0 : 1)
-        // @TODO This seems to work.???
-        //originRequestHeaders.findAll("Content-Type").size() == 0
+        originRequestHeaders.findAll("Content-Type").size() == 1
         originRequestHeaders.findAll("Content-Length").size() == (!method.equalsIgnoreCase("TRACE") ? 1 : 0)
 
         if (originRequestHeaders.findAll("Content-Length").size())
