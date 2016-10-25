@@ -116,8 +116,15 @@ task vagrantUpDeb(type: VagrantUp) {
     boxDir = debDir
 }
 
+task vagrantUpSmokeTestDeb(type: VagrantUp) {
+    dependsOn 'copyDebFiles'
+    finalizedBy 'vagrantDestroyDeb'
+
+    boxDir = debDir
+}
+
 task vagrantSshSmokeTestDeb(type: VagrantSsh) {
-    dependsOn 'vagrantUpDeb'
+    dependsOn 'vagrantUpSmokeTestDeb'
     finalizedBy 'vagrantDestroyDeb'
 
     boxDir = debDir
@@ -134,8 +141,15 @@ task vagrantUpRpm(type: VagrantUp) {
     boxDir = rpmDir
 }
 
+task vagrantUpSmokeTestRpm(type: VagrantUp) {
+    dependsOn 'copyRpmFiles'
+    finalizedBy 'vagrantDestroyRpm'
+
+    boxDir = rpmDir
+}
+
 task vagrantSshSmokeTestRpm(type: VagrantSsh) {
-    dependsOn 'vagrantUpRpm'
+    dependsOn 'vagrantUpSmokeTestRpm'
     finalizedBy 'vagrantDestroyRpm'
 
     boxDir = rpmDir
@@ -172,78 +186,153 @@ docker {
 }
 
 task buildDebImage(type: DockerBuildImage) {
-    dependsOn copyDebFiles
+    dependsOn 'copyDebFiles'
+    inputDir = file(debDir)
+    tag = 'repose:deb-release-verification'
+    buildArgs = ['REPOSE_VERSION': releaseVersion]
+}
+
+task buildDebSmokeTestImage(type: DockerBuildImage) {
+    dependsOn 'copyDebFiles'
+    finalizedBy 'removeDebSmokeTestImage'
     inputDir = file(debDir)
     tag = 'repose:deb-release-verification'
     buildArgs = ['REPOSE_VERSION': releaseVersion]
 }
 
 task buildRpmImage(type: DockerBuildImage) {
-    dependsOn copyRpmFiles
+    dependsOn 'copyRpmFiles'
+    inputDir = file(rpmDir)
+    tag = 'repose:rpm-release-verification'
+    buildArgs = ['REPOSE_VERSION': releaseVersion]
+}
+
+task buildRpmSmokeTestImage(type: DockerBuildImage) {
+    dependsOn 'copyRpmFiles'
+    finalizedBy 'removeRpmSmokeTestImage'
     inputDir = file(rpmDir)
     tag = 'repose:rpm-release-verification'
     buildArgs = ['REPOSE_VERSION': releaseVersion]
 }
 
 task createDebContainer(type: DockerCreateContainer) {
-    dependsOn buildDebImage
+    dependsOn 'buildDebImage'
     targetImageId { buildDebImage.getImageId() }
+    portBindings = ['10037:18038', '8080:18088']
+}
+
+task createDebSmokeTestContainer(type: DockerCreateContainer) {
+    dependsOn 'buildDebSmokeTestImage'
+    finalizedBy 'removeDebSmokeTestContainer'
+    targetImageId { buildDebSmokeTestImage.getImageId() }
     portBindings = ['10037:18038', '8080:18088']
 }
 
 task createRpmContainer(type: DockerCreateContainer) {
-    dependsOn buildRpmImage
+    dependsOn 'buildRpmImage'
     targetImageId { buildRpmImage.getImageId() }
     portBindings = ['10037:18038', '8080:18088']
 }
 
+task createRpmSmokeTestContainer(type: DockerCreateContainer) {
+    dependsOn 'buildRpmSmokeTestImage'
+    finalizedBy 'removeRpmSmokeTestContainer'
+    targetImageId { buildRpmSmokeTestImage.getImageId() }
+    portBindings = ['10037:18038', '8080:18088']
+}
+
 task startDebContainer(type: DockerStartContainer) {
-    dependsOn createDebContainer
+    dependsOn 'createDebContainer'
     targetContainerId { createDebContainer.getContainerId() }
 }
 
+task startDebSmokeTestContainer(type: DockerStartContainer) {
+    dependsOn 'createDebSmokeTestContainer'
+    finalizedBy 'stopDebSmokeTestContainer'
+    targetContainerId { createDebSmokeTestContainer.getContainerId() }
+}
+
 task startRpmContainer(type: DockerStartContainer) {
-    dependsOn createRpmContainer
+    dependsOn 'createRpmContainer'
     targetContainerId { createRpmContainer.getContainerId() }
 }
 
+task startRpmSmokeTestContainer(type: DockerStartContainer) {
+    dependsOn 'createRpmSmokeTestContainer'
+    finalizedBy 'stopRpmSmokeTestContainer'
+    targetContainerId { createRpmSmokeTestContainer.getContainerId() }
+}
+
 task stopDebContainer(type: DockerStopContainer) {
-    dependsOn startDebContainer
+    dependsOn 'startDebContainer'
     targetContainerId { startDebContainer.getContainerId() }
 }
 
+task stopDebSmokeTestContainer(type: DockerStopContainer) {
+    dependsOn 'startDebSmokeTestContainer'
+    targetContainerId { startDebSmokeTestContainer.getContainerId() }
+}
+
 task stopRpmContainer(type: DockerStopContainer) {
-    dependsOn startRpmContainer
+    dependsOn 'startRpmContainer'
     targetContainerId { startRpmContainer.getContainerId() }
 }
 
-task removeDebContainer(type: DockerRemoveContainer) {
-    dependsOn stopDebContainer
-    targetContainerId { stopDebContainer.getContainerId() }
+task stopRpmSmokeTestContainer(type: DockerStopContainer) {
+    dependsOn 'startRpmSmokeTestContainer'
+    targetContainerId { startRpmSmokeTestContainer.getContainerId() }
 }
 
+task removeDebContainer(type: DockerRemoveContainer) {
+    dependsOn 'createDebContainer'
+    targetContainerId { createDebContainer.getContainerId() }
+}
+
+task removeDebSmokeTestContainer(type: DockerRemoveContainer) {
+    dependsOn 'createDebSmokeTestContainer'
+    mustRunAfter 'stopDebSmokeTestContainer'
+    targetContainerId { createDebSmokeTestContainer.getContainerId() }
+}
+
+
 task removeRpmContainer(type: DockerRemoveContainer) {
-    dependsOn stopRpmContainer
-    targetContainerId { stopRpmContainer.getContainerId() }
+    dependsOn 'createRpmContainer'
+    targetContainerId { createRpmContainer.getContainerId() }
+}
+
+task removeRpmSmokeTestContainer(type: DockerRemoveContainer) {
+    dependsOn 'createRpmSmokeTestContainer'
+    mustRunAfter 'stopRpmSmokeTestContainer'
+    targetContainerId { createRpmSmokeTestContainer.getContainerId() }
 }
 
 task removeDebImage(type: DockerRemoveImage) {
-    dependsOn buildDebImage
+    dependsOn 'buildDebImage'
     targetImageId { buildDebImage.getImageId() }
 }
 
+task removeDebSmokeTestImage(type: DockerRemoveImage) {
+    dependsOn 'buildDebSmokeTestImage'
+    mustRunAfter 'removeDebSmokeTestContainer'
+    targetImageId { buildDebSmokeTestImage.getImageId() }
+}
+
 task removeRpmImage(type: DockerRemoveImage) {
-    dependsOn buildRpmImage
+    dependsOn 'buildRpmImage'
     targetImageId { buildRpmImage.getImageId() }
+}
+
+task removeRpmSmokeTestImage(type: DockerRemoveImage) {
+    dependsOn 'buildRpmSmokeTestImage'
+    mustRunAfter 'removeRpmSmokeTestContainer'
+    targetImageId { buildRpmSmokeTestImage.getImageId() }
 }
 
 task dockerSmokeTest {
     description = 'tests if the Repose instance can handle basic requests using Docker'
     group = 'release'
-    dependsOn = ['buildDebImage',
-                 'buildRpmImage']
-    finalizedBy = ['removeDebImage',
-                   'removeRpmImage']
+    dependsOn = ['startDebSmokeTestContainer',
+                 'startRpmSmokeTestContainer']
 }
 
 // Note: At this time, release verification will be handled out-of-band with the release. Therefore,
