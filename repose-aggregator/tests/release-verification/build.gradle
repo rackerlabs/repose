@@ -7,6 +7,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 
 apply plugin: 'com.bmuschko.vagrant-base'
 apply plugin: 'com.bmuschko.docker-remote-api'
@@ -263,76 +264,57 @@ task startRpmSmokeTestContainer(type: DockerStartContainer) {
     targetContainerId { createRpmSmokeTestContainer.getContainerId() }
 }
 
-task stopDebContainer(type: DockerStopContainer) {
-    dependsOn 'startDebContainer'
-    targetContainerId { startDebContainer.getContainerId() }
-}
-
-task stopDebSmokeTestContainer(type: DockerStopContainer) {
+task waitDebSmokeTestContainer(type: DockerWaitContainer) {
     dependsOn 'startDebSmokeTestContainer'
     targetContainerId { startDebSmokeTestContainer.getContainerId() }
+    timeout = 60
 }
 
-task stopRpmContainer(type: DockerStopContainer) {
-    dependsOn 'startRpmContainer'
-    targetContainerId { startRpmContainer.getContainerId() }
-}
-
-task stopRpmSmokeTestContainer(type: DockerStopContainer) {
+task waitRpmSmokeTestContainer(type: DockerWaitContainer) {
     dependsOn 'startRpmSmokeTestContainer'
     targetContainerId { startRpmSmokeTestContainer.getContainerId() }
-}
-
-task removeDebContainer(type: DockerRemoveContainer) {
-    dependsOn 'createDebContainer'
-    targetContainerId { createDebContainer.getContainerId() }
+    timeout = 60
 }
 
 task removeDebSmokeTestContainer(type: DockerRemoveContainer) {
     dependsOn 'createDebSmokeTestContainer'
-    mustRunAfter 'stopDebSmokeTestContainer'
+    mustRunAfter 'waitDebSmokeTestContainer'
     targetContainerId { createDebSmokeTestContainer.getContainerId() }
-}
-
-
-task removeRpmContainer(type: DockerRemoveContainer) {
-    dependsOn 'createRpmContainer'
-    targetContainerId { createRpmContainer.getContainerId() }
+    force = true
 }
 
 task removeRpmSmokeTestContainer(type: DockerRemoveContainer) {
     dependsOn 'createRpmSmokeTestContainer'
-    mustRunAfter 'stopRpmSmokeTestContainer'
+    mustRunAfter 'waitRpmSmokeTestContainer'
     targetContainerId { createRpmSmokeTestContainer.getContainerId() }
-}
-
-task removeDebImage(type: DockerRemoveImage) {
-    dependsOn 'buildDebImage'
-    targetImageId { buildDebImage.getImageId() }
+    force = true
 }
 
 task removeDebSmokeTestImage(type: DockerRemoveImage) {
     dependsOn 'buildDebSmokeTestImage'
     mustRunAfter 'removeDebSmokeTestContainer'
     targetImageId { buildDebSmokeTestImage.getImageId() }
-}
-
-task removeRpmImage(type: DockerRemoveImage) {
-    dependsOn 'buildRpmImage'
-    targetImageId { buildRpmImage.getImageId() }
+    force = true
 }
 
 task removeRpmSmokeTestImage(type: DockerRemoveImage) {
     dependsOn 'buildRpmSmokeTestImage'
     mustRunAfter 'removeRpmSmokeTestContainer'
     targetImageId { buildRpmSmokeTestImage.getImageId() }
+    force = true
 }
 
 task dockerSmokeTest {
     description = 'tests if the Repose instance can handle basic requests using Docker'
     group = 'release'
-    dependsOn = ['startDebSmokeTestContainer',
-                 'startRpmSmokeTestContainer']
+    dependsOn = ['waitDebSmokeTestContainer',
+                 'waitRpmSmokeTestContainer']
+
+    doLast {
+        if(getExitCode() != 0) {
+            throw new GradleException("Verification failed with exit code ${getExitCode()}")
+        }
+    }
 }
 
 // Note: At this time, release verification will be handled out-of-band with the release. Therefore,
