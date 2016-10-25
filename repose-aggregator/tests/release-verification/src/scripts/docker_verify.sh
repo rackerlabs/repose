@@ -5,7 +5,7 @@ echo "Starting Mock Services"
 echo "-------------------------------------------------------------------------------------------------------------------"
 sh /release-verification/scripts/fake_keystone_run.sh
 sh /release-verification/scripts/fake_origin_run.sh
-sh /release-verification/scripts/repose_run.sh
+sh /release-verification/scripts/docker_repose_run.sh
 
 echo "~~~TRUNCATED~~~" > /release-verification/validation.log 2>&1
 /bin/bash /release-verification/scripts/docker_isReposeReady.sh /release-verification/var-log-repose-current.log
