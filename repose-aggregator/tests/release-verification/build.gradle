@@ -265,13 +265,25 @@ task startRpmSmokeTestContainer(type: DockerStartContainer) {
 task waitDebSmokeTestContainer(type: DockerWaitContainer) {
     dependsOn 'startDebSmokeTestContainer'
     targetContainerId { startDebSmokeTestContainer.getContainerId() }
-    timeout = 60
+    timeout = 180
+
+    doLast {
+        if(getExitCode() != 0) {
+            throw new GradleException("Verification failed with exit code ${getExitCode()}")
+        }
+    }
 }
 
 task waitRpmSmokeTestContainer(type: DockerWaitContainer) {
     dependsOn 'startRpmSmokeTestContainer'
     targetContainerId { startRpmSmokeTestContainer.getContainerId() }
-    timeout = 60
+    timeout = 180
+
+    doLast {
+        if(getExitCode() != 0) {
+            throw new GradleException("Verification failed with exit code ${getExitCode()}")
+        }
+    }
 }
 
 task removeDebSmokeTestContainer(type: DockerRemoveContainer) {
@@ -307,12 +319,6 @@ task dockerSmokeTest {
     group = 'release'
     dependsOn = ['waitDebSmokeTestContainer',
                  'waitRpmSmokeTestContainer']
-
-    doLast {
-        if(getExitCode() != 0) {
-            throw new GradleException("Verification failed with exit code ${getExitCode()}")
-        }
-    }
 }
 
 // Note: At this time, release verification will be handled out-of-band with the release. Therefore,
