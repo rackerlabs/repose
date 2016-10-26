@@ -23,7 +23,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
-class ChunkedTest extends ReposeValveTest {
+class ChunkedAutoTest extends ReposeValveTest {
 
 
     def setupSpec() {
@@ -34,32 +34,41 @@ class ChunkedTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/proxy", params)
-        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/withconfig", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/chunkedauto", params)
         repose.start()
     }
 
-    @Unroll("When set to #method chunked encoding to true and sending #reqBody.")
-    def "When set to send chunked encoding to true. Repose should send requests chunked"() {
+    @Unroll("When set to #method chunked encoding to auto and sending #reqBody that is chunked #chunked.")
+    def "When set to send chunked encoding to auto. Repose should send requests chunked if they originated chunked"() {
         when:
         def messageChain = deproxy.makeRequest(
                 url: reposeEndpoint,
                 method: method,
-                headers: [["Content-Type":"plain/text"]],
-                requestBody: reqBody
+                headers: [
+                        (chunked ?
+                                ["Transfer-Encoding": "chunked"] :
+                                ["Content-Length": ((reqBody == null) ? 0 : reqBody.length())]
+                        ),
+                        ["Content-Type": "plain/text"]
+                ],
+                requestBody: reqBody,
+                chunked: chunked
         )
         def clientRequestHeaders = messageChain.sentRequest.headers
         def originRequestHeaders = messageChain.getHandlings()[0].request.headers
 
         then:
-        clientRequestHeaders.findAll("Transfer-Encoding").size() == 0
-        originRequestHeaders.findAll("Transfer-Encoding").size() == (method.equalsIgnoreCase("TRACE") ? 0 : 1)
+        clientRequestHeaders.findAll("Transfer-Encoding").size() == (chunked ? 1 : 0)
+        originRequestHeaders.findAll("Transfer-Encoding").size() == (chunked && !method.equalsIgnoreCase("TRACE") ? 1 : 0)
         originRequestHeaders.findAll("Content-Type").size() == 1
-        originRequestHeaders.findAll("Content-Length").size() == 0
+        originRequestHeaders.findAll("Content-Length").size() == (chunked || method.equalsIgnoreCase("TRACE") ? 0 : 1)
 
         if (originRequestHeaders.findAll("Transfer-Encoding").size() > 0)
             assert originRequestHeaders.getFirstValue("Transfer-Encoding").equalsIgnoreCase("Chunked")
+        if (originRequestHeaders.findAll("Content-Length").size())
+            originRequestHeaders.getFirstValue("Content-Length").toInteger() == ((reqBody == null) ? 0 : reqBody.length())
 
         where:
-        [method, reqBody] << [["POST", "PUT", "TRACE"], ["blah", null]].combinations()
+        [method, reqBody, chunked] << [["POST", "PUT", "TRACE"], ["blah", null], [true, false]].combinations()
     }
 }

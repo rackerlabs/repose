@@ -117,7 +117,7 @@ public class SchemaTest {
                     "<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'> " +
                             "<pool id='default' default='true' chunked-encoding='blah' http.conn-manager.max-per-route='200' http.conn-manager.max-total='199' /> " +
                             "</http-connection-pools>";
-            assertInvalidConfig(xml, "'blah' is not a valid value for 'boolean'");
+            assertInvalidConfig(xml, "'blah' is not facet-valid with respect to enumeration");
         }
 
         @Test
