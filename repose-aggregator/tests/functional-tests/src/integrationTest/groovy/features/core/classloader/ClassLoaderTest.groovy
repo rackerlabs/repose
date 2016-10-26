@@ -24,6 +24,7 @@ import framework.ReposeValveLauncher
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.PortFinder
 
 class ClassLoaderTest extends ReposeValveTest {
     static int originServicePort
@@ -60,6 +61,7 @@ class ClassLoaderTest extends ReposeValveTest {
         originServicePort = properties.targetPort
         deproxy.addEndpoint(originServicePort)
 
+        properties.reposePort = PortFinder.Singleton.getNextOpenPort()
         reposePort = properties.reposePort
         url = "http://localhost:${reposePort}"
 
@@ -123,6 +125,7 @@ class ClassLoaderTest extends ReposeValveTest {
         originServicePort = properties.targetPort
         deproxy.addEndpoint(originServicePort)
 
+        properties.reposePort = PortFinder.Singleton.getNextOpenPort()
         reposePort = properties.reposePort
         url = "http://localhost:${reposePort}"
 
@@ -169,6 +172,7 @@ class ClassLoaderTest extends ReposeValveTest {
         originServicePort = properties.targetPort
         deproxy.addEndpoint(originServicePort)
 
+        properties.reposePort = PortFinder.Singleton.getNextOpenPort()
         reposePort = properties.reposePort
         url = "http://localhost:${reposePort}"
 
