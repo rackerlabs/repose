@@ -9,7 +9,7 @@ echo -e "\nMonitoring Repose log at: $LOG_FILE"
 echo -en "Waiting for Repose to be ready ..."
 READY=0
 COUNT=0
-TIMEOUT=60
+TIMEOUT=180
 while [ $READY -eq 0 ]; do
    sudo grep -qs "Repose ready" $LOG_FILE
    if [ "$?" -eq 0 ]; then
