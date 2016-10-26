@@ -65,8 +65,8 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends La
   }
 
   /**
-   * Many payloads to parse here, should be fun
-   */
+    * Many payloads to parse here, should be fun
+    */
   val username2_0XML: UsernameParsingFunction = { is =>
     val xml = XML.load(is)
     val auth = xml \\ "auth"
@@ -157,13 +157,12 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends La
   }
 
   /**
-   * Build a function that takes our config, the request itself, functions to transform if given json, and if given XML
-   * and then a resultant function that can take that config and the username to do the work with.
-   */
+    * Build a function that takes our config, the request itself, functions to transform if given json, and if given XML
+    * and then a resultant function that can take that config and the username to do the work with.
+    */
   def parseUsername(config: IdentityGroupConfig, inputStream: InputStream, contentType: String, json: UsernameParsingFunction, xml: UsernameParsingFunction)(usernameFunction: (IdentityGroupConfig, Option[String], Option[String]) => Unit) = {
     val limit = BigInt(config.getContentBodyReadLimit).toLong
-    //Copied this limited read stuff from the other content-identity filter...
-    val limitedInputStream = new LimitedReadInputStream(limit, inputStream) //Allows me to reset?
+    val limitedInputStream = new LimitedReadInputStream(limit, inputStream)
     limitedInputStream.mark(limit.toInt)
     try {
       val (domainOpt, userOpt) = if (contentType.contains("xml")) {

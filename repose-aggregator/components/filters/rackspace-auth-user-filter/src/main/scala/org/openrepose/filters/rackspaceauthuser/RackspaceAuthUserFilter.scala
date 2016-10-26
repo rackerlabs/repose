@@ -27,6 +27,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.PowerApiHeader
+import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -62,7 +63,11 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         // this filter only operates on POST requests that have a body to parse
         filterChain.doFilter(servletRequest, servletResponse)
       } else {
-        val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest)
+        val rawRequestInputStream = httpServletRequest.getInputStream
+        val requestInputStream =
+          if (rawRequestInputStream.markSupported) rawRequestInputStream
+          else new BufferedServletInputStream(rawRequestInputStream)
+        val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest, requestInputStream)
         handler.get.parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType) foreach { rackspaceAuthUserGroup =>
           rackspaceAuthUserGroup.domain.foreach { domainVal =>
             wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
