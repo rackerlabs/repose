@@ -24,9 +24,9 @@ import framework.ReposeValveLauncher
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.PortFinder
 
 class ClassLoaderTest extends ReposeValveTest {
-    static int originServicePort
     static int reposePort
     static String url
     static ReposeConfigurationProvider reposeConfigProvider
@@ -57,9 +57,10 @@ class ClassLoaderTest extends ReposeValveTest {
      */
     def "An ear file can access a dependency that is not present in another ear"() {
         deproxy = new Deproxy()
-        originServicePort = properties.targetPort
-        deproxy.addEndpoint(originServicePort)
+        properties.targetPort = PortFinder.Singleton.getNextOpenPort()
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
 
+        properties.reposePort = PortFinder.Singleton.getNextOpenPort()
         reposePort = properties.reposePort
         url = "http://localhost:${reposePort}"
 
@@ -120,9 +121,10 @@ class ClassLoaderTest extends ReposeValveTest {
      */
     def "Ensure filter three (in filter-bundle-three) cannot reach a dependency in filter-bundle-one"() {
         deproxy = new Deproxy()
-        originServicePort = properties.targetPort
-        deproxy.addEndpoint(originServicePort)
+        properties.targetPort = PortFinder.Singleton.getNextOpenPort()
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
 
+        properties.reposePort = PortFinder.Singleton.getNextOpenPort()
         reposePort = properties.reposePort
         url = "http://localhost:${reposePort}"
 
@@ -166,9 +168,10 @@ class ClassLoaderTest extends ReposeValveTest {
 
     def "test class loader three"() {
         deproxy = new Deproxy()
-        originServicePort = properties.targetPort
-        deproxy.addEndpoint(originServicePort)
+        properties.targetPort = PortFinder.Singleton.getNextOpenPort()
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
 
+        properties.reposePort = PortFinder.Singleton.getNextOpenPort()
         reposePort = properties.reposePort
         url = "http://localhost:${reposePort}"
 
