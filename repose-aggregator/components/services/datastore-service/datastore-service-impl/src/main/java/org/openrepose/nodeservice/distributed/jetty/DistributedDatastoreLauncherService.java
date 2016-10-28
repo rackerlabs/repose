@@ -162,7 +162,7 @@ public class DistributedDatastoreLauncherService {
                     //ddServlet provides a way to get a hold of the ClusterView now and the ACL, like it should
                     ddServlet = new DistributedDatastoreServlet(datastoreService,
                             configuration,
-                            new DatastoreAccessControl(Collections.EMPTY_LIST, false),
+                            new DatastoreAccessControl(Collections.emptyList(), false),
                             ddConfig);
 
                     DistributedDatastoreServer server = new DistributedDatastoreServer(clusterId, nodeId, ddServlet, ddConfig);
