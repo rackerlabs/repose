@@ -66,7 +66,7 @@ public enum LogFormatArgument {
 
     private static final class ReverseLookup {
 
-        public static final Map<String, LogFormatArgument> LOOKUP_MAP = new TreeMap<String, LogFormatArgument>();
+        public static final Map<String, LogFormatArgument> LOOKUP_MAP = new TreeMap<>();
 
         private ReverseLookup() {
         }

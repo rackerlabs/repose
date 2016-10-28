@@ -43,7 +43,7 @@ public class GenericBlockingResourcePool<R> implements Pool<R> {
 
         checkoutCounter = 0;
 
-        pool = new LinkedList<R>();
+        pool = new LinkedList<>();
         poolLock = new ReentrantLock(true);
         poolHasResources = poolLock.newCondition();
 

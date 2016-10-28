@@ -32,7 +32,7 @@ public class KeyedRegexExtractor<K> {
     private final List<SelectorPattern<K>> compiledPatterns;
 
     public KeyedRegexExtractor() {
-        compiledPatterns = new LinkedList<SelectorPattern<K>>();
+        compiledPatterns = new LinkedList<>();
     }
 
     public void clear() {
@@ -40,11 +40,11 @@ public class KeyedRegexExtractor<K> {
     }
 
     public void addPattern(String regexString) {
-        compiledPatterns.add(new SelectorPattern<K>(Pattern.compile(regexString), null));
+        compiledPatterns.add(new SelectorPattern<>(Pattern.compile(regexString), null));
     }
 
     public void addPattern(String regexString, K key) {
-        compiledPatterns.add(new SelectorPattern<K>(Pattern.compile(regexString), key));
+        compiledPatterns.add(new SelectorPattern<>(Pattern.compile(regexString), key));
     }
 
     public ExtractorResult<K> extract(String target) {
@@ -52,7 +52,7 @@ public class KeyedRegexExtractor<K> {
             final Matcher matcher = selector.matcher(target);
 
             if (matcher.find() && matcher.groupCount() > 0) {
-                return new ExtractorResult<K>(matcher.group(1), selector.getKey());
+                return new ExtractorResult<>(matcher.group(1), selector.getKey());
             }
         }
 

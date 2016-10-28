@@ -33,13 +33,13 @@ public class StatusCodeConstraint {
     public StatusCodeConstraint(boolean isExclusivePass) {
         this.isInclusivePass = isExclusivePass;
 
-        statusCodes = new HashSet<Integer>();
+        statusCodes = new HashSet<>();
     }
 
     public StatusCodeConstraint(String codes) {
         this.isInclusivePass = !codes.startsWith("!");
 
-        statusCodes = new HashSet<Integer>();
+        statusCodes = new HashSet<>();
         for (String st : STATUS_CODE_RX.split(removeNegation(codes))) {
             statusCodes.add(Integer.parseInt(st));
         }

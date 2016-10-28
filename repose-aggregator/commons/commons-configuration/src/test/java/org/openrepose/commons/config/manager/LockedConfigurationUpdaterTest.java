@@ -49,7 +49,7 @@ public class LockedConfigurationUpdaterTest {
             updateLock = new KeyedStackLock();
             updateKey1 = new Object();
             updateKey2 = new Object();
-            configProperties = new ArrayList<String>();
+            configProperties = new ArrayList<>();
         }
 
         @Test

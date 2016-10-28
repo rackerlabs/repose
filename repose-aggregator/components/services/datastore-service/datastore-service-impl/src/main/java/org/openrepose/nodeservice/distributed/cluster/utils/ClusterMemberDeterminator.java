@@ -51,7 +51,7 @@ public class ClusterMemberDeterminator {
      * @return
      */
     public static List<InetSocketAddress> getClusterMembers(SystemModel config, DistributedDatastoreConfiguration ddConfig, String clusterId) {
-        final List<InetSocketAddress> cacheSiblings = new LinkedList<InetSocketAddress>();
+        final List<InetSocketAddress> cacheSiblings = new LinkedList<>();
         ReposeCluster cluster = getCurrentCluster(config.getReposeCluster(), clusterId);
 
         try {

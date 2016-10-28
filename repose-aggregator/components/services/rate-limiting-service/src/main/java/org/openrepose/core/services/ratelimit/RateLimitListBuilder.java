@@ -57,12 +57,12 @@ public class RateLimitListBuilder {
         this.cachedRateLimits = cachedRateLimits;
         this.configuredLimitGroups = configuredLimitGroups;
 
-        liveRateLimitMap = new HashMap<String, ResourceRateLimits>();
+        liveRateLimitMap = new HashMap<>();
     }
 
     //TODO: Remove this after refactoring tests
     private static List<ConfiguredLimitGroup> asList(ConfiguredLimitGroup group) {
-        final List<ConfiguredLimitGroup> list = new LinkedList<ConfiguredLimitGroup>();
+        final List<ConfiguredLimitGroup> list = new LinkedList<>();
         list.add(group);
 
         return list;

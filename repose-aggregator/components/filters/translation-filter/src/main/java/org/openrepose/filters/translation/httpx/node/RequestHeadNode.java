@@ -32,7 +32,7 @@ import java.util.List;
  * @author fran
  */
 public class RequestHeadNode extends ObjectFactoryUser implements ComplexNode {
-    private final List<Node> nodes = new ArrayList<Node>();
+    private final List<Node> nodes = new ArrayList<>();
     private final HttpServletRequest request;
     private final Request message;
     private final List<RequestHeadDetail> headFidelity;

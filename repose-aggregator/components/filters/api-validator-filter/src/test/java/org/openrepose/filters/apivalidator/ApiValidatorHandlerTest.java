@@ -84,7 +84,7 @@ public class ApiValidatorHandlerTest {
             blowupValidatorInfo = new ValidatorInfo(Arrays.asList("blowupValidator"), "blowupWadl", null, null);
             blowupValidatorInfo.setValidator(blowupValidator);
 
-            List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
+            List<ValidatorInfo> validators = new ArrayList<>();
             validators.add(defaultValidatorInfo);
             validators.add(role1ValidatorInfo);
             validators.add(role2ValidatorInfo);
@@ -132,7 +132,7 @@ public class ApiValidatorHandlerTest {
         public void shouldAddDefaultValidatorAsLeastPriorityWhenMultiMatch() {
             List<String> roles = Collections.singletonList("role1");
 
-            List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
+            List<ValidatorInfo> validators = new ArrayList<>();
             validators.add(role1ValidatorInfo);
             validators.add(role2ValidatorInfo);
 
@@ -146,7 +146,7 @@ public class ApiValidatorHandlerTest {
         public void shouldRetainValidatorOrderWhenMultiMatchAndHasDefaultRole() {
             List<String> roles = Arrays.asList("role1", "role2", "defaultrole");
 
-            List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
+            List<ValidatorInfo> validators = new ArrayList<>();
             validators.add(role1ValidatorInfo);
             validators.add(defaultValidatorInfo);
             validators.add(role2ValidatorInfo);

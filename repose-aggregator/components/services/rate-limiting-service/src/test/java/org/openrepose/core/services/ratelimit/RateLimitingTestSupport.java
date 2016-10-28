@@ -118,10 +118,10 @@ public class RateLimitingTestSupport {
     }
 
     public static Map<String, Map<String, Pattern>> newRegexCache(List<ConfiguredLimitGroup> clgList) {
-        final Map<String, Map<String, Pattern>> regexCache = new HashMap<String, Map<String, Pattern>>();
+        final Map<String, Map<String, Pattern>> regexCache = new HashMap<>();
 
         for (ConfiguredLimitGroup clg : clgList) {
-            final Map<String, Pattern> limitGroupRegexCache = new HashMap<String, Pattern>();
+            final Map<String, Pattern> limitGroupRegexCache = new HashMap<>();
 
             for (ConfiguredRatelimit crl : clg.getLimit()) {
                 limitGroupRegexCache.put(crl.getUri(), Pattern.compile(crl.getUriRegex()));

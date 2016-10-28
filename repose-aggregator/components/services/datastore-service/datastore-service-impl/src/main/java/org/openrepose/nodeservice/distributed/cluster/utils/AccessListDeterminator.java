@@ -42,7 +42,7 @@ public class AccessListDeterminator {
 
     public static DatastoreAccessControl getAccessList(DistributedDatastoreConfiguration config, List<InetAddress> clusterMembers) {
 
-        List<InetAddress> hostAccessList = new LinkedList<InetAddress>();
+        List<InetAddress> hostAccessList = new LinkedList<>();
 
 
         boolean allowAll = config.getAllowedHosts().isAllowAll();
@@ -69,7 +69,7 @@ public class AccessListDeterminator {
 
     private static List<InetAddress> getConfiguredAllowedHosts(DistributedDatastoreConfiguration curDistributedDatastoreConfiguration) {
 
-        final List<InetAddress> configuredAllowedHosts = new LinkedList<InetAddress>();
+        final List<InetAddress> configuredAllowedHosts = new LinkedList<>();
 
         for (HostAccessControl host : curDistributedDatastoreConfiguration.getAllowedHosts().getAllow()) {
             try {
@@ -86,7 +86,7 @@ public class AccessListDeterminator {
     public static List<InetAddress> getClusterMembers(SystemModel config, String clusterId) {
 
         ReposeCluster cluster = ClusterMemberDeterminator.getCurrentCluster(config.getReposeCluster(), clusterId);
-        final List<InetAddress> reposeClusterMembers = new LinkedList<InetAddress>();
+        final List<InetAddress> reposeClusterMembers = new LinkedList<>();
 
         for (Node node : cluster.getNodes().getNode()) {
             try {

@@ -64,7 +64,7 @@ public class MetricsServiceImplTest {
                 ReflectionException,
                 InstanceNotFoundException {
 
-            Hashtable<String, String> hash = new Hashtable<String, String>();
+            Hashtable<String, String> hash = new Hashtable<>();
             hash.put("name", "\"" + name + "\"");
             hash.put("scope", "\"" + scope + "\"");
             hash.put("type", "\"" + klass.getSimpleName() + "\"");

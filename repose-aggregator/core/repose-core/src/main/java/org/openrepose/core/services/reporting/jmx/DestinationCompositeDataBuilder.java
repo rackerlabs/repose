@@ -68,7 +68,7 @@ public class DestinationCompositeDataBuilder extends CompositeDataBuilder {
 
     @Override
     public Object[] getItems() {
-        final List<Object> itemsB = new ArrayList<Object>();
+        final List<Object> itemsB = new ArrayList<>();
 
         itemsB.add(destinationInfo.getDestinationId());
         itemsB.add(destinationInfo.getTotalRequests());

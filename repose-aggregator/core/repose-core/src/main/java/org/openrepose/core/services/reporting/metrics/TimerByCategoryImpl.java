@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TimerByCategoryImpl implements TimerByCategory {
 
-    private Map<String, Timer> map = new HashMap<String, Timer>();
+    private Map<String, Timer> map = new HashMap<>();
     private MetricsService metricsService;
     private Class klass;
     private String scope;

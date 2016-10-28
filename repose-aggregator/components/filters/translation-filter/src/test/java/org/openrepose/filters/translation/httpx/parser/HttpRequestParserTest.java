@@ -44,25 +44,25 @@ import static org.mockito.Mockito.*;
 @RunWith(Enclosed.class)
 public class HttpRequestParserTest {
     public static class WhenParsing {
-        Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+        Map<String, String[]> parameterMap = new HashMap<>();
         private HttpServletRequest mockedRequest;
         private Enumeration<String> headerNames;
-        private Vector<String> headers = new Vector<String>(2);
+        private Vector<String> headers = new Vector<>(2);
 
         private Enumeration<String> acceptHeaderValues;
-        private Vector<String> acceptValues = new Vector<String>(1);
+        private Vector<String> acceptValues = new Vector<>(1);
 
         private Enumeration<String> contentTypeHeaderValues;
-        private Vector<String> contentTypeValues = new Vector<String>(1);
+        private Vector<String> contentTypeValues = new Vector<>(1);
 
         private List<MessageDetail> messageFidelity = new ArrayList<MessageDetail>();
         private List<RequestHeadDetail> headFidelity = new ArrayList<RequestHeadDetail>();
-        private List<String> headersFidelity = new ArrayList<String>();
+        private List<String> headersFidelity = new ArrayList<>();
 
         @Before
         public void setup() throws IOException {
             // Create query parameters map
-            List<String> values = new ArrayList<String>();
+            List<String> values = new ArrayList<>();
             values.add("1");
             values.add("2");
 

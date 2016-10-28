@@ -134,7 +134,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     public void onEvent(Event<ApplicationArtifactEvent, List<ArtifactDirectoryItem>> e) {
         final List<ArtifactDirectoryItem> artifacts = e.payload();
 
-        List<EarClassLoaderContext> contexts = new ArrayList<EarClassLoaderContext>();
+        List<EarClassLoaderContext> contexts = new ArrayList<>();
 
         for (ArtifactDirectoryItem item : artifacts) {
             EarClassLoaderContext context = null;

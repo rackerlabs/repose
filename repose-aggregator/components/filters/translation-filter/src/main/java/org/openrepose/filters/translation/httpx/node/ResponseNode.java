@@ -34,7 +34,7 @@ import java.util.List;
  * @author fran
  */
 public class ResponseNode extends ObjectFactoryUser implements ComplexNode {
-    private final List<Node> nodes = new ArrayList<Node>();
+    private final List<Node> nodes = new ArrayList<>();
     private final HttpServletResponse response;
     private final MessageEnvelope messageEnvelope;
     private final List<MessageDetail> responseFidelity;

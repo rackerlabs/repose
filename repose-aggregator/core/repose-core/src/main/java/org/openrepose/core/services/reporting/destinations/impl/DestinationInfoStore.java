@@ -32,7 +32,7 @@ public class DestinationInfoStore {
     private final long startTime;
     private long totalRequests = LONG_ZERO;
     private long totalResponses = LONG_ZERO;
-    private Map<Integer, StatusCodeResponseStore> statusCodeCounts = new HashMap<Integer, StatusCodeResponseStore>();
+    private Map<Integer, StatusCodeResponseStore> statusCodeCounts = new HashMap<>();
     private long accumulatedResponseTime = LONG_ZERO;
 
     public DestinationInfoStore(String destinationId) {
@@ -57,7 +57,7 @@ public class DestinationInfoStore {
     }
 
     private static Map<Integer, StatusCodeResponseStore> deepCopyStatusCodeCounts(Map<Integer, StatusCodeResponseStore> statusCodeCounts) {
-        Map<Integer, StatusCodeResponseStore> copy = new HashMap<Integer, StatusCodeResponseStore>();
+        Map<Integer, StatusCodeResponseStore> copy = new HashMap<>();
         for (Map.Entry<Integer, StatusCodeResponseStore> entry : statusCodeCounts.entrySet()) {
             copy.put(entry.getKey(), new StatusCodeResponseStore(entry.getValue()));
         }

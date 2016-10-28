@@ -43,7 +43,7 @@ public class ClientDecommissioner implements Runnable {
 
     public ClientDecommissioner(HttpClientUserManager userManager) {
 
-        clientList = new ArrayList<HttpClient>();
+        clientList = new ArrayList<>();
         listLock = new Object();
         done = false;
         this.userManager = userManager;
@@ -71,7 +71,7 @@ public class ClientDecommissioner implements Runnable {
 
                 LOG.trace("Iterating through decommissioned clients...");
 
-                List<HttpClient> clientsToRemove = new ArrayList<HttpClient>();
+                List<HttpClient> clientsToRemove = new ArrayList<>();
 
                 for (HttpClient client : clientList) {
 

@@ -120,7 +120,7 @@ public class ReportingServiceImpl implements ReportingService {
 
     @Override
     public synchronized List<DestinationInfo> getDestinations() {
-        final List<DestinationInfo> newDestinations = new ArrayList<DestinationInfo>();
+        final List<DestinationInfo> newDestinations = new ArrayList<>();
 
         for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
             newDestinations.add(entry.getValue().copy());
@@ -178,7 +178,7 @@ public class ReportingServiceImpl implements ReportingService {
     }
 
     private synchronized void reset() {
-        final Map<String, DestinationInfo> newDestinations = new HashMap<String, DestinationInfo>();
+        final Map<String, DestinationInfo> newDestinations = new HashMap<>();
 
         for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
             final String destinationId = entry.getValue().getDestinationId();
@@ -236,7 +236,7 @@ public class ReportingServiceImpl implements ReportingService {
 
         @Override
         public void configurationUpdated(SystemModel systemModel) {
-            final List<String> endpointIds = new ArrayList<String>();
+            final List<String> endpointIds = new ArrayList<>();
 
             for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
                 final DestinationList destinations = reposeCluster.getDestinations();

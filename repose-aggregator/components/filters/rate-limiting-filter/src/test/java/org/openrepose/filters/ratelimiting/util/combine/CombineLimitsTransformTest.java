@@ -97,7 +97,7 @@ public class CombineLimitsTransformTest {
         methods.add(HttpMethod.POST);
         methods.add(HttpMethod.DELETE);
 
-        cacheMap = new HashMap<String, CachedRateLimit>();
+        cacheMap = new HashMap<>();
         configuredLimitGroup = new ConfiguredLimitGroup();
 
         configuredLimitGroup.setDefault(Boolean.TRUE);

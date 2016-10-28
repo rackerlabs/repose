@@ -39,7 +39,7 @@ public class ResponseHeaderContainer implements HeaderContainer {
     }
 
     private List<HeaderName> extractHeaderNames() {
-        List<HeaderName> result = new LinkedList<HeaderName>();
+        List<HeaderName> result = new LinkedList<>();
         if (response != null) {
             Collection<String> names = response.getHeaderNames();
 
@@ -52,13 +52,13 @@ public class ResponseHeaderContainer implements HeaderContainer {
     }
 
     private Map<HeaderName, List<HeaderValue>> extractHeaderValues() {
-        Map<HeaderName, List<HeaderValue>> valueMap = new HashMap<HeaderName, List<HeaderValue>>();
+        Map<HeaderName, List<HeaderValue>> valueMap = new HashMap<>();
 
         if (response != null) {
             for (HeaderName headerNameKey : headerNames) {
                 String name = headerNameKey.getName();
 
-                List<HeaderValue> values = new ArrayList<HeaderValue>();
+                List<HeaderValue> values = new ArrayList<>();
                 values.add(new HeaderValueImpl(response.getHeader(name)));
                 valueMap.put(headerNameKey, values);
             }

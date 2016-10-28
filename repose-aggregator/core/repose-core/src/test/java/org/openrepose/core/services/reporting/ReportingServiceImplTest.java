@@ -40,7 +40,7 @@ public class ReportingServiceImplTest {
 
         private static final int REFRESH_SECONDS = 2;
         private ReportingService reportingService;
-        private List<String> destinationIds = new ArrayList<String>();
+        private List<String> destinationIds = new ArrayList<>();
 
         @Before
         public void setup() {

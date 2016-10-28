@@ -40,7 +40,7 @@ public class RequestHeaderContainer implements HeaderContainer {
     }
 
     private List<HeaderName> extractHeaderNames() {
-        List<HeaderName> result = new LinkedList<HeaderName>();
+        List<HeaderName> result = new LinkedList<>();
         if (request != null) {
             Enumeration<String> names = request.getHeaderNames();
 
@@ -55,7 +55,7 @@ public class RequestHeaderContainer implements HeaderContainer {
     }
 
     private Map<HeaderName, List<HeaderValue>> extractHeaderValues() {
-        Map<HeaderName, List<HeaderValue>> valueMap = new HashMap<HeaderName, List<HeaderValue>>();
+        Map<HeaderName, List<HeaderValue>> valueMap = new HashMap<>();
 
         if (request != null) {
             for (HeaderName wrappedName : getHeaderNames()) {
@@ -68,7 +68,7 @@ public class RequestHeaderContainer implements HeaderContainer {
 
     private List<HeaderValue> extractValues(HeaderName name) {
 
-        List<HeaderValue> values = new ArrayList<HeaderValue>();
+        List<HeaderValue> values = new ArrayList<>();
 
         Enumeration<String> vals = request.getHeaders(name.getName());
 

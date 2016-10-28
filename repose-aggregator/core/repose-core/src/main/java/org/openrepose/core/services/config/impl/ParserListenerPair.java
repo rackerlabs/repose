@@ -32,7 +32,7 @@ public class ParserListenerPair {
     private final String filterName;
 
     public ParserListenerPair(UpdateListener listener, ConfigurationParser parser, String filterName) {
-        this.listener = new WeakReference<UpdateListener>(listener);
+        this.listener = new WeakReference<>(listener);
         this.parser = parser;
         classLoader = Thread.currentThread().getContextClassLoader();
         this.filterName = filterName;

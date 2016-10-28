@@ -41,8 +41,8 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
     private static final Logger LOG = LoggerFactory.getLogger(InputStreamUriParameterResolver.class);
 
     private static final String PREFIX = "reference:jio:";
-    private final Map<String, InputStream> streams = new HashMap<String, InputStream>();
-    private final List<URIResolver> resolvers = new ArrayList<URIResolver>();
+    private final Map<String, InputStream> streams = new HashMap<>();
+    private final List<URIResolver> resolvers = new ArrayList<>();
 
     public InputStreamUriParameterResolver() {
         super();

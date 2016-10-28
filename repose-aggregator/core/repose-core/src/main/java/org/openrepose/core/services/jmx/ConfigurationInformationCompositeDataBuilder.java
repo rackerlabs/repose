@@ -69,7 +69,7 @@ public class ConfigurationInformationCompositeDataBuilder extends CompositeDataB
 
     @Override
     public Object[] getItems() {
-        final List<Object> items = new ArrayList<Object>();
+        final List<Object> items = new ArrayList<>();
 
         items.add(filter.getId());
         items.add(filter.getName());

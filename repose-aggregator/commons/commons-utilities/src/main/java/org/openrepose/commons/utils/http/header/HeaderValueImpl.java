@@ -86,7 +86,7 @@ public class HeaderValueImpl implements HeaderValue {
 
     @SuppressWarnings("squid:S1244")
     private static Map<String, String> qualityFactorToParameterMap(double qualityFactor) {
-        final Map<String, String> parameters = new HashMap<String, String>();
+        final Map<String, String> parameters = new HashMap<>();
         // This is a direct comparison to a known value.
         // So it is safe to suppress warning squid:S1244
         if (qualityFactor != DEFAULT_QUALITY) {

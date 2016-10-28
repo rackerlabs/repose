@@ -121,7 +121,7 @@ public class EventServiceImpl implements EventService {
         }
 
         if (!found) {
-            descriptorSet.add(new EventListenerDescriptor<T>(el, events));
+            descriptorSet.add(new EventListenerDescriptor<>(el, events));
         }
     }
 
@@ -169,11 +169,11 @@ public class EventServiceImpl implements EventService {
     }
 
     private <T extends Enum> Set<EventListenerDescriptor> getOrCreateListenerSet(Class<T> e) {
-        final ComparableClassWrapper<Enum> classWrapper = new ComparableClassWrapper<Enum>(e);
+        final ComparableClassWrapper<Enum> classWrapper = new ComparableClassWrapper<>(e);
         Set<EventListenerDescriptor> listenerSet = listenerMap.get(classWrapper);
 
         if (listenerSet == null) {
-            listenerSet = new HashSet<EventListenerDescriptor>();
+            listenerSet = new HashSet<>();
             listenerMap.put(classWrapper, listenerSet);
         }
 

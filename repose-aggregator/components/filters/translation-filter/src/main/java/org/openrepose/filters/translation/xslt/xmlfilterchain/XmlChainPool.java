@@ -55,7 +55,7 @@ public class XmlChainPool {
         this.acceptAll = StringUtilities.nullSafeEqualsIgnoreCase(this.accept, MimeType.WILDCARD.getMimeType());
         this.resultContentType = resultContentType;
         this.objectPool = pool;
-        this.httpMethods = httpMethods != null ? httpMethods : new ArrayList<HttpMethod>();
+        this.httpMethods = httpMethods != null ? httpMethods : new ArrayList<>();
         this.statusRegex = StringUtilities.isNotBlank(statusRegex) ? Pattern.compile(statusRegex) : null;
         this.params = params;
         if (this.httpMethods.isEmpty()) {
@@ -86,7 +86,7 @@ public class XmlChainPool {
     }
 
     private List<XsltParameter<? extends OutputStream>> getOutputParameters() {
-        List<XsltParameter<? extends OutputStream>> outputs = new ArrayList<XsltParameter<? extends OutputStream>>();
+        List<XsltParameter<? extends OutputStream>> outputs = new ArrayList<>();
         outputs.add(new XsltParameter<OutputStream>(TranslationResult.HEADERS_OUTPUT, new ByteArrayOutputStream()));
         outputs.add(new XsltParameter<OutputStream>(TranslationResult.QUERY_OUTPUT, new ByteArrayOutputStream()));
         outputs.add(new XsltParameter<OutputStream>(TranslationResult.REQUEST_OUTPUT, new ByteArrayOutputStream()));

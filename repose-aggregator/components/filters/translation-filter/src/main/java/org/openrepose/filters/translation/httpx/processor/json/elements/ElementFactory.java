@@ -89,7 +89,7 @@ public enum ElementFactory {
                         LOG.trace("Caught Unknown Exception", ex);
                     }
                 } else {
-                    result = new ScalarElement<T>(element.elementName, name, value);
+                    result = new ScalarElement<>(element.elementName, name, value);
                 }
                 break;
             }

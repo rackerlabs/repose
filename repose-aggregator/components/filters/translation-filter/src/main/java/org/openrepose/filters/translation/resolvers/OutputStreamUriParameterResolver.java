@@ -39,7 +39,7 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
 
     public static final Logger LOG = LoggerFactory.getLogger(OutputStreamUriParameterResolver.class);
     public static final String PREFIX = "repose:output:";
-    private final Map<String, OutputStream> streams = new HashMap<String, OutputStream>();
+    private final Map<String, OutputStream> streams = new HashMap<>();
     private final OutputURIResolver parent;
 
     public OutputStreamUriParameterResolver() {

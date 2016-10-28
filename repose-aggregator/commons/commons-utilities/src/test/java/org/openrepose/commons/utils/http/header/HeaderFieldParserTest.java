@@ -64,7 +64,7 @@ public class HeaderFieldParserTest {
 
         @Test
         public void shouldParseMultiValueHeaderFields() {
-            final List<String> rawHeaderValues = new LinkedList<String>();
+            final List<String> rawHeaderValues = new LinkedList<>();
             rawHeaderValues.add("value one;q=0.1;x=v1.0");
             rawHeaderValues.add("value two;q=0.3");
 

@@ -35,7 +35,7 @@ public class ClusterWrapper {
             throw new IllegalArgumentException("Domain cannot be null");
         }
 
-        this.nodes = domain.getNodes() != null ? domain.getNodes().getNode() : new ArrayList<Node>();
+        this.nodes = domain.getNodes() != null ? domain.getNodes().getNode() : new ArrayList<>();
         this.nodeCount = nodes.size();
     }
 

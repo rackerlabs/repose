@@ -51,11 +51,11 @@ public class HttpResponseParserTest {
     public static class WhenParsing {
 
         private HttpServletResponse mockedResponse;
-        private Vector<String> headers = new Vector<String>(2);
-        private Vector<String> retryAfterValues = new Vector<String>(1);
+        private Vector<String> headers = new Vector<>(2);
+        private Vector<String> retryAfterValues = new Vector<>(1);
         private List<MessageDetail> messageFidelity = new ArrayList<MessageDetail>();
         private List<ResponseHeadDetail> headFidelity = new ArrayList<ResponseHeadDetail>();
-        private List<String> headersFidelity = new ArrayList<String>();
+        private List<String> headersFidelity = new ArrayList<>();
 
         @Before
         public void setup() throws IOException {

@@ -30,7 +30,7 @@ import java.util.List;
  * @author fran
  */
 public class RequestNode extends ObjectFactoryUser implements ComplexNode {
-    private final List<Node> nodes = new ArrayList<Node>();
+    private final List<Node> nodes = new ArrayList<>();
     private final HttpServletRequest request;
     private final MessageEnvelope messageEnvelope;
     private final List<MessageDetail> requestFidelity;

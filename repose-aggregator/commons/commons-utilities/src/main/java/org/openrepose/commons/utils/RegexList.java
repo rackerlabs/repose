@@ -29,7 +29,7 @@ public class RegexList {
     private final List<Pattern> regexMatchers;
 
     public RegexList() {
-        this.regexMatchers = new LinkedList<Pattern>();
+        this.regexMatchers = new LinkedList<>();
     }
 
     public void add(String newRegexTarget) {

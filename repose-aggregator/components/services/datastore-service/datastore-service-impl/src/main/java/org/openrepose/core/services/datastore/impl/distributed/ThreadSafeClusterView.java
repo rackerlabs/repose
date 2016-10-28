@@ -49,11 +49,11 @@ public class ThreadSafeClusterView implements ClusterView {
     private final List<Integer> listenPorts;
 
     public ThreadSafeClusterView(List<Integer> listenPorts) {
-        this(new LinkedList<ClusterMember>(), listenPorts);
+        this(new LinkedList<>(), listenPorts);
     }
 
     public ThreadSafeClusterView(List<ClusterMember> clusterMembers, List<Integer> listenPorts) {
-        this(StaticNetworkInterfaceProvider.getInstance(), new LinkedList<ClusterMember>(clusterMembers), listenPorts);
+        this(StaticNetworkInterfaceProvider.getInstance(), new LinkedList<>(clusterMembers), listenPorts);
     }
 
     public ThreadSafeClusterView(NetworkInterfaceProvider networkInterfaceProvider, List<ClusterMember> clusterMembers, List<Integer> listenPorts) {
@@ -117,7 +117,7 @@ public class ThreadSafeClusterView implements ClusterView {
 
     @Override
     public synchronized InetSocketAddress[] members() {
-        final LinkedList<InetSocketAddress> activeClusterMembers = new LinkedList<InetSocketAddress>();
+        final LinkedList<InetSocketAddress> activeClusterMembers = new LinkedList<>();
 
         for (ClusterMember member : clusterMembers) {
             final boolean memberIsOnline = member.isOnline();

@@ -72,7 +72,7 @@ public class ManagedRateLimitCacheTest {
 
     @Test
     public void getUserRateLimits_shouldReturnCachedKeySets() throws Exception {
-        HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+        HashMap<String, CachedRateLimit> limitMap = new HashMap<>();
         limitMap.put("12345", new CachedRateLimit(defaultConfig));
 
         when(datastore.get(ACCOUNT)).thenReturn(new UserRateLimit(limitMap));
@@ -82,10 +82,10 @@ public class ManagedRateLimitCacheTest {
 
     @Test
     public void updateLimit_shouldSendPatchToDatastore() throws Exception {
-        HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+        HashMap<String, CachedRateLimit> limitMap = new HashMap<>();
         limitMap.put("testKey", new CachedRateLimit(defaultConfig));
         when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
-        ArrayList<Pair<String, ConfiguredRatelimit>> matchingLimits = new ArrayList<Pair<String, ConfiguredRatelimit>>();
+        ArrayList<Pair<String, ConfiguredRatelimit>> matchingLimits = new ArrayList<>();
         matchingLimits.add(Pair.of("testKey", defaultConfig));
         rateLimitCache.updateLimit("bob", matchingLimits, org.openrepose.core.services.ratelimit.config.TimeUnit.MINUTE, 5);
         verify(datastore).patch(eq("bob"), any(UserRateLimit.Patch.class), eq(1), eq(TimeUnit.MINUTES));
@@ -96,12 +96,12 @@ public class ManagedRateLimitCacheTest {
         long now = System.currentTimeMillis();
         CachedRateLimit cachedRateLimit = new CachedRateLimit(defaultConfig);
         cachedRateLimit.logHit();
-        HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+        HashMap<String, CachedRateLimit> limitMap = new HashMap<>();
         limitMap.put("testKey", cachedRateLimit);
         UserRateLimit returnedLimit = spy(new UserRateLimit(limitMap));
         when(returnedLimit.getLowestLimit()).thenReturn(Pair.of(defaultConfig, cachedRateLimit));
         when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(returnedLimit);
-        ArrayList<Pair<String, ConfiguredRatelimit>> matchingLimits = new ArrayList<Pair<String, ConfiguredRatelimit>>();
+        ArrayList<Pair<String, ConfiguredRatelimit>> matchingLimits = new ArrayList<>();
         matchingLimits.add(Pair.of("testKey", defaultConfig));
         NextAvailableResponse response = rateLimitCache.updateLimit("bob", matchingLimits, org.openrepose.core.services.ratelimit.config.TimeUnit.MINUTE, 5);
         assertThat(response, hasValues(true, now, 1));

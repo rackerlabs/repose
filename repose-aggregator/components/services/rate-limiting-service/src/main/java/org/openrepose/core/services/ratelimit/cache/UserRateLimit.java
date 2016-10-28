@@ -41,20 +41,20 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
 
     private final Pair<ConfiguredRatelimit, CachedRateLimit> leastRemainingLimit;
 
-    private ConcurrentHashMap<String, CachedRateLimit> limitMap = new ConcurrentHashMap<String, CachedRateLimit>();
+    private ConcurrentHashMap<String, CachedRateLimit> limitMap = new ConcurrentHashMap<>();
 
     public UserRateLimit() {
-        this.limitMap = new ConcurrentHashMap<String, CachedRateLimit>();
+        this.limitMap = new ConcurrentHashMap<>();
         this.leastRemainingLimit = null;
     }
 
     public UserRateLimit(Map<String, CachedRateLimit> limitMap) {
-        this.limitMap = new ConcurrentHashMap<String, CachedRateLimit>(limitMap);
+        this.limitMap = new ConcurrentHashMap<>(limitMap);
         this.leastRemainingLimit = null;
     }
 
     private UserRateLimit(Map<String, CachedRateLimit> limitMap, Pair<ConfiguredRatelimit, CachedRateLimit> lowestLimit) {
-        this.limitMap = new ConcurrentHashMap<String, CachedRateLimit>(limitMap);
+        this.limitMap = new ConcurrentHashMap<>(limitMap);
         this.leastRemainingLimit = lowestLimit;
     }
 
@@ -68,7 +68,7 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
 
     @Override
     public UserRateLimit applyPatch(Patch patch) {
-        HashMap<String, CachedRateLimit> returnLimits = new HashMap<String, CachedRateLimit>();
+        HashMap<String, CachedRateLimit> returnLimits = new HashMap<>();
         Pair<ConfiguredRatelimit, CachedRateLimit> lowestLimit = null;
 
         for (Pair<String, ConfiguredRatelimit> limitEntry : patch.getLimitMap()) {
@@ -111,7 +111,7 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
         private List<Pair<String, ConfiguredRatelimit>> limitMap;
 
         public Patch(List<Pair<String, ConfiguredRatelimit>> patchMap) {
-            this.limitMap = new ArrayList<Pair<String, ConfiguredRatelimit>>(patchMap);
+            this.limitMap = new ArrayList<>(patchMap);
         }
 
         @Override

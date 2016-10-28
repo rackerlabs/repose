@@ -49,7 +49,7 @@ public class XmlFilterChainFactory extends BasePoolableObjectFactory<XmlFilterCh
 
     @Override
     public XmlFilterChain makeObject() {
-        List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
+        List<StyleSheetInfo> stylesheets = new ArrayList<>();
         if (translation.getStyleSheets() != null) {
             for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
                 if (sheet.getXsl() != null && sheet.getXsl().getAny() != null) {

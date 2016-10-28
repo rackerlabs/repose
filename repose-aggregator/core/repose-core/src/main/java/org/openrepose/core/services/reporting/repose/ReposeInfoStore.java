@@ -27,7 +27,7 @@ import java.util.Map;
 public class ReposeInfoStore {
 
     private static final long LONG_ZERO = 0l;
-    private Map<Integer, StatusCodeResponseStore> statusCodeCounts = new HashMap<Integer, StatusCodeResponseStore>();
+    private Map<Integer, StatusCodeResponseStore> statusCodeCounts = new HashMap<>();
     private long totalRequests = LONG_ZERO;
     private long totalResponses = LONG_ZERO;
     private long accumulatedRequestSize = LONG_ZERO;
@@ -45,7 +45,7 @@ public class ReposeInfoStore {
     }
 
     private Map<Integer, StatusCodeResponseStore> deepCopyStatusCodeCounts(Map<Integer, StatusCodeResponseStore> statusCodeCounts) {
-        Map<Integer, StatusCodeResponseStore> copy = new HashMap<Integer, StatusCodeResponseStore>();
+        Map<Integer, StatusCodeResponseStore> copy = new HashMap<>();
         for (Map.Entry<Integer, StatusCodeResponseStore> entry : statusCodeCounts.entrySet()) {
             copy.put(entry.getKey(), new StatusCodeResponseStore(entry.getValue()));
         }

@@ -34,7 +34,7 @@ public class HeaderValueParser {
     }
 
     public HeaderValue parse() throws MalformedHeaderValueException {
-        final Map<String, String> parameters = new HashMap<String, String>();
+        final Map<String, String> parameters = new HashMap<>();
         final String[] parameterSplit = rawHeaderValue.split(";");
         final StringBuilder value = new StringBuilder(parameterSplit[0]);
 

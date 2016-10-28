@@ -36,7 +36,7 @@ public class KeyedRegexExtractorTest {
 
         @Test
         public void shouldReturnFirstCaptureGroup() {
-            final KeyedRegexExtractor<Object> extractor = new KeyedRegexExtractor<Object>();
+            final KeyedRegexExtractor<Object> extractor = new KeyedRegexExtractor<>();
             final Object expectedKey = new Object();
 
             final String pattern = "a([^z]+)z";
@@ -49,7 +49,7 @@ public class KeyedRegexExtractorTest {
 
         @Test
         public void shouldUseNullKeys() {
-            final KeyedRegexExtractor<Object> extractor = new KeyedRegexExtractor<Object>();
+            final KeyedRegexExtractor<Object> extractor = new KeyedRegexExtractor<>();
 
             final String pattern = "a([^z]+)z";
             extractor.addPattern(pattern);
@@ -61,7 +61,7 @@ public class KeyedRegexExtractorTest {
 
         @Test
         public void shouldCaptureUserWithNegativeId() {
-            final KeyedRegexExtractor<Object> extractor = new KeyedRegexExtractor<Object>();
+            final KeyedRegexExtractor<Object> extractor = new KeyedRegexExtractor<>();
             final Object expectedKey = new Object();
 
             final String pattern = ".*/servers/([-|\\w]+)/?.*";

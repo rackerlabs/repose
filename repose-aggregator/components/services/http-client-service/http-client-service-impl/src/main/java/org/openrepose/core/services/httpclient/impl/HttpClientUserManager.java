@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpClientUserManager {
 
-    private Map<String, List<String>> registeredClientUsers = new ConcurrentHashMap<String, List<String>>();
+    private Map<String, List<String>> registeredClientUsers = new ConcurrentHashMap<>();
 
     String addUser(String clientInstanceId) {
 

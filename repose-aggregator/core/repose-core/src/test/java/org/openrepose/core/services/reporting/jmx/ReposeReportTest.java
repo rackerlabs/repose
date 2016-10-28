@@ -43,7 +43,7 @@ public class ReposeReportTest {
 
         private static final int REFRESH_SECONDS = 30;
         private ReportingService reportingService;
-        private List<String> destinationIds = new ArrayList<String>();
+        private List<String> destinationIds = new ArrayList<>();
         private ReposeReport report;
 
         @Before

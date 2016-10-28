@@ -43,7 +43,7 @@ public class GenericResourcePoolTest {
 
         @Before
         public void standUp() {
-            resourcePool = new GenericBlockingResourcePool<Target>(new ConstructionStrategy<Target>() {
+            resourcePool = new GenericBlockingResourcePool<>(new ConstructionStrategy<Target>() {
 
                 @Override
                 public Target construct() {
@@ -76,7 +76,7 @@ public class GenericResourcePoolTest {
 
         @Before
         public void standUp() {
-            resourcePool = new GenericBlockingResourcePool<Target>(new ConstructionStrategy<Target>() {
+            resourcePool = new GenericBlockingResourcePool<>(new ConstructionStrategy<Target>() {
 
                 @Override
                 public Target construct() {
@@ -87,7 +87,7 @@ public class GenericResourcePoolTest {
 
         @Test
         public void shouldGenerateNewResources() {
-            resourcePool = new GenericBlockingResourcePool<Target>(new ConstructionStrategy<Target>() {
+            resourcePool = new GenericBlockingResourcePool<>(new ConstructionStrategy<Target>() {
 
                 @Override
                 public Target construct() {

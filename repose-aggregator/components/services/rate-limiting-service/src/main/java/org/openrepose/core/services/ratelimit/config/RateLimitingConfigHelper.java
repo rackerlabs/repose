@@ -65,7 +65,7 @@ public class RateLimitingConfigHelper {
 
     private List<ConfiguredLimitGroup> processConfiguration(RateLimitingConfiguration configurationObject) {
         boolean defaultSet = false;
-        final List<ConfiguredLimitGroup> newLimitGroups = new ArrayList<ConfiguredLimitGroup>();
+        final List<ConfiguredLimitGroup> newLimitGroups = new ArrayList<>();
 
         for (ConfiguredLimitGroup limitGroup : configurationObject.getLimitGroup()) {
             // Makes sure that only the first limit group set to default is the only default group
@@ -106,11 +106,11 @@ public class RateLimitingConfigHelper {
         newGroup.setDefault(originalGroup.isDefault());
         newGroup.setId(originalGroup.getId());
 
-        final List<String> newRoleList = new ArrayList<String>(originalGroup.getGroups());
+        final List<String> newRoleList = new ArrayList<>(originalGroup.getGroups());
         Collections.copy(newRoleList, originalGroup.getGroups());
         newGroup.getGroups().addAll(newRoleList);
 
-        final List<ConfiguredRatelimit> newLimits = new ArrayList<ConfiguredRatelimit>(originalGroup.getLimit());
+        final List<ConfiguredRatelimit> newLimits = new ArrayList<>(originalGroup.getLimit());
         Collections.copy(newLimits, originalGroup.getLimit());
         newGroup.getLimit().addAll(newLimits);
 

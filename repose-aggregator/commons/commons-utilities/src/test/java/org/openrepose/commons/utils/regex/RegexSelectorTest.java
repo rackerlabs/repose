@@ -40,7 +40,7 @@ public class RegexSelectorTest {
 
         @Before
         public final void beforeAll() {
-            selector = new RegexSelector<String>();
+            selector = new RegexSelector<>();
             selector.addPattern("\\d\\d\\d[+-]", "notExpected");
             selector.addPattern("[+-]\\d\\d\\d", "expected");
         }

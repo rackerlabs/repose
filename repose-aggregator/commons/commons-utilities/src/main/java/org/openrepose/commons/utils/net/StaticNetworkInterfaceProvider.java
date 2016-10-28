@@ -47,7 +47,7 @@ public final class StaticNetworkInterfaceProvider implements NetworkInterfacePro
     @Override
     public NetworkInterface getInterfaceFor(InetAddress address) throws SocketException {
         for (NetworkInterface iface : getNetworkInterfaces()) {
-            for (InetAddress ifaceAddress : new EnumerationIterable<InetAddress>(iface.getInetAddresses())) {
+            for (InetAddress ifaceAddress : new EnumerationIterable<>(iface.getInetAddresses())) {
                 if (ifaceAddress.equals(address)) {
                     return iface;
                 }
@@ -59,6 +59,6 @@ public final class StaticNetworkInterfaceProvider implements NetworkInterfacePro
 
     @Override
     public Iterable<NetworkInterface> getNetworkInterfaces() throws SocketException {
-        return new EnumerationIterable<NetworkInterface>(NetworkInterface.getNetworkInterfaces());
+        return new EnumerationIterable<>(NetworkInterface.getNetworkInterfaces());
     }
 }

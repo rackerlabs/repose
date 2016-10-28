@@ -27,7 +27,7 @@ import java.util.List;
 
 public class SourceUriResolverChain extends SourceUriResolver {
 
-    private final List<URIResolver> resolvers = new ArrayList<URIResolver>();
+    private final List<URIResolver> resolvers = new ArrayList<>();
 
     public SourceUriResolverChain() {
         super();

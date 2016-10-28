@@ -196,7 +196,7 @@ final class CompressingFilterContext {
         if (contentTypesString == null) {
             return Collections.emptyList();
         }
-        List<String> contentTypes = new ArrayList<String>(5);
+        List<String> contentTypes = new ArrayList<>(5);
         for (String contentType : COMMA.split(contentTypesString)) {
             if (contentType.length() > 0) {
                 contentTypes.add(contentType);
@@ -209,7 +209,7 @@ final class CompressingFilterContext {
         if (patternsString == null) {
             return Collections.emptyList();
         }
-        List<Pattern> patterns = new ArrayList<Pattern>(5);
+        List<Pattern> patterns = new ArrayList<>(5);
         for (String pattern : COMMA.split(patternsString)) {
             if (pattern.length() > 0) {
                 patterns.add(Pattern.compile(pattern));

@@ -30,6 +30,6 @@ public class ObjectFactory {
 
     @XmlElementDecl(namespace = "http://docs.openrepose.org/repose/unmarshaller-test/v0.0", name = "unmarshaller-test")
     public JAXBElement<UnmarshallerValidatorTestImpl> createUnmarshallerTest(UnmarshallerValidatorTestImpl value) {
-        return new JAXBElement<UnmarshallerValidatorTestImpl>(_UnmarshallerTest_QNAME, UnmarshallerValidatorTestImpl.class, null, value);
+        return new JAXBElement<>(_UnmarshallerTest_QNAME, UnmarshallerValidatorTestImpl.class, null, value);
     }
 }

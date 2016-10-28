@@ -106,7 +106,7 @@ abstract class CompressingStreamFactory {
     private static final Pattern COMMA = Pattern.compile(",");
 
     static {
-        List<String> temp = new ArrayList<String>(6);
+        List<String> temp = new ArrayList<>(6);
         temp.add(GZIP_ENCODING);
         temp.add(DEFLATE_ENCODING);
         temp.add(COMPRESS_ENCODING);
@@ -117,7 +117,7 @@ abstract class CompressingStreamFactory {
     }
 
     static {
-        Map<String, CompressingStreamFactory> temp = new HashMap<String, CompressingStreamFactory>(11);
+        Map<String, CompressingStreamFactory> temp = new HashMap<>(11);
         temp.put(GZIP_ENCODING, GZIP_CSF);
         temp.put(X_GZIP_ENCODING, GZIP_CSF);
         temp.put(COMPRESS_ENCODING, ZIP_CSF);
@@ -247,9 +247,9 @@ abstract class CompressingStreamFactory {
     private static String selectBestEncoding(String acceptEncodingHeader) {
         // multiple encodings are accepted; determine best one
 
-        Collection<String> bestEncodings = new HashSet<String>(3);
+        Collection<String> bestEncodings = new HashSet<>(3);
         double bestQ = 0.0;
-        Collection<String> unacceptableEncodings = new HashSet<String>(3);
+        Collection<String> unacceptableEncodings = new HashSet<>(3);
         boolean willAcceptAnything = false;
 
         for (String token : COMMA.split(acceptEncodingHeader)) {

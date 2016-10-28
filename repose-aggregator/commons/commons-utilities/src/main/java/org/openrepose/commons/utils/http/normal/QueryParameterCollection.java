@@ -43,7 +43,7 @@ public class QueryParameterCollection {
     }
 
     public QueryParameterCollection(String query) {
-        parameterTracker = new LinkedHashMap<String, QueryParameter>();
+        parameterTracker = new LinkedHashMap<>();
 
         if (!StringUtilities.isBlank(query)) {
             //This, in theory, should never be blank, but just in case...
@@ -66,7 +66,7 @@ public class QueryParameterCollection {
     }
 
     public List<QueryParameter> getParameters() {
-        return new ArrayList<QueryParameter>(parameterTracker.values());
+        return new ArrayList<>(parameterTracker.values());
     }
 
     private void addParameter(String name, String value) {

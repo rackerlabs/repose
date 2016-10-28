@@ -66,7 +66,7 @@ public class LogArgumentGroupExtractor {
     }
 
     private List<String> parseArguments(String arguments) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
 
         if (arguments != null) {
             Collections.addAll(result, arguments.split("[, ]"));

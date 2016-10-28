@@ -146,7 +146,7 @@ public class ServiceClient {
     }
 
     public ServiceClientResponse post(String uri, String body, MediaType contentMediaType) {
-        return post(uri, new HashMap<String, String>(), body, contentMediaType);
+        return post(uri, new HashMap<>(), body, contentMediaType);
     }
 
     public ServiceClientResponse post(String uri, Map<String, String> headers, String body, MediaType contentMediaType) {

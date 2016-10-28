@@ -65,7 +65,7 @@ public class JaxbConfigurationParserTest {
         @Test
         public void shouldReadConfigurationResource() throws JAXBException, IOException {
             final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            ConfigurationParser<Element> parser = new JaxbConfigurationParser<Element>(Element.class, jaxbContext, null);
+            ConfigurationParser<Element> parser = new JaxbConfigurationParser<>(Element.class, jaxbContext, null);
 
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
             ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
@@ -79,7 +79,7 @@ public class JaxbConfigurationParserTest {
         @Test(expected = ClassCastException.class)
         public void testRead() throws JAXBException, IOException {
             final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            ConfigurationParser<String> parser = new JaxbConfigurationParser<String>(String.class, jaxbContext, null);
+            ConfigurationParser<String> parser = new JaxbConfigurationParser<>(String.class, jaxbContext, null);
 
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
             ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
