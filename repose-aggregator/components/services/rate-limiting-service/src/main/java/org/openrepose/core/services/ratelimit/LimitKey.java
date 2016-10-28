@@ -19,8 +19,6 @@
  */
 package org.openrepose.core.services.ratelimit;
 
-import org.slf4j.Logger;
-
 import java.util.regex.Matcher;
 
 /*
@@ -28,9 +26,6 @@ import java.util.regex.Matcher;
  * rate-limiting filter
  */
 public class LimitKey {
-
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(LimitKey.class);
-
     private LimitKey() {
     }
 

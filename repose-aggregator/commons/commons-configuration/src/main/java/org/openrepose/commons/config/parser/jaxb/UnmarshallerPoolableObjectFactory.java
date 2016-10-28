@@ -44,12 +44,10 @@ public class UnmarshallerPoolableObjectFactory extends BasePoolableObjectFactory
     private static final Logger LOG = LoggerFactory.getLogger(UnmarshallerPoolableObjectFactory.class);
     private final JAXBContext context;
     private final URL xsdStreamSource;
-    private final ClassLoader classLoader;
 
-    public UnmarshallerPoolableObjectFactory(JAXBContext context, URL xsdStreamSource, ClassLoader classLoader) {
+    public UnmarshallerPoolableObjectFactory(JAXBContext context, URL xsdStreamSource) {
         this.context = context;
         this.xsdStreamSource = xsdStreamSource;
-        this.classLoader = classLoader;
     }
 
     @Override
@@ -58,7 +56,6 @@ public class UnmarshallerPoolableObjectFactory extends BasePoolableObjectFactory
             UnmarshallerValidator uv = new UnmarshallerValidator(context);
             //TODO: refactor this to either use two different classes that extend an Unmarshaller...
             if (xsdStreamSource != null) {
-                //TODO: this might need to have a classloader
                 SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
                 factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
                 Schema schema = factory.newSchema(xsdStreamSource);
