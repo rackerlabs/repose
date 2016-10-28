@@ -182,7 +182,10 @@ public class ReportingServiceImpl implements ReportingService {
         reposeInfo.processResponseSize(responseSize);
     }
 
+    @SuppressWarnings("squid:S3398")
     private synchronized void reset() {
+        // this method is only called by an inner-class, but it's synchronized so I'm leaving it here
+
         final Map<String, DestinationInfo> newDestinations = new HashMap<>();
 
         for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
