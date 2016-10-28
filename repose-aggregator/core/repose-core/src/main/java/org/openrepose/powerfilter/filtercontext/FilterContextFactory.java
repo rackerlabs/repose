@@ -79,6 +79,7 @@ public class FilterContextFactory {
      * @return a FilterContext containing an instance of the filter and metatadata
      * @throws org.openrepose.powerfilter.FilterInitializationException
      */
+    @SuppressWarnings("squid:S2259")
     private FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications, ServletContext servletContext) throws FilterInitializationException {
         FilterType filterType = null;
         ClassLoader filterClassLoader = null;
@@ -92,9 +93,10 @@ public class FilterContextFactory {
             }
         }
 
-        //FilterType and filterClassloader are guaranteed to not be null, by a different check in the previous method
-
+        // FilterType and filterClassloader are guaranteed to not be null, by a different check in the previous method
+        // So it is safe to suppress warning squid:S2259
         String filterClassName = filterType.getFilterClass().getValue();
+
         //We got a filter info and a classloader, we can do actual work
         try {
             LOG.info("Getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
