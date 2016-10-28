@@ -60,7 +60,7 @@ import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
  * The factory has to pass in too many things.
  */
 public class PowerFilterRouterImpl implements PowerFilterRouter {
-    public static Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
+    public static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
     private final DestinationLocationBuilder locationBuilder;
     private final Map<String, Destination> destinations;
     private final ReposeCluster domain;
