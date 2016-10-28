@@ -85,5 +85,6 @@ public class TightlyCoupledFilter implements Filter {
 
     @Override
     public void destroy() {
+        // Nothing to clean up.
     }
 }

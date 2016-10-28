@@ -38,6 +38,7 @@ public class ReposeInfoStore {
     private long maxResponseSize = LONG_ZERO;
 
     public ReposeInfoStore() {
+        // Retain a default constructor to be used unless cloning the object.
     }
 
     protected ReposeInfoStore(ReposeInfoStore reposeInfoStore) {

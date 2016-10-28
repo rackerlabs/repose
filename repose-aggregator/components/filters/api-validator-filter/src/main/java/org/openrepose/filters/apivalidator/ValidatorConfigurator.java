@@ -45,6 +45,7 @@ public class ValidatorConfigurator {
     private List<ValidatorInfo> validators;
 
     public ValidatorConfigurator() {
+        // Retain the default constructor, though only used in testing.
     }
 
     public ValidatorConfigurator(ValidatorConfiguration valConfig, String configRoot, String wadlUri) {

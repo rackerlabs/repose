@@ -32,8 +32,12 @@ public class FlushOutputFilter implements Filter {
     }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+        // Nothing to clean up.
+    }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // Nothing to initialize.
+    }
 }

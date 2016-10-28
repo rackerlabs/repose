@@ -67,5 +67,6 @@ public class ExceptionFilter implements Filter {
 
     @Override
     public void destroy() {
+        // Nothing to clean up.
     }
 }

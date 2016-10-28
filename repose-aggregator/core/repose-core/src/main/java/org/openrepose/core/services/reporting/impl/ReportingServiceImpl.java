@@ -149,6 +149,11 @@ public class ReportingServiceImpl implements ReportingService {
 
     @Override
     public synchronized ReposeInfo getReposeInfo() {
+        // TODO: Do we need to deep copy the info for every read?
+        // From what I can tell, the concern is with the HashMap in ReposeInfoStore which can be replaced by
+        // a ConcurrentHashMap to ensure thread safety. Also, our deep copy is not a full copy -- most fields
+        // will not retain their value. Judging from where this method is called, it seems like we just want to
+        // read the current status code count(s).
         return reposeInfo.copy();
     }
 
