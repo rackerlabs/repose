@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import static org.openrepose.commons.utils.logging.apache.LogConstants.*;
 
 public class LogArgumentGroupExtractor {
 
@@ -49,12 +50,12 @@ public class LogArgumentGroupExtractor {
     }
 
     public LogArgumentGroupExtractor(Matcher m) {
-        lifeCycleModifier = getGroupValue(m, LOG_CONSTANTS.LIFECYCLE_GROUP_INDEX);
-        statusCodes = getGroupValue(m, LOG_CONSTANTS.STATUS_CODE_INDEX);
-        variable = getGroupValue(m, LOG_CONSTANTS.VARIABLE_INDEX);
-        variableArgumentSeparator = getGroupValue(m, LOG_CONSTANTS.VAR_ARG_SEPARATOR_INDEX);
-        arguments = parseArguments(getGroupValue(m, LOG_CONSTANTS.ARGUMENTS_INDEX));
-        entity = getGroupValue(m, LOG_CONSTANTS.ENTITY_INDEX);
+        lifeCycleModifier = getGroupValue(m, LIFECYCLE_GROUP_INDEX);
+        statusCodes = getGroupValue(m, STATUS_CODE_INDEX);
+        variable = getGroupValue(m, VARIABLE_INDEX);
+        variableArgumentSeparator = getGroupValue(m, VAR_ARG_SEPARATOR_INDEX);
+        arguments = parseArguments(getGroupValue(m, ARGUMENTS_INDEX));
+        entity = getGroupValue(m, ENTITY_INDEX);
     }
 
     public static LogArgumentGroupExtractor instance(String lifeCycleModifier, String statusCodes, String variable, String arguments, String entity) {
@@ -132,24 +133,5 @@ public class LogArgumentGroupExtractor {
         hash = HASH_PRIME * hash + arguments.hashCode();
         hash = HASH_PRIME * hash + StringUtilities.getValue(entity, "").hashCode();
         return hash;
-    }
-
-    public interface LOG_CONSTANTS {
-
-        // Group 1
-        String LIFECYCLE_MODIFIER_EXTRACTOR = "([<>])?";
-        // Group 2, 3 (ignore)
-        String STATUS_CODE_EXTRACTOR = "([!]?([0-9]{3}[,]?)*)?";
-        // Group 4 (ignore), 5, 6, 7
-        String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9:.]*)([ ,]?)([_\\-a-zA-Z0-9 ,:.]*)\\})?";
-        // Group 8
-        String ENTITY_EXTRACTOR = "([%a-zA-Z])";
-        Pattern PATTERN = Pattern.compile("%" + LIFECYCLE_MODIFIER_EXTRACTOR + STATUS_CODE_EXTRACTOR + VARIABLE_EXTRACTOR + ENTITY_EXTRACTOR);
-        int LIFECYCLE_GROUP_INDEX = 1;
-        int STATUS_CODE_INDEX = 2;
-        int VARIABLE_INDEX = 5;
-        int VAR_ARG_SEPARATOR_INDEX = 6;
-        int ARGUMENTS_INDEX = 7;
-        int ENTITY_INDEX = 8;
     }
 }

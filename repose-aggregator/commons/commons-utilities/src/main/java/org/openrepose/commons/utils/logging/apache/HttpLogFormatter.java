@@ -138,7 +138,7 @@ public class HttpLogFormatter {
     }
 
     private void build() {
-        final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(formatTemplate);
+        final Matcher m = LogConstants.PATTERN.matcher(formatTemplate);
 
         int previousTokenEnd = 0;
 
