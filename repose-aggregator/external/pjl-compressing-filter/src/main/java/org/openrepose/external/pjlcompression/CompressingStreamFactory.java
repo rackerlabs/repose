@@ -243,6 +243,7 @@ abstract class CompressingStreamFactory {
         return NO_ENCODING;
     }
 
+    @SuppressWarnings("squid:S1244")
     private static String selectBestEncoding(String acceptEncodingHeader) {
         // multiple encodings are accepted; determine best one
 
@@ -259,6 +260,8 @@ abstract class CompressingStreamFactory {
                 willAcceptAnything = q > 0.0;
             } else if (SUPPORTED_ENCODINGS.contains(contentEncoding)) {
                 if (q > 0.0) {
+                    // This is a header quality comparison.
+                    // So it is safe to suppress warning squid:S1244
                     if (q == bestQ) {
                         bestEncodings.add(contentEncoding);
                     } else if (q > bestQ) {
