@@ -22,4 +22,7 @@ package org.openrepose.commons.utils.logging;
 
 public class TracingKey {
     public static final String TRACING_KEY = "traceGuid";
+
+    private TracingKey() {
+    }
 }

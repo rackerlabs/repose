@@ -40,6 +40,9 @@ public class AccessListDeterminator {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccessListDeterminator.class);
 
+    private AccessListDeterminator() {
+    }
+
     public static DatastoreAccessControl getAccessList(DistributedDatastoreConfiguration config, List<InetAddress> clusterMembers) {
 
         List<InetAddress> hostAccessList = new LinkedList<>();

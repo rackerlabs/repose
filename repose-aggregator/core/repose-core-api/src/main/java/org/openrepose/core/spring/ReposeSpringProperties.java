@@ -36,6 +36,9 @@ public class ReposeSpringProperties {
         public static final String REPOSE_VERSION = "${repose-version}";
         public static final String CONFIG_ROOT = "${repose-config-directory}";
         public static final String INSECURE = "${repose-insecurity}";
+
+        private CORE() {
+        }
     }
 
     /**
@@ -44,6 +47,8 @@ public class ReposeSpringProperties {
     public static class NODE {
         public static final String NODE_ID = "${repose-node-id}";
         public static final String CLUSTER_ID = "${repose-cluster-id}";
-    }
 
+        private NODE() {
+        }
+    }
 }

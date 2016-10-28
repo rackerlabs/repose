@@ -26,6 +26,8 @@ import org.openrepose.commons.utils.test.ReposeContainerUtil;
 import javax.servlet.ServletException;
 
 public class ReposeTomcatServer {
+    private ReposeTomcatServer() {
+    }
 
     public static void main(String[] args) throws ParseException, ServletException {
 

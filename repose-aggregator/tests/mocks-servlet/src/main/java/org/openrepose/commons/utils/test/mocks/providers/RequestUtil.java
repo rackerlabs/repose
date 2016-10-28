@@ -32,11 +32,14 @@ import java.util.Enumeration;
 
 /**
  * This takes the last parts we need out of MockUtils.
- *
+ * <p>
  * Created by adrian on 2/22/16.
  */
 public class RequestUtil {
     public static final String CONTEXT_PATH = "org.openrepose.test";
+
+    private RequestUtil() {
+    }
 
     public static String servletRequestToXml(HttpServletRequest request, String body) throws IOException, JAXBException {
         //formerly servletRequestToRequestInformation

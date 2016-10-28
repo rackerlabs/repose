@@ -24,4 +24,7 @@ package org.openrepose.commons.utils.http.normal;
  */
 public class ExtendedStatusCodes {
     public static final int SC_TOO_MANY_REQUESTS = 429;
+
+    private ExtendedStatusCodes() {
+    }
 }

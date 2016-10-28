@@ -41,6 +41,9 @@ public class ClusterMemberDeterminator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClusterMemberDeterminator.class);
 
+    private ClusterMemberDeterminator() {
+    }
+
     /**
      * Get a list of all the cluster members for a specified cluster ID
      * You'll get the Port and inet address for those hosts.
