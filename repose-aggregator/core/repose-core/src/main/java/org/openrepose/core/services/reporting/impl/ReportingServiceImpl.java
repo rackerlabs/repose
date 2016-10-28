@@ -35,12 +35,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Named
 public class ReportingServiceImpl implements ReportingService {
 
     private static final String TIMER_THREAD_NAME = "Repose JMX Reset Timer Thread";
-    private static final int ONE_THOUSAND = 1000;
     private static final int DEFAULT_JMX_RESET_TIME_SECONDS = 15;
 
     private final Map<String, DestinationInfo> destinations = new HashMap<>();
@@ -108,9 +108,9 @@ public class ReportingServiceImpl implements ReportingService {
         timer.purge();
 
         reportingTimerTask = new ReportingTimerTask();
-        long initialDelayInMilliseconds = seconds * ONE_THOUSAND;
+        long delayInMilliseconds = TimeUnit.SECONDS.toMillis(seconds);
         lastReset = new Date(System.currentTimeMillis());
-        timer.scheduleAtFixedRate(reportingTimerTask, initialDelayInMilliseconds, seconds * ONE_THOUSAND);
+        timer.scheduleAtFixedRate(reportingTimerTask, delayInMilliseconds, delayInMilliseconds);
     }
 
     @Override
