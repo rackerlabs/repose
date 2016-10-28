@@ -19,8 +19,8 @@
  */
 package org.openrepose.commons.utils;
 
-@FunctionalInterface
+@SuppressWarnings("squid:S1609")
 public interface Destroyable {
-
+    // doesn't make sense to be a @FunctionalInterface
     void destroy();
 }

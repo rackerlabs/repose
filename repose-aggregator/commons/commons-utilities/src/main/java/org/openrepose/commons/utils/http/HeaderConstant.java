@@ -22,8 +22,11 @@ package org.openrepose.commons.utils.http;
 /**
  * The HttpHeader interface represents a strongly-typed, normalized way of
  * describing an HttpHeader and its key.
+ * <p/>
+ * This interface is not being made into a @FunctionalInterface since it's
+ * intended for constants.
  */
-@FunctionalInterface
+@SuppressWarnings("squid:S1609")
 public interface HeaderConstant {
 
     /**

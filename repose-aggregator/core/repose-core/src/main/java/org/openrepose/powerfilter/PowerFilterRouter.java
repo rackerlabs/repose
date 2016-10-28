@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-@FunctionalInterface
+@SuppressWarnings("squid:S1609")
 public interface PowerFilterRouter {
-
+    // doesn't make sense to be a @FunctionalInterface
     void route(HttpServletRequestWrapper servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException;
 }

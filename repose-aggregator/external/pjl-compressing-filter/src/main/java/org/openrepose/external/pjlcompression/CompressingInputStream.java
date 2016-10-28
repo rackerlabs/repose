@@ -45,9 +45,8 @@ import java.io.InputStream;
  * @author Sean Owen
  * @since 1.6
  */
-@FunctionalInterface
+@SuppressWarnings("squid:S1609")
 interface CompressingInputStream {
-
+    // doesn't make sense to be a @FunctionalInterface
     InputStream getCompressingInputStream() throws IOException;
-
 }

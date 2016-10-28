@@ -22,8 +22,8 @@ package org.openrepose.commons.utils.http.normal;
 /**
  * @author zinic
  */
-@FunctionalInterface
+@SuppressWarnings("squid:S1609")
 public interface ParameterFilterFactory {
-
+    // let's not use a lambda as a factory, so no @FunctionalInterface
     ParameterFilter newInstance();
 }

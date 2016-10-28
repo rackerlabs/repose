@@ -19,7 +19,8 @@
  */
 package org.openrepose.core.services.logging;
 
-@FunctionalInterface
+@SuppressWarnings("squid:S1609")
 public interface LoggingService {
+    // doesn't make sense to be a @FunctionalInterface
     void updateLoggingConfiguration(String configFileName);
 }

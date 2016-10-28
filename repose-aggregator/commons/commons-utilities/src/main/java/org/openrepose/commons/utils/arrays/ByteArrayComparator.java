@@ -21,7 +21,7 @@ package org.openrepose.commons.utils.arrays;
 
 import org.openrepose.commons.utils.ArrayUtilities;
 
-public class ByteArrayComparator implements ArrayComparator {
+public class ByteArrayComparator {
 
     private final byte[] first;
     private final byte[] second;
@@ -31,7 +31,6 @@ public class ByteArrayComparator implements ArrayComparator {
         this.second = ArrayUtilities.nullSafeCopy(second);
     }
 
-    @Override
     public boolean arraysAreEqual() {
         boolean same = first.length == second.length;
 

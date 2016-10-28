@@ -131,8 +131,9 @@ final class StatsInputStream extends InputStream {
         return "StatsInputStream[" + inputStream + ']';
     }
 
-    @FunctionalInterface
+    @SuppressWarnings("squid:S1609")
     interface StatsCallback {
+        // doesn't make sense to be a @FunctionalInterface
         void bytesRead(long numBytes);
     }
 }
