@@ -40,12 +40,12 @@ public class LimitKey {
         cacheIdBuffer.append(String.valueOf(limitGroup.hashCode()));
 
         // All cacheId's contain the unique limit Id
-        cacheIdBuffer.append(":" + String.valueOf(limitId.hashCode()));
+        cacheIdBuffer.append(":").append(String.valueOf(limitId.hashCode()));
 
         // If using capture groups, captured text is hashed and appended
         if (useCaptureGroups) {
             for (int i = 1; i <= groupCount; ++i) {
-                cacheIdBuffer.append(":" + String.valueOf(uriMatcher.group(i).hashCode()));
+                cacheIdBuffer.append(":").append(String.valueOf(uriMatcher.group(i).hashCode()));
             }
         }
 
