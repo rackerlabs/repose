@@ -39,14 +39,14 @@ import java.util.EnumSet;
  * Programmatic initialization for the WAR deployment.
  */
 public class ReposeInitializer implements WebApplicationInitializer {
+    private static final String CONFIG_ROOT = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT);
+    private static final String INSECURE = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE);
+    private static final String CLUSTER_ID = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID);
+    private static final String NODE_ID = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID);
+
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-
-        final String CONFIG_ROOT = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.CONFIG_ROOT);
-        final String INSECURE = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.INSECURE);
-        final String CLUSTER_ID = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID);
-        final String NODE_ID = ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID);
 
         //Get the values out of the system properties that we'll need
         String configRoot = System.getProperty(CONFIG_ROOT);
