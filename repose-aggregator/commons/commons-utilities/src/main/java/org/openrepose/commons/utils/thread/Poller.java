@@ -44,6 +44,7 @@ public class Poller implements Runnable, Destroyable {
     }
 
     @Override
+    @SuppressWarnings("squid:S2142")
     public void run() {
         taskThread = Thread.currentThread();
 
@@ -56,6 +57,8 @@ public class Poller implements Runnable, Destroyable {
                     wait(interval);
                 }
             } catch (InterruptedException ie) {
+                // This InterruptedException is intentionally being consumed.
+                // So it is safe to suppress warning squid:S2142
                 LOG.warn("Poller interrupted.", ie);
                 shouldContinue = false;
             }

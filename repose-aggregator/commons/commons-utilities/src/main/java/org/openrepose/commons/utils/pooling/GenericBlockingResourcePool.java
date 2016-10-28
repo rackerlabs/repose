@@ -135,6 +135,7 @@ public class GenericBlockingResourcePool<R> implements Pool<R> {
         }
     }
 
+    @SuppressWarnings("squid:S2142")
     private R checkout() {
         try {
             poolLock.lock();
@@ -154,6 +155,8 @@ public class GenericBlockingResourcePool<R> implements Pool<R> {
             checkoutCounter++;
             return resource;
         } catch (InterruptedException ie) {
+            // This InterruptedException is intentionally being consumed and rethrown as another type.
+            // So it is safe to suppress warning squid:S2142
             throw new ResourceAccessException("Interrupted while waiting for a resource to be checked in", ie);
         } finally {
             poolLock.unlock();

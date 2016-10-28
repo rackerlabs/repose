@@ -65,6 +65,7 @@ public class ClientDecommissioner implements Runnable {
     }
 
     @Override
+    @SuppressWarnings("squid:S2142")
     public void run() {
         while (!this.done) {
             synchronized (listLock) {
@@ -101,10 +102,11 @@ public class ClientDecommissioner implements Runnable {
             try {
                 Thread.sleep(DEFAULT_INTERVAL);
             } catch (InterruptedException ex) {
+                // This InterruptedException is intentionally being consumed.
+                // So it is safe to suppress warning squid:S2142
                 LOG.info("Interrupted", ex);
                 break;
             }
-
         }
 
         LOG.info("Shutting down HTTP Client Service Decommissioner");
