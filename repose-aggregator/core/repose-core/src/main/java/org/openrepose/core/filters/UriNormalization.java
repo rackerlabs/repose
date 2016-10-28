@@ -22,5 +22,8 @@ package org.openrepose.core.filters;
 /**
  * This class is used to register the uri-normalization-related metrics to JMX.
  */
+@SuppressWarnings("squid:S2094")
 public class UriNormalization {
+    // This class is only used to register JMX metrics.
+    // So it is safe to suppress warning squid:S2094
 }

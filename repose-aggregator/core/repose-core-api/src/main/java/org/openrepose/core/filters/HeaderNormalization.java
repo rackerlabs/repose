@@ -23,5 +23,8 @@ package org.openrepose.core.filters;
  * This class is used to register the header-normalization-related metrics to JMX.
  * todo: figure out a way to get rid of this
  */
+@SuppressWarnings("squid:S2094")
 public class HeaderNormalization {
+    // This class is only used to register JMX metrics.
+    // So it is safe to suppress warning squid:S2094
 }
