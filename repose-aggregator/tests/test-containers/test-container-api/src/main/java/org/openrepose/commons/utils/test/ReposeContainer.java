@@ -22,7 +22,7 @@ package org.openrepose.commons.utils.test;
 public abstract class ReposeContainer {
 
     protected String listenPort;
-    protected String  warLocation;
+    protected String warLocation;
 
     public ReposeContainer(ReposeContainerProps props) {
         this.listenPort = props.getStartPort();
