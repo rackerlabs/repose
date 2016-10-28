@@ -32,9 +32,7 @@ public enum TypeConversionFormatFactory {
     TypeConversionFormatFactory(Class<? extends FormatConverter> converter) {
         try {
             ConverterMap.addConverter(name(), converter.newInstance());
-        } catch (InstantiationException ex) {
-            LoggerFactory.getLogger(TypeConversionFormatFactory.class).error("Unable to instantiate converter: " + converter.getName(), ex);
-        } catch (IllegalAccessException ex) {
+        } catch (InstantiationException | IllegalAccessException ex) {
             LoggerFactory.getLogger(TypeConversionFormatFactory.class).error("Unable to instantiate converter: " + converter.getName(), ex);
         }
     }

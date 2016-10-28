@@ -67,13 +67,7 @@ public enum HttpComponentFactory {
 
                 Constructor<? extends HttpComponentProcessableRequest> constructor = (Constructor<? extends HttpComponentProcessableRequest>) methodFactory.wrapperClass.getConstructors()[0];
                 request = constructor.newInstance(httpMethod);
-            } catch (InvocationTargetException ex) {
-                LOG.error(CONSTRUCTION_ERROR, ex);
-            } catch (NoSuchMethodException ex) {
-                LOG.error(CONSTRUCTION_ERROR, ex);
-            } catch (InstantiationException ex) {
-                LOG.error(CONSTRUCTION_ERROR, ex);
-            } catch (IllegalAccessException ex) {
+            } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException ex) {
                 LOG.error(CONSTRUCTION_ERROR, ex);
             }
         }
@@ -91,13 +85,7 @@ public enum HttpComponentFactory {
 
                 Constructor<? extends HttpComponentProcessableRequest> constructor = (Constructor<? extends HttpComponentProcessableRequest>) methodFactory.wrapperClass.getConstructors()[0];
                 request = constructor.newInstance(httpMethod);
-            } catch (InvocationTargetException ex) {
-                LOG.error(CONSTRUCTION_ERROR, ex);
-            } catch (NoSuchMethodException ex) {
-                LOG.error(CONSTRUCTION_ERROR, ex);
-            } catch (InstantiationException ex) {
-                LOG.error(CONSTRUCTION_ERROR, ex);
-            } catch (IllegalAccessException ex) {
+            } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
                 LOG.error(CONSTRUCTION_ERROR, ex);
             }
         }
