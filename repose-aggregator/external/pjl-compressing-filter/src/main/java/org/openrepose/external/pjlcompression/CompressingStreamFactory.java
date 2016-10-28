@@ -80,9 +80,8 @@ abstract class CompressingStreamFactory {
     private static final String DEFLATE_ENCODING = "deflate";
     private static final String COMPRESS_ENCODING = "compress";
     private static final String X_COMPRESS_ENCODING = "x-compress";
-    static final String[] ALL_COMPRESSION_ENCODINGS = {
-            GZIP_ENCODING, DEFLATE_ENCODING, COMPRESS_ENCODING, X_GZIP_ENCODING, X_COMPRESS_ENCODING
-    };
+    static final List<String> ALL_COMPRESSION_ENCODINGS = Collections.unmodifiableList(
+            Arrays.asList(GZIP_ENCODING, DEFLATE_ENCODING, COMPRESS_ENCODING, X_GZIP_ENCODING, X_COMPRESS_ENCODING));
 
     /**
      * "Any encoding" content type: the "*" wildcard.
