@@ -29,8 +29,8 @@ import java.util.Map;
 public class DestinationInfoLogic implements DestinationInfo {
 
     private static final int INT_ONE = 1;
-    private static final long LONG_ZERO = 0l;
-    private static final long LONG_ONE = 1l;
+    private static final long LONG_ZERO = 0L;
+    private static final long LONG_ONE = 1L;
     private static final double DOUBLE_ZERO = 0.0d;
     private static final double DOUBLE_THOUSAND = 1000d;
     private DestinationInfoStore dataStore;

@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class ReposeInfoStore {
 
-    private static final long LONG_ZERO = 0l;
+    private static final long LONG_ZERO = 0L;
     private Map<Integer, StatusCodeResponseStore> statusCodeCounts = new HashMap<>();
     private long totalRequests = LONG_ZERO;
     private long totalResponses = LONG_ZERO;
