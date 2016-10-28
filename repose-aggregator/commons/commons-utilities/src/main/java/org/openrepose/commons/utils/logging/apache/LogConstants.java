@@ -26,6 +26,10 @@ import java.util.regex.Pattern;
  */
 public class LogConstants {
 
+    private LogConstants() {
+        // Prevent construction of this utility class.
+    }
+
     // Group 1
     public static final String LIFECYCLE_MODIFIER_EXTRACTOR = "([<>])?";
     // Group 2, 3 (ignore)

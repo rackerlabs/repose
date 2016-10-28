@@ -42,6 +42,7 @@ public class ClusterMemberDeterminator {
     private static final Logger LOG = LoggerFactory.getLogger(ClusterMemberDeterminator.class);
 
     private ClusterMemberDeterminator() {
+        // Prevent construction of this utility class.
     }
 
     /**

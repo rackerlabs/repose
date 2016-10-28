@@ -25,6 +25,10 @@ package org.openrepose.core.spring;
  */
 public class ReposeSpringProperties {
 
+    private ReposeSpringProperties() {
+        // Prevent construction of this utility class.
+    }
+
     public static String stripSpringValueStupidity(String atValue) {
         return atValue.substring(2, atValue.length() - 1);
     }

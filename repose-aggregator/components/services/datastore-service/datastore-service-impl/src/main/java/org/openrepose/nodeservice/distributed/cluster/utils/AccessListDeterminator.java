@@ -41,6 +41,7 @@ public class AccessListDeterminator {
     private static final Logger LOG = LoggerFactory.getLogger(AccessListDeterminator.class);
 
     private AccessListDeterminator() {
+        // Prevent construction of this utility class.
     }
 
     public static DatastoreAccessControl getAccessList(DistributedDatastoreConfiguration config, List<InetAddress> clusterMembers) {

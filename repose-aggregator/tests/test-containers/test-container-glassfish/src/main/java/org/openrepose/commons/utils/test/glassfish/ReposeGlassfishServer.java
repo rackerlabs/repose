@@ -25,7 +25,9 @@ import org.openrepose.commons.utils.test.ReposeContainerProps;
 import org.openrepose.commons.utils.test.ReposeContainerUtil;
 
 public class ReposeGlassfishServer {
+
     private ReposeGlassfishServer() {
+        // Prevent construction of this main class.
     }
 
     public static void main(String[] args) throws GlassFishException, ParseException {
