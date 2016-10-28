@@ -58,7 +58,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private final DatastoreService datastoreService;
     private final ClusterConfiguration clusterConfiguration;
     private final DistributedDatastoreConfiguration ddConfig;
-    private Datastore localDatastore;
+    private final Datastore localDatastore;
 
     public DistributedDatastoreServlet(
             DatastoreService datastore,
