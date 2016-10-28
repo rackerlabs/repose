@@ -20,7 +20,6 @@
 package org.openrepose.core.services.config.impl;
 
 import org.openrepose.commons.config.resource.ConfigurationResource;
-import org.openrepose.commons.utils.thread.RecurringTask;
 import org.openrepose.core.services.event.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * these "standard" exceptions will be caught but will allow the normal thread
  * processing to continue.
  */
-public class ConfigurationResourceWatcher implements RecurringTask {
+public class ConfigurationResourceWatcher implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationResourceWatcher.class);
     private final ConcurrentHashMap<String, ConfigurationResource> watchMap;
