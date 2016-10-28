@@ -22,7 +22,6 @@ package org.openrepose.powerfilter;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
