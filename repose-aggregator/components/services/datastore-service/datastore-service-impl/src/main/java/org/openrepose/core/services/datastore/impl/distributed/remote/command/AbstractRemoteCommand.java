@@ -63,7 +63,7 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     public abstract ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior);
 
     protected byte[] getBody() {
-        return null;
+        return new byte[0];
     }
 
     protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {

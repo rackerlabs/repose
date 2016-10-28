@@ -52,7 +52,7 @@ public final class ProxyUtilities {
     public static class AllTrustingManager implements X509TrustManager {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
-            return null;
+            return new X509Certificate[0];
         }
 
         @Override
