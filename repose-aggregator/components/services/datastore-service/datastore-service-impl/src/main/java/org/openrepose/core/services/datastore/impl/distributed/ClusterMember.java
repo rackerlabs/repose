@@ -25,8 +25,10 @@ public class ClusterMember {
 
     private static final int REQUIRED_VALIDATION_PASSES = 4;
     private final InetSocketAddress memberAddress;
-    private final int droppedMemberRestTime, requiredValidationPasses;
-    private long droppedTime, restPeriod;
+    private final int droppedMemberRestTime;
+    private final int requiredValidationPasses;
+    private long droppedTime;
+    private long restPeriod;
     private int validationPass;
     private boolean online;
 

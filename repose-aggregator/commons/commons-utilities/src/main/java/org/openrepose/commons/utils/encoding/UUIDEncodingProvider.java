@@ -22,7 +22,8 @@ package org.openrepose.commons.utils.encoding;
 import java.util.UUID;
 
 public final class UUIDEncodingProvider implements EncodingProvider {
-    private static final int QWORD_BYTE_LENGTH = 8, BYTE_BIT_LENGTH = 8;
+    private static final int QWORD_BYTE_LENGTH = 8;
+    private static final int BYTE_BIT_LENGTH = 8;
 
     private static final int MASK = 0xFF;
     private static final int UUID_BUFFER_SIZE = 8;

@@ -33,9 +33,10 @@ import java.util.regex.Pattern;
  */
 public class QueryParameterCollection {
 
-    public static final String QUERY_PAIR_DELIMITER = "&", QUERY_KEY_VALUE_DELIMITER = "=";
-    public static final Pattern QUERY_PAIR_PATTERN = Pattern.compile(QUERY_PAIR_DELIMITER),
-            QUERY_KEY_VALUE_PATTERN = Pattern.compile(QUERY_KEY_VALUE_DELIMITER);
+    public static final String QUERY_PAIR_DELIMITER = "&";
+    public static final String QUERY_KEY_VALUE_DELIMITER = "=";
+    public static final Pattern QUERY_PAIR_PATTERN = Pattern.compile(QUERY_PAIR_DELIMITER);
+    public static final Pattern QUERY_KEY_VALUE_PATTERN = Pattern.compile(QUERY_KEY_VALUE_DELIMITER);
     private final Map<String, QueryParameter> parameterTracker;
 
     public QueryParameterCollection(URI uri) {

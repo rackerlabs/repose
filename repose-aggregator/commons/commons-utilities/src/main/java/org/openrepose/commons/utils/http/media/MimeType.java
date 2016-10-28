@@ -43,7 +43,9 @@ public enum MimeType {
     UNKNOWN("", ""),
     UNSPECIFIED("", "");
 
-    private final String type, subType, mimeType;
+    private final String type;
+    private final String subType;
+    private final String mimeType;
 
     MimeType(String type, String subType) {
         this.type = type;

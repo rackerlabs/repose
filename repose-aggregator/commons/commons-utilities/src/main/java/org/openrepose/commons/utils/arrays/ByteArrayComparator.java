@@ -23,7 +23,8 @@ import org.openrepose.commons.utils.ArrayUtilities;
 
 public class ByteArrayComparator implements ArrayComparator {
 
-    private final byte[] first, second;
+    private final byte[] first;
+    private final byte[] second;
 
     public ByteArrayComparator(byte[] first, byte[] second) {
         this.first = ArrayUtilities.nullSafeCopy(first);

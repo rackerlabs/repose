@@ -113,7 +113,7 @@ public class RateLimitListBuilder {
             limit.setUnit(configuredRateLimit.getUnit());
             limit.setVerb(method);
 
-            long now = System.currentTimeMillis(), earliestExpirationDate = now;
+            long earliestExpirationDate = System.currentTimeMillis();
             int remainingRequests = configuredRateLimit.getValue();
 
             if (cachedLimit != null) {
