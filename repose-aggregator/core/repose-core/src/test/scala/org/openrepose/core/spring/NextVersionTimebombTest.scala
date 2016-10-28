@@ -60,6 +60,8 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 4. Remove these values from the chunkedEncodingType enumeration in http-connection-pool.xsd:
        *    a. 1
        *    b. 0
+       *
+       * 5. Remove the flush output filter
        */
     }
   }
