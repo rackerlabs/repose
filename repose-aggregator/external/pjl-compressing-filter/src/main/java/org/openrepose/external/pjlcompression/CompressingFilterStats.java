@@ -296,6 +296,7 @@ public final class CompressingFilterStats implements Serializable {
             this.field = field;
         }
 
+        @Override
         public void bytesWritten(int numBytes) {
             assert numBytes >= 0;
             switch (field) {
@@ -329,6 +330,7 @@ public final class CompressingFilterStats implements Serializable {
             this.field = field;
         }
 
+        @Override
         public void bytesRead(long numBytes) {
             assert numBytes >= 0;
             switch (field) {

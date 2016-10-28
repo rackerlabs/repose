@@ -59,6 +59,7 @@ final class EmptyEnumeration implements Enumeration<Object> {
     /**
      * @return false always
      */
+    @Override
     public boolean hasMoreElements() {
         return false;
     }
@@ -66,6 +67,7 @@ final class EmptyEnumeration implements Enumeration<Object> {
     /**
      * @throws NoSuchElementException always
      */
+    @Override
     public Object nextElement() {
         throw new NoSuchElementException();
     }

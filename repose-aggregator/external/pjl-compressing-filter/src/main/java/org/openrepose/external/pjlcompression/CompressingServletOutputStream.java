@@ -175,10 +175,12 @@ final class CompressingServletOutputStream extends ServletOutputStream {
             this.response = response;
         }
 
+        @Override
         public void rawStreamCommitted() {
             response.rawStreamCommitted();
         }
 
+        @Override
         public void compressingStreamCommitted() {
             response.switchToCompression();
         }

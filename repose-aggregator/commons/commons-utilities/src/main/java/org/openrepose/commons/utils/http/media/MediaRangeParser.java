@@ -54,6 +54,7 @@ public class MediaRangeParser implements CustomHeaderParser<MediaType> {
         return mediaRanges;
     }
 
+    @Override
     public MediaType process(HeaderValue headerValue) {
         MimeType mediaType = MimeType.getMatchingMimeType(headerValue.getValue());
 

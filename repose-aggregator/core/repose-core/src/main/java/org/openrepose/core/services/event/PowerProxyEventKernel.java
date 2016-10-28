@@ -85,6 +85,7 @@ public class PowerProxyEventKernel implements Runnable, Destroyable {
         }
     }
 
+    @Override
     @PreDestroy
     public void destroy() {
         shouldContinue = false;

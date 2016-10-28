@@ -55,10 +55,12 @@ final class IteratorEnumeration implements Enumeration<Object> {
         this.iterator = iterator;
     }
 
+    @Override
     public boolean hasMoreElements() {
         return iterator.hasNext();
     }
 
+    @Override
     public Object nextElement() {
         return iterator.next();
     }
