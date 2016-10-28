@@ -126,10 +126,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         throw new HttpException("Invalid target host");
     }
 
-    private HttpClientContainer getClient() {
-        return httpClientService.getDefaultClient();
-    }
-
     private HttpClientContainer getClient(String clientId) {
         return httpClientService.getClient(clientId);
     }
