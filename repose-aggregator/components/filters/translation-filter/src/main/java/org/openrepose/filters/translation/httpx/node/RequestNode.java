@@ -77,6 +77,7 @@ public class RequestNode extends ObjectFactoryUser implements ComplexNode {
         messageEnvelope.setRequest(messageRequest);
     }
 
+    @Override
     public void addChildNode(Node node) {
         nodes.add(node);
     }

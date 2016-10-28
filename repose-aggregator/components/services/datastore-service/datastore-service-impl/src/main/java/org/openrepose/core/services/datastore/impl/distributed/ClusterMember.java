@@ -64,7 +64,7 @@ public class ClusterMember {
 
     private void logMemberRetry(long nowInMilliseconds) {
         if (validationPass++ < requiredValidationPasses) {
-            restPeriod = droppedMemberRestTime / validationPass;
+            restPeriod = (long) droppedMemberRestTime / validationPass;
             droppedTime = nowInMilliseconds;
         } else {
             validationPass = 0;

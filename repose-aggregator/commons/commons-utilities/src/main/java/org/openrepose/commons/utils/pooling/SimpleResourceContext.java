@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.pooling;
 
+@FunctionalInterface
 public interface SimpleResourceContext<R> {
 
     void perform(R resource) throws ResourceContextException;

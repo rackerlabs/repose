@@ -22,6 +22,7 @@ package org.openrepose.commons.utils.thread;
 /**
  * @author zinic
  */
+@FunctionalInterface
 public interface RecurringTask {
 
     void run();

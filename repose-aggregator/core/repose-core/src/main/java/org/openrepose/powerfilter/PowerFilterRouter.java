@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+@FunctionalInterface
 public interface PowerFilterRouter {
 
     void route(HttpServletRequestWrapper servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException;

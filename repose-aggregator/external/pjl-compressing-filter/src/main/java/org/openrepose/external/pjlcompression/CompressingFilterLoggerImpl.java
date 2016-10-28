@@ -88,10 +88,12 @@ final class CompressingFilterLoggerImpl implements CompressingFilterLogger {
         }
     }
 
+    @Override
     public boolean isDebug() {
         return debug;
     }
 
+    @Override
     public void log(String message) {
         servletContext.log(MESSAGE_PREFIX + message);
         if (delegate != null) {
@@ -99,6 +101,7 @@ final class CompressingFilterLoggerImpl implements CompressingFilterLogger {
         }
     }
 
+    @Override
     public void log(String message, Throwable t) {
         servletContext.log(MESSAGE_PREFIX + message, t);
         if (delegate != null) {
@@ -106,6 +109,7 @@ final class CompressingFilterLoggerImpl implements CompressingFilterLogger {
         }
     }
 
+    @Override
     public void logDebug(String message) {
         if (debug) {
             servletContext.log(MESSAGE_PREFIX + message);
@@ -115,6 +119,7 @@ final class CompressingFilterLoggerImpl implements CompressingFilterLogger {
         }
     }
 
+    @Override
     public void logDebug(String message, Throwable t) {
         if (debug) {
             servletContext.log(MESSAGE_PREFIX + message, t);

@@ -93,6 +93,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
         }, PowerFilterEvent.POWER_FILTER_CONFIGURED);
     }
 
+    @Override
     @PreDestroy
     public void destroy() {
         LOG.debug("Artifact manager going down!");

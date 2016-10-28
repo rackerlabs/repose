@@ -216,6 +216,7 @@ public class CompressingFilter implements Filter {
     //Flag to indicate whether this request is being run through Repose
     private boolean isForRepose = false;
 
+    @Override
     public void init(FilterConfig config) throws ServletException {
         assert config != null;
         context = new CompressingFilterContext(config);
@@ -223,6 +224,7 @@ public class CompressingFilter implements Filter {
         logger.log("CompressingFilter has initialized");
     }
 
+    @Override
     public void doFilter(ServletRequest request,
                          ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
@@ -404,6 +406,7 @@ public class CompressingFilter implements Filter {
         httpResponse.addHeader(VARY_HEADER, CompressingHttpServletResponse.ACCEPT_ENCODING_HEADER);
     }
 
+    @Override
     public void destroy() {
         logger.log("CompressingFilter is being destroyed...");
     }

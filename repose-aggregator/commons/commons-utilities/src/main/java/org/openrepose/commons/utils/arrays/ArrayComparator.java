@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.arrays;
 
+@FunctionalInterface
 public interface ArrayComparator {
 
     boolean arraysAreEqual();

@@ -84,7 +84,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
   }
 
   override def beforeAll() = {
-    CoreSpringProvider.getInstance().reInitializeCoreContext(configDir, false)
+    SpringContextResetter.resetContext()
+    CoreSpringProvider.getInstance().initializeCoreContext(configDir, false)
   }
 
   //Acquire the protocols and ciphers this JVM supports

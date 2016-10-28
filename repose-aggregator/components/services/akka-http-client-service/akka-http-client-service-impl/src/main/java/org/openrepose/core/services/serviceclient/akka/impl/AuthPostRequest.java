@@ -52,6 +52,7 @@ public class AuthPostRequest extends ActorRequest implements ConsistentHashable 
         return headers;
     }
 
+    @Override
     public String consistentHashKey() {
         return hashKey;
     }

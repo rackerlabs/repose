@@ -55,10 +55,12 @@ public class TimerByCategoryImpl implements TimerByCategory {
         this.rate = rate;
     }
 
+    @Override
     public void update(String key, long duration, TimeUnit unit) {
         verifyGet(key).update(duration, unit);
     }
 
+    @Override
     public TimerContext time(String key) {
         return verifyGet(key).time();
     }

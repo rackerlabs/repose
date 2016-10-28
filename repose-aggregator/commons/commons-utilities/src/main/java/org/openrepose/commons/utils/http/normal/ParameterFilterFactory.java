@@ -22,6 +22,7 @@ package org.openrepose.commons.utils.http.normal;
 /**
  * @author zinic
  */
+@FunctionalInterface
 public interface ParameterFilterFactory {
 
     ParameterFilter newInstance();

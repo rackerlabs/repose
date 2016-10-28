@@ -19,10 +19,7 @@
  */
 package org.openrepose.commons.utils.pooling;
 
-/**
- *
- *
- */
+@FunctionalInterface
 public interface ConstructionStrategy<T> {
 
     T construct() throws ResourceConstructionException;
