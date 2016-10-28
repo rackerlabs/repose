@@ -29,7 +29,8 @@ import org.scalatest.{FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class ReposeJettyServerTest extends FunSpec with Matchers {
 
-  CoreSpringProvider.getInstance().reInitializeCoreContext("/config/root", false)
+  SpringContextResetter.resetContext()
+  CoreSpringProvider.getInstance().initializeCoreContext("/config/root", false)
 
   val nodeContext = CoreSpringProvider.getInstance().getNodeContext("cluster", "le_node_id")
 
