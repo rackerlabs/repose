@@ -131,6 +131,7 @@ final class StatsInputStream extends InputStream {
         return "StatsInputStream[" + inputStream + ']';
     }
 
+    @FunctionalInterface
     interface StatsCallback {
         void bytesRead(long numBytes);
     }

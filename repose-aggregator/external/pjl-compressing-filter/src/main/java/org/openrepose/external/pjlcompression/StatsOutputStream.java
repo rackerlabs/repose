@@ -94,6 +94,7 @@ final class StatsOutputStream extends OutputStream {
     }
 
 
+    @FunctionalInterface
     interface StatsCallback {
 
         void bytesWritten(int numBytes);

@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.logging;
 
+@FunctionalInterface
 public interface LoggingService {
     void updateLoggingConfiguration(String configFileName);
 }

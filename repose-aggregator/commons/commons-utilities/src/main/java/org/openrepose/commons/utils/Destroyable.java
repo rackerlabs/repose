@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils;
 
+@FunctionalInterface
 public interface Destroyable {
 
     void destroy();

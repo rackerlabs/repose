@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.http.header;
 
+@FunctionalInterface
 public interface CustomHeaderParser<T extends HeaderValue> {
 
     T process(HeaderValue headerValue);

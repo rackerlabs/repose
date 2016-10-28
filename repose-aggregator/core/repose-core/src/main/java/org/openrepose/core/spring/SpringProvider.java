@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 /**
  * Defining the common interface for something that provides a Spring Context
  */
+@FunctionalInterface
 public interface SpringProvider {
 
     /**

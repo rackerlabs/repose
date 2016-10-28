@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.http.normal;
 
+@FunctionalInterface
 public interface Normalizer<T> {
 
     T normalize(T source);

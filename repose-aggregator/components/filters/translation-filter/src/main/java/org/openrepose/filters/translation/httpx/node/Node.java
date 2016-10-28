@@ -22,6 +22,7 @@ package org.openrepose.filters.translation.httpx.node;
 /**
  * @author fran
  */
+@FunctionalInterface
 public interface Node {
     void build();
 }

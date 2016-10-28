@@ -25,6 +25,7 @@ package org.openrepose.core.services.datastore;
  * T - type variable of element
  * P - type variable of patchable object
  */
+@FunctionalInterface
 public interface Patchable<T, P extends Patch<T>> {
     T applyPatch(P in);
 }

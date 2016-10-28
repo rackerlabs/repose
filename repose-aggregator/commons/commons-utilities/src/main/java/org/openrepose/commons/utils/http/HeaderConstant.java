@@ -23,6 +23,7 @@ package org.openrepose.commons.utils.http;
  * The HttpHeader interface represents a strongly-typed, normalized way of
  * describing an HttpHeader and its key.
  */
+@FunctionalInterface
 public interface HeaderConstant {
 
     /**

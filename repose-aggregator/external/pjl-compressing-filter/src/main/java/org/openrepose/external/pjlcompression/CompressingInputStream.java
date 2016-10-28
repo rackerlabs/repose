@@ -45,6 +45,7 @@ import java.io.InputStream;
  * @author Sean Owen
  * @since 1.6
  */
+@FunctionalInterface
 interface CompressingInputStream {
 
     InputStream getCompressingInputStream() throws IOException;

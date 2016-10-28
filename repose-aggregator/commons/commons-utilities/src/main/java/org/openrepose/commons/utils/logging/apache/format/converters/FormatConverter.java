@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.logging.apache.format.converters;
 
+@FunctionalInterface
 public interface FormatConverter {
     String convert(String value, String inputFormat, String outputFormat);
 }
