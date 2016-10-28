@@ -99,17 +99,19 @@ public class FilterContextFactory {
 
         //We got a filter info and a classloader, we can do actual work
         try {
-            LOG.info("Getting child application context for {} using classloader {}", filterType.getFilterClass().getValue(), filterClassLoader.toString());
+            LOG.info("Getting child application context for {} using classloader {}", filterClassName, filterClassLoader.toString());
 
-            AbstractApplicationContext filterContext = CoreSpringProvider.getContextForFilter(applicationContext, filterClassLoader, filterType.getFilterClass().getValue(), getUniqueContextName(filter));
+            AbstractApplicationContext filterContext = CoreSpringProvider.getContextForFilter(applicationContext, filterClassLoader, filterClassName, getUniqueContextName(filter));
 
             //Get the specific class to load from the application context
-            Class c = filterClassLoader.loadClass(filterType.getFilterClass().getValue());
+            Class c = filterClassLoader.loadClass(filterClassName);
 
             javax.servlet.Filter newFilterInstance;
             try {
                 newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
             } catch (NoSuchBeanDefinitionException e) {
+                LOG.debug("Could not load the filter {} using Spring. Will try to manually load the class instead.", filterClassName, e);
+
                 //Spring didn't load the filter as a bean, try manually creating a new instance of the class
                 newFilterInstance = (javax.servlet.Filter) c.newInstance();
 
