@@ -136,13 +136,13 @@ public class DistributedDatastoreServlet extends HttpServlet {
         } catch (MalformedCacheRequestException e) {
 
             LOG.error("Malformed cache request during GET", e);
-            switch (e.error) {
+            switch (e.getError()) {
                 case NO_DD_HOST_KEY:
-                    resp.getWriter().write(e.error.message());
+                    resp.getWriter().write(e.getError().message());
                     resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     break;
                 case CACHE_KEY_INVALID:
-                    resp.getWriter().write(e.error.message());
+                    resp.getWriter().write(e.getError().message());
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     break;
                 case OBJECT_TOO_LARGE:
@@ -190,9 +190,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } catch (MalformedCacheRequestException e) {
                 LOG.trace("Malformed cache request on Delete", e);
-                switch (e.error) {
+                switch (e.getError()) {
                     case NO_DD_HOST_KEY:
-                        resp.getWriter().write(e.error.message());
+                        resp.getWriter().write(e.getError().message());
                         resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         break;
                     case UNEXPECTED_REMOTE_BEHAVIOR:
@@ -277,19 +277,19 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private void handleputMalformedCacheRequestException(MalformedCacheRequestException mcre, HttpServletResponse response) throws IOException {
 
         LOG.error("Handling Malformed Cache Request", mcre);
-        switch (mcre.error) {
+        switch (mcre.getError()) {
             case NO_DD_HOST_KEY:
-                response.getWriter().write(mcre.error.message());
+                response.getWriter().write(mcre.getError().message());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 break;
             case OBJECT_TOO_LARGE:
-                response.getWriter().write(mcre.error.message());
+                response.getWriter().write(mcre.getError().message());
                 response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
                 break;
             case CACHE_KEY_INVALID:
             case TTL_HEADER_NOT_POSITIVE:
             case UNEXPECTED_REMOTE_BEHAVIOR:
-                response.getWriter().write(mcre.error.message());
+                response.getWriter().write(mcre.getError().message());
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 break;
             default:
