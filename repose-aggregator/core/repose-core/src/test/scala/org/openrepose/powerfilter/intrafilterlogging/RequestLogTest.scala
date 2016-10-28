@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.powerfilter.intrafilterLogging
+package org.openrepose.powerfilter.intrafilterlogging
 
 import java.io.{ByteArrayInputStream, IOException}
 import javax.servlet.ServletInputStream

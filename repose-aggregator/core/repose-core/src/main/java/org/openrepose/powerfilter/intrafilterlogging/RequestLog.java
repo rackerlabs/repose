@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,43 +17,60 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.powerfilter.intrafilterLogging;
+package org.openrepose.powerfilter.intrafilterlogging;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.core.systemmodel.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 
-public class ResponseLog {
+public class RequestLog {
+    private static final Logger LOG = LoggerFactory.getLogger(RequestLog.class);
 
     String preamble;
     String timestamp;
     String currentFilter;
-    String httpResponseCode;
-    String responseBody;
+    String httpMethod;
+    String requestURI;
+    String requestBody;
     Map<String, String> headers;
 
-    public ResponseLog(HttpServletResponseWrapper wrappedServletResponse, Filter filter) throws IOException {
-        preamble = "Intrafilter Response Log";
+    public RequestLog(HttpServletRequest httpServletRequest, Filter filter) throws IOException {
+        preamble = "Intrafilter Request Log";
         timestamp = new DateTime().toString();
         currentFilter = StringUtils.isEmpty(filter.getId()) ? filter.getName() : filter.getId() + "-" + filter.getName();
-        httpResponseCode = Integer.toString(wrappedServletResponse.getStatus());
-        headers = convertResponseHeadersToMap(wrappedServletResponse);
+        httpMethod = httpServletRequest.getMethod();
+        requestURI = httpServletRequest.getRequestURI();
+        headers = convertRequestHeadersToMap(httpServletRequest);
 
-        responseBody = IOUtils.toString(wrappedServletResponse.getOutputStreamAsInputStream()); //http://stackoverflow.com/a/309448
+        try {
+            ServletInputStream inputStream = httpServletRequest.getInputStream();
+            if (inputStream.markSupported()) {
+                inputStream.mark(Integer.MAX_VALUE);
+                requestBody = IOUtils.toString(inputStream); //http://stackoverflow.com/a/309448
+                inputStream.reset();
+            } else {
+                LOG.warn("Unable to populate request body - {} does not support mark/reset.", inputStream);
+            }
+        } catch (IOException e) {
+            LOG.warn("Unable to populate request body.", e);
+        }
     }
 
-    private Map<String, String> convertResponseHeadersToMap(HttpServletResponseWrapper wrappedServletResponse) {
-        HashMap<String, String> headerMap = new LinkedHashMap<>();
-        Collection<String> headerNames = wrappedServletResponse.getHeaderNames();
+    private Map<String, String> convertRequestHeadersToMap(HttpServletRequest httpServletRequest) {
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        List<String> headerNames = Collections.list(httpServletRequest.getHeaderNames());
 
         for (String headerName : headerNames) {
             StringJoiner stringJoiner = new StringJoiner(",");
-            wrappedServletResponse.getHeaders(headerName).forEach(stringJoiner::add);
+            Collections.list(httpServletRequest.getHeaders(headerName)).forEach(stringJoiner::add);
             headerMap.put(headerName, stringJoiner.toString());
         }
 

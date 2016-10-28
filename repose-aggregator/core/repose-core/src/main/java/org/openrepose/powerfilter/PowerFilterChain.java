@@ -36,8 +36,8 @@ import org.openrepose.core.FilterProcessingTime;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
-import org.openrepose.powerfilter.intrafilterLogging.RequestLog;
-import org.openrepose.powerfilter.intrafilterLogging.ResponseLog;
+import org.openrepose.powerfilter.intrafilterlogging.RequestLog;
+import org.openrepose.powerfilter.intrafilterlogging.ResponseLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
