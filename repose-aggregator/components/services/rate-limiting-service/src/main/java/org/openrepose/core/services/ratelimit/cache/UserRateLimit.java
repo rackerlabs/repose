@@ -77,7 +77,9 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
             if (lowestLimit == null || (rateLimit.maxAmount() - rateLimit.amount() < lowestLimit.getValue().maxAmount() - lowestLimit.getValue().amount())) {
                 lowestLimit = Pair.of(limitEntry.getValue(), rateLimit);
             }
-            if (rateLimit.amount() > rateLimit.maxAmount()) break;
+            if (rateLimit.amount() > rateLimit.maxAmount()) {
+                break;
+            }
         }
 
         return new UserRateLimit(returnLimits, lowestLimit);
