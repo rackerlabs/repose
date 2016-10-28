@@ -355,8 +355,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final long startTime = System.currentTimeMillis();
 
-        // todo: Once we drop Guava Optionals, import Java Optional
-        final java.util.Optional<Long> contentBodyReadLimit = containerConfigurationService.getContentBodyReadLimit();
+        final Optional<Long> contentBodyReadLimit = containerConfigurationService.getContentBodyReadLimit();
         final InputStream requestBodyInputStream = contentBodyReadLimit.isPresent() ?
                 new LimitedReadInputStream(contentBodyReadLimit.get(), request.getInputStream()) :
                 request.getInputStream();
