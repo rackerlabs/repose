@@ -24,6 +24,17 @@ package org.openrepose.commons.utils.http;
  */
 public enum IdentityStatus {
     // The possible values for the X-Identity-Status header
-    Confirmed,
-    Indeterminate
+    CONFIRMED("Confirmed"),
+    INDETERMINATE("Indeterminate");
+
+    private String value;
+
+    IdentityStatus(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }
