@@ -66,33 +66,38 @@ public class HttpxMarshaller {
     }
 
     public <T> T unmarshall(InputStream xml) {
-        T rtnObject = null;
-        Unmarshaller pooledObject = null;
-        ObjectPool<Unmarshaller> unmarshallerPool = HttpxMarshallerUtility.UNMARSHALLER_POOL;
+        T rtnObject;
         try {
-            try {
-                pooledObject = unmarshallerPool.borrowObject();
-                XMLReader xmlReader = parserFactory.newSAXParser().getXMLReader();
-                SAXSource source = new SAXSource(xmlReader, new InputSource(xml));
-                Object result = pooledObject.unmarshal(source);
-                if (result instanceof JAXBElement) {
-                    JAXBElement element = (JAXBElement) result;
-                    rtnObject = (T) element.getValue();
-                } else {
-                    rtnObject = (T) result;
-                }
-            } catch (Exception ex) {
-                unmarshallerPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new HttpxException("Error unmarshalling xml input", ex);
-            } finally {
-                if (pooledObject != null) {
-                    unmarshallerPool.returnObject(pooledObject);
-                }
-            }
+            rtnObject = doUnmarshall(xml, HttpxMarshallerUtility.UNMARSHALLER_POOL);
         } catch (Exception e) {
             LOG.error("Error unmarshalling xml input", e);
             throw new HttpxException("Error unmarshalling xml input", e);
+        }
+        return rtnObject;
+    }
+
+    private <T> T doUnmarshall(InputStream xml, ObjectPool<Unmarshaller> unmarshallerPool) throws Exception {
+        T rtnObject = null;
+        Unmarshaller pooledObject = null;
+        try {
+            pooledObject = unmarshallerPool.borrowObject();
+            XMLReader xmlReader = parserFactory.newSAXParser().getXMLReader();
+            SAXSource source = new SAXSource(xmlReader, new InputSource(xml));
+            Object result = pooledObject.unmarshal(source);
+            if (result instanceof JAXBElement) {
+                JAXBElement element = (JAXBElement) result;
+                rtnObject = (T) element.getValue();
+            } else {
+                rtnObject = (T) result;
+            }
+        } catch (Exception ex) {
+            unmarshallerPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new HttpxException("Error unmarshalling xml input", ex);
+        } finally {
+            if (pooledObject != null) {
+                unmarshallerPool.returnObject(pooledObject);
+            }
         }
         return rtnObject;
     }
@@ -122,23 +127,26 @@ public class HttpxMarshaller {
     }
 
     private void marshall(Object o, OutputStream out) {
-        Marshaller pooledObject = null;
-        ObjectPool<Marshaller> marshallerPool = HttpxMarshallerUtility.MARSHALLER_POOL;
         try {
-            try {
-                pooledObject = marshallerPool.borrowObject();
-                pooledObject.marshal(o, out);
-            } catch (Exception ex) {
-                marshallerPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new HttpxException("Error marshalling HTTPX object", ex);
-            } finally {
-                if (pooledObject != null) {
-                    marshallerPool.returnObject(pooledObject);
-                }
-            }
+            doMarshall(o, out, HttpxMarshallerUtility.MARSHALLER_POOL);
         } catch (Exception e) {
             throw new HttpxException("Error marshalling HTTPX object", e);
+        }
+    }
+
+    private void doMarshall(Object o, OutputStream out, ObjectPool<Marshaller> marshallerPool) throws Exception {
+        Marshaller pooledObject = null;
+        try {
+            pooledObject = marshallerPool.borrowObject();
+            pooledObject.marshal(o, out);
+        } catch (Exception ex) {
+            marshallerPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new HttpxException("Error marshalling HTTPX object", ex);
+        } finally {
+            if (pooledObject != null) {
+                marshallerPool.returnObject(pooledObject);
+            }
         }
     }
 }

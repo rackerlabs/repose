@@ -106,19 +106,7 @@ public class FilterContextFactory {
             //Get the specific class to load from the application context
             Class c = filterClassLoader.loadClass(filterClassName);
 
-            javax.servlet.Filter newFilterInstance;
-            try {
-                newFilterInstance = (javax.servlet.Filter) filterContext.getBean(c);
-            } catch (NoSuchBeanDefinitionException e) {
-                LOG.debug("Could not load the filter {} using Spring. Will try to manually load the class instead.", filterClassName, e);
-
-                //Spring didn't load the filter as a bean, try manually creating a new instance of the class
-                newFilterInstance = (javax.servlet.Filter) c.newInstance();
-
-                //Add the instance to the application context using its full class name
-                filterContext.getBeanFactory().registerSingleton(
-                        newFilterInstance.getClass().getName(), newFilterInstance);
-            }
+            javax.servlet.Filter newFilterInstance = doLoadFilterContext(filterClassName, filterContext, c);
 
             newFilterInstance.init(new FilterConfigWrapper(servletContext, filterType, filter.getConfiguration()));
 
@@ -136,6 +124,22 @@ public class FilterContextFactory {
             throw new FilterInitializationException("Requested filter, " + filterClassName +
                     " is not an annotated Component nor does it have a public zero-argument constructor.", e);
         }
+    }
+
+    private javax.servlet.Filter doLoadFilterContext(String filterClassName, AbstractApplicationContext filterContext, Class c) throws IllegalAccessException, InstantiationException {
+        javax.servlet.Filter rtn;
+        try {
+            rtn = (javax.servlet.Filter) filterContext.getBean(c);
+        } catch (NoSuchBeanDefinitionException e) {
+            LOG.debug("Could not load the filter {} using Spring. Will try to manually load the class instead.", filterClassName, e);
+
+            //Spring didn't load the filter as a bean, try manually creating a new instance of the class
+            rtn = (javax.servlet.Filter) c.newInstance();
+
+            //Add the instance to the application context using its full class name
+            filterContext.getBeanFactory().registerSingleton(rtn.getClass().getName(), rtn);
+        }
+        return rtn;
     }
 
     private String getUniqueContextName(Filter filterInfo) {

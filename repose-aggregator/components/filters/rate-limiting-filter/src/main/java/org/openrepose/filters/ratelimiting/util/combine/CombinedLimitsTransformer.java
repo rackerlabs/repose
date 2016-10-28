@@ -53,34 +53,39 @@ public class CombinedLimitsTransformer extends AbstractXslTransform implements S
 
     @Override
     public void transform(final LimitsTransformPair source, final OutputStream target) {
-        Transformer pooledObject;
         final ObjectPool<Transformer> objectPool = getXslTransformerPool();
         try {
-            pooledObject = objectPool.borrowObject();
-            try {
-                final InputStreamUriParameter inputStreamUriParameter = new InputStreamUriParameter(source.getInputStream());
-                final StreamResult resultWriter = new StreamResult(target);
-                // The XSL requires a parameter to represent the absolute limits.
-                // This harness cheats and provides the input stream directly.
-                pooledObject.setURIResolver(inputStreamUriParameter);
-                pooledObject.setParameter("absoluteURL", inputStreamUriParameter.getHref());
-                final Limits limitsObject = new Limits();
-                limitsObject.setRates(source.getRateLimitList());
-                pooledObject.transform(new JAXBSource(jaxbContext, factory.createLimits(limitsObject)), resultWriter);
-            } catch (Exception e) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
-            } finally {
-                if (pooledObject != null) {
-                    objectPool.returnObject(pooledObject);
-                }
-            }
+            doTransform(source, target, objectPool, objectPool.borrowObject());
         } catch (XsltTransformationException e) {
             throw e;
         } catch (Exception e) {
             LOG.error("Failed to obtain a Transformer. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
+        }
+    }
+
+    private void doTransform(final LimitsTransformPair source,
+                             final OutputStream target,
+                             final ObjectPool<Transformer> objectPool,
+                             Transformer pooledObject) throws Exception {
+        try {
+            final InputStreamUriParameter inputStreamUriParameter = new InputStreamUriParameter(source.getInputStream());
+            final StreamResult resultWriter = new StreamResult(target);
+            // The XSL requires a parameter to represent the absolute limits.
+            // This harness cheats and provides the input stream directly.
+            pooledObject.setURIResolver(inputStreamUriParameter);
+            pooledObject.setParameter("absoluteURL", inputStreamUriParameter.getHref());
+            final Limits limitsObject = new Limits();
+            limitsObject.setRates(source.getRateLimitList());
+            pooledObject.transform(new JAXBSource(jaxbContext, factory.createLimits(limitsObject)), resultWriter);
+        } catch (Exception e) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
+        } finally {
+            if (pooledObject != null) {
+                objectPool.returnObject(pooledObject);
+            }
         }
     }
 }

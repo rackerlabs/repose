@@ -42,32 +42,36 @@ public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<
     @Override
     public String transform(final JAXBElement source) {
         String rtn = null;
-        Marshaller pooledObject;
-        final ObjectPool<Marshaller> objectPool = getMarshallerPool();
         try {
-            pooledObject = objectPool.borrowObject();
-            try (StringWriter w = new StringWriter()) {
-                pooledObject.marshal(source, w);
-                rtn = w.getBuffer().toString();
-            } catch (JAXBException jaxbe) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
-            } catch (Exception e) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                LOG.error("Failed to utilize the Marshaller. Reason: {}", e.getLocalizedMessage());
-                LOG.trace("", e);
-            } finally {
-                if (pooledObject != null) {
-                    objectPool.returnObject(pooledObject);
-                }
-            }
+            rtn = doTransform(getMarshallerPool(), source);
         } catch (ResourceConstructionException e) {
             throw e;
         } catch (Exception e) {
             LOG.error("Failed to obtain a Marshaller. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
+        }
+        return rtn;
+    }
+
+    private String doTransform(final ObjectPool<Marshaller> objectPool, final JAXBElement source) throws Exception {
+        String rtn = null;
+        Marshaller pooledObject = objectPool.borrowObject();
+        try (StringWriter w = new StringWriter()) {
+            pooledObject.marshal(source, w);
+            rtn = w.getBuffer().toString();
+        } catch (JAXBException jaxbe) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
+        } catch (Exception e) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            LOG.error("Failed to utilize the Marshaller. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
+        } finally {
+            if (pooledObject != null) {
+                objectPool.returnObject(pooledObject);
+            }
         }
         return rtn;
     }

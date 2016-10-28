@@ -42,23 +42,10 @@ public abstract class AbstractMessageDigester implements MessageDigester {
     protected abstract String digestSpecName();
 
     @Override
-    public byte[] digestBytes(byte[] bytes) {
+    public byte[] digestBytes(final byte[] bytes) {
         byte[] rtn = new byte[0];
-        MessageDigest pooledObject;
         try {
-            pooledObject = MESSAGE_DIGEST_POOL.borrowObject();
-            try {
-                rtn = pooledObject.digest(bytes);
-            } catch (Exception e) {
-                MESSAGE_DIGEST_POOL.invalidateObject(pooledObject);
-                pooledObject = null;
-                LOG.error("Failed to utilize the MessageDigest. Reason: {}", e.getLocalizedMessage());
-                LOG.trace("", e);
-            } finally {
-                if (pooledObject != null) {
-                    MESSAGE_DIGEST_POOL.returnObject(pooledObject);
-                }
-            }
+            rtn = doDigestBytes(bytes, MESSAGE_DIGEST_POOL.borrowObject());
         } catch (Exception e) {
             LOG.error("Failed to obtain a MessageDigest. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
@@ -66,33 +53,54 @@ public abstract class AbstractMessageDigester implements MessageDigester {
         return rtn;
     }
 
+    private byte[] doDigestBytes(final byte[] bytes, MessageDigest pooledObject) throws Exception {
+        byte[] rtn = new byte[0];
+        try {
+            rtn = pooledObject.digest(bytes);
+        } catch (Exception e) {
+            MESSAGE_DIGEST_POOL.invalidateObject(pooledObject);
+            pooledObject = null;
+            LOG.error("Failed to utilize the MessageDigest. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
+        } finally {
+            if (pooledObject != null) {
+                MESSAGE_DIGEST_POOL.returnObject(pooledObject);
+            }
+        }
+        return rtn;
+    }
+
     @Override
     public byte[] digestStream(final InputStream stream) {
         byte[] rtn = new byte[0];
-        MessageDigest pooledObject;
         try {
-            pooledObject = MESSAGE_DIGEST_POOL.borrowObject();
-            try (MessageDigesterOutputStream output = new MessageDigesterOutputStream(pooledObject)) {
-                final byte[] buffer = new byte[BYTE_BUFFER_SIZE];
-                for (int read; (read = stream.read(buffer)) != -1; /*DO-NOTHING*/) {
-                    output.write(buffer, 0, read);
-                }
-                stream.close();
-                output.close();
-                rtn = output.getDigest();
-            } catch (Exception e) {
-                MESSAGE_DIGEST_POOL.invalidateObject(pooledObject);
-                pooledObject = null;
-                LOG.error("Failed to utilize the MessageDigest. Reason: {}", e.getLocalizedMessage());
-                LOG.trace("", e);
-            } finally {
-                if (pooledObject != null) {
-                    MESSAGE_DIGEST_POOL.returnObject(pooledObject);
-                }
-            }
+            rtn = doDigestStream(stream, MESSAGE_DIGEST_POOL.borrowObject());
         } catch (Exception e) {
             LOG.error("Failed to obtain a MessageDigest. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
+        }
+        return rtn;
+    }
+
+    private byte[] doDigestStream(final InputStream stream, MessageDigest pooledObject) throws Exception {
+        byte[] rtn = new byte[0];
+        try (MessageDigesterOutputStream output = new MessageDigesterOutputStream(pooledObject)) {
+            final byte[] buffer = new byte[BYTE_BUFFER_SIZE];
+            for (int read; (read = stream.read(buffer)) != -1; /*DO-NOTHING*/) {
+                output.write(buffer, 0, read);
+            }
+            stream.close();
+            output.close();
+            rtn = output.getDigest();
+        } catch (Exception e) {
+            MESSAGE_DIGEST_POOL.invalidateObject(pooledObject);
+            pooledObject = null;
+            LOG.error("Failed to utilize the MessageDigest. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
+        } finally {
+            if (pooledObject != null) {
+                MESSAGE_DIGEST_POOL.returnObject(pooledObject);
+            }
         }
         return rtn;
     }

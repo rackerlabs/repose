@@ -67,23 +67,24 @@ public class PowerProxyEventKernel implements Runnable, Destroyable {
 
                 if (LOG.isDebugEnabled()) {
                     final Enum eventType = dispatcher.getEvent().type();
-
                     LOG.debug("Dispatching event: " + eventType.getClass().getSimpleName() + "." + eventType.name());
                 }
-
-                try {
-                    dispatcher.dispatch();
-                } catch (Exception ex) {
-                    LOG.error("Exception caught while dispatching event, \""
-                            + dispatcher.getEvent().type().getClass().getSimpleName() + "$" + dispatcher.getEvent().type().name()
-                            + "\" - Reason: " + ex.getMessage(), ex);
-                }
+                doDispatch(dispatcher);
             }
         } catch (InterruptedException ie) {
             LOG.warn("Event kernel received an interrupt. Exiting event kernel loop.", ie);
             shouldContinue = false;
-
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private void doDispatch(EventDispatcher dispatcher) {
+        try {
+            dispatcher.dispatch();
+        } catch (Exception ex) {
+            LOG.error("Exception caught while dispatching event, \""
+                    + dispatcher.getEvent().type().getClass().getSimpleName() + "$" + dispatcher.getEvent().type().name()
+                    + "\" - Reason: " + ex.getMessage(), ex);
         }
     }
 

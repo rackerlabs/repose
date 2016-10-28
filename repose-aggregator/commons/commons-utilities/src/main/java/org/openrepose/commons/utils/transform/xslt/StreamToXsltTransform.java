@@ -41,29 +41,28 @@ public class StreamToXsltTransform extends AbstractXslTransform implements Strea
 
     @Override
     public void transform(final InputStream source, final OutputStream target) {
-        Transformer pooledObject;
         final ObjectPool<Transformer> objectPool = getXslTransformerPool();
         try {
-            pooledObject = objectPool.borrowObject();
-            try {
-                pooledObject.transform(new StreamSource(source), new StreamResult(target));
-            } catch (TransformerException te) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new XsltTransformationException("Failed while attempting XSLT transformation.", te);
-            } catch (Exception e) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
-            } finally {
-                if (pooledObject != null) {
-                    objectPool.returnObject(pooledObject);
-                }
-            }
+            doTransform(objectPool, source, target);
         } catch (XsltTransformationException e) {
             throw e;
         } catch (Exception e) {
             throw new XsltTransformationException("Failed to obtain a Transformer for XSLT transformation.", e);
+        }
+    }
+
+    private void doTransform(final ObjectPool<Transformer> objectPool, final InputStream source, final OutputStream target) throws Exception {
+        Transformer pooledObject = objectPool.borrowObject();
+        try {
+            pooledObject.transform(new StreamSource(source), new StreamResult(target));
+        } catch (Exception e) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
+        } finally {
+            if (pooledObject != null) {
+                objectPool.returnObject(pooledObject);
+            }
         }
     }
 }

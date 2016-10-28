@@ -75,31 +75,8 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
     @Override
     public T read(ConfigurationResource cr) {
         Object rtn = null;
-        UnmarshallerValidator pooledObject;
         try {
-            pooledObject = objectPool.borrowObject();
-            try {
-                final Object unmarshalledObject = pooledObject.validateUnmarshal(cr.newInputStream());
-                if (unmarshalledObject instanceof JAXBElement) {
-                    rtn = ((JAXBElement) unmarshalledObject).getValue();
-                } else {
-                    rtn = unmarshalledObject;
-                }
-            } catch (IOException ioe) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                LOG.warn("This *MIGHT* be important! Unable to read configuration file: {}", ioe.getMessage());
-                LOG.trace("Unable to read configuration file.", ioe);
-            } catch (Exception e) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                LOG.error("Failed to utilize the UnmarshallerValidator. Reason: {}", e.getLocalizedMessage());
-                LOG.trace("", e);
-            } finally {
-                if (pooledObject != null) {
-                    objectPool.returnObject(pooledObject);
-                }
-            }
+            rtn = doRead(cr);
         } catch (Exception e) {
             LOG.error("Failed to obtain an UnmarshallerValidator. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
@@ -110,5 +87,33 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
                     + "Actual: " + (rtn == null ? null : rtn.getClass().getCanonicalName()));
         }
         return configurationClass().cast(rtn);
+    }
+
+    private Object doRead(ConfigurationResource cr) throws Exception {
+        Object rtn = null;
+        UnmarshallerValidator pooledObject = objectPool.borrowObject();
+        try {
+            final Object unmarshalledObject = pooledObject.validateUnmarshal(cr.newInputStream());
+            if (unmarshalledObject instanceof JAXBElement) {
+                rtn = ((JAXBElement) unmarshalledObject).getValue();
+            } else {
+                rtn = unmarshalledObject;
+            }
+        } catch (IOException ioe) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            LOG.warn("This *MIGHT* be important! Unable to read configuration file: {}", ioe.getMessage());
+            LOG.trace("Unable to read configuration file.", ioe);
+        } catch (Exception e) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            LOG.error("Failed to utilize the UnmarshallerValidator. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
+        } finally {
+            if (pooledObject != null) {
+                objectPool.returnObject(pooledObject);
+            }
+        }
+        return rtn;
     }
 }

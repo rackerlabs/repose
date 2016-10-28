@@ -43,24 +43,26 @@ public class XsltToStreamTransform<T extends OutputStream> implements StreamTran
 
     @Override
     public void transform(final JAXBElement source, final T target) {
-        Transformer pooledObject;
         try {
-            pooledObject = xsltResourcePool.borrowObject();
-            try {
-                pooledObject.transform(new JAXBSource(jaxbContext, source), new StreamResult(target));
-            } catch (Exception e) {
-                xsltResourcePool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
-            } finally {
-                if (pooledObject != null) {
-                    xsltResourcePool.returnObject(pooledObject);
-                }
-            }
+            doTransform(xsltResourcePool.borrowObject(), source, target);
         } catch (XsltTransformationException e) {
             throw e;
         } catch (Exception e) {
             throw new XsltTransformationException("Failed to obtain a Transformer for XSLT transformation.", e);
+        }
+    }
+
+    private void doTransform(Transformer pooledObject, final JAXBElement source, final T target) throws Exception {
+        try {
+            pooledObject.transform(new JAXBSource(jaxbContext, source), new StreamResult(target));
+        } catch (Exception e) {
+            xsltResourcePool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
+        } finally {
+            if (pooledObject != null) {
+                xsltResourcePool.returnObject(pooledObject);
+            }
         }
     }
 }

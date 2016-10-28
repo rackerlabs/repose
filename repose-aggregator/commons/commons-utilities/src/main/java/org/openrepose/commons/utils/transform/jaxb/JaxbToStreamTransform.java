@@ -41,31 +41,33 @@ public class JaxbToStreamTransform<T extends OutputStream> extends AbstractJaxbT
 
     @Override
     public void transform(final JAXBElement source, final T target) {
-        Marshaller pooledObject;
-        final ObjectPool<Marshaller> objectPool = getMarshallerPool();
         try {
-            pooledObject = objectPool.borrowObject();
-            try {
-                pooledObject.marshal(source, target);
-            } catch (JAXBException jaxbe) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new ResourceContextException(jaxbe.getMessage(), jaxbe);
-            } catch (Exception e) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                LOG.error("Failed to utilize the Marshaller. Reason: {}", e.getLocalizedMessage());
-                LOG.trace("", e);
-            } finally {
-                if (pooledObject != null) {
-                    objectPool.returnObject(pooledObject);
-                }
-            }
+            doTransform(getMarshallerPool(), source, target);
         } catch (ResourceContextException e) {
             throw e;
         } catch (Exception e) {
             LOG.error("Failed to obtain a Marshaller. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
+        }
+    }
+
+    private void doTransform(final ObjectPool<Marshaller> objectPool, final JAXBElement source, final T target) throws Exception {
+        Marshaller pooledObject = objectPool.borrowObject();
+        try {
+            pooledObject.marshal(source, target);
+        } catch (JAXBException jaxbe) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new ResourceContextException(jaxbe.getMessage(), jaxbe);
+        } catch (Exception e) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            LOG.error("Failed to utilize the Marshaller. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
+        } finally {
+            if (pooledObject != null) {
+                objectPool.returnObject(pooledObject);
+            }
         }
     }
 }

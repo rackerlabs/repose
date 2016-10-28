@@ -388,12 +388,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
         try {
-            try {
-                // ensures that the method name exists
-                HttpComponentFactory.valueOf(wrappedRequest.getMethod().toUpperCase());
-            } catch (IllegalArgumentException iae) {
-                throw new InvalidMethodException("Request contained an unknown method.", iae);
-            }
+            doCheckMethod(wrappedRequest);
             // Ensure the request URI is a valid URI
             // This object is only being created to ensure its validity.
             // So it is safe to suppress warning squid:S1848
@@ -448,6 +443,15 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
         //Clear out the tracing header, now that we're done with this request
         MDC.clear();
+    }
+
+    private void doCheckMethod(HttpServletRequestWrapper wrappedRequest) throws InvalidMethodException {
+        try {
+            // ensures that the method name exists
+            HttpComponentFactory.valueOf(wrappedRequest.getMethod().toUpperCase());
+        } catch (IllegalArgumentException iae) {
+            throw new InvalidMethodException("Request contained an unknown method.", iae);
+        }
     }
 
     private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {

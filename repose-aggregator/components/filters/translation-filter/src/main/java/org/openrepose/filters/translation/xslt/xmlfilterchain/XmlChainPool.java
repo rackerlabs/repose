@@ -96,33 +96,36 @@ public class XmlChainPool {
 
     public TranslationResult executePool(final InputStream in, final OutputStream out, final List<XsltParameter> inputs) {
         TranslationResult rtn = new TranslationResult(false);
-        XmlFilterChain pooledObject;
         try {
-            pooledObject = objectPool.borrowObject();
-            try {
-                inputs.addAll(params);
-                List<XsltParameter<? extends OutputStream>> outputs = getOutputParameters();
-                pooledObject.executeChain(in, out, inputs, outputs);
-                rtn = new TranslationResult(true, outputs);
-            } catch (XsltException e) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                LOG.warn("Error processing transforms", e.getMessage(), e);
-            } catch (Exception e) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                LOG.error("Failed to utilize the XmlFilterChain. Reason: {}", e.getLocalizedMessage());
-                LOG.trace("", e);
-            } finally {
-                if (pooledObject != null) {
-                    objectPool.returnObject(pooledObject);
-                }
-            }
+            rtn = doExecutePool(in, out, inputs, objectPool.borrowObject());
         } catch (Exception e) {
             LOG.error("Failed to obtain an XmlFilterChain. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
         }
+        return rtn;
+    }
 
+    private TranslationResult doExecutePool(final InputStream in, final OutputStream out, final List<XsltParameter> inputs, XmlFilterChain pooledObject) throws Exception {
+        TranslationResult rtn = new TranslationResult(false);
+        try {
+            inputs.addAll(params);
+            List<XsltParameter<? extends OutputStream>> outputs = getOutputParameters();
+            pooledObject.executeChain(in, out, inputs, outputs);
+            rtn = new TranslationResult(true, outputs);
+        } catch (XsltException e) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            LOG.warn("Error processing transforms", e.getMessage(), e);
+        } catch (Exception e) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            LOG.error("Failed to utilize the XmlFilterChain. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
+        } finally {
+            if (pooledObject != null) {
+                objectPool.returnObject(pooledObject);
+            }
+        }
         return rtn;
     }
 

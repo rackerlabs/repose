@@ -47,27 +47,31 @@ public class JaxbXsltToStringTransform implements Transform<JAXBElement, String>
 
     @Override
     public String transform(final JAXBElement source) {
-        String rtn = null;
-        Transformer pooledObject;
+        String rtn;
         try {
-            pooledObject = xsltResourcePool.borrowObject();
-            try (StringWriter stringWriter = new StringWriter()) {
-                final StreamResult resultWriter = new StreamResult(stringWriter);
-                pooledObject.transform(new JAXBSource(jaxbContext, source), resultWriter);
-                rtn = stringWriter.getBuffer().toString();
-            } catch (Exception e) {
-                xsltResourcePool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
-            } finally {
-                if (pooledObject != null) {
-                    xsltResourcePool.returnObject(pooledObject);
-                }
-            }
+            rtn = doTransform(xsltResourcePool.borrowObject(), source);
         } catch (XsltTransformationException e) {
             throw e;
         } catch (Exception e) {
             throw new XsltTransformationException("Failed to obtain a Transformer for XSLT transformation.", e);
+        }
+        return rtn;
+    }
+
+    private String doTransform(Transformer pooledObject, final JAXBElement source) throws Exception {
+        String rtn = null;
+        try (StringWriter stringWriter = new StringWriter()) {
+            final StreamResult resultWriter = new StreamResult(stringWriter);
+            pooledObject.transform(new JAXBSource(jaxbContext, source), resultWriter);
+            rtn = stringWriter.getBuffer().toString();
+        } catch (Exception e) {
+            xsltResourcePool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new XsltTransformationException("Failed while attempting XSLT transformation.", e);
+        } finally {
+            if (pooledObject != null) {
+                xsltResourcePool.returnObject(pooledObject);
+            }
         }
         return rtn;
     }

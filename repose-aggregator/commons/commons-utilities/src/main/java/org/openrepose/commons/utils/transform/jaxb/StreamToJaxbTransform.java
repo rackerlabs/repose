@@ -42,31 +42,35 @@ public class StreamToJaxbTransform<T> extends AbstractJaxbTransform implements T
     @Override
     public JAXBElement<T> transform(final InputStream source) {
         JAXBElement<T> rtn = null;
-        Unmarshaller pooledObject;
-        final ObjectPool<Unmarshaller> objectPool = getUnmarshallerPool();
         try {
-            pooledObject = objectPool.borrowObject();
-            try {
-                rtn = (JAXBElement<T>) pooledObject.unmarshal(source);
-            } catch (JAXBException jbe) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                throw new ResourceContextException(jbe.getMessage(), jbe);
-            } catch (Exception e) {
-                objectPool.invalidateObject(pooledObject);
-                pooledObject = null;
-                LOG.error("Failed to utilize the Marshaller. Reason: {}", e.getLocalizedMessage());
-                LOG.trace("", e);
-            } finally {
-                if (pooledObject != null) {
-                    objectPool.returnObject(pooledObject);
-                }
-            }
+            rtn = doTransform(getUnmarshallerPool(), source);
         } catch (ResourceContextException e) {
             throw e;
         } catch (Exception e) {
             LOG.error("Failed to obtain a Marshaller. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
+        }
+        return rtn;
+    }
+
+    private JAXBElement<T> doTransform(final ObjectPool<Unmarshaller> objectPool, final InputStream source) throws Exception {
+        JAXBElement<T> rtn = null;
+        Unmarshaller pooledObject = objectPool.borrowObject();
+        try {
+            rtn = (JAXBElement<T>) pooledObject.unmarshal(source);
+        } catch (JAXBException jbe) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            throw new ResourceContextException(jbe.getMessage(), jbe);
+        } catch (Exception e) {
+            objectPool.invalidateObject(pooledObject);
+            pooledObject = null;
+            LOG.error("Failed to utilize the Marshaller. Reason: {}", e.getLocalizedMessage());
+            LOG.trace("", e);
+        } finally {
+            if (pooledObject != null) {
+                objectPool.returnObject(pooledObject);
+            }
         }
         return rtn;
     }
