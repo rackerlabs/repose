@@ -46,8 +46,7 @@ public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<
         final ObjectPool<Marshaller> objectPool = getMarshallerPool();
         try {
             pooledObject = objectPool.borrowObject();
-            try {
-                final StringWriter w = new StringWriter();
+            try (StringWriter w = new StringWriter()) {
                 pooledObject.marshal(source, w);
                 rtn = w.getBuffer().toString();
             } catch (JAXBException jaxbe) {
