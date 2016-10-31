@@ -3,7 +3,7 @@ Doc Writer <doc@example.com>
 
 This is a template for an asciidoc page http://asciidoc.org[AsciiDoc].
 
-== This will be the repose landing page
+== This will be the versioned documentation landing page
 
 * hello
 * repose
