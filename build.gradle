@@ -280,6 +280,7 @@ subprojects {
     // This is necessary since Sonar requires class directories to exist if the Java plugin is applied, which
     // is currently done on all sub-projects. Sub-projects without any classes, like some of those under
     // :repose-aggregator:artifacts, will break Sonar without this line.
+    // TODO: Remove this line once future versions of the Sonar plugin support a missing classes/main/ directory.
     file("$buildDir/classes/main").mkdirs()
 
     jar {
