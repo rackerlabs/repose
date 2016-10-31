@@ -37,8 +37,15 @@ import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(Enclosed.class)
 public class HttpComponentResponseProcessorTest {
+
+    private HttpResponse response;
+    private HttpServletResponse servletResponse;
+    private HttpComponentResponseProcessor processor;
+    private Map<String, String> headerValues;
+    private List<Header> headers;
+    private HttpEntity entity;
+    private ServletOutputStream out;
 
     private static List<Header> mockHeaders(Map<String, String> headerValues) {
         final List<Header> headers = new ArrayList<>();
@@ -54,119 +61,52 @@ public class HttpComponentResponseProcessorTest {
         return headers;
     }
 
-    public static class WhenProcessingResponses {
+    @Before
+    public void setUp() throws IOException {
+        headerValues = new HashMap<>();
+        headerValues.put("Header1", "Value1");
+        headerValues.put("Header2", "Value21,Value22");
+        headerValues.put("Header3", "Value3;q=3");
 
-        private HttpResponse response;
-        private HttpServletResponse servletResponse;
-        private HttpComponentResponseProcessor processor;
-        private Map<String, String> headerValues;
-        private List<Header> headers;
-        private HttpEntity entity;
-        private ServletOutputStream out;
+        headers = HttpComponentResponseProcessorTest.mockHeaders(headerValues);
+        entity = mock(HttpEntity.class);
+        out = mock(ServletOutputStream.class);
+        response = mock(HttpResponse.class);
+        servletResponse = mock(HttpServletResponse.class);
+        when(response.getAllHeaders()).thenReturn(headers.toArray(new Header[headers.size()]));
+        when(response.getEntity()).thenReturn(entity);
+        when(servletResponse.getOutputStream()).thenReturn(out);
 
-        @Before
-        public void setUp() throws IOException {
-            headerValues = new HashMap<>();
-            headerValues.put("header1", "value1");
-            headerValues.put("header2", "value21,value22");
+        processor = new HttpComponentResponseProcessor(response, servletResponse, 200);
+    }
 
-            headers = HttpComponentResponseProcessorTest.mockHeaders(headerValues);
-            entity = mock(HttpEntity.class);
-            out = mock(ServletOutputStream.class);
-            response = mock(HttpResponse.class);
-            servletResponse = mock(HttpServletResponse.class);
-            when(response.getAllHeaders()).thenReturn(headers.toArray(new Header[headers.size()]));
-            when(response.getEntity()).thenReturn(entity);
-            when(servletResponse.getOutputStream()).thenReturn(out);
+    @Test
+    public void shouldSetStatus() throws IOException {
+        processor.process();
+        verify(servletResponse).setStatus(eq(200));
+    }
 
-            processor = new HttpComponentResponseProcessor(response, servletResponse, 200);
-        }
+    @Test
+    public void shouldSetHeaders() throws IOException {
+        processor.process();
 
-        @Test
-        public void shouldSetStatus() throws IOException {
-            processor.process();
-            verify(servletResponse).setStatus(eq(200));
-        }
-
-        @Test
-        public void shouldSetHeaders() throws IOException {
-            processor.process();
-
-            verify(servletResponse).setStatus(eq(200));
-            for (Header header : headers) {
-                verify(servletResponse).addHeader(header.getName(), header.getValue());
-            }
-        }
-
-        @Test
-        public void shouldWriteResponse() throws IOException {
-            processor.process();
-
-            verify(servletResponse).setStatus(eq(200));
-            for (Header header : headers) {
-                verify(servletResponse).addHeader(header.getName(), header.getValue());
-            }
-
-            verify(entity).writeTo(out);
-            verify(out).flush();
+        verify(servletResponse).setStatus(eq(200));
+        for (Header header : headers) {
+            verify(servletResponse).addHeader(header.getName(), header.getValue());
         }
     }
 
-    public static class WhenProcessingMutableHttpResponses {
+    @Test
+    public void shouldWriteResponse() throws IOException {
+        processor.process();
 
-        private HttpResponse response;
-        private HttpServletResponse servletResponse;
-        private HttpComponentResponseProcessor processor;
-        private Map<String, String> headerValues;
-        private List<Header> headers;
-        private HttpEntity entity;
-        private ServletOutputStream out;
-
-        @Before
-        public void setUp() throws IOException {
-            headerValues = new HashMap<>();
-            headerValues.put("header1", "value1");
-            headerValues.put("header2", "value21,value22");
-
-            headers = HttpComponentResponseProcessorTest.mockHeaders(headerValues);
-            entity = mock(HttpEntity.class);
-            out = mock(ServletOutputStream.class);
-            response = mock(HttpResponse.class);
-            servletResponse = mock(HttpServletResponse.class);
-            when(response.getAllHeaders()).thenReturn(headers.toArray(new Header[headers.size()]));
-            when(response.getEntity()).thenReturn(entity);
-            when(servletResponse.getOutputStream()).thenReturn(out);
-
-            processor = new HttpComponentResponseProcessor(response, servletResponse, 200);
+        verify(servletResponse).setStatus(eq(200));
+        for (Header header : headers) {
+            verify(servletResponse).addHeader(header.getName(), header.getValue());
         }
 
-        @Test
-        public void shouldSetStatus() throws IOException {
-            processor.process();
-            verify(servletResponse).setStatus(eq(200));
-        }
-
-        @Test
-        public void shouldSetHeaders() throws IOException {
-            processor.process();
-
-            verify(servletResponse).setStatus(eq(200));
-            for (Header header : headers) {
-                verify(servletResponse).addHeader(header.getName(), header.getValue());
-            }
-        }
-
-        @Test
-        public void shouldWriteResponse() throws IOException {
-            processor.process();
-
-            verify(servletResponse).setStatus(eq(200));
-            for (Header header : headers) {
-                verify(servletResponse).addHeader(header.getName(), header.getValue());
-            }
-
-            verify(servletResponse).getOutputStream();
-            verify(out).flush();
-        }
+        verify(servletResponse).getOutputStream();
+        verify(servletResponse).getOutputStream();
+        verify(out).flush();
     }
 }
