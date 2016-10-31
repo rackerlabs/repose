@@ -1,0 +1,44 @@
+import org.ajoberstar.grgit.Grgit
+import java.text.SimpleDateFormat
+
+apply plugin: 'org.asciidoctor.convert'
+
+asciidoctor {
+    attributes 'source-highlighter': 'coderay'
+}
+
+task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds the new version of the docs to github pages') << {
+    def workingDir = project.file("${project.buildDir}/gh-pages")
+
+    workingDir.deleteDir()
+
+    def repo = Grgit.clone(
+            uri: 'git@github.com:rackerlabs/repose.git',
+            refToCheckout: 'gh-pages',
+            dir: workingDir,
+    )
+
+    //add to versions list
+    def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.html")
+    def versions = versionsFile.readLines()
+    def date = new SimpleDateFormat('yyyy-MM-dd').format(new Date())
+    versions.add(0, """<li><a href="./versions/$version/index.html">v$version</a> - $date</li>""")
+    def writer = new PrintWriter(versionsFile.newWriter())
+    versions.each {
+        writer.println(it)
+    }
+    writer.close()
+
+    copy {
+        from "${asciidoctor.outputDir}/html5"
+        into "${project.buildDir}/gh-pages/versions/$version"
+    }
+
+    repo.with {
+        add(patterns: ['.'])
+        commit(message: "Adding documentation for $version")
+        push()
+    }
+}
+
+project.tasks.getByPath(':release').dependsOn publishDocs
