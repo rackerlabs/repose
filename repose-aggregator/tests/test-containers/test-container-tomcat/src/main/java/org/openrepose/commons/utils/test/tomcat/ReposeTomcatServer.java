@@ -27,6 +27,10 @@ import javax.servlet.ServletException;
 
 public class ReposeTomcatServer {
 
+    private ReposeTomcatServer() {
+        // Prevent construction of this main class.
+    }
+
     public static void main(String[] args) throws ParseException, ServletException {
 
         ReposeContainerProps props = ReposeContainerUtil.parseArgs(args);

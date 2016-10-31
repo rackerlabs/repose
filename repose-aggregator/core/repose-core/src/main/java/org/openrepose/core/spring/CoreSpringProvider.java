@@ -212,22 +212,6 @@ public class CoreSpringProvider {
     }
 
     /**
-     * During testing, when I don't get to restart all the JVM, I have to have a destroy method to clean up everything
-     * Bleh
-     * This isn't really reliable to use in production code, and you don't need to, so don't
-     * Going to mark it deprecated so it's obvious
-     */
-    @Deprecated
-    public void reInitializeCoreContext(String configRoot,
-                                        boolean insecure) {
-        if (configured) {
-            configured = false;
-            coreContext.close();
-        }
-        initializeCoreContext(configRoot, insecure);
-    }
-
-    /**
      * Get an application context, with the core context as it's parent, for a clusterId and a nodeId.
      * Then things can be scanned. Like node specific services and such. (distDatastore needs this)
      * per-node services must exist under org.openrepose.nodeservice to be scanned and picked up at this phase

@@ -32,6 +32,7 @@ public final class ProxyUtilities {
     private static final Logger LOG = LoggerFactory.getLogger(ProxyUtilities.class);
 
     private ProxyUtilities() {
+        // This class should not be instantiated.
     }
 
     public static SSLContext getTrustingSslContext() {
@@ -51,15 +52,17 @@ public final class ProxyUtilities {
     public static class AllTrustingManager implements X509TrustManager {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
-            return null;
+            return new X509Certificate[0];
         }
 
         @Override
         public void checkClientTrusted(X509Certificate[] certs, String authType) {
+            // Trust all X509 client certificate chains and authentication types.
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] certs, String authType) {
+            // Trust all X509 server certificate chains and authentication types.
         }
 
     }

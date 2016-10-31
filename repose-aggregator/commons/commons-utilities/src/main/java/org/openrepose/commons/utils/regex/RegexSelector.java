@@ -31,7 +31,7 @@ public class RegexSelector<K> {
     private Pattern lastMatch;
 
     public RegexSelector() {
-        compiledPatterns = new LinkedList<SelectorPattern<K>>();
+        compiledPatterns = new LinkedList<>();
     }
 
     public Pattern getLastMatch() {
@@ -43,14 +43,14 @@ public class RegexSelector<K> {
     }
 
     public void addPattern(String pattern, K key) {
-        compiledPatterns.add(new SelectorPattern<K>(Pattern.compile(pattern), key));
+        compiledPatterns.add(new SelectorPattern<>(Pattern.compile(pattern), key));
     }
 
     public SelectorResult<K> select(String selectOn) {
         for (SelectorPattern<K> selector : compiledPatterns) {
             if (selector.matcher(selectOn).matches()) {
                 lastMatch = selector.getPattern();
-                return new SelectorResult<K>(selector.getKey());
+                return new SelectorResult<>(selector.getKey());
             }
         }
 

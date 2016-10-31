@@ -19,8 +19,6 @@
  */
 package org.openrepose.core.services.ratelimit;
 
-import org.slf4j.Logger;
-
 import java.util.regex.Matcher;
 
 /*
@@ -28,9 +26,6 @@ import java.util.regex.Matcher;
  * rate-limiting filter
  */
 public class LimitKey {
-
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(LimitKey.class);
-
     private LimitKey() {
     }
 
@@ -45,12 +40,12 @@ public class LimitKey {
         cacheIdBuffer.append(String.valueOf(limitGroup.hashCode()));
 
         // All cacheId's contain the unique limit Id
-        cacheIdBuffer.append(":" + String.valueOf(limitId.hashCode()));
+        cacheIdBuffer.append(":").append(String.valueOf(limitId.hashCode()));
 
         // If using capture groups, captured text is hashed and appended
         if (useCaptureGroups) {
             for (int i = 1; i <= groupCount; ++i) {
-                cacheIdBuffer.append(":" + String.valueOf(uriMatcher.group(i).hashCode()));
+                cacheIdBuffer.append(":").append(String.valueOf(uriMatcher.group(i).hashCode()));
             }
         }
 

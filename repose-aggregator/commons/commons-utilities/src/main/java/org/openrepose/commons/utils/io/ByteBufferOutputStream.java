@@ -38,6 +38,7 @@ public class ByteBufferOutputStream extends OneTimeUseOutputStream {
 
     @Override
     public void closeStream() throws IOException {
+        // No stream to close.
     }
 
     @Override

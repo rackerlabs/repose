@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.transform;
 
+@FunctionalInterface
 public interface Transform<S, T> {
 
     T transform(S source);

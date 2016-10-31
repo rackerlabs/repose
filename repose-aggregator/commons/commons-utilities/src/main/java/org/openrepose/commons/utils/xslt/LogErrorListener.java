@@ -31,14 +31,17 @@ public final class LogErrorListener implements ErrorListener {
     private static final ExceptionLogger EXCEPTION_LOG = new ExceptionLogger(LOG);
     private static final String STOCK_ERROR_MSG = "Fatal error while processing XSLT, see previous LogErrorListener WARN for a hint. MSG : ";
 
+    @Override
     public void warning(TransformerException te) {
         LOG.warn(te.getMessageAndLocation());
     }
 
+    @Override
     public void error(TransformerException te) {
         throw EXCEPTION_LOG.newException(STOCK_ERROR_MSG + te.getMessageAndLocation(), te, RuntimeException.class);
     }
 
+    @Override
     public void fatalError(TransformerException te) {
         throw EXCEPTION_LOG.newException(STOCK_ERROR_MSG + te.getMessageAndLocation(), te, RuntimeException.class);
     }

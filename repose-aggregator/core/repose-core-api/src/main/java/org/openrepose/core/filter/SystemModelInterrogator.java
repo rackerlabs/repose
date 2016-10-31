@@ -146,7 +146,7 @@ public class SystemModelInterrogator {
     private Optional<Destination> getDefaultDestination(Optional<ReposeCluster> cluster) {
         Optional<Destination> dest = Optional.empty();
         if (cluster.isPresent()) {
-            List<Destination> destinations = new ArrayList<Destination>();
+            List<Destination> destinations = new ArrayList<>();
 
             destinations.addAll(cluster.get().getDestinations().getEndpoint());
             destinations.addAll(cluster.get().getDestinations().getTarget());

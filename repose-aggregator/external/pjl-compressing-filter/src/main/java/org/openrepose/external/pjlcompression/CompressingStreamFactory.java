@@ -80,9 +80,8 @@ abstract class CompressingStreamFactory {
     private static final String DEFLATE_ENCODING = "deflate";
     private static final String COMPRESS_ENCODING = "compress";
     private static final String X_COMPRESS_ENCODING = "x-compress";
-    static final String[] ALL_COMPRESSION_ENCODINGS = {
-            GZIP_ENCODING, DEFLATE_ENCODING, COMPRESS_ENCODING, X_GZIP_ENCODING, X_COMPRESS_ENCODING
-    };
+    static final List<String> ALL_COMPRESSION_ENCODINGS = Collections.unmodifiableList(
+            Arrays.asList(GZIP_ENCODING, DEFLATE_ENCODING, COMPRESS_ENCODING, X_GZIP_ENCODING, X_COMPRESS_ENCODING));
 
     /**
      * "Any encoding" content type: the "*" wildcard.
@@ -106,7 +105,7 @@ abstract class CompressingStreamFactory {
     private static final Pattern COMMA = Pattern.compile(",");
 
     static {
-        List<String> temp = new ArrayList<String>(6);
+        List<String> temp = new ArrayList<>(6);
         temp.add(GZIP_ENCODING);
         temp.add(DEFLATE_ENCODING);
         temp.add(COMPRESS_ENCODING);
@@ -117,7 +116,7 @@ abstract class CompressingStreamFactory {
     }
 
     static {
-        Map<String, CompressingStreamFactory> temp = new HashMap<String, CompressingStreamFactory>(11);
+        Map<String, CompressingStreamFactory> temp = new HashMap<>(11);
         temp.put(GZIP_ENCODING, GZIP_CSF);
         temp.put(X_GZIP_ENCODING, GZIP_CSF);
         temp.put(COMPRESS_ENCODING, ZIP_CSF);
@@ -243,12 +242,13 @@ abstract class CompressingStreamFactory {
         return NO_ENCODING;
     }
 
+    @SuppressWarnings("squid:S1244")
     private static String selectBestEncoding(String acceptEncodingHeader) {
         // multiple encodings are accepted; determine best one
 
-        Collection<String> bestEncodings = new HashSet<String>(3);
+        Collection<String> bestEncodings = new HashSet<>(3);
         double bestQ = 0.0;
-        Collection<String> unacceptableEncodings = new HashSet<String>(3);
+        Collection<String> unacceptableEncodings = new HashSet<>(3);
         boolean willAcceptAnything = false;
 
         for (String token : COMMA.split(acceptEncodingHeader)) {
@@ -259,6 +259,8 @@ abstract class CompressingStreamFactory {
                 willAcceptAnything = q > 0.0;
             } else if (SUPPORTED_ENCODINGS.contains(contentEncoding)) {
                 if (q > 0.0) {
+                    // This is a header quality comparison.
+                    // So it is safe to suppress warning squid:S1244
                     if (q == bestQ) {
                         bestEncodings.add(contentEncoding);
                     } else if (q > bestQ) {
@@ -365,10 +367,12 @@ abstract class CompressingStreamFactory {
                         CompressingStreamFactory.maybeWrapStatsOutputStream(
                                 gzipOutputStream, context, CompressingFilterStats.StatsField.RESPONSE_INPUT_BYTES);
 
+                @Override
                 public OutputStream getCompressingOutputStream() {
                     return statsOutputStream;
                 }
 
+                @Override
                 public void finish() throws IOException {
                     gzipOutputStream.finish();
                 }
@@ -379,6 +383,7 @@ abstract class CompressingStreamFactory {
         CompressingInputStream getCompressingStream(final InputStream inputStream,
                                                     final CompressingFilterContext context) {
             return new CompressingInputStream() {
+                @Override
                 public InputStream getCompressingInputStream() throws IOException {
                     return CompressingStreamFactory.maybeWrapStatsInputStream(
                             new GZIPInputStream(
@@ -405,10 +410,12 @@ abstract class CompressingStreamFactory {
                         CompressingStreamFactory.maybeWrapStatsOutputStream(
                                 zipOutputStream, context, CompressingFilterStats.StatsField.RESPONSE_INPUT_BYTES);
 
+                @Override
                 public OutputStream getCompressingOutputStream() {
                     return statsOutputStream;
                 }
 
+                @Override
                 public void finish() throws IOException {
                     zipOutputStream.finish();
                 }
@@ -419,6 +426,7 @@ abstract class CompressingStreamFactory {
         CompressingInputStream getCompressingStream(final InputStream inputStream,
                                                     final CompressingFilterContext context) {
             return new CompressingInputStream() {
+                @Override
                 public InputStream getCompressingInputStream() {
                     return CompressingStreamFactory.maybeWrapStatsInputStream(
                             new ZipInputStream(
@@ -445,10 +453,12 @@ abstract class CompressingStreamFactory {
                         CompressingStreamFactory.maybeWrapStatsOutputStream(
                                 deflaterOutputStream, context, CompressingFilterStats.StatsField.RESPONSE_INPUT_BYTES);
 
+                @Override
                 public OutputStream getCompressingOutputStream() {
                     return statsOutputStream;
                 }
 
+                @Override
                 public void finish() throws IOException {
                     deflaterOutputStream.finish();
                 }
@@ -459,6 +469,7 @@ abstract class CompressingStreamFactory {
         CompressingInputStream getCompressingStream(final InputStream inputStream,
                                                     final CompressingFilterContext context) {
             return new CompressingInputStream() {
+                @Override
                 public InputStream getCompressingInputStream() {
                     return CompressingStreamFactory.maybeWrapStatsInputStream(
                             new InflaterInputStream(

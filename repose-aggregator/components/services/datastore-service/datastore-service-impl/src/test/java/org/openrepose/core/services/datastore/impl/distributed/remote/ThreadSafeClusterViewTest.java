@@ -55,7 +55,7 @@ public class ThreadSafeClusterViewTest {
             i = 1;
             inetSocketAddress = new InetSocketAddress(i);
             clusterMember = new ClusterMember(inetSocketAddress, i);
-            clusterMembers = new LinkedList<ClusterMember>();
+            clusterMembers = new LinkedList<>();
             clusterMembers.add(clusterMember);
             networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
             threadSafeClusterView = new ThreadSafeClusterView(networkInterfaceProvider, clusterMembers, servicePorts);

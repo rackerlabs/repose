@@ -37,7 +37,6 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 @Named
 public class ResponseHeaderServiceImpl implements ResponseHeaderService {
@@ -61,8 +60,6 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     @PostConstruct
     public void init() {
-        URL xsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
-
         containerConfigurationService.subscribeTo(configurationListener);
     }
 

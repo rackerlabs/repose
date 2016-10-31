@@ -32,11 +32,11 @@ public class Poller implements Runnable, Destroyable {
 
     private static final Logger LOG = LoggerFactory.getLogger(Poller.class);
     private final long interval;
-    private final RecurringTask task;
+    private final Runnable task;
     private volatile boolean shouldContinue;
     private Thread taskThread;
 
-    public Poller(RecurringTask task, long interval) {
+    public Poller(Runnable task, long interval) {
         this.interval = interval;
         this.task = task;
 
@@ -44,6 +44,7 @@ public class Poller implements Runnable, Destroyable {
     }
 
     @Override
+    @SuppressWarnings("squid:S2142")
     public void run() {
         taskThread = Thread.currentThread();
 
@@ -56,6 +57,8 @@ public class Poller implements Runnable, Destroyable {
                     wait(interval);
                 }
             } catch (InterruptedException ie) {
+                // This InterruptedException is intentionally being consumed.
+                // So it is safe to suppress warning squid:S2142
                 LOG.warn("Poller interrupted.", ie);
                 shouldContinue = false;
             }

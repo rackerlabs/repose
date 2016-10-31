@@ -1250,7 +1250,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Confirmed.toString
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.CONFIRMED.toString
     }
 
     it("forwards the identity status as Indeterminate in the x-identity-status header when delegating failure") {
@@ -1268,7 +1268,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.Indeterminate.toString
+      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.INDETERMINATE.toString
     }
 
     it("responds with a www-authenticate header when delegating") {

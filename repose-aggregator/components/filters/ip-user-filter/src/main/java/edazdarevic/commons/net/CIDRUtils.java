@@ -68,7 +68,7 @@ public class CIDRUtils {
 
         /* split CIDR to address and prefix part */
         if (this.cidr.contains("/")) {
-            int index = this.cidr.indexOf("/");
+            int index = this.cidr.indexOf('/');
             String addressPart = this.cidr.substring(0, index);
             String networkPart = this.cidr.substring(index + 1);
 
@@ -115,7 +115,7 @@ public class CIDRUtils {
 
     private byte[] toBytes(byte[] array, int targetSize) {
         int counter = 0;
-        List<Byte> newArr = new ArrayList<Byte>();
+        List<Byte> newArr = new ArrayList<>();
         while (counter < targetSize && (array.length - 1 - counter >= 0)) {
             newArr.add(0, array[array.length - 1 - counter]);
             counter++;

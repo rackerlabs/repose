@@ -35,9 +35,6 @@ public class CombinedLimitsWriter {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(CombinedLimitsWriter.class);
     private static final LimitsEntityStreamTransformer RESPONSE_TRANSFORMER = new LimitsEntityStreamTransformer();
 
-    public CombinedLimitsWriter() {
-    }
-
     public MediaType write(RateLimitList activeRateLimits, MediaType mediaType, InputStream absoluteLimits, OutputStream outputStream) {
 
         try {

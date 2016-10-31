@@ -45,7 +45,7 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
 
     public JaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext, URL xsdStreamSource) {
         super(configurationClass);
-        objectPool = new SoftReferenceObjectPool<>(new UnmarshallerPoolableObjectFactory(jaxbContext, xsdStreamSource, configurationClass.getClassLoader()));
+        objectPool = new SoftReferenceObjectPool<>(new UnmarshallerPoolableObjectFactory(jaxbContext, xsdStreamSource));
     }
 
     /**

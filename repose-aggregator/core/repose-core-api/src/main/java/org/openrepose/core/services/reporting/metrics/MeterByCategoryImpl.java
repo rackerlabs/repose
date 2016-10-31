@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MeterByCategoryImpl implements MeterByCategory {
 
-    private Map<String, Meter> map = new HashMap<String, Meter>();
+    private Map<String, Meter> map = new HashMap<>();
     private MetricsService metricsService;
     private Class klass;
     private String scope;

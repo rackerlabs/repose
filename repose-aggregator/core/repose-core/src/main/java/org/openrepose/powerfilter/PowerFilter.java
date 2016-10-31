@@ -352,6 +352,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     }
 
     @Override
+    @SuppressWarnings("squid:S1848")
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final long startTime = System.currentTimeMillis();
 
@@ -392,7 +393,9 @@ public class PowerFilter extends DelegatingFilterProxy {
             } catch (IllegalArgumentException iae) {
                 throw new InvalidMethodException("Request contained an unknown method.", iae);
             }
-            // ensures that the request URI is a valid URI
+            // Ensure the request URI is a valid URI
+            // This object is only being created to ensure its validity.
+            // So it is safe to suppress warning squid:S1848
             new URI(wrappedRequest.getRequestURI());
             final PowerFilterChain requestFilterChain = getRequestFilterChain(wrappedResponse, chain);
             if (requestFilterChain != null) {

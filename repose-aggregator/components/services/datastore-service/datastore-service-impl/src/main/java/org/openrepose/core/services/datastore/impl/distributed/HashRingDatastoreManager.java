@@ -45,6 +45,7 @@ public class HashRingDatastoreManager implements DatastoreManager {
 
     @Override
     public void destroy() {
+        // Nothing to clean up.
     }
 
     @Override

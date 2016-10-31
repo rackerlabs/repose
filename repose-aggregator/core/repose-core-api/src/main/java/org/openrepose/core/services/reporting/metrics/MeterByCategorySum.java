@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MeterByCategorySum extends MeterByCategoryImpl {
 
-    public static String ALL = "ACROSS ALL";
+    public static final String ALL = "ACROSS ALL";
 
     private Meter meter;
 

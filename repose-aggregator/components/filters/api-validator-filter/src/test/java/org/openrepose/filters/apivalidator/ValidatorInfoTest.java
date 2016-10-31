@@ -40,7 +40,7 @@ public class ValidatorInfoTest {
 
     public static class WhenLoadingValidators {
 
-        private final List<String> roles = new ArrayList<String>();
+        private final List<String> roles = new ArrayList<>();
         private final String wadl = "default.wadl";
         private final String name = "testName";
         private Config config;
@@ -48,7 +48,7 @@ public class ValidatorInfoTest {
         private ValidatorInfo instance2;
 
         private DispatchResultHandler getHandlers() {
-            List<ResultHandler> handlers = new ArrayList<ResultHandler>();
+            List<ResultHandler> handlers = new ArrayList<>();
             handlers.add(new ServletResultHandler());
             return new DispatchResultHandler(scala.collection.JavaConversions.asScalaBuffer(handlers).toList());
         }

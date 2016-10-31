@@ -58,7 +58,7 @@ public class ElementFactoryTest {
         String tokenName = "VALUE_STRING";
         String name = "fid";
         Object value = "value";
-        Element expResult = new ScalarElement<String>("VALUE_STRING", "fid", "value");
+        Element expResult = new ScalarElement<>("VALUE_STRING", "fid", "value");
         Element result = ElementFactory.getScalarElement(tokenName, name, value);
         assertNotNull(result);
 

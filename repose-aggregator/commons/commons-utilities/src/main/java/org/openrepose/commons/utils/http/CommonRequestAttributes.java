@@ -21,4 +21,8 @@ package org.openrepose.commons.utils.http;
 
 public class CommonRequestAttributes {
     public static final String DESTINATIONS = "org.openrepose.destinations";
+
+    private CommonRequestAttributes() {
+        // Prevent construction of this utility class.
+    }
 }

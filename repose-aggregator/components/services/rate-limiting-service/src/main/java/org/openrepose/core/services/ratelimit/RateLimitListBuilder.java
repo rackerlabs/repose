@@ -57,12 +57,12 @@ public class RateLimitListBuilder {
         this.cachedRateLimits = cachedRateLimits;
         this.configuredLimitGroups = configuredLimitGroups;
 
-        liveRateLimitMap = new HashMap<String, ResourceRateLimits>();
+        liveRateLimitMap = new HashMap<>();
     }
 
     //TODO: Remove this after refactoring tests
     private static List<ConfiguredLimitGroup> asList(ConfiguredLimitGroup group) {
-        final List<ConfiguredLimitGroup> list = new LinkedList<ConfiguredLimitGroup>();
+        final List<ConfiguredLimitGroup> list = new LinkedList<>();
         list.add(group);
 
         return list;
@@ -113,7 +113,7 @@ public class RateLimitListBuilder {
             limit.setUnit(configuredRateLimit.getUnit());
             limit.setVerb(method);
 
-            long now = System.currentTimeMillis(), earliestExpirationDate = now;
+            long earliestExpirationDate = System.currentTimeMillis();
             int remainingRequests = configuredRateLimit.getValue();
 
             if (cachedLimit != null) {

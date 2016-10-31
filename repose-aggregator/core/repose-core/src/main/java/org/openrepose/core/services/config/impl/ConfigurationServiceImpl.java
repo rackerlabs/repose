@@ -189,7 +189,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser!", e);
             }
 
-            parserPoolCache.put(pk, new WeakReference<ConfigurationParser>(parser));
+            parserPoolCache.put(pk, new WeakReference<>(parser));
         }
 
         return parser;
@@ -210,13 +210,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             ParserPoolKey that = (ParserPoolKey) o;
 
-            if (clazz != null ? !clazz.equals(that.clazz) : that.clazz != null) return false;
-            if (xsdUrl != null ? !xsdUrl.equals(that.xsdUrl) : that.xsdUrl != null) return false;
+            if (clazz != null ? !clazz.equals(that.clazz) : that.clazz != null) {
+                return false;
+            }
+            if (xsdUrl != null ? !xsdUrl.equals(that.xsdUrl) : that.xsdUrl != null) {
+                return false;
+            }
 
             return true;
         }

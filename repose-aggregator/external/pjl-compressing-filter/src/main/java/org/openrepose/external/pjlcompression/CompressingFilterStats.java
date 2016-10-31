@@ -139,26 +139,10 @@ public final class CompressingFilterStats implements Serializable {
     }
 
     /**
-     * @deprecated use {@link #getResponseInputBytes()}
-     */
-    @Deprecated
-    public long getInputBytes() {
-        return responseInputBytes;
-    }
-
-    /**
      * @return total number of bytes written to the {@link CompressingFilter} in responses.
      */
     public long getResponseInputBytes() {
         return responseInputBytes;
-    }
-
-    /**
-     * @deprecated use {@link #getResponseCompressedBytes()}
-     */
-    @Deprecated
-    public long getCompressedBytes() {
-        return responseCompressedBytes;
     }
 
     /**
@@ -167,14 +151,6 @@ public final class CompressingFilterStats implements Serializable {
      */
     public long getResponseCompressedBytes() {
         return responseCompressedBytes;
-    }
-
-    /**
-     * @deprecated use {@link #getResponseAverageCompressionRatio()}
-     */
-    @Deprecated
-    public double getAverageCompressionRatio() {
-        return getResponseAverageCompressionRatio();
     }
 
     /**
@@ -296,6 +272,7 @@ public final class CompressingFilterStats implements Serializable {
             this.field = field;
         }
 
+        @Override
         public void bytesWritten(int numBytes) {
             assert numBytes >= 0;
             switch (field) {
@@ -329,6 +306,7 @@ public final class CompressingFilterStats implements Serializable {
             this.field = field;
         }
 
+        @Override
         public void bytesRead(long numBytes) {
             assert numBytes >= 0;
             switch (field) {

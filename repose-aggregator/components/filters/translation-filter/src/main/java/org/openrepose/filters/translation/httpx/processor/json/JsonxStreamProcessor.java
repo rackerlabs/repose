@@ -82,9 +82,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
             processingThread.start();
 
             return resultStream;
-        } catch (IOException ex) {
-            throw new PreProcessorException(ex);
-        } catch (TransformerConfigurationException ex) {
+        } catch (IOException | TransformerConfigurationException ex) {
             throw new PreProcessorException(ex);
         }
     }

@@ -45,7 +45,7 @@ public class MediaRangeParser implements CustomHeaderParser<MediaType> {
 
     @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     public List<MediaType> parse() {
-        final List<MediaType> mediaRanges = new LinkedList<MediaType>();
+        final List<MediaType> mediaRanges = new LinkedList<>();
 
         for (HeaderValue headerValue : headerValues) {
             mediaRanges.add(process(headerValue));
@@ -54,6 +54,7 @@ public class MediaRangeParser implements CustomHeaderParser<MediaType> {
         return mediaRanges;
     }
 
+    @Override
     public MediaType process(HeaderValue headerValue) {
         MimeType mediaType = MimeType.getMatchingMimeType(headerValue.getValue());
 

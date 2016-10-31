@@ -62,7 +62,7 @@ public class ResponseMessageServiceImplTest {
         private static final String MESSAGE = "This is the replaced message";
         private final ResponseMessageServiceImpl rmsImpl = new ResponseMessageServiceImpl(mock(ConfigurationService.class));
         private final ResponseMessagingConfiguration configurationObject = new ResponseMessagingConfiguration();
-        private final Vector<String> acceptValues = new Vector<String>(1);
+        private final Vector<String> acceptValues = new Vector<>(1);
         private Enumeration<String> headerValueEnumeration = null;
         private HttpServletRequest mockedRequest = mock(HttpServletRequest.class);
         private HttpServletResponseWrapper mockedResponse = mock(HttpServletResponseWrapper.class);

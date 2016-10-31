@@ -21,7 +21,6 @@ package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
@@ -64,7 +63,7 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     public abstract ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior);
 
     protected byte[] getBody() {
-        return null;
+        return new byte[0];
     }
 
     protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {

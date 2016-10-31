@@ -47,6 +47,7 @@ public class AuthGetRequest extends ActorRequest implements ConsistentHashable {
         return hashKey;
     }
 
+    @Override
     public String consistentHashKey() {
         return hashKey();
     }

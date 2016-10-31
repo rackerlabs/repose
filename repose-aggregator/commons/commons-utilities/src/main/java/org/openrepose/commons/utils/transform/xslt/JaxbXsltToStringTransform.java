@@ -51,8 +51,7 @@ public class JaxbXsltToStringTransform implements Transform<JAXBElement, String>
         Transformer pooledObject;
         try {
             pooledObject = xsltResourcePool.borrowObject();
-            try {
-                final StringWriter stringWriter = new StringWriter();
+            try (StringWriter stringWriter = new StringWriter()) {
                 final StreamResult resultWriter = new StreamResult(stringWriter);
                 pooledObject.transform(new JAXBSource(jaxbContext, source), resultWriter);
                 rtn = stringWriter.getBuffer().toString();

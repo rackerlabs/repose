@@ -45,6 +45,7 @@ public class ValidatorConfigurator {
     private List<ValidatorInfo> validators;
 
     public ValidatorConfigurator() {
+        // Retain the default constructor, though only used in testing.
     }
 
     public ValidatorConfigurator(ValidatorConfiguration valConfig, String configRoot, String wadlUri) {
@@ -65,7 +66,7 @@ public class ValidatorConfigurator {
         defaultValidator = null;
 
         List<? extends ValidatorItem> validatorItems = validatorConfiguration.getValidator();
-        validators = new ArrayList<ValidatorInfo>(validatorItems.size());
+        validators = new ArrayList<>(validatorItems.size());
 
         DelegatingType delegatingType = validatorConfiguration.getDelegating();
         boolean isDelegating = delegatingType != null;
@@ -148,7 +149,7 @@ public class ValidatorConfigurator {
     private DispatchResultHandler getHandlers(ValidatorItem validatorItem, boolean isDelegating, double delegationQuality,
                                         boolean multiRoleMatch, String configRoot, String componentName) {
 
-        List<ResultHandler> handlers = new ArrayList<ResultHandler>();
+        List<ResultHandler> handlers = new ArrayList<>();
 
         if (isDelegating) {
             handlers.add(new MethodLabelHandler());

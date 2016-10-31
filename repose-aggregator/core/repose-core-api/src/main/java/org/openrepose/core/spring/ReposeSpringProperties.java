@@ -25,6 +25,10 @@ package org.openrepose.core.spring;
  */
 public class ReposeSpringProperties {
 
+    private ReposeSpringProperties() {
+        // Prevent construction of this utility class.
+    }
+
     public static String stripSpringValueStupidity(String atValue) {
         return atValue.substring(2, atValue.length() - 1);
     }
@@ -36,6 +40,9 @@ public class ReposeSpringProperties {
         public static final String REPOSE_VERSION = "${repose-version}";
         public static final String CONFIG_ROOT = "${repose-config-directory}";
         public static final String INSECURE = "${repose-insecurity}";
+
+        private CORE() {
+        }
     }
 
     /**
@@ -44,6 +51,8 @@ public class ReposeSpringProperties {
     public static class NODE {
         public static final String NODE_ID = "${repose-node-id}";
         public static final String CLUSTER_ID = "${repose-cluster-id}";
-    }
 
+        private NODE() {
+        }
+    }
 }

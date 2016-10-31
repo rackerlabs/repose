@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TimerByCategoryImpl implements TimerByCategory {
 
-    private Map<String, Timer> map = new HashMap<String, Timer>();
+    private Map<String, Timer> map = new HashMap<>();
     private MetricsService metricsService;
     private Class klass;
     private String scope;
@@ -55,10 +55,12 @@ public class TimerByCategoryImpl implements TimerByCategory {
         this.rate = rate;
     }
 
+    @Override
     public void update(String key, long duration, TimeUnit unit) {
         verifyGet(key).update(duration, unit);
     }
 
+    @Override
     public TimerContext time(String key) {
         return verifyGet(key).time();
     }

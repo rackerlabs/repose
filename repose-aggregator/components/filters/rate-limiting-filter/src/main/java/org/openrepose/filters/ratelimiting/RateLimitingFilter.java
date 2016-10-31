@@ -195,10 +195,10 @@ public class RateLimitingFilter implements Filter, UpdateListener<RateLimitingCo
     }
 
     private static class RateLimitingConfig {
-        public RateLimitingService rateLimitingService;
-        public Optional<Pattern> describeLimitsUriRegex;
-        public boolean includeAbsoluteLimits;
-        public boolean isOverLimit429ResponseCode;
-        public int datastoreWarnLimit;
+        private RateLimitingService rateLimitingService;
+        private Optional<Pattern> describeLimitsUriRegex;
+        private boolean includeAbsoluteLimits;
+        private boolean isOverLimit429ResponseCode;
+        private int datastoreWarnLimit;
     }
 }

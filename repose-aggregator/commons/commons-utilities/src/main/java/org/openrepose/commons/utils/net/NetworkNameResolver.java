@@ -25,6 +25,7 @@ import java.net.UnknownHostException;
 /**
  * @author zinic
  */
+@FunctionalInterface
 public interface NetworkNameResolver {
 
     InetAddress lookupName(String host) throws UnknownHostException;

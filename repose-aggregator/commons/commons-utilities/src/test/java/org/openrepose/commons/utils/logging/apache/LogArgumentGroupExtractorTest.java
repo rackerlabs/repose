@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.openrepose.commons.utils.logging.apache.LogConstants.PATTERN;
 
 @RunWith(Enclosed.class)
 public class LogArgumentGroupExtractorTest {
@@ -37,7 +38,7 @@ public class LogArgumentGroupExtractorTest {
         public void shouldExtractEscapedPercent() {
             final String template = "%%";
             final LogArgumentGroupExtractor expected = LogArgumentGroupExtractor.instance("", "", "", "", "%");
-            final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(template);
+            final Matcher m = PATTERN.matcher(template);
 
             m.find();
 
@@ -50,7 +51,7 @@ public class LogArgumentGroupExtractorTest {
         public void shouldExtractVariables() {
             final String template = "%{SOMEVAR}i";
             final LogArgumentGroupExtractor expected = LogArgumentGroupExtractor.instance("", "", "SOMEVAR", "", "i");
-            final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(template);
+            final Matcher m = PATTERN.matcher(template);
 
             m.find();
 
@@ -63,7 +64,7 @@ public class LogArgumentGroupExtractorTest {
         public void shouldExtractStatusCodes() {
             final String template = "%100,200,300{SOMEVAR}i";
             final LogArgumentGroupExtractor expected = LogArgumentGroupExtractor.instance("", "100,200,300", "SOMEVAR", "", "i");
-            final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(template);
+            final Matcher m = PATTERN.matcher(template);
 
             m.find();
 
@@ -76,7 +77,7 @@ public class LogArgumentGroupExtractorTest {
         public void shouldExtractNegatedStatusCodes() {
             final String template = "%!100,200,300{SOMEVAR}i";
             final LogArgumentGroupExtractor expected = LogArgumentGroupExtractor.instance("", "!100,200,300", "SOMEVAR", "", "i");
-            final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(template);
+            final Matcher m = PATTERN.matcher(template);
 
             m.find();
 
@@ -89,7 +90,7 @@ public class LogArgumentGroupExtractorTest {
         public void shouldExtractLifeCycleModifiers() {
             final String template = "%>!100,200,300{SOMEVAR}i";
             final LogArgumentGroupExtractor expected = LogArgumentGroupExtractor.instance(">", "!100,200,300", "SOMEVAR", "", "i");
-            final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(template);
+            final Matcher m = PATTERN.matcher(template);
 
             m.find();
 
@@ -103,7 +104,7 @@ public class LogArgumentGroupExtractorTest {
         public void shouldExtractFormats() {
             final String template = "%>!100,200,300{SOMEVAR format1,format2}i";
             final LogArgumentGroupExtractor expected = LogArgumentGroupExtractor.instance(">", "!100,200,300", "SOMEVAR", "format1,format2", "i");
-            final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(template);
+            final Matcher m = PATTERN.matcher(template);
 
             m.find();
 
@@ -118,7 +119,7 @@ public class LogArgumentGroupExtractorTest {
         public void shouldExtractFormats2() {
             final String template = "%>!100,200,300{SOMEVAR format1 format2}i";
             final LogArgumentGroupExtractor expected = LogArgumentGroupExtractor.instance(">", "!100,200,300", "SOMEVAR", "format1,format2", "i");
-            final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(template);
+            final Matcher m = PATTERN.matcher(template);
 
             m.find();
 

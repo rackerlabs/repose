@@ -29,7 +29,7 @@ public class Clusters {
     private final Map<String, ClusterWrapper> domains;
 
     public Clusters(SystemModel config) {
-        domains = new HashMap<String, ClusterWrapper>();
+        domains = new HashMap<>();
 
         for (Cluster domain : config.getReposeCluster()) {
             domains.put(domain.getId(), new ClusterWrapper(domain));

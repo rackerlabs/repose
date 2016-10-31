@@ -27,7 +27,8 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
     private static final int DEFAULT_BUFFER_SIZE = 2048;
     private final int initialSize;
     private final ByteArrayProvider byteArrayProvider;
-    private int nextWritableIndex, nextReadableIndex;
+    private int nextWritableIndex;
+    private int nextReadableIndex;
     private boolean hasElements;
     private byte[] buffer;
 

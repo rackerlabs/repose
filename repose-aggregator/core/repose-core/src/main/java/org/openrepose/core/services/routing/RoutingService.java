@@ -21,6 +21,8 @@ package org.openrepose.core.services.routing;
 
 import org.openrepose.core.systemmodel.Node;
 
+@SuppressWarnings("squid:S1609")
 public interface RoutingService {
+    // doesn't make sense to be a @FunctionalInterface
     Node getRoutableNode(String domainId);
 }

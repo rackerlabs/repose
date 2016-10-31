@@ -94,8 +94,9 @@ final class StatsOutputStream extends OutputStream {
     }
 
 
+    @SuppressWarnings("squid:S1609")
     interface StatsCallback {
-
+        // doesn't make sense to be a @FunctionalInterface
         void bytesWritten(int numBytes);
     }
 

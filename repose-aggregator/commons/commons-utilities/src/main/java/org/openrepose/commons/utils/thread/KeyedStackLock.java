@@ -38,7 +38,7 @@ public class KeyedStackLock {
         locked = false;
         currentKey = null;
 
-        threadsHoldingLock = new HashSet<Thread>();
+        threadsHoldingLock = new HashSet<>();
     }
 
     public boolean isLocked() {

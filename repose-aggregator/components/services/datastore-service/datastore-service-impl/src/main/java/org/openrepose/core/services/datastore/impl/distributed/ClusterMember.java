@@ -25,8 +25,10 @@ public class ClusterMember {
 
     private static final int REQUIRED_VALIDATION_PASSES = 4;
     private final InetSocketAddress memberAddress;
-    private final int droppedMemberRestTime, requiredValidationPasses;
-    private long droppedTime, restPeriod;
+    private final int droppedMemberRestTime;
+    private final int requiredValidationPasses;
+    private long droppedTime;
+    private long restPeriod;
     private int validationPass;
     private boolean online;
 
@@ -64,7 +66,7 @@ public class ClusterMember {
 
     private void logMemberRetry(long nowInMilliseconds) {
         if (validationPass++ < requiredValidationPasses) {
-            restPeriod = droppedMemberRestTime / validationPass;
+            restPeriod = (long) droppedMemberRestTime / validationPass;
             droppedTime = nowInMilliseconds;
         } else {
             validationPass = 0;

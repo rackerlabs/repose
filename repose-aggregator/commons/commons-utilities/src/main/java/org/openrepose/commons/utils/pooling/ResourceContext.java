@@ -19,7 +19,8 @@
  */
 package org.openrepose.commons.utils.pooling;
 
+@SuppressWarnings("squid:S1609")
 public interface ResourceContext<R, T> {
-
+    // intent of interface isn't super clear, so don't mark it as a @FunctionalInterface
     T perform(R resource) throws ResourceContextException;
 }

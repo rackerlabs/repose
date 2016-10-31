@@ -51,7 +51,7 @@ class ApiValidatorDelegatingWAuditingTest extends ReposeValveTest {
         def result = slurper.parseText(jsonpart)
 
         then:
-        reposeLogSearch.searchByString("intrafilterLogging.RequestLog - Unable to populate request body").size() != 0
+        reposeLogSearch.searchByString("intrafilterlogging.RequestLog - Unable to populate request body").size() != 0
         reposeLogSearch.searchByString("java.io.IOException: Stream closed").size() != 0
         mc.receivedResponse.code == "400"
         mc.receivedResponse.message == "Bad Request"

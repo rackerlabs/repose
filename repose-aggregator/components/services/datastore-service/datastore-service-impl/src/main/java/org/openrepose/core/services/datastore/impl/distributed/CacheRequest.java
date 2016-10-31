@@ -34,11 +34,14 @@ import java.net.InetSocketAddress;
 public class CacheRequest {
 
     public static final String CACHE_URI_PATH = "/powerapi/dist-datastore/objects/";
-    public static final int TWO_MEGABYTES_IN_BYTES = 2097152, EXPECTED_UUID_STRING_LENGTH = 36, DEFAULT_TTL_IN_SECONDS = 60;
+    public static final int TWO_MEGABYTES_IN_BYTES = 2097152;
+    public static final int EXPECTED_UUID_STRING_LENGTH = 36;
+    public static final int DEFAULT_TTL_IN_SECONDS = 60;
     public static final HeaderConstant TTL_HEADER = ExtendedHttpHeader.X_TTL;
     public static final String TEMP_HOST_KEY = "temp-host-key";
     private final RemoteBehavior requestedRemoteBehavior;
-    private final String cacheKey, hostKey;
+    private final String cacheKey;
+    private final String hostKey;
     private final int ttlInSeconds;
     private final byte[] payload;
 

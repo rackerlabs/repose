@@ -35,12 +35,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Named
 public class ReportingServiceImpl implements ReportingService {
 
     private static final String TIMER_THREAD_NAME = "Repose JMX Reset Timer Thread";
-    private static final int ONE_THOUSAND = 1000;
     private static final int DEFAULT_JMX_RESET_TIME_SECONDS = 15;
 
     private final Map<String, DestinationInfo> destinations = new HashMap<>();
@@ -108,9 +108,9 @@ public class ReportingServiceImpl implements ReportingService {
         timer.purge();
 
         reportingTimerTask = new ReportingTimerTask();
-        long initialDelayInMilliseconds = seconds * ONE_THOUSAND;
+        long delayInMilliseconds = TimeUnit.SECONDS.toMillis(seconds);
         lastReset = new Date(System.currentTimeMillis());
-        timer.scheduleAtFixedRate(reportingTimerTask, initialDelayInMilliseconds, seconds * ONE_THOUSAND);
+        timer.scheduleAtFixedRate(reportingTimerTask, delayInMilliseconds, delayInMilliseconds);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class ReportingServiceImpl implements ReportingService {
 
     @Override
     public synchronized List<DestinationInfo> getDestinations() {
-        final List<DestinationInfo> newDestinations = new ArrayList<DestinationInfo>();
+        final List<DestinationInfo> newDestinations = new ArrayList<>();
 
         for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
             newDestinations.add(entry.getValue().copy());
@@ -149,6 +149,11 @@ public class ReportingServiceImpl implements ReportingService {
 
     @Override
     public synchronized ReposeInfo getReposeInfo() {
+        // TODO: Do we need to deep copy the info for every read?
+        // From what I can tell, the concern is with the HashMap in ReposeInfoStore which can be replaced by
+        // a ConcurrentHashMap to ensure thread safety. Also, our deep copy is not a full copy -- most fields
+        // will not retain their value. Judging from where this method is called, it seems like we just want to
+        // read the current status code count(s).
         return reposeInfo.copy();
     }
 
@@ -177,8 +182,11 @@ public class ReportingServiceImpl implements ReportingService {
         reposeInfo.processResponseSize(responseSize);
     }
 
+    @SuppressWarnings("squid:S3398")
     private synchronized void reset() {
-        final Map<String, DestinationInfo> newDestinations = new HashMap<String, DestinationInfo>();
+        // this method is only called by an inner-class, but it's synchronized so I'm leaving it here
+
+        final Map<String, DestinationInfo> newDestinations = new HashMap<>();
 
         for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
             final String destinationId = entry.getValue().getDestinationId();
@@ -236,7 +244,7 @@ public class ReportingServiceImpl implements ReportingService {
 
         @Override
         public void configurationUpdated(SystemModel systemModel) {
-            final List<String> endpointIds = new ArrayList<String>();
+            final List<String> endpointIds = new ArrayList<>();
 
             for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
                 final DestinationList destinations = reposeCluster.getDestinations();

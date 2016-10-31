@@ -41,6 +41,10 @@ public class ClusterMemberDeterminator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClusterMemberDeterminator.class);
 
+    private ClusterMemberDeterminator() {
+        // Prevent construction of this utility class.
+    }
+
     /**
      * Get a list of all the cluster members for a specified cluster ID
      * You'll get the Port and inet address for those hosts.
@@ -51,7 +55,7 @@ public class ClusterMemberDeterminator {
      * @return
      */
     public static List<InetSocketAddress> getClusterMembers(SystemModel config, DistributedDatastoreConfiguration ddConfig, String clusterId) {
-        final List<InetSocketAddress> cacheSiblings = new LinkedList<InetSocketAddress>();
+        final List<InetSocketAddress> cacheSiblings = new LinkedList<>();
         ReposeCluster cluster = getCurrentCluster(config.getReposeCluster(), clusterId);
 
         try {

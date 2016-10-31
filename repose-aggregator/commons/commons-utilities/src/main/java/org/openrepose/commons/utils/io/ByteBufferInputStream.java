@@ -89,7 +89,9 @@ public class ByteBufferInputStream extends ServletInputStream {
     public long skip(long n) throws IOException {
         checkForClosedStream();
 
-        long skipped = 0, skippedTotal = 0, c = n;
+        long skipped;
+        long skippedTotal = 0;
+        long c = n;
 
         if (c > 0) {
             do {

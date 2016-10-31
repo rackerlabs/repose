@@ -48,9 +48,11 @@ public class EchoFilter implements Filter {
 
     @Override
     public void destroy() {
+        // Nothing to clean up.
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        // Nothing to initialize.
     }
 }

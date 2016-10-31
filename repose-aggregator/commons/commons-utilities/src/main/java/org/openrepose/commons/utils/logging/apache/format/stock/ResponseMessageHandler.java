@@ -53,6 +53,8 @@ public class ResponseMessageHandler implements FormatterLogic {
                 case XML:
                     message = StringEscapeUtils.escapeXml10(message);
                     break;
+                default:
+                    //Nothing to do, move along
             }
         }
 

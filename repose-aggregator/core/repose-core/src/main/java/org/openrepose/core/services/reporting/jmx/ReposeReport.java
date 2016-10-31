@@ -71,7 +71,7 @@ public class ReposeReport implements ReposeReportMBean {
     @Override
     @ManagedOperation
     public List<CompositeData> getDestinationInfo() throws OpenDataException {
-        List<CompositeData> compositeDataList = new ArrayList<CompositeData>();
+        List<CompositeData> compositeDataList = new ArrayList<>();
 
         LOG.debug("JMX: Retrieving destination information.");
         for (DestinationInfo destination : reportingService.getDestinations()) {

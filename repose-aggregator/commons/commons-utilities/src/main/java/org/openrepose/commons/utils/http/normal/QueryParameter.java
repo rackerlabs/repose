@@ -33,7 +33,7 @@ public class QueryParameter implements Comparable<QueryParameter> {
 
     public QueryParameter(String name) {
         this.name = name;
-        this.values = new LinkedList<String>();
+        this.values = new LinkedList<>();
     }
 
     public String getName() {

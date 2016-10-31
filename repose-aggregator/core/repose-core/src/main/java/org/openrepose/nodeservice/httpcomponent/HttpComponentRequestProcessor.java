@@ -49,7 +49,6 @@ import java.util.Enumeration;
 class HttpComponentRequestProcessor extends AbstractRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpComponentRequestProcessor.class);
-    private static final String ENCODING = "UTF-8";
 
     private final boolean rewriteHostHeader;
     private final URI targetHost;

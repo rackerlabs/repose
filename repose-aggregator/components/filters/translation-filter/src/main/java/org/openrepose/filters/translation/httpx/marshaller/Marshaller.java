@@ -24,6 +24,7 @@ import java.io.InputStream;
 /**
  * @author fran
  */
+@FunctionalInterface
 public interface Marshaller<T> {
     InputStream marshall(T type);
 }

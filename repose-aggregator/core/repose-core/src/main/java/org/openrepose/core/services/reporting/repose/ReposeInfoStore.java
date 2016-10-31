@@ -26,8 +26,8 @@ import java.util.Map;
 
 public class ReposeInfoStore {
 
-    private static final long LONG_ZERO = 0l;
-    private Map<Integer, StatusCodeResponseStore> statusCodeCounts = new HashMap<Integer, StatusCodeResponseStore>();
+    private static final long LONG_ZERO = 0L;
+    private Map<Integer, StatusCodeResponseStore> statusCodeCounts = new HashMap<>();
     private long totalRequests = LONG_ZERO;
     private long totalResponses = LONG_ZERO;
     private long accumulatedRequestSize = LONG_ZERO;
@@ -38,6 +38,7 @@ public class ReposeInfoStore {
     private long maxResponseSize = LONG_ZERO;
 
     public ReposeInfoStore() {
+        // Retain a default constructor to be used unless cloning the object.
     }
 
     protected ReposeInfoStore(ReposeInfoStore reposeInfoStore) {
@@ -45,7 +46,7 @@ public class ReposeInfoStore {
     }
 
     private Map<Integer, StatusCodeResponseStore> deepCopyStatusCodeCounts(Map<Integer, StatusCodeResponseStore> statusCodeCounts) {
-        Map<Integer, StatusCodeResponseStore> copy = new HashMap<Integer, StatusCodeResponseStore>();
+        Map<Integer, StatusCodeResponseStore> copy = new HashMap<>();
         for (Map.Entry<Integer, StatusCodeResponseStore> entry : statusCodeCounts.entrySet()) {
             copy.put(entry.getKey(), new StatusCodeResponseStore(entry.getValue()));
         }

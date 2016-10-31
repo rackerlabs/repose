@@ -45,8 +45,7 @@ public class MessageDigesterOutputStream extends OneTimeUseOutputStream {
     public static byte[] calculateMd5Hash(URL url) {
         {
             InputStream urlInput = null;
-            try {
-                final MessageDigesterOutputStream mdos = new MessageDigesterOutputStream(MessageDigest.getInstance("MD5"));
+            try (MessageDigesterOutputStream mdos = new MessageDigesterOutputStream(MessageDigest.getInstance("MD5"))) {
                 urlInput = url.openStream();
 
                 int read;
@@ -73,12 +72,12 @@ public class MessageDigesterOutputStream extends OneTimeUseOutputStream {
             }
         }
 
-        return null;
+        return new byte[0];
 
     }
 
     public byte[] getDigest() {
-        return (byte[]) digestBytes.clone();
+        return digestBytes.clone();
     }
 
     @Override

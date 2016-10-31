@@ -30,7 +30,7 @@ public class EnumerationIterable<T> implements Iterable<T> {
     private final EnumerationIterator<T> enumerationIterator;
 
     public EnumerationIterable(Enumeration<T> enumeration) {
-        this.enumerationIterator = new EnumerationIterator<T>(enumeration);
+        this.enumerationIterator = new EnumerationIterator<>(enumeration);
     }
 
     @Override

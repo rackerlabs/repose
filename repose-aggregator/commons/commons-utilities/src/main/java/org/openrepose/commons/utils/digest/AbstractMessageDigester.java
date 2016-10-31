@@ -72,8 +72,7 @@ public abstract class AbstractMessageDigester implements MessageDigester {
         MessageDigest pooledObject;
         try {
             pooledObject = MESSAGE_DIGEST_POOL.borrowObject();
-            try {
-                final MessageDigesterOutputStream output = new MessageDigesterOutputStream(pooledObject);
+            try (MessageDigesterOutputStream output = new MessageDigesterOutputStream(pooledObject)) {
                 final byte[] buffer = new byte[BYTE_BUFFER_SIZE];
                 for (int read; (read = stream.read(buffer)) != -1; /*DO-NOTHING*/) {
                     output.write(buffer, 0, read);

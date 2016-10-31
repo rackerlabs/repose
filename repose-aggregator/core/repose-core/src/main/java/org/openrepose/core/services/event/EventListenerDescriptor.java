@@ -29,7 +29,7 @@ public class EventListenerDescriptor<T extends Enum> {
     private final Set<T> subscriptions;
 
     public EventListenerDescriptor(EventListener<T, ?> listener, Collection<T> targetedEvents) {
-        this.subscriptions = new HashSet<T>(targetedEvents);
+        this.subscriptions = new HashSet<>(targetedEvents);
         this.listener = listener;
     }
 
@@ -43,7 +43,7 @@ public class EventListenerDescriptor<T extends Enum> {
 
     public boolean silence(Collection<T> types) {
         // Create a local copy
-        final List<T> typesToRemove = new LinkedList<T>(types);
+        final List<T> typesToRemove = new LinkedList<>(types);
         final Iterator<T> targetedEventIterator = subscriptions.iterator();
 
         while (targetedEventIterator.hasNext()) {

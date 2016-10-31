@@ -29,14 +29,17 @@ import java.util.Calendar;
 
 public class TimeReceivedHandler implements FormatterLogic {
 
-    private final static String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private final String dateFormat;
 
+    @SuppressWarnings("squid:S1848")
     public TimeReceivedHandler(final String dateFormat) {
         this.dateFormat = StringUtils.isEmpty(dateFormat) ? DEFAULT_DATE_FORMAT : dateFormat;
 
-        // build it here so an exception will be thrown during application startup if the pattern is invalid
+        // Instantiate an object based on the format so an exception will be thrown during startup if it is not valid.
+        // This object is only being created to ensure its validity.
+        // So it is safe to suppress warning squid:S1848
         new SimpleDateFormat(dateFormat);
     }
 

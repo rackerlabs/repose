@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.config.resource;
 
+@FunctionalInterface
 public interface ConfigurationResourceResolver {
 
     ConfigurationResource resolve(String resourceName) throws ResourceResolutionException;

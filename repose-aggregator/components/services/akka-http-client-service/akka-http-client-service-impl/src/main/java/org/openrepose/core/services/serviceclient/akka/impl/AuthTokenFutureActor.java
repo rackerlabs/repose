@@ -43,7 +43,6 @@ public class AuthTokenFutureActor extends UntypedActor {
             //Get the immutable map, and set all my thread context
             final ActorRequest request = (ActorRequest) message;
             for (String key : request.getLoggingContextMap().keySet()) {
-                Object value = request.getLoggingContextMap().get(key);
                 MDC.put(key, request.getLoggingContextMap().get(key));
             }
         }

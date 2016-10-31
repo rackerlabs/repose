@@ -63,7 +63,7 @@ public class RateLimiterTest {
                 any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(
                 Pair.of(configuredRateLimit, new CachedRateLimit(configuredRateLimit, 10))));
 
-        ArrayList<Pair<String, ConfiguredRatelimit>> limitMap = new ArrayList<Pair<String, ConfiguredRatelimit>>();
+        ArrayList<Pair<String, ConfiguredRatelimit>> limitMap = new ArrayList<>();
         limitMap.add(Pair.of(key, configuredRateLimit));
 
         rateLimiter.handleRateLimit(USER, limitMap, configuredRateLimit.getUnit(), datastoreWarnLimit);
@@ -76,7 +76,7 @@ public class RateLimiterTest {
         when(mockedCache.updateLimit(any(String.class), any(List.class),
                 any(TimeUnit.class), anyInt())).thenThrow(new IOException("uh oh"));
 
-        ArrayList<Pair<String, ConfiguredRatelimit>> limitMap = new ArrayList<Pair<String, ConfiguredRatelimit>>();
+        ArrayList<Pair<String, ConfiguredRatelimit>> limitMap = new ArrayList<>();
         limitMap.add(Pair.of(key, configuredRateLimit));
 
         rateLimiter.handleRateLimit(USER, limitMap, configuredRateLimit.getUnit(), datastoreWarnLimit);
@@ -90,7 +90,7 @@ public class RateLimiterTest {
                 any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(
                 Pair.of(configuredRateLimit, new CachedRateLimit(configuredRateLimit, 1))));
 
-        ArrayList<Pair<String, ConfiguredRatelimit>> limitMap = new ArrayList<Pair<String, ConfiguredRatelimit>>();
+        ArrayList<Pair<String, ConfiguredRatelimit>> limitMap = new ArrayList<>();
         limitMap.add(Pair.of(key, configuredRateLimit));
 
         rateLimiter.handleRateLimit(USER, limitMap, configuredRateLimit.getUnit(), datastoreWarnLimit);

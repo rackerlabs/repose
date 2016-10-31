@@ -58,7 +58,7 @@ public class AbstractHashRingDatastoreTest {
         protected TestingHashRingDatastore datastore;
 
         private List<Integer> getHttpPortList(int port) {
-            List<Integer> ports = new ArrayList<Integer>();
+            List<Integer> ports = new ArrayList<>();
             ports.add(port);
             return ports;
         }

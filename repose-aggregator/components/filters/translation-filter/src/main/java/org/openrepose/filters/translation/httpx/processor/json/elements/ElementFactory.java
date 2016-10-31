@@ -58,7 +58,7 @@ public enum ElementFactory {
         this.elementClass = null;
     }
 
-    public static <T> Element getElement(String tokenName, String name) {
+    public static Element getElement(String tokenName, String name) {
         Element result = null;
         for (ElementFactory element : values()) {
             if (element.tokenName.equals(tokenName)) {
@@ -89,7 +89,7 @@ public enum ElementFactory {
                         LOG.trace("Caught Unknown Exception", ex);
                     }
                 } else {
-                    result = new ScalarElement<T>(element.elementName, name, value);
+                    result = new ScalarElement<>(element.elementName, name, value);
                 }
                 break;
             }

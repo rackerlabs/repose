@@ -43,7 +43,7 @@ public class ClientDecommissioner implements Runnable {
 
     public ClientDecommissioner(HttpClientUserManager userManager) {
 
-        clientList = new ArrayList<HttpClient>();
+        clientList = new ArrayList<>();
         listLock = new Object();
         done = false;
         this.userManager = userManager;
@@ -65,13 +65,14 @@ public class ClientDecommissioner implements Runnable {
     }
 
     @Override
+    @SuppressWarnings("squid:S2142")
     public void run() {
         while (!this.done) {
             synchronized (listLock) {
 
                 LOG.trace("Iterating through decommissioned clients...");
 
-                List<HttpClient> clientsToRemove = new ArrayList<HttpClient>();
+                List<HttpClient> clientsToRemove = new ArrayList<>();
 
                 for (HttpClient client : clientList) {
 
@@ -101,10 +102,11 @@ public class ClientDecommissioner implements Runnable {
             try {
                 Thread.sleep(DEFAULT_INTERVAL);
             } catch (InterruptedException ex) {
+                // This InterruptedException is intentionally being consumed.
+                // So it is safe to suppress warning squid:S2142
                 LOG.info("Interrupted", ex);
                 break;
             }
-
         }
 
         LOG.info("Shutting down HTTP Client Service Decommissioner");

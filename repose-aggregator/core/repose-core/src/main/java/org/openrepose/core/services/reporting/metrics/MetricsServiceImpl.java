@@ -76,7 +76,7 @@ public class MetricsServiceImpl implements MetricsService {
     public static final String DEFAULT_CONFIG_NAME = "metrics.cfg.xml";
 
     private static final Logger LOG = LoggerFactory.getLogger(MetricsServiceImpl.class);
-    private static final String metricsServiceConfigReport = "MetricsServiceReport";
+    private static final String METRICS_SERVICE_CONFIG_REPORT = "MetricsServiceReport";
 
     private final ConfigurationService configurationService;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
@@ -109,7 +109,7 @@ public class MetricsServiceImpl implements MetricsService {
     @PostConstruct
     public void init() {
 
-        healthCheckServiceProxy.reportIssue(metricsServiceConfigReport, "Metrics Service Configuration Error", Severity.BROKEN);
+        healthCheckServiceProxy.reportIssue(METRICS_SERVICE_CONFIG_REPORT, "Metrics Service Configuration Error", Severity.BROKEN);
         URL xsdURL = getClass().getResource("/META-INF/schema/metrics/metrics.xsd");
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, metricsCfgListener, MetricsConfiguration.class);
 
@@ -118,7 +118,7 @@ public class MetricsServiceImpl implements MetricsService {
         // and the initial health check error should be cleared.
         try {
             if (!metricsCfgListener.isInitialized() && !configurationService.getResourceResolver().resolve("metrics.cfg.xml").exists()) {
-                healthCheckServiceProxy.resolveIssue(metricsServiceConfigReport);
+                healthCheckServiceProxy.resolveIssue(METRICS_SERVICE_CONFIG_REPORT);
             }
         } catch (IOException io) {
             LOG.error("Error attempting to search for {}", DEFAULT_CONFIG_NAME, io);
@@ -237,7 +237,7 @@ public class MetricsServiceImpl implements MetricsService {
                 }
             }
 
-            healthCheckServiceProxy.resolveIssue(metricsServiceConfigReport);
+            healthCheckServiceProxy.resolveIssue(METRICS_SERVICE_CONFIG_REPORT);
             setEnabled(metricsC.isEnabled());
 
             //Only start JMX if it's enabled...

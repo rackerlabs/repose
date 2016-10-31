@@ -35,7 +35,7 @@ public class HeaderFieldParser {
     private Pattern date = Pattern.compile("[^\\d]{3},\\s*[\\d]{2}\\s*[^\\d]{3}\\s*[\\d]{4}\\s*[\\d]{2}:[\\d]{2}:[\\d]{2}\\s*GMT");
 
     private HeaderFieldParser() {
-        headerValueStrings = new LinkedList<String>();
+        headerValueStrings = new LinkedList<>();
     }
 
     public HeaderFieldParser(String rawHeaderString) {
@@ -126,7 +126,7 @@ public class HeaderFieldParser {
     }
 
     public List<HeaderValue> parse() {
-        final List<HeaderValue> headerValues = new LinkedList<HeaderValue>();
+        final List<HeaderValue> headerValues = new LinkedList<>();
 
         for (String headerValueString : headerValueStrings) {
             headerValues.add(new HeaderValueParser(headerValueString).parse());

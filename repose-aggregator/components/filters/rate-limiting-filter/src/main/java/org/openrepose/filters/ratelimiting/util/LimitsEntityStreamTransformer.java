@@ -34,8 +34,8 @@ import java.io.OutputStream;
 
 public class LimitsEntityStreamTransformer {
 
-    public static final String JSON_XSL_LOCATION = "/META-INF/xslt/limits-json.xsl",
-            COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl";
+    public static final String JSON_XSL_LOCATION = "/META-INF/xslt/limits-json.xsl";
+    public static final String COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl";
     private static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
     private final StreamTransform<LimitsTransformPair, OutputStream> combiner;
     private final StreamTransform<InputStream, OutputStream> jsonTransform;

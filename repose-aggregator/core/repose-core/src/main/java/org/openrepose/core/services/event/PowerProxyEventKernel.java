@@ -56,10 +56,12 @@ public class PowerProxyEventKernel implements Runnable, Destroyable {
     }
 
     @Override
+    @SuppressWarnings("squid:S2583")
     public void run() {
         shouldContinue = true;
 
         try {
+            // there is a known issue with Sonar thinking this is always going to be true, so safe to suppress warning
             while (shouldContinue) {
                 final EventDispatcher dispatcher = eventManager.nextDispatcher();
 
@@ -85,6 +87,7 @@ public class PowerProxyEventKernel implements Runnable, Destroyable {
         }
     }
 
+    @Override
     @PreDestroy
     public void destroy() {
         shouldContinue = false;

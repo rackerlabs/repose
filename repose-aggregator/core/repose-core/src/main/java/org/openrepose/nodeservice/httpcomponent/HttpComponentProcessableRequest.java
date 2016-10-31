@@ -23,6 +23,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 
 import java.io.IOException;
 
+@FunctionalInterface
 public interface HttpComponentProcessableRequest {
     HttpRequestBase process(HttpComponentRequestProcessor processor) throws IOException;
 }
