@@ -24,8 +24,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import org.mockito.verification.VerificationMode;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -108,5 +107,21 @@ public class HttpComponentResponseProcessorTest {
         verify(servletResponse).getOutputStream();
         verify(servletResponse).getOutputStream();
         verify(out).flush();
+    }
+
+    @Test
+    public void shouldNotWriteExcluded() throws IOException {
+        headerValues.put("Connection", "Should be excluded.");
+        headerValues.put("Transfer-Encoding", "Should be excluded.");
+        headerValues.put("Server", "Should be excluded.");
+        headers = HttpComponentResponseProcessorTest.mockHeaders(headerValues);
+
+        processor.process();
+
+        verify(servletResponse).setStatus(eq(200));
+        for (Header header : headers) {
+            VerificationMode verificationMode = times(header.getValue().contains("excluded") ? 0 : 1);
+            verify(servletResponse, verificationMode).addHeader(header.getName(), header.getValue());
+        }
     }
 }
