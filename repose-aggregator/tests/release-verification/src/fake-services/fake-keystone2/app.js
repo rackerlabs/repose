@@ -78,6 +78,12 @@ function generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenant
         '          "description" : "A Role that allows a user access to keystone Service methods"' +
         '        },' +
         '        {' +
+        '          "tenantId" : "' + tenantid + '",' +
+        '          "name" : "cloudfeeds:observer",' +
+        '          "id" : "7",' +
+        '          "description" : "A Role that allows a user access to keystone Service methods"' +
+        '        },' +
+        '        {' +
         '          "tenantId" : "' + tenantidtwo + '",' +
         '          "name" : "object-store:default",' +
         '          "id" : "5",' +
@@ -125,6 +131,11 @@ function generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantn
         '                  name="compute:default"' +
         '                  description="A Role that allows a user access to keystone Service methods"' +
         '                  serviceId="0000000000000000000000000000000000000001"' +
+        '                  tenantId="' + tenantid + '"/>' +
+        '            <role id="7"' +
+        '                  name="cloudfeeds:observer"' +
+        '                  description="A Role that allows a user access to keystone Service methods"' +
+        '                  serviceId="0000000000000000000000000000000000000007"' +
         '                  tenantId="' + tenantid + '"/>' +
         '            <role id="5"' +
         '                  name="object-store:default"' +
@@ -193,10 +204,10 @@ app.post('/v2.0/tokens', function (req, res) {
     var headerAccept = req.get('accept');
     if (headerAccept == undefined || headerAccept.indexOf('json') < 0) {
         res.set('Content-Type', 'application/xml');
-        res.send(200, generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
+        res.status(200).send(generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
     } else {
         res.set('Content-Type', 'application/json');
-        res.send(200, generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
+        res.status(200).send(generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
     }
 });
 
@@ -213,10 +224,10 @@ app.get('/v2.0/tokens/:token_id', function (req, res) {
     var headerAccept = req.get('accept');
     if (headerAccept == undefined || headerAccept.indexOf('json') < 0) {
         res.set('Content-Type', 'application/xml');
-        res.send(200, generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
+        res.status(200).send(generateXmlTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
     } else {
         res.set('Content-Type', 'application/json');
-        res.send(200, generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
+        res.status(200).send(generateJsonTokenResponse(token, expires, tenantid, tenantidtwo, tenantname, userid, username, contactid));
     }
 });
 
@@ -224,7 +235,7 @@ app.get('/v2.0/users/:user_id/RAX-KSGRP', function (req, res) {
     var headerAccept = req.get('accept');
     if (headerAccept !== undefined && headerAccept.indexOf('json') > -1) {
         res.set('Content-Type', 'application/json');
-        res.send(200, '{' +
+        res.status(200).send('{' +
             '  "RAX-KSGRP:groups": [' +
             '    {' +
             '      "id": "0",' +
@@ -236,7 +247,7 @@ app.get('/v2.0/users/:user_id/RAX-KSGRP', function (req, res) {
         );
     } else {
         res.set('Content-Type', 'application/xml');
-        res.send(200, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+        res.status(200).send('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
             '<groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">' +
             ' <group id="0" name="Default">' +
             '   <description>Default Limits</description>' +
