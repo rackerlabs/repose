@@ -9,9 +9,9 @@
     "npm": "1.4.x"
   },
   "dependencies": {
-    "sleep": "1.2.x",
-    "express": "4.2.x",
-    "libxmljs": "0.13.x",
+    "sleep": "4.0.x",
+    "express": "4.14.x",
+    "libxmljs": "0.18.x",
     "date-utils": "1.2.x"
   },
   "repository": {

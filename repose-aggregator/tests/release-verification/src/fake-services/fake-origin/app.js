@@ -21,6 +21,6 @@ app.all(/^\/.*/, function (req, res) {
     } else {
         console.log('XML: deviceId=%s', deviceId);
         res.set('Content-Type', 'application/xml');
-        res.send(200, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><deviceId>' + deviceId + '</deviceId>');
+        res.status(200).send('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><deviceId>' + deviceId + '</deviceId>');
     }
 });
