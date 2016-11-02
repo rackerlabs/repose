@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'nebula.ospackage'
 
@@ -161,6 +163,13 @@ ospackage {
         permissionGroup 'repose'
         fileMode 0640
         fileType CONFIG | NOREPLACE
+
+        //INFO: We'd like to use the more standard gradle 'expand( docsHome: docsHome)',
+        // however it chokes pretty hard on the regexs we sprinkle into our xml specifically the `\`.
+        // We can update our config file examples to not have that in the regex,
+        // however some of the schemas we've imported also have them, and we shouldn't mess with those.
+        // Instead I've elected to use ant based filtering.
+        filter(ReplaceTokens, tokens: [docsHome: docsHome])
     }
 
     //the systemd service
