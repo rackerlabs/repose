@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "com.yammer.metrics:metrics-core"
@@ -16,4 +18,13 @@ dependencies {
 
 license {
     excludes(["**/httpx-headers.xsd", "**/httpx-common.xsd", "**/httpx.xsd", "**/request.xml", "**/response.xml"])
+}
+
+processResources {
+    //INFO: We'd like to use the more standard gradle 'expand( docsHome: docsHome)',
+    // however it chokes pretty hard on the regexs we sprinkle into our xml specifically the `\`.
+    // We can update our config file examples to not have that in the regex,
+    // however some of the schemas we've imported also have them, and we shouldn't mess with those.
+    // Instead I've elected to use ant based filtering.
+    filter(ReplaceTokens, tokens: [docsHome: docsHome])
 }
