@@ -24,27 +24,7 @@ apt-get install -y -q wget
 wget -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add -
 sh -c 'echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list'
 
-## add nodesource.com repository
-##### This tries to install the latest version and we need an older one.
-#curl -sL https://deb.nodesource.com/setup_0.12 | bash -
-
 apt-get update
-SCRIPT
-
-$install_nodejs = <<SCRIPT
-echo "-------------------------------------------------------------------------------------------------------------------"
-echo "Installing Node JS"
-echo "-------------------------------------------------------------------------------------------------------------------"
-
-# This is the latest version of 0.12.7 that is supported.
-wget --quiet https://deb.nodesource.com/node_0.12/pool/main/n/nodejs/nodejs_0.12.7-1nodesource1~trusty1_amd64.deb
-dpkg -i nodejs_0.12.7-1nodesource1~trusty1_amd64.deb
-apt-mark hold nodejs
-apt-get install -y -f
-
-## The current fake-keystone and fake-valkyrie require v0.12.7
-##### This doesn't work for some reason even after the nodesource.com repository is added.
-#apt-get install -y nodejs=0.12.7-1nodesource1~trusty1
 SCRIPT
 
 $install_python = <<SCRIPT
@@ -126,7 +106,7 @@ SCRIPT
   config.vm.provision "shell", inline: $update_packages
   config.vm.provision "shell", inline: $install_repose_dependencies
   config.vm.provision "shell", inline: $install_python
-  config.vm.provision "shell", inline: $install_nodejs
+  config.vm.provision "shell", path: "./scripts/node_install.sh"
 
   config.vm.provision "shell", path: "./scripts/fake_keystone_prepare.sh"
   config.vm.provision "file", source: "./fake-services/fake-keystone2/package.json", destination: "/opt/fake-keystone/package.json"
