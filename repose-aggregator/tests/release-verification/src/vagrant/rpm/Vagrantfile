@@ -44,22 +44,6 @@ yum install -y --quiet wget
 
 # add openrepose.org repository
 wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
-
-## add nodesource.com repository
-##### Your distribution, identified as "centos-release-7-2.1511.el7.centos.2.10.x86_64", is not currently supported,
-##### please contact NodeSource at https://github.com/nodesource/distributions/issues if you think this is incorrect or
-##### would like your distribution to be considered for support
-#curl -sL https://rpm.nodesource.com/setup_0.12 | bash -
-SCRIPT
-
-$install_nodejs = <<SCRIPT
-echo "-------------------------------------------------------------------------------------------------------------------"
-echo "Installing Node JS"
-echo "-------------------------------------------------------------------------------------------------------------------"
-
-wget --quiet https://rpm.nodesource.com/pub_0.12/el/7/x86_64/nodejs-0.12.7-1nodesource.el7.centos.x86_64.rpm
-rpm -Uh --quiet nodejs-0.12.7-1nodesource.el7.centos.x86_64.rpm
-yum install -y --quiet gcc-c++ make
 SCRIPT
 
 $install_python = <<SCRIPT
@@ -137,7 +121,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: $install_old_repose_dependencies
   config.vm.provision "shell", inline: $install_repose_dependencies
   config.vm.provision "shell", inline: $install_python
-  config.vm.provision "shell", inline: $install_nodejs
+  config.vm.provision "shell", path: "./scripts/node_install.sh"
 
   config.vm.provision "shell", path: "./scripts/fake_keystone_prepare.sh"
   config.vm.provision "file", source: "./fake-services/fake-keystone2/package.json", destination: "/opt/fake-keystone/package.json"
