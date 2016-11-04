@@ -2,23 +2,24 @@
 layout: default
 title: Repose
 ---
-<nav class="top-bar" data-topbar role="navigation">
-    <ul class="title-area">
-        <li class="name"></li>
-    </ul>
-
-    <section class="top-bar-section">
-        <ul class="right">
-            <li class="has-dropdown">
-                <a href="#">Documentation</a>
-                <ul class="dropdown">
-                    {% include versions.html %}
-                </ul>
-            </li>
+<div class="sticky">
+    <nav class="top-bar" data-topbar role="navigation">
+        <ul class="title-area">
+            <li class="name"></li>
         </ul>
-    </section>
-</nav>
 
+        <section class="top-bar-section">
+            <ul class="right">
+                <li class="has-dropdown">
+                    <a href="#">Documentation</a>
+                    <ul class="dropdown">
+                        {% include versions.html %}
+                    </ul>
+                </li>
+            </ul>
+        </section>
+    </nav>
+</div>
 <div class="slide slide-1">
     <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns text-center">
