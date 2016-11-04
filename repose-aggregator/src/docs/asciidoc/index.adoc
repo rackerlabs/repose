@@ -1,13 +1,4 @@
-= Hello, AsciiDoc!
-Doc Writer <doc@example.com>
+= Welcome to Repose
 
-This is a template for an asciidoc page http://asciidoc.org[AsciiDoc].
-
-== This will be the versioned documentation landing page
-
-* hello
-* repose
-
-[source,java]
-//this is formatted java code
-System.out.println("Hello Repose!!");
+This version of the docs is a work in progress.
+If you don't see what you are looking for check the legacy http://wiki.openrepose.org[wiki].
