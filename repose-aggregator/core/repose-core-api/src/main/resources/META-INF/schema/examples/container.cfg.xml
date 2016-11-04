@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- To configure Repose see: http://wiki.openrepose.org/display/REPOSE/Configuration -->
+<!-- To configure Repose see: @docsHome@ -->
 <repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
     <deployment-config>
         <deployment-directory auto-clean="false">/var/repose</deployment-directory>

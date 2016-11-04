@@ -35,6 +35,7 @@ ext {
     scalaMinor = '11'
     scalaPatch = '7'
     scalaMajDotMin = "$scalaMajor.$scalaMinor"
+    docsHome = "https://repose.atlassian.net/wiki/display/REPOSE/Configuration"
 }
 
 task('publishToPackageRepo', group: 'publishing', description: 'Publishes the debian and rpm packages to the package repo.',
