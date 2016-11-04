@@ -28,6 +28,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
+import javax.ws.rs.core.HttpHeaders
+
 /**
  * Created by jennyvo on 5/19/14.
  * This test checking TRACE log configuration.
@@ -78,7 +80,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/server123", method: 'GET',
                 headers: ['X-Auth-Token': fakeIdentityService.client_token],
                 defaultHandler: { request ->
-                    return new Response(respcode, respmsg, ["Content-Type": type], responseBody)
+                    return new Response(respcode, respmsg, [(HttpHeaders.CONTENT_TYPE): type], responseBody)
                 })
 
         //def sentRequest = mc.getHandlings()[0]
@@ -106,7 +108,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         and: "checking for client-auth - response"
         //THIS IS 2ND IN THE LIST BECAUSE IT'S A STACK
         def authrespline1 = convertToJson("Intrafilter Response Log", 1)
-        assertHeadersExists(["Intrafilter-UUID", "content-type"], authrespline1)
+        assertHeadersExists(["Intrafilter-UUID", HttpHeaders.CONTENT_TYPE], authrespline1)
         assertKeyValueMatch([
                 "currentFilter"   : "keystone-v2",
                 "responseBody"    : responseBody,
@@ -130,7 +132,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         and: "checking for ip-user - response"
         //THIS IS FIRST ON THE LIST BECAUSE IT'S A STACK
         def authrespline2 = convertToJson("Intrafilter Response Log", 0)
-        assertHeadersExists(["Intrafilter-UUID", "content-type"], authrespline2)
+        assertHeadersExists(["Intrafilter-UUID", HttpHeaders.CONTENT_TYPE], authrespline2)
         assertKeyValueMatch([
                 "currentFilter"   : "context_1-ip-user",
                 "responseBody"    : responseBody,
@@ -154,8 +156,8 @@ class IntrafilterLoggingTest extends ReposeValveTest {
                           'x-pp-user'   : "Developers;q=1.0 , Secure Developers;q=0.9 , service:admin-role1 , member"],
                 defaultHandler: { request ->
                     return new Response(200, "OK", [
-                            "Content-Type": "application/json",
-                            "x-pp-user"   : "one,two,three"
+                            (HttpHeaders.CONTENT_TYPE): "application/json",
+                            "x-pp-user"               : "one,two,three"
                     ], """{"response": "amazing"}""")
                 })
 
@@ -192,20 +194,19 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         slurper.parseText(requestJson)
     }
 
-    private assertHeadersExists(List headers, Object jsonObject) {
-        // Due to the way this is tested it is Case-Sensitive.
+    private static assertHeadersExists(List headers, Object jsonObject) {
+        Set<String> headerNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        headerNames.addAll(jsonObject.headers.keySet())
         headers.each {
             headerName ->
-                assert jsonObject.headers.containsKey(headerName)
+                assert headerNames.contains(headerName)
         }
     }
 
-    private assertKeyValueMatch(Map headers, Object jsonObject) {
+    private static assertKeyValueMatch(Map headers, Object jsonObject) {
         headers.each {
             key, value ->
                 assert jsonObject."$key" == value
-
         }
-
     }
 }

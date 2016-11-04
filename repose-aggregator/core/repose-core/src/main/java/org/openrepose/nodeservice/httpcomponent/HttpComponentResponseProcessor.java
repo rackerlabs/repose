@@ -67,8 +67,8 @@ public class HttpComponentResponseProcessor {
 
     private void setResponseHeaders() throws IOException {
         for (Header header : httpResponse.getAllHeaders()) {
-            String name = header.getName().toLowerCase();
-            if (!EXCLUDE_HEADERS_SET.contains(name)) {
+            String name = header.getName();
+            if (!EXCLUDE_HEADERS_SET.contains(name.toLowerCase())) {
                 response.addHeader(name, header.getValue());
             }
         }
