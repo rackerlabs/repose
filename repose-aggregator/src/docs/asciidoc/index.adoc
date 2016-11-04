@@ -1,4 +1,7 @@
 = Welcome to Repose
 
+[NOTE]
+====
 This version of the docs is a work in progress.
 If you don't see what you are looking for check the legacy http://wiki.openrepose.org[wiki].
+====
