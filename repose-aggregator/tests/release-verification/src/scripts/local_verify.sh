@@ -58,7 +58,7 @@ vagrant up
 #fi
 
 # Test the filter bundle install; should result in an Ok (200) status.
-vagrant ssh -c 'sh /release-verification/scripts/vagrant_verify.sh'
+vagrant ssh -c 'sh /release-verification/scripts/verify_vagrant.sh'
 if [ $? -ne 0 ]; then
    echo -en "\n\n~~~~~ ERROR - Validation Install FAILED ~~~~~\n\n"
 else

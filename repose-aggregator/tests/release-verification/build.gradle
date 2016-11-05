@@ -142,7 +142,7 @@ task vagrantSshSmokeTestDeb(type: VagrantSsh) {
     finalizedBy 'vagrantDestroyDeb'
 
     boxDir = debDir
-    sshCommand "sh /release-verification/scripts/vagrant_verify.sh"
+    sshCommand "sh /release-verification/scripts/verify_vagrant.sh"
 }
 
 task vagrantDestroyDeb(type: VagrantDestroy) {
@@ -167,7 +167,7 @@ task vagrantSshSmokeTestRpm(type: VagrantSsh) {
     finalizedBy 'vagrantDestroyRpm'
 
     boxDir = rpmDir
-    sshCommand "sh /release-verification/scripts/vagrant_verify.sh"
+    sshCommand "sh /release-verification/scripts/verify_vagrant.sh"
 }
 
 task vagrantDestroyRpm(type: VagrantDestroy) {

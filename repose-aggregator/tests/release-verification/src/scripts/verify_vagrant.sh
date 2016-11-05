@@ -1,9 +1,9 @@
 #!/bin/bash
 
 echo "~~~TRUNCATED~~~" > /release-verification/validation.log 2>&1
-cp /release-verification/scripts/isReposeReady.sh /tmp/
-chmod a+x /tmp/isReposeReady.sh
-/tmp/isReposeReady.sh /release-verification/var-log-repose-current.log
+cp /release-verification/scripts/isReposeReady_vagrant.sh /tmp/
+chmod a+x /tmp/isReposeReady_vagrant.sh
+/tmp/isReposeReady_vagrant.sh /release-verification/var-log-repose-current.log
 if [ $? -eq 0 ]; then
    curl -vs http://localhost:8080/resource/this-is-an-id > /release-verification/validation.log 2>&1
 fi
