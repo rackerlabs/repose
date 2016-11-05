@@ -38,10 +38,13 @@ RUN rpm -Uh --quiet nodejs-0.12.7-1nodesource.el7.centos.x86_64.rpm
 RUN yum install -y --quiet gcc-c++ make
 RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
 
+# Note: The COPY instruction was used rather than VOLUME since the behave of VOLUME varies based on the host OS
 COPY etc_repose /release-verification/etc_repose
 COPY fake-services /release-verification/fake-services
 COPY scripts /release-verification/scripts
-COPY pkgs /release-verification/pkgs
+COPY *.rpm /release-verification/
+
+RUN rm /release-verification/DELETE-ME.rpm
 
 RUN sh /release-verification/scripts/fake_keystone_prepare.sh
 RUN cp /release-verification/fake-services/fake-keystone2/package.json /opt/fake-keystone/package.json

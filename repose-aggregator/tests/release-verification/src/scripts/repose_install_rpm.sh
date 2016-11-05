@@ -17,7 +17,7 @@ echo "Installing Repose ${name} package"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 if [ "X_${name}_X" = "X_local_X" ] ; then
-  yum --nogpgcheck localinstall -y /release-verification/pkgs/repose-valve-*.noarch.rpm /release-verification/pkgs/repose-filter-bundle-*.noarch.rpm /release-verification/pkgs/repose-extensions-filter-bundle-*.noarch.rpm /release-verification/pkgs/repose-experimental-filter-bundle-*.noarch.rpm
+  yum --nogpgcheck localinstall -y /release-verification/repose-valve-*.noarch.rpm /release-verification/repose-filter-bundle-*.noarch.rpm /release-verification/repose-extensions-filter-bundle-*.noarch.rpm /release-verification/repose-experimental-filter-bundle-*.noarch.rpm
 else
   yum install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version} repose-experimental-filter-bundle${version}
 fi
