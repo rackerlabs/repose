@@ -18,11 +18,13 @@ File rpmDir = file("$buildDir/rpm")
 String configDir = project.hasProperty('config-dir') ? project.property('config-dir') : "$projectDir/src/config"
 
 FileCollection commonFiles = files("$projectDir/src/scripts", "$projectDir/src/fake-services", configDir)
-FileCollection debFiles = files("$projectDir/src/vagrant/deb", "$projectDir/src/docker/deb")
-FileCollection rpmFiles = files("$projectDir/src/vagrant/rpm", "$projectDir/src/docker/rpm")
+FileCollection debRunners = files("$projectDir/src/vagrant/deb", "$projectDir/src/docker/deb")
+FileCollection rpmRunners = files("$projectDir/src/vagrant/rpm", "$projectDir/src/docker/rpm")
+FileCollection debPackages = files()
+FileCollection rpmPackages = files()
 
 if(!project.hasProperty('release-version')) {
-    debFiles = debFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').getOutputs().getFiles(),
+    debPackages = debPackages + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb').getOutputs().getFiles())
@@ -30,24 +32,30 @@ if(!project.hasProperty('release-version')) {
     //       SNAPSHOT versions
     // Execution failed for task ':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm'.
     // version with value: '8.1.0.0~SNAPSHOT' contains illegal character ~
-    rpmFiles = rpmFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').getOutputs().getFiles(),
+    rpmPackages = rpmPackages + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm').getOutputs().getFiles())
 }
 
 task copyDebFiles() {
-    inputs.files(commonFiles, debFiles)
+    inputs.files(commonFiles, debPackages)
     outputs.dir debDir
 
     doLast {
-        //make the deb directory
-        debDir.mkdirs()
+        //make the deb and pkgs directories
+        file("$debDir/pkgs").mkdirs()
 
         //copy the docker/vagrant files
         copy {
-            from debFiles
+            from debRunners
             into debDir
+        }
+
+        //copy the package files
+        copy {
+            from debPackages
+            into "$debDir/pkgs"
         }
 
         //copy the scripts
@@ -71,17 +79,23 @@ task copyDebFiles() {
 }
 
 task copyRpmFiles() {
-    inputs.files(commonFiles, rpmFiles)
+    inputs.files(commonFiles, rpmPackages)
     outputs.dir rpmDir
 
     doLast {
-        //make the rpm directory
-        rpmDir.mkdirs()
+        //make the rpm and pkgs directories
+        file("$rpmDir/pkgs").mkdirs()
 
         //copy the docker/vagrant files
         copy {
-            from rpmFiles
+            from rpmRunners
             into rpmDir
+        }
+
+        //copy the package files
+        copy {
+            from rpmPackages
+            into "$rpmDir/pkgs"
         }
 
         //copy the scripts

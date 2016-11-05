@@ -26,13 +26,10 @@ RUN apt-get install -y -f
 RUN wget -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add -
 RUN echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list
 
-# Note: The COPY instruction was used rather than VOLUME since the behave of VOLUME varies based on the host OS
 COPY etc_repose /release-verification/etc_repose
 COPY fake-services /release-verification/fake-services
 COPY scripts /release-verification/scripts
-COPY *.deb /release-verification/
-
-RUN rm /release-verification/DELETE-ME.deb
+COPY pkgs /release-verification/pkgs
 
 RUN sh /release-verification/scripts/fake_keystone_prepare.sh
 RUN cp /release-verification/fake-services/fake-keystone2/package.json /opt/fake-keystone/package.json

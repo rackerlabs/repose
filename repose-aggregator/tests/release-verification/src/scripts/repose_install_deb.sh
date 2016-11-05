@@ -17,7 +17,7 @@ echo "Installing Repose ${name} package"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 if [ "X_${name}_X" = "X_local_X" ] ; then
-  dpkg -i /release-verification/repose-valve*_all.deb /release-verification/repose-filter-bundle*_all.deb /release-verification/repose-extensions-filter-bundle*_all.deb /release-verification/repose-experimental-filter-bundle*_all.deb
+  dpkg -i /release-verification/pkgs/repose-valve*_all.deb /release-verification/pkgs/repose-filter-bundle*_all.deb /release-verification/pkgs/repose-extensions-filter-bundle*_all.deb /release-verification/pkgs/repose-experimental-filter-bundle*_all.deb
   apt-get install -y -f
 else
   apt-get install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version} repose-experimental-filter-bundle${version}
