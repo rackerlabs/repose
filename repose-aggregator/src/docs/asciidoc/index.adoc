@@ -38,3 +38,9 @@ Just take a look at this.
 === Release Notes
 Seriously? You don't have anything better to do?
 Ok, I guess if you really want to know when something specific came into *Repose* you'll find it here.
+
+=== Style Guide
+You found something missing from the docs?
+Impossible, there is no way this magnificent set of documents could ever be incomplete.
+But if there were something missing and you wanted to help,
+here's where you would go to figure out how we try to make a page.
