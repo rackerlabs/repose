@@ -6,11 +6,12 @@ apply plugin: 'org.asciidoctor.convert'
 asciidoctor {
     attributes 'source-highlighter': 'coderay',
                'docinfo1': ''
-}
 
-task copyResources(type: Copy) {
-    from 'src/docs/resources/'
-    into 'build/asciidoc/html5/'
+    resources {
+        from 'src/docs/resources'
+
+        into '.'
+    }
 }
 
 task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds the new version of the docs to github pages') << {
@@ -49,5 +50,4 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
 
 project.tasks.getByPath(':release').dependsOn publishDocs
 
-asciidoctor.dependsOn copyResources
 build.dependsOn asciidoctor
