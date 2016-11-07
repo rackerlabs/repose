@@ -42,3 +42,5 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
 }
 
 project.tasks.getByPath(':release').dependsOn publishDocs
+
+build.dependsOn asciidoctor
