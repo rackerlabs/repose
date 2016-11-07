@@ -17,12 +17,6 @@ RUN apt-get update -qq && apt-get install -y -qq \
     wget \
     curl \
     python-pip
-RUN wget --quiet http://mirrors.kernel.org/ubuntu/pool/universe/r/rlwrap/rlwrap_0.41-1build1_amd64.deb
-RUN dpkg -i rlwrap_0.41-1build1_amd64.deb
-RUN wget --quiet https://deb.nodesource.com/node_0.12/pool/main/n/nodejs/nodejs_0.12.7-1nodesource1~trusty1_amd64.deb
-RUN dpkg -i nodejs_0.12.7-1nodesource1~trusty1_amd64.deb
-RUN apt-mark hold nodejs
-RUN apt-get install -y -f
 RUN wget -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add -
 RUN echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list
 
@@ -33,6 +27,8 @@ COPY scripts /release-verification/scripts
 COPY *.deb /release-verification/
 
 RUN rm /release-verification/DELETE-ME.deb
+
+RUN sh /release-verification/scripts/node_install.sh
 
 RUN sh /release-verification/scripts/fake_keystone_prepare.sh
 RUN cp /release-verification/fake-services/fake-keystone2/package.json /opt/fake-keystone/package.json

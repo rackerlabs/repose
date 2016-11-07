@@ -17,6 +17,7 @@ RUN yum update -y --quiet && yum install -y --quiet \
     git \
     ruby-devel \
     gcc \
+    gcc-c++ \
     make \
     rpm-build \
     wget \
@@ -24,18 +25,6 @@ RUN yum update -y --quiet && yum install -y --quiet \
     python-setuptools
 RUN easy_install pip
 RUN pip install --upgrade pip setuptools
-RUN git clone https://github.com/bmc/daemonize.git
-RUN cd daemonize && \
-    sh configure && \
-    make && \
-    make install
-RUN ln -s /usr/local/sbin/daemonize /usr/sbin/daemonize
-RUN gem install fpm
-RUN /usr/local/bin/fpm -s empty -t rpm -n daemonize -v 0.0.0 --iteration 0 --architecture noarch
-RUN rpm --install --ignorearch daemonize-0.0.0-0.noarch.rpm
-RUN wget --quiet https://rpm.nodesource.com/pub_0.12/el/7/x86_64/nodejs-0.12.7-1nodesource.el7.centos.x86_64.rpm
-RUN rpm -Uh --quiet nodejs-0.12.7-1nodesource.el7.centos.x86_64.rpm
-RUN yum install -y --quiet gcc-c++ make
 RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
 
 # Note: The COPY instruction was used rather than VOLUME since the behave of VOLUME varies based on the host OS
@@ -45,6 +34,9 @@ COPY scripts /release-verification/scripts
 COPY *.rpm /release-verification/
 
 RUN rm /release-verification/DELETE-ME.rpm
+
+RUN sh /release-verification/scripts/node_install.sh
+RUN npm install libxmljs
 
 RUN sh /release-verification/scripts/fake_keystone_prepare.sh
 RUN cp /release-verification/fake-services/fake-keystone2/package.json /opt/fake-keystone/package.json
