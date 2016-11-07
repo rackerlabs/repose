@@ -1,3 +1,10 @@
 = Filters
 
 include::../_includes/in-progress.adoc[]
+
+<<add-header.adoc#,Add Header Filter>>::
+    TODO
+
+<<scripting.adoc#,Scripting Filter>>::
+    Enables users to write custom filters for Repose using a
+    variety of scripting languages.
