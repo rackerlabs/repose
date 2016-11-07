@@ -33,7 +33,7 @@ docker {
 task buildImage(type: DockerBuildImage) {
     finalizedBy 'removeImage'
     inputDir = file("$projectDir/src/docker")
-    tag = "repose/repose:$reposeVersion"
+    tag = "rackerlabs/repose:$reposeVersion"
     buildArgs = ['REPOSE_VERSION': reposeVersion]
     // TODO: Set "forcerm" to true once the Docker Gradle plugin supports it
 }
