@@ -1,5 +1,4 @@
 = Welcome to Repose
-:docinfo1:
 
 include::_includes/in-progress.adoc[]
 

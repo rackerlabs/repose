@@ -4,7 +4,8 @@ import java.text.SimpleDateFormat
 apply plugin: 'org.asciidoctor.convert'
 
 asciidoctor {
-    attributes 'source-highlighter': 'coderay'
+    attributes 'source-highlighter': 'coderay',
+               'docinfo1': ''
 }
 
 task copyResources(type: Copy) {
