@@ -1,0 +1,146 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+repose_version = ENV['REPOSE_VERSION'] || 'local'
+
+$update_packages = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Updating Yum packages"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+# update package lists from the server
+yum update -y --quiet
+SCRIPT
+
+$install_old_repose_dependencies = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Repose package dependencies (old Daemonize)"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+# install potentially missing packages needed to install Repose
+yum install -y --quiet git ruby-devel gcc make rpm-build
+# get the daemonize source and build it.
+git clone https://github.com/bmc/daemonize.git
+cd daemonize
+sh configure
+make
+make install
+cd /usr/sbin/
+ln -s ../local/sbin/daemonize
+
+# install a fake daemonize package to make older Repose versions happy.
+gem install fpm
+/usr/local/bin/fpm -s empty -t rpm -n daemonize -v 0.0.0 --iteration 0 --architecture noarch
+rpm --install --ignorearch daemonize-0.0.0-0.noarch.rpm
+SCRIPT
+
+$install_repose_dependencies = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Repose package dependencies"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+# install potentially missing packages needed to install Repose
+yum install -y --quiet wget
+
+# add openrepose.org repository
+wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
+SCRIPT
+
+$install_python = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Python"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+yum install -y curl python-setuptools
+easy_install pip
+pip install --upgrade pip setuptools
+SCRIPT
+
+$install_repose = <<SCRIPT
+name='default'
+version=''
+if [ $# -ne 0 ] ; then
+  if [ "X_${1}_X" = "X_local_X" ] ; then
+    name="${1}"
+  elif [ "X_${1}_X" = "X_current_X" ] ; then
+    name="${1}"
+  else
+    name="v${1}"
+    version="-${1}-1"
+  fi
+fi
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Repose ${name} package"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+if [ "X_${name}_X" = "X_local_X" ] ; then
+  yum --nogpgcheck localinstall -y /release-verification/repose-valve-*.noarch.rpm /release-verification/repose-filter-bundle-*.noarch.rpm /release-verification/repose-extensions-filter-bundle-*.noarch.rpm
+  yum --nogpgcheck localinstall -y /release-verification/repose-experimental-filter-bundle-*.noarch.rpm
+else
+  yum install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version}
+  yum install -y repose-experimental-filter-bundle${version}
+fi
+mkdir -p /etc/systemd/system/repose-valve.service.d && echo "[Service]\nEnvironment=\"JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n\"" > /etc/systemd/system/repose-valve.service.d/local.conf
+sed -i '/JAVA_OPTS/c\JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n"' /etc/sysconfig/repose
+SCRIPT
+
+$copy_configs = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Copying configs"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+chmod a+rwx /release-verification
+if [[ -d "/release-verification/etc_repose" ]] ; then
+    cp --force /release-verification/etc_repose/* /etc/repose/
+fi
+SCRIPT
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure(2) do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+  config.vm.box = "centos/7"
+
+  # Expose the Repose Java Debug Wire Protocol (JDWP) port
+  config.vm.network :forwarded_port, guest: 10037, host: 18039
+  #config.vm.network "private_network", ip: "192.168.33.39"
+  # Expose the Repose port
+  config.vm.network :forwarded_port, guest: 8080, host: 18089
+
+  config.vm.provision "shell", inline: $update_packages
+  # IF the Repose version is < 8.1.0.0,
+  # THEN the old Daemonize needs to be manually installed since it is no longer packaged.
+  # TODO: Make this conditional.
+  config.vm.provision "shell", inline: $install_old_repose_dependencies
+  config.vm.provision "shell", inline: $install_repose_dependencies
+  config.vm.provision "shell", inline: $install_python
+  config.vm.provision "shell", path: "./scripts/node_install.sh"
+
+  config.vm.provision "shell", path: "./scripts/fake_keystone_prepare.sh"
+  config.vm.provision "file", source: "./fake-services/fake-keystone2/package.json", destination: "/opt/fake-keystone/package.json"
+  config.vm.provision "file", source: "./fake-services/fake-keystone2/app.js", destination: "/opt/fake-keystone/app.js"
+  config.vm.provision "shell", privileged: false, path: "./scripts/fake_keystone_install_vagrant.sh"
+  config.vm.provision "shell", path: "./scripts/fake_keystone_run.sh", run: "always"
+
+  config.vm.provision "shell", path: "./scripts/fake_origin_prepare.sh"
+  config.vm.provision "file", source: "./fake-services/fake-origin/package.json", destination: "/opt/fake-origin/package.json"
+  config.vm.provision "file", source: "./fake-services/fake-origin/app.js", destination: "/opt/fake-origin/app.js"
+  config.vm.provision "shell", privileged: false, path: "./scripts/fake_origin_install_vagrant.sh"
+  config.vm.provision "shell", path: "./scripts/fake_origin_run.sh", run: "always"
+
+  config.vm.provision "shell", inline: $install_repose do |s|
+    s.args = "#{repose_version}"
+  end
+  config.vm.provision "shell", inline: $copy_configs
+  config.vm.provision "shell", path: "./scripts/repose_run_vagrant.sh"
+
+  config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
+  config.vm.synced_folder ".", "/release-verification", mount_options: ["dmode=777,fmode=666"]
+end

@@ -1,0 +1,3 @@
+THIS IS NOT AN INSTALLABLE DEB PACKAGE.
+
+This file only exists so that Docker always has something to COPY, and does not fail.

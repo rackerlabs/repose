@@ -1,0 +1,53 @@
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+// This forces the usage of a more recent unix-socket-factory which makes Mac OS X happy
+// It also forces the usage of jackson dependencies which were not being brought in as expected
+// TODO: Remove unix-socket-factory after upgrading to gradle-docker-plugin 3.0.4
+configurations {
+    dockerJava {
+        resolutionStrategy {
+            force 'de.gesellix:unix-socket-factory:2016-04-06T22-21-19'
+            force 'com.fasterxml.jackson.core:jackson-databind:2.6.4'
+            force 'com.fasterxml.jackson.core:jackson-core:2.6.4'
+            force 'com.fasterxml.jackson.core:jackson-annotations:2.6.4'
+        }
+    }
+}
+
+String reposeVersion = project.hasProperty('repose-version') ? project.property('repose-version') as String : version as String
+
+docker {
+    url = "unix:///var/run/docker.sock"
+
+    registryCredentials {
+        username = project.hasProperty('dockerhub.username') ? project.property('dockerhub.username') : 'Need to provide a Docker Hub username'
+        password = project.hasProperty('dockerhub.password') ? project.property('dockerhub.password') : 'Need to provide a Docker Hub password'
+        email = 'reposecore@rackspace.com'
+    }
+}
+
+task buildImage(type: DockerBuildImage) {
+    finalizedBy 'removeImage'
+    inputDir = file("$projectDir/src/docker")
+    tag = "rackerlabs/repose:$reposeVersion"
+    buildArgs = ['REPOSE_VERSION': reposeVersion]
+    // TODO: Set "forcerm" to true once the Docker Gradle plugin supports it
+}
+
+task pushImage(type: DockerPushImage) {
+    dependsOn 'buildImage'
+    imageName = buildImage.getTag()
+}
+
+task removeImage(type: DockerRemoveImage) {
+    dependsOn 'buildImage'
+    mustRunAfter 'pushImage'
+    targetImageId { buildImage.getImageId() }
+    force = true
+}
+
+project.tasks.getByPath(':release').dependsOn pushImage

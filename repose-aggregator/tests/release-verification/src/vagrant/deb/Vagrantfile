@@ -1,0 +1,131 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+repose_version = ENV['REPOSE_VERSION'] || 'local'
+
+$update_packages = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Updating Apt packages"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+# update package lists from the server
+apt-get update -qq
+SCRIPT
+
+$install_repose_dependencies = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Repose package dependencies"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+# install potentially missing packages needed to install Repose
+apt-get install -y -q wget
+
+# add openrepose.org repository
+wget -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add -
+sh -c 'echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list'
+
+apt-get update
+SCRIPT
+
+$install_python = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Python"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+apt-get install -y curl python-pip
+SCRIPT
+
+$install_repose = <<SCRIPT
+name='default'
+version=''
+if [ $# -ne 0 ] ; then
+  if [ "X_${1}_X" = "X_local_X" ] ; then
+    name="${1}"
+  elif [ "X_${1}_X" = "X_current_X" ] ; then
+    name="${1}"
+  else
+    name="v${1}"
+    version="=${1}"
+  fi
+fi
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Installing Repose ${name} package"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+if [ "X_${name}_X" = "X_local_X" ] ; then
+  dpkg -i /release-verification/repose-valve*_all.deb /release-verification/repose-filter-bundle*_all.deb /release-verification/repose-extensions-filter-bundle*_all.deb
+  dpkg -i /release-verification/repose-experimental-filter-bundle*_all.deb
+else
+  apt-get install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version}
+  apt-get install -y repose-experimental-filter-bundle${version}
+fi
+apt-get install -y -f
+mkdir -p /etc/systemd/system/repose-valve.service.d && echo "[Service]\nEnvironment=\"JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n\"" > /etc/systemd/system/repose-valve.service.d/local.conf
+sed -i '/JAVA_OPTS/c\JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n"' /etc/sysconfig/repose
+SCRIPT
+
+$copy_configs = <<SCRIPT
+echo "-------------------------------------------------------------------------------------------------------------------"
+echo "Copying configs"
+echo "-------------------------------------------------------------------------------------------------------------------"
+
+if [[ -d "/release-verification/etc_repose" ]] ; then
+    cp --force /release-verification/etc_repose/* /etc/repose/
+fi
+SCRIPT
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure(2) do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+  #config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/xenial64"
+
+  config.vm.provision "shell", inline: <<SCRIPT
+grep -q $(hostname) /etc/hosts
+if [ $? -ne 0 ]; then
+   echo '# Fixing a bug in some Xenial images where the local host name is not in the hosts file.' >> /etc/hosts
+   echo '# https://bugs.launchpad.net/ubuntu/+source/livecd-rootfs/+bug/1561250' >> /etc/hosts
+   echo "127.0.1.1 $(hostname)" >> /etc/hosts
+fi
+SCRIPT
+
+  # Expose the Repose Java Debug Wire Protocol (JDWP) port
+  config.vm.network :forwarded_port, guest: 10037, host: 18038
+  #config.vm.network "private_network", ip: "192.168.33.38"
+  # Expose the Repose port
+  config.vm.network :forwarded_port, guest: 8080, host: 18088
+
+  config.vm.provision "shell", inline: $update_packages
+  config.vm.provision "shell", inline: $install_repose_dependencies
+  config.vm.provision "shell", inline: $install_python
+  config.vm.provision "shell", path: "./scripts/node_install.sh"
+
+  config.vm.provision "shell", path: "./scripts/fake_keystone_prepare.sh"
+  config.vm.provision "file", source: "./fake-services/fake-keystone2/package.json", destination: "/opt/fake-keystone/package.json"
+  config.vm.provision "file", source: "./fake-services/fake-keystone2/app.js", destination: "/opt/fake-keystone/app.js"
+  config.vm.provision "shell", privileged: false, path: "./scripts/fake_keystone_install_vagrant.sh"
+  config.vm.provision "shell", path: "./scripts/fake_keystone_run.sh", run: "always"
+
+  config.vm.provision "shell", path: "./scripts/fake_origin_prepare.sh"
+  config.vm.provision "file", source: "./fake-services/fake-origin/package.json", destination: "/opt/fake-origin/package.json"
+  config.vm.provision "file", source: "./fake-services/fake-origin/app.js", destination: "/opt/fake-origin/app.js"
+  config.vm.provision "shell", privileged: false, path: "./scripts/fake_origin_install_vagrant.sh"
+  config.vm.provision "shell", path: "./scripts/fake_origin_run.sh", run: "always"
+
+  config.vm.provision "shell", inline: $install_repose do |s|
+    s.args = "#{repose_version}"
+  end
+  config.vm.provision "shell", inline: $copy_configs
+  config.vm.provision "shell", path: "./scripts/repose_run_vagrant.sh"
+
+  config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
+  config.vm.synced_folder ".", "/release-verification", mount_options: ["dmode=777,fmode=666"]
+end

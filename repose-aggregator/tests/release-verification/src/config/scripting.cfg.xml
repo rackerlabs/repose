@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    if (request.getHeader('X-Auth-Token') == null) {
+        request.addHeader('X-Auth-Token', '12345678901234567890')
+    }
+    filterChain.doFilter(request, response)
+</scripting>

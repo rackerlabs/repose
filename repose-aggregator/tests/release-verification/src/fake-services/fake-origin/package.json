@@ -1,0 +1,22 @@
+{
+  "name": "ReposeFakeOrigin",
+  "version": "0.1.0",
+  "description": "Mock Origin Service",
+  "readme": "README.md",
+  "author": "Open Repose Team <ReposeCore@Rackspace.com> (http://www.openrepose.org/)",
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.4.x"
+  },
+  "dependencies": {
+    "sleep": "4.0.x",
+    "express": "4.14.x",
+    "libxmljs": "0.18.x",
+    "date-utils": "1.2.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rackerlabs/repose"
+  },
+  "license": "Apache-2.0"
+}
