@@ -1,6 +1,8 @@
 = Docker
 :toc:
 
+include::../_includes/in-progress.adoc[]
+
 With the advent of container technology, Repose can be fully encapsulated
 and run as a service. By bundling the environment with the software itself,
 deploying Repose becomes a much quicker, simpler process. Docker boasts
