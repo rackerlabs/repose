@@ -8,23 +8,23 @@ Here's loosely how these docs are organized.
 === <<recipes/getting-started.adoc#, Getting Started>>
 We all need to get started somewhere, if this your first time using *Repose* this is the place for you.
 
-=== <<recipes/recipes.adoc#, Recipes>>
+=== <<recipes/index.adoc#, Recipes>>
 Mmm, tasty food. For good food you need a good recipe.
 Once you get *Repose* up and running take a look at these recipes to see how to solve common use cases.
 
-=== <<architecture/architecture.adoc#, Architecture>>
+=== <<architecture/index.adoc#, Architecture>>
 You've got the basics down, maybe you've jury rigged a couple of recipes together to get some decent functionality,
 but you want more.
 Take a look here to see how *Repose* works it's magic,
 and how to turn on some of the more exciting, complicated features.
 
-=== <<filters/filters.adoc#, Filters>>
+=== <<filters/index.adoc#, Filters>>
 You are a pro at working with *Repose*, you just need to know how to configure that one feature on that one filter.
 Well step right up here's where you'll find in depth information on every filter,
 how to toggle every who's it and what's it, what its expecting to come in on your request and response,
 and what it might do to your request and response.
 
-=== <<services/services.adoc#, Services>>
+=== <<services/index.adoc#, Services>>
 All that stuff for the filters? Yeah, same thing but for all the services *Repose* offers.
 
 === <<debugging.adoc#, Debugging>>
