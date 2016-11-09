@@ -3,7 +3,7 @@
 include::../_includes/in-progress.adoc[]
 
 <<add-header.adoc#,Add Header Filter>>::
-    TODO
+    Enables users to add new headers and header values to a request and/or response.
 
 <<scripting.adoc#,Scripting Filter>>::
     Enables users to write custom filters for Repose using a
