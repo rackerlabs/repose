@@ -1,3 +1,11 @@
 = Getting Started
+:toc:
 
 include::../_includes/in-progress.adoc[]
+
+== Deployment
+Once you know how you'll want to configure Repose, you may want to automate the
+deployment using a configuration management tool or reusable container.
+
+=== <<docker.adoc#,Docker>>
+Running Repose as a Docker container.
