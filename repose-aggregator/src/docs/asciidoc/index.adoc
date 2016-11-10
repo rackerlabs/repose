@@ -1,7 +1,6 @@
 = Welcome to Repose
 
 include::_includes/in-progress.adoc[]
-include::_includes/search.adoc[]
 
 == How to Navigate These Docs
 Here's loosely how these docs are organized.
@@ -41,3 +40,9 @@ You found something missing from the docs?
 Impossible, there is no way this magnificent set of documents could ever be incomplete.
 But if there were something missing and you wanted to help,
 here's where you would go to figure out how we try to make a page.
+
+=== Search
+Know what you're looking for? You can use the following Google Custom Search
+Engine to search all of our documentation.
+
+include::_includes/search.adoc[]
