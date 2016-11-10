@@ -5,5 +5,5 @@
     request.addHeader("foo", "bar")
 
     // Call the next filter in the chain
-    filter.doChain(request, response)
+    filterChain.doFilter(request, response)
 </scripting>
