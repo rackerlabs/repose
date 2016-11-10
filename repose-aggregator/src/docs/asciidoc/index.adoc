@@ -1,6 +1,7 @@
 = Welcome to Repose
 
 include::_includes/in-progress.adoc[]
+include::_includes/search.adoc[]
 
 == How to Navigate These Docs
 Here's loosely how these docs are organized.
