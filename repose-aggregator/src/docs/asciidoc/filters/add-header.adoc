@@ -24,9 +24,9 @@ Varies based on configuration.
 == Configuration
 
 === Add a New Request Header
-This configuration will add a "foo" header to the request with a value of
-"bar". Any existing headers with the same name *will not* be removed, and
-the quality of the "bar" value will be set to 0.5.
+This configuration will add a `foo` header to the request with a value of
+`bar`. Any existing headers with the same name *will not* be removed, and
+the quality of the `bar` value will be set to 0.5.
 
 [source,xml]
 ----
@@ -42,9 +42,9 @@ the quality of the "bar" value will be set to 0.5.
 ----
 
 === Replace a Response Header
-This configuration will add a "foo" header to the response with a value of
-"bar". Any existing headers with the same name *will* be removed, and
-the quality of the "bar" value will be set to 0.5.
+This configuration will add a `foo` header to the response with a value of
+`bar`. Any existing headers with the same name *will* be removed, and
+the quality of the `bar` value will be set to 0.5.
 
 [source,xml]
 ----
