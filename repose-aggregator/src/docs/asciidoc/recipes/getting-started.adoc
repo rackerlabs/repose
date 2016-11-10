@@ -3,6 +3,17 @@
 
 include::../_includes/in-progress.adoc[]
 
+== How Does Repose Work?
+
+[ditaa, valve-diagram, png]
+....
++------+          +------+    +--------------+
+|      +--------->|      +=-->|              |
+|Client|          |Repose|    |Origin Service|
+|      |<---------+      |<--=+              |
++------+          +------+    +--------------+
+....
+
 == Deployment
 Once you know how you'll want to configure Repose, you may want to automate the
 deployment using a configuration management tool or reusable container.

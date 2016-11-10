@@ -3,7 +3,12 @@ import java.text.SimpleDateFormat
 
 apply plugin: 'org.asciidoctor.convert'
 
+dependencies {
+    asciidoctor 'org.asciidoctor:asciidoctorj-diagram'
+}
+
 asciidoctor {
+    requires 'asciidoctor-diagram'
     attributes 'source-highlighter': 'coderay',
                'stylesdir': "${project.projectDir}/src/docs/asciidoc/_stylesheets",
                'stylesheet': 'repose.css',
