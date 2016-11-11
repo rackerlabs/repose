@@ -118,14 +118,21 @@ public class DistributedDatastoreServlet extends HttpServlet {
         }
     }
 
+    @SuppressWarnings("squid:S1989")
     @Override
     protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // This servlet is only allowed to communicate with configured Repose instances,
+        // so there is no chance of exposing sensitive information.
+        // So it is safe to suppress warning squid:S1989
         resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
+    @SuppressWarnings("squid:S1989")
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
+        // This servlet is only allowed to communicate with configured Repose instances,
+        // so there is no chance of exposing sensitive information.
+        // So it is safe to suppress warning squid:S1989
         try {
             CacheRequest cacheGet = CacheRequest.marshallCacheRequest(req);
             final Serializable value = localDatastore.get(cacheGet.getCacheKey());
@@ -164,8 +171,12 @@ public class DistributedDatastoreServlet extends HttpServlet {
         }
     }
 
+    @SuppressWarnings("squid:S1989")
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // This servlet is only allowed to communicate with configured Repose instances,
+        // so there is no chance of exposing sensitive information.
+        // So it is safe to suppress warning squid:S1989
         if (CacheRequest.isCacheRequestValid(req)) {
             try {
                 final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(req);
@@ -185,8 +196,12 @@ public class DistributedDatastoreServlet extends HttpServlet {
         }
     }
 
+    @SuppressWarnings("squid:S1989")
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // This servlet is only allowed to communicate with configured Repose instances,
+        // so there is no chance of exposing sensitive information.
+        // So it is safe to suppress warning squid:S1989
         if (CacheRequest.isCacheRequestValid(req)) {
             try {
                 final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
@@ -212,7 +227,11 @@ public class DistributedDatastoreServlet extends HttpServlet {
         }
     }
 
+    @SuppressWarnings("squid:S1989")
     private void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // This servlet is only allowed to communicate with configured Repose instances,
+        // so there is no chance of exposing sensitive information.
+        // So it is safe to suppress warning squid:S1989
         if (CacheRequest.isCacheRequestValid(request)) {
             try {
                 final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(request);
