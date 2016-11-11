@@ -89,7 +89,7 @@ public final class InputStreamMerger extends InputStream {
 
     @Override
     public long skip(long count) throws IOException {
-        long skipped = 0;
+        long skipped;
         long totalSkipped = 0;
         long remaining = count;
         while (haveCurrentStream() && remaining > 0) {
@@ -104,7 +104,6 @@ public final class InputStreamMerger extends InputStream {
         }
 
         return totalSkipped;
-
     }
 
     @Override
