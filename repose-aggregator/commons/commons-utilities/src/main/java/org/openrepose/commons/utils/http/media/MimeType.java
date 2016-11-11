@@ -43,20 +43,20 @@ public enum MimeType {
     UNKNOWN("", ""),
     UNSPECIFIED("", "");
 
-    private final String type;
-    private final String subType;
-    private final String mimeType;
+    private final String topLevelTypeName;
+    private final String subTypeName;
+    private final String name;
 
-    MimeType(String type, String subType) {
-        this.type = type;
-        this.subType = subType;
-        this.mimeType = type + "/" + subType;
+    MimeType(String topLevelTypeName, String subTypeName) {
+        this.topLevelTypeName = topLevelTypeName;
+        this.subTypeName = subTypeName;
+        this.name = topLevelTypeName + "/" + subTypeName;
     }
 
     public static MimeType getMatchingMimeType(String mimeType) {
         if (StringUtilities.isNotBlank(mimeType)) {
             for (MimeType ct : values()) {
-                if (ct.getMimeType().equalsIgnoreCase(mimeType)) {
+                if (ct.getName().equalsIgnoreCase(mimeType)) {
                     return ct;
                 }
             }
@@ -69,14 +69,14 @@ public enum MimeType {
 
             for (MimeType ct : values()) {
                 // worst case scenario this will match on UNKNOWN because everything contains "" (an empty string)
-                if (mimeType.contains(ct.getType()) && mimeType.contains(ct.getSubType())) {
+                if (mimeType.contains(ct.getTopLevelTypeName()) && mimeType.contains(ct.getSubTypeName())) {
                     return ct;
                 }
             }
 
             // this is unreachable code, and at this point I'm too afraid to fix it
             for (MimeType ct : values()) {
-                if (mimeType.contains(ct.getSubType())) {
+                if (mimeType.contains(ct.getSubTypeName())) {
                     return ct;
                 }
             }
@@ -86,18 +86,18 @@ public enum MimeType {
 
     @Override
     public String toString() {
-        return mimeType;
+        return name;
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public String getName() {
+        return name;
     }
 
-    public String getSubType() {
-        return subType;
+    public String getSubTypeName() {
+        return subTypeName;
     }
 
-    public String getType() {
-        return type;
+    public String getTopLevelTypeName() {
+        return topLevelTypeName;
     }
 }

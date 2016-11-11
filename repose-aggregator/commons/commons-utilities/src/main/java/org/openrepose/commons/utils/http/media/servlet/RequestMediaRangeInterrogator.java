@@ -47,11 +47,11 @@ public class RequestMediaRangeInterrogator {
 
             ranges.addAll(new MediaRangeProcessor(convertedValues).process());
         } else {
-            ranges.add(new MediaType(mediaType.getMimeType(), mediaType, 1));
+            ranges.add(new MediaType(mediaType.getName(), mediaType, 1));
         }
 
         if (ranges.isEmpty()) {
-            ranges.add(new MediaType(MimeType.UNSPECIFIED.getMimeType(), MimeType.UNSPECIFIED, -1));
+            ranges.add(new MediaType(MimeType.UNSPECIFIED.getName(), MimeType.UNSPECIFIED, -1));
         }
 
         return ranges;

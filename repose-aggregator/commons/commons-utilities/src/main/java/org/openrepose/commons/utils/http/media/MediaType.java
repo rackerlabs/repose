@@ -30,11 +30,11 @@ public class MediaType extends HeaderValueImpl {
     private final MimeType mimeType;
 
     public MediaType(MimeType mimeType) {
-        this(mimeType.getMimeType(), mimeType, HeaderValueImpl.DEFAULT_QUALITY);
+        this(mimeType.getName(), mimeType, HeaderValueImpl.DEFAULT_QUALITY);
     }
 
     public MediaType(MimeType mimeType, double quality) {
-        this(mimeType.getMimeType(), mimeType, quality);
+        this(mimeType.getName(), mimeType, quality);
     }
 
     public MediaType(String value, MimeType mimeType) {

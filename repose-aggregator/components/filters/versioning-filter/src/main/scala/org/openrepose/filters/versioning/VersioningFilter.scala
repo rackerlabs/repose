@@ -125,7 +125,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
               transformResponse(httpResponse, versionElement, getPreferredMediaRange(versionedRequest.getRequest))
               httpResponse.setStatus(HttpServletResponse.SC_OK)
-              httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getMimeType)
+              httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
               mbcVersionedRequests.mark(targetOriginService.getMapping.getId)
             } else {
@@ -166,7 +166,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
               httpResponse.setStatus(HttpServletResponse.SC_MULTIPLE_CHOICES)
             }
 
-            httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getMimeType)
+            httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
             mbcVersionedRequests.mark("Unversioned")
         }

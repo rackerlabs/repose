@@ -51,7 +51,7 @@ public class EndpointUrlBuilder {
     private int localPortForProtocol(String protocol) {
         for (Port port : localPorts) {
             if (port.getProtocol().equalsIgnoreCase(protocol)) {
-                return port.getPort();
+                return port.getNumber();
             }
         }
 
@@ -89,6 +89,6 @@ public class EndpointUrlBuilder {
         String rootPath = endpoint.getRootPath();
         String path = StringUriUtilities.concatUris(rootPath, uri);
 
-        return new URL(port.getProtocol(), hostname, port.getPort(), path);
+        return new URL(port.getProtocol(), hostname, port.getNumber(), path);
     }
 }
