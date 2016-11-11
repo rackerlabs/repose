@@ -247,13 +247,13 @@ public class ReportingServiceImpl implements ReportingService {
             final List<String> endpointIds = new ArrayList<>();
 
             for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
-                final DestinationList destinations = reposeCluster.getDestinations();
+                final DestinationList destinationList = reposeCluster.getDestinations();
 
-                for (DestinationEndpoint endpoint : destinations.getEndpoint()) {
+                for (DestinationEndpoint endpoint : destinationList.getEndpoint()) {
                     endpointIds.add(endpoint.getId());
                 }
 
-                for (DestinationCluster destinationCluster : destinations.getTarget()) {
+                for (DestinationCluster destinationCluster : destinationList.getTarget()) {
                     endpointIds.add(destinationCluster.getId());
                 }
             }
