@@ -90,34 +90,7 @@ public final class HttpConnectionPoolProvider {
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
 
         if (poolConf.getKeystoreFilename() != null) {
-            SSLContextBuilder sslContextBuilder = SSLContexts.custom();
-            try {
-                File keystoreFile = new File(poolConf.getKeystoreFilename());
-                if (!keystoreFile.isAbsolute()) {
-                    keystoreFile = new File(configRoot, poolConf.getKeystoreFilename());
-                }
-                char[] keystorePassword = poolConf.getKeystorePassword() == null ? null : poolConf.getKeystorePassword().toCharArray();
-                char[] keyPassword = poolConf.getKeyPassword() == null ? null : poolConf.getKeyPassword().toCharArray();
-                sslContextBuilder = sslContextBuilder.loadKeyMaterial(keystoreFile, keystorePassword, keyPassword);
-
-                if (poolConf.getTruststoreFilename() == null) {
-                    sslContextBuilder = sslContextBuilder.loadTrustMaterial(keystoreFile, keystorePassword);
-                } else {
-                    File truststoreFile = new File(poolConf.getTruststoreFilename());
-                    if (!truststoreFile.isAbsolute()) {
-                        truststoreFile = new File(configRoot, poolConf.getTruststoreFilename());
-                    }
-                    char[] truststorePassword = poolConf.getTruststorePassword() == null ? null : poolConf.getTruststorePassword().toCharArray();
-                    sslContextBuilder = sslContextBuilder.loadTrustMaterial(truststoreFile, truststorePassword);
-                }
-
-                sslContext = sslContextBuilder.build();
-            } catch (GeneralSecurityException | IOException e) {
-                LOG.warn("Failed to properly configure the SSL client for {} due to: {}", poolConf.getId(), e.getLocalizedMessage());
-                LOG.trace("", e);
-                LOG.info("Failing over to basic Trusting SSL context.");
-                sslContext = ProxyUtilities.getTrustingSslContext();
-            }
+            sslContext = generateSslContextForKeystore(configRoot, poolConf);
         }
 
         // The SSLSocketFactory will throw IllegalArgumentException if the sslContext is NULL
@@ -131,6 +104,41 @@ public final class HttpConnectionPoolProvider {
         LOG.info("HTTP connection pool {} with instance id {} has been created", poolConf.getId(), uuid);
 
         return client;
+    }
+
+    private static SSLContext generateSslContextForKeystore(String configRoot, PoolType poolConf) {
+        SSLContext sslContext;
+
+        try {
+            SSLContextBuilder sslContextBuilder = SSLContexts.custom();
+            File keystoreFile = new File(poolConf.getKeystoreFilename());
+            if (!keystoreFile.isAbsolute()) {
+                keystoreFile = new File(configRoot, poolConf.getKeystoreFilename());
+            }
+            char[] keystorePassword = poolConf.getKeystorePassword() == null ? null : poolConf.getKeystorePassword().toCharArray();
+            char[] keyPassword = poolConf.getKeyPassword() == null ? null : poolConf.getKeyPassword().toCharArray();
+            sslContextBuilder = sslContextBuilder.loadKeyMaterial(keystoreFile, keystorePassword, keyPassword);
+
+            if (poolConf.getTruststoreFilename() == null) {
+                sslContextBuilder = sslContextBuilder.loadTrustMaterial(keystoreFile, keystorePassword);
+            } else {
+                File truststoreFile = new File(poolConf.getTruststoreFilename());
+                if (!truststoreFile.isAbsolute()) {
+                    truststoreFile = new File(configRoot, poolConf.getTruststoreFilename());
+                }
+                char[] truststorePassword = poolConf.getTruststorePassword() == null ? null : poolConf.getTruststorePassword().toCharArray();
+                sslContextBuilder = sslContextBuilder.loadTrustMaterial(truststoreFile, truststorePassword);
+            }
+
+            sslContext = sslContextBuilder.build();
+        } catch (GeneralSecurityException | IOException e) {
+            LOG.warn("Failed to properly configure the SSL client for {} due to: {}", poolConf.getId(), e.getLocalizedMessage());
+            LOG.trace("", e);
+            LOG.info("Failing over to basic Trusting SSL context.");
+            sslContext = ProxyUtilities.getTrustingSslContext();
+        }
+
+        return sslContext;
     }
 
     private static Collection<Header> createHeaders(List<HeaderType> configHeaders) {
