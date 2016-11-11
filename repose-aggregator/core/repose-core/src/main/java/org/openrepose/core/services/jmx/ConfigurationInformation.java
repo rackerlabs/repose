@@ -38,12 +38,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Named("reposeConfigurationInformation")
 @ManagedResource(objectName = MBeanObjectNames.CONFIGURATION_INFORMATION, description = "Repose configuration information MBean.")
@@ -69,12 +65,12 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
     @ManagedOperation(description = "Gets all the per-node-filter information that this host's system model knows about")
     public Map<String, List<CompositeData>> getPerNodeFilterInformation() throws OpenDataException {
         HashMap<String, List<CompositeData>> data = new HashMap<>();
-        for (String key : perNodeFilterInformation.keySet()) {
+        for (Map.Entry<String, List<FilterInformation>> entry : perNodeFilterInformation.entrySet()) {
             List<CompositeData> dataList = new ArrayList<>();
-            for (FilterInformation filterInfo : perNodeFilterInformation.get(key)) {
+            for (FilterInformation filterInfo : entry.getValue()) {
                 dataList.add(new ConfigurationInformationCompositeDataBuilder(filterInfo).toCompositeData());
             }
-            data.put(key, dataList);
+            data.put(entry.getKey(), dataList);
         }
 
         return data;
@@ -124,12 +120,12 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
             initialized = false;
 
             Map<String, List<String>> allNodes = SystemModelInterrogator.allClusterNodes(systemModel);
-            for (String clusterId : allNodes.keySet()) {
-                for (String nodeId : allNodes.get(clusterId)) {
+            for (Map.Entry<String, List<String>> entry : allNodes.entrySet()) {
+                for (String nodeId : entry.getValue()) {
 
                     //Create an interrogator for this pair of nodes. It's possible that we'll store info in this
                     // JMX bean not about the local hosts nodes, but I don't think I care....
-                    SystemModelInterrogator interrogator = new SystemModelInterrogator(clusterId, nodeId);
+                    SystemModelInterrogator interrogator = new SystemModelInterrogator(entry.getKey(), nodeId);
                     Optional<ReposeCluster> cluster = interrogator.getLocalCluster(systemModel);
 
                     if (cluster.isPresent()) {
@@ -144,13 +140,13 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
                                         false);
                                 filterList.add(info);
                             }
-                            perNodeFilterInformation.put(key(clusterId, nodeId), filterList);
+                            perNodeFilterInformation.put(key(entry.getKey(), nodeId), filterList);
                         }
 
                         initialized = true;
 
                     } else {
-                        LOG.error("Unable to find a cluster for {} - {} in the system model", clusterId, nodeId);
+                        LOG.error("Unable to find a cluster for {} - {} in the system model", entry.getKey(), nodeId);
                     }
 
                 }
