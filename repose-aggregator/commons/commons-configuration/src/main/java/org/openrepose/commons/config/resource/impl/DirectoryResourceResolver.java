@@ -45,7 +45,7 @@ public class DirectoryResourceResolver implements ConfigurationResourceResolver 
     }
 
     @Override
-    public ConfigurationResource resolve(String resourceName) throws ResourceResolutionException {
+    public ConfigurationResource resolve(String resourceName) {
         final String spec = resourceName.contains("://") ? resourceName : StringUtilities.join(configurationRoot, File.separator, resourceName);
 
         try {

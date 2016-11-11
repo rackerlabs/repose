@@ -23,7 +23,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.lang3.SerializationUtils;
 import org.openrepose.core.services.datastore.Datastore;
-import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.Patchable;
 
@@ -75,12 +74,12 @@ public class EHCacheDatastore implements Datastore {
     }
 
     @Override
-    public Serializable patch(String key, Patch patch) throws DatastoreOperationException {
+    public Serializable patch(String key, Patch patch) {
         return patch(key, patch, -1, TimeUnit.MINUTES);
     }
 
     @Override
-    public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) {
         Serializable potentialNewValue = (Serializable) patch.newFromPatch();
         Element element = new Element(key, potentialNewValue);
         Element currentElement = ehCacheInstance.putIfAbsent(element);

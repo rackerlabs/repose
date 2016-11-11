@@ -70,7 +70,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
     }
 
     @Override
-    public InputStream process(InputStream sourceStream) throws PreProcessorException {
+    public InputStream process(InputStream sourceStream) {
         try {
             final TransformerHandler transformerHandler = handlerFactory.newTransformerHandler();
             final PipedInputStream resultStream = new PipedInputStream();
