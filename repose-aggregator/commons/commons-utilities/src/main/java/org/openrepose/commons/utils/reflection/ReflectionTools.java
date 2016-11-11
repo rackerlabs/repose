@@ -38,24 +38,7 @@ public final class ReflectionTools {
         for (Constructor<T> constructor : (Constructor<T>[]) clazz.getConstructors()) {
             final Class<?>[] constructorParameters = constructor.getParameterTypes();
 
-            if (parameters.length != constructorParameters.length) {
-                continue;
-            }
-
-            boolean suitable = true;
-
-            for (int i = 0; i < parameters.length; i++) {
-                if (parameters[i] == null) {
-                    continue;
-                }
-
-                if (!constructorParameters[i].isAssignableFrom(parameters[i])) {
-                    suitable = false;
-                    break;
-                }
-            }
-
-            if (suitable) {
+            if (parametersMatch(constructorParameters, parameters)) {
                 return constructor;
             }
         }
@@ -71,5 +54,21 @@ public final class ReflectionTools {
         }
 
         return classArray;
+    }
+
+    private static boolean parametersMatch(Class<?>[] someParams, Class<?>[] otherParams) {
+        if (otherParams.length != someParams.length) {
+            return false;
+        }
+
+        for (int i = 0; i < someParams.length; i++) {
+            Class<?> someClass = someParams[i];
+            Class<?> otherClass = otherParams[i];
+            if (otherClass != null && !someClass.isAssignableFrom(otherClass)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
