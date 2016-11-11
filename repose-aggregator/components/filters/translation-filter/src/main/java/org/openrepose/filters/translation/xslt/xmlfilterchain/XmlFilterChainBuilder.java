@@ -58,12 +58,12 @@ public class XmlFilterChainBuilder {
     // This same procedure is used in api-checker to get around this issue.
     //
     private static final String XALANC_FACTORY_NAME = "org.apache.xalan.xsltc.trax.TransformerFactoryImpl";
-    private static SAXTransformerFactory XALANC_TRANSFORMER_FACTORY;
+    private static SAXTransformerFactory xalancTransformerFactory;
 
     static {
         try {
-            XALANC_TRANSFORMER_FACTORY = (SAXTransformerFactory) TransformerFactory.newInstance(XALANC_FACTORY_NAME, XmlFilterChainBuilder.class.getClassLoader());
-            XALANC_TRANSFORMER_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            xalancTransformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(XALANC_FACTORY_NAME, XmlFilterChainBuilder.class.getClassLoader());
+            xalancTransformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         } catch (TransformerConfigurationException ex) {
             LOG.error("Error", ex);
         }
@@ -110,7 +110,7 @@ public class XmlFilterChainBuilder {
                 filters.add(new XmlFilterReference(null, lastReader));
             }
 
-            return new XmlFilterChain(XALANC_TRANSFORMER_FACTORY, filters);
+            return new XmlFilterChain(xalancTransformerFactory, filters);
         } catch (ParserConfigurationException | SAXException ex) {
             throw new XsltException(ex);
         }
@@ -139,7 +139,7 @@ public class XmlFilterChainBuilder {
             StreamResult result = new StreamResult(stringWriter);
 
             // Create a Transformer to serialize the document
-            Transformer transformer = XALANC_TRANSFORMER_FACTORY.newTransformer();
+            Transformer transformer = xalancTransformerFactory.newTransformer();
 
             // Transform the document to the result stream
             transformer.transform(domSource, result);

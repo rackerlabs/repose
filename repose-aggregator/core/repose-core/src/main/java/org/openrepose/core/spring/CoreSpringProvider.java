@@ -44,7 +44,7 @@ import java.util.Properties;
  * There's an eager loaded singleton for the contraption, and the initialize core context needs to be called at least once.
  */
 public class CoreSpringProvider {
-    private static Logger LOG = LoggerFactory.getLogger(CoreSpringProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CoreSpringProvider.class);
     private static CoreSpringProvider instance = new CoreSpringProvider();
     private Config conf = ConfigFactory.load("springConfiguration.conf");
     private volatile boolean configured = false;
