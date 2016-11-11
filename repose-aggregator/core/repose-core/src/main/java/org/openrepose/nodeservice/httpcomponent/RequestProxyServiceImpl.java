@@ -206,7 +206,11 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         }
     }
 
+    @SuppressWarnings("squid:S2093")
     private ServiceClientResponse execute(HttpRequestBase base, String connPoolId) {
+        // I'm not exactly sure why this rule is triggering on this since HttpClientContainer does NOT implement one of the required interfaces.
+        // It is also not simply closed, but it is released back to the pool from which it was originally retrieved.
+        // So it is safe to suppress warning squid:S2093
         HttpClientContainer httpClientContainer = getClient(connPoolId);
         try {
             HttpResponse httpResponse = httpClientContainer.getHttpClient().execute(base);
