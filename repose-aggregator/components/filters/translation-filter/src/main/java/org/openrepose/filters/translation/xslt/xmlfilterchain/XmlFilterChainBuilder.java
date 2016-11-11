@@ -95,13 +95,7 @@ public class XmlFilterChainBuilder {
                     Source source = getStylesheetSource(resource);
                     // Wire the output of the reader to filter1 (see Note #3)
                     // and the output of filter1 to filter2
-                    XMLFilter filter;
-                    try {
-                        filter = factory.newXMLFilter(source);
-                    } catch (TransformerConfigurationException ex) {
-                        LOG.error("Error creating XML Filter for " + resource.getUri(), ex);
-                        throw new XsltException(ex);
-                    }
+                    XMLFilter filter = doBuild(resource, source);
                     filter.setParent(lastReader);
                     filters.add(new XmlFilterReference(resource.getId(), filter));
                     lastReader = filter;
@@ -112,6 +106,15 @@ public class XmlFilterChainBuilder {
 
             return new XmlFilterChain(xalancTransformerFactory, filters);
         } catch (ParserConfigurationException | SAXException ex) {
+            throw new XsltException(ex);
+        }
+    }
+
+    private XMLFilter doBuild(StyleSheetInfo resource, Source source) {
+        try {
+            return factory.newXMLFilter(source);
+        } catch (TransformerConfigurationException ex) {
+            LOG.error("Error creating XML Filter for " + resource.getUri(), ex);
             throw new XsltException(ex);
         }
     }
