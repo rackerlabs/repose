@@ -48,7 +48,11 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Holds most of the work for running a distributed datastore.
  * Exposes the ClusterView and the ACL for update.
+ *
+ * There's no reason we need this class serializable, and we don't want to imply we support it.
+ * So, I'm suppressing the non-serializable fields warning instead of marking them transient.
  */
+@SuppressWarnings("squid:S1948")
 public class DistributedDatastoreServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
