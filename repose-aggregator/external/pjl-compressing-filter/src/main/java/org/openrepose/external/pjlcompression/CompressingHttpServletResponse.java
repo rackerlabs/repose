@@ -468,12 +468,10 @@ final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
                             logger);
         }
 
-        if (!compressingSOS.isClosed()) {
+        if (!compressingSOS.isClosed() && mustNotCompress()) {
             // Do we already know we don't want to compress?
             // Is there a reason we know compression will be used, already?
-            if (mustNotCompress()) {
-                compressingSOS.abortCompression();
-            }
+            compressingSOS.abortCompression();
         }
 
         return compressingSOS;
