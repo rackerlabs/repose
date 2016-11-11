@@ -30,7 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class RequestMediaRangeInterrogator {
+public class RequestMediaRangeInterrogator {
 
     private RequestMediaRangeInterrogator() {
     }

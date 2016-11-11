@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 /**
  * @author fran
  */
-public abstract class VariantParser {
+public class VariantParser {
 
     static final Pattern VARIANT_REGEX = Pattern.compile("[^\\?]*\\.([^\\?]+).*");
 
