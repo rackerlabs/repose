@@ -12,6 +12,7 @@ asciidoctor {
     attributes 'source-highlighter': 'coderay',
                'stylesdir': "${project.projectDir}/src/docs/asciidoc/_stylesheets",
                'stylesheet': 'repose.css',
+               'imagesoutdir': "${project.buildDir}/asciidoc/html5/images",
                'docinfo1': ''
 
     resources {
