@@ -62,7 +62,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             ConfigurationUpdateManager configurationUpdateManager,
             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot
     ) {
-        setUpdateManager(configurationUpdateManager);
+        this.updateManager = configurationUpdateManager;
         this.configRoot = configRoot;
         parserPoolCache = new ConcurrentHashMap<>();
     }
@@ -94,10 +94,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     //Should not be part of the public facing interface.
     public void setResourceResolver(ConfigurationResourceResolver resourceResolver) {
         this.resourceResolver = resourceResolver;
-    }
-
-    public void setUpdateManager(ConfigurationUpdateManager updateManager) {
-        this.updateManager = updateManager;
     }
 
     @Override
