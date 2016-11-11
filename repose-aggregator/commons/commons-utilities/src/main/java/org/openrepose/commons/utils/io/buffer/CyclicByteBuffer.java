@@ -21,7 +21,7 @@ package org.openrepose.commons.utils.io.buffer;
 
 import java.io.IOException;
 
-public class CyclicByteBuffer implements ByteBuffer, Cloneable {
+public class CyclicByteBuffer implements ByteBuffer {
 
     private static final ByteArrayProvider DEFAULT_BYTE_ARRAY_PROVIDER = HeapspaceByteArrayProvider.getInstance();
     private static final int DEFAULT_BUFFER_SIZE = 2048;
@@ -243,11 +243,5 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
     @Override
     public ByteBuffer copy() {
         return new CyclicByteBuffer(byteArrayProvider, this);
-    }
-
-    @SuppressWarnings({"PMD.ProperCloneImplementation", "PMD.CloneMethodMustImplementCloneable", "CloneDoesntCallSuperClone"})
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return copy();
     }
 }
