@@ -96,7 +96,17 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponseWrapper response) throws IOException {
+        if (!isInitialized()) {
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating Response Messaging service.");
+            return;
+        }
+
         final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
+        if (matchedCode == null) {
+            LOG.trace("No matching code configured for: {}", response.getStatus());
+            return;
+        }
+
         final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request);
 
         List<HeaderValue> preferredAcceptTypes = wrappedRequest.getPreferredHeaders("Accept").stream()
@@ -108,29 +118,22 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         }
 
         MediaRangeProcessor processor = new MediaRangeProcessor(preferredAcceptTypes);
+        HttpLogFormatter formatter;
+        List<MediaType> mediaTypes = processor.process();
+        Message message = MessageFilter.filterByMediaType(matchedCode.getMessage(), mediaTypes);
 
-        if (!isInitialized()) {
-            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Error creating Response Messaging service.");
-        } else {
-            if (matchedCode != null) {
-                HttpLogFormatter formatter;
-                List<MediaType> mediaTypes = processor.process();
-                Message message = MessageFilter.filterByMediaType(matchedCode.getMessage(), mediaTypes);
-
-                if (message != null) {
-                    formatter = getHttpLogFormatter(matchedCode, message.getMediaType());
-                    if (formatter != null) {
-                        if (!(configSetToIfEmpty(matchedCode) && hasBody(response))) {
-                            final String formattedOutput = formatter.format(request, response).trim();
-                            overwriteResponseBody(response, formattedOutput, message.getContentType());
-                        }
-                    } else {
-                        LOG.info("No formatter found for message code.  Skipping Response Message Service formatting for status code regex " + matchedCode.getCodeRegex());
-                    }
-                } else {
-                    LOG.info("Message for Matched code is empty. Matched Code is :" + matchedCode.getCodeRegex());
+        if (message != null) {
+            formatter = getHttpLogFormatter(matchedCode, message.getMediaType());
+            if (formatter != null) {
+                if (!(configSetToIfEmpty(matchedCode) && hasBody(response))) {
+                    final String formattedOutput = formatter.format(request, response).trim();
+                    overwriteResponseBody(response, formattedOutput, message.getContentType());
                 }
+            } else {
+                LOG.info("No formatter found for message code.  Skipping Response Message Service formatting for status code regex " + matchedCode.getCodeRegex());
             }
+        } else {
+            LOG.info("Message for Matched code is empty. Matched Code is :" + matchedCode.getCodeRegex());
         }
     }
 
