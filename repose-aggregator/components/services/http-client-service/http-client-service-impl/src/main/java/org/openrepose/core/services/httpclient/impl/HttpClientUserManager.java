@@ -58,7 +58,7 @@ public class HttpClientUserManager {
     }
 
     public boolean hasUsers(String clientInstanceId) {
-        if (!registeredClientUsers.containsKey(clientInstanceId) || registeredClientUsers.get(clientInstanceId).size() == 0) {
+        if (!registeredClientUsers.containsKey(clientInstanceId) || registeredClientUsers.get(clientInstanceId).isEmpty()) {
             return false;
         }
 

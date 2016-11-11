@@ -41,7 +41,7 @@ public abstract class HeaderHandler {
     }
 
     private void checkArguments() {
-        if (arguments.size() > 0) {
+        if (!arguments.isEmpty()) {
             this.converter = TypeConversionFormatFactory.getConverter(arguments.get(0));
         }
 
