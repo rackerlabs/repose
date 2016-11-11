@@ -75,7 +75,22 @@ include::../../../../components/filters/scripting-filter/src/main/resources/META
 ----
 
 == Configuration Schema
+ifdef::basebackend-html[]
+++++
+<details>
+    <summary>Scripting XML Schema</summary>
+    <p>
+++++
+endif::[]
+
 [source,xml]
 ----
 include::../../../../components/filters/scripting-filter/src/main/resources/META-INF/schema/config/scripting.xsd[]
 ----
+
+ifdef::basebackend-html[]
+++++
+    </p>
+</details>
+++++
+endif::[]
