@@ -21,6 +21,7 @@ package org.openrepose.core.services.datastore.distributed.impl.ehcache;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
+import org.openrepose.core.MBeanObjectNames;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 
 @Named("reposeLocalDatastore")
-@ManagedResource(objectName = "org.openrepose.core.services.datastore.impl.ehcache:type=ReposeLocalCache",
+@ManagedResource(objectName = MBeanObjectNames.REPOSE_LOCAL_CACHE,
         description = "Repose local datastore MBean.")
 public class ReposeLocalCache implements ReposeLocalCacheMBean {
 

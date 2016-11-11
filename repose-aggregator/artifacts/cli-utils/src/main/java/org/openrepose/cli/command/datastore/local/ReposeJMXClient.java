@@ -19,6 +19,7 @@
  */
 package org.openrepose.cli.command.datastore.local;
 
+import org.openrepose.core.MBeanObjectNames;
 import org.openrepose.core.services.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 
 import javax.management.JMX;
@@ -42,7 +43,7 @@ public class ReposeJMXClient implements ReposeLocalCacheMBean {
         final MBeanServerConnection reposeConnection = jmxc.getMBeanServerConnection();
 
         reposeLocalCacheMBeanProxy = JMX.newMBeanProxy(reposeConnection,
-                new ObjectName(ReposeLocalCacheMBean.OBJECT_NAME),
+                new ObjectName(MBeanObjectNames.REPOSE_LOCAL_CACHE),
                 ReposeLocalCacheMBean.class,
                 true);
     }

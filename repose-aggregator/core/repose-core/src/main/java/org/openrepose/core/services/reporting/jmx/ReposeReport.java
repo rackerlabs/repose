@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.reporting.jmx;
 
+import org.openrepose.core.MBeanObjectNames;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.destinations.DestinationInfo;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ import java.util.Date;
 import java.util.List;
 
 @Named("reposeReport")
-@ManagedResource(objectName = "org.openrepose.core.services.reporting:type=ReposeReport", description = "Repose report MBean.")
+@ManagedResource(objectName = MBeanObjectNames.REPOSE_REPORT, description = "Repose report MBean.")
 public class ReposeReport implements ReposeReportMBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeReport.class);

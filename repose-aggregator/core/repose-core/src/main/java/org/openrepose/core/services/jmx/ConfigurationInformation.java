@@ -20,6 +20,7 @@
 package org.openrepose.core.services.jmx;
 
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.core.MBeanObjectNames;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.systemmodel.Filter;
@@ -45,7 +46,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Named("reposeConfigurationInformation")
-@ManagedResource(objectName = "org.openrepose.core.services.jmx:type=ConfigurationInformation", description = "Repose configuration information MBean.")
+@ManagedResource(objectName = MBeanObjectNames.CONFIGURATION_INFORMATION, description = "Repose configuration information MBean.")
 public class ConfigurationInformation implements ConfigurationInformationMBean {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationInformation.class);
 

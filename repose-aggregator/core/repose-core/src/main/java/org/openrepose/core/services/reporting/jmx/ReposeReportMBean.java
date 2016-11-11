@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 
 public interface ReposeReportMBean {
-    String OBJECT_NAME = "org.openrepose.core.services.reporting:type=ReposeReport";
 
     Date getLastReset();
 
