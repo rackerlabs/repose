@@ -20,6 +20,7 @@
 package org.openrepose.commons.utils.reflection;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 
 public final class ReflectionTools {
 
@@ -35,15 +36,10 @@ public final class ReflectionTools {
     }
 
     public static <T> Constructor<T> getConstructor(Class<T> clazz, Class<?>[] parameters) throws NoSuchMethodException {
-        for (Constructor<T> constructor : (Constructor<T>[]) clazz.getConstructors()) {
-            final Class<?>[] constructorParameters = constructor.getParameterTypes();
-
-            if (parametersMatch(constructorParameters, parameters)) {
-                return constructor;
-            }
-        }
-
-        throw new NoSuchMethodException("No constructor found with expected signature for class: " + clazz.getCanonicalName());
+        return Arrays.stream((Constructor<T>[]) clazz.getConstructors())
+                .filter(constructor -> parametersMatch(constructor.getParameterTypes(), parameters))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchMethodException("No constructor found with expected signature for class: " + clazz.getCanonicalName()));
     }
 
     public static Class<?>[] toClassArray(Object... objects) {
