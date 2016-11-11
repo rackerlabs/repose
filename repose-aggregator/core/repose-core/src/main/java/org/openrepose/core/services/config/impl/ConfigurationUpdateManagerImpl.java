@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Named
 public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManager, EventListener<ConfigurationEvent, ConfigurationResource> {
 
-    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUpdateManagerImpl.class);
 
     private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, ParserListenerPair>> listenerMap;
     private final Object listenerLock = new Object(); //AUGH

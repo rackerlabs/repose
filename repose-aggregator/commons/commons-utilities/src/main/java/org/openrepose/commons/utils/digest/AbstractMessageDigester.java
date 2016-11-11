@@ -32,10 +32,10 @@ public abstract class AbstractMessageDigester implements MessageDigester {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageDigester.class);
     private static final int BYTE_BUFFER_SIZE = 1024;
-    private final ObjectPool<MessageDigest> MESSAGE_DIGEST_POOL;
+    private final ObjectPool<MessageDigest> messageDigestPool;
 
     public AbstractMessageDigester() {
-        MESSAGE_DIGEST_POOL = new SoftReferenceObjectPool<>(
+        messageDigestPool = new SoftReferenceObjectPool<>(
                 new MessageDigestConstructionStrategy(digestSpecName()));
     }
 
@@ -46,17 +46,17 @@ public abstract class AbstractMessageDigester implements MessageDigester {
         byte[] rtn = new byte[0];
         MessageDigest pooledObject;
         try {
-            pooledObject = MESSAGE_DIGEST_POOL.borrowObject();
+            pooledObject = messageDigestPool.borrowObject();
             try {
                 rtn = pooledObject.digest(bytes);
             } catch (Exception e) {
-                MESSAGE_DIGEST_POOL.invalidateObject(pooledObject);
+                messageDigestPool.invalidateObject(pooledObject);
                 pooledObject = null;
                 LOG.error("Failed to utilize the MessageDigest. Reason: {}", e.getLocalizedMessage());
                 LOG.trace("", e);
             } finally {
                 if (pooledObject != null) {
-                    MESSAGE_DIGEST_POOL.returnObject(pooledObject);
+                    messageDigestPool.returnObject(pooledObject);
                 }
             }
         } catch (Exception e) {
@@ -71,7 +71,7 @@ public abstract class AbstractMessageDigester implements MessageDigester {
         byte[] rtn = new byte[0];
         MessageDigest pooledObject;
         try {
-            pooledObject = MESSAGE_DIGEST_POOL.borrowObject();
+            pooledObject = messageDigestPool.borrowObject();
             try (MessageDigesterOutputStream output = new MessageDigesterOutputStream(pooledObject)) {
                 final byte[] buffer = new byte[BYTE_BUFFER_SIZE];
                 for (int read; (read = stream.read(buffer)) != -1; /*DO-NOTHING*/) {
@@ -81,13 +81,13 @@ public abstract class AbstractMessageDigester implements MessageDigester {
                 output.close();
                 rtn = output.getDigest();
             } catch (Exception e) {
-                MESSAGE_DIGEST_POOL.invalidateObject(pooledObject);
+                messageDigestPool.invalidateObject(pooledObject);
                 pooledObject = null;
                 LOG.error("Failed to utilize the MessageDigest. Reason: {}", e.getLocalizedMessage());
                 LOG.trace("", e);
             } finally {
                 if (pooledObject != null) {
-                    MESSAGE_DIGEST_POOL.returnObject(pooledObject);
+                    messageDigestPool.returnObject(pooledObject);
                 }
             }
         } catch (Exception e) {

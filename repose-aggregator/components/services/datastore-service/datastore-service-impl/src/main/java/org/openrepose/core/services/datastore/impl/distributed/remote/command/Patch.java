@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  * TODO: update with Jorge's suggestions
  */
 public class Patch extends AbstractRemoteCommand {
-    private final Logger LOG = LoggerFactory.getLogger(Patch.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Patch.class);
 
     private final TimeUnit timeUnit;
     private final byte[] value;
