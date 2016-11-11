@@ -123,32 +123,37 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     private Object performAction(String name, byte[] id, DatastoreAction action, RemoteBehavior initialBehavior) {
-        boolean targetIsRemote = true;
-
         if (initialBehavior != RemoteBehavior.DISALLOW_FORWARDING) {
-            RemoteBehavior remoteBehavior =
-                    clusterView.hasDamagedMembers() ? RemoteBehavior.DISALLOW_FORWARDING : initialBehavior;
-
-            do {
-                final InetSocketAddress target = getTarget(id);
-
-                try {
-                    targetIsRemote = isRemoteTarget(target);
-                    if (targetIsRemote) {
-                        LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
-                                target.toString());
-
-                        return action.performRemote(name, target, remoteBehavior);
-                    }
-                } catch (RemoteConnectionException | DatastoreOperationException e) {
-                    LOG.trace("Could not perform action", e);
-                    clusterView.memberDamaged(target, e.getMessage());
-                    remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
-                }
-            } while (targetIsRemote);
+            return performRemote(name, id, action, initialBehavior);
         } else {
             LOG.debug("Forwarding for " + action.toString() + " datastore action has been disabled by request.");
         }
+
+        return action.performLocal(name);
+    }
+
+    private Object performRemote(String name, byte[] id, DatastoreAction action, RemoteBehavior initialBehavior) {
+        boolean targetIsRemote = true;
+        RemoteBehavior remoteBehavior =
+                clusterView.hasDamagedMembers() ? RemoteBehavior.DISALLOW_FORWARDING : initialBehavior;
+
+        do {
+            final InetSocketAddress target = getTarget(id);
+
+            try {
+                targetIsRemote = isRemoteTarget(target);
+                if (targetIsRemote) {
+                    LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
+                            target.toString());
+
+                    return action.performRemote(name, target, remoteBehavior);
+                }
+            } catch (RemoteConnectionException | DatastoreOperationException e) {
+                LOG.trace("Could not perform action", e);
+                clusterView.memberDamaged(target, e.getMessage());
+                remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
+            }
+        } while (targetIsRemote);
 
         return action.performLocal(name);
     }
