@@ -100,8 +100,11 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     private boolean isRemoteTarget(InetSocketAddress target) {
-        try {
+        if (target == null) {
+            return false;
+        }
 
+        try {
             if (localDatastore == null) {
                 return !clusterView.isLocal(target);
             }
@@ -130,21 +133,16 @@ public class HashRingDatastore implements DistributedDatastore {
                 final InetSocketAddress target = getTarget(id);
 
                 try {
-                    if (target == null) {
-                        targetIsRemote = false;
-                    } else if (targetIsRemote = isRemoteTarget(target)) {
+                    targetIsRemote = isRemoteTarget(target);
+                    if (targetIsRemote) {
                         LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
                                 target.toString());
 
                         return action.performRemote(name, target, remoteBehavior);
                     }
-                } catch (RemoteConnectionException rce) {
-                    LOG.trace("Could not perform action", rce);
-                    clusterView.memberDamaged(target, rce.getMessage());
-                    remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
-                } catch (DatastoreOperationException doe) {
-                    LOG.trace("Could not perform action", doe);
-                    clusterView.memberDamaged(target, doe.getMessage());
+                } catch (RemoteConnectionException | DatastoreOperationException e) {
+                    LOG.trace("Could not perform action", e);
+                    clusterView.memberDamaged(target, e.getMessage());
                     remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                 }
             } while (targetIsRemote);
