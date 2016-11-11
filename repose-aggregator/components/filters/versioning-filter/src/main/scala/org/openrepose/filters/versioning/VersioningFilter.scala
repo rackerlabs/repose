@@ -29,7 +29,6 @@ import javax.xml.bind.JAXBElement
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.media.MediaType
-import org.openrepose.commons.utils.http.media.servlet.RequestMediaRangeInterrogator
 import org.openrepose.commons.utils.http.{CommonHttpHeader, CommonRequestAttributes}
 import org.openrepose.commons.utils.io.RawInputStreamReader
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, RouteDestination}
@@ -43,7 +42,7 @@ import org.openrepose.core.systemmodel.{Destination, SystemModel}
 import org.openrepose.filters.versioning.config.{JsonFormat, ServiceVersionMapping, ServiceVersionMappingList}
 import org.openrepose.filters.versioning.domain.{ConfigurationData, VersionedHostNotFoundException, VersionedRequest}
 import org.openrepose.filters.versioning.schema.ObjectFactory
-import org.openrepose.filters.versioning.util.{ContentTransformer, VersionChoiceFactory}
+import org.openrepose.filters.versioning.util.{ContentTransformer, RequestMediaRangeInterrogator, VersionChoiceFactory}
 import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConversions._

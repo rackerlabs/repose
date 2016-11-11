@@ -26,7 +26,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueParser;
 import org.openrepose.commons.utils.http.media.MediaType;
-import org.openrepose.commons.utils.http.media.servlet.RequestMediaRangeInterrogator;
+import org.openrepose.filters.versioning.util.RequestMediaRangeInterrogator;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.filters.versioning.config.MediaTypeList;

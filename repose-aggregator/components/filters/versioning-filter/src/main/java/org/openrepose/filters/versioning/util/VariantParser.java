@@ -17,7 +17,9 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.utils.http.media;
+package org.openrepose.filters.versioning.util;
+
+import org.openrepose.commons.utils.http.media.MimeType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
