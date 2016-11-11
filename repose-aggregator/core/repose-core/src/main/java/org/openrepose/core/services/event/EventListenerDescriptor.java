@@ -19,8 +19,6 @@
  */
 package org.openrepose.core.services.event;
 
-import org.openrepose.core.services.event.EventListener;
-
 import java.util.*;
 
 public class EventListenerDescriptor<T extends Enum> {
