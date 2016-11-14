@@ -1,5 +1,4 @@
 = Docker
-:toc:
 
 include::../_includes/in-progress.adoc[]
 

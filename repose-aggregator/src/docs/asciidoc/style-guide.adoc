@@ -1,5 +1,4 @@
 = Style Guide
-:toc:
 
 include::_includes/in-progress.adoc[]
 

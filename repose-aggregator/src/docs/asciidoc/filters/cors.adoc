@@ -1,5 +1,4 @@
 = CORS
-:toc:
 :icons: font
 
 include::../_includes/in-progress.adoc[]
