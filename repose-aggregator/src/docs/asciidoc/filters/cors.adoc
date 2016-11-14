@@ -1,7 +1,8 @@
 = CORS
 :toc:
 
-== Purpose
+include::../_includes/in-progress.adoc[]
+
 The Cross-Origin Resource Sharing (CORS) filter allows Repose to manage CORS requests without the origin service needing to understand CORS.
 For an introduction to CORS, see the <<CORS Overview>> below.
 
@@ -15,36 +16,43 @@ Configuring CORS improperly could expose CSRF vulnerabilities in the origin serv
 The presence of certain headers will indicate what kind of request is being made.
 All of these headers will be supplied by the client making the request.
 
-* Non-CORS request
-** None required
-* Preflight CORS requests
-** `Origin`
-** `Access-Control-Request-Method`
-* Actual CORS request
-** `Origin`
+[cols="3", options="header,autowidth"]
+|===
+| Non-CORS request
+| Preflight CORS requests
+| Actual CORS request
+
+| None required
+a| * `Origin`
+   * `Access-Control-Request-Method`
+a| * `Origin`
+|===
 
 === Created
-
-==== Request
-No request headers are created.
-
-==== Response
 The CORS filter wil not add any headers to the response for non-CORS requests.
-It will add the following headers to the response for these scenarios:
+The filter will add the following headers to the response for these scenarios when the request is allowed to proceed:
 
-* Preflight CORS Request (Successful)
-** `Access-Control-Allow-Credentials`
-** `Access-Control-Allow-Origin`
-** `Access-Control-Allow-Headers`
-** `Access-Control-Allow-Methods`
-* Actual CORS Request (Successful)
-** `Access-Control-Allow-Credentials`
-** `Access-Control-Allow-Origin`
-** `Access-Control-Expose-Headers`
-* Failed CORS Request
-** `Access-Control-Allow-Origin`
+[cols="2", options="header,autowidth"]
+|===
+| Preflight CORS Request
+| Actual CORS Request
 
-== Return Codes and Conditions
+
+a| * `Access-Control-Allow-Credentials`
+   * `Access-Control-Allow-Origin`
+   * `Access-Control-Allow-Headers`
+   * `Access-Control-Allow-Methods`
+a| * `Access-Control-Allow-Credentials`
+   * `Access-Control-Allow-Origin`
+   * `Access-Control-Expose-Headers`
+
+|===
+
+If the CORS filter rejects the request, the following header will be added to the response:
+
+* `Access-Control-Allow-Origin`
+
+== Early Termination Conditions
 These are the scenarios in which the CORS filters will stop processing the request and immediately return a response:
 
 [cols="3", options="header"]
@@ -77,16 +85,12 @@ These are the scenarios in which the CORS filters will stop processing the reque
 == Filter Chain
 *Filter name:* cors
 
-=== Associated Filters
-
-The CORS filter does not require the use of any other filters.
-
 === Ordering
 It should be one of the first filters, if not the first filter, in the filter chain in order to properly handle Preflight CORS requests.
 If you want to rate limit Preflight CORS requests, you can add these filters before the CORS filter in the filter chain:
 
-. IP User
-. Rate Limiting
+. <<ip-user.adoc#,IP User Filter>>
+. <<rate-limiting.adoc#,Rate Limiting Filter>>
 
 This Rate Limiting filter would be in addition to any Rate Limiting filter you may already have in place.
 The first Rate Limiting filter would filter only by IP address,
@@ -94,7 +98,7 @@ and the second Rate Limiting filter would continue to rate limit the way it is c
 Preflight requests do not contain credentials which is why the CORS filter needs to be one of the first filters.
 
 == Configuration
-*Filter configuration file:* cors.cfg.xml
+*Default Configuration Filename:* cors.cfg.xml
 
 === Basic Example
 A basic CORS configuration would allow all origins to use any standard HTTP method on all resources.
@@ -103,7 +107,9 @@ This could expose vulnerabilities and is not recommended outside of a developmen
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<cross-origin-resource-sharing xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+<cross-origin-resource-sharing
+    xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+
     <allowed-origins>
         <origin regex="true">.*</origin> <1>
     </allowed-origins>
@@ -130,11 +136,14 @@ you can specify the exact header value or specify a regex value.
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<cross-origin-resource-sharing xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+<cross-origin-resource-sharing
+    xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+
     <allowed-origins>
         <origin>https://subdomain.other-domain.com:8443</origin> <1>
         <origin regex="true">http://.*.subdomain.rackspace.com:.*</origin> <2>
     </allowed-origins>
+
     <allowed-methods> <3>
         <method>GET</method>
         <method>POST</method>
@@ -154,12 +163,14 @@ This will be used to determine the complete list of allowed methods to return in
 and it will be used to validate whether or not a CORS request is allowed to proceed.
 
 WARNING: This is not a substitution for authorization.
-Requests that do not contain the 'Origin' header are not CORS requests and completely bypass this verification.
+Requests that do not contain the `Origin` header are not CORS requests and completely bypass this verification.
 
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<cross-origin-resource-sharing xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+<cross-origin-resource-sharing
+    xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+
     <allowed-origins>
         <origin regex="true">.*</origin>
     </allowed-origins>
@@ -231,7 +242,9 @@ This is a example configuration with notes on all of the required and optional e
 [source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<cross-origin-resource-sharing xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+<cross-origin-resource-sharing
+    xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+
     <allowed-origins>
         <origin>https://subdomain.other-domain.com:8443</origin> <1> <2>
         <origin regex="true">http://.*.subdomain.rackspace.com:.*</origin> <3>
@@ -276,6 +289,10 @@ the specified URI will be treated as a Java regular expression.
 <8> The `allowed-methods` element is optional.
 Leaving it out is useful when you need to prevent adding additional HTTP methods to a sub-resource as is the case with `/v1/status.*` in this example.
 <9> At least one `method` element is required when the `allowed-methods` element is present.
+
+=== Schema
+The XML schema definition is located in
+https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/cors-filter/src/main/resources/META-INF/schema/config/cors-configuration.xsd[GitHub].
 
 == CORS Overview
 For security purposes, web browsers follow the https://en.wikipedia.org/wiki/Same-origin_policy[Single-Origin policy].
