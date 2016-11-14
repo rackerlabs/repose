@@ -22,6 +22,9 @@ package org.openrepose.filters.flush;
 import javax.servlet.*;
 import java.io.IOException;
 
+/**
+ * @deprecated As of release 8.0.0.0, no longer necessary with the new wrappers.
+ */
 @Deprecated
 public class FlushOutputFilter implements Filter {
 

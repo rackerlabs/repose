@@ -46,7 +46,7 @@ public final class MessageFilter {
                 }
 
                 // A configured wildcard (*/*) will be returned if an exact match is not found
-                if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType())) {
+                if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getName())) {
                     wildcard = message;
                 }
             }
@@ -71,7 +71,7 @@ public final class MessageFilter {
                     }
 
                     // A configured wildcard (*/*) will be returned if an exact match is not found
-                    if (wildcard == null && StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType())) {
+                    if (wildcard == null && StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getName())) {
                         wildcard = message;
                     }
 

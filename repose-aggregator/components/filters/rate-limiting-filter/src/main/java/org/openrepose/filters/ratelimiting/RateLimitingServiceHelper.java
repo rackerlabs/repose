@@ -76,7 +76,7 @@ public class RateLimitingServiceHelper {
     }
 
     public javax.ws.rs.core.MediaType getJavaMediaType(MimeType reposeMimeType) {
-        return new javax.ws.rs.core.MediaType(reposeMimeType.getType(), reposeMimeType.getSubType());
+        return new javax.ws.rs.core.MediaType(reposeMimeType.getTopLevelTypeName(), reposeMimeType.getSubTypeName());
     }
 
     public String getPreferredUser(HttpServletRequest request) {

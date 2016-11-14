@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
  * An interface for a Distributed Datastore that extends the behavior of a Datastore.
  * Distributed datastores allow retrieval and storage of data across local and remote datastores.
  */
+@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
 public interface DistributedDatastore extends Datastore {
 
     /**
@@ -80,7 +81,7 @@ public interface DistributedDatastore extends Datastore {
      * @throws DatastoreOperationException if an exception occurs when attempting to remove the
      *                                     stored value
      */
-    boolean remove(String key, byte[] id, RemoteBehavior remoteBehavior);
+    boolean remove(String key, byte[] id, RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**
      * Gets a value from the Datastore.  If there is no value found for the
@@ -93,6 +94,6 @@ public interface DistributedDatastore extends Datastore {
      * @throws DatastoreOperationException if an exception occurs when attempting to retrieve the
      *                                     stored value
      */
-    Serializable get(String key, byte[] id, RemoteBehavior remoteBehavior);
+    Serializable get(String key, byte[] id, RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
 }

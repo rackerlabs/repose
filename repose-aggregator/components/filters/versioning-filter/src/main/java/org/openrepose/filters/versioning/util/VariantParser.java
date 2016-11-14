@@ -17,18 +17,36 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.datastore.distributed;
+package org.openrepose.filters.versioning.util;
 
-import org.openrepose.core.services.datastore.DatastoreOperationException;
+import org.openrepose.commons.utils.http.media.MimeType;
 
-import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public interface NotifiableDatastore {
+/**
+ * @author fran
+ */
+public class VariantParser {
 
-    boolean remove(String key, boolean notify) throws DatastoreOperationException;
+    static final Pattern VARIANT_REGEX = Pattern.compile("[^\\?]*\\.([^\\?]+).*");
 
-    void put(String key, Serializable value, boolean notify) throws DatastoreOperationException;
+    private VariantParser() {
 
-    void put(String key, Serializable value, int ttl, TimeUnit timeUnit, boolean notify) throws DatastoreOperationException;
+    }
+
+    public static MimeType getMediaTypeFromVariant(String variant) {
+        final Matcher matcher = VARIANT_REGEX.matcher(variant);
+        MimeType mediaType = null;
+
+        if (matcher.matches()) {
+            if (variant.toLowerCase().contains("xml")) {
+                mediaType = MimeType.APPLICATION_XML;
+            } else if (variant.toLowerCase().contains("json")) {
+                mediaType = MimeType.APPLICATION_JSON;
+            }
+        }
+
+        return mediaType;
+    }
 }

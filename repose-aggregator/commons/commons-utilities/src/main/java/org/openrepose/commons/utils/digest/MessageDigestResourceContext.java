@@ -37,7 +37,7 @@ public class MessageDigestResourceContext implements ResourceContext<MessageDige
     }
 
     @Override
-    public byte[] perform(MessageDigest resource) throws ResourceContextException {
+    public byte[] perform(MessageDigest resource) {
         final MessageDigesterOutputStream output = new MessageDigesterOutputStream(resource);
         final byte[] buffer = new byte[BYTE_BUFFER_SIZE];
 

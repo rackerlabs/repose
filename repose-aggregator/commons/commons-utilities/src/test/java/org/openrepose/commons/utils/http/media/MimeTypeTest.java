@@ -47,7 +47,7 @@ public class MimeTypeTest {
 
             MimeType returnedMediaType = MimeType.guessMediaTypeFromString(mediaTypeString);
 
-            assertEquals(returnedMediaType.getMimeType(), mediaTypeString);
+            assertEquals(returnedMediaType.getName(), mediaTypeString);
         }
     }
 }

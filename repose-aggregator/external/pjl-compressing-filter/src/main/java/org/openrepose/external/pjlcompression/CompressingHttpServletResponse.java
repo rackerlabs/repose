@@ -16,8 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
- */
-/*
+ *
+ * ============================================================================
+ *
  * Copyright 2004 and onwards Sean Owen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -467,12 +468,10 @@ final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
                             logger);
         }
 
-        if (!compressingSOS.isClosed()) {
+        if (!compressingSOS.isClosed() && mustNotCompress()) {
             // Do we already know we don't want to compress?
             // Is there a reason we know compression will be used, already?
-            if (mustNotCompress()) {
-                compressingSOS.abortCompression();
-            }
+            compressingSOS.abortCompression();
         }
 
         return compressingSOS;

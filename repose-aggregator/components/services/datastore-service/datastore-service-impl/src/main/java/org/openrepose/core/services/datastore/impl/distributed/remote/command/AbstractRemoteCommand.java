@@ -59,9 +59,6 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
         return connPoolId;
     }
 
-    @Override
-    public abstract ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior);
-
     protected byte[] getBody() {
         return new byte[0];
     }

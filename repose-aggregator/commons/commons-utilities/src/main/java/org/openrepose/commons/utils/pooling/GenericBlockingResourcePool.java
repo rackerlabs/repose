@@ -27,6 +27,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class GenericBlockingResourcePool<R> implements Pool<R> {
 
+    private static final int DEFAULT_MAX_POOL_SIZE = 5;
+    private static final int DEFAULT_MIN_POOL_SIZE = 1;
+
     private final ConstructionStrategy<R> constructor;
     private final Queue<R> pool;
     private final Condition poolHasResources;

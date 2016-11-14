@@ -16,8 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
- */
-/*
+ *
+ * ============================================================================
+ *
  * Copyright 2005 and onwards Sean Owen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

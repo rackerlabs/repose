@@ -20,6 +20,7 @@
 package org.openrepose.commons.config.resource;
 
 @FunctionalInterface
+@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
 public interface ConfigurationResourceResolver {
 
     ConfigurationResource resolve(String resourceName) throws ResourceResolutionException;

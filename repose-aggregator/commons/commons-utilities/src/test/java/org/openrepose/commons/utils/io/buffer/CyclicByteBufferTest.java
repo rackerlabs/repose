@@ -43,19 +43,6 @@ public class CyclicByteBufferTest {
         return array;
     }
 
-    private static boolean compare(byte[] array1, byte[] array2) {
-        if (array1.length != array2.length) {
-            return false;
-        }
-
-        boolean result = true;
-        for (int i = 0; i < array1.length; i++) {
-            result &= array1[i] == array2[i];
-        }
-
-        return result;
-    }
-
     public static class WhenSkipping {
 
         private CyclicByteBuffer buffer;
@@ -192,7 +179,7 @@ public class CyclicByteBufferTest {
 
             buffer.get(data2Read);
 
-            assertTrue(compare(data2Written, data2Read));
+            assertArrayEquals(data2Written, data2Read);
         }
 
         @Test
@@ -212,7 +199,7 @@ public class CyclicByteBufferTest {
             byte[] read = new byte[7];
             buffer.get(read);
 
-            assertTrue(compare(data, read));
+            assertArrayEquals(data, read);
         }
     }
 
@@ -334,7 +321,7 @@ public class CyclicByteBufferTest {
 
         @Test
         public void shouldCopyBuffer() throws Exception {
-            ByteBuffer dest = (ByteBuffer) sourceBuffer.clone();
+            ByteBuffer dest = sourceBuffer.copy();
 
             assertNotNull(dest);
             assertEquals("Dest and source available should be the same", sourceBuffer.available(), dest.available());
@@ -350,7 +337,7 @@ public class CyclicByteBufferTest {
             byte[] dataRead = new byte[dataWritten.length];
             dest.get(dataRead);
 
-            assertTrue("Data read from clone should match data written to source", compare(dataRead, dataWritten));
+            assertArrayEquals("Data read from clone should match data written to source", dataRead, dataWritten);
 
         }
 
@@ -363,7 +350,7 @@ public class CyclicByteBufferTest {
             byte[] dataRead = new byte[dataWritten.length];
             dest.get(dataRead);
 
-            assertTrue("Data read from clone should match data written to source", compare(dataRead, dataWritten));
+            assertArrayEquals("Data read from clone should match data written to source", dataRead, dataWritten);
 
         }
 
@@ -381,7 +368,7 @@ public class CyclicByteBufferTest {
             byte[] dataRead = new byte[dataWritten.length];
             dest.get(dataRead);
 
-            assertTrue("Data read from clone should match data written to source", compare(dataRead, dataWritten));
+            assertArrayEquals("Data read from clone should match data written to source", dataRead, dataWritten);
 
         }
     }

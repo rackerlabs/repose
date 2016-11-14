@@ -21,7 +21,7 @@ package org.openrepose.commons.utils.io.buffer;
 
 import java.io.IOException;
 
-public interface ByteBuffer extends Cloneable {
+public interface ByteBuffer {
 
     byte get() throws IOException;
 

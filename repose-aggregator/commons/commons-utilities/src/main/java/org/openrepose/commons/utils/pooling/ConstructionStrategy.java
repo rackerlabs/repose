@@ -20,6 +20,7 @@
 package org.openrepose.commons.utils.pooling;
 
 @FunctionalInterface
+@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
 public interface ConstructionStrategy<T> {
 
     T construct() throws ResourceConstructionException;

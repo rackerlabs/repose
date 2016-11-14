@@ -29,7 +29,6 @@ import javax.xml.bind.JAXBElement
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.media.MediaType
-import org.openrepose.commons.utils.http.media.servlet.RequestMediaRangeInterrogator
 import org.openrepose.commons.utils.http.{CommonHttpHeader, CommonRequestAttributes}
 import org.openrepose.commons.utils.io.RawInputStreamReader
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, RouteDestination}
@@ -43,7 +42,7 @@ import org.openrepose.core.systemmodel.{Destination, SystemModel}
 import org.openrepose.filters.versioning.config.{JsonFormat, ServiceVersionMapping, ServiceVersionMappingList}
 import org.openrepose.filters.versioning.domain.{ConfigurationData, VersionedHostNotFoundException, VersionedRequest}
 import org.openrepose.filters.versioning.schema.ObjectFactory
-import org.openrepose.filters.versioning.util.{ContentTransformer, VersionChoiceFactory}
+import org.openrepose.filters.versioning.util.{ContentTransformer, RequestMediaRangeInterrogator, VersionChoiceFactory}
 import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConversions._
@@ -125,7 +124,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
               transformResponse(httpResponse, versionElement, getPreferredMediaRange(versionedRequest.getRequest))
               httpResponse.setStatus(HttpServletResponse.SC_OK)
-              httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getMimeType)
+              httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
               mbcVersionedRequests.mark(targetOriginService.getMapping.getId)
             } else {
@@ -166,7 +165,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
               httpResponse.setStatus(HttpServletResponse.SC_MULTIPLE_CHOICES)
             }
 
-            httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getMimeType)
+            httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
             mbcVersionedRequests.mark("Unversioned")
         }

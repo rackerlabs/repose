@@ -47,7 +47,7 @@ public class TranslationPreProcessor {
     public InputStream getBodyStream() throws IOException {
         final InputStream result;
 
-        switch (BodyContentMediaType.getMediaType(contentType.getMimeType().getMimeType())) {
+        switch (BodyContentMediaType.getMediaType(contentType.getMimeType().getName())) {
             case XML:
                 result = input;
                 break;

@@ -149,7 +149,7 @@ public class ValidatorInfo {
     }
 
     String getNameFromRoles(List<String> roles) {
-        StringBuilder name = new StringBuilder();
+        StringBuilder rtn = new StringBuilder();
         for (String role : roles) {
             // To prevent any errors later when the MBean is created, the following substitutions are made to the role
             // names as per: https://docs.oracle.com/javase/8/docs/api/javax/management/ObjectName.html
@@ -158,7 +158,7 @@ public class ValidatorInfo {
             //
             // And to prevent any issues or confusion with the space ( ) and non-breaking space (\u00A0) characters
             // which are now known to be in roles, they were added to this list also.
-            name.append(role
+            rtn.append(role
                     .replace('/', '-')
                     .replace(',', '-')
                     .replace('=', '-')
@@ -169,6 +169,6 @@ public class ValidatorInfo {
                     .replace('\u00A0', '-')
             ).append('_');
         }
-        return name.substring(0, name.length() - 1);
+        return rtn.substring(0, rtn.length() - 1);
     }
 }

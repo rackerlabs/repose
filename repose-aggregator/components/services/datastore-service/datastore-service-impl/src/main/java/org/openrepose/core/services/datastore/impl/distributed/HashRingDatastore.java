@@ -100,8 +100,11 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     private boolean isRemoteTarget(InetSocketAddress target) {
-        try {
+        if (target == null) {
+            return false;
+        }
 
+        try {
             if (localDatastore == null) {
                 return !clusterView.isLocal(target);
             }
@@ -120,37 +123,37 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     private Object performAction(String name, byte[] id, DatastoreAction action, RemoteBehavior initialBehavior) {
-        boolean targetIsRemote = true;
-
         if (initialBehavior != RemoteBehavior.DISALLOW_FORWARDING) {
-            RemoteBehavior remoteBehavior =
-                    clusterView.hasDamagedMembers() ? RemoteBehavior.DISALLOW_FORWARDING : initialBehavior;
-
-            do {
-                final InetSocketAddress target = getTarget(id);
-
-                try {
-                    if (target == null) {
-                        targetIsRemote = false;
-                    } else if (targetIsRemote = isRemoteTarget(target)) {
-                        LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
-                                target.toString());
-
-                        return action.performRemote(name, target, remoteBehavior);
-                    }
-                } catch (RemoteConnectionException rce) {
-                    LOG.trace("Could not perform action", rce);
-                    clusterView.memberDamaged(target, rce.getMessage());
-                    remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
-                } catch (DatastoreOperationException doe) {
-                    LOG.trace("Could not perform action", doe);
-                    clusterView.memberDamaged(target, doe.getMessage());
-                    remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
-                }
-            } while (targetIsRemote);
+            return performRemote(name, id, action, initialBehavior);
         } else {
             LOG.debug("Forwarding for " + action.toString() + " datastore action has been disabled by request.");
         }
+
+        return action.performLocal(name);
+    }
+
+    private Object performRemote(String name, byte[] id, DatastoreAction action, RemoteBehavior initialBehavior) {
+        boolean targetIsRemote = true;
+        RemoteBehavior remoteBehavior =
+                clusterView.hasDamagedMembers() ? RemoteBehavior.DISALLOW_FORWARDING : initialBehavior;
+
+        do {
+            final InetSocketAddress target = getTarget(id);
+
+            try {
+                targetIsRemote = isRemoteTarget(target);
+                if (targetIsRemote) {
+                    LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
+                            target.toString());
+
+                    return action.performRemote(name, target, remoteBehavior);
+                }
+            } catch (RemoteConnectionException | DatastoreOperationException e) {
+                LOG.trace("Could not perform action", e);
+                clusterView.memberDamaged(target, e.getMessage());
+                remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
+            }
+        } while (targetIsRemote);
 
         return action.performLocal(name);
     }
@@ -167,7 +170,7 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     @Override
-    public Serializable get(String key) throws DatastoreOperationException {
+    public Serializable get(String key) {
         final byte[] keyHash = getHash(key);
 
         return get(encodingProvider.encode(keyHash), keyHash, RemoteBehavior.ALLOW_FORWARDING);
@@ -196,12 +199,12 @@ public class HashRingDatastore implements DistributedDatastore {
 
     //todo: make this, remove and get do the hash consistently. if we need another method to deal only in pre-hashed versions write it
     @Override
-    public void put(String key, Serializable value) throws DatastoreOperationException {
+    public void put(String key, Serializable value) {
         put(key, value, DEFAULT_TTL, TimeUnit.MINUTES);
     }
 
     @Override
-    public void put(String key, Serializable value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public void put(String key, Serializable value, int ttl, TimeUnit timeUnit) {
         final byte[] keyHash = getHash(key);
 
         put(encodingProvider.encode(keyHash), keyHash, value, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);
@@ -209,7 +212,7 @@ public class HashRingDatastore implements DistributedDatastore {
 
     @Override
     public void put(String hashedKey, byte[] id, final Serializable value, final int ttl, final TimeUnit timeUnit,
-                    RemoteBehavior remoteBehavior) throws DatastoreOperationException {
+                    RemoteBehavior remoteBehavior) {
         performAction(hashedKey, id, new DatastoreAction() {
 
             @Override
@@ -232,7 +235,7 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     @Override
-    public boolean remove(String key) throws DatastoreOperationException {
+    public boolean remove(String key) {
         final byte[] keyHash = getHash(key);
 
         return remove(encodingProvider.encode(keyHash), keyHash, RemoteBehavior.ALLOW_FORWARDING);
@@ -260,12 +263,12 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     @Override
-    public Serializable patch(String key, Patch patch) throws DatastoreOperationException {
+    public Serializable patch(String key, Patch patch) {
         return patch(key, patch, DEFAULT_TTL, TimeUnit.MINUTES);
     }
 
     @Override
-    public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) {
         final byte[] keyHash = getHash(key);
 
         return patch(encodingProvider.encode(keyHash), keyHash, (SerializablePatch) patch, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);

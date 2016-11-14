@@ -20,6 +20,7 @@
 package org.openrepose.commons.utils.reflection;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 
 public final class ReflectionTools {
 
@@ -35,32 +36,10 @@ public final class ReflectionTools {
     }
 
     public static <T> Constructor<T> getConstructor(Class<T> clazz, Class<?>[] parameters) throws NoSuchMethodException {
-        for (Constructor<T> constructor : (Constructor<T>[]) clazz.getConstructors()) {
-            final Class<?>[] constructorParameters = constructor.getParameterTypes();
-
-            if (parameters.length != constructorParameters.length) {
-                continue;
-            }
-
-            boolean suitable = true;
-
-            for (int i = 0; i < parameters.length; i++) {
-                if (parameters[i] == null) {
-                    continue;
-                }
-
-                if (!constructorParameters[i].isAssignableFrom(parameters[i])) {
-                    suitable = false;
-                    break;
-                }
-            }
-
-            if (suitable) {
-                return constructor;
-            }
-        }
-
-        throw new NoSuchMethodException("No constructor found with expected signature for class: " + clazz.getCanonicalName());
+        return Arrays.stream((Constructor<T>[]) clazz.getConstructors())
+                .filter(constructor -> parametersMatch(constructor.getParameterTypes(), parameters))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchMethodException("No constructor found with expected signature for class: " + clazz.getCanonicalName()));
     }
 
     public static Class<?>[] toClassArray(Object... objects) {
@@ -71,5 +50,21 @@ public final class ReflectionTools {
         }
 
         return classArray;
+    }
+
+    private static boolean parametersMatch(Class<?>[] someParams, Class<?>[] otherParams) {
+        if (otherParams.length != someParams.length) {
+            return false;
+        }
+
+        for (int i = 0; i < someParams.length; i++) {
+            Class<?> someClass = someParams[i];
+            Class<?> otherClass = otherParams[i];
+            if (otherClass != null && !someClass.isAssignableFrom(otherClass)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

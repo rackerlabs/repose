@@ -17,11 +17,12 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.utils.http.media;
+package org.openrepose.filters.versioning.util;
 
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.media.MimeType;
 
 import static org.junit.Assert.*;
 

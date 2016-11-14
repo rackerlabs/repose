@@ -29,7 +29,7 @@ import org.slf4j.MDC;
 
 public class AuthTokenFutureActor extends UntypedActor {
 
-    private Logger LOG = LoggerFactory.getLogger(AuthTokenFutureActor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuthTokenFutureActor.class);
 
     private ServiceClient serviceClient;
 

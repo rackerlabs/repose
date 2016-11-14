@@ -17,20 +17,19 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.utils.http.media.servlet;
+package org.openrepose.filters.versioning.util;
 
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueParser;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
-import org.openrepose.commons.utils.http.media.VariantParser;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class RequestMediaRangeInterrogator {
+public class RequestMediaRangeInterrogator {
 
     private RequestMediaRangeInterrogator() {
     }
@@ -47,11 +46,11 @@ public abstract class RequestMediaRangeInterrogator {
 
             ranges.addAll(new MediaRangeProcessor(convertedValues).process());
         } else {
-            ranges.add(new MediaType(mediaType.getMimeType(), mediaType, 1));
+            ranges.add(new MediaType(mediaType.getName(), mediaType, 1));
         }
 
         if (ranges.isEmpty()) {
-            ranges.add(new MediaType(MimeType.UNSPECIFIED.getMimeType(), MimeType.UNSPECIFIED, -1));
+            ranges.add(new MediaType(MimeType.UNSPECIFIED.getName(), MimeType.UNSPECIFIED, -1));
         }
 
         return ranges;

@@ -128,7 +128,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             newHandler().handleRequest(wrappedRequest, null);
 
             assertNotNull("Request has an Accept header", wrappedRequest.getHeader("accept"));
-            assertEquals("Request Accept header set to application/xml", MimeType.APPLICATION_XML.getMimeType(), wrappedRequest.getHeader("accept"));
+            assertEquals("Request Accept header set to application/xml", MimeType.APPLICATION_XML.getName(), wrappedRequest.getHeader("accept"));
         }
 
         @Test
@@ -158,7 +158,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             FilterAction filterAction = newHandler().handleRequest(wrappedRequest, null);
 
             assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, filterAction);
-            assertEquals("Request Accept header set to application/xml", MimeType.APPLICATION_XML.getMimeType(), wrappedRequest.getHeader("accept"));
+            assertEquals("Request Accept header set to application/xml", MimeType.APPLICATION_XML.getName(), wrappedRequest.getHeader("accept"));
         }
 
         @Test

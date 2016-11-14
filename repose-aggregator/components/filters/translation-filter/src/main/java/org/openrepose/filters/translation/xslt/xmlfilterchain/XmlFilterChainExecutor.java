@@ -96,7 +96,7 @@ public class XmlFilterChainExecutor {
         InputStreamUriParameterResolver resolver = resolverChain.getResolverOfType(InputStreamUriParameterResolver.class);
         resolver.clearStreams();
 
-        if (inputs != null && inputs.size() > 0) {
+        if (inputs != null && !inputs.isEmpty()) {
 
             HttpxUriInputParameterResolver headersResolver = resolverChain.getResolverOfType(HttpxUriInputParameterResolver.class);
             headersResolver.reset();
@@ -133,7 +133,7 @@ public class XmlFilterChainExecutor {
         if (resolver != null) {
             resolver.clearStreams();
 
-            if (outputs != null && outputs.size() > 0) {
+            if (outputs != null && !outputs.isEmpty()) {
                 for (XsltParameter<? extends OutputStream> output : outputs) {
                     String paramName = resolver.addStream(output.getValue(), output.getName());
                     transformer.setParameter("headersOutputUri", paramName);
@@ -142,6 +142,7 @@ public class XmlFilterChainExecutor {
         }
     }
 
+    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
     public void executeChain(InputStream in, OutputStream output, List<XsltParameter> inputs, List<XsltParameter<? extends OutputStream>> outputs) throws XsltException {
         List<String> uris = findInputUris(inputs);
         try {

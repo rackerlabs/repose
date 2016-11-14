@@ -117,12 +117,10 @@ public class SystemModelInterrogator {
     public Optional<Service> getServiceForCluster(SystemModel systemModel, String serviceName) {
         Optional<ReposeCluster> cluster = getLocalCluster(systemModel);
         Optional<Service> found = Optional.empty();
-        if (cluster.isPresent()) {
-            if (cluster.get().getServices() != null) {
-                for (Service service : cluster.get().getServices().getService()) {
-                    if (service.getName().equalsIgnoreCase(serviceName)) {
-                        found = Optional.of(service);
-                    }
+        if (cluster.isPresent() && cluster.get().getServices() != null) {
+            for (Service service : cluster.get().getServices().getService()) {
+                if (service.getName().equalsIgnoreCase(serviceName)) {
+                    found = Optional.of(service);
                 }
             }
         }

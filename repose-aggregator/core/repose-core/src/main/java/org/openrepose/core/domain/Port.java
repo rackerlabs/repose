@@ -23,19 +23,19 @@ public class Port {
     private static final int BASE_HASH = 3;
     private static final int PRIME = 71;
     private final String protocol;
-    private final int port;
+    private final int number;
 
-    public Port(String protocol, int port) {
+    public Port(String protocol, int number) {
         this.protocol = protocol;
-        this.port = port;
+        this.number = number;
     }
 
     public String getProtocol() {
         return protocol;
     }
 
-    public int getPort() {
-        return port;
+    public int getNumber() {
+        return number;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class Port {
         Port p = (Port) other;
 
         if (protocol != null) {
-            return port == p.getPort() && protocol.equalsIgnoreCase(p.getProtocol());
+            return number == p.getNumber() && protocol.equalsIgnoreCase(p.getProtocol());
         }
 
         return false;
@@ -57,7 +57,7 @@ public class Port {
     public int hashCode() {
         int hash = BASE_HASH;
         hash = PRIME * hash + (this.protocol != null ? this.protocol.hashCode() : 0);
-        hash = PRIME * hash + this.port;
+        hash = PRIME * hash + this.number;
         return hash;
     }
 }

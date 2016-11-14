@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.utils.http.media.servlet;
+package org.openrepose.filters.versioning.util;
 
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

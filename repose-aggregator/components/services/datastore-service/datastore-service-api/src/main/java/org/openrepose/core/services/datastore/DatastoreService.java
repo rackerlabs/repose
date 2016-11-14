@@ -25,6 +25,7 @@ import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 /**
  * DatastoreService - service that manages the lifecycle and configuration of {@link Datastore}s
  */
+@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
 public interface DatastoreService {
 
     /**

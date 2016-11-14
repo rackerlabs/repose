@@ -58,12 +58,12 @@ public class XmlFilterChainBuilder {
     // This same procedure is used in api-checker to get around this issue.
     //
     private static final String XALANC_FACTORY_NAME = "org.apache.xalan.xsltc.trax.TransformerFactoryImpl";
-    private static SAXTransformerFactory XALANC_TRANSFORMER_FACTORY;
+    private static SAXTransformerFactory xalancTransformerFactory;
 
     static {
         try {
-            XALANC_TRANSFORMER_FACTORY = (SAXTransformerFactory) TransformerFactory.newInstance(XALANC_FACTORY_NAME, XmlFilterChainBuilder.class.getClassLoader());
-            XALANC_TRANSFORMER_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            xalancTransformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(XALANC_FACTORY_NAME, XmlFilterChainBuilder.class.getClassLoader());
+            xalancTransformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         } catch (TransformerConfigurationException ex) {
             LOG.error("Error", ex);
         }
@@ -85,6 +85,7 @@ public class XmlFilterChainBuilder {
         }
     }
 
+    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
     public XmlFilterChain build(StyleSheetInfo... stylesheets) throws XsltException {
         try {
             List<XmlFilterReference> filters = new ArrayList<>();
@@ -95,13 +96,7 @@ public class XmlFilterChainBuilder {
                     Source source = getStylesheetSource(resource);
                     // Wire the output of the reader to filter1 (see Note #3)
                     // and the output of filter1 to filter2
-                    XMLFilter filter;
-                    try {
-                        filter = factory.newXMLFilter(source);
-                    } catch (TransformerConfigurationException ex) {
-                        LOG.error("Error creating XML Filter for " + resource.getUri(), ex);
-                        throw new XsltException(ex);
-                    }
+                    XMLFilter filter = doBuild(resource, source);
                     filter.setParent(lastReader);
                     filters.add(new XmlFilterReference(resource.getId(), filter));
                     lastReader = filter;
@@ -110,8 +105,17 @@ public class XmlFilterChainBuilder {
                 filters.add(new XmlFilterReference(null, lastReader));
             }
 
-            return new XmlFilterChain(XALANC_TRANSFORMER_FACTORY, filters);
+            return new XmlFilterChain(xalancTransformerFactory, filters);
         } catch (ParserConfigurationException | SAXException ex) {
+            throw new XsltException(ex);
+        }
+    }
+
+    private XMLFilter doBuild(StyleSheetInfo resource, Source source) {
+        try {
+            return factory.newXMLFilter(source);
+        } catch (TransformerConfigurationException ex) {
+            LOG.error("Error creating XML Filter for " + resource.getUri(), ex);
             throw new XsltException(ex);
         }
     }
@@ -139,7 +143,7 @@ public class XmlFilterChainBuilder {
             StreamResult result = new StreamResult(stringWriter);
 
             // Create a Transformer to serialize the document
-            Transformer transformer = XALANC_TRANSFORMER_FACTORY.newTransformer();
+            Transformer transformer = xalancTransformerFactory.newTransformer();
 
             // Transform the document to the result stream
             transformer.transform(domSource, result);

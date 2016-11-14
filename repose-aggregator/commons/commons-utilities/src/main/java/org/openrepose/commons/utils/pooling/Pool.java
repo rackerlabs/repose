@@ -21,9 +21,6 @@ package org.openrepose.commons.utils.pooling;
 
 public interface Pool<R> {
 
-    int DEFAULT_MAX_POOL_SIZE = 5;
-    int DEFAULT_MIN_POOL_SIZE = 1;
-
     int size();
 
     <T> T use(ResourceContext<R, T> newContext);

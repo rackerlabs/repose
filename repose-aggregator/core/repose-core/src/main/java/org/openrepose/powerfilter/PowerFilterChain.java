@@ -287,17 +287,15 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private void splitResponseHeaders(HttpServletResponseWrapper httpServletResponseWrapper) {
-        for (String headerName : httpServletResponseWrapper.getHeaderNames()) {
-            if (splittabelHeaderUtil.isSplittable(headerName)) {
-                Collection<String> splitValues = splitResponseHeaderValues(httpServletResponseWrapper.getHeaders(headerName));
-                httpServletResponseWrapper.removeHeader(headerName);
-                for (String splitValue : splitValues) {
-                    if (StringUtils.isNotEmpty(splitValue)) {
-                        httpServletResponseWrapper.addHeader(headerName, splitValue);
-                    }
-                }
-            }
-        }
+        httpServletResponseWrapper.getHeaderNames().stream()
+                .filter(splittabelHeaderUtil::isSplittable)
+                .forEach(headerName -> {
+                    Collection<String> splitValues = splitResponseHeaderValues(httpServletResponseWrapper.getHeaders(headerName));
+                    httpServletResponseWrapper.removeHeader(headerName);
+                    splitValues.stream()
+                            .filter(StringUtils::isNotEmpty)
+                            .forEach(splitValue -> httpServletResponseWrapper.addHeader(headerName, splitValue));
+        });
     }
 
     private Collection<String> splitResponseHeaderValues(Collection<String> headerValues) {
