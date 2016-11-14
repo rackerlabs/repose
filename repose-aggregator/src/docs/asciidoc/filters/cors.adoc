@@ -19,9 +19,9 @@ All of these headers will be supplied by the client making the request.
 
 [cols="3", options="header,autowidth"]
 |===
-| Non-CORS request
-| Preflight CORS requests
-| Actual CORS request
+| Non-CORS Request
+| Preflight CORS Request
+| Actual CORS Request
 
 | None required
 a| * `Origin`
@@ -37,7 +37,6 @@ The filter will add the following headers to the response for these scenarios wh
 |===
 | Preflight CORS Request
 | Actual CORS Request
-
 
 a| * `Access-Control-Allow-Credentials`
    * `Access-Control-Allow-Origin`
