@@ -1,5 +1,5 @@
 = Getting Started
-:toc:
+:toclevels: 3
 
 include::../_includes/in-progress.adoc[]
 

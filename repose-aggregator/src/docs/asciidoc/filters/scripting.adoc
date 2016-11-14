@@ -1,5 +1,4 @@
 = Scripting Filter
-:toc: left
 
 include::../_includes/in-progress.adoc[]
 

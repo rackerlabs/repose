@@ -1,5 +1,4 @@
 = Contact Us
-:toc:
 
 include::_includes/in-progress.adoc[]
 
