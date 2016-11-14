@@ -82,9 +82,4 @@ Any existing response headers with the same name *will not* be removed, and the 
 </add-headers>
 ----
 
-=== Schema
-
-[source,xml]
-----
-include::../../../../components/filters/add-header-filter/src/main/resources/META-INF/schema/config/add-header.xsd[]
-----
+=== link:../schemas/add-header.xsd[Schema]
