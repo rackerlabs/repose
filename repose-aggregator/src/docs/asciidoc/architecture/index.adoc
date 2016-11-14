@@ -1,3 +1,9 @@
 = Architecture
 
 include::../_includes/in-progress.adoc[]
+
+== <<configuration.adoc#,Configuration>>
+*IN PROGRESS*
+
+== <<system-model.adoc#,System Model>>
+*IN PROGRESS*

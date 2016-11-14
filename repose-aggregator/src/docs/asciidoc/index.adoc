@@ -6,7 +6,7 @@ include::_includes/in-progress.adoc[]
 Here's loosely how these docs are organized.
 
 === <<recipes/getting-started.adoc#, Getting Started>>
-We all need to get started somewhere, if this your first time using *Repose* this is the place for you.
+We all need to get started somewhere. If this your first time using *Repose*, then this is the place for you!
 
 === <<recipes/index.adoc#, Recipes>>
 Mmm, tasty food. For good food you need a good recipe.
@@ -38,7 +38,10 @@ You found something missing from the docs?
 Impossible, there is no way this magnificent set of documents could ever be incomplete.
 But if there were something missing and you wanted to help, here's where you would go to figure out how we try to make a page.
 
+=== <<faqs.adoc#, Frequently Asked Questions>>
+Couldn't find the answer to your question elsewhere? Maybe it is hiding on our FAQ page.
+
 === Search
-Know what you're looking for? You can use the following Google Custom Search Engine to search all of our documentation.
+Know vaguely what you're looking for? You can use the following Google Custom Search Engine to search all of our documentation.
 
 include::_includes/search.adoc[]
