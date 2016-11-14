@@ -111,10 +111,10 @@ This could expose vulnerabilities and is not recommended outside of a developmen
     xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
 
     <allowed-origins>
-        <origin regex="true">.*</origin> <1>
+        <origin regex="true">.*</origin> <!--1-->
     </allowed-origins>
 
-    <allowed-methods> <2>
+    <allowed-methods> <!--2-->
         <method>OPTIONS</method>
         <method>GET</method>
         <method>HEAD</method>
@@ -140,11 +140,11 @@ you can specify the exact header value or specify a regex value.
     xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
 
     <allowed-origins>
-        <origin>https://subdomain.other-domain.com:8443</origin> <1>
-        <origin regex="true">http://.*.subdomain.rackspace.com:.*</origin> <2>
+        <origin>https://subdomain.other-domain.com:8443</origin> <!--1-->
+        <origin regex="true">http://.*.subdomain.rackspace.com:.*</origin> <!--2-->
     </allowed-origins>
 
-    <allowed-methods> <3>
+    <allowed-methods> <!--3-->
         <method>GET</method>
         <method>POST</method>
     </allowed-methods>
@@ -175,22 +175,22 @@ Requests that do not contain the `Origin` header are not CORS requests and compl
         <origin regex="true">.*</origin>
     </allowed-origins>
 
-    <allowed-methods> <1>
+    <allowed-methods> <!--1-->
         <method>GET</method>
         <method>HEAD</method>
     </allowed-methods>
 
     <resources>
-        <resource path="/v1/status.*"/> <2>
+        <resource path="/v1/status.*"/> <!--2-->
 
-        <resource path="/v1/.*"> <3>
+        <resource path="/v1/.*"> <!--3-->
             <allowed-methods>
                 <method>POST</method>
                 <method>PUT</method>
             </allowed-methods>
         </resource>
 
-        <resource path="/.*"> <4>
+        <resource path="/.*"> <!--4-->
             <allowed-methods>
                 <method>POST</method>
                 <method>PUT</method>
@@ -246,21 +246,21 @@ This is a example configuration with notes on all of the required and optional e
     xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
 
     <allowed-origins>
-        <origin>https://subdomain.other-domain.com:8443</origin> <1> <2>
-        <origin regex="true">http://.*.subdomain.rackspace.com:.*</origin> <3>
+        <origin>https://subdomain.other-domain.com:8443</origin> <!--1--> <!--2-->
+        <origin regex="true">http://.*.subdomain.rackspace.com:.*</origin> <!--3-->
     </allowed-origins>
 
     <allowed-methods>
-        <method>GET</method> <4>
+        <method>GET</method> <!--4-->
         <method>HEAD</method>
     </allowed-methods>
 
-    <resources> <5>
-        <resource path="/v1/status.*"/> <6> <7>
+    <resources> <!--5-->
+        <resource path="/v1/status.*"/> <!--6--> <!--7-->
 
         <resource path="/v1/.*">
-            <allowed-methods> <8>
-                <method>POST</method> <9>
+            <allowed-methods> <!--8-->
+                <method>POST</method> <!--9-->
                 <method>PUT</method>
             </allowed-methods>
         </resource>
