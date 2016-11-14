@@ -26,7 +26,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.PowerApiHeader
+import org.openrepose.commons.utils.http.{OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
@@ -73,6 +73,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
             wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
           }
           wrappedRequest.addHeader(PowerApiHeader.USER.toString, rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.quality)
+          wrappedRequest.addHeader(OpenStackServiceHeader.USER_NAME.toString, rackspaceAuthUserGroup.user)
           wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
         }
 
