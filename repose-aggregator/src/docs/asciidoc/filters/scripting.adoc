@@ -1,11 +1,7 @@
 = Scripting Filter
-:notitle:
-:toc: macro
+:toc: left
 
 include::../_includes/in-progress.adoc[]
-
-== Scripting Filter
-toc::[]
 
 The Scripting filter enables users to write custom filters for Repose using a variety of scripting languages.
 Custom filters can be used to perform arbitrary processing with access to the bindings described below.
