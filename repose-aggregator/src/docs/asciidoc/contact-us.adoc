@@ -8,12 +8,9 @@ There are multiple ways of getting in contact with the team.
 == Chat
 _Actively monitored_
 
-* Using an IRC client, connect to Freenode (at irc.freenode.net:6667) and join
-  the #repose channel to ask a question.
-* (Rackspace internal) Join the repose channel on internal Slack:
-  https://rackspace.slack.com
-* Send an e-mail and we can invite you to our public Slack:
-  https://openrepose.slack.com/
+* Using an IRC client, connect to Freenode (at irc.freenode.net:6667) and join the #repose channel to ask a question.
+* (Rackspace internal) Join the repose channel on internal Slack: https://rackspace.slack.com
+* Send an e-mail and we can invite you to our public Slack: https://openrepose.slack.com/
 
 == E-Mail
 _Actively monitored_
@@ -27,5 +24,4 @@ _Responses may be delayed_
 
 == {blank}
 
-The Software Development Manager for the Repose team is Kari Davis and she can
-be reached directly at: Kari.Davis@Rackspace.com
+The Software Development Manager for the Repose team is Kari Davis and she can be reached directly at: Kari.Davis@Rackspace.com
