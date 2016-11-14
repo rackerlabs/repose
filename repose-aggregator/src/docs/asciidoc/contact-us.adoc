@@ -19,7 +19,7 @@ _Actively monitored_
 == Web
 _Responses may be delayed_
 
-* Check out our https://repose.atlassian.net/wiki/questions?src=header[Atlassian Questions] page
+* Check out our https://repose.atlassian.net/wiki/questions[Atlassian Questions] page
 
 == {blank}
 
