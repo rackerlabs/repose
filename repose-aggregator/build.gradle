@@ -7,6 +7,11 @@ dependencies {
     asciidoctor 'org.asciidoctor:asciidoctorj-diagram'
 }
 
+task copyXsds(type: Copy) {
+    from(fileTree(project.rootDir).include('**/src/main/resources/META-INF/schema/config/*.xsd').files)
+    into("${project.buildDir}/asciidoc/html5/schemas/")
+}
+
 asciidoctor {
     requires 'asciidoctor-diagram'
     attributes 'source-highlighter': 'coderay',
@@ -58,4 +63,5 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
 
 project.tasks.getByPath(':release').dependsOn publishDocs
 
+asciidoctor.dependsOn copyXsds
 build.dependsOn asciidoctor
