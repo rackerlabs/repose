@@ -99,6 +99,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
           requestType match {
             case NonCorsRequest => filterChain.doFilter(httpServletRequest, httpServletResponse)
             case PreflightRequest =>
+              logger.trace("Allowing preflight request.")
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
               httpServletRequest.getSplittableHeaderScala(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS) foreach {
@@ -109,6 +110,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
               }
               httpServletResponse.setStatus(HttpServletResponse.SC_OK)
             case ActualRequest =>
+              logger.trace("Allowing actual request.")
               filterChain.doFilter(httpServletRequest, httpServletResponse)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
@@ -119,9 +121,12 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
               }
           }
         case OriginNotAllowed =>
+          logger.debug("Request rejected because origin '{}' is not allowed.", origin)
           httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, "null")
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
         case MethodNotAllowed =>
+          logger.debug("Request rejected because method '{}' is not allowed for resource '{}'.",
+            requestedMethod, httpServletRequest.getRequestURI)
           httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
       }
@@ -164,10 +169,10 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
   def getValidMethodsForResource(path: String): Iterable[String] = {
     allowedMethods ++ (resources.find(_.path.findFirstIn(path).isDefined) match {
       case Some(matchedResource) =>
-        logger.debug(s"Matched path $path with configured resource: $matchedResource")
+        logger.trace("Matched path '{}' with configured resource '{}'.", path, matchedResource)
         matchedResource.methods
       case None =>
-        logger.debug(s"Did not find a configured resource matching path $path")
+        logger.trace("Did not find a configured resource matching path '{}'.", path)
         Nil
     })
   }
