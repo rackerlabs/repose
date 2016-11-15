@@ -1,0 +1,10 @@
+= Frequently Asked Questions (FAQ)
+
+include::_includes/in-progress.adoc[]
+
+These are frequently asked questions.  If you don't find an answer to your question here, check out the <<contact-us.adoc#,Contact Us>> page for information on getting in touch with the team.
+
+== How Do I Troubleshoot Repose?
+Please read our <<recipes/troubleshooting.adoc#,Troubleshooting>> page.
+
+== Why Use Repose’s Client Authentication as opposed to Keystone, Cloud Auth, or Global Auth?
