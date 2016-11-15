@@ -22,10 +22,12 @@ package org.openrepose.filters.cors
 import javax.servlet.FilterChain
 
 import org.junit.runner.RunWith
+import org.mockito.Matchers.{any, eq => mockitoEq}
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.cors.config.Origins.Origin
 import org.openrepose.filters.cors.config._
 import org.scalatest.junit.JUnitRunner
@@ -58,14 +60,14 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
   describe("the doFilter method") {
     describe("when a non-CORS request is received") {
-      HttpMethods.foreach { httpMethod =>
+      HttpMethods foreach { httpMethod =>
         it(s"should call the next filter in the filter chain for HTTP method $httpMethod") {
           // given no request headers
           servletRequest.setMethod(httpMethod)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          verify(filterChain).doFilter(servletRequest, servletResponse)
+          verify(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), mockitoEq(servletResponse))
         }
 
         it(s"should not add CORS specific headers for HTTP method $httpMethod") {
@@ -92,7 +94,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         }
       }
 
-      HttpMethods.filter{_ != "OPTIONS"}.foreach { httpMethod =>
+      HttpMethods.filterNot(_ == "OPTIONS") foreach { httpMethod =>
         it(s"should have 'Origin' in the Vary header for HTTP method $httpMethod") {
           // given no request headers
           servletRequest.setMethod(httpMethod)
@@ -115,7 +117,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
     }
 
     describe("when a preflight request is received") {
-      HttpMethods.foreach { requestMethod =>
+      HttpMethods foreach { requestMethod =>
         it(s"should return an HTTP status of 200 for request HTTP method $requestMethod") {
           servletRequest.setMethod("OPTIONS")
           servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
@@ -135,7 +137,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          verify(filterChain, never()).doFilter(servletRequest, servletResponse)
+          verify(filterChain, never()).doFilter(any(), any())
         }
 
         it(s"should not add actual request specific headers for HTTP method $requestMethod") {
@@ -158,16 +160,22 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
           servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should not be null
         }
 
-        List("X-Auth-Token", "X-Panda, X-Unicorn", "Accept, User-Agent, X-Trans-Id").foreach { requestHeader =>
-          it(s"should have the Access-Control-Allow-Headers header set for request HTTP method $requestMethod and request headers $requestHeader") {
+        List(
+          (List("x-auth-token"), List("x-auth-token")),
+          (List("x-panda, x-unicorn"), List("x-panda", "x-unicorn")),
+          (List("x-cupcake", "x-pineapple"), List("x-cupcake", "x-pineapple")),
+          (List("accept, user-agent, x-trans-id"), List("accept", "user-agent", "x-trans-id")),
+          (List("x-one, x-two", "x-three"), List("x-one", "x-two", "x-three"))
+        ) foreach { case (requestHeaders, expectedAllowedHeaders) =>
+          it(s"should have the Access-Control-Allow-Headers header set to $expectedAllowedHeaders for request HTTP method $requestMethod and request headers $requestHeaders") {
             servletRequest.setMethod("OPTIONS")
             servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
             servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
-            servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, requestHeader)
+            requestHeaders foreach (servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, _))
 
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-            servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) shouldEqual requestHeader
+            servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) should contain theSameElementsAs expectedAllowedHeaders
           }
         }
 
@@ -191,7 +199,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
           servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) shouldEqual "true"
         }
 
-        List("http://totally.allowed", "http://completely.legit:8080", "https://seriously.safe:8443").foreach { origin =>
+        List("http://totally.allowed", "http://completely.legit:8080", "https://seriously.safe:8443") foreach { origin =>
           it(s"should have the Access-Control-Allow-Origin set to the Origin of the request for request HTTP method $requestMethod and origin $origin") {
             servletRequest.setMethod("OPTIONS")
             servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
@@ -217,14 +225,14 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
     }
 
     describe("when an actual request is received") {
-      HttpMethods.foreach { httpMethod =>
+      HttpMethods foreach { httpMethod =>
         it (s"should call the next filter in the filter chain for HTTP method $httpMethod") {
           servletRequest.setMethod(httpMethod)
           servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          verify(filterChain).doFilter(servletRequest, servletResponse)
+          verify(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), mockitoEq(servletResponse))
         }
 
         it(s"should not add preflight specific headers for HTTP method $httpMethod") {
@@ -251,7 +259,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
           List("X-Auth-Token"),
           List("X-Auth-Token", "X-Trans-Id"),
           List("X-Trans-Id", "Content-Type", "X-Panda", "X-OMG-Ponies")
-        ).foreach { responseHeaders =>
+        ) foreach { responseHeaders =>
           it(s"should include the response headers in Access-Control-Expose-Headers for HTTP method $httpMethod and headers $responseHeaders") {
             servletRequest.setMethod(httpMethod)
             servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
@@ -259,7 +267,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
             // only add the headers to the response when the filterchain doFilter method is called
             doAnswer(new Answer[Void]() {
               def answer(invocation: InvocationOnMock): Void = {
-                responseHeaders.foreach(servletResponse.addHeader(_, "totally legit value"))
+                responseHeaders foreach (servletResponse.addHeader(_, "totally legit value"))
                 null
               }
             }).when(filterChain).doFilter(servletRequest, servletResponse)
@@ -283,7 +291,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
           servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) shouldEqual "true"
         }
 
-        List("http://totally.allowed", "http://completely.legit:8080", "https://seriously.safe:8443").foreach { origin =>
+        List("http://totally.allowed", "http://completely.legit:8080", "https://seriously.safe:8443") foreach { origin =>
           it(s"should have the Access-Control-Allow-Origin set to the Origin of the request for request HTTP method $httpMethod and origin $origin") {
             servletRequest.setMethod(httpMethod)
             servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
@@ -295,7 +303,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         }
       }
 
-      HttpMethods.filter{_ != "OPTIONS"}.foreach { httpMethod =>
+      HttpMethods.filterNot(_ == "OPTIONS") foreach { httpMethod =>
         it(s"should have 'Origin' in the Vary header for HTTP method $httpMethod") {
           servletRequest.setMethod(httpMethod)
           servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
@@ -427,7 +435,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
     }
 
     describe("when specifying which HTTP methods are allowed for a resource") {
-      HttpMethods.foreach { httpMethod =>
+      HttpMethods foreach { httpMethod =>
         it(s"should permit HTTP method $httpMethod when it is globally allowed in config") {
           corsFilter.configurationUpdated(createCorsConfig(List(".*"), List(httpMethod), List()))
           servletRequest.setMethod("OPTIONS")

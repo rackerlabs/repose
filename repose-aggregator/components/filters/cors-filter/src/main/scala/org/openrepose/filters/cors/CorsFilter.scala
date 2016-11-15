@@ -21,14 +21,15 @@ package org.openrepose.filters.cors
 
 import java.net.URL
 import java.util.regex.Pattern
-import javax.inject.{Named, Inject}
+import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.HttpMethod
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{HeaderConstant, CommonHttpHeader, CorsHttpHeader}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.cors.config.CorsConfig
@@ -65,7 +66,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
-      val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
+      val httpServletRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
       val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
       val isOptions = httpServletRequest.getMethod == HttpMethod.OPTIONS
       val origin = httpServletRequest.getHeader(CorsHttpHeader.ORIGIN)
@@ -100,10 +101,10 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
             case PreflightRequest =>
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
-              Option(httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)).foreach {
-                httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS, _)
+              httpServletRequest.getSplittableHeaderScala(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS) foreach {
+                httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS, _)
               }
-              validMethods.foreach {
+              validMethods foreach {
                 httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)
               }
               httpServletResponse.setStatus(HttpServletResponse.SC_OK)
@@ -113,7 +114,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
 
               // clone the list of header names so we can add headers while we iterate through it
-              (List.empty ++ httpServletResponse.getHeaderNames.asScala).foreach {
+              (List.empty ++ httpServletResponse.getHeaderNames.asScala) foreach {
                 httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
               }
           }
