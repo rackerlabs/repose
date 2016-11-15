@@ -18,6 +18,7 @@ asciidoctor {
                'stylesdir': "${project.projectDir}/src/docs/asciidoc/_stylesheets",
                'stylesheet': 'repose.css',
                'toc': 'left',
+               'icons': 'font',
                'docinfo1': ''
 
     resources {
