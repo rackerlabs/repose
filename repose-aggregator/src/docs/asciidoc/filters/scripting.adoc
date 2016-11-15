@@ -1,0 +1,96 @@
+= Scripting Filter
+:notitle:
+:toc: macro
+
+include::../_includes/in-progress.adoc[]
+
+== Scripting Filter
+toc::[]
+
+The Scripting filter enables users to write custom filters for Repose using a
+variety of scripting languages. Custom filters can be used to perform arbitrary
+processing with access to the bindings described below.
+
+== General Filter Information
+
+=== Identification
+[%hardbreaks]
+*Filter Name:* scripting
+*Default Configuration Filename:* scripting.cfg.xml
+
+=== Input
+Varies based on configuration.
+
+=== Output
+Varies based on configuration.
+
+== Supported Scripting Languages
+* Groovy
+* Javascript
+* Lua
+* Python
+* Ruby
+
+NOTE: All supported languages are currently compilable.
+
+== Bindings
+Bindings are variables defined by the Scripting filter which can be used in
+scripts.
+
+Currently supported bindings are detailed by the following table:
+|===
+|Binding Name |Description
+
+|request
+|A HttpServletRequest object containing data associated with the current
+request. To allow for modification of the request, the request object will
+be wrapped with the Repose HttpServletRequestWrapper class. All methods on
+the HttpServletRequestWrapper class will be available in the script.
+
+|response
+|A HttpServletResponse object containing data associated with the current
+response. To allow for more powerful modification of the response, the
+response object will be wrapped with the Repose HttpServletResponseWrapper
+class. All methods on the HttpServletResponseWrapper class will be available
+in the script.
+
+|filterChain
+|A FilterChain object for passing the request and response to the next filter
+in the chain.
+|===
+
+== Performance
+The performance of this filter will vary depending on configuration.
+
+For the simple task of adding a header to a request, this filter performs
+comparably to the <<add-header.adoc#,Add Header Filter>>.
+
+Scripts written in a compilable language as shown above will always be
+compiled. This should dramatically improve performance.
+
+== Configuration Example
+[source,xml]
+----
+include::../../../../components/filters/scripting-filter/src/main/resources/META-INF/schema/examples/scripting.cfg.xml[]
+----
+
+== Configuration Schema
+ifdef::basebackend-html[]
+++++
+<details>
+    <summary>Scripting XML Schema</summary>
+    <p>
+++++
+endif::[]
+
+[source,xml]
+----
+include::../../../../components/filters/scripting-filter/src/main/resources/META-INF/schema/config/scripting.xsd[]
+----
+
+ifdef::basebackend-html[]
+++++
+    </p>
+</details>
+++++
+endif::[]

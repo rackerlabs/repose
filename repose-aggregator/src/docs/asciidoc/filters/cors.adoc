@@ -1,0 +1,353 @@
+= CORS
+:toc:
+:icons: font
+
+include::../_includes/in-progress.adoc[]
+
+The Cross-Origin Resource Sharing (CORS) filter allows Repose to manage CORS requests without the origin service needing to understand CORS.
+For an introduction to CORS, see the <<CORS Overview>> below.
+
+WARNING: Before enabling the CORS filter, you should be familiar with the CORS specification and the associated security implications.
+Enabling CORS can increase an endpoint's exposure.
+Configuring CORS improperly could expose CSRF vulnerabilities in the origin service that were previously blocked by not supporting CORS.
+
+== Headers
+
+=== Required
+The presence of certain headers will indicate what kind of request is being made.
+All of these headers will be supplied by the client making the request.
+
+[cols="3", options="header,autowidth"]
+|===
+| Non-CORS Request
+| Preflight CORS Request
+| Actual CORS Request
+
+| None required
+a| * `Origin`
+   * `Access-Control-Request-Method`
+a| * `Origin`
+|===
+
+=== Created
+The CORS filter wil not add any headers to the response for non-CORS requests.
+The filter will add the following headers to the response for these scenarios when the request is allowed to proceed:
+
+[cols="2", options="header,autowidth"]
+|===
+| Preflight CORS Request
+| Actual CORS Request
+
+a| * `Access-Control-Allow-Credentials`
+   * `Access-Control-Allow-Origin`
+   * `Access-Control-Allow-Headers`
+   * `Access-Control-Allow-Methods`
+a| * `Access-Control-Allow-Credentials`
+   * `Access-Control-Allow-Origin`
+   * `Access-Control-Expose-Headers`
+
+|===
+
+If the CORS filter rejects the request, the following header will be added to the response:
+
+* `Access-Control-Allow-Origin`
+
+== Early Termination Conditions
+These are the scenarios in which the CORS filters will stop processing the request and immediately return a response:
+
+[cols="3", options="header"]
+|===
+|Response Code
+|Request Type
+|Reason
+
+|200
+|Preflight Request
+|Origin is allowed
+
+|403
+|Preflight Request
+|Origin not allowed
+
+|403
+|Preflight Request
+|Method not allowed
+
+|403
+|Actual Request
+|Origin not allowed
+
+|403
+|Actual Request
+|Method not allowed
+|===
+
+== Filter Chain
+*Filter name:* cors
+
+=== Ordering
+It should be one of the first filters, if not the first filter, in the filter chain in order to properly handle Preflight CORS requests.
+If you want to rate limit Preflight CORS requests, you can add these filters before the CORS filter in the filter chain:
+
+. <<ip-user.adoc#,IP User Filter>>
+. <<rate-limiting.adoc#,Rate Limiting Filter>>
+
+This Rate Limiting filter would be in addition to any Rate Limiting filter you may already have in place.
+The first Rate Limiting filter would filter only by IP address,
+and the second Rate Limiting filter would continue to rate limit the way it is currently set up.
+Preflight requests do not contain credentials which is why the CORS filter needs to be one of the first filters.
+
+== Configuration
+*Default Configuration Filename:* cors.cfg.xml
+
+=== Basic Example
+A basic CORS configuration would allow all origins to use any standard HTTP method on all resources.
+This could expose vulnerabilities and is not recommended outside of a development environment.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<cross-origin-resource-sharing
+    xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+
+    <allowed-origins>
+        <origin regex="true">.*</origin> <!--1-->
+    </allowed-origins>
+
+    <allowed-methods> <!--2-->
+        <method>OPTIONS</method>
+        <method>GET</method>
+        <method>HEAD</method>
+        <method>POST</method>
+        <method>PUT</method>
+        <method>DELETE</method>
+        <method>TRACE</method>
+        <method>CONNECT</method>
+    </allowed-methods>
+</cross-origin-resource-sharing>
+----
+<1> Allow all origins.
+<2> Allow these HTTP methods on all resources.
+
+=== Limit Origins
+To limit which origins are allowed to initiate a CORS request to your API,
+you can specify the exact header value or specify a regex value.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<cross-origin-resource-sharing
+    xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+
+    <allowed-origins>
+        <origin>https://subdomain.other-domain.com:8443</origin> <!--1-->
+        <origin regex="true">http://.*.subdomain.rackspace.com:.*</origin> <!--2-->
+    </allowed-origins>
+
+    <allowed-methods> <!--3-->
+        <method>GET</method>
+        <method>POST</method>
+    </allowed-methods>
+</cross-origin-resource-sharing>
+----
+<1> Allow this specific origin.
+<2> Allow any subdomain of ".subdomain.rackspace.com" on any port.
+<3> Allow HTTP methods GET and POST on all resources.
+
+=== Limit Methods By Resource
+If specific resources support additional HTTP methods,
+you can configure this per-resource using a regex to specify the path or paths.
+The resource configuration is processed in the configured order,
+so the first path regex to match the request URI will be used in conjunction with the global allowed-methods configuration.
+This will be used to determine the complete list of allowed methods to return in response to a CORS Preflight request,
+and it will be used to validate whether or not a CORS request is allowed to proceed.
+
+WARNING: This is not a substitution for authorization.
+Requests that do not contain the `Origin` header are not CORS requests and completely bypass this verification.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<cross-origin-resource-sharing
+    xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+
+    <allowed-origins>
+        <origin regex="true">.*</origin>
+    </allowed-origins>
+
+    <allowed-methods> <!--1-->
+        <method>GET</method>
+        <method>HEAD</method>
+    </allowed-methods>
+
+    <resources>
+        <resource path="/v1/status.*"/> <!--2-->
+
+        <resource path="/v1/.*"> <!--3-->
+            <allowed-methods>
+                <method>POST</method>
+                <method>PUT</method>
+            </allowed-methods>
+        </resource>
+
+        <resource path="/.*"> <!--4-->
+            <allowed-methods>
+                <method>POST</method>
+                <method>PUT</method>
+                <method>PATCH</method>
+                <method>DELETE</method>
+            </allowed-methods>
+        </resource>
+    </resources>
+</cross-origin-resource-sharing>
+----
+<1> Allow HTTP methods GET and HEAD on all resources.
+<2> The /v1/status endpoint doesn't support anything other than GET and HEAD.
+<3> The rest of /v1 supports POST and PUT in addition to GET and HEAD.
+<4> All other non /v1 endpoints support POST, PUT, PATCH, and DELETE in addition to GET and HEAD.
+
+Using this configuration,
+you would see the following:
+
+[cols="3", options="header"]
+|===
+|Request URI
+|Matched Path
+|Access-Control-Allow-Methods
+
+|/v1/status/servers
+|/v1/status.*
+|GET, HEAD
+
+|/v1/status?status=destroyed
+|/v1/status.*
+|GET, HEAD
+
+|/v1/servers
+|/v1/.*
+|GET, HEAD, POST, PUT
+
+|/v2/servers
+|/.*
+|GET, HEAD, POST, PUT, PATCH, DELETE
+
+|/index.html
+|/.*
+|GET, HEAD, POST, PUT, PATCH, DELETE
+|===
+
+=== Putting It All Together
+This is a example configuration with notes on all of the required and optional elements and attributes.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<cross-origin-resource-sharing
+    xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
+
+    <allowed-origins>
+        <origin>https://subdomain.other-domain.com:8443</origin> <!--1--> <!--2-->
+        <origin regex="true">http://.*.subdomain.rackspace.com:.*</origin> <!--3-->
+    </allowed-origins>
+
+    <allowed-methods>
+        <method>GET</method> <!--4-->
+        <method>HEAD</method>
+    </allowed-methods>
+
+    <resources> <!--5-->
+        <resource path="/v1/status.*"/> <!--6--> <!--7-->
+
+        <resource path="/v1/.*">
+            <allowed-methods> <!--8-->
+                <method>POST</method> <!--9-->
+                <method>PUT</method>
+            </allowed-methods>
+        </resource>
+
+        <resource path="/.*">
+            <allowed-methods>
+                <method>POST</method>
+                <method>PUT</method>
+                <method>PATCH</method>
+                <method>DELETE</method>
+            </allowed-methods>
+        </resource>
+    </resources>
+</cross-origin-resource-sharing>
+----
+<1> At least one `origin` element is required.
+<2> The `regex` attribute is not required.
+If it is not present,
+it is defaulted to `false` and the specified URI is treated as a literal string.
+<3> When the `regex` attribute is `true`,
+the specified URI will be treated as a Java regular expression.
+<4> At least one `method` element is required.
+<5> The `resources` element is optional.
+<6> At least one `resource` element is required when the `resources` element is present.
+<7> The `path` attribute is required and is always treated as a Java regular expression.
+<8> The `allowed-methods` element is optional.
+Leaving it out is useful when you need to prevent adding additional HTTP methods to a sub-resource as is the case with `/v1/status.*` in this example.
+<9> At least one `method` element is required when the `allowed-methods` element is present.
+
+=== Schema
+The XML schema definition is located in
+https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/cors-filter/src/main/resources/META-INF/schema/config/cors-configuration.xsd[GitHub].
+
+== CORS Overview
+For security purposes, web browsers follow the https://en.wikipedia.org/wiki/Same-origin_policy[Single-Origin policy].
+If a user were to visit a website containing malicious code,
+the web browser would prevent the malicious code from trying to send requests to different websites on the user's behalf.
+This is especially useful when the user is authenticated on those other websites.
+However, sometimes we need to be able to get data and perform actions on different websites than the originating one.
+This is where CORS comes in.
+
+Instead of the web browser immediately denying any request intended for a different server,
+it can send the request with additional CORS headers.
+One of these headers is the `Origin` header which indicates which website is responsible for sending the web browser to a different server.
+If the response from the second server does not contain the appropriate CORS headers (i.e. the server is not CORS-aware)
+or if the CORS headers indicate the Origin is not allowed to send requests to it,
+the browser will drop the response (i.e. the client-side code will never get to see the contents of the response).
+
+Even though the web browser prevents the client code from seeing the response,
+the request would still have been sent and potentially processed by the second server.
+To mitigate potential server-side issues,
+the web browser will send a Preflight Request to first verify that the Origin and HTTP method are allowed (among a few other things) before sending the Actual Request.
+If the response to the Preflight Request indicates the Actual Request wouldn't include the appropriate CORS headers that would allow the client code to process the response,
+the web browser will not proceed with sending the Actual Request.
+
+A request is considered a *Preflight Request* if it meets the following:
+
+* HTTP method is OPTIONS
+* Header exists for `Origin`
+* Header exists for `Access-Control-Request-Method`
+
+NOTE: Preflight Requests are completely handled by the CORS filter.
+No other filters after the CORS filter will process them,
+and they won't reach the origin service.
+
+A request will be considered an *Actual Request* if it meets the following:
+
+* Header exists for `Origin`
+* Header _does not_ exist for `Access-Control-Request-Method`
+
+NOTE: Some web browsers (e.g. Chrome and Safari) will send the `Origin` header for same-origin requests.
+Because of this, the configured list of allowed origins should include your own origin.
+If per-resource validation is being used,
+it would need to include all of the resources that non-CORS requests are expected to service,
+or the CORS filter would need to be skipped for those resources in the System Model configuration using a regular expression.
+
+Preflight Requests _may_ be skipped for the following types of requests:
+
+* HTTP method is GET, HEAD, or POST
+* Headers do not include anything other than `Accept`, `Accept-Language`, `Content-Language`, and `Content-Type`
+(assuming the values are `application/x-www-form-urlencoded`, `multipart/form-data`, or `text/plain`).
+
+NOTE: If your origin service requires a special header (e.g. `X-Auth-Token`),
+a Preflight Request will always be sent for CORS requests.
+
+WARNING: CORS is not a security feature.
+It is a mechanism for informing clients (e.g. web browsers) of conditions when client-side security can be slightly relaxed in certain circumstances.
+That is, the security lies completely within the client.
+Simply leaving out the `Origin` header in the request completely bypasses the CORS spec (and thus this filter).
+You should continue securing your API in other ways using proper authentication and authorization.
