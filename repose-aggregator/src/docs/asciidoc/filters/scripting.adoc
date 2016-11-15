@@ -5,13 +5,6 @@ include::../_includes/in-progress.adoc[]
 The Scripting filter enables users to write custom filters for Repose using a variety of scripting languages.
 Custom filters can be used to perform arbitrary processing with access to the bindings described below.
 
-== General Filter Information
-
-=== Identification
-[%hardbreaks]
-*Filter Name:* scripting
-*Default Configuration Filename:* scripting.cfg.xml
-
 === Input
 Varies based on configuration.
 
@@ -26,6 +19,8 @@ Varies based on configuration.
 * Ruby
 
 NOTE: All supported languages are currently compilable.
+
+TIP: An enumeration of all supported language names (e.g., `lua` and `luaj`) that will be accepted in configuration can be found in the XML schema linked at the bottom of this page.
 
 == Bindings
 Bindings are variables defined by the Scripting filter which can be used in scripts.
@@ -48,6 +43,10 @@ All methods on the HttpServletResponseWrapper class will be available in the scr
 |A FilterChain object for passing the request and response to the next filter in the chain.
 |===
 
+IMPORTANT: Invoking the `doFilter` method on the `filterChain` object is necessary to pass the request/response along.
+If `doFilter` is not invoked, the scripting filter will return the response object as-is up the filter chain.
+No later filter nor the origin service will have a chance to process the request.
+
 == Performance
 The performance of this filter will vary depending on configuration.
 
@@ -56,29 +55,65 @@ For the simple task of adding a header to a request, this filter performs compar
 Scripts written in a compilable language as shown above will always be compiled.
 This should dramatically improve performance.
 
-== Configuration Example
+== Filter Chain
+*Filter Name:* scripting
+
+=== Ordering
+This filter can be placed wherever it is needed in the filter chain.
+It does not have any strict dependencies on any other filter, nor is it strictly required by any other filters.
+
+== Configuration
+*Default Configuration Filename:* scripting.cfg.xml
+
+== Add A Header Using Groovy
 [source,xml]
 ----
-include::../../../../components/filters/scripting-filter/src/main/resources/META-INF/schema/examples/scripting.cfg.xml[]
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy"> <!--1-->
+    request.addHeader("foo", "bar") <!--2-->
+
+    // Call the next filter in the chain <!--3-->
+    filterChain.doFilter(request, response) <!--4-->
+</scripting>
 ----
+<1> Specifies that the scripting language being used is `groovy`.
+<2> The first line of the Groovy script.
+Adds a request header named `foo` with a value of `bar`.
+<3> Comments can be used in the scriptlet just like in the native language!
+<4> Passes the modified request and the response on to the next component in the filter chain.
 
-== Configuration Schema
-ifdef::basebackend-html[]
-++++
-<details>
-    <summary>Scripting XML Schema</summary>
-    <p>
-++++
-endif::[]
-
+== Migrate Path Segments to Query Parameters Using Python
 [source,xml]
 ----
-include::../../../../components/filters/scripting-filter/src/main/resources/META-INF/schema/config/scripting.xsd[]
-----
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="python"><![CDATA[ <!--1-->
+path = request.getRequestURI() <!--2-->
+pathSegments = path.strip("/").split("/") <!--3-->
+queryString = request.getQueryString() <!--4-->
 
-ifdef::basebackend-html[]
-++++
-    </p>
-</details>
-++++
-endif::[]
+if len(pathSegments) >= 2: <!--5-->
+    if queryString is not None: <!--6-->
+      queryString = queryString + "&penultimate=" + pathSegments[len(pathSegments) - 2] + "&ultimate=" + pathSegments[len(pathSegments) - 1]
+    else:
+      queryString = "penultimate=" + pathSegments[len(pathSegments) - 2] + "&ultimate=" + pathSegments[len(pathSegments) - 1]
+
+    request.setQueryString(queryString) <!--7-->
+    request.setRequestURI("/" + "/".join(pathSegments[-2:]))
+
+filterChain.doFilter(request, response) <!--8-->
+]]></scripting> <!--9-->
+----
+<1> Specifies that the scripting language being used is `python`. Also opens the `CDATA` block.
+<2> The first line of the Python script.
+Gets the request URI from the request object.
+<3> Removes any leading or trailing `/` characters from the URI.
+Also splits the modified URI on the `/` character.
+<4> Gets the request query string from the request object.
+<5> For this specific example, we assert that there are at least two path segments.
+If not, no request mutations are performed.
+<6> This conditional block appends the last two path segments as query parameters.
+<7> Sets the modified query string and request URI on the request object.
+<8> Passes the modified request and the response on to the next component in the filter chain.
+<9> Terminates the `CDATA` block and the script.
+
+=== link:../schemas/scripting.xsd[Schema]
