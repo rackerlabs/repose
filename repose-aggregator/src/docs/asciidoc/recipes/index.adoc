@@ -9,7 +9,7 @@ We all need to get started somewhere. If this your first time using *Repose*, th
 Learn the basics of running and operating Repose in a Docker container!
 
 == <<glassfish-setup.adoc#,Glassfish Setup>>
-*IN PROGRESS*
+Describes how to run the Repose WAR in a Glassfish container.
 
 == <<new-repose-filter.adoc#,New Repose Filter>>
 *IN PROGRESS*
@@ -21,10 +21,10 @@ Learn the basics of running and operating Repose in a Docker container!
 *IN PROGRESS*
 
 == <<running-valve.adoc#,Running Valve>>
-*IN PROGRESS*
+Details the ways which Repose Valve can be run.
 
 == <<tomcat-setup.adoc#,Tomcat Setup>>
-*IN PROGRESS*
+Describes how to run the Repose WAR in a Tomcat container.
 
 == <<troubleshooting.adoc#,Troubleshooting>>
 *IN PROGRESS*
@@ -33,7 +33,7 @@ Learn the basics of running and operating Repose in a Docker container!
 *IN PROGRESS*
 
 == <<valve-installation.adoc#,Valve Installation>>
-*IN PROGRESS*
+Covers the typical Repose setup -- a Valve installation (i.e., standalone application) running as a Linux service.
 
 == <<war-installation.adoc#,WAR Installation>>
-*IN PROGRESS*
+Covers setting up Repose inside of a user-provided servlet container.
