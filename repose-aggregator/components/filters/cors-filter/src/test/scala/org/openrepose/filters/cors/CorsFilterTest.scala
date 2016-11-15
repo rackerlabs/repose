@@ -372,6 +372,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
         servletResponse.getStatus shouldBe 403
+        servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "null"
       }
 
       it("should allow an actual request with a specific origin") {
@@ -418,6 +419,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
         servletResponse.getStatus shouldBe 403
+        servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "null"
       }
 
       it("should allow a non-CORS request that does not have an origin header") {

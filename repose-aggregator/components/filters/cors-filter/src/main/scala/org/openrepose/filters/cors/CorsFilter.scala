@@ -119,7 +119,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
               }
           }
         case OriginNotAllowed =>
-          httpServletResponse.setHeader(CorsHttpHeader.ORIGIN, "null")
+          httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, "null")
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
         case MethodNotAllowed =>
           httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
