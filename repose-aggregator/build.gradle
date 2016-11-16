@@ -8,7 +8,13 @@ dependencies {
 }
 
 task copyXsds(type: Copy) {
-    from(fileTree(project.rootDir).include('**/src/main/resources/META-INF/schema/config/*.xsd').files)
+    // Copy the system model configuration schema.
+    from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/system-model/system-model.xsd")
+
+    // Copy all filter and service configuration schemas.
+    from(fileTree("${project.projectDir}/components").include('**/src/main/resources/META-INF/schema/config/*.xsd').files)
+
+    // Place all schemas into a schemas directory.
     into("${project.buildDir}/asciidoc/html5/schemas/")
 }
 
