@@ -11,8 +11,8 @@ Learn the basics of running and operating Repose in a Docker container!
 == <<glassfish-setup.adoc#,Glassfish Setup>>
 Describes how to run the Repose WAR in a Glassfish container.
 
-== <<new-repose-filter.adoc#,New Repose Filter>>
-*IN PROGRESS*
+== <<custom-filter-for-repose.adoc#,Custom Filter for Repose>>
+Learn how to create your own custom filter for Repose!
 
 == <<performance-best-practices.adoc#,Performance Best Practices>>
 *IN PROGRESS*

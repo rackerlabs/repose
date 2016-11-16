@@ -1,0 +1,8 @@
+= Custom Filter for Repose
+
+include::../_includes/in-progress.adoc[]
+
+Unfortunately, this page is not going to teach you how to create a custom filter for Repose.
+Fortunately, this page is going to direct you to a page that will teach you how to create a custom filter for Repose.
+
+For a detailed guide on how to create a custom filter for Repose, see https://github.com/rackerlabs/repose-hello-world[our hello world filter project].
