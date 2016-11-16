@@ -22,6 +22,7 @@ package features.filters.cors
 import framework.ReposeValveTest
 import org.openrepose.commons.utils.http.CorsHttpHeader
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
@@ -146,6 +147,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         and: "the request does not make it to the origin service"
         mc.getHandlings().size() == 0
 
+        and: "the 'Access-Control-Allow-Origin' header is set to 'null' to indicate the 'Origin' was not allowed"
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == "null"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
+
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
 
@@ -168,6 +173,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().size() == 0
+
+        and: "the 'Access-Control-Allow-Origin' header is set to 'null' to indicate the 'Origin' was not allowed"
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == "null"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -337,7 +346,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         and: "the request does not make it to the origin service"
         mc.getHandlings().size() == 0
 
-        and: "the 'Origin' header exists because it was valid"
+        and: "the 'Access-Control-Allow-Origin' header is set correctly since the origin was valid"
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
 
@@ -433,6 +442,52 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         where:
         [method, requestHeaders] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                                     ['x-auth-token', 'x-auth-token, x-ponies', 'cookie']].combinations()
+                                     ['x-auth-token', 'x-ponies', 'cookie']].combinations()
+    }
+
+    @Unroll
+    def "Preflight request with 'Access-Control-Request-Headers' headers #requestHeaders results in 'Access-Control-Allow-Headers' headers #allowHeaders"() {
+        given: "an actual request with an allowed origin, valid path, and an 'Access-Control-Request-Headers' header"
+        def origin = 'http://openrepose.com:80'
+        def path = '/testupdate'
+        def method = "GET"
+        def headers = [
+                new Header(CorsHttpHeader.ORIGIN.toString(), origin),
+                new Header(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString(), method)
+        ] + requestHeaders.collect { new Header(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString(), it) }
+
+        when: "the request is made"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
+
+        then: "the response status is OK"
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+
+        and: "the request does not make it to the origin service"
+        mc.getHandlings().size() == 0
+
+        and: "the CORS headers for a preflight request are added"
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+
+        and: "the 'Access-Control-Allow-Headers' header is set to the values that were in the 'Access-Control-Request-Headers' header correctly split"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) == allowHeaders
+
+        and: "the CORS headers for an actual request are not added"
+        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString())
+
+        and: "the 'Vary' header is set with the correct values for an OPTIONS request"
+        mc.receivedResponse.headers.contains("Vary")
+        mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
+
+        where:
+        requestHeaders                        | allowHeaders
+        ["x-auth-token"]                      | ["x-auth-token"]
+        ["x-ponies, x-unicorns"]              | ["x-ponies", "x-unicorns"]
+        ["x-cupcakes", "x-apple-pie"]         | ["x-cupcakes", "x-apple-pie"]
+        ["x-pineapple, x-cranberry, x-grape"] | ["x-pineapple", "x-cranberry", "x-grape"]
+        ["x-red", "x-green", "x-blue"]        | ["x-red", "x-green", "x-blue"]
+        ["circle, square", "triangle"]        | ["circle", "square", "triangle"]
     }
 }
