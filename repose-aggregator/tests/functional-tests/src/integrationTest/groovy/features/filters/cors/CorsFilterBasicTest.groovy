@@ -71,7 +71,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     }
 
     def "Actual request with method OPTIONS is not treated like a Preflight request if it does not have an 'Access-Control-Request-Method' header"() {
-        given: "the request has an 'origin' header making this an actual CORS request"
+        given: "the request has an 'Origin' header making this an actual CORS request"
         def origin = 'http://test.repose.site:80'
         def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
 
@@ -99,7 +99,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
     @Unroll
     def "Preflight request with 'Access-Control-Request-Method' header of #method, path #path, and origin #origin should return a 200"() {
-        given: "the request has both an 'origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
+        given: "the request has both an 'Origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
         def headers = [
                 (CorsHttpHeader.ORIGIN.toString())                       : origin,
                 (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
@@ -133,7 +133,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
     @Unroll
     def "Preflight request from an unauthorized origin results in a 403 for an 'Access-Control-Request-Method' header of #method, path #path, and origin #origin"() {
-        given: "the request has both an 'origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
+        given: "the request has both an 'Origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
         def headers = [
                 (CorsHttpHeader.ORIGIN.toString())                       : origin,
                 (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
@@ -162,7 +162,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
     @Unroll
     def "Actual request from an unauthorized origin results in a 403 for an 'Access-Control-Request-Method' header of #method, path #path, and origin #origin"() {
-        given: "the request has an 'origin' header making this an actual CORS request"
+        given: "the request has an 'Origin' header making this an actual CORS request"
         def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
 
         when: "the request is made"
@@ -189,7 +189,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
     @Unroll
     def "Preflight request for a path matching '/status.*' resource in config will return a 200 with 'Access-Control-Request-Method' header of #method and origin #origin"() {
-        given: "the request has both an 'origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
+        given: "the request has both an 'Origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
         def headers = [
                 (CorsHttpHeader.ORIGIN.toString())                       : origin,
                 (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
@@ -225,7 +225,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
     @Unroll
     def "Preflight request for a path matching '/testupdate.*' resource in config will return a 200 with 'Access-Control-Request-Method' header of #method and origin #origin"() {
-        given: "the request has both an 'origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
+        given: "the request has both an 'Origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
         def headers = [
                 (CorsHttpHeader.ORIGIN.toString())                       : origin,
                 (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
@@ -300,7 +300,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
     @Unroll
     def "Actual request for a path matching '/testupdate.*' resource in config will return a 200 with origin #origin"() {
-        given: "the request has an 'origin' header making this an actual CORS request"
+        given: "the request has an 'Origin' header making this an actual CORS request"
         def path = "/testupdate"
         def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
 
@@ -389,7 +389,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         and: "the 'Access-Control-Allow-Methods' header does not exist"
         !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
 
-        and: "the 'Vary' header is set with the correct values for an OPTIONS request"
+        and: "the 'Vary' header is set with the correct values for a non-OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
         mc.receivedResponse.headers.findAll("Vary") == ['origin']
 
@@ -446,7 +446,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "Preflight request with 'Access-Control-Request-Headers' headers #requestHeaders results in 'Access-Control-Allow-Headers' headers #allowHeaders"() {
+    def "Preflight request with 'Access-Control-Request-Headers' headers #requestHeaders results in response with 'Access-Control-Allow-Headers' headers #allowHeaders"() {
         given: "an actual request with an allowed origin, valid path, and an 'Access-Control-Request-Headers' header"
         def origin = 'http://openrepose.com:80'
         def path = '/testupdate'

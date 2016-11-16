@@ -165,7 +165,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
           (List("x-panda, x-unicorn"), List("x-panda", "x-unicorn")),
           (List("x-cupcake", "x-pineapple"), List("x-cupcake", "x-pineapple")),
           (List("accept, user-agent, x-trans-id"), List("accept", "user-agent", "x-trans-id")),
-          (List("x-one, x-two", "x-three"), List("x-one", "x-two", "x-three"))
+          (List("x-one, x-two", "x-three"), List("x-one", "x-two", "x-three")),
+          (List("x-red", "x-green", "x-blue"), List("x-red", "x-green", "x-blue"))
         ) foreach { case (requestHeaders, expectedAllowedHeaders) =>
           it(s"should have the Access-Control-Allow-Headers header set to $expectedAllowedHeaders for request HTTP method $requestMethod and request headers $requestHeaders") {
             servletRequest.setMethod("OPTIONS")
