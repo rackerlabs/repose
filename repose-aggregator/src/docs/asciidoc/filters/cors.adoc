@@ -1,6 +1,4 @@
 = CORS
-:toc:
-:icons: font
 
 include::../_includes/in-progress.adoc[]
 
@@ -51,6 +49,9 @@ a| * `Access-Control-Allow-Credentials`
 If the CORS filter rejects the request, the following header will be added to the response:
 
 * `Access-Control-Allow-Origin`
+
+The value of the header will be `"null"` (including the quotation marks) if the origin was not allowed.
+Otherwise, the value will be the same value as the `Origin` header in the request if the origin was allowed but the HTTP method for the requested resource was not.
 
 == Early Termination Conditions
 These are the scenarios in which the CORS filters will stop processing the request and immediately return a response:
