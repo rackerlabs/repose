@@ -9,4 +9,4 @@ include::../_includes/in-progress.adoc[]
 Provides details about the packages Repose maintains for easy installation by our users.
 
 == <<system-model.adoc#,System Model>>
-*IN PROGRESS*
+Provides detail about the Repose system model -- the configuration file which outlines the deployment topology.
