@@ -131,7 +131,7 @@ See <<performance-best-practices.adoc#,Performance Best Practices>> for more det
 For further information on common configuration scenarios, visit our <<index.adoc#,Recipes>> page.
 
 ==== Troubleshooting
-For details on common troubleshooting techniques, visit our <<troubleshooting.adoc#,Troubleshooting>> page.
+For details on common troubleshooting techniques, visit our <<../troubleshooting.adoc#,Troubleshooting>> page.
 
 ==== FAQs
 For a list of frequently asked questions and answers, visit our <<../faqs.adoc#,FAQs>> page.

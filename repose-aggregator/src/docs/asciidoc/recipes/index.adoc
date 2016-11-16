@@ -26,9 +26,6 @@ Details the ways which Repose Valve can be run.
 == <<tomcat-setup.adoc#,Tomcat Setup>>
 Describes how to run the Repose WAR in a Tomcat container.
 
-== <<troubleshooting.adoc#,Troubleshooting>>
-*IN PROGRESS*
-
 == <<vagrant.adoc#,Vagrant>>
 *IN PROGRESS*
 
