@@ -8,6 +8,9 @@ include::../_includes/in-progress.adoc[]
 <<cors.adoc#,CORS Filter>>::
     Enables users to add support for Cross-Origin Resource Sharing requests.
 
+<<rackspace-auth-user.adoc#,Rackspace Auth User>>::
+    For identity usage for rate limiting and user access events.
+
 <<scripting.adoc#,Scripting Filter>>::
     Enables users to write custom filters for Repose using a
     variety of scripting languages.
