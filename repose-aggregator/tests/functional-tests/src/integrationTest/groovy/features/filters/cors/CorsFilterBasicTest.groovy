@@ -392,14 +392,14 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("Vary") == ['origin']
 
         where:
-        method    | path
-        "PATCH"   | "/status"
-        "DELETE"  | "/status"
-        "PATCH"   | "/"
-        "DELETE"  | "/"
-        "PUT"     | "/"
-        "POST"    | "/"
-        "TRACE"   | "/"
+        method   | path
+        "PATCH"  | "/status"
+        "DELETE" | "/status"
+        "PATCH"  | "/"
+        "DELETE" | "/"
+        "PUT"    | "/"
+        "POST"   | "/"
+        "TRACE"  | "/"
     }
 
     @Unroll
@@ -408,8 +408,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
         def origin = 'http://openrepose.com:80'
         def path = '/testupdate'
         def headers = [
-                (CorsHttpHeader.ORIGIN.toString()): origin,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method,
+                (CorsHttpHeader.ORIGIN.toString())                        : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()) : method,
                 (CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString()): requestHeaders
         ]
 
@@ -464,13 +464,16 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().size() == 0
 
         and: "the CORS headers for a preflight request are added"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).size() == 1
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
 
-        and: "the 'Access-Control-Allow-Headers' header is set to the values that were in the 'Access-Control-Request-Headers' header correctly split"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) == allowHeaders
+        and: "the 'Access-Control-Allow-Headers' header is set to the values that were in the 'Access-Control-Request-Headers' header without being split"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).tokenize(',').containsAll(allowHeaders)
 
         and: "the CORS headers for an actual request are not added"
         !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString())
