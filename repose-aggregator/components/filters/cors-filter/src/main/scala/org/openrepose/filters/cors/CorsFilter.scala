@@ -122,7 +122,6 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
           }
         case OriginNotAllowed =>
           logger.debug("Request rejected because origin '{}' is not allowed.", origin)
-          httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, "null")
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
         case MethodNotAllowed =>
           logger.debug("Request rejected because method '{}' is not allowed for resource '{}'.",

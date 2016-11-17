@@ -147,9 +147,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
         and: "the request does not make it to the origin service"
         mc.getHandlings().size() == 0
 
-        and: "the 'Access-Control-Allow-Origin' header is set to 'null' to indicate the 'Origin' was not allowed"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == "null"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
+        and: "the 'Access-Control-Allow-Origin' header is not set to indicate the 'Origin' was not allowed"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 0
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -174,9 +173,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
         and: "the request does not make it to the origin service"
         mc.getHandlings().size() == 0
 
-        and: "the 'Access-Control-Allow-Origin' header is set to 'null' to indicate the 'Origin' was not allowed"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == "null"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
+        and: "the 'Access-Control-Allow-Origin' header is not set to indicate the 'Origin' was not allowed"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 0
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
