@@ -279,8 +279,8 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
           validator = Validator.apply(name + System.currentTimeMillis, source, config)
           true
         } catch {
-          case _ : ValidatorException | _ : WADLException  =>
-            logger.warn("Error loading validator for WADL!!! ", _)
+          case e@(_: ValidatorException | _: WADLException) =>
+            logger.warn("Error loading validator for WADL!!! ", e)
             false
         }
     }
