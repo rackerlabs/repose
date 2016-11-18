@@ -29,7 +29,7 @@ import javax.ws.rs.HttpMethod
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
-import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.cors.config.CorsConfig
@@ -67,7 +67,8 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       val httpServletRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-      val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
+      val httpServletResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse],
+        ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val isOptions = httpServletRequest.getMethod == HttpMethod.OPTIONS
       val origin = httpServletRequest.getHeader(CorsHttpHeader.ORIGIN)
       val requestMethodHeader = httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
@@ -103,10 +104,10 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
               httpServletRequest.getSplittableHeaderScala(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS) foreach {
-                httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS, _)
+                httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS, _)
               }
               validMethods foreach {
-                httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)
+                httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)
               }
               httpServletResponse.setStatus(HttpServletResponse.SC_OK)
             case ActualRequest =>
@@ -117,7 +118,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 
               // clone the list of header names so we can add headers while we iterate through it
               (List.empty ++ httpServletResponse.getHeaderNames.asScala) foreach {
-                httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
+                httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
               }
           }
         case OriginNotAllowed =>
@@ -136,6 +137,8 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
         httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)
         httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       }
+
+      httpServletResponse.commitToResponse()
     }
   }
 

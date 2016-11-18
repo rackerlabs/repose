@@ -22,12 +22,12 @@ package org.openrepose.filters.cors
 import javax.servlet.FilterChain
 
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, eq => mockitoEq}
+import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
-import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.filters.cors.config.Origins.Origin
 import org.openrepose.filters.cors.config._
 import org.scalatest.junit.JUnitRunner
@@ -67,7 +67,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          verify(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), mockitoEq(servletResponse))
+          verify(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), any(classOf[HttpServletResponseWrapper]))
         }
 
         it(s"should not add CORS specific headers for HTTP method $httpMethod") {
@@ -158,6 +158,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
           servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should not be null
+          servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
         }
 
         List(
@@ -176,7 +177,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-            servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) should contain theSameElementsAs expectedAllowedHeaders
+            servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) should have size 1
+            servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).split(",") should contain theSameElementsAs expectedAllowedHeaders
           }
         }
 
@@ -233,7 +235,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          verify(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), mockitoEq(servletResponse))
+          verify(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), any(classOf[HttpServletResponseWrapper]))
         }
 
         it(s"should not add preflight specific headers for HTTP method $httpMethod") {
@@ -276,10 +278,11 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
             // Access-Control-Expose-Headers should have all of the response headers in it except for itself and the Vary header
-            servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) should contain theSameElementsAs
+            servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).split(",") should contain theSameElementsAs
               servletResponse.getHeaderNames.asScala.filter { headerName =>
                 headerName != CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString &&
                   headerName != CommonHttpHeader.VARY.toString}
+            servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) should have size 1
           }
         }
 
@@ -448,7 +451,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain (httpMethod)
+          servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
+          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain (httpMethod)
         }
 
         it(s"should not permit HTTP method $httpMethod when it is not globally allowed in config") {
@@ -472,7 +476,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain (httpMethod)
+          servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
+          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain (httpMethod)
         }
 
         it(s"should not permit HTTP method $httpMethod when it is not configured and a root resource allows something else") {
@@ -508,7 +513,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain (httpMethod)
+          servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
+          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain (httpMethod)
         }
 
         it(s"should permit HTTP method $httpMethod when a specific child resource allows it") {
@@ -520,7 +526,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain (httpMethod)
+          servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
+          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain (httpMethod)
         }
 
         it(s"should return a 403 when the requested method is not allowed for method $httpMethod") {
@@ -545,7 +552,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST", "PUT", "DELETE")
+        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
+        servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain theSameElementsAs List("GET", "POST", "PUT", "DELETE")
       }
 
       it("should permit multiple HTTP methods specified in both global config and a specific resource") {
@@ -557,7 +565,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST", "PUT", "DELETE")
+        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
+        servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain theSameElementsAs List("GET", "POST", "PUT", "DELETE")
       }
 
       it("should permit multiple HTTP methods specified in both global config and a specific root resource") {
@@ -569,7 +578,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST", "PUT", "PATCH")
+        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
+        servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain theSameElementsAs List("GET", "POST", "PUT", "PATCH")
       }
 
       it("should be able to handle a path param with a configured resource path specified with regex") {
@@ -581,7 +591,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST", "PUT", "PATCH")
+        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
+        servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain theSameElementsAs List("GET", "POST", "PUT", "PATCH")
       }
 
       it("should permit multiple HTTP methods specified in both global config and a specific resource with no methods") {
@@ -593,7 +604,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should contain theSameElementsAs List("GET", "POST")
+        servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
+        servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain theSameElementsAs List("GET", "POST")
       }
     }
   }
