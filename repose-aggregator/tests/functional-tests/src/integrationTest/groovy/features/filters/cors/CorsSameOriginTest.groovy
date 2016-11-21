@@ -21,7 +21,6 @@ import org.rackspace.deproxy.Response
 import spock.lang.Shared
 
 import javax.servlet.http.HttpServletResponse
-import java.nio.file.Files
 
 class CorsSameOriginTest extends ReposeValveTest {
 
@@ -41,12 +40,6 @@ class CorsSameOriginTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/cors/sameorigin", params)
-
-        // have to manually copy binary files, because the applyConfigs() attempts to substitute template parameters
-        // when they are found and it breaks everything. :(
-        def serverFileOrig = new File(repose.configurationProvider.configTemplatesDir, "common/server.jks")
-        def serverFileDest = new FileOutputStream(new File(repose.configDir, "server.jks"))
-        Files.copy(serverFileOrig.toPath(), serverFileDest)
 
         // add self-signed SSL certificate support to Deproxy
         CloseableHttpClient client = HttpClients.custom()
