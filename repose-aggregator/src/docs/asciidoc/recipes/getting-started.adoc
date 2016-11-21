@@ -27,18 +27,18 @@ This deployment method, illustrated in the following graphic, is called <<valve-
 +------+          +------+    +--------------+
 ....
 
-Repose can also run within a servlet container such as GlassFish and Tomcat in the <<war-installation.adoc#,WAR>> deployment.
+Repose can also run within a servlet container such as GlassFish or Tomcat using the <<war-installation.adoc#,WAR>> deployment.
 
 [ditaa, war-diagram, png]
 ....
-                  +=---------------------------+
-                  |     Servlet Container      |
-+------+          |+------+    +--------------+|
-|      +---------->|      +=-->|              ||
-|Client|          ||Repose|    |Origin Service||
-|      |<----------+      |<--=+              ||
-+------+          |+------+    +--------------+|
-                  +----------------------------+
+                  +=-----------------------------+
+                  |      Servlet Container       |
++------+          | +------+    +--------------+ |
+|      +----------->|      +=-->|              | |
+|Client|          | |Repose|    |Origin Service| |
+|      |<-----------+      |<--=+              | |
++------+          | +------+    +--------------+ |
+                  +------------------------------+
 ....
 
 You can decide which configuration works best for you, and you can tweak many of your configurations without having to restart Repose – it will pick up configuration changes on the fly, making it easy to configure and test.
