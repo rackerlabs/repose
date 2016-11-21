@@ -1,0 +1,81 @@
+= Rackspace Auth User Filter
+
+include::../_includes/in-progress.adoc[]
+
+The Rackspace Auth User filter is for usage in *Repose* instances that sit in front of Keystone v1 and v2 deployments.
+It's meant to be used for login requests to capture username for both <<../recipes/rate-limiting.adoc#,rate limiting>> and <<../recipes/user-access-events.adoc#,user access events>>.
+
+== Headers
+
+=== Required
+This filter doesn't look for any headers to be present in either the request or response.
+
+=== Created
+[cols="3", options="header,autowidth"]
+|===
+| Request Headers | Value                   | Conditions of Creation
+
+| `X-PP-User`     | Username in the request | Username present in the request. Prepended with `Racker:` if domain was present and had a value of `Rackspace`.
+
+| `X-User-Name`   | Username in the request | Username present in the request. Prepended with `Racker:` if domain was present and had a value of `Rackspace`.
+
+| `X-PP-Groups`   | Configured value        | Username present in the request.
+
+| `X-Domain`      | Domain in the request   | Username and Domain present in the request.
+|===
+
+== Early Termination Conditions
+There are no cases where this filter will terminate further processing of the filter chain.
+
+== Filter Chain
+*Filter Name:* `rackspace-auth-user`
+
+=== Ordering
+This filter needs to appear in the filter chain before any of the filters that need the information that is derived here.
+That means the <<rate-limiting.adoc#,rate limiting filter>> when rate limiting, and <<herp.adoc#,herp filter>> when doing user access events.
+When doing both the order should be:
+
+. Rackspace Auth User
+. Highly Efficeint Record Processor
+. Rate Limiting
+
+For further details about the reasoning behind this ordering see <<../recipes/user-access-events.adoc#,user access events>>.
+
+== Configuration
+*Default Configuration Filename:* `rackspace-auth-user.cfg.xml`
+
+=== Full Example
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<rackspace-auth-user
+    xmlns='http://docs.openrepose.org/repose/rackspace-auth-user/v1.0'>
+
+    <v1_1 content-body-read-limit="2048"> <!--1--> <!--2-->
+        <group>1_1 Group</group> <!--3-->
+        <quality>0.75</quality> <!--4-->
+    </v1_1>
+
+    <v2_0> <!--5-->
+        <group>2_0 Group</group> <!--3-->
+        <quality>0.80</quality> <!--4-->
+    </v2_0>
+
+</rackspace-auth-user>
+----
+<1> The `v1_1` element lets the filter know that you'd like to try to process bodies using the 1.1 contract.
+    It is optional.
+<2> The `content-body-read-limit` attribute specifies how much of the body you'd like the filter to read before giving up and assuming it's not present.
+    It is optional and defaults to `4096`.
+<3> The `group` element specifies what group name to use in the `X-PP-Groups` header.
+    It is optional and defaults to `Pre_Auth`.
+<4> The `quality` element specifies what quality to apply to the `X-PP-User` and `X-PP-Groups` headers, it should be a value between `0` and `1.0`.
+    It is optional and defaults to `0.6`.
+<5> The `v2_0` element is similar to the `v1_1` element but specifies that the filter should try to process request bodies with the 2.0 contract.
+    It is optional.
+    The elements are not exclusive and you can specify one, both, or neither.
+    This element can also take a `content-body-read-limit` attribute with the same behavior as the `v1_1` element.
+
+=== Schema
+The full schema can be found link:../schemas/rackspace-auth-user-configuration.xsd[here].
+
