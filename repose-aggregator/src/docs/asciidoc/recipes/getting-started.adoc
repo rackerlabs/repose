@@ -100,6 +100,10 @@ See <<tomcat-setup.adoc#,Tomcat Setup>> for more details.
 
 See <<glassfish-setup.adoc#,GlassFish Setup>> for more details.
 
+===== Container Attributes known to affect Repose
+
+See <<http-container-attributes.adoc#,HTTP container attributes>>
+
 === Deployment
 Once you know how you'll want to configure Repose, you may want to automate the deployment using a configuration management tool or reusable container.
 
