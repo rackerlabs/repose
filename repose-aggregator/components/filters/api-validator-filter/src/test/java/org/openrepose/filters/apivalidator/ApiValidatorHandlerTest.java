@@ -20,6 +20,7 @@
 package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Validator;
+import com.rackspace.com.papi.components.checker.ValidatorException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -80,7 +81,7 @@ public class ApiValidatorHandlerTest {
             when(nullValidatorInfo.getValidator()).thenReturn(null);
 
             blowupValidator = mock(Validator.class);
-            when(blowupValidator.validate(request, response, chain)).thenThrow(new RuntimeException("Test"));
+            when(blowupValidator.validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain))).thenThrow(new ValidatorException("Test", new RuntimeException("Test")));
             blowupValidatorInfo = new ValidatorInfo(Arrays.asList("blowupValidator"), "blowupWadl", null, null);
             blowupValidatorInfo.setValidator(blowupValidator);
 
