@@ -29,7 +29,8 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.transform.stream.StreamSource
 
 import com.rackspace.com.papi.components.checker.handler._
-import com.rackspace.com.papi.components.checker.{Config, Validator}
+import com.rackspace.com.papi.components.checker.wadl.WADLException
+import com.rackspace.com.papi.components.checker.{Config, Validator, ValidatorException}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
@@ -278,8 +279,8 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
           validator = Validator.apply(name + System.currentTimeMillis, source, config)
           true
         } catch {
-          case ex: Throwable =>
-            logger.warn("Error loading validator for WADL!!! ", ex)
+          case e@(_: ValidatorException | _: WADLException) =>
+            logger.warn("Error loading validator for WADL!!! ", e)
             false
         }
     }

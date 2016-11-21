@@ -21,6 +21,8 @@ package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
+import com.rackspace.com.papi.components.checker.ValidatorException;
+import com.rackspace.com.papi.components.checker.wadl.WADLException;
 import org.openrepose.commons.utils.StringUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,10 +95,8 @@ public class ValidatorInfo {
                 LOG.debug("Calling the validator creation method for {}", name);
                 validator = Validator.apply(name + System.currentTimeMillis(), getSource(), config);
                 return true;
-            } catch (Throwable t) {
-                // we need to be able to catch WADLException which extends Throwable, and in its infinite wisdom, the
-                // Java compiler doesn't let us catch it directly, so we have to catch Throwable.
-                LOG.warn("Error loading validator for WADL: " + uri, t);
+            } catch (ValidatorException | WADLException e) {
+                LOG.warn("Error loading validator for WADL: " + uri, e);
                 return false;
             }
         }

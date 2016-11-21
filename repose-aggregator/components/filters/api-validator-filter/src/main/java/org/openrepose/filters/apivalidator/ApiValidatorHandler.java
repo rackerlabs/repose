@@ -20,8 +20,10 @@
 package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Validator;
+import com.rackspace.com.papi.components.checker.ValidatorException;
 import com.rackspace.com.papi.components.checker.step.results.ErrorResult;
 import com.rackspace.com.papi.components.checker.step.results.Result;
+import com.rackspace.com.papi.components.checker.wadl.WADLException;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.filters.ApiValidator;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -115,9 +118,8 @@ public class ApiValidatorHandler {
                 response.setStatus(error.code());
                 response.sendError(error.code(), error.message());
             }
-        } catch (Throwable t) {
-            // API Checker throws exceptions that extend Throwable
-            LOG.error("Some error", t);
+        } catch (ValidatorException | WADLException | IOException e) {
+            LOG.error("Some error", e);
             response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         }
     }
@@ -143,7 +145,7 @@ public class ApiValidatorHandler {
                         response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
                     } else {
                         lastValidatorResult = validator.validate(wrappedRequest, response, chain);
-                        isValid = lastValidatorResult.valid();
+                        isValid = lastValidatorResult != null && lastValidatorResult.valid();
                         if (isValid) {
                             break;
                         }
@@ -163,9 +165,8 @@ public class ApiValidatorHandler {
             } else {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
-        } catch (Throwable t) {
-            // API Checker throws exceptions that extend Throwable
-            LOG.error("Error processing validation", t);
+        } catch (ValidatorException | WADLException | IOException e) {
+            LOG.error("Error processing validation", e);
             response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         }
     }
