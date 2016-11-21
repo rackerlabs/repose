@@ -145,7 +145,7 @@ public class ApiValidatorHandler {
                         response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
                     } else {
                         lastValidatorResult = validator.validate(wrappedRequest, response, chain);
-                        isValid = lastValidatorResult.valid();
+                        isValid = lastValidatorResult != null && lastValidatorResult.valid();
                         if (isValid) {
                             break;
                         }
