@@ -21,14 +21,15 @@ package org.openrepose.filters.cors
 
 import java.net.URL
 import java.util.regex.Pattern
-import javax.inject.{Named, Inject}
+import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.HttpMethod
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{HeaderConstant, CommonHttpHeader, CorsHttpHeader}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.cors.config.CorsConfig
@@ -65,8 +66,9 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
-      val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
-      val httpServletResponse = servletResponse.asInstanceOf[HttpServletResponse]
+      val httpServletRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+      val httpServletResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse],
+        ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
       val isOptions = httpServletRequest.getMethod == HttpMethod.OPTIONS
       val origin = httpServletRequest.getHeader(CorsHttpHeader.ORIGIN)
       val requestMethodHeader = httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
@@ -98,29 +100,33 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
           requestType match {
             case NonCorsRequest => filterChain.doFilter(httpServletRequest, httpServletResponse)
             case PreflightRequest =>
+              logger.trace("Allowing preflight request.")
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
-              Option(httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)).foreach {
-                httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS, _)
+              httpServletRequest.getSplittableHeaderScala(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS) foreach {
+                httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS, _)
               }
-              validMethods.foreach {
-                httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)
+              validMethods foreach {
+                httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)
               }
               httpServletResponse.setStatus(HttpServletResponse.SC_OK)
             case ActualRequest =>
+              logger.trace("Allowing actual request.")
               filterChain.doFilter(httpServletRequest, httpServletResponse)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
 
               // clone the list of header names so we can add headers while we iterate through it
-              (List.empty ++ httpServletResponse.getHeaderNames.asScala).foreach {
-                httpServletResponse.addHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
+              (List.empty ++ httpServletResponse.getHeaderNames.asScala) foreach {
+                httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
               }
           }
         case OriginNotAllowed =>
-          httpServletResponse.setHeader(CorsHttpHeader.ORIGIN, "null")
+          logger.debug("Request rejected because origin '{}' is not allowed.", origin)
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
         case MethodNotAllowed =>
+          logger.debug("Request rejected because method '{}' is not allowed for resource '{}'.",
+            requestedMethod, httpServletRequest.getRequestURI)
           httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
       }
@@ -131,6 +137,8 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
         httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)
         httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       }
+
+      httpServletResponse.commitToResponse()
     }
   }
 
@@ -163,10 +171,10 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
   def getValidMethodsForResource(path: String): Iterable[String] = {
     allowedMethods ++ (resources.find(_.path.findFirstIn(path).isDefined) match {
       case Some(matchedResource) =>
-        logger.debug(s"Matched path $path with configured resource: $matchedResource")
+        logger.trace("Matched path '{}' with configured resource '{}'.", path, matchedResource)
         matchedResource.methods
       case None =>
-        logger.debug(s"Did not find a configured resource matching path $path")
+        logger.trace("Did not find a configured resource matching path '{}'.", path)
         Nil
     })
   }
