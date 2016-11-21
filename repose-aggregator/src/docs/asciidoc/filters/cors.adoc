@@ -83,7 +83,7 @@ These are the scenarios in which the CORS filters will stop processing the reque
 |===
 
 == Filter Chain
-*Filter name:* cors
+*Filter name:* `cors`
 
 === Ordering
 It should be one of the first filters, if not the first filter, in the filter chain in order to properly handle Preflight CORS requests.
@@ -98,7 +98,7 @@ and the second Rate Limiting filter would continue to rate limit the way it is c
 Preflight requests do not contain credentials which is why the CORS filter needs to be one of the first filters.
 
 == Configuration
-*Default Configuration Filename:* cors.cfg.xml
+*Default Configuration Filename:* `cors.cfg.xml`
 
 === Basic Example
 A basic CORS configuration would allow all origins to use any standard HTTP method on all resources.

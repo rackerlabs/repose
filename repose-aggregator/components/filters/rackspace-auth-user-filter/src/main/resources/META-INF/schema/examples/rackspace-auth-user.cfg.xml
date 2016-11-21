@@ -2,7 +2,7 @@
 
 <rackspace-auth-user xmlns='http://docs.openrepose.org/repose/rackspace-auth-user/v1.0'>
     <!-- both of the version configs are optional, if neither are specified, this filter is a no-op -->
-    <v1_1>
+    <v1_1 content-body-read-limit="2048">
         <group>1_1 Group</group>
         <quality>0.75</quality>
     </v1_1>

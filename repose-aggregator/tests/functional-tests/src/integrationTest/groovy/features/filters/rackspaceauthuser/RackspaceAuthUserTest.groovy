@@ -52,6 +52,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
 
         and: "Repose will send user from Request body"
         ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-user") == (expectedUser + ";q=0.8")
+        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-user-name") == expectedUser
 
         and: "Repose will send a single value for x-pp-groups"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
@@ -83,6 +84,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
 
         and: "Repose will send user from Request body"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expectedUser + ";q=0.8")
+        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").contains(expectedUser)
 
         and: "Repose will send two values for x-domain"
         ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 1
@@ -115,6 +117,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
 
         then: "Repose will not send x-pp-user"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
 
         and: "Repose will not send x-pp-groups"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
@@ -141,6 +144,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
 
         and: "Repose will send user from Request body"
         ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-user") == (expectedUser + ";q=0.75")
+        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-user-name") == expectedUser
 
         and: "Repose will send a single value for x-pp-groups"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
@@ -164,6 +168,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
 
         then: "Repose will not add any headers"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
 
         and: "The result will be passed through"
@@ -183,6 +188,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
 
         then: "Repose will not add any headers"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
 
         and: "The result will be passed through"
