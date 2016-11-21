@@ -57,10 +57,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "none of the CORS headers are added to the response"
-        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString())
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
-        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString())
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -89,8 +89,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
 
         and: "the CORS headers for a preflight request are not added"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -111,7 +111,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
 
         and: "the request does not make it to the origin service"
-        mc.getHandlings().size() == 0
+        mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
@@ -120,10 +120,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
 
         and: "the 'Access-Control-Allow-Headers' header is not set since none were requested"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
 
         and: "the CORS headers for an actual request are not added"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -146,10 +146,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_FORBIDDEN
 
         and: "the request does not make it to the origin service"
-        mc.getHandlings().size() == 0
+        mc.getHandlings().isEmpty()
 
         and: "the 'Access-Control-Allow-Origin' header is not set to indicate the 'Origin' was not allowed"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 0
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -172,10 +172,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_FORBIDDEN
 
         and: "the request does not make it to the origin service"
-        mc.getHandlings().size() == 0
+        mc.getHandlings().isEmpty()
 
         and: "the 'Access-Control-Allow-Origin' header is not set to indicate the 'Origin' was not allowed"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 0
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -201,7 +201,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
 
         and: "the request does not make it to the origin service"
-        mc.getHandlings().size() == 0
+        mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
@@ -210,10 +210,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
 
         and: "the 'Access-Control-Allow-Headers' header is not set since none were requested"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
 
         and: "the CORS headers for an actual request are not added"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -238,7 +238,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
 
         and: "the request does not make it to the origin service"
-        mc.getHandlings().size() == 0
+        mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
@@ -247,10 +247,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
 
         and: "the 'Access-Control-Allow-Headers' header is not set since none were requested"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
 
         and: "the CORS headers for an actual request are not added"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -284,8 +284,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
 
         and: "the CORS headers for a preflight request are not added"
-        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
-        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
 
         and: "all of the special headers from the origin service are added to the list of values in the 'Access-Control-Expose-Headers' header"
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).size() == 1
@@ -320,8 +320,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
 
         and: "the CORS headers for a preflight request are not added"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -346,14 +346,14 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_FORBIDDEN
 
         and: "the request does not make it to the origin service"
-        mc.getHandlings().size() == 0
+        mc.getHandlings().isEmpty()
 
         and: "the 'Access-Control-Allow-Origin' header is set correctly since the origin was valid"
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
 
         and: "the 'Access-Control-Allow-Methods' header does not exist"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -382,14 +382,14 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_FORBIDDEN
 
         and: "the request does not make it to the origin service"
-        mc.getHandlings().size() == 0
+        mc.getHandlings().isEmpty()
 
         and: "the 'Access-Control-Allow-Origin' header is set correctly since the origin was valid"
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
 
         and: "the 'Access-Control-Allow-Methods' header does not exist"
-        !mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for a non-OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -424,7 +424,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
 
         and: "the request does not make it to the origin service"
-        mc.getHandlings().size() == 0
+        mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
@@ -437,7 +437,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) == requestHeaders
 
         and: "the CORS headers for an actual request are not added"
-        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -466,7 +466,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
 
         and: "the request does not make it to the origin service"
-        mc.getHandlings().size() == 0
+        mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
@@ -481,7 +481,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).tokenize(',').containsAll(allowHeaders)
 
         and: "the CORS headers for an actual request are not added"
-        !mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString())
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
