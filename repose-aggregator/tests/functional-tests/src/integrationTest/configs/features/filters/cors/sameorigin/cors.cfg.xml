@@ -8,8 +8,8 @@
         <origin>https://dev.repose.site:8443</origin>
         <origin>http://10.8.8.8:9090</origin>
         <origin>https://10.8.4.4</origin>
-        <origin>http://[2001:db8:cafe::17]:5555</origin>
-        <origin>https://[2001:db8:cafe::17]</origin>
+        <origin>http://[2001:db8:cafe::34]:4444</origin>
+        <origin>https://[2001:db8:cafe::34]</origin>
     </allowed-origins>
 
     <allowed-methods>
