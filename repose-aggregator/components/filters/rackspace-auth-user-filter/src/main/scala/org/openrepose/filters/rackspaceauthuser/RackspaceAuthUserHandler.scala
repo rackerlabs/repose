@@ -25,7 +25,6 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
-import scala.io.Source
 import scala.xml.XML
 
 class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends LazyLogging {
@@ -43,7 +42,7 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends La
   // https://www.playframework.com/documentation/2.3.x/ScalaJson
   //Using play json here because I don't have to build entire objects
   val username1_1JSON: UsernameParsingFunction = { is =>
-    val json = Json.parse(Source.fromInputStream(is).getLines() mkString)
+    val json = Json.parse(is)
     val username = (json \ "credentials" \ "username").validate[String]
     username match {
       case s: JsSuccess[String] =>
@@ -94,7 +93,7 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends La
   }
 
   val username2_0JSON: UsernameParsingFunction = { is =>
-    val json = Json.parse(Source.fromInputStream(is).getLines() mkString)
+    val json = Json.parse(is)
     val possibleDomain = (json \ "auth" \ "RAX-AUTH:domain" \ "name").validate[String]
 
     val domain = possibleDomain match {
@@ -186,8 +185,6 @@ class RackspaceAuthUserHandler(filterConfig: RackspaceAuthUserConfig) extends La
       limitedInputStream.reset()
     }
   }
-
-  case class JSONParseException(message: String, reason: Throwable = null) extends Exception(message, reason)
 
   //Response will always pass through in this one
 }
