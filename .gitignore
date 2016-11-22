@@ -32,6 +32,9 @@ build/
 # Ignore Gradle GUI config
 gradle-app.setting
 
+# Ignore the Asciidoctor cache directory.
+**/.asciidoctor
+
 ## generic files to ignore
 *~
 *.lock
