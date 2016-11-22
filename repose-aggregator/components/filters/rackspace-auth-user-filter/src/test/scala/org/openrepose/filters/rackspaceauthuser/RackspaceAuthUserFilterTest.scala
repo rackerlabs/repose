@@ -49,10 +49,10 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
   }
 
   describe("do filter") {
-    it("will return a 503 if the filter is not initialized") {
+    it("will return a 500 if the filter is not initialized") {
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      verify(servletResponse).sendError(503)
+      verify(servletResponse).sendError(500, "Filter not initialized")
     }
 
     List("OPTIONS", "GET", "HEAD", "PUT", "DELETE", "TRACE", "CONNECT", "CUSTOM") foreach { httpMethod =>
