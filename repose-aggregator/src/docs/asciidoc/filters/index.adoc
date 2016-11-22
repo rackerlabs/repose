@@ -2,11 +2,10 @@
 
 include::../_includes/in-progress.adoc[]
 
+== Repose Filter Bundle (Standard)
+
 <<add-header.adoc#,Add Header Filter>>::
 Enables users to add new headers and header values to a request and/or response.
-
-<<api-validator.adoc#,API Validator Filter>>::
-*IN PROGRESS*
 
 <<body-extractor-to-header.adoc#,Body Extractor to Header Filter>>::
 *IN PROGRESS*
@@ -30,12 +29,6 @@ Enables users to add new headers and header values to a request and/or response.
 *IN PROGRESS*
 
 <<destination-router.adoc#,Destination Router Filter>>::
-*IN PROGRESS*
-
-<<echo.adoc#,Echo Filter>>::
-*IN PROGRESS*
-
-<<exception.adoc#,Exception Filter>>::
 *IN PROGRESS*
 
 <<forwarded-proto.adoc#,Forwarded Protocol Filter>>::
@@ -77,19 +70,7 @@ Enables users to add new headers and header values to a request and/or response.
 <<rate-limiting.adoc#,Rate Limiting Filter>>::
 *IN PROGRESS*
 
-<<scripting.adoc#,Scripting Filter>>::
-Enables users to write custom filters for Repose using a variety of scripting languages.
-
-<<servlet-contract.adoc#,Servlet Contract Filter>>::
-*IN PROGRESS*
-
-<<simple-rbac.adoc#,Simple Role Based Access Control (RBAC) Filter>>::
-*IN PROGRESS*
-
 <<slf4j-http-logging.adoc#,SFL4J HTTP Logging Filter>>::
-*IN PROGRESS*
-
-<<tightly-coupled.adoc#,Tightly Coupled Filter>>::
 *IN PROGRESS*
 
 <<translation.adoc#,Translation Filter>>::
@@ -111,4 +92,29 @@ Enables users to write custom filters for Repose using a variety of scripting la
 *IN PROGRESS*
 
 <<versioning.adoc#,Versioning Filter>>::
+*IN PROGRESS*
+
+== Repose Extensions Filter Bundle
+
+<<api-validator.adoc#,API Validator Filter>>::
+*IN PROGRESS*
+
+<<simple-rbac.adoc#,Simple Role Based Access Control (RBAC) Filter>>::
+*IN PROGRESS*
+
+== Repose Experimental Filter Bundle
+
+<<echo.adoc#,Echo Filter>>::
+*IN PROGRESS*
+
+<<exception.adoc#,Exception Filter>>::
+*IN PROGRESS*
+
+<<scripting.adoc#,Scripting Filter>>::
+Enables users to write custom filters for Repose using a variety of scripting languages.
+
+<<servlet-contract.adoc#,Servlet Contract Filter>>::
+*IN PROGRESS*
+
+<<tightly-coupled.adoc#,Tightly Coupled Filter>>::
 *IN PROGRESS*
