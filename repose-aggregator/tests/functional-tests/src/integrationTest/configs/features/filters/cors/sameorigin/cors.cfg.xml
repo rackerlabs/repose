@@ -1,41 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cross-origin-resource-sharing xmlns="http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0">
     <allowed-origins>
-        <origin regex="true">http://openrepose.com:.+</origin>
-        <origin>http://test.repose.site:80</origin>
+        <origin regex="true">.*://openrepose.com(:\d*)?</origin>
+        <origin regex="true">http://test.repose.site(:80)?</origin>
+        <origin regex="true">https://test.repose.site(:443)?</origin>
+        <origin>http://dev.repose.site:8080</origin>
+        <origin>https://dev.repose.site:8443</origin>
+        <origin>http://10.8.8.8:9090</origin>
+        <origin>https://10.8.4.4</origin>
+        <origin>http://[2001:db8:cafe::17]:5555</origin>
+        <origin>https://[2001:db8:cafe::17]</origin>
     </allowed-origins>
 
-    <!-- All resources support GET and HEAD -->
     <allowed-methods>
         <method>GET</method>
         <method>HEAD</method>
+        <method>POST</method>
+        <method>PUT</method>
+        <method>PATCH</method>
+        <method>DELETE</method>
+        <method>TRACE</method>
+        <method>OPTIONS</method>
     </allowed-methods>
-
-    <!-- Resource specific configuration -->
-    <resources>
-        <!-- /status additionally allows POST and PUT -->
-        <resource path="/status.*">
-            <allowed-methods>
-                <method>POST</method>
-                <method>PUT</method>
-            </allowed-methods>
-        </resource>
-
-        <!-- /testoptions additionally allows OPTIONS -->
-        <resource path="/testoptions.*">
-            <allowed-methods>
-                <method>OPTIONS</method>
-            </allowed-methods>
-        </resource>
-
-        <!-- All other endpoints support POST, PUT, PATCH, and DELETE -->
-        <resource path="/testupdate.*">
-            <allowed-methods>
-                <method>POST</method>
-                <method>PUT</method>
-                <method>PATCH</method>
-                <method>DELETE</method>
-            </allowed-methods>
-        </resource>
-    </resources>
 </cross-origin-resource-sharing>

@@ -39,6 +39,7 @@ public enum CommonHttpHeader implements HeaderConstant {
     RETRY_AFTER("Retry-After"),
     EXPIRES("Expires"),
     X_FORWARDED_FOR("X-Forwarded-For"),
+    X_FORWARDED_HOST("X-Forwarded-Host"),
     USER_AGENT("User-Agent"),
     VIA("Via"),
     LOCATION("Location"),
