@@ -22,11 +22,13 @@ package org.openrepose.filters.rackspaceauthuser
 import java.io.ByteArrayInputStream
 
 import org.junit.runner.RunWith
+import org.openrepose.core.services.config.ConfigurationService
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
+class RackspaceAuthUserParsingTest extends FunSpec with Matchers with MockitoSugar {
 
   def auth1_1Config() = {
     val conf = new RackspaceAuthUserConfig
@@ -53,7 +55,8 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
   }
 
   describe("Auth 1.1 requests") {
-    val handler = new RackspaceAuthUserHandler(auth1_1Config())
+    val filter = new RackspaceAuthUserFilter(mock[ConfigurationService])
+    filter.configurationUpdated(auth1_1Config())
     describe("XML") {
       it("Parses the XML credentials payload into a username") {
         val payload =
@@ -65,7 +68,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |             key="a86850deb2742ec3cb41518e26aa2d89"/>
           """.stripMargin.trim()
 
-        val (domain, username) = handler.username1_1XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username1_1XML(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("hub_cap")
       }
@@ -82,7 +85,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin.trim()
 
-        val (domain, username) = handler.username1_1JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username1_1JSON(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("hub_cap")
       }
@@ -90,7 +93,8 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
   }
 
   describe("Auth 2.0 requests") {
-    val handler = new RackspaceAuthUserHandler(auth2_0Config())
+    val filter = new RackspaceAuthUserFilter(mock[ConfigurationService])
+    filter.configurationUpdated(auth2_0Config())
     describe("XML") {
       it("parses the username out of a User/Password request") {
         val payload =
@@ -102,7 +106,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |</auth>
           """.stripMargin.trim()
 
-        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoauthor")
       }
@@ -119,7 +123,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |</auth>
           """.stripMargin.trim()
 
-        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoauthor")
       }
@@ -134,7 +138,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |</auth>
           """.stripMargin.trim()
 
-        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("1100111")
       }
@@ -149,7 +153,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |</auth>
           """.stripMargin.trim()
 
-        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("nameOfTenant")
       }
@@ -167,7 +171,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
           |    <passwordCredentials username="demoAuthor" password="myPassword01"/>
           |</auth>""".stripMargin
 
-        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoAuthor")
       }
@@ -183,7 +187,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    <RAX-AUTH:domain name="Rackspace"/>
             |</auth>""".stripMargin
 
-        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe Some("Rackspace")
         username shouldBe Some("Racker:jqsmith")
       }
@@ -199,7 +203,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    <RAX-AUTH:domain name="Rackspace"/>
             |</auth>""".stripMargin
 
-        val (domain, username) = handler.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe Some("Rackspace")
         username shouldBe Some("Racker:jqsmith")
       }
@@ -220,7 +224,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin
 
-        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoauthor")
 
@@ -239,7 +243,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin
 
-        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoauthor")
       }
@@ -256,7 +260,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin
 
-        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("1100111")
       }
@@ -273,7 +277,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |}
           """.stripMargin
 
-        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("nameOfTenant")
       }
@@ -290,7 +294,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    }
             |}""".stripMargin
 
-        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoAuthor")
       }
@@ -309,7 +313,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    }
             |}""".stripMargin
 
-        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe Some("Rackspace")
         username shouldBe Some("Racker:jqsmith")
       }
@@ -328,7 +332,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
             |    }
             |}""".stripMargin
 
-        val (domain, username) = handler.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe Some("Rackspace")
         username shouldBe Some("Racker:jqsmith")
       }
