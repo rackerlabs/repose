@@ -1,3 +1,3 @@
-= SLF4J HTTP Logging Filter
+= Keystone v2 Basic Auth Filter
 
 include::../_includes/in-progress.adoc[]

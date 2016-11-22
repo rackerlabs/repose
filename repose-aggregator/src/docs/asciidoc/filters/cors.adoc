@@ -1,4 +1,4 @@
-= CORS
+= Cross-Origin Resource Sharing (CORS) Filter
 
 include::../_includes/in-progress.adoc[]
 
