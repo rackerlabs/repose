@@ -4,9 +4,7 @@
 *.iws
 *.ipr
 *.lic
-target
-*/target
-*/*/target
+**/target/
 
 ## vim objects
 *.swo
