@@ -1,3 +1,3 @@
-= SLF4J HTTP Logging Filter
+= Tightly Coupled Filter
 
 include::../_includes/in-progress.adoc[]
