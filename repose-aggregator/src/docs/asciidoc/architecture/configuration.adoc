@@ -1,1 +1,2 @@
+= Configuration
 include::../_includes/in-progress.adoc[]
