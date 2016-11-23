@@ -69,7 +69,7 @@ It is an open-source platform for the general public to consume, share, and impr
 To get Repose, log in to your server and run the <<Installation>> commands for your desired environment.
 Then, configure your origin service endpoint in the <<../architecture/system-model.adoc#,system model>>, and you are ready to configure <<../filters/index.adoc#,filters>> and <<../services/index.adoc#,services>> that work for you.
 We have many sample configurations that you can use to get started.
-Or, because Repose is open source, you can <<new-repose-filter.adoc#,build your own>> stacks of reusable software components.
+Or, because Repose is open source, you can <<custom-filter-for-repose.adoc#,build your own>> stacks of reusable software components.
 
 === Environment Setup
 Installation instructions are provided for Debian package managers (e.g., APT) and RPM package managers (e.g., Yum).
