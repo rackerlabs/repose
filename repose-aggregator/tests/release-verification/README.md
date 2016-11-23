@@ -59,7 +59,7 @@ then a debugger can be connected to the localhost on port 18038.
 Note that we overrode the Docker `CMD` instruction with
 `tail -f /var/log/repose.log` to keep the Docker container running.
 
-To start the sandbox, run the `vagrantUpDeb` or `vagrantUpRpm` task
+To start the Vagrant sandbox, run the `vagrantUpDeb` or `vagrantUpRpm` task
 with the desired properties. Once the sandbox is running, the environment
 can be accessed directly by running the `vagrant ssh` command from the
 directory containing the Vagrantfile (e.g., src/vagrant/deb relative to
