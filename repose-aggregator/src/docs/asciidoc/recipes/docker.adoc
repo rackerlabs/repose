@@ -1,7 +1,5 @@
 = Docker
 
-include::../_includes/in-progress.adoc[]
-
 With the advent of container technology, Repose can be fully encapsulated and run as a service.
 By bundling the environment with the software itself, deploying Repose becomes a much quicker, simpler process.
 Docker boasts security through isolation, and when run on platforms with native support, it requires very little overhead.
@@ -118,9 +116,6 @@ docker run -d -v /my/config/directory:/etc/repose -v /var/log/repose:/var/log/re
 
 You will notice that this command is very similar to the command provided in the <<Running>> section, but with one more option: `-v /var/log/repose:/var/log/repose`.
 This option simply mounts the Repose log directory in the container to the same directory on the host.
-
-== How to Run Repose in Docker
-See: <<Docker Container>>
 
 == Notices
 Custom artifacts are not currently supported by our Docker images.

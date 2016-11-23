@@ -1,8 +1,6 @@
 = Getting Started
 :toclevels: 3
 
-include::../_includes/in-progress.adoc[]
-
 == What is Repose?
 Repose is an open-source, RESTful middleware platform that transparently integrates with your existing infrastructure.
 Technically, it is a pseudo-transparent reverse proxy.
