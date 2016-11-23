@@ -23,7 +23,7 @@ Well step right up here's where you'll find in depth information on every filter
 === <<services/index.adoc#, Services>>
 All that stuff for the filters? Yeah, same thing but for all the services *Repose* offers.
 
-== <<troubleshooting.adoc#,Troubleshooting>>
+=== <<troubleshooting.adoc#,Troubleshooting>>
 Oh no, oh no, why is everything on fire?
 It's ok, be cool, we can help.
 Just take a look at this.
