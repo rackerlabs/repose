@@ -50,19 +50,13 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
     filter = new RackspaceAuthUserFilter(null)
   }
 
-  describe("do filter") {
-    it("will return a 500 if the filter is not initialized") {
-      filter.doFilter(servletRequest, servletResponse, filterChain)
-
-      verify(servletResponse).sendError(500, "Filter not initialized")
-    }
-
+  describe("do work") {
     List("OPTIONS", "GET", "HEAD", "PUT", "DELETE", "TRACE", "CONNECT", "CUSTOM") foreach { httpMethod =>
       it(s"will not update the request for method $httpMethod") {
         filter.configurationUpdated(mock[RackspaceAuthUserConfig])
         servletRequest.setMethod(httpMethod)
 
-        filter.doFilter(servletRequest, servletResponse, filterChain)
+        filter.doWork(servletRequest, servletResponse, filterChain)
 
         // verify the request was not wrapped and thus not updated
         verify(filterChain).doFilter(servletRequest, servletResponse)
@@ -73,7 +67,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       filter.configurationUpdated(mock[RackspaceAuthUserConfig])
       servletRequest.setMethod("POST")
 
-      filter.doFilter(servletRequest, servletResponse, filterChain)
+      filter.doWork(servletRequest, servletResponse, filterChain)
 
       // verify the request was wrapped
       verify(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), any(classOf[HttpServletResponse]))
