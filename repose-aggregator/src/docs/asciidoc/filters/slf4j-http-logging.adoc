@@ -1,3 +1,6 @@
 = SLF4J HTTP Logging Filter
 
 include::../_includes/in-progress.adoc[]
+
+== Configuration
+=== link:../schemas/slf4j-http-logging-configuration.xsd[Schema]

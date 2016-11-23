@@ -1,3 +1,6 @@
 = Destination Router Filter
 
 include::../_includes/in-progress.adoc[]
+
+== Configuration
+=== link:../schemas/destination-router-configuration.xsd[Schema]

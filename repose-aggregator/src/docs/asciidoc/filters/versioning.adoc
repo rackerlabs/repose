@@ -1,3 +1,6 @@
 = Versioning Filter
 
 include::../_includes/in-progress.adoc[]
+
+== Configuration
+=== link:../schemas/versioning-configuration.xsd[Schema]

@@ -1,3 +1,6 @@
 = Keystone v2 Basic Auth Filter
 
 include::../_includes/in-progress.adoc[]
+
+== Configuration
+=== link:../schemas/keystone-v2-basic-auth.xsd[Schema]

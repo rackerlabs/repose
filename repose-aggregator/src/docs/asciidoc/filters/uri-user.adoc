@@ -1,3 +1,6 @@
 = URI User Filter
 
 include::../_includes/in-progress.adoc[]
+
+== Configuration
+=== link:../schemas/uri-user-configuration.xsd[Schema]
