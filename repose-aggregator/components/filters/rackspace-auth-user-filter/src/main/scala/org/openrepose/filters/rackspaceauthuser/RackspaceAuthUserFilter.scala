@@ -222,4 +222,6 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
       limitedInputStream.reset()
     }
   }
+
+  case class RackspaceAuthUserGroup(domain: Option[String], user: String, group: String, quality: Double)
 }
