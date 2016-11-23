@@ -73,13 +73,15 @@ Or, because Repose is open source, you can <<custom-filter-for-repose.adoc#,buil
 Installation instructions are provided for Debian package managers (e.g., APT) and RPM package managers (e.g., Yum).
 
 Certain deployment methods will handle environment setup automatically.
-For more information, see: <<Deployment>>
 
 === Installation
-While Repose can be installed manually, other deployment options are provided to make getting started with Repose easier.
-See: <<Deployment>>
+The most common and preferred way to run Repose is as a standalone application using the Valve installation.
+This installation allows Repose to be executed either as a Linux service (e.g. systemd, sysinit) or directly from the installed JAR.
+An alternative would be to run Repose inside an existing servlet container (e.g. Tomcat, GlassFish) using the WAR installation.
 
-Repose can be run as a standalone application using Valve (run either as a Linux service or directly from the JAR) or inside of a servlet container (e.g. Tomcat, GlassFish) using the WAR.
+While Repose can be installed manually, there are other deployment options available.
+However, these other methods do require a little more System Administration knowledge which is not covered here.
+See: <<Deployment>>
 
 ==== Proxy Server (Valve)
 This is the most common setup and is detailed on the <<valve-installation.adoc#,Valve Installation>> page.
