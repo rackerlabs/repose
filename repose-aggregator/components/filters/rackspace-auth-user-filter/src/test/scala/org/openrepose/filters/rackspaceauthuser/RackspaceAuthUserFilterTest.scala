@@ -22,11 +22,13 @@ package org.openrepose.filters.rackspaceauthuser
 
 import java.io.ByteArrayInputStream
 import javax.servlet.FilterChain
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.openrepose.commons.utils.http.{OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.scalatest.junit.JUnitRunner
@@ -71,6 +73,34 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
 
       // verify the request was wrapped
       verify(filterChain).doFilter(any(classOf[HttpServletRequestWrapper]), any(classOf[HttpServletResponse]))
+    }
+
+    it("will write the correct headers") {
+      filter.configurationUpdated(auth2_0Config())
+      servletRequest.setMethod("POST")
+      servletRequest.setContentType("application/json")
+      servletRequest.setContent(
+        """{
+          |    "auth": {
+          |        "RAX-AUTH:domain": {
+          |            "name": "Rackspace"
+          |        },
+          |        "passwordCredentials": {
+          |            "username": "jqsmith",
+          |            "password": "mypassword"
+          |        }
+          |    }
+          |}""".stripMargin.getBytes)
+
+      filter.doWork(servletRequest, servletResponse, filterChain)
+
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
+      verify(filterChain).doFilter(captor.capture(), any(classOf[HttpServletResponse]))
+      val request = captor.getValue
+      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
+      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
+      request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
+      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
     }
   }
 
