@@ -16,9 +16,6 @@ Enables users to add new headers and header values to a request and/or response.
 <<compression.adoc#,Compression Filter>>::
 *IN PROGRESS*
 
-<<content-normalization.adoc#,Content Normalization Filter>>::
-*IN PROGRESS*
-
 <<content-type-stripper.adoc#,Content Type Stripper Filter>>::
 *IN PROGRESS*
 

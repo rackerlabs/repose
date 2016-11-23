@@ -1,3 +1,0 @@
-= Content Normalization Filter
-
-include::../_includes/in-progress.adoc[]
