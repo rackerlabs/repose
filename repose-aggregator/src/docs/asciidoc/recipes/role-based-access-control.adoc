@@ -1,9 +1,7 @@
 = Implementing Role-Based Access Control (RBAC)
 :toclevels: 4
 
-include::../_includes/in-progress.adoc[]
-
-You can implement role-based access control with Repose with the Header Normalization, the Authorization, and the API Validator filters.
+You can implement Role-Based Access Control (RBAC) with Repose with the Header Normalization, the Authorization, and the API Validator filters.
 This guide takes you through the process of setting up RBAC with Repose.
 
 == 1. Configure the Header Normalization filter

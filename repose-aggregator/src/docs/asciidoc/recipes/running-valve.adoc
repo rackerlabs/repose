@@ -1,7 +1,5 @@
 = Running Valve
 
-include::../_includes/in-progress.adoc[]
-
 Valve allows Repose to run as a standalone application.
 Repose currently supports multiple ways of starting and stopping in an effort to provide the most flexibility to operators during the industry wide conversion from System V and Upstart to systemd.
 The SystemV and Upstart mechanisms are currently deprecated, and in the future, only support for the systemd way will be provided by the standard installation.
