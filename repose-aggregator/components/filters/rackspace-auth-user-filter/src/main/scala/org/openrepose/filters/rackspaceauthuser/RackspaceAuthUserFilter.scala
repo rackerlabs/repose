@@ -169,34 +169,16 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
     }
   }
 
-  def parseUserGroupFromInputStream(inputStream: InputStream, contentType: String): List[RackspaceAuthUserGroup] = {
-    var users = List.empty[RackspaceAuthUserGroup]
-
-    // TODO: This needs to be reworked for the new Group and Options.
-    val addUsersDomainToReturn: (IdentityGroupConfig, Option[String], Option[String]) => Unit = { (config, domainOpt, usernameOpt) =>
-      usernameOpt.foreach { userName =>
-        users = RackspaceAuthUserGroup(domainOpt, userName, config.getGroup, config.quality.toDouble) :: users
-      }
-    }
-
-    //If the config for v11 is set, do the work
-    Option(configuration.getV11) foreach { config =>
-      parseUsername(config, inputStream, contentType, username1_1JSON, username1_1XML)(addUsersDomainToReturn)
-    }
-
-    //If the config for v20 is set, do the work it's not likely that both will be set, or that both will succeed
-    Option(configuration.getV20) foreach { config =>
-      parseUsername(config, inputStream, contentType, username2_0JSON, username2_0XML)(addUsersDomainToReturn)
-    }
-
-    users
+  def parseUserGroupFromInputStream(inputStream: InputStream, contentType: String): Option[RackspaceAuthUserGroup] = {
+    Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, username2_0JSON, username2_0XML))
+      .orElse(Option(configuration.getV11).flatMap(parseUsername(_, inputStream, contentType, username1_1JSON, username1_1XML)))
   }
 
   /**
     * Build a function that takes our config, the request itself, functions to transform if given json, and if given XML
     * and then a resultant function that can take that config and the username to do the work with.
     */
-  def parseUsername(config: IdentityGroupConfig, inputStream: InputStream, contentType: String, json: UsernameParsingFunction, xml: UsernameParsingFunction)(usernameFunction: (IdentityGroupConfig, Option[String], Option[String]) => Unit) = {
+  def parseUsername(config: IdentityGroupConfig, inputStream: InputStream, contentType: String, json: UsernameParsingFunction, xml: UsernameParsingFunction): Option[RackspaceAuthUserGroup] = {
     val limit = BigInt(config.getContentBodyReadLimit).toLong
     val limitedInputStream = new LimitedReadInputStream(limit, inputStream)
     limitedInputStream.mark(limit.toInt)
@@ -209,7 +191,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         json(limitedInputStream)
       }
 
-      usernameFunction(config, domainOpt, userOpt)
+      userOpt.map(RackspaceAuthUserGroup(domainOpt, _, config.getGroup, config.quality.toDouble))
     } catch {
       case e: Exception =>
         val identityRequestVersion = if (config.isInstanceOf[IdentityV11]) {
@@ -218,6 +200,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
           "v 2.0"
         }
         logger.warn(s"Unable to parse username from identity $identityRequestVersion request", e)
+        None
     } finally {
       limitedInputStream.reset()
     }
