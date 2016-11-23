@@ -1,3 +1,27 @@
 = Configuration
 
-include::../_includes/in-progress.adoc[]
+== Overview
+After installing Repose, config files can be found in `/etc/repose`.
+At a minimum, Repose needs a `container.cfg.xml` and `system-model.cfg.xml` to start.
+
+== Config Files
+=== Container
+The `container.cfg.xml` config file tells Repose where to find component artifacts and where to deploy them while running.
+See <<container.adoc#,Container>> for more details.
+
+=== System Model
+The main config file is `system-model.cfg.xml`.
+This file configures the list of filters, the deployment layout, and the location of the origin service.
+Out of the box, Repose is setup to run as a single node listening on port 8080, to run with no filters and services enabled, and to point to http://rackspace.com[rackspace.com] on port 80 as the origin service.
+See <<system-model.adoc#,System Model>> for more details.
+
+=== Filters and Services
+Most filters and services have their own configuration file.
+See <<../filters/index.adoc#,Filters>> and <<../services/index.adoc#,Services>> for more details.
+
+== Config Loading
+Repose reads the config files when it starts up and when a file gets updated.
+The configuration files are checked for updates every 15 seconds.
+This is not configurable nor can it be manually triggered.
+
+When the config files are invalid, Repose will continue using the previous known good configuration, or if Repose was just initially starting up, then it will return a 503 until the config files are fixed.
