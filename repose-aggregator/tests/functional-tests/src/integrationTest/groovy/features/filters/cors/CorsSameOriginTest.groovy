@@ -39,7 +39,6 @@ import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.RequestParams
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -99,7 +98,6 @@ class CorsSameOriginTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    @Ignore
     @Unroll
     def "Request considered non-CORS due to no Origin header with URI scheme '#scheme', method '#method', Host '#host', X-Forwarded-Host '#forwardedHost'"() {
         given: "the correct Repose endpoint is used depending on which scheme (http or https) we want to use"
@@ -361,13 +359,13 @@ class CorsSameOriginTest extends ReposeValveTest {
         when: "we make a request with the Host header set to the same value as the Origin header"
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.HOST.toString()): host])
 
-        then: "the response status is OK since the request was considered a same-origin request"
+        then: "the response status is OK"
         mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request makes it to the origin service"
         mc.getHandlings().size() == 1
 
-        and: "none of the CORS headers are added to the response"
+        and: "none of the CORS headers are added to the response, proving the Host and Origin matched"
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
@@ -380,13 +378,13 @@ class CorsSameOriginTest extends ReposeValveTest {
         when: "we make a request with the X-Forwarded-Host header set to the same value as the Origin header"
         mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.X_FORWARDED_HOST.toString()): host])
 
-        then: "the response status is OK since the request was considered a same-origin request"
+        then: "the response status is OK"
         mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request makes it to the origin service"
         mc.getHandlings().size() == 1
 
-        and: "none of the CORS headers are added to the response"
+        and: "none of the CORS headers are added to the response, proving the X-Forwarded-Host and Origin matched"
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
@@ -611,9 +609,78 @@ class CorsSameOriginTest extends ReposeValveTest {
         "https" | "[2001:db8:cafe::17]:443"                        | "https://[2001:db8:cafe:0:0:0:0:17]:443"
         "https" | "[2001:db8:cafe::17]:443"                        | "https://[2001:0db8:cafe:0000:0000:0000:0000:0017]:443"
     }
-/*
+
     @Unroll
-    def "URI Scheme #scheme and X-Forwarded-Host/Host #host will NOT match Origin #origin and NOT be considered a same-origin request"() {
-        //
-    }*/
+    def "URI Scheme '#scheme' and X-Forwarded-Host/Host '#host' will NOT match Origin '#origin' and NOT be considered a same-origin request"() {
+        given: "the correct Repose endpoint is used depending on which scheme (http or https) we want to use"
+        def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
+
+        and: "the Origin header is set to one that is allowed to make a CORS request"
+        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+
+        when: "we make a request with the Host header set to a different value than the Origin header"
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.HOST.toString()): host])
+
+        then: "the response status is OK"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the request makes it to the origin service"
+        mc.getHandlings().size() == 1
+
+        and: "the CORS headers for an actual request are added, proving the Host and Origin did not match"
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+
+        and: "the CORS headers for a preflight request are not added"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+
+        and: "the Vary header is set"
+        mc.receivedResponse.headers.contains("Vary")
+
+        when: "we make a request with the X-Forwarded-Host header set to a different value than the Origin header"
+        mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.X_FORWARDED_HOST.toString()): host])
+
+        then: "the response status is OK"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the request makes it to the origin service"
+        mc.getHandlings().size() == 1
+
+        and: "the CORS headers for an actual request are added, proving the X-Forwarded-Host and Origin did not match"
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+
+        and: "the CORS headers for a preflight request are not added"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+
+        and: "the Vary header is set"
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        scheme  | host                                             | origin
+        // different subdomains are considered different origins
+        "http"  | "www.openrepose.com:8080"                        | "http://openrepose.com:8080"
+        "http"  | "subdomain.openrepose.com:8080"                  | "http://openrepose.com:8080"
+        "http"  | "test.repose.site:8080"                          | "http://dev.repose.site:8080"
+        "https" | "www.openrepose.com:8080"                        | "https://openrepose.com:8080"
+        "https" | "subdomain.openrepose.com:8080"                  | "https://openrepose.com:8080"
+        "https" | "test.repose.site:8443"                          | "https://dev.repose.site:8443"
+        // different ports are considered different origins
+        "http"  | "openrepose.com:1111"                            | "http://openrepose.com:2222"
+        "http"  | "openrepose.com"                                 | "http://openrepose.com:3333"
+        "http"  | "openrepose.com"                                 | "http://openrepose.com:443"
+        "https" | "openrepose.com:1111"                            | "https://openrepose.com:2222"
+        "https" | "openrepose.com"                                 | "https://openrepose.com:3333"
+        "https" | "openrepose.com"                                 | "https://openrepose.com:80"
+        // different host names and TLDs are considered different origins
+        "http"  | "rackspace.com:8080"                             | "http://openrepose.com:8080"
+        "http"  | "openrepose.org:8080"                            | "http://openrepose.com:8080"
+        "https" | "rackspace.com:8080"                             | "https://openrepose.com:8080"
+        "https" | "openrepose.org:8080"                            | "https://openrepose.com:8080"
+        // different schemes are considered different origins
+        "http"  | "openrepose.com:8080"                            | "https://openrepose.com:8080"
+        "https" | "openrepose.com:8080"                            | "http://openrepose.com:8080"
+    }
 }

@@ -155,9 +155,11 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                                   ["/", "/status"],
-                                   ["http://test.forbidden.com", "http://test.home.site:80"]].combinations()
+        [method, path, origin] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                 ["/", "/status"],
+                 ["http://test.forbidden.com", "http://test.home.site:80", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"]]
+                        .combinations()
     }
 
     @Unroll
@@ -181,9 +183,11 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                                   ["/", "/status"],
-                                   ["http://test.forbidden.com", "http://test.home.site:80"]].combinations()
+        [method, path, origin] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                 ["/", "/status"],
+                 ["http://test.forbidden.com", "http://test.home.site:80", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"]]
+                        .combinations()
     }
 
     @Unroll
@@ -219,8 +223,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, origin] << [["PUT", "POST", "GET", "HEAD"],
-                             ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
+        [method, origin] <<
+                [["PUT", "POST", "GET", "HEAD"],
+                ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
     }
 
     @Unroll
@@ -256,8 +261,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                             ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
+        [method, origin] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
     }
 
     @Unroll
@@ -327,8 +333,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                             ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
+        [method, origin] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
     }
 
     @Unroll
@@ -444,8 +451,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
         where:
-        [method, requestHeaders] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                                     ['x-auth-token', 'x-ponies', 'cookie']].combinations()
+        [method, requestHeaders] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                ['x-auth-token', 'x-ponies', 'cookie']].combinations()
     }
 
     @Unroll
