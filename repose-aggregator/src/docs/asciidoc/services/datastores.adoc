@@ -1,0 +1,6 @@
+= Datastores
+
+include::../_includes/in-progress.adoc[]
+
+== Configuration
+=== link:../schemas/dist-datastore-configuration.xsd[Schema]

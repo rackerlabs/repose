@@ -1,0 +1,6 @@
+= Atom Feed Consumption Service
+
+include::../_includes/in-progress.adoc[]
+
+== Configuration
+=== link:../schemas/atom-feed-service.xsd[Schema]
