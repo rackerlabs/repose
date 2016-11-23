@@ -8,3 +8,4 @@ These are frequently asked questions.  If you don't find an answer to your quest
 Please read our <<troubleshooting.adoc#,Troubleshooting>> page.
 
 == Why Use Repose’s Client Authentication as opposed to Keystone, Cloud Auth, or Global Auth?
+*IN PROGRESS*
