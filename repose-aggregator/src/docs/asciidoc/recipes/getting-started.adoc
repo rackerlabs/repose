@@ -57,7 +57,9 @@ Following are some of the most common ones:
 * <<../filters/header-normalization.adoc#,Blacklisting>> to prevent others from spoofing authentication credentials and roles.
 * <<../filters/keystone-v2.adoc#Cache,Caching>> to reduce load on authentication services.
 * <<role-based-access-control.adoc#,Role-based access control (RBAC)>> to restrict access to authorized users.
-* <<../filters/api-validator.adoc#API Coverage,Mapping the state of your API>>.
+* <<../filters/api-validator.adoc#,API Coverage>> to map the state of your API.
+* <<../architecture/container.adoc#,HTTP Client Authentication>> for federated applications.
+* <<../architecture/container.adoc#,SSL/TLS Termination>> and Ciphers/Protocols inclusion/exclusion.
 
 == Who Can Use Repose?
 Anyone can use Repose!
