@@ -1,7 +1,5 @@
 = Contact Us
 
-include::_includes/in-progress.adoc[]
-
 There are multiple ways of getting in contact with the team.
 
 == Chat
