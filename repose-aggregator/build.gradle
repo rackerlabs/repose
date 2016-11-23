@@ -8,7 +8,9 @@ dependencies {
 }
 
 task copyXsds(type: Copy) {
-    // Copy the system model configuration schema.
+    // Copy the Repose Core configuration schemas.
+    from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/container/container-configuration.xsd")
+    from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/metrics/metrics.xsd")
     from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/system-model/system-model.xsd")
 
     // Copy all filter and service configuration schemas.
