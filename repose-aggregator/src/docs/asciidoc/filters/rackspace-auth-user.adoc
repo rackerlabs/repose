@@ -76,6 +76,4 @@ For further details about the reasoning behind this ordering see <<../recipes/us
     The elements are not exclusive and you can specify one, both, or neither.
     This element can also take a `content-body-read-limit` attribute with the same behavior as the `v1_1` element.
 
-=== Schema
-The full schema can be found link:../schemas/rackspace-auth-user-configuration.xsd[here].
-
+=== link:../schemas/rackspace-auth-user-configuration.xsd[Schema]

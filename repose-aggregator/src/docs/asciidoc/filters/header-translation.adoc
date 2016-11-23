@@ -1,3 +1,6 @@
 = Header Translation Filter
 
 include::../_includes/in-progress.adoc[]
+
+== Configuration
+=== link:../schemas/header-translation.xsd[Schema]

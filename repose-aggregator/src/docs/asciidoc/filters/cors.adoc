@@ -288,9 +288,7 @@ the specified URI will be treated as a Java regular expression.
 Leaving it out is useful when you need to prevent adding additional HTTP methods to a sub-resource as is the case with `/v1/status.*` in this example.
 <9> At least one `method` element is required when the `allowed-methods` element is present.
 
-=== Schema
-The XML schema definition is located in
-https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/cors-filter/src/main/resources/META-INF/schema/config/cors-configuration.xsd[GitHub].
+=== link:../schemas/cors-configuration.xsd[Schema]
 
 == CORS Overview
 For security purposes, web browsers follow the https://en.wikipedia.org/wiki/Same-origin_policy[Single-Origin policy].

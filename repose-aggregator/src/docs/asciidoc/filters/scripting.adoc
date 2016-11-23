@@ -65,7 +65,7 @@ It does not have any strict dependencies on any other filter, nor is it strictly
 == Configuration
 *Default Configuration Filename:* scripting.cfg.xml
 
-== Add A Header Using Groovy
+=== Add A Header Using Groovy
 [source,xml]
 ----
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
@@ -82,7 +82,7 @@ Adds a request header named `foo` with a value of `bar`.
 <3> Comments can be used in the scriptlet just like in the native language!
 <4> Passes the modified request and the response on to the next component in the filter chain.
 
-== Migrate Path Segments to Query Parameters Using Python
+=== Migrate Path Segments to Query Parameters Using Python
 [source,xml]
 ----
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"

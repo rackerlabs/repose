@@ -1,3 +1,6 @@
 = Highly Efficient Record Processor (HERP) Filter
 
 include::../_includes/in-progress.adoc[]
+
+== Configuration
+=== link:../schemas/highly-efficient-record-processor.xsd[Schema]
