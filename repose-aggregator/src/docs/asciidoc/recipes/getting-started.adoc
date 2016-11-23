@@ -138,7 +138,7 @@ For further information on common configuration scenarios, visit our <<index.ado
 For details on common troubleshooting techniques, visit our <<../troubleshooting.adoc#,Troubleshooting>> page.
 
 ==== FAQs
-For a list of frequently asked questions and answers, visit our <<../faqs.adoc#,FAQs>> page.
+For a list of frequently asked questions and answers, visit our <<../faq.adoc#,FAQs>> page.
 
 == Need More Information About Repose?
 <<../contact-us.adoc#,Contact us!>> We would be happy to address any questions, comments, or concerns with anything having to do with Repose!
