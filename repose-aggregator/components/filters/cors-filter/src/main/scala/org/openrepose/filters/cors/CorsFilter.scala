@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.cors
 
-import java.net.URL
+import java.net.{URI, URL}
 import java.util.regex.Pattern
 import javax.inject.{Inject, Named}
 import javax.servlet._
@@ -27,6 +27,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.HttpMethod
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.apache.http.client.utils.URIBuilder
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
@@ -36,6 +37,7 @@ import org.openrepose.filters.cors.config.CorsConfig
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
+import scala.util.Try
 import scala.util.matching.Regex
 
 @Named
@@ -74,9 +76,11 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       val requestMethodHeader = httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       lazy val validMethods = getValidMethodsForResource(httpServletRequest.getRequestURI)
 
-      val requestType = (Option(origin), isOptions, Option(requestMethodHeader)) match {
-        case (Some(_), true, Some(_)) => PreflightRequest
-        case (Some(_), _, None) => ActualRequest
+      val isCors = isCorsRequest(httpServletRequest)
+
+      val requestType = (isCors, isOptions, Option(requestMethodHeader)) match {
+        case (true, true, Some(_)) => PreflightRequest
+        case (true, _, None) => ActualRequest
         case _ => NonCorsRequest
       }
 
@@ -177,6 +181,36 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
         logger.trace("Did not find a configured resource matching path '{}'.", path)
         Nil
     })
+  }
+
+  def getHost(request: HttpServletRequestWrapper): URI = {
+    Try(request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_HOST).headOption
+      .map(forwardedHost => new URIBuilder(s"${request.getScheme}://$forwardedHost"))
+      .map(uri => uri.setScheme(request.getScheme).setPort(normalizePort(uri.getPort, uri.getScheme)).build()))
+      .getOrElse(None)
+      .getOrElse(new URIBuilder().setScheme(request.getScheme).setHost(request.getServerName)
+        .setPort(normalizePort(request.getServerPort, request.getScheme)).build())
+  }
+
+  def normalizePort(port: Int, scheme: String): Int = (port, scheme) match {
+    case (p, _) if p > 0 => p
+    case (_, s) if s.equalsIgnoreCase("http") => 80 // todo: lowercase scheme so we don't equalsIgnoreCase twice here
+    case (_, s) if s.equalsIgnoreCase("https") => 443
+    case _ => port
+  }
+
+  def isCorsRequest(request: HttpServletRequestWrapper): Boolean = {
+    val origin = request.getHeader(CorsHttpHeader.ORIGIN)
+    val preflightHeader = request.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
+    lazy val originUri = new URI(origin)
+    lazy val hostUri = getHost(request)
+
+    (Option(origin), Option(preflightHeader)) match {
+      case (None, _) => false
+      case (Some(_), Some(_)) => true
+      case (Some(_), None) if originUri == hostUri => false
+      case _ => true
+    }
   }
 }
 
