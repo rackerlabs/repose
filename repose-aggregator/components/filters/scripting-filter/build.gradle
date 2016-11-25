@@ -4,7 +4,7 @@ dependencies {
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.jruby:jruby-complete"
-    compile "org.python:jython"
+    compile "org.python:jython-standalone"
     compile "org.codehaus.groovy:groovy-all"
     compile "org.luaj:luaj-jse"
 
