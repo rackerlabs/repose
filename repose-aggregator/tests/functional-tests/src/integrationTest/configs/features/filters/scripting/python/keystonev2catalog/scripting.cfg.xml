@@ -4,16 +4,21 @@
 # import Java classes
 import javax.ws.rs.core.MediaType as MediaType
 import org.openrepose.commons.utils.http.PowerApiHeader as PowerApiHeader
+import org.slf4j.Logger as Logger
+import org.slf4j.LoggerFactory as LoggerFactory
 
 # import from Jython stdlib
 import json
 import base64
 
+# create a logger with an arbitrary name
+logger = LoggerFactory.getLogger("script.python.endpoint_validator")
+
 endpoints_decoded = base64.b64decode(request.getHeader(PowerApiHeader.X_CATALOG.toString()))
-print "Base64 decoded header: {0}".format(endpoints_decoded)
+logger.debug("Base64 decoded header: {}", endpoints_decoded)
 
 endpoints_json = json.loads(endpoints_decoded)
-print "JSON object header: {0}".format(endpoints_json)
+logger.debug("JSON object header: {}", endpoints_json)
 
 # look for the required endpoints
 endpoints = endpoints_json["endpoints"]
