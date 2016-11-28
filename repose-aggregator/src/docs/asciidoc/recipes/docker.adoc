@@ -63,24 +63,28 @@ After you have acquired a Repose Docker image, you can run Repose by creating an
 For example, the following command could be use:
 
 ----
-docker run -d -v /my/config/directory:/etc/repose -p 8080:8080 --name my_repose rackerlabs/repose:latest
+docker run                             \ <1>
+   -d                                  \ <2>
+   -v /my/config/directory:/etc/repose \ <3>
+   -p 8080:8080                        \ <4>
+   --name my_repose                    \ <5>
+   rackerlabs/repose:latest              <6>
 ----
-
 Let's break that command down and take a closer look at what it is doing:
 
-* *docker run* - This is the part of the command that tells Docker to create and start a container.
-* *-d* - This flag will run the container in detached mode.
-In detached mode, the container will run in the background.
-If we were to run in attached mode (the default) instead of detached mode, the terminal we used to execute this command would receive all of the output (i.e., STDIN, STDOUT, and STDERR) from the container.
-* *-v /my/config/directory:/etc/repose* - This option defines a volume that is mounted from the host (i.e., the OS running Docker) onto the Docker container.
-The volume mapping format is HOST_DIRECTORY:CONTAINER_DIRECTORY, so in this case, the contents of /my/config/directory on the host will be visible within the /etc/repose directory in the container.
-This allows us to modify configuration files without having to rebuild the Docker image or restart the Docker container!
-* *-p 8080:8080* - This option defines a port mapping between the host (i.e., the OS running Docker) and the Docker container.
-Doing so allows Repose to accept traffic over the specified port from outside of Docker.
-The port mapping format is HOST_PORT:CONTAINER_PORT, so in this case, traffic on port 8080 of the host will be forwarded to port 8080 of the container.
-* *--name my_repose* - This option names the container so that it's easier to interact with.
-* *rackerlabs/repose:latest* - This is the image ID (in repository:tag format) to create a container from.
-Remember that Repose images are hosted at Docker Hub, which Docker can use implicitly.
+<1> This is the part of the command that tells Docker to create and start a container.
+<2> This flag will run the container in detached mode.
+    In detached mode, the container will run in the background.
+    If we were to run in attached mode (the default) instead of detached mode, the terminal we used to execute this command would receive all of the output (i.e., STDIN, STDOUT, and STDERR) from the container.
+<3> This option defines a volume that is mounted from the host (i.e., the OS running Docker) onto the Docker container.
+    The volume mapping format is HOST_DIRECTORY:CONTAINER_DIRECTORY, so in this case, the contents of /my/config/directory on the host will be visible within the /etc/repose directory in the container.
+    This allows us to modify configuration files without having to rebuild the Docker image or restart the Docker container!
+<4> This option defines a port mapping between the host (i.e., the OS running Docker) and the Docker container.
+    Doing so allows Repose to accept traffic over the specified port from outside of Docker.
+    The port mapping format is HOST_PORT:CONTAINER_PORT, so in this case, traffic on port 8080 of the host will be forwarded to port 8080 of the container.
+<5> This option names the container so that it's easier to interact with.
+<6> This is the image ID (in repository:tag format) to create a container from.
+    Remember that Repose images are hosted at Docker Hub, which Docker can use implicitly.
 
 Now if we wanted to, we could change the Docker options that define the environment that Repose will run in.
 If we wanted to forward the random ports instead of explicitly declaring the port mapping, we could drop the `-p 8080:8080` option and pass the `-P` flag instead.
