@@ -139,7 +139,7 @@ For further information on common configuration scenarios, visit our <<index.ado
 ==== Troubleshooting
 For details on common troubleshooting techniques, visit our <<../troubleshooting.adoc#,Troubleshooting>> page.
 
-==== FAQ
+==== FAQs
 For a list of frequently asked questions and answers, visit our <<../faq.adoc#,FAQ>> page.
 
 == Need More Information About Repose?
