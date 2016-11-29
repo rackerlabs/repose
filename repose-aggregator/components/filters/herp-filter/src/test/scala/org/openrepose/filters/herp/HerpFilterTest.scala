@@ -345,10 +345,37 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ]")
     }
+    it("should extract and log the request tenant id header from Response if not available from Request") {
+      // given:
+      servletResponse.addHeader("X-Tenant-Id", "foo")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ]")
+    }
     it("should extract and log the default request tenant id header") {
       // given:
       servletRequest.addHeader("X-Tenant-Id", "foo;q=0.5")
       servletRequest.addHeader("X-Tenant-Id", "bar;q=1.0")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"DefaultProjectID\" : \"bar\"")
+    }
+    it("should extract and log the default request tenant id header from Response if not available from Request") {
+      // given:
+      servletResponse.addHeader("X-Tenant-Id", "foo;q=0.5")
+      servletResponse.addHeader("X-Tenant-Id", "bar;q=1.0")
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
@@ -373,10 +400,38 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
     }
+    it("should extract and log multiple tenant id header values from Response if not available from Request") {
+      // given:
+      servletResponse.addHeader("X-Tenant-Id", "foo")
+      servletResponse.addHeader("X-Tenant-Id", "bar")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
+    }
     it("should extract and log multiple project id header values") {
       // given:
       servletRequest.addHeader("X-Project-Id", "foo")
       servletRequest.addHeader("X-Project-Id", "bar")
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      def logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
+    }
+    it("should extract and log multiple project id header values from Response if not available from Request") {
+      // given:
+      servletResponse.addHeader("X-Project-Id", "foo")
+      servletResponse.addHeader("X-Project-Id", "bar")
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
