@@ -122,7 +122,11 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
     }
 
     val projectIds = httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
-      .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toTraversable
+      .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toTraversable match {
+      case x if x.nonEmpty => x
+      case _ => httpServletResponse.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
+        .++(httpServletResponse.getHeaders(X_PROJECT_ID).asScala).toTraversable
+    }
 
     //def nullIfEmpty(it: Iterable[Any]) = if (it.isEmpty) null else it
     val eventValues: Map[String, Any] = Map(
