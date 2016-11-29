@@ -2,8 +2,18 @@
 
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
            language="python">
-request.addHeader("language", "python")
-response.addHeader("ya" , "hoo")
+# can import from Jython stdlib
+import json
 
+# will get logged at INFO level
+print json.dumps({"c": 42, "b": 29, "a": 63}, sort_keys=True)
+
+# add a header to the request
+request.addHeader("language", "python")
+
+# you should always call the filterChain.doFilter method to continue processing
 filterChain.doFilter(request, response)
+
+# add a header to the response
+response.addHeader("ya" , "hoo")
 </scripting>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="python">
+# import Java classes
+import javax.ws.rs.core.MediaType as MediaType
+import org.openrepose.commons.utils.http.PowerApiHeader as PowerApiHeader
+import org.slf4j.Logger as Logger
+import org.slf4j.LoggerFactory as LoggerFactory
+
+# import from Jython stdlib
+import json
+import base64
+
+# create a logger with an arbitrary name
+logger = LoggerFactory.getLogger("script.python.endpoint_validator")
+
+endpoints_decoded = base64.b64decode(request.getHeader(PowerApiHeader.X_CATALOG.toString()))
+logger.debug("Base64 decoded header: {}", endpoints_decoded)
+
+endpoints_json = json.loads(endpoints_decoded)
+logger.debug("JSON object header: {}", endpoints_json)
+
+# look for the required endpoints
+endpoints = endpoints_json["endpoints"]
+cloud_server_dfw = next((x for x in endpoints if x["name"] == "cloudServersOpenStack" and x["region"] == "DFW"), None)
+cloud_monitoring = next((x for x in endpoints if x["name"] == "cloudMonitoring"), None)
+
+if not cloud_server_dfw or not cloud_monitoring:
+    # workaround for response.sendError() not correctly setting the response body
+    response.setStatus(403)
+    response.setOutput(None)
+    response.setContentType(MediaType.TEXT_PLAIN)
+    response.getOutputStream().print("User did not have the required endpoints")
+else:
+    # for testing purposes, let's add the name of each endpoint to a header in the request
+    endpoint_names = ", ".join(map(lambda x: x["name"], endpoints))
+    request.addHeader("x-endpoint-name", endpoint_names)
+
+    # must be called to continue processing the request
+    filterChain.doFilter(request, response)
+
+    # for testing purposes, let's also add the same header to the response
+    response.addHeader("x-endpoint-name", endpoint_names)
+</scripting>
