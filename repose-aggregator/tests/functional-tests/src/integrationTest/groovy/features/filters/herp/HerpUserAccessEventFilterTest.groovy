@@ -23,9 +23,14 @@ import framework.ReposeValveTest
 import groovy.json.JsonSlurper
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
+import javax.servlet.http.HttpServletResponse
+
+import static javax.ws.rs.HttpMethod.GET
 
 /**
  * Created by jennyvo on 2/10/15.
@@ -51,7 +56,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
         reposeLogSearch.cleanLog()
         MessageChain mc
-        def Map<String, String> headers = [
+        Map<String, String> headers = [
                 'Accept'             : 'application/xml',
                 'Host'               : 'LocalHost',
                 'User-agent'         : 'gdeproxy',
@@ -78,7 +83,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
         then:
         "result should be " + responseCode
-        mc.receivedResponse.code.equals(responseCode)
+        mc.receivedResponse.code == responseCode
         checkAttribute(jsonpart, listattr)
         result.ServiceCode == "repose"
         result.Region == "USA"
@@ -103,6 +108,50 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         "500"        | "reposeTest1" | "/resource1/id/ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
     }
 
+    @Unroll("Test filter output for Herp with Request Tenant ID's #reqTenants and Response Tenant ID's #resTenants")
+    def "Events match expected filter output"() {
+        reposeLogSearch.cleanLog()
+        def reqHeaders = new LinkedList<Header>()
+        for (header in reqTenants) {
+            reqHeaders.add(new Header('X-Tenant-Id', header))
+        }
+        def resHeaders = new LinkedList<Header>()
+        for (header in resTenants) {
+            resHeaders.add(new Header('X-Tenant-Id', header))
+        }
+        def customHandler = { return new Response(HttpServletResponse.SC_NOT_IMPLEMENTED, null, resHeaders, null) }
+
+        when: "When making request with headers #reqHeaders"
+        deproxy.makeRequest(
+                url: reposeEndpoint,
+                method: GET,
+                headers: reqHeaders,
+                defaultHandler: customHandler
+        )
+        String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
+
+        then: "result should contain Project ID's #projectIds"
+        result.Request.DefaultProjectID == defProject
+        if (projectIds.empty) {
+            result.Request.ProjectID.empty
+        } else {
+            result.Request.ProjectID.containsAll(projectIds)
+        }
+
+        where:
+        reqTenants                       | resTenants                       | defProject | projectIds
+        []                               | []                               | ''         | []
+        ['reqFoo;q=0.5', 'reqBar;q=1.0'] | []                               | 'reqBar'   | ['reqFoo', 'reqBar']
+        []                               | ['resFoo;q=0.5', 'resBar;q=1.0'] | 'resBar'   | ['resFoo', 'resBar']
+        ['reqFoo;q=0.5', 'reqBar;q=1.0'] | ['resFoo;q=0.5', 'resBar;q=1.0'] | 'reqBar'   | ['reqFoo', 'reqBar']
+        ['reqFoo;q=0.5,reqBar;q=1.0']    | []                               | 'reqBar'   | ['reqFoo', 'reqBar']
+        []                               | ['resFoo;q=0.5,resBar;q=1.0']    | 'resBar'   | ['resFoo', 'resBar']
+        ['reqFoo;q=0.5,reqBar;q=1.0']    | ['resFoo;q=0.5,resBar;q=1.0']    | 'reqBar'   | ['reqFoo', 'reqBar']
+    }
+
     @Unroll("Test not match condition from filterout: method #method, tenantId #tenantid, parameters #parameters, origin service respCode #responseCode")
     def "Events that not match the condition with find in post filter log"() {
         setup: "declare messageChain to be of type MessageChain"
@@ -112,7 +161,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
         reposeLogSearch.cleanLog()
         MessageChain mc
-        def Map<String, String> headers = [
+        Map<String, String> headers = [
                 'Accept'             : 'application/xml',
                 'Host'               : 'LocalHost',
                 'User-agent'         : 'gdeproxy',
@@ -147,7 +196,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
         then:
         "result should be " + responseCode
-        mc.receivedResponse.code.equals(responseCode)
+        mc.receivedResponse.code == responseCode
         checkAttribute(jsonpart, listattr)
         result.ServiceCode == "repose"
         result.Region == "USA"
@@ -193,7 +242,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
         reposeLogSearch.cleanLog()
         MessageChain mc
-        def Map<String, String> headers = [
+        Map<String, String> headers = [
                 'Accept'             : 'application/xml',
                 'Host'               : 'LocalHost',
                 'User-agent'         : 'gdeproxy',
@@ -224,7 +273,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
         then:
         "result should be " + responseCode
-        mc.receivedResponse.code.equals(responseCode)
+        mc.receivedResponse.code == responseCode
         checkAttribute(jsonpart, listattr)
         result.ServiceCode == "repose"
         result.Region == "USA"
@@ -260,7 +309,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
         reposeLogSearch.cleanLog()
         MessageChain mc
-        def Map<String, String> headers = [
+        Map<String, String> headers = [
                 'Accept'             : 'application/xml',
                 'Host'               : 'LocalHost',
                 'User-agent'         : 'gdeproxy',
@@ -296,7 +345,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
         then:
         "result should be " + responseCode
-        mc.receivedResponse.code.equals(responseCode)
+        mc.receivedResponse.code == responseCode
         checkAttribute(jsonpart, listattr)
         result.ServiceCode == "repose"
         result.Region == "USA"
@@ -333,9 +382,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
     }
 
     // Check all required attributes in the log
-    private boolean checkAttribute(String jsonpart, List listattr) {
-        def slurper = new JsonSlurper()
-        def result = slurper.parseText(jsonpart)
+    private static boolean checkAttribute(String jsonpart, List<String> listattr) {
         boolean check = true
         for (attr in listattr) {
             if (!jsonpart.contains(attr)) {
@@ -347,7 +394,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
     }
 
     // Build map for query parameters from request
-    private Map<String, List> buildParamList(String parameters) {
+    private static Map<String, List> buildParamList(String parameters) {
         Map<String, List> params = [:]
         List<String> list = parameters.split("&")
         List<String> av = []
@@ -367,13 +414,13 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
     }
 
     // Check if all parameters include in Parameters tag
-    private boolean checkParams(String jsonpart, Map<String, List> map) {
+    private static boolean checkParams(String jsonpart, Map<String, List<String>> map) {
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
         boolean check = true
 
         for (e in map) {
-            List iv = e.value
+            def iv = e.value
             for (v in iv) {
                 if (!(result.Request.Parameters.(e.key).contains(URLDecoder.decode(v, "UTF-8")))) {
                     check = false
