@@ -21,6 +21,7 @@
         {{/each}} },
         "UserName" : "{{userName}}",
         "ImpersonatorName" : "{{impersonatorName}}",
+        "DefaultProjectID" : "{{defaultProjectId}}",
         "ProjectID" : [ {{#each projectID}}
         {{#if @index}},{{/if}}"{{.}}"
         {{/each}} ],
