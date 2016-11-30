@@ -9,9 +9,16 @@ WARNING: Before enabling the CORS filter, you should be familiar with the CORS s
 Enabling CORS can increase an endpoint's exposure.
 Configuring CORS improperly could expose CSRF vulnerabilities in the origin service that were previously blocked by not supporting CORS.
 
-== Headers
+== General filter information
+* *Name:* cors
+* *Configuration:* cors.cfg.xml
+* *Released:* v6.2.2.0
+* *Filter Bundle:* Repose (Standard)
+* link:../schemas/cors-configuration.xsd[Schema]
 
-=== Required
+== Prerequisites & Postconditions
+=== Input
+==== Required headers
 The presence of certain headers will indicate what kind of request is being made.
 All of these headers will be supplied by the client making the request.
 
@@ -27,7 +34,32 @@ a| * `Origin`
 a| * `Origin`
 |===
 
-=== Created
+==== Required preceding filters
+This should be one of the first filters, if not the first filter, in the filter chain in order to properly handle Preflight CORS requests.
+If you want to rate limit Preflight CORS requests, you can add these filters before the CORS filter in the filter chain:
+
+. <<ip-user.adoc#,IP User Filter>>
+. <<rate-limiting.adoc#,Rate Limiting Filter>>
+
+This Rate Limiting filter would be in addition to any Rate Limiting filter you may already have in place.
+The first Rate Limiting filter would filter only by IP address,
+and the second Rate Limiting filter would continue to rate limit the way it is currently set up.
+Preflight requests do not contain credentials which is why the CORS filter needs to be one of the first filters.
+
+==== Request headers created
+Changes to request headers vary based on configuration.
+
+==== Request body changes
+This filter does not modify the request body.
+
+==== Recommended follow-on (succeeding) filters
+This filter is not it strictly required by any other filters.
+
+=== Output
+==== Response body changes
+This filter does not modify the response body.
+
+==== Response headers created
 The CORS filter wil not add any headers to the response for non-CORS requests.
 The filter will add the following headers to the response for these scenarios when the request is allowed to proceed:
 
@@ -50,7 +82,7 @@ If the CORS filter rejects the request, the following header will be added to th
 
 * `Access-Control-Allow-Origin`
 
-== Early Termination Conditions
+==== Response Status Codes
 These are the scenarios in which the CORS filters will stop processing the request and immediately return a response:
 
 [cols="3", options="header"]
@@ -80,29 +112,13 @@ These are the scenarios in which the CORS filters will stop processing the reque
 |Method not allowed
 |===
 
-== Filter Chain
-*Filter name:* `cors`
-
-=== Ordering
-It should be one of the first filters, if not the first filter, in the filter chain in order to properly handle Preflight CORS requests.
-If you want to rate limit Preflight CORS requests, you can add these filters before the CORS filter in the filter chain:
-
-. <<ip-user.adoc#,IP User Filter>>
-. <<rate-limiting.adoc#,Rate Limiting Filter>>
-
-This Rate Limiting filter would be in addition to any Rate Limiting filter you may already have in place.
-The first Rate Limiting filter would filter only by IP address,
-and the second Rate Limiting filter would continue to rate limit the way it is currently set up.
-Preflight requests do not contain credentials which is why the CORS filter needs to be one of the first filters.
-
-== Configuration
-*Default Configuration Filename:* `cors.cfg.xml`
-
+== Examples
 === Basic Example
 A basic CORS configuration would allow all origins to use any standard HTTP method on all resources.
 This could expose vulnerabilities and is not recommended outside of a development environment.
 
 [source,xml]
+.cors.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <cross-origin-resource-sharing
@@ -132,6 +148,7 @@ To limit which origins are allowed to initiate a CORS request to your API,
 you can specify the exact header value or specify a regex value.
 
 [source,xml]
+.cors.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <cross-origin-resource-sharing
@@ -164,6 +181,7 @@ WARNING: This is not a substitution for authorization.
 Requests that do not contain the `Origin` header are not CORS requests and completely bypass this verification.
 
 [source,xml]
+.cors.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <cross-origin-resource-sharing
@@ -238,6 +256,7 @@ you would see the following:
 This is a example configuration with notes on all of the required and optional elements and attributes.
 
 [source,xml]
+.cors.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <cross-origin-resource-sharing
@@ -287,8 +306,6 @@ the specified URI will be treated as a Java regular expression.
 <8> The `allowed-methods` element is optional.
 Leaving it out is useful when you need to prevent adding additional HTTP methods to a sub-resource as is the case with `/v1/status.*` in this example.
 <9> At least one `method` element is required when the `allowed-methods` element is present.
-
-=== link:../schemas/cors-configuration.xsd[Schema]
 
 == CORS Overview
 For security purposes, web browsers follow the https://en.wikipedia.org/wiki/Same-origin_policy[Single-Origin policy].
