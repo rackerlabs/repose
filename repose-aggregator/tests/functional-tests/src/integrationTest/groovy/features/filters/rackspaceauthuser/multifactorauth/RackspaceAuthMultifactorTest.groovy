@@ -183,6 +183,32 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
         messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME.toString()) == USERNAME
     }
 
+    def "the username header should be set on the request for the additional mfa request when there are multiple session IDs"() {
+        given: 'the initial authentication request is made'
+        deproxy.makeRequest(
+                url: "${reposeEndpoint}/v2.0/tokens/".toString(),
+                method: 'POST',
+                headers: ['Content-type': 'application/json'],
+                requestBody: MFA_INITIAL_REQUEST_BODY,
+                defaultHandler: MFA_CHALLENGE_RESPONSE)
+
+        when: 'the follow-up authentication request is made'
+        MessageChain messageChain = deproxy.makeRequest(
+                url: "${reposeEndpoint}/v2.0/tokens/".toString(),
+                method: 'POST',
+                headers: [
+                        'Content-type': 'application/json',
+                        'X-SessionId' : "${SESSION_ID};q=0.5,foobarbazsession;q=0.8"
+                ],
+                requestBody: MFA_FOLLOW_UP_REQUEST_BODY,
+                defaultHandler: MFA_SUCCESS_RESPONSE)
+
+        then: 'the request received by the origin service should contain a username header'
+        messageChain.receivedResponse.code.toInteger() == 200
+        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
+        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME.toString()) == USERNAME
+    }
+
     def "the distributed datastore is used to cache the username"() {
         given: 'the initial authentication request is made'
         deproxy.makeRequest(
