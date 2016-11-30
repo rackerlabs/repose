@@ -208,4 +208,61 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
         !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
         messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME.toString()) == USERNAME
     }
+
+    def "the cached session ID is re-usable"() {
+        given: 'the initial authentication request is made'
+        deproxy.makeRequest(
+                url: "${reposeEndpoint}/v2.0/tokens/".toString(),
+                method: 'POST',
+                headers: ['Content-type': 'application/json'],
+                requestBody: MFA_INITIAL_REQUEST_BODY,
+                defaultHandler: MFA_CHALLENGE_RESPONSE)
+
+        and: 'the follow-up authentication request is made'
+        deproxy.makeRequest(
+                url: "${reposeEndpoint2}/v2.0/tokens/".toString(),
+                method: 'POST',
+                headers: [
+                        'Content-type': 'application/json',
+                        'X-SessionId' : SESSION_ID
+                ],
+                requestBody: MFA_FOLLOW_UP_REQUEST_BODY,
+                defaultHandler: MFA_SUCCESS_RESPONSE)
+
+        when: 'another authentication request is made with the same session ID'
+        MessageChain messageChain = deproxy.makeRequest(
+                url: "${reposeEndpoint}/v2.0/tokens/".toString(),
+                method: 'POST',
+                headers: [
+                        'Content-type': 'application/json',
+                        'X-SessionId' : SESSION_ID
+                ],
+                requestBody: MFA_FOLLOW_UP_REQUEST_BODY,
+                defaultHandler: MFA_SUCCESS_RESPONSE)
+
+        then: 'the request received by the origin service should contain a username header'
+        messageChain.receivedResponse.code.toInteger() == 200
+        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
+        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME.toString()) == USERNAME
+    }
+
+    def "if the session ID has not been seen, processing should continue, but a message should be logged"() {
+        when: 'the follow-up authentication request is made with a bad session ID'
+        MessageChain messageChain = deproxy.makeRequest(
+                url: "${reposeEndpoint2}/v2.0/tokens/".toString(),
+                method: 'POST',
+                headers: [
+                        'Content-type': 'application/json',
+                        'X-SessionId' : 'not-a-session-id'
+                ],
+                requestBody: MFA_FOLLOW_UP_REQUEST_BODY,
+                defaultHandler: MFA_SUCCESS_RESPONSE)
+
+        then: 'the request received by the origin service should not contain a username header'
+        messageChain.receivedResponse.code.toInteger() == 200
+        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
+        !messageChain.handlings[0].request.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
+        reposeLogSearch.searchByString('The provided session ID has not been seen before. ' +
+                'The username header will not be set, but processing will continue.')
+    }
 }
