@@ -1,3 +1,9 @@
 = Echo Filter
 
 include::../_includes/in-progress.adoc[]
+
+== General filter information
+* *Filter name:* ???
+* *Filter configuration:* ???.cfg.xml
+* *Released:* v?.?.?.?
+* *Filter Bundle:* Repose Experimental

@@ -2,5 +2,9 @@
 
 include::../_includes/in-progress.adoc[]
 
-== Configuration
-=== link:../schemas/validator-configuration.xsd[Schema]
+== General filter information
+* *Filter name:* api-validator
+* *Filter configuration:* validator.cfg.xml
+* *Released:* v2.1.6
+* *Filter Bundle:* Repose Extensions
+* link:../schemas/validator-configuration.xsd[Schema]
