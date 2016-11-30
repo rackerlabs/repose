@@ -2,5 +2,9 @@
 
 include::../_includes/in-progress.adoc[]
 
-== Configuration
-=== link:../schemas/simple-rbac.xsd[Schema]
+== General filter information
+* *Filter name:* simple-rbac
+* *Filter configuration:* simple-rbac.cfg.xml
+* *Released:* v7.1.2.0
+* *Filter Bundle:* Repose Extensions
+* link:../schemas/simple-rbac.xsd[Schema]

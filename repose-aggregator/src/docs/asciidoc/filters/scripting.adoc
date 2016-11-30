@@ -5,11 +5,39 @@ include::../_includes/in-progress.adoc[]
 The Scripting filter enables users to write custom filters for Repose using a variety of scripting languages.
 Custom filters can be used to perform arbitrary processing with access to the bindings described below.
 
-== Input
-Varies based on configuration.
+== General filter information
+* *Filter name:* scripting
+* *Filter configuration:* scripting.cfg.xml
+* *Released:* v8.0.0.0
+* *Filter Bundle:* Repose Experimental
+* link:../schemas/scripting.xsd[Schema]
 
-== Output
-Varies based on configuration.
+== Prerequisites & Postconditions
+=== Input
+==== Required headers
+None.
+
+==== Required preceding filters
+This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
+
+==== Request headers created
+Changes to request headers vary based on configuration.
+
+==== Request body changes
+Changes to the request body varies based on configuration.
+
+==== Recommended follow-on (succeeding) filters
+This filter is not it strictly required by any other filters.
+
+=== Output
+==== Response body changes
+Changes to the response body varies based on configuration.
+
+==== Response headers created
+Changes to response headers vary based on configuration.
+
+==== Response Status Codes
+Changes to the response code varies based on configuration.
 
 == Supported Scripting Languages
 * Groovy
@@ -55,18 +83,10 @@ For the simple task of adding a header to a request, this filter performs compar
 Scripts written in a compilable language as shown above will always be compiled.
 This should dramatically improve performance.
 
-== Filter Chain
-*Filter Name:* scripting
-
-=== Ordering
-This filter can be placed wherever it is needed in the filter chain.
-It does not have any strict dependencies on any other filter, nor is it strictly required by any other filters.
-
-== Configuration
-*Default Configuration Filename:* scripting.cfg.xml
-
+== Examples
 === Add A Header Using Groovy
 [source,xml]
+.scripting.cfg.xml
 ----
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
            language="groovy"> <!--1-->
@@ -84,6 +104,7 @@ Adds a request header named `foo` with a value of `bar`.
 
 === Migrate Path Segments to Query Parameters Using Python
 [source,xml]
+.scripting.cfg.xml
 ----
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
            language="python"><![CDATA[ <!--1-->
@@ -115,5 +136,3 @@ If not, no request mutations are performed.
 <7> Sets the modified query string and request URI on the request object.
 <8> Passes the modified request and the response on to the next component in the filter chain.
 <9> Terminates the `CDATA` block and the script.
-
-=== link:../schemas/scripting.xsd[Schema]
