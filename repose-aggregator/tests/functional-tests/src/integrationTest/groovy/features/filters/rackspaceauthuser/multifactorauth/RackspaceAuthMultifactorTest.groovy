@@ -218,7 +218,7 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
                 requestBody: MFA_INITIAL_REQUEST_BODY,
                 defaultHandler: MFA_CHALLENGE_RESPONSE)
 
-        when: 'the follow-up authentication request is made'
+        when: 'the follow-up authentication request is made to a different endpoint from the initial request'
         MessageChain messageChain = deproxy.makeRequest(
                 url: "${reposeEndpoint2}/v2.0/tokens/".toString(),
                 method: 'POST',
