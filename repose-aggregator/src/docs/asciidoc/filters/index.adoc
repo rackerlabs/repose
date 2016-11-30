@@ -2,113 +2,104 @@
 
 include::../_includes/in-progress.adoc[]
 
-== Repose Filter Bundle (Standard)
-=== <<add-header.adoc#,Add Header Filter>>
+== <<add-header.adoc#,Add Header Filter>>
 Enables users to add new headers and header values to a request and/or response.
 
-=== <<body-extractor-to-header.adoc#,Body Extractor to Header Filter>>
+== <<api-validator.adoc#,API Validator Filter>>
 *IN PROGRESS*
 
-=== <<body-patcher.adoc#,Body Patcher Filter>>
+== <<body-extractor-to-header.adoc#,Body Extractor to Header Filter>>
 *IN PROGRESS*
 
-=== <<compression.adoc#,Compression Filter>>
+== <<body-patcher.adoc#,Body Patcher Filter>>
 *IN PROGRESS*
 
-=== <<content-type-stripper.adoc#,Content Type Stripper Filter>>
+== <<compression.adoc#,Compression Filter>>
 *IN PROGRESS*
 
-=== <<cors.adoc#,CORS Filter>>
+== <<content-type-stripper.adoc#,Content Type Stripper Filter>>
+*IN PROGRESS*
+
+== <<cors.adoc#,CORS Filter>>
 Enables users to add support for Cross-Origin Resource Sharing requests.
 
-=== <<derp.adoc#,Delegation Response Processor (DeRP) Filter>>
+== <<derp.adoc#,Delegation Response Processor (DeRP) Filter>>
 *IN PROGRESS*
 
-=== <<destination-router.adoc#,Destination Router Filter>>
+== <<destination-router.adoc#,Destination Router Filter>>
 *IN PROGRESS*
 
-=== <<forwarded-proto.adoc#,Forwarded Protocol Filter>>
+== <<echo.adoc#,Echo Filter>>
 *IN PROGRESS*
 
-=== <<header-normalization.adoc#,Header Normalization filter>>
+== <<exception.adoc#,Exception Filter>>
 *IN PROGRESS*
 
-=== <<header-translation.adoc#,Header Translation Filter>>
+== <<forwarded-proto.adoc#,Forwarded Protocol Filter>>
 *IN PROGRESS*
 
-=== <<header-user.adoc#,Header User Filter>>
+== <<header-normalization.adoc#,Header Normalization filter>>
 *IN PROGRESS*
 
-=== <<herp.adoc#,Highly Efficient Record Processor (HERP) Filter>>
+== <<header-translation.adoc#,Header Translation Filter>>
 *IN PROGRESS*
 
-=== <<ip-user.adoc#,IP User Filter>>
+== <<header-user.adoc#,Header User Filter>>
 *IN PROGRESS*
 
-=== <<iri-validator.adoc#,IRI Validator Filter>>
+== <<herp.adoc#,Highly Efficient Record Processor (HERP) Filter>>
 *IN PROGRESS*
 
-=== <<keystone-v2.adoc#,Keystone V2 Filter>>
+== <<ip-user.adoc#,IP User Filter>>
 *IN PROGRESS*
 
-=== <<keystone-v2-basic-auth.adoc#,Keystone v2 Basic Auth Filter>>
+== <<iri-validator.adoc#,IRI Validator Filter>>
 *IN PROGRESS*
 
-=== <<merge-header.adoc#,Merge Header Filter>>
+== <<keystone-v2.adoc#,Keystone V2 Filter>>
 *IN PROGRESS*
 
-=== <<openstack-identity-v3.adoc#,Openstack Identity v3 Filter>>
+== <<keystone-v2-basic-auth.adoc#,Keystone v2 Basic Auth Filter>>
 *IN PROGRESS*
 
-=== <<rackspace-auth-user.adoc#,Rackspace Auth User Filter>>
+== <<merge-header.adoc#,Merge Header Filter>>
+*IN PROGRESS*
+
+== <<openstack-identity-v3.adoc#,Openstack Identity v3 Filter>>
+*IN PROGRESS*
+
+== <<rackspace-auth-user.adoc#,Rackspace Auth User Filter>>
 For identity usage for rate limiting and user access events.
 
-=== <<rate-limiting.adoc#,Rate Limiting Filter>>
+== <<rate-limiting.adoc#,Rate Limiting Filter>>
 *IN PROGRESS*
 
-=== <<slf4j-http-logging.adoc#,SFL4J HTTP Logging Filter>>
-*IN PROGRESS*
-
-=== <<translation.adoc#,Translation Filter>>
-*IN PROGRESS*
-
-=== <<uri-normalization.adoc#,URI Normalization Filter>>
-*IN PROGRESS*
-
-=== <<uri-stripper.adoc#,URI Stripper Filter>>
-*IN PROGRESS*
-
-=== <<uri-user.adoc#,URI User Filter>>
-*IN PROGRESS*
-
-=== <<url-extractor-to-header.adoc#,URL Extractor to Header Filter>>
-*IN PROGRESS*
-
-=== <<valkyrie-authorization.adoc#,Valkyrie Authorization Filter>>
-*IN PROGRESS*
-
-=== <<versioning.adoc#,Versioning Filter>>
-*IN PROGRESS*
-
-== Repose Extensions Filter Bundle
-=== <<api-validator.adoc#,API Validator Filter>>
-*IN PROGRESS*
-
-=== <<simple-rbac.adoc#,Simple Role Based Access Control (RBAC) Filter>>
-*IN PROGRESS*
-
-== Repose Experimental Filter Bundle
-=== <<echo.adoc#,Echo Filter>>
-*IN PROGRESS*
-
-=== <<exception.adoc#,Exception Filter>>
-*IN PROGRESS*
-
-=== <<scripting.adoc#,Scripting Filter>>
+== <<scripting.adoc#,Scripting Filter>>
 Enables users to write custom filters for Repose using a variety of scripting languages.
 
-=== <<servlet-contract.adoc#,Servlet Contract Filter>>
+== <<simple-rbac.adoc#,Simple Role Based Access Control (RBAC) Filter>>
 *IN PROGRESS*
 
-=== <<tightly-coupled.adoc#,Tightly Coupled Filter>>
+== <<slf4j-http-logging.adoc#,SFL4J HTTP Logging Filter>>
+*IN PROGRESS*
+
+== <<translation.adoc#,Translation Filter>>
+*IN PROGRESS*
+
+== <<uri-normalization.adoc#,URI Normalization Filter>>
+*IN PROGRESS*
+
+== <<uri-stripper.adoc#,URI Stripper Filter>>
+*IN PROGRESS*
+
+== <<uri-user.adoc#,URI User Filter>>
+*IN PROGRESS*
+
+== <<url-extractor-to-header.adoc#,URL Extractor to Header Filter>>
+*IN PROGRESS*
+
+== <<valkyrie-authorization.adoc#,Valkyrie Authorization Filter>>
+*IN PROGRESS*
+
+== <<versioning.adoc#,Versioning Filter>>
 *IN PROGRESS*
