@@ -172,7 +172,9 @@ A list of supported keys follows:
 | parameters           | The query parameters for a request.
                          Note that this field is a map, and specific parameters can be inserted using the following form: `{{parameters.<parameter-key>}}`. | -
 | projectID            | The tenant ID or project ID of the user making the request authenticated through an OpenStack Identity service.
-                         Note that, if the client-auth filter is used, the tenantId from that filter will be inserted into this field.                      | client-auth *or* openstack-identity-v3
+                         Note that, if the client-auth filter is used, the `tenantId` from that filter will be inserted into this field.
+                         IF the origin service will add this header to the response, THEN that will be used if not available on the request.                | client-auth *or* openstack-identity-v3
+                                                                                                                                                              (`X-Tenant-ID` *or* `X-Project-ID`)
 | region               | The region, configured in the highly-efficient-record-processor.cfg.xml file.
                          This string will be used in logging to note the region of the service.                                                             | -
 | requestMethod        | The HTTP method of the request.	                                                                                                | -
