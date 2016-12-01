@@ -150,7 +150,7 @@ The `{{methodLabel}}` variable value is provided by the `api-validator` filter.
 If you aren't using that filter, `{{methodLabel}}` will return empty string.
 
 === User Access Event Recording With Flume
-For information about using the Flume with the HERP filter for user access event recording, see link:../recipes/api-event-flume.html[CF Flume Sink].
+For information about using the Flume with the HERP filter for user access event recording, see <<../recipes/api-event-flume.adoc#,CF Flume Sink>>.
 
 === Configurable parameters
 In the `template` element, certain template keys may be used to add dynamic content to the text being logged.
