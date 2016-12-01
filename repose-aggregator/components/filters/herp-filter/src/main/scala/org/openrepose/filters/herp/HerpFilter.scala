@@ -43,6 +43,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 
+import scala.collection.GenTraversable
 import scala.collection.JavaConverters._
 import scala.util.Try
 import scala.util.matching.Regex
@@ -123,7 +124,8 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       else stripHeaderParams(allProjectIds.maxBy(getQuality))
     }
 
-    val tenantProjectHeaders = List(OpenStackServiceHeader.TENANT_ID.toString, X_PROJECT_ID)
+    val tenantProjectHeaders = GenTraversable(OpenStackServiceHeader.TENANT_ID.toString, X_PROJECT_ID)
+
     def getSplitProjectHeaders(headerInteractor: HeaderInteractor): Traversable[String] = {
       tenantProjectHeaders.foldLeft(Traversable.empty[String]) { (accumulator, current) =>
         accumulator ++ headerInteractor.getSplittableHeaders(current).asScala
