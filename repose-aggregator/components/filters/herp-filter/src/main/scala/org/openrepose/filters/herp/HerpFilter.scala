@@ -123,17 +123,15 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       else stripHeaderParams(allProjectIds.maxBy(getQuality))
     }
 
-    def getSplitHeaders(headerInteractor: HeaderInteractor, headers: List[String]): Traversable[String] = {
-      headers.foldLeft(Traversable[String]()) { (accumulator, current) =>
-        accumulator.++(headerInteractor.getSplittableHeaders(current).asScala)
+    val tenantProjectHeaders = List(OpenStackServiceHeader.TENANT_ID.toString, X_PROJECT_ID)
+    def getSplitProjectHeaders(headerInteractor: HeaderInteractor): Traversable[String] = {
+      tenantProjectHeaders.foldLeft(Traversable.empty[String]) { (accumulator, current) =>
+        accumulator ++ headerInteractor.getSplittableHeaders(current).asScala
       }
     }
 
-    val tenantProjectHeaders = List(OpenStackServiceHeader.TENANT_ID.toString, X_PROJECT_ID)
-    val projectIds = getSplitHeaders(new HttpServletRequestWrapper(httpServletRequest), tenantProjectHeaders) match {
-      case x if x.nonEmpty => x
-      case _ => getSplitHeaders(httpServletResponse, tenantProjectHeaders)
-    }
+    val reqProjectIds = getSplitProjectHeaders(new HttpServletRequestWrapper(httpServletRequest))
+    val projectIds = if (reqProjectIds.nonEmpty) reqProjectIds else getSplitProjectHeaders(httpServletResponse)
 
     //def nullIfEmpty(it: Iterable[Any]) = if (it.isEmpty) null else it
     val eventValues: Map[String, Any] = Map(

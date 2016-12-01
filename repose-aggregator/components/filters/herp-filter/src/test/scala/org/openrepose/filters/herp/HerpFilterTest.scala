@@ -413,19 +413,13 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
     val hdrNames = List("X-Tenant-Id", "X-Project-Id")
     val reqValues = List(List("reqFoo;q=0.5", "reqBar;q=1.0"), List("reqFoo;q=0.5,reqBar;q=1.0"))
     val resValues = List(List("resFoo;q=0.5", "resBar;q=1.0"), List("resFoo;q=0.5,resBar;q=1.0"))
-    val headers = for {
-      reqHdr <- hdrNames
-      resHdr <- hdrNames
-    } yield (reqHdr, resHdr)
-    val values = for {
-      reqVal <- reqValues
-      resVal <- resValues
-    } yield (reqVal, resVal)
-    headers.foreach { case (reqHdr, resHdr) =>
-      values.foreach { case (reqVal, resVal) =>
+    val headers = for (reqHdr <- hdrNames; resHdr <- hdrNames) yield (reqHdr, resHdr)
+    val values = for (reqVal <- reqValues; resVal <- resValues) yield (reqVal, resVal)
+    headers foreach { case (reqHdr, resHdr) =>
+      values foreach { case (reqVal, resVal) =>
         it(s"should log the default tenant id header from the Request even if it is available on the Response (REQ=$reqHdr:$reqVal)(RES=$resHdr:$resVal)") {
           // given:
-          reqVal.foreach { value =>
+          reqVal foreach { value =>
             servletRequest.addHeader(reqHdr, value)
           }
           addResponseHeaders(
