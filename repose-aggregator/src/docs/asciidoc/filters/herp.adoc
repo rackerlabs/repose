@@ -210,4 +210,4 @@ The following helpers are available:
 === Recommendation for managing disk space
 If you expect heavy usage, you should use a logging tool, such as link:http://logstash.net/[Logstash], for managing events and logs and should not write events to files.
 Even if you rely on auditing, it is not recommended that you use the file system with the audit logs.
-Repose has developed link:../recipes/api-event-flume.html[CF Flume Sink] to eliminate disk space and log file issues.
+Repose has developed <<../recipes/api-event-flume.adoc#,CF Flume Sink>> to eliminate disk space and log file issues.
