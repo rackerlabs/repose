@@ -1,3 +1,211 @@
-= Highly Efficient Record Processor Filter
+= Highly Efficient Record Processor (HERP) Filter
 
 include::../_includes/in-progress.adoc[]
+
+The Highly Efficient Record Processor (HERP) filter logs an event for each API request.
+These logs provide information regarding the processing of each request.
+The logs can be inspected to view the usage of a service and to perform auditing.
+Events are recorded even if the API request is rejected by Repose before reaching the origin service.
+
+== General filter information
+* *Filter name:* HERP
+* *Filter configuration:* highly-efficient-record-processor.cfg.xml
+* *Released:* v7.0.0.1
+* *Filter Bundle:* Repose (Standard)
+* link:../schemas/highly-efficient-record-processor.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Input
+==== Required headers
+This filter has no required headers.
+
+==== Required preceding filters
+This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
+
+[CAUTION]
+In order for the HERP filter to process and record every request, no preceding filter in the filter chain may write a response.
+To prevent short-circuiting without changing behavior, delegation has been added to many Repose filters.
+See: Delegation in Repose
+
+==== Request headers created
+This filter does not create/modify any request headers.
+
+==== Request body changes
+This filter does not modify the request body.
+
+==== Recommended follow-on (succeeding) filters
+This filter is not it strictly required by any other filters.
+However, the DeRP filter commonly follows the HERP filter.
+
+[CAUTION]
+The HERP filter will not process responses sent from preceding filters.
+The DeRP filter can be used to perform delegation.
+Place the DeRP filter after the HERP filter so that responses sent by any preceding filters are delegated.
+
+=== Output
+==== Response body changes
+This filter does not modify the response body.
+
+==== Response headers created
+This filter does not create/modify any response headers.
+
+==== Response Status Codes
+This filter does not modify the response code.
+
+== Examples
+To use the HERP filter, you need to:
+
+1. Edit the `highly-efficient-record-processor.cfg.xml` file.
+1. Add the HERP filter to your system model.
+1. Configure the logger-name attribute to note the SLF4j logger
+1. Configure the service-code attribute to note the service being accessed.
+1. Configure the region attribute to note the region of the service.
+1. Configure the data-center attribute to note the data center of the service.
+1. Configure the template element to define the format of the messages to be logged by the HERP filter.
+
+=== Optional user-configurable filtering
+The HERP filter allows user-configurable filtering along with optional pre and post log identifiers.
+
+Each `filterOut` block contains all of the criteria required for a single filter.
+If any of the individual criterion in the `match` elements contained within a `filterOut` element fail, then that filter fails and it goes on to evaluate the next one.
+If any of the `filterOut` blocks fully match, then the event is filtered and not logged to the post-filter log.
+In other words, the `match` elements are logically AND'd and the `filterOut` blocks are logically OR'd.
+
+1. Within the match element:
+ * Set the `field` attribute to name the event field to be matched.
+   If the `field` is a map (e.g. parameters), then a dot separates the `field` from the map key and both are placed in the `field` attribute.
+ * Set the `regex` attribute to determine if the regular expressions match the fields' values.
+   The regex is currently considered to match if any part of a field's value matches.
+   For example, a regex of `"racker"` would match a value of `"rackerTwo"`.
+   To strictly match, use a more explicit regex such as `"^racker$"`.
+1. Optionally, you can:
+ * Specify a `pre-filter-logger-name` that logs all events to it prior to performing any filter logic.
+ * Specify a `post-filter-logger-name` that logs all events to it that are not filtered out.
+
+[source,xml]
+.highly-efficient-record-processor.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?><highly-efficient-record-processor xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
+                                   pre-filter-logger-name="org.openrepose.herp.pre.filter"
+                                   post-filter-logger-name="org.openrepose.herp.post.filter"
+                                   service-code="repose" region="USA" data-center="DFW">
+    <template crush="true">
+        <![CDATA[
+            <cadf:event xmlns:cadf="http://schemas.dmtf.org/cloud/audit/1.0/event"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation='http://schemas.dmtf.org/cloud/audit/1.0/event user-access-cadf.xsd'
+                    xmlns:ua="http://feeds.api.rackspacecloud.com/cadf/user-access-event"
+                    id="{{guid}}"
+                    eventType="activity"
+                    typeURI="http://schemas.dmtf.org/cloud/audit/1.0/event"
+                    eventTime="{{cadfTimestamp timestamp}}"
+                    action="{{cadfMethod requestMethod}}"
+                    outcome="{{cadfOutcome responseCode}}">
+            <cadf:initiator id="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}"
+                            typeURI="network/node" name="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}">
+                <cadf:host address="{{requestorIp}}" agent="{{userAgent}}" />
+            </cadf:initiator>
+            <cadf:target id="{{targetHost}}" typeURI="service" name="{{serviceCode}}" >
+                <cadf:host address="{{targetHost}}" />
+            </cadf:target>
+            <cadf:attachments>
+                <cadf:attachment name="auditData" contentType="ua:auditData">
+                    <cadf:content>
+                        <ua:auditData version="1">
+                            <ua:region>{{region}}</ua:region>
+                            <ua:dataCenter>{{dataCenter}}</ua:dataCenter>
+                            <ua:methodLabel>{{methodLabel}}</ua:methodLabel>
+                            <ua:requestURL>{{requestURL}}</ua:requestURL>
+                            <ua:queryString>{{requestQueryString}}</ua:queryString>
+                            <ua:tenantId>{{defaultProjectId}}</ua:tenantId>
+                            <ua:responseMessage>{{responseMessage}}</ua:responseMessage>
+                            <ua:userName>{{userName}}</ua:userName>
+                            <ua:roles>{{#each roles}}{{#if @index}} {{/if}}{{.}}{{/each}}</ua:roles>
+                        </ua:auditData>
+                    </cadf:content>
+                </cadf:attachment>
+            </cadf:attachments>
+            <cadf:observer id="{{serviceCode}}-{{clusterId}}-{{nodeId}}" name="repose" typeURI="service/security" />
+            <cadf:reason reasonCode="{{responseCode}}"
+                         reasonType="http://www.iana.org/assignments/http-status-codes/http-status-codes.xml"/>
+        </cadf:event>
+        ]]>
+    </template>
+    <filterOut>
+        <match field="userName" regex=".*[fF]oo.*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
+    <!-- Implicit OR -->
+    <filterOut>
+        <match field="userName" regex=".*[bB]ar.*"/>
+        <!-- Implicit AND -->
+        <match field="parameters.abc" regex="123"/>
+    </filterOut>
+</highly-efficient-record-processor>
+----
+
+[NOTE]
+The `{{methodLabel}}` variable value is provided by the `api-validator` filter.
+If you aren't using that filter, `{{methodLabel}}` will return empty string.
+
+=== User Access Event Recording With Flume
+For information about using the Flume with the HERP filter for user access event recording, see link:../recipes/api-event-flume.html[CF Flume Sink].
+
+=== Configurable parameters
+In the `template` element, certain template keys may be used to add dynamic content to the text being logged.
+Any valid key enclosed in brackets (i.e., `{{<key>}}`) will be replaced, brackets included, by the value associated with that key at runtime.
+Note that key names are case sensitive.
+A list of supported keys follows:
+
+[cols="3", options="header,autowidth"]
+|===
+| Supported fields     | Description                                                                                                                        | Prerequisite Filter(s)
+| clusterId            | The cluster ID of the Repose node on which the filter is running, configured in the Repose system model.                           | -
+| dataCenter           | The data center, configured in the highly-efficient-record-processor.cfg.xml file.
+                         This string will be used in logging to note the data center of the service.                                                        | -
+| guid	               | A globally unique identifier generated for a particular request.                                                                   | -
+| impersonatorName     | The impersonator making the request on behalf of a user.                                                                           | client-auth *or* openstack-identity-v3
+| methodLabel          | A label which describes the API call.
+                         This is pulled from the WADL used by the api-validator filter.                                                                     | api-validator
+| nodeId               | The node ID of the Repose node on which the filter is running, configured in the Repose system model.	                            | -
+| parameters           | The query parameters for a request.
+                         Note that this field is a map, and specific parameters can be inserted using the following form: `{{parameters.<parameter-key>}}`. | -
+| projectID            | The tenant ID or project ID of the user making the request authenticated through an OpenStack Identity service.
+                         Note that, if the client-auth filter is used, the tenantId from that filter will be inserted into this field.                      | client-auth *or* openstack-identity-v3
+| region               | The region, configured in the highly-efficient-record-processor.cfg.xml file.
+                         This string will be used in logging to note the region of the service.                                                             | -
+| requestMethod        | The HTTP method of the request.	                                                                                                | -
+| requestQueryString   | The full query string of the request.
+                         For example, a request to /path?a=1&b=1 would have a query string of a=1&b=2.	                                                    | -
+| requestURL	       | The URL of the request.	                                                                                                        | -
+| requestorIp	       | The IP of the user making the request.	                                                                                            | -
+| responseCode	       | The response code to be returned to the user.	                                                                                    | -
+| responseMessage	   | The response message to be returned to the user.
+                         This is not the body of the response.                                                                                              | -
+| roles	               | The roles of the user making the request authenticated through an OpenStack Identity service.                                      | client-auth *or* openstack-identity-v3
+| serviceCode          | The service code, configured in the highly-efficient-record-processor.cfg.xml file.
+                         This string will be used in logging to describe the service being accessed.                                                        | -
+| targetHost           | The host portion of the request.                                                                                                   | -
+| timestamp            | A timestamp indicating when the HERP filter processed the request.                                                                 | -
+| userAgent            | The user agent of the request.                                                                                                     | -
+| userName	           | The username of the user making the request. | client-auth *or* openstack-identity-v3
+|===
+
+The HERP filter also provides helper functions to the templating engine.
+These helpers work like the keys above, but take some input.
+For example, assuming the HTTP request method is a `GET`, `{{cadfMethod requestMethod}}` would be replace by `"read/get"`.
+The following helpers are available:
+
+[cols="2", options="header,autowidth"]
+|===
+| Supported helpers          | Description
+| cadfOutcome <responseCode> | Converts a HTTP response code into either "success" or "failure".
+| cadfTimestamp <timestamp>  | Converts a timestamp into the CADF format.
+| cadfMethod <requestMethod> | Converts a HTTP method into the CADF format.
+|===
+
+=== Recommendation for managing disk space
+If you expect heavy usage, you should use a logging tool, such as link:http://logstash.net/[Logstash], for managing events and logs and should not write events to files.
+Even if you rely on auditing, it is not recommended that you use the file system with the audit logs.
+Repose has developed link:../recipes/api-event-flume.html[CF Flume Sink] to eliminate disk space and log file issues.
