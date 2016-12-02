@@ -64,6 +64,7 @@ public class ReposeTomcatContainer extends ReposeContainer {
     }
 
     @Override
+    @SuppressWarnings("squid:S106")
     protected void startRepose() {
         try {
             tomcat.start();
@@ -75,6 +76,8 @@ public class ReposeTomcatContainer extends ReposeContainer {
                 }
             });
 
+            // This method is intentionally trying to log to Standard Out as logging may not be up yet.
+            // So it is safe to suppress warning squid:S106
             System.out.println("Tomcat Container Running");
             tomcat.getServer().await();
         } catch (LifecycleException e) {
@@ -83,8 +86,11 @@ public class ReposeTomcatContainer extends ReposeContainer {
     }
 
     @Override
+    @SuppressWarnings("squid:S106")
     protected void stopRepose() {
         try {
+            // This method is intentionally trying to log to Standard Out as logging may not be up yet.
+            // So it is safe to suppress warning squid:S106
             System.out.println("Stopping Tomcat Server");
             tomcat.stop();
             tomcat.getServer().stop();
