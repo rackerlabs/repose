@@ -269,6 +269,48 @@ class CorsSameOriginTest extends ReposeValveTest {
         SC_FORBIDDEN | ["some.other.host:4567, even.another.host", "yet.another.host:555, not.cors.allowed:7777"]
     }
 
+    // https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.2.3 says this is valid syntax for a URI, so we
+    // let's support it for this header.
+    @Unroll
+    def "X-Forwarded-Host '#forwardedHost' can be parsed when it ends with a colon for URI Scheme '#scheme', method '#method', and Origin '#origin'"() {
+        given: "the correct Repose endpoint is used depending on which scheme (http or https) we want to use"
+        def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
+
+        and: "the headers are set for X-Forwarded-Host and Origin to match explicitly and Host to some other value"
+        def headers = [
+                (CommonHttpHeader.X_FORWARDED_HOST.toString()): forwardedHost,
+                (CorsHttpHeader.ORIGIN.toString())            : origin,
+                (CommonHttpHeader.HOST.toString())            : "origin.service:9090"]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: method, headers: headers)
+
+        then: "the response status is OK"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the request makes it to the origin service"
+        mc.getHandlings().size() == 1
+
+        and: "none of the CORS headers are added to the response"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+
+        and: "the Vary header is set"
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        scheme  | method    | forwardedHost          | origin
+        "http"  | "GET"     | "[2001:db8:cafe::34]:" | "http://[2001:db8:cafe::34]:80"
+        "https" | "HEAD"    | "[2001:db8:cafe::34]:" | "https://[2001:db8:cafe::34]:443"
+        "http"  | "POST"    | "10.8.8.8:"            | "http://10.8.8.8:80"
+        "https" | "PUT"     | "10.8.4.4:"            | "https://10.8.4.4:443"
+        "http"  | "TRACE"   | "cors.not.allowed:"    | "http://cors.not.allowed:80"
+        "https" | "OPTIONS" | "cors.not.allowed:"    | "https://cors.not.allowed:443"
+    }
+
     @Unroll
     def "URI Scheme '#scheme' and X-Forwarded-Host/Host '#host' will match Origin '#origin' and be considered a same-origin request"() {
         given: "the correct Repose endpoint is used depending on which scheme (http or https) we want to use"
