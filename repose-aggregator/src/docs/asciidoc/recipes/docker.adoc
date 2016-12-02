@@ -31,7 +31,7 @@ To modify and/or build a Repose Docker image from the Dockerfile, follow these s
 . Run the following command to build the Dockerfile:
 +
 ----
-docker build --build-args REPOSE_VERSION=9.9.9.9 -t my_repose_image /path/to/
+docker build --build-arg REPOSE_VERSION=9.9.9.9 -t my_repose_image /path/to/
 ----
 +
 Let's break that command down and take a closer look at what it is doing:
