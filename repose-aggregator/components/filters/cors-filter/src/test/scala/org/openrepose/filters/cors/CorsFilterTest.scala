@@ -642,7 +642,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       ("http", "openrepose.org", 80, 80),
       ("http", "10.8.4.4", -1, 80),
       ("http", "zombo.com", 7777, 7777),
-      ("https", "[2001:db8:cafe::34]", 443, 443),
+      ("https", "[2001:db8:cafe:0:0:0:0:34]", 443, 443),
       ("https", "rackspace.com", -1, 443)
     ) foreach { case (scheme, serverName, port, expectedPort) =>
       it(s"should be able to parse the request scheme '$scheme', serverName '$serverName', and port '$port' into a URI") {
@@ -650,7 +650,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.setServerName(serverName)
         servletRequest.setServerPort(port)
 
-        val uri = corsFilter.getHost(servletRequest)
+        val uri = corsFilter.getHostUri(servletRequest)
 
         uri.getScheme shouldBe scheme
         uri.getHost shouldBe serverName
@@ -664,7 +664,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       servletRequest.setServerPort(9999999)
       servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, "expected.host.com:8443")
 
-      val uri = corsFilter.getHost(servletRequest)
+      val uri = corsFilter.getHostUri(servletRequest)
 
       uri.getScheme shouldBe "https"
       uri.getHost shouldBe "expected.host.com"
@@ -682,7 +682,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       servletRequest.setServerPort(port)
       servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, "not.zombo.com:abc")
 
-      val uri = corsFilter.getHost(servletRequest)
+      val uri = corsFilter.getHostUri(servletRequest)
 
       uri.getScheme shouldBe scheme
       uri.getHost shouldBe serverName
@@ -708,7 +708,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.setServerPort(-1)
         forwardedHostHeaders foreach { servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, _) }
 
-        val uri = corsFilter.getHost(servletRequest)
+        val uri = corsFilter.getHostUri(servletRequest)
 
         uri.getScheme shouldBe "http"
         uri.getHost shouldBe expectedHost
@@ -754,6 +754,18 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       corsFilter.isCorsRequest(servletRequest) shouldBe true
     }
 
+    it("should return CORS result without throwing an exception when Origin and preflight header Access-Control-Request-Method is present in request when Origin contains malformed data") {
+      // A CORS preflight header should never be in a same-origin request, so be sure the filter does not bother to
+      // parse the Origin header in this scenario.
+      servletRequest.setScheme("http")
+      servletRequest.setServerName("openrepose.org")
+      servletRequest.setServerPort(80)
+      servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://openrepose.org:not_a_number")
+      servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "PUT")
+
+      corsFilter.isCorsRequest(servletRequest) shouldBe true
+    }
+
     List(
       // host/origin comparison should be case insensitive
       ("http", "www.openrepose.org", 9191, "http://www.openrepose.org:9191"),
@@ -782,15 +794,6 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       ("https", "www.openrepose.org", 443, "https://www.openrepose.org"),
       ("https", "www.openrepose.org", 443, "https://www.openrepose.org:"),
       ("https", "www.openrepose.org", 443, "https://www.openrepose.org:443"),
-      // IPv4, host/origin comparison should support canonical and verbose formatting
-      ("http", "192.30.252.153", 8484, "http://192.30.252.153:8484"),
-      ("http", "192.30.252.153", 8484, "http://192.030.252.153:8484"),
-      ("http", "192.030.252.153", 8484, "http://192.30.252.153:8484"),
-      ("http", "192.030.252.153", 8484, "http://192.030.252.153:8484"),
-      ("https", "192.30.252.153", 8484, "https://192.30.252.153:8484"),
-      ("https", "192.30.252.153", 8484, "https://192.030.252.153:8484"),
-      ("https", "192.030.252.153", 8484, "https://192.30.252.153:8484"),
-      ("https", "192.030.252.153", 8484, "https://192.030.252.153:8484"),
       // IPv4, default ports should be supported
       ("http", "192.30.252.153", -1, "http://192.30.252.153"),
       ("http", "192.30.252.153", -1, "http://192.30.252.153:"),
@@ -861,11 +864,13 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         corsFilter.isCorsRequest(servletRequest) shouldBe false
       }
 
-      it(s"should return same-origin result when Origin '$origin' matches the scheme '$scheme' and forwardedHost '$serverName:$port'") {
+      val forwardedPort = if (port != -1) s":$port" else ""
+      val forwardedHost = if (serverName.contains(":")) s"[$serverName]$forwardedPort" else s"$serverName$forwardedPort"
+      it(s"should return same-origin result when Origin '$origin' matches the scheme '$scheme' and forwardedHost '$forwardedHost'") {
         servletRequest.setScheme(scheme)
         servletRequest.setServerName(null)
         servletRequest.setServerPort(-1)
-        servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, s"$serverName:$port")
+        servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, forwardedHost)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
         corsFilter.isCorsRequest(servletRequest) shouldBe false
@@ -905,11 +910,13 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         corsFilter.isCorsRequest(servletRequest) shouldBe true
       }
 
-      it(s"should return CORS result when Origin '$origin' does not match the scheme '$scheme' and forwardedHost '$serverName:$port'") {
+      val forwardedPort = if (port != -1) s":$port" else ""
+      val forwardedHost = if (serverName.contains(":")) s"[$serverName]$forwardedPort" else s"$serverName$forwardedPort"
+      it(s"should return CORS result when Origin '$origin' does not match the scheme '$scheme' and forwardedHost '$forwardedHost'") {
         servletRequest.setScheme(scheme)
         servletRequest.setServerName(null)
         servletRequest.setServerPort(-1)
-        servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, s"$serverName:$port")
+        servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, forwardedHost)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
         corsFilter.isCorsRequest(servletRequest) shouldBe true

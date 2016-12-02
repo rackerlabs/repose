@@ -26,6 +26,7 @@ import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.HttpMethod
 
+import com.google.common.net.InetAddresses
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.client.utils.URIBuilder
 import org.openrepose.commons.config.manager.UpdateListener
@@ -183,13 +184,19 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     })
   }
 
-  def getHost(request: HttpServletRequestWrapper): URI = {
+  def getHostUri(request: HttpServletRequestWrapper): URI = {
     Try(request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_HOST).headOption
       .map(forwardedHost => new URIBuilder(s"${request.getScheme}://$forwardedHost"))
-      .map(uri => uri.setScheme(request.getScheme).setPort(normalizePort(uri.getPort, uri.getScheme)).build()))
+      .map(uri => uri.setPort(normalizePort(uri.getPort, uri.getScheme)).setHost(normalizeUriHost(uri.getHost)).build()))
       .getOrElse(None)
-      .getOrElse(new URIBuilder().setScheme(request.getScheme).setHost(request.getServerName)
+      .getOrElse(new URIBuilder().setScheme(request.getScheme).setHost(normalizeHost(request.getServerName))
         .setPort(normalizePort(request.getServerPort, request.getScheme)).build())
+  }
+
+  def getOriginUri(origin: String): URI = {
+    def originUri = new URIBuilder(origin)
+    originUri.setPort(normalizePort(originUri.getPort, originUri.getScheme))
+      .setHost(normalizeUriHost(originUri.getHost)).build()
   }
 
   def normalizePort(port: Int, scheme: String): Int = (port, scheme) match {
@@ -199,17 +206,25 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     case _ => port
   }
 
+  def normalizeHost(host: String): String =
+    if (InetAddresses.isInetAddress(host)) InetAddresses.forString(host).getHostAddress else host
+
+  def normalizeUriHost(host: String): String =
+    if (InetAddresses.isUriInetAddress(host)) InetAddresses.forUriString(host).getHostAddress else host
+
   def isCorsRequest(request: HttpServletRequestWrapper): Boolean = {
     val origin = request.getHeader(CorsHttpHeader.ORIGIN)
     val preflightHeader = request.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
-    lazy val originUri = new URI(origin)
-    lazy val hostUri = getHost(request)
+    lazy val originUri = getOriginUri(origin)
+    lazy val hostUri = getHostUri(request)
 
     (Option(origin), Option(preflightHeader)) match {
       case (None, _) => false
       case (Some(_), Some(_)) => true
       case (Some(_), None) if originUri == hostUri => false
-      case _ => true
+      case _ =>
+        logger.debug("CORS Request since not same-origin request. Origin: '{}', host: '{}'", originUri, hostUri)
+        true
     }
   }
 }
