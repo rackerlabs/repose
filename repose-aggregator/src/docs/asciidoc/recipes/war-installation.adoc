@@ -47,8 +47,11 @@ Native packages are not yet provided for all operating systems.
 To install the Repose WAR on systems that do not support Repose packages, see: <<Manual>>
 
 == Manual
-CAUTION: This installation method is not recommended unless necessary.
+[CAUTION]
+====
+This installation method is not recommended unless necessary.
 This method does not verify or modify the environment to accommodate Repose.
+====
 
 If you want to manually download the application archives, they are available in our Nexus Repository.
 The primary archives are:

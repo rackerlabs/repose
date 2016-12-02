@@ -3,8 +3,50 @@
 include::../_includes/in-progress.adoc[]
 
 == General filter information
-* *Filter name:* api-validator
-* *Filter configuration:* validator.cfg.xml
+* *Name:* api-validator
+* *Default Configuration:* validator.cfg.xml
 * *Released:* v2.1.6
-* *Filter Bundle:* Repose Extensions
+* *Bundle:* repose-extensions-filter-bundle
 * link:../schemas/validator-configuration.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Required headers
+???.
+
+=== Required preceding filters
+???.
+
+=== Request headers created
+???.
+
+=== Request body changes
+???.
+
+=== Recommended follow-on (succeeding) filters
+???.
+
+=== Response body changes
+???.
+
+=== Response headers created
+???.
+
+=== Response Status Codes
+???.
+
+== Examples
+=== Shows how to ???
+This configuration will ???.
+
+[source,xml]
+.???.cfg.xml
+----
+<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
+    <???> <!--1-->
+    </???>
+</???>
+----
+<1> Specifies ???.
+
+== Additional Information
+*Remove this section if not needed.*

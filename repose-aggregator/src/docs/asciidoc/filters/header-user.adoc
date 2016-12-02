@@ -2,5 +2,51 @@
 
 include::../_includes/in-progress.adoc[]
 
-== Configuration
-=== link:../schemas/header-user-configuration.xsd[Schema]
+== General filter information
+* *Name:* ???
+* *Default Configuration:* ???.cfg.xml
+* *Released:* v?.?.?.?
+* *Bundle:* repose-filter-bundle
+* link:../schemas/header-user-configuration.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Required headers
+???.
+
+=== Required preceding filters
+???.
+
+=== Request headers created
+???.
+
+=== Request body changes
+???.
+
+=== Recommended follow-on (succeeding) filters
+???.
+
+=== Response body changes
+???.
+
+=== Response headers created
+???.
+
+=== Response Status Codes
+???.
+
+== Examples
+=== Shows how to ???
+This configuration will ???.
+
+[source,xml]
+.???.cfg.xml
+----
+<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
+    <???> <!--1-->
+    </???>
+</???>
+----
+<1> Specifies ???.
+
+== Additional Information
+*Remove this section if not needed.*

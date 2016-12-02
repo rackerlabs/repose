@@ -6,7 +6,10 @@ This page summarizes the different methods which can be used to get more informa
 Most of these methods can be used in a production deployment.
 
 == Intrafilter Logging
-WARNING: This should be used in a controlled environment (i.e. not production) and should not be used for more than a few minutes at a time due to the amount of logging that occurs.
+[WARNING]
+====
+This should be used in a controlled environment (i.e. not production) and should not be used for more than a few minutes at a time due to the amount of logging that occurs.
+====
 
 Intrafilter Logging allows you to see the modified output of each filter as the request goes through the filter chain which makes debugging configurations easier.
 This setting adds a UUID header to the request and another to the response.
@@ -20,7 +23,10 @@ When the logger is set to TRACE, you will see the following information:
 * Status code
 * Request path
 
-NOTE: The TRACE setting is the most verbose logging setting.
+[NOTE]
+====
+The TRACE setting is the most verbose logging setting.
+====
 
 === Enabling
 

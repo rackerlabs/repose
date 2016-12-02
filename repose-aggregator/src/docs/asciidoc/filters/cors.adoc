@@ -5,20 +5,22 @@ include::../_includes/in-progress.adoc[]
 The Cross-Origin Resource Sharing (CORS) filter allows Repose to manage CORS requests without the origin service needing to understand CORS.
 For an introduction to CORS, see the <<CORS Overview>> below.
 
-WARNING: Before enabling the CORS filter, you should be familiar with the CORS specification and the associated security implications.
+[WARNING]
+====
+Before enabling the CORS filter, you should be familiar with the CORS specification and the associated security implications.
 Enabling CORS can increase an endpoint's exposure.
 Configuring CORS improperly could expose CSRF vulnerabilities in the origin service that were previously blocked by not supporting CORS.
+====
 
 == General filter information
 * *Name:* cors
-* *Configuration:* cors.cfg.xml
-* *Released:* v6.2.2.0
-* *Filter Bundle:* Repose (Standard)
+* *Default Configuration:* cors.cfg.xml
+* *Released:* v7.2.0.0
+* *Bundle:* repose-filter-bundle
 * link:../schemas/cors-configuration.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Input
-==== Required headers
+=== Required headers
 The presence of certain headers will indicate what kind of request is being made.
 All of these headers will be supplied by the client making the request.
 
@@ -34,7 +36,7 @@ a| * `Origin`
 a| * `Origin`
 |===
 
-==== Required preceding filters
+=== Required preceding filters
 This should be one of the first filters, if not the first filter, in the filter chain in order to properly handle Preflight CORS requests.
 If you want to rate limit Preflight CORS requests, you can add these filters before the CORS filter in the filter chain:
 
@@ -46,20 +48,19 @@ The first Rate Limiting filter would filter only by IP address,
 and the second Rate Limiting filter would continue to rate limit the way it is currently set up.
 Preflight requests do not contain credentials which is why the CORS filter needs to be one of the first filters.
 
-==== Request headers created
+=== Request headers created
 Changes to request headers vary based on configuration.
 
-==== Request body changes
+=== Request body changes
 This filter does not modify the request body.
 
-==== Recommended follow-on (succeeding) filters
+=== Recommended follow-on (succeeding) filters
 This filter is not it strictly required by any other filters.
 
-=== Output
-==== Response body changes
+=== Response body changes
 This filter does not modify the response body.
 
-==== Response headers created
+=== Response headers created
 The CORS filter wil not add any headers to the response for non-CORS requests.
 The filter will add the following headers to the response for these scenarios when the request is allowed to proceed:
 
@@ -82,10 +83,10 @@ If the CORS filter rejects the request, the following header will be added to th
 
 * `Access-Control-Allow-Origin`
 
-==== Response Status Codes
+=== Response Status Codes
 These are the scenarios in which the CORS filters will stop processing the request and immediately return a response:
 
-[cols="3", options="header"]
+[cols="3", options="header,autowidth"]
 |===
 |Response Code
 |Request Type
@@ -177,8 +178,11 @@ so the first path regex to match the request URI will be used in conjunction wit
 This will be used to determine the complete list of allowed methods to return in response to a CORS Preflight request,
 and it will be used to validate whether or not a CORS request is allowed to proceed.
 
-WARNING: This is not a substitution for authorization.
+[WARNING]
+====
+This is not a substitution for authorization.
 Requests that do not contain the `Origin` header are not CORS requests and completely bypass this verification.
+====
 
 [source,xml]
 .cors.cfg.xml
@@ -225,7 +229,7 @@ Requests that do not contain the `Origin` header are not CORS requests and compl
 Using this configuration,
 you would see the following:
 
-[cols="3", options="header"]
+[cols="3", options="header, autowidth"]
 |===
 |Request URI
 |Matched Path
@@ -307,7 +311,8 @@ the specified URI will be treated as a Java regular expression.
 Leaving it out is useful when you need to prevent adding additional HTTP methods to a sub-resource as is the case with `/v1/status.*` in this example.
 <9> At least one `method` element is required when the `allowed-methods` element is present.
 
-== CORS Overview
+== Additional Information
+=== CORS Overview
 For security purposes, web browsers follow the https://en.wikipedia.org/wiki/Same-origin_policy[Single-Origin policy].
 If a user were to visit a website containing malicious code,
 the web browser would prevent the malicious code from trying to send requests to different websites on the user's behalf.
@@ -335,20 +340,25 @@ A request is considered a *Preflight Request* if it meets the following:
 * Header exists for `Origin`
 * Header exists for `Access-Control-Request-Method`
 
-NOTE: Preflight Requests are completely handled by the CORS filter.
-No other filters after the CORS filter will process them,
-and they won't reach the origin service.
+[NOTE]
+====
+Preflight Requests are completely handled by the CORS filter.
+No other filters after the CORS filter will process them, and they won't reach the origin service.
+====
 
 A request will be considered an *Actual Request* if it meets the following:
 
 * Header exists for `Origin`
 * Header _does not_ exist for `Access-Control-Request-Method`
 
-NOTE: Some web browsers (e.g. Chrome and Safari) will send the `Origin` header for same-origin requests.
+[NOTE]
+====
+Some web browsers (e.g. Chrome and Safari) will send the `Origin` header for same-origin requests.
 Because of this, the configured list of allowed origins should include your own origin.
 If per-resource validation is being used,
 it would need to include all of the resources that non-CORS requests are expected to service,
 or the CORS filter would need to be skipped for those resources in the System Model configuration using a regular expression.
+====
 
 Preflight Requests _may_ be skipped for the following types of requests:
 
@@ -356,11 +366,17 @@ Preflight Requests _may_ be skipped for the following types of requests:
 * Headers do not include anything other than `Accept`, `Accept-Language`, `Content-Language`, and `Content-Type`
 (assuming the values are `application/x-www-form-urlencoded`, `multipart/form-data`, or `text/plain`).
 
-NOTE: If your origin service requires a special header (e.g. `X-Auth-Token`),
+[NOTE]
+====
+If your origin service requires a special header (e.g. `X-Auth-Token`),
 a Preflight Request will always be sent for CORS requests.
+====
 
-WARNING: CORS is not a security feature.
+[WARNING]
+====
+CORS is not a security feature.
 It is a mechanism for informing clients (e.g. web browsers) of conditions when client-side security can be slightly relaxed in certain circumstances.
 That is, the security lies completely within the client.
 Simply leaving out the `Origin` header in the request completely bypasses the CORS spec (and thus this filter).
 You should continue securing your API in other ways using proper authentication and authorization.
+====

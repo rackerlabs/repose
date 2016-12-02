@@ -1,3 +1,0 @@
-= Tightly Coupled Filter
-
-include::../_includes/in-progress.adoc[]
