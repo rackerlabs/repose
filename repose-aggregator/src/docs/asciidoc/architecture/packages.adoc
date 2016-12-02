@@ -7,6 +7,7 @@ Provides details about the packages Repose maintains for easy installation by ou
 == Directory Layout
 This section outlines where Repose files live in the filesystem after being extracted from one of our packages.
 
+[cols="3", options="header, autowidth"]
 |===
 |Files |Directory/File |Purpose
 

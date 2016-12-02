@@ -52,7 +52,7 @@ You will do most of your RBAC configuration here.
 === 1. What do you need?
 We recommend that you build a table similar to the example below that contains endpoints and the roles that you wish to allow access to those endpoints.
 
-[cols="7"]
+[cols="7", options="header, autowidth"]
 |===
 4+^s| Capability                   3+^s| Role
  2+s| Method name       s| Endpoint    s| HTTP Method | a:creator | a:observer | a:admin
@@ -161,7 +161,7 @@ With the above WADL and API Validator filter configuration, the following behavi
 Please refer to the <<../filters/api-validator.adoc#,API Validator filter>> documentation for more information about the available configuration options.
 
 .Return codes and conditions
-[cols="8"]
+[cols="8", options="header, autowidth"]
 |===
 2+s| Description        2+^s| Response Code 4+s| Returned When:
  2+| Forbidden           2+^| 403            4+| A requested resource or method requires a specific X-Roles header and that header is not found.
@@ -169,4 +169,6 @@ Please refer to the <<../filters/api-validator.adoc#,API Validator filter>> docu
 |===
 
 [NOTE]
+====
 The status codes returned by authorization failures, via `rax:roles` extensions (403), differs from the statuses returned when roles are defined directly in the `validator.cfg.xml` (404 and 405).
+====

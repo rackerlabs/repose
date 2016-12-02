@@ -5,33 +5,35 @@ include::../_includes/in-progress.adoc[]
 The Rackspace Auth User filter is for usage in *Repose* instances that sit in front of Keystone v1 and v2 deployments.
 It's meant to be used for login requests to capture username for both <<../recipes/rate-limiting.adoc#,rate limiting>> and <<../recipes/user-access-events.adoc#,user access events>>.
 
-== Headers
+== General filter information
+* *Name:* rackspace-auth-user
+* *Default Configuration:* rackspace-auth-user.cfg.xml
+* *Released:* v?.?.?.?
+* *Bundle:* repose-filter-bundle
+* link:../schemas/rackspace-auth-user-configuration.xsd[Schema]
 
-=== Required
+== Prerequisites & Postconditions
+=== Required headers
 This filter doesn't look for any headers to be present in either the request or response.
 
-=== Created
+=== Required preceding filters
+This filter has no dependencies on other filters.
+
+=== Request headers created
 [cols="3", options="header,autowidth"]
 |===
 | Request Headers | Value                   | Conditions of Creation
-
 | `X-PP-User`     | Username in the request | Username present in the request. Prepended with `Racker:` if domain was present and had a value of `Rackspace`.
-
 | `X-User-Name`   | Username in the request | Username present in the request. Prepended with `Racker:` if domain was present and had a value of `Rackspace`.
-
 | `X-PP-Groups`   | Configured value        | Username present in the request.
-
 | `X-Domain`      | Domain in the request   | Username and Domain present in the request.
 |===
 
-== Early Termination Conditions
-There are no cases where this filter will terminate further processing of the filter chain.
+=== Request body changes
+This filter does not modify the request body.
 
-== Filter Chain
-*Filter Name:* `rackspace-auth-user`
-
-=== Ordering
-This filter needs to appear in the filter chain before any of the filters that need the information that is derived here.
+=== Recommended follow-on (succeeding) filters
+This filter needs to appear in the filter chain before any of the filters that need the information that derives and provides.
 That means the <<rate-limiting.adoc#,rate limiting filter>> when rate limiting, and <<herp.adoc#,herp filter>> when doing user access events.
 When doing both the order should be:
 
@@ -41,11 +43,18 @@ When doing both the order should be:
 
 For further details about the reasoning behind this ordering see <<../recipes/user-access-events.adoc#,user access events>>.
 
-== Configuration
-*Default Configuration Filename:* `rackspace-auth-user.cfg.xml`
+=== Response body changes
+This filter does not modify the response body.
 
-=== Full Example
+=== Response headers created
+This filter does not modify any response headers.
+
+=== Response Status Codes
+There are no cases where this filter will terminate further processing of the filter chain.
+
+== Examples
 [source,xml]
+.rackspace-auth-user.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <rackspace-auth-user
@@ -75,5 +84,3 @@ For further details about the reasoning behind this ordering see <<../recipes/us
     It is optional.
     The elements are not exclusive and you can specify one, both, or neither.
     This element can also take a `content-body-read-limit` attribute with the same behavior as the `v1_1` element.
-
-=== link:../schemas/rackspace-auth-user-configuration.xsd[Schema]

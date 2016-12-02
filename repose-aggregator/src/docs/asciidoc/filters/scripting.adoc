@@ -6,37 +6,36 @@ The Scripting filter enables users to write custom filters for Repose using a va
 Custom filters can be used to perform arbitrary processing with access to the bindings described below.
 
 == General filter information
-* *Filter name:* scripting
-* *Filter configuration:* scripting.cfg.xml
+== General filter information
+* *Name:* scripting
+* *Default Configuration:* scripting.cfg.xml
 * *Released:* v8.0.0.0
-* *Filter Bundle:* Repose Experimental
+* *Bundle:* repose-filter-bundle
 * link:../schemas/scripting.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Input
-==== Required headers
+=== Required headers
 None.
 
-==== Required preceding filters
+=== Required preceding filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
 
-==== Request headers created
+=== Request headers created
 Changes to request headers vary based on configuration.
 
-==== Request body changes
+=== Request body changes
 Changes to the request body varies based on configuration.
 
-==== Recommended follow-on (succeeding) filters
+=== Recommended follow-on (succeeding) filters
 This filter is not it strictly required by any other filters.
 
-=== Output
-==== Response body changes
+=== Response body changes
 Changes to the response body varies based on configuration.
 
-==== Response headers created
+=== Response headers created
 Changes to response headers vary based on configuration.
 
-==== Response Status Codes
+=== Response Status Codes
 Changes to the response code varies based on configuration.
 
 == Supported Scripting Languages
@@ -46,14 +45,21 @@ Changes to the response code varies based on configuration.
 * Python
 * Ruby
 
-NOTE: All supported languages are currently compilable.
+[NOTE]
+====
+All supported languages are currently compilable.
+====
 
-TIP: An enumeration of all supported language names (e.g., `lua` and `luaj`) that will be accepted in configuration can be found in the XML schema linked at the bottom of this page.
+[TIP]
+====
+An enumeration of all supported language names (e.g., `lua` and `luaj`) that will be accepted in configuration can be found in the XML schema linked at the bottom of this page.
+====
 
 == Bindings
 Bindings are variables defined by the Scripting filter which can be used in scripts.
 
 Currently supported bindings are detailed by the following table:
+[options="header, autowidth"]
 |===
 |Binding Name |Description
 
@@ -71,9 +77,12 @@ All methods on the HttpServletResponseWrapper class will be available in the scr
 |A FilterChain object for passing the request and response to the next filter in the chain.
 |===
 
-IMPORTANT: Invoking the `doFilter` method on the `filterChain` object is necessary to pass the request/response along.
+[IMPORTANT]
+====
+Invoking the `doFilter` method on the `filterChain` object is necessary to pass the request/response along.
 If `doFilter` is not invoked, the scripting filter will return the response object as-is up the filter chain.
 No later filter nor the origin service will have a chance to process the request.
+====
 
 == Performance
 The performance of this filter will vary depending on configuration.

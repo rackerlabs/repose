@@ -45,9 +45,11 @@ Below is a list of common ambiguities, and how they are handled in this context:
    Items in collections are not combined.
 
 [NOTE]
+====
 Not all configuration is currently patchable.
 Some values (e.g., the `deployment-directory`) cannot be overridden due to internal system constraints.
 The table below shows exactly what can and cannot be patched at this time.
+====
 
 == User-Supplied Logging Configuration
 There are two steps to supply a logging configuration for Repose:
@@ -95,9 +97,11 @@ keytool -import -file client.crt -alias client -keystore truststore.jks
 ----
 
 [NOTE]
+====
 This will update the keystore if it exists or create a new one if it doesn't.
 The tool will also prompt for a password.
 The password will be used to access an existing file or set as the password on a new one.
+====
 
 To use the truststore created/updated in the example above, the following would need to be added/updated in the container.cfg.xml file:
 
@@ -149,9 +153,11 @@ Keystore information is located within the `<ssl-configuration>` element as show
 
 == Whitelisting and Blacklisting Ciphers and Protocols
 [WARNING]
+====
 Since security is a constantly moving target, any recommended configuration would quickly become out of date.
 A risk assessment should always be performed by the appropriately qualified people for your organization.
 Links to industry-standard references are provided in the SSL References section below.
+====
 
 Repose supports whitelisting and blacklisting specific protocols and ciphers by exposing portions of the Jetty's configuration via the `container.cfg.xml` file.
 You can use this feature if a specific protocol or cipher has been compromised and you want to block its usage and secure Repose.
@@ -189,7 +195,9 @@ In the following example, the container configuration includes TLS v1.2 and TLS 
 ----
 
 [NOTE]
+====
 You need to specify your keystore in the container configuration just as you would in Jetty.
+====
 
 == Diffie-Hellman Security Risk and Key Size
 Certain attacks (such as Logjam) leverage the weakness of "small" Diffie-Hellman (DH) keys.
@@ -229,8 +237,10 @@ Additionally, it will list all available ciphers and protocols, should you wish 
 
 == Running in Insecure Mode
 [WARNING]
+====
 This mode should only be used during development testing.
 These settings are NOT intended for a production environment.
+====
 
 When running in insecure mode, Repose will accept all certificates from external services with which it communicates (e.g. authentication service, origin service).
 

@@ -145,4 +145,7 @@ For a list of frequently asked questions and answers, visit our <<../faq.adoc#,F
 == Need More Information About Repose?
 <<../contact-us.adoc#,Contact us!>> We would be happy to address any questions, comments, or concerns with anything having to do with Repose!
 
-TIP: If you wonder what we've been working on lately, visit our <<../release-notes.adoc#,release notes>>.
+[TIP]
+====
+If you wonder what we've been working on lately, visit our <<../release-notes.adoc#,release notes>>.
+====

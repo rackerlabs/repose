@@ -25,7 +25,10 @@ It’s important to note that this technique works because AsciiDoc doesn’t tr
 At least, it doesn’t show up that way to the reader.
 The line breaks between contiguous lines of prose will not be visible in the rendered document (i.e., as the reader sees it).
 
-NOTE: While line breaks don’t appear in the output, a blank line introduces a new paragraph. Use paragraphs to structure your text and don’t make them too large.
+[NOTE]
+====
+While line breaks don’t appear in the output, a blank line introduces a new paragraph. Use paragraphs to structure your text and don’t make them too large.
+====
 
 == Section Titles
 Section titles should be defined using Atx-style.
