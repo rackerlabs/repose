@@ -637,7 +637,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
     }
   }
 
-  describe("the getHost method") {
+  describe("the getHostUri method") {
     List(
       ("http", "openrepose.org", 80, 80),
       ("http", "10.8.4.4", -1, 80),
@@ -717,13 +717,15 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
     }
   }
 
-  describe("the isCorsRequest method") {
+  describe("the determineRequestType method") {
+    import CorsFilter._
+
     it("should return same-origin result when Origin header is not present in request") {
       servletRequest.setScheme(null)
       servletRequest.setServerName(null)
       servletRequest.setServerPort(-1)
 
-      corsFilter.isCorsRequest(servletRequest) shouldBe false
+      corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest(isOptions = false)
     }
 
     List(
@@ -731,39 +733,42 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       ("http", "10.8.4.4", 80),
       ("https", "openrepose.org", 443)
     ) foreach { case (scheme, serverName, port) =>
-      it(s"should return CORS result when Origin '$scheme://$serverName:$port' does not match forwardedHost despite matching the other values") {
+      val origin = s"$scheme://$serverName:$port"
+      it(s"should return CORS result when Origin '$origin' does not match forwardedHost despite matching the other values") {
         servletRequest.setScheme(scheme)
         servletRequest.setServerName(serverName)
         servletRequest.setServerPort(port)
         servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, "never.match.com:7070")
-        servletRequest.addHeader(CorsHttpHeader.ORIGIN, s"$scheme://$serverName:$port")
+        servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.isCorsRequest(servletRequest) shouldBe true
+        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin, isOptions = false)
       }
     }
 
-    it("should return CORS result when Origin and preflight header Access-Control-Request-Method is present in request despite the Host matching the Origin") {
+    it("should return Preflight result when Origin and preflight header Access-Control-Request-Method is present in request despite the Host matching the Origin") {
       // A CORS preflight header should never be in a same-origin request, so be sure the filter does not bother to
       // check the Host header in this scenario.
       servletRequest.setScheme("http")
       servletRequest.setServerName("openrepose.org")
       servletRequest.setServerPort(80)
+      servletRequest.setMethod("OPTIONS")
       servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://openrepose.org:80")
       servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "PATCH")
 
-      corsFilter.isCorsRequest(servletRequest) shouldBe true
+      corsFilter.determineRequestType(servletRequest) shouldBe PreflightCorsRequest("http://openrepose.org:80", "PATCH")
     }
 
-    it("should return CORS result without throwing an exception when Origin and preflight header Access-Control-Request-Method is present in request when Origin contains malformed data") {
+    it("should return Preflight result without throwing an exception when Origin and preflight header Access-Control-Request-Method is present in request when Origin contains malformed data") {
       // A CORS preflight header should never be in a same-origin request, so be sure the filter does not bother to
       // parse the Origin header in this scenario.
       servletRequest.setScheme("http")
       servletRequest.setServerName("openrepose.org")
       servletRequest.setServerPort(80)
+      servletRequest.setMethod("OPTIONS")
       servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://openrepose.org:not_a_number")
       servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "PUT")
 
-      corsFilter.isCorsRequest(servletRequest) shouldBe true
+      corsFilter.determineRequestType(servletRequest) shouldBe PreflightCorsRequest("http://openrepose.org:not_a_number", "PUT")
     }
 
     List(
@@ -861,7 +866,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.setServerPort(port)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.isCorsRequest(servletRequest) shouldBe false
+        corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest(isOptions = false)
       }
 
       val forwardedPort = if (port != -1) s":$port" else ""
@@ -873,7 +878,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, forwardedHost)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.isCorsRequest(servletRequest) shouldBe false
+        corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest(isOptions = false)
       }
     }
 
@@ -907,7 +912,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.setServerPort(port)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.isCorsRequest(servletRequest) shouldBe true
+        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin, isOptions = false)
       }
 
       val forwardedPort = if (port != -1) s":$port" else ""
@@ -919,7 +924,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, forwardedHost)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.isCorsRequest(servletRequest) shouldBe true
+        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin, isOptions = false)
       }
     }
   }

@@ -49,9 +49,9 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized = false
-  private var allowedOrigins: Iterable[Regex] = _
-  private var allowedMethods: Iterable[String] = _
-  private var resources: Iterable[Resource] = _
+  private var allowedOrigins: Seq[Regex] = _
+  private var allowedMethods: Seq[String] = _
+  private var resources: Seq[Resource] = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("CORS filter initializing...")
@@ -72,39 +72,20 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       val httpServletRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
       val httpServletResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse],
         ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
-      val isOptions = httpServletRequest.getMethod == HttpMethod.OPTIONS
-      val origin = httpServletRequest.getHeader(CorsHttpHeader.ORIGIN)
-      val requestMethodHeader = httpServletRequest.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
-      lazy val validMethods = getValidMethodsForResource(httpServletRequest.getRequestURI)
 
-      val isCors = isCorsRequest(httpServletRequest)
-
-      val requestType = (isCors, isOptions, Option(requestMethodHeader)) match {
-        case (true, true, Some(_)) => PreflightRequest
-        case (true, _, None) => ActualRequest
-        case _ => NonCorsRequest
-      }
-
-      val requestedMethod = requestType match {
-        case PreflightRequest => requestMethodHeader
-        case _ => httpServletRequest.getMethod
-      }
+      val requestType = determineRequestType(httpServletRequest)
 
       val validationResult = requestType match {
-        case NonCorsRequest => Pass
-        case _ =>
-          (isOriginAllowed(origin), validMethods.exists(requestedMethod == _)) match {
-            case (true, true) => Pass
-            case (false, _) => OriginNotAllowed
-            case (true, false) => MethodNotAllowed
-          }
+        case NonCorsRequest(_) => Pass(Seq.empty)
+        case PreflightCorsRequest(origin, method, _) => validateCorsRequest(origin, method, httpServletRequest.getRequestURI)
+        case ActualCorsRequest(origin, _) => validateCorsRequest(origin, httpServletRequest.getMethod, httpServletRequest.getRequestURI)
       }
 
       validationResult match {
-        case Pass =>
+        case Pass(validMethods) =>
           requestType match {
-            case NonCorsRequest => filterChain.doFilter(httpServletRequest, httpServletResponse)
-            case PreflightRequest =>
+            case NonCorsRequest(_) => filterChain.doFilter(httpServletRequest, httpServletResponse)
+            case PreflightCorsRequest(origin, _, _) =>
               logger.trace("Allowing preflight request.")
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
@@ -115,7 +96,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
                 httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)
               }
               httpServletResponse.setStatus(HttpServletResponse.SC_OK)
-            case ActualRequest =>
+            case ActualCorsRequest(origin, _) =>
               logger.trace("Allowing actual request.")
               filterChain.doFilter(httpServletRequest, httpServletResponse)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
@@ -126,19 +107,18 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
                 httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
               }
           }
-        case OriginNotAllowed =>
+        case OriginNotAllowed(origin) =>
           logger.debug("Request rejected because origin '{}' is not allowed.", origin)
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
-        case MethodNotAllowed =>
-          logger.debug("Request rejected because method '{}' is not allowed for resource '{}'.",
-            requestedMethod, httpServletRequest.getRequestURI)
+        case MethodNotAllowed(origin, method, resource) =>
+          logger.debug("Request rejected because method '{}' is not allowed for resource '{}'.", method, resource)
           httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
       }
 
       // always add the Vary header
       httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ORIGIN)
-      if (isOptions) {
+      if (requestType.isOptions) {
         httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)
         httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       }
@@ -171,9 +151,31 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 
   override def isInitialized: Boolean = initialized
 
+  def determineRequestType(request: HttpServletRequestWrapper): RequestType = {
+    val originHeader = request.getHeader(CorsHttpHeader.ORIGIN)
+    val isOptionsRequest = request.getMethod == HttpMethod.OPTIONS
+    val preflightRequestedMethod = request.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
+    lazy val originUri = getOriginUri(originHeader)
+    lazy val hostUri = getHostUri(request)
+
+    (Option(originHeader), isOptionsRequest, Option(preflightRequestedMethod)) match {
+      case (None, isOptions, _) => NonCorsRequest(isOptions)
+      case (Some(origin), true, Some(requestedMethod)) => PreflightCorsRequest(origin, requestedMethod)
+      case (Some(_), isOptions, _) if originUri == hostUri => NonCorsRequest(isOptions)
+      case (Some(origin), isOptions, _) => ActualCorsRequest(origin, isOptions)
+    }
+  }
+
+  def validateCorsRequest(origin: String, method: String, requestUri: String): CorsValidationResult =
+    (isOriginAllowed(origin), getValidMethodsForResource(requestUri)) match {
+      case (true, validMethods) if validMethods.contains(method) => Pass(validMethods)
+      case (false, _) => OriginNotAllowed(origin)
+      case (true, _) => MethodNotAllowed(origin, method, requestUri)
+    }
+
   def isOriginAllowed(requestOrigin: String): Boolean = allowedOrigins.exists(_.findFirstIn(requestOrigin).isDefined)
 
-  def getValidMethodsForResource(path: String): Iterable[String] = {
+  def getValidMethodsForResource(path: String): Seq[String] = {
     allowedMethods ++ (resources.find(_.path.findFirstIn(path).isDefined) match {
       case Some(matchedResource) =>
         logger.trace("Matched path '{}' with configured resource '{}'.", path, matchedResource)
@@ -199,33 +201,17 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       .setHost(normalizeUriHost(originUri.getHost)).build()
   }
 
-  def normalizePort(port: Int, scheme: String): Int = (port, scheme) match {
-    case (p, _) if p > 0 => p
-    case (_, s) if s.equalsIgnoreCase("http") => 80 // todo: lowercase scheme so we don't equalsIgnoreCase twice here
-    case (_, s) if s.equalsIgnoreCase("https") => 443
-    case _ => port
-  }
-
   def normalizeHost(host: String): String =
     if (InetAddresses.isInetAddress(host)) InetAddresses.forString(host).getHostAddress else host
 
   def normalizeUriHost(host: String): String =
     if (InetAddresses.isUriInetAddress(host)) InetAddresses.forUriString(host).getHostAddress else host
 
-  def isCorsRequest(request: HttpServletRequestWrapper): Boolean = {
-    val origin = request.getHeader(CorsHttpHeader.ORIGIN)
-    val preflightHeader = request.getHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
-    lazy val originUri = getOriginUri(origin)
-    lazy val hostUri = getHostUri(request)
-
-    (Option(origin), Option(preflightHeader)) match {
-      case (None, _) => false
-      case (Some(_), Some(_)) => true
-      case (Some(_), None) if originUri == hostUri => false
-      case _ =>
-        logger.debug("CORS Request since not same-origin request. Origin: '{}', host: '{}'", originUri, hostUri)
-        true
-    }
+  def normalizePort(port: Int, scheme: String): Int = (port, scheme.toLowerCase) match {
+    case (p, _) if p > 0 => p
+    case (_, s) if s == "http" => 80
+    case (_, s) if s == "https" => 443
+    case _ => port
   }
 }
 
@@ -235,15 +221,18 @@ object CorsFilter {
 
   implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
 
-  sealed trait RequestType
-  object NonCorsRequest extends RequestType
-  object PreflightRequest extends RequestType
-  object ActualRequest extends RequestType
+  sealed trait RequestType {
+    def isOptions: Boolean
+  }
+
+  case class NonCorsRequest(isOptions: Boolean) extends RequestType
+  case class PreflightCorsRequest(origin: String, requestedMethod: String, isOptions: Boolean = true) extends RequestType
+  case class ActualCorsRequest(origin: String, isOptions: Boolean) extends RequestType
 
   sealed trait CorsValidationResult
-  object Pass extends CorsValidationResult
-  object OriginNotAllowed extends CorsValidationResult
-  object MethodNotAllowed extends CorsValidationResult
+  case class Pass(validMethods: Seq[String]) extends CorsValidationResult
+  case class OriginNotAllowed(origin: String) extends CorsValidationResult
+  case class MethodNotAllowed(origin: String, method: String, resource: String) extends CorsValidationResult
 
-  case class Resource(path: Regex, methods: Iterable[String])
+  case class Resource(path: Regex, methods: Seq[String])
 }
