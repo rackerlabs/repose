@@ -42,11 +42,16 @@ import org.rackspace.deproxy.Response
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import javax.ws.rs.core.MediaType
+
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
 class CorsSameOriginTest extends ReposeValveTest {
+
+    private static final String RESPONSE_BODY = "The fish flies at night."
+    private static final def RESPONSE_HEADERS = [(CommonHttpHeader.CONTENT_TYPE.toString()): MediaType.TEXT_PLAIN]
 
     @Shared
     int reposeSslPort
@@ -94,6 +99,13 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         deproxy = new Deproxy(null, sslConnector)
         deproxy.addEndpoint(properties.targetPort, 'origin service')
+        deproxy.defaultHandler = { Request request ->
+            if (request.method == "HEAD") {
+                new Response(SC_OK, null)
+            } else {
+                new Response(SC_OK, null, RESPONSE_HEADERS, RESPONSE_BODY)
+            }
+        }
 
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
@@ -128,6 +140,10 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
+
+        and: "the client receives the original response from the origin service unless it was a HEAD request"
+        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        method == "HEAD" || mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
         [scheme, method, host, forwardedHost] <<
@@ -168,6 +184,10 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
+
+        and: "the client receives the original response from the origin service unless it was a HEAD request"
+        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        method == "HEAD" || mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
         scheme  | method    | host                       | origin
@@ -302,10 +322,14 @@ class CorsSameOriginTest extends ReposeValveTest {
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
+        and: "the client receives the original response from the origin service"
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.body as String == RESPONSE_BODY
+
         where:
         scheme  | method    | forwardedHost          | origin
         "http"  | "GET"     | "[2001:db8:cafe::34]:" | "http://[2001:db8:cafe::34]:80"
-        "https" | "HEAD"    | "[2001:db8:cafe::34]:" | "https://[2001:db8:cafe::34]:443"
+        "https" | "PATCH"   | "[2001:db8:cafe::34]:" | "https://[2001:db8:cafe::34]:443"
         "http"  | "POST"    | "10.8.8.8:"            | "http://10.8.8.8:80"
         "https" | "PUT"     | "10.8.4.4:"            | "https://10.8.4.4:443"
         "http"  | "TRACE"   | "cors.not.allowed:"    | "http://cors.not.allowed:80"
@@ -344,6 +368,10 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
+
+        and: "the client receives the original response from the origin service"
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
         [scheme, forwardedHost] <<
@@ -404,6 +432,10 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
 
+        and: "the client receives an error message about the malformed Origin header"
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.body as String == "Bad Origin header"
+
         where:
         [scheme, origin] <<
                 [["http", "https"],
@@ -438,6 +470,10 @@ class CorsSameOriginTest extends ReposeValveTest {
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
+        and: "the client receives the original response from the origin service"
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.body as String == RESPONSE_BODY
+
         when: "we make a request with the X-Forwarded-Host header set to the same value as the Origin header"
         mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.X_FORWARDED_HOST.toString()): host])
 
@@ -456,6 +492,10 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
+
+        and: "the client receives the original response from the origin service"
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
         scheme  | host                                             | origin
@@ -653,6 +693,10 @@ class CorsSameOriginTest extends ReposeValveTest {
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
+        and: "the client receives the original response from the origin service"
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.body as String == RESPONSE_BODY
+
         when: "we make a request with the X-Forwarded-Host header set to a different value than the Origin header"
         mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.X_FORWARDED_HOST.toString()): host])
 
@@ -672,6 +716,10 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
+
+        and: "the client receives the original response from the origin service"
+        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
         scheme  | host                                             | origin
