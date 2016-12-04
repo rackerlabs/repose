@@ -25,6 +25,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.HttpMethod
+import javax.ws.rs.core.MediaType
 
 import com.google.common.net.InetAddresses
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -71,12 +72,13 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     } else {
       val httpServletRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
       val httpServletResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse],
-        ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+        ResponseMode.MUTABLE, ResponseMode.MUTABLE)
 
       val requestType = determineRequestType(httpServletRequest)
 
       val validationResult = requestType match {
         case NonCorsRequest(_) => Pass(Seq.empty)
+        case InvalidCorsRequest(message, _) => BadRequest(message)
         case PreflightCorsRequest(origin, method, _) => validateCorsRequest(origin, method, httpServletRequest.getRequestURI)
         case ActualCorsRequest(origin, _) => validateCorsRequest(origin, httpServletRequest.getMethod, httpServletRequest.getRequestURI)
       }
@@ -114,6 +116,12 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
           logger.debug("Request rejected because method '{}' is not allowed for resource '{}'.", method, resource)
           httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
+        case BadRequest(message) =>
+          // TODO: update to httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, message)
+          httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+          httpServletResponse.setOutput(null)
+          httpServletResponse.setContentType(MediaType.TEXT_PLAIN)
+          httpServletResponse.getOutputStream.print(message)
       }
 
       // always add the Vary header
@@ -161,7 +169,8 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     (Option(originHeader), isOptionsRequest, Option(preflightRequestedMethod)) match {
       case (None, isOptions, _) => NonCorsRequest(isOptions)
       case (Some(origin), true, Some(requestedMethod)) => PreflightCorsRequest(origin, requestedMethod)
-      case (Some(_), isOptions, _) if originUri == hostUri => NonCorsRequest(isOptions)
+      case (Some(_), isOptions, _) if originUri.isFailure => InvalidCorsRequest("Bad Origin header", isOptions)
+      case (Some(_), isOptions, _) if originUri.get == hostUri => NonCorsRequest(isOptions)
       case (Some(origin), isOptions, _) => ActualCorsRequest(origin, isOptions)
     }
   }
@@ -195,11 +204,11 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
         .setPort(normalizePort(request.getServerPort, request.getScheme)).build())
   }
 
-  def getOriginUri(origin: String): URI = {
-    def originUri = new URIBuilder(origin)
-    originUri.setPort(normalizePort(originUri.getPort, originUri.getScheme))
-      .setHost(normalizeUriHost(originUri.getHost)).build()
-  }
+  def getOriginUri(origin: String): Try[URI] = Try(new URIBuilder(origin))
+    .map(originUri => originUri
+      .setPort(normalizePort(originUri.getPort, originUri.getScheme))
+      .setHost(normalizeUriHost(originUri.getHost))
+      .build())
 
   def normalizeHost(host: String): String =
     if (InetAddresses.isInetAddress(host)) InetAddresses.forString(host).getHostAddress else host
@@ -228,11 +237,13 @@ object CorsFilter {
   case class NonCorsRequest(isOptions: Boolean) extends RequestType
   case class PreflightCorsRequest(origin: String, requestedMethod: String, isOptions: Boolean = true) extends RequestType
   case class ActualCorsRequest(origin: String, isOptions: Boolean) extends RequestType
+  case class InvalidCorsRequest(message: String, isOptions: Boolean) extends RequestType
 
   sealed trait CorsValidationResult
   case class Pass(validMethods: Seq[String]) extends CorsValidationResult
   case class OriginNotAllowed(origin: String) extends CorsValidationResult
   case class MethodNotAllowed(origin: String, method: String, resource: String) extends CorsValidationResult
+  case class BadRequest(message: String) extends CorsValidationResult
 
   case class Resource(path: Regex, methods: Seq[String])
 }
