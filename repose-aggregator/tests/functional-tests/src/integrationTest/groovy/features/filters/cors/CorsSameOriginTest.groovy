@@ -42,6 +42,7 @@ import org.rackspace.deproxy.Response
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
@@ -269,7 +270,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         SC_FORBIDDEN | ["some.other.host:4567, even.another.host", "yet.another.host:555, not.cors.allowed:7777"]
     }
 
-    // https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.2.3 says this is valid syntax for a URI, so we
+    // https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.2.3 says this is valid syntax for a URI, so
     // let's support it for this header.
     @Unroll
     def "X-Forwarded-Host '#forwardedHost' can be parsed when it ends with a colon for URI Scheme '#scheme', method '#method', and Origin '#origin'"() {
@@ -309,6 +310,105 @@ class CorsSameOriginTest extends ReposeValveTest {
         "https" | "PUT"     | "10.8.4.4:"            | "https://10.8.4.4:443"
         "http"  | "TRACE"   | "cors.not.allowed:"    | "http://cors.not.allowed:80"
         "https" | "OPTIONS" | "cors.not.allowed:"    | "https://cors.not.allowed:443"
+    }
+
+    // Technically the X-Forwarded-Host header can't be malformed because it's an unofficial header with no
+    // specification backing. Common practice is to parse it like the Host header, but if for some reason we can't
+    // parse it, we shouldn't fail the request. Instead, it should just be ignored as being in an unsupported format.
+    @Unroll
+    def "Malformed X-Forwarded-Host header '#forwardedHost' should not return a Bad Request response with URI scheme '#scheme'"() {
+        given: "the correct Repose endpoint is used depending on which scheme (http or https) we want to use"
+        def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
+
+        and: "the X-Forwarded-Host header is malformed with the Host and Origin headers matching making it a same-origin request"
+        def headers = [
+                (CommonHttpHeader.X_FORWARDED_HOST.toString()): forwardedHost,
+                (CorsHttpHeader.ORIGIN.toString())            : "$scheme://will.match:80",
+                (CommonHttpHeader.HOST.toString())            : "will.match:80"]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers)
+
+        then: "the response status is OK"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the request makes it to the origin service"
+        mc.getHandlings().size() == 1
+
+        and: "none of the CORS headers are added to the response"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+
+        and: "the Vary header is set"
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        [scheme, forwardedHost] <<
+                [["http", "https"],
+                 ["openrepose.org:not.an.int", ":8443", ":::", "2001:db8:cafe::34:8080"]]
+                        .combinations()
+    }
+
+    @Unroll
+    def "Repose returns a 400 on malformed Host header '#host' with URI scheme '#scheme'"() {
+        given: "the correct Repose endpoint is used depending on which scheme (http or https) we want to use"
+        def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
+
+        and: "the Host header is malformed"
+        def headers = [(CommonHttpHeader.HOST.toString()): host]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers)
+
+        then: "the response status is Bad Request"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+
+        and: "the request does not make it to the origin service"
+        mc.getHandlings().isEmpty()
+
+        and: "none of the CORS headers are added to the response"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+
+        where:
+        [scheme, host] << [["http", "https"], ["openrepose.org:not.an.int", "ends.with.colon:"]].combinations()
+    }
+
+    @Unroll
+    def "Repose returns a 400 on malformed Origin header '#origin' with URI scheme '#scheme'"() {
+        given: "the correct Repose endpoint is used depending on which scheme (http or https) we want to use"
+        def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
+
+        and: "the Origin header is malformed"
+        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers)
+
+        then: "the response status is Bad Request"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+
+        and: "the request does not make it to the origin service"
+        mc.getHandlings().isEmpty()
+
+        and: "none of the CORS headers are added to the response"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+
+        where:
+        [scheme, origin] <<
+                [["http", "https"],
+                 ["http://openrepose.org:not.an.int", "https://:8443", ":::", "http://2001:db8:cafe::34:8080"]]
+                        .combinations()
     }
 
     @Unroll
