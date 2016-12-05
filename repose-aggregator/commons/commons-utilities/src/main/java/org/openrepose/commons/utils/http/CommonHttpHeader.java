@@ -44,6 +44,7 @@ public enum CommonHttpHeader implements HeaderConstant {
     VIA("Via"),
     LOCATION("Location"),
     VARY("Vary"),
+    SERVER("Server"),
 
     //Content specific
     ACCEPT("Accept"),
