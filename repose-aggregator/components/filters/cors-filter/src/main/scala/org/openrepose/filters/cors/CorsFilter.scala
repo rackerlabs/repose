@@ -87,6 +87,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
         case Pass(validMethods) =>
           requestType match {
             case NonCorsRequest(_) => filterChain.doFilter(httpServletRequest, httpServletResponse)
+            case InvalidCorsRequest(_, _) => // this is not possible, but adding this line to remove a compiler warning
             case PreflightCorsRequest(origin, _, _) =>
               logger.trace("Allowing CORS Preflight request.")
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
