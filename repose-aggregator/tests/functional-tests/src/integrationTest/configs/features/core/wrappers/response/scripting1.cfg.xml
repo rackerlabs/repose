@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--NOTE: This filter is going to attempt to write the error message to a header.-->
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    filterChain.doFilter(request, response)
+
+    String reason = response.getReason()
+    if (reason) {
+        response.addHeader("${reasonHeaderName}", reason)
+    }
+</scripting>
