@@ -436,6 +436,46 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == "Bad Origin header"
 
+        and: "the 'Vary' header is set"
+        mc.receivedResponse.headers.contains("Vary")
+
+        where:
+        [scheme, origin] <<
+                [["http", "https"],
+                 ["http://openrepose.org:not.an.int", "https://:8443", ":::", "http://2001:db8:cafe::34:8080"]]
+                        .combinations()
+    }
+
+    @Unroll
+    def "Repose does not care if the Origin header is malformed on a Preflight request and returns a Forbidden because the Origin '#origin' with URI scheme '#scheme' is not allowed"() {
+        given: "the correct Repose endpoint is used depending on which scheme (http or https) we want to use"
+        def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
+
+        and: "the Origin header is malformed with the 'Access-Control-Request-Method' header set indicating a Preflight request"
+        def headers = [
+                (CommonHttpHeader.HOST.toString())                       : "does.not.matter:3030",
+                (CorsHttpHeader.ORIGIN.toString())                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): "PATCH"]
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "OPTIONS", headers: headers)
+
+        then: "the response status is Forbidden"
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
+
+        and: "the request does not make it to the origin service"
+        mc.getHandlings().isEmpty()
+
+        and: "none of the CORS headers are added to the response"
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+
+        and: "the 'Vary' header is set"
+        mc.receivedResponse.headers.contains("Vary")
+
         where:
         [scheme, origin] <<
                 [["http", "https"],
