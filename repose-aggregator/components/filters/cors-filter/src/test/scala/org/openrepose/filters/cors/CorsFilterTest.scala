@@ -729,11 +729,10 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
     }
 
     List(
-      ("http", "[2001:db8:cafe::34]", 4444),
-      ("http", "10.8.4.4", 80),
-      ("https", "openrepose.org", 443)
-    ) foreach { case (scheme, serverName, port) =>
-      val origin = s"$scheme://$serverName:$port"
+      ("http", "2001:db8:cafe::34", 4444, "http://[2001:db8:cafe::34]:4444"),
+      ("http", "10.8.4.4", 80, "http://10.8.4.4:80"),
+      ("https", "openrepose.org", 443, "https://openrepose.org:443")
+    ) foreach { case (scheme, serverName, port, origin) =>
       it(s"should return CORS result when Origin '$origin' does not match forwardedHost despite matching the other values") {
         servletRequest.setScheme(scheme)
         servletRequest.setServerName(serverName)
