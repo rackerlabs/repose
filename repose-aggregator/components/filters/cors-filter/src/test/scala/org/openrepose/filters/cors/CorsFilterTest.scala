@@ -273,7 +273,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
             servletRequest.setMethod(httpMethod)
             servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
 
-            // only add the headers to the response when the filterchain doFilter method is called
+            // only add the headers to the response when the filterChain doFilter method is called
             doAnswer(new Answer[Void]() {
               def answer(invocation: InvocationOnMock): Void = {
                 responseHeaders foreach (servletResponse.addHeader(_, "totally legit value"))
@@ -284,10 +284,10 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
             // Access-Control-Expose-Headers should have all of the response headers in it except for itself and the Vary header
-            servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).split(",") should contain theSameElementsAs
+            servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).toLowerCase.split(",") should contain theSameElementsAs
               servletResponse.getHeaderNames.asScala.filter { headerName =>
                 headerName != CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString &&
-                  headerName != CommonHttpHeader.VARY.toString}
+                  headerName != CommonHttpHeader.VARY.toString}.map(_.toLowerCase)
             servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) should have size 1
           }
         }

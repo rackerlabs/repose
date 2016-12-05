@@ -39,7 +39,7 @@ import org.openrepose.filters.cors.config.CorsConfig
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
 
 @Named
@@ -48,7 +48,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 
   import CorsFilter._
 
-  private var configurationFile: String = DEFAULT_CONFIG
+  private var configurationFile: String = _
   private var initialized = false
   private var allowedOrigins: Seq[Regex] = _
   private var allowedMethods: Seq[String] = _
@@ -56,10 +56,10 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("CORS filter initializing...")
-    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
+    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DefaultConfig)
 
     logger.info(s"Initializing CORS Filter using config $configurationFile")
-    val xsdUrl: URL = getClass.getResource(SCHEMA_FILE_NAME)
+    val xsdUrl: URL = getClass.getResource(SchemaFilename)
     configurationService.subscribeTo(filterConfig.getFilterName, configurationFile, xsdUrl, this, classOf[CorsConfig])
 
     logger.trace("CORS filter initialized.")
@@ -88,7 +88,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
           requestType match {
             case NonCorsRequest(_) => filterChain.doFilter(httpServletRequest, httpServletResponse)
             case PreflightCorsRequest(origin, _, _) =>
-              logger.trace("Allowing preflight request.")
+              logger.trace("Allowing CORS Preflight request.")
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
               httpServletRequest.getSplittableHeaderScala(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS) foreach {
@@ -99,21 +99,20 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
               }
               httpServletResponse.setStatus(HttpServletResponse.SC_OK)
             case ActualCorsRequest(origin, _) =>
-              logger.trace("Allowing actual request.")
+              logger.trace("Allowing CORS Actual request.")
               filterChain.doFilter(httpServletRequest, httpServletResponse)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
 
-              // clone the list of header names so we can add headers while we iterate through it
-              (List.empty ++ httpServletResponse.getHeaderNames.asScala) foreach {
+              getHeaderNamesToExpose(httpServletResponse) foreach {
                 httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
               }
           }
         case OriginNotAllowed(origin) =>
-          logger.debug("Request rejected because origin '{}' is not allowed.", origin)
+          logger.debug("CORS request rejected because origin '{}' is not allowed.", origin)
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
         case MethodNotAllowed(origin, method, resource) =>
-          logger.debug("Request rejected because method '{}' is not allowed for resource '{}'.", method, resource)
+          logger.debug("CORS request rejected because method '{}' is not allowed for resource '{}'.", method, resource)
           httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
           httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN)
         case BadRequest(message) =>
@@ -167,11 +166,21 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     lazy val hostUri = getHostUri(request)
 
     (Option(originHeader), isOptionsRequest, Option(preflightRequestedMethod)) match {
-      case (None, isOptions, _) => NonCorsRequest(isOptions)
-      case (Some(origin), true, Some(requestedMethod)) => PreflightCorsRequest(origin, requestedMethod)
-      case (Some(_), isOptions, _) if originUri.isFailure => InvalidCorsRequest("Bad Origin header", isOptions)
-      case (Some(_), isOptions, _) if originUri.get == hostUri => NonCorsRequest(isOptions)
-      case (Some(origin), isOptions, _) => ActualCorsRequest(origin, isOptions)
+      case (None, isOptions, _) =>
+        logger.trace("Request is Non-CORS request because it does not have an Origin header.")
+        NonCorsRequest(isOptions)
+      case (Some(origin), true, Some(requestedMethod)) =>
+        logger.debug("Request is CORS Preflight request because it is an OPTIONS request with Origin and preflight headers.")
+        PreflightCorsRequest(origin, requestedMethod)
+      case (Some(_), isOptions, _) if originUri.isFailure =>
+        logger.debug("Request has a malformed Origin header and will be rejected.", originUri.failed.get)
+        InvalidCorsRequest("Bad Origin header", isOptions)
+      case (Some(_), isOptions, _) if originUri.get == hostUri =>
+        logger.trace("Request is Non-CORS request because the Origin header matched the Host/X-Forwarded-Host header (same-origin).")
+        NonCorsRequest(isOptions)
+      case (Some(origin), isOptions, _) =>
+        logger.debug("Request is CORS Actual request because the Origin header did not match the Host/X-Forwarded-Host header.")
+        ActualCorsRequest(origin, isOptions)
     }
   }
 
@@ -196,12 +205,23 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
   }
 
   def getHostUri(request: HttpServletRequestWrapper): URI = {
-    Try(request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_HOST).headOption
+    val maybeForwardedHost = request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_HOST).headOption
+    val maybeForwardedHostUri = Try(maybeForwardedHost
       .map(forwardedHost => new URIBuilder(s"${request.getScheme}://$forwardedHost"))
       .map(uri => uri.setPort(normalizePort(uri.getPort, uri.getScheme)).setHost(normalizeUriHost(uri.getHost)).build()))
-      .getOrElse(None)
-      .getOrElse(new URIBuilder().setScheme(request.getScheme).setHost(normalizeHost(request.getServerName))
-        .setPort(normalizePort(request.getServerPort, request.getScheme)).build())
+    lazy val hostUri = new URIBuilder().setScheme(request.getScheme).setHost(normalizeHost(request.getServerName))
+      .setPort(normalizePort(request.getServerPort, request.getScheme)).build()
+    maybeForwardedHostUri match {
+      case Success(None) =>
+        // there was no X-Forwarded-Host header in the request; don't bother logging this since this is the standard case
+        hostUri
+      case Success(Some(forwardedHostUri)) =>
+        logger.trace("Using X-Forwarded-Host header '{}' for host.", maybeForwardedHost.get)
+        forwardedHostUri
+      case Failure(exception) =>
+        logger.trace("Unable to parse X-Forwarded-Host header '{}'. Defaulting to Host header.", maybeForwardedHost.get, exception)
+        hostUri
+    }
   }
 
   def getOriginUri(origin: String): Try[URI] = Try(new URIBuilder(origin))
@@ -222,11 +242,15 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     case (_, s) if s == "https" => 443
     case _ => port
   }
+
+  def getHeaderNamesToExpose(response: HttpServletResponseWrapper): List[String] =
+    (DefaultExposeHeaders.filterNot(response.containsHeader) ++ response.getHeaderNames.asScala).distinct
 }
 
 object CorsFilter {
-  private final val DEFAULT_CONFIG = "cors.cfg.xml"
-  private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/cors-configuration.xsd"
+  private final val DefaultConfig = "cors.cfg.xml"
+  private final val SchemaFilename = "/META-INF/schema/config/cors-configuration.xsd"
+  private final val DefaultExposeHeaders = List(CommonHttpHeader.CONTENT_LENGTH.toString)
 
   implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
 
