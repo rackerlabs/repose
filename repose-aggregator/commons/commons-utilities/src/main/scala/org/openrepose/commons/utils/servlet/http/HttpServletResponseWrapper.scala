@@ -86,6 +86,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   private var reason: Option[String] = None
   private var committed: Boolean = false
   private var flushedBuffer: Boolean = false
+  private var sentError: Boolean = false
   private var responseBodyType: ResponseBodyType.Value = ResponseBodyType.Available
   private var bodyPrintWriter: PrintWriter = _
   private var characterEncoding: String = StandardCharsets.ISO_8859_1.toString
@@ -129,14 +130,27 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @param i the status code to set
     */
   override def sendError(i: Int): Unit = {
-    // Set that status.
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call sendError after the response has been committed")
+    }
+
+    // Set the status.
     setStatus(i)
+
+    // Set the reason phrase.
+    reason = None
 
     // Reset the buffered output.
     resetBuffer()
 
-    // Writes the response data and marks the response as committed.
-    flushBuffer()
+    // Track that the user intended to send an error.
+    sentError = true
+    committed = true
+
+    // If we are not in a mutable mode, immediately send error to the wrapped response.
+    if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
+      originalResponse.sendError(i)
+    }
   }
 
   /** See [[sendError(i)]].
@@ -145,6 +159,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @param s the string used to populate the response body
     */
   override def sendError(i: Int, s: String): Unit = {
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call sendError after the response has been committed")
+    }
+
     // Set the status.
     setStatus(i)
 
@@ -155,8 +173,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     // written to the output stream.
     resetBuffer()
 
-    // Writes the response data and marks the response as committed.
-    flushBuffer()
+    // Track that the user intended to send an error.
+    sentError = true
+    committed = true
+
+    // If we are not in a mutable mode, immediately send error to the wrapped response.
+    if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
+      originalResponse.sendError(i, s)
+    }
   }
 
   def getReason: String = reason.orNull
@@ -408,6 +432,15 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     committed = false
   }
 
+  def resetError(): Unit = {
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call resetError after the response has been committed")
+    }
+
+    reason = None
+    sentError = false
+  }
+
   override def reset(): Unit = {
     if (isCommitted) {
       throw new IllegalStateException("Cannot call reset after the response has been committed")
@@ -463,6 +496,13 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
     if (flushedBuffer) {
       originalResponse.flushBuffer()
+    }
+
+    if (sentError) {
+      reason match {
+        case Some(msg) => originalResponse.sendError(getStatus, msg)
+        case None => originalResponse.sendError(getStatus)
+      }
     }
 
     committed = true
