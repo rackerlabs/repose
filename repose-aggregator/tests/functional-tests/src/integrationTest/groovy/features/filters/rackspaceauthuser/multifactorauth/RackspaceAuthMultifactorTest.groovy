@@ -137,7 +137,6 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs('common', params)
         repose.configurationProvider.applyConfigs('features/filters/rackspaceauthuser/multifactorauth', params)
         repose.start(clusterId: 'cluster1', nodeId: 'node1')
-        repose.enableDebug()
         repose.waitForNon500FromUrl(reposeEndpoint)
         repose.waitForNon500FromUrl(reposeEndpoint2)
     }
