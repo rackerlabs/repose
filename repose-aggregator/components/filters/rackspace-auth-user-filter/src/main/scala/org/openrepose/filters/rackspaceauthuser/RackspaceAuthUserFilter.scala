@@ -31,16 +31,19 @@ import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
 import scala.xml.XML
 
 @Named
-class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationService)
+class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationService, datastoreService: DatastoreService)
   extends AbstractConfiguredFilter[RackspaceAuthUserConfig](configurationService) with LazyLogging {
 
   override final val DEFAULT_CONFIG = "rackspace-auth-user.cfg.xml"
   override final val SCHEMA_LOCATION = "/META-INF/config/schema/rackspace-auth-user-configuration.xsd"
+
+  val datastore: Datastore = Option(datastoreService.getDistributedDatastore).getOrElse(datastoreService.getDefaultDatastore)
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]

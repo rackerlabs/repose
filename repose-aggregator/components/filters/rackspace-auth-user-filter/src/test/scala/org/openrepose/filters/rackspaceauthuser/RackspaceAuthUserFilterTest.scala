@@ -25,12 +25,14 @@ import javax.servlet.FilterChain
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
+import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.{OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.datastore.DatastoreService
+import org.openrepose.core.services.datastore.distributed.DistributedDatastore
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -43,13 +45,37 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: HttpServletResponse = _
   var filterChain: FilterChain = _
+  var datastore: DistributedDatastore = _
 
   override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = mock[HttpServletResponse]
     filterChain = mock[FilterChain]
+    datastore = mock[DistributedDatastore]
+    val datastoreService = mock[DatastoreService]
+    when(datastoreService.getDistributedDatastore).thenReturn(datastore)
 
-    filter = new RackspaceAuthUserFilter(null)
+    filter = new RackspaceAuthUserFilter(null, datastoreService)
+  }
+
+  describe("construction") {
+    it("should work with the distributed datastore") {
+      val datastoreService = mock[DatastoreService]
+      when(datastoreService.getDistributedDatastore).thenReturn(datastore)
+      new RackspaceAuthUserFilter(null, datastoreService)
+
+      verify(datastoreService).getDistributedDatastore
+      verify(datastoreService, times(0)).getDefaultDatastore
+    }
+
+    it("should work without the distributed datastore") {
+      val datastoreService = mock[DatastoreService]
+      new RackspaceAuthUserFilter(null, datastoreService)
+
+      val inOrder = Mockito.inOrder(datastoreService)
+      inOrder.verify(datastoreService).getDistributedDatastore
+      inOrder.verify(datastoreService).getDefaultDatastore
+    }
   }
 
   describe("do work") {
@@ -129,7 +155,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
   }
 
   describe("Auth 1.1 requests") {
-    filter = new RackspaceAuthUserFilter(mock[ConfigurationService])
+    filter = new RackspaceAuthUserFilter(mock[ConfigurationService], mock[DatastoreService])
     filter.configurationUpdated(auth1_1Config())
     describe("XML") {
       it("Parses the XML credentials payload into a username") {
@@ -167,7 +193,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
   }
 
   describe("Auth 2.0 requests") {
-    filter = new RackspaceAuthUserFilter(mock[ConfigurationService])
+    filter = new RackspaceAuthUserFilter(mock[ConfigurationService], mock[DatastoreService])
     filter.configurationUpdated(auth2_0Config())
     describe("XML") {
       it("parses the username out of a User/Password request") {

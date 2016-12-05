@@ -1,6 +1,7 @@
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:commons:commons-utilities")
+    compile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
     compile "org.scala-lang:scala-library"
     compile "org.scala-lang.modules:scala-xml_2.11"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
