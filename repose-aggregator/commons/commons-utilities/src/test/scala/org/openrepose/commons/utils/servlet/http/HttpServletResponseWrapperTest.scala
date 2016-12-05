@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{ByteArrayInputStream, IOException, UnsupportedEncodingException}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, IOException, UnsupportedEncodingException}
 import java.nio.charset.UnsupportedCharsetException
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
@@ -2060,6 +2060,37 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.isCommitted shouldBe true
     }
+
+    it("should call sendError on the wrapped response if sendError was called (one argument)") {
+      val errorCode = 404
+      val mockResponse = mock[HttpServletResponse]
+
+      when(mockResponse.getStatus).thenReturn(404)
+      when(mockResponse.getOutputStream).thenReturn(mock[ServletOutputStream])
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
+
+      wrappedResponse.sendError(errorCode)
+      wrappedResponse.commitToResponse()
+
+      verify(mockResponse).sendError(errorCode)
+    }
+
+    it("should call sendError on the wrapped response if sendError was called (two arguments)") {
+      val errorCode = 404
+      val errorMsg = "lorem ipsum"
+      val mockResponse = mock[HttpServletResponse]
+
+      when(mockResponse.getStatus).thenReturn(404)
+      when(mockResponse.getOutputStream).thenReturn(mock[ServletOutputStream])
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
+
+      wrappedResponse.sendError(errorCode, errorMsg)
+      wrappedResponse.commitToResponse()
+
+      verify(mockResponse).sendError(errorCode, errorMsg)
+    }
   }
 
   describe("setStatus") {
@@ -2176,7 +2207,18 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.isCommitted shouldBe true
     }
 
-    it("should commit the underlying response if not in a mutable header mode") {
+    it("should call through to the underlying response if not in a mutable header mode (one argument)") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
+        ResponseMode.PASSTHROUGH,
+        ResponseMode.PASSTHROUGH)
+
+      wrappedResponse.sendError(418)
+
+      verify(mockResponse).sendError(418)
+    }
+
+    it("should call through to the underlying response if not in a mutable header mode (two arguments)") {
       val mockResponse = mock[HttpServletResponse]
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse,
         ResponseMode.PASSTHROUGH,
@@ -2184,7 +2226,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      verify(mockResponse).flushBuffer()
+      verify(mockResponse).sendError(418, "TEAPOT")
     }
 
     it("should not commit the underlying response if in a mutable header mode") {
@@ -2195,7 +2237,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      verify(mockResponse, never()).flushBuffer()
+      verify(mockResponse, never()).sendError(anyInt(), anyString())
     }
 
     it("should commit the underlying response if not in a mutable body mode") {
@@ -2206,7 +2248,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      verify(mockResponse).flushBuffer()
+      verify(mockResponse).sendError(anyInt(), anyString())
     }
 
     it("should not write, not commit the underlying response if in a mutable body mode") {
@@ -2217,7 +2259,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.sendError(418, "TEAPOT")
 
-      verify(mockResponse, never()).flushBuffer()
+      verify(mockResponse, never()).sendError(anyInt(), anyString())
     }
   }
 
@@ -2321,6 +2363,47 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       // should not throw an exception
       wrappedResponse.resetBuffer()
+    }
+  }
+
+  describe("resetError") {
+    it("should throw an exception if the wrapped response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.resetError()
+    }
+
+    it("should reset the reason phrase") {
+      val mockResponse = mock[HttpServletResponse]
+
+      when(mockResponse.getOutputStream).thenReturn(mock[ServletOutputStream])
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
+
+      wrappedResponse.sendError(404, "lorem ipsum")
+      wrappedResponse.uncommit()
+      wrappedResponse.resetError()
+
+      wrappedResponse.getReason shouldBe null
+    }
+
+    it("should prevent calling through to sendError on the wrapped response") {
+      val mockResponse = mock[HttpServletResponse]
+
+      when(mockResponse.getOutputStream).thenReturn(mock[ServletOutputStream])
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
+
+      wrappedResponse.sendError(404, "lorem ipsum")
+      wrappedResponse.uncommit()
+      wrappedResponse.resetError()
+      wrappedResponse.commitToResponse()
+
+      verify(mockResponse, never()).sendError(anyInt())
+      verify(mockResponse, never()).sendError(anyInt(), anyString())
     }
   }
 }
