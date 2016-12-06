@@ -1,8 +1,8 @@
 dependencies {
     compile "org.scala-lang:scala-library"
     compile "xerces:xerces-xsd11"
+    compile "org.mockito:mockito-all"
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
 }
