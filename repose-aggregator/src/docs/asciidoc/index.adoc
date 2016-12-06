@@ -6,7 +6,8 @@ include::_includes/in-progress.adoc[]
 Here's loosely how these docs are organized.
 
 === <<recipes/getting-started.adoc#, Getting Started>>
-We all need to get started somewhere. If this your first time using *Repose*, then this is the place for you!
+We all need to get started somewhere.
+If this your first time using *Repose*, then this is the place for you!
 
 === <<recipes/index.adoc#, Recipes>>
 Mmm, tasty food. For good food you need a good recipe.

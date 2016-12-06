@@ -28,9 +28,6 @@ From here you can either install a few more tools and use the automated build en
 ==== Install Git
 Check out the https://git-scm.com/downloads[Git Downloads] page and install the package for your operating system.
 
-==== Install Gradle
-Check out the https://gradle.org/gradle-download/[Gradle Downloads] page and install the package for your operating system.
-
 ==== Run the Sandbox
 To start the Vagrant sandbox using the build environment, you will need to clone the repository and then run execute build task with the desired properties.
 Once the sandbox is running, the environment can be accessed directly by running the `vagrant ssh` command from the directory containing the Vagrantfile.
@@ -41,7 +38,7 @@ Once the sandbox is running, the environment can be accessed directly by running
 git clone https://github.com/rackerlabs/repose.git
 export REPOSE_HOME=$(pwd)/repose
 cd ${REPOSE_HOME}
-gradle :repose-aggregator:tests:release-verification:vagrantUp[Deb|Rpm]
+gradlew :repose-aggregator:tests:release-verification:vagrantUp[Deb|Rpm]
 cd ${REPOSE_HOME}/repose-aggregator/tests/release-verification/src/vagrant/[deb|rpm]
 vagrant ssh
 ----
@@ -54,8 +51,6 @@ To access the Repose instance from the host simply send a request to the exposed
 Similarly, to debug the Repose instance, connect a remote debugger to the JDWP port.
 
 === Manual
-This way you will need to
-
 ==== VM Setup
 Now you're ready to use Vagrant to create a new virtual machine instance with a Linux distro installed.
 Repose has been tested on Ubuntu and CentOS.

@@ -205,16 +205,18 @@ To mitigate the risk of such attackers, users may either exclude vulnerable ciph
 Instructions for the former are above.
 For the latter, note the following:
 
-"Diffie-Hellman (DH) keys of sizes less than 1024 bits have been deprecated because of their insufficient strength.
-In JDK 8, you can customize the ephemeral DH key size with the system property jdk.tls.ephemeralDHKeySize."
+[quote, Java Secure Socket Extension (JSSE) Reference Guide]
+____
+Diffie-Hellman (DH) keys of sizes less than 1024 bits have been deprecated because of their insufficient strength.
+In JDK 8, you can customize the ephemeral DH key size with the system property jdk.tls.ephemeralDHKeySize.
+____
 
-In other words, the Java option "-Djdk.tls.ephemeralDHKeySize=2048" can be passed when starting Repose to force the use of longer DH keys.
+In other words, the Java option `-Djdk.tls.ephemeralDHKeySize=2048` can be passed when starting Repose to force the use of longer DH keys.
 
-For more details, see:
-* https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#customizing_dh_keys
+For more details, see https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#customizing_dh_keys[Customizing DH Keys].
 
 == SSL/TLS References
-For more information about cipher suites and which ones to dis/allow when setting up Repose, see the following references.
+For more information about cipher suites and which ones to dis/allow when setting up Repose, see the following references:
 
 * http://security.stackexchange.com/questions/76993/now-that-it-is-2015-what-ssl-tls-cipher-suites-should-be-used-in-a-high-securit
 * https://www.ssllabs.com/
@@ -258,5 +260,5 @@ When running the ROOT.war deployment, Repose may be placed in insecure mode by p
 [source,bash]
 .Insecure Mode - ROOT.war
 ----
--D insecure=true
+-Dinsecure=true
 ----

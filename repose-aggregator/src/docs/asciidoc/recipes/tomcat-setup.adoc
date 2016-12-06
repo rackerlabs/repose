@@ -8,7 +8,7 @@ Make sure to <<war-installation.adoc#,install the Repose WAR>> first!
 
 == Tomcat Installation
 
-=== APT Package Manager Based Linux Distributions
+=== APT Based Linux Distributions
 ----
 # update package lists from the server
 sudo apt-get update
@@ -17,7 +17,7 @@ sudo apt-get update
 sudo apt-get install -y tomcat7
 ----
 
-=== Yum Package Manager Based Linux Distributions
+=== Yum Based Linux Distributions
 ----
 # update package lists from the server
 sudo yum update -y
@@ -29,14 +29,14 @@ sudo yum install -y tomcat
 == WAR Deployment
 The easiest way to deploy the WAR to Tomcat is to copy it to Tomcat's deployment directory.
 
-=== APT Package Manager Based Linux Distribution
+=== APT Based Linux Distribution
 ----
 sudo cp /usr/share/repose/ROOT.war /var/lib/tomcat7/webapps
 sudo chown tomcat7: /var/lib/tomcat7/webapps/ROOT.war
 sudo chown -R tomcat7: /etc/repose /var/log/repose /var/repose
 ----
 
-=== Yum Package Manager Based Linux Distributions
+=== Yum Based Linux Distributions
 ----
 sudo cp /usr/share/repose/ROOT.war /usr/share/tomcat/webapps
 sudo chown tomcat: /usr/share/tomcat/webapps/ROOT.war
@@ -115,7 +115,7 @@ For example, if you had sample.war deployed, you could set the configured root-p
 
 == Running
 
-=== APT Package Manager Based Linux Distributions
+=== APT Based Linux Distributions
 ----
 # stop Tomcat
 sudo service tomcat7 stop
@@ -127,7 +127,7 @@ sudo rm -r /var/lib/tomcat7/webapps/ROOT /usr/share/tomcat7-root/*
 sudo service tomcat7 start
 ----
 
-=== Yum Package Manager Based Linux Distributions
+=== Yum Based Linux Distributions
 ----
 # start Tomcat
 sudo service tomcat start

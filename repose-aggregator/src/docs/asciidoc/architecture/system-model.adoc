@@ -8,7 +8,7 @@ Repose must be aware of this in order to configure itself and correctly coordina
 Additionally, the system model lets Repose know where the other Repose nodes reside.
 Using this information, Repose can coordinate its own clustering to help load balance or share data among nodes that share common filters.
 
-== Model definitions
+== Model Definitions
 Cluster (Service or Repose)::
 An entity that defines a collection of nodes, all of which provide equivalent functionality.
 This element also defines service's scope within the system model.
