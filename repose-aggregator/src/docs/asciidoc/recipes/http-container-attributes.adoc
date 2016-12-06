@@ -49,7 +49,7 @@ Two example scenarios when it can exceed header size limit are:
 
 * When client sends request that has header with large value (container header size limit -1) and Repose add value to the same header and forwards request to origin service.
   Origin Service container will return `4XX` response code which will be passed back to client by Repose.
-* When client sends request and Repose adds header value( example `X-Roles` header that contains all the roles for user that are sent back by Auth) and forwards request to origin service.
+* When client sends request and Repose adds header value (example `X-Roles` header that contains all the roles for user that are sent back by Auth) and forwards request to origin service.
   Origin Service container will return `4XX` response code which will be passed back to client by Repose.
   The Auth user client is using can have lots (hundreds) of roles.
   Repose returns `400` in this case.

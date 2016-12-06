@@ -56,7 +56,7 @@ Enables users to add support for Cross-Origin Resource Sharing requests.
 == <<iri-validator.adoc#,IRI Validator Filter>>
 *IN PROGRESS*
 
-== <<keystone-v2.adoc#,Keystone V2 Filter>>
+== <<keystone-v2.adoc#,Keystone v2 Filter>>
 *IN PROGRESS*
 
 == <<keystone-v2-basic-auth.adoc#,Keystone v2 Basic Auth Filter>>

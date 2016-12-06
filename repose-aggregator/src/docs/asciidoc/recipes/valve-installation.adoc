@@ -9,7 +9,7 @@ For instructions on starting Repose after setup, see: <<running-valve.adoc#,Runn
 
 For more information about the packages themselves, see: <<../architecture/packages.adoc#,Packages>>.
 
-== APT Package Manager Based Linux Distributions
+== APT Based Linux Distributions
 ----
 # update package lists from the server and install any updates
 sudo apt-get update
@@ -27,7 +27,7 @@ sudo apt-get update
 sudo apt-get install -y repose-valve repose-filter-bundle repose-extensions-filter-bundle
 ----
 
-== Yum Package Manager Based Linux Distributions
+== Yum Based Linux Distributions
 ----
 # update package lists from the server
 sudo yum update -y

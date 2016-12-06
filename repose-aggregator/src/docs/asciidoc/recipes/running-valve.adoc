@@ -10,47 +10,46 @@ By default, Repose will log to both the systemd logging system via standard out/
 This behavior can be modified by updating the log4j2.xml in the Repose configuration directory to only log to one or the other depending on the need.
 
 ----
-# start Repose
-sudo systemctl start repose-valve.service
+sudo systemctl start repose-valve.service # <1>
 
-# stop Repose
-sudo systemctl stop repose-valve.service
+sudo systemctl stop repose-valve.service # <2>
 
-# enable Repose to automatically start during boot
-sudo systemctl enable repose-valve.service
+sudo systemctl enable repose-valve.service # <3>
 ----
+<1> Starts Repose.
+<2> Stops Repose.
+<3> Enables the automatic starting of Repose on boot.
 
-== *(Deprecated)* Upstart / Service
+== Upstart / Service *(Deprecated)*
 This is the old way of starting/stopping Repose.
 
 ----
-# start Repose
-sudo service repose-valve start
+sudo service repose-valve start # <1>
 
-# stop Repose
-sudo service repose-valve stop
+sudo service repose-valve stop # <2>
 ----
+<1> Starts Repose.
+<2> Stops Repose.
 
-== *(Deprecated)* System V / Init.d Script
+== System V / Init.d Script *(Deprecated)*
 Alternatively, you could start/stop Repose using the init.d script directly.
 
 ----
-# start Repose
-sudo /etc/init.d/repose-valve start
+sudo /etc/init.d/repose-valve start # <1>
 
-# stop Repose
-sudo /etc/init.d/repose-valve stop
-
+sudo /etc/init.d/repose-valve stop # <2>
 ----
+<1> Starts Repose.
+<2> Stops Repose.
 
 == Java JAR
 As a Java application, Repose can also be run directly from a JAR file.
 
 ----
-# start Repose
-java -jar /usr/share/repose/repose-valve.jar
+java -jar /usr/share/repose/repose-valve.jar # <1>
 
-# stop Repose
-# CTRL-C to stop the process, OR if you ran it as a background process:
-kill -2 $repose_pid
+kill -2 $repose_pid # <2>
 ----
+<1> Starts Repose.
+<2> Stops Repose if running in the background.
+If the process is running in the foreground, `CTRL-C` will stop the process (i.e., sending the the `SIGINT` signal).

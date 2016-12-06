@@ -9,7 +9,7 @@ For information on setting up a container after installation, see: <<tomcat-setu
 
 For more information about the packages themselves, see: <<../architecture/packages.adoc#,Packages>>.
 
-== APT Package Manager Based Linux Distributions
+== APT Based Linux Distributions
 ----
 # update package lists from the server
 sudo apt-get update
@@ -26,7 +26,7 @@ sudo apt-get update
 sudo apt-get install -y repose-deb-war repose-filter-bundle repose-extensions-filter-bundle
 ----
 
-== Yum Package Manager Based Linux Distributions
+== Yum Based Linux Distributions
 ----
 # update package lists from the server
 sudo yum update -y

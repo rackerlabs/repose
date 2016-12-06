@@ -9,13 +9,18 @@ To make everything as easy and versatile as possible, the Repose team will relea
 To run Repose in Docker, there are just two basic steps:
 
 . Acquire a Repose Docker image.
-.. Download the Docker image. See: Docker Image
-.. Build the Docker image. See: Dockerfile
+.. Download the Docker image. See: <<Docker Image>>
+.. Build the Docker image. See: <<Dockerfile>>
 . Run the Repose Docker image in a Docker container. See: <<Docker Container>>
 
 To find out more about Docker, including how to install and operate it, visit the official Docker documentation at:
 
 https://docs.docker.com/
+
+== Docker Image
+All official, published Docker images for Repose, can be found on Docker Hub at:
+
+https://hub.docker.com/r/rackerlabs/repose/
 
 == Dockerfile
 The Dockerfile used to build the Docker images has been copied below for the sake of convenience.
@@ -50,11 +55,6 @@ Run the following command to show all available images:
 ----
 docker images
 ----
-
-== Docker Image
-All official, published Docker images for Repose, can be found on Docker Hub at:
-
-https://hub.docker.com/r/rackerlabs/repose/
 
 == Docker Container
 

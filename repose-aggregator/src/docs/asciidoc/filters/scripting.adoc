@@ -52,7 +52,7 @@ All supported languages are currently compilable.
 
 [TIP]
 ====
-An enumeration of all supported language names (e.g., `lua` and `luaj`) that will be accepted in configuration can be found in the XML schema linked at the bottom of this page.
+An enumeration of all supported language names (e.g., `lua` and `luaj`) that will be accepted in configuration can be found in the XML schema linked on this page.
 ====
 
 == Bindings

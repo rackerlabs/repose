@@ -8,19 +8,19 @@ Make sure to <<war-installation.adoc#,install the Repose WAR>> first!
 
 == Glassfish Installation
 
-=== APT Package Manager Based Linux Distributions
+=== APT Based Linux Distributions
 *IN PROGRESS*
 
-=== Yum Package Manager Based Linux Distributions
+=== Yum Based Linux Distributions
 *IN PROGRESS*
 
 == WAR Deployment
 *IN PROGRESS*
 
-=== APT Package Manager Based Linux Distribution
+=== APT Based Linux Distribution
 *IN PROGRESS*
 
-=== Yum Package Manager Based Linux Distributions
+=== Yum Based Linux Distributions
 *IN PROGRESS*
 
 == Configuration
@@ -65,10 +65,10 @@ For example, if you had sample.war deployed, you could set the configured root-p
 
 == Running
 
-=== APT Package Manager Based Linux Distributions
+=== APT Based Linux Distributions
 *IN PROGRESS*
 
-=== Yum Package Manager Based Linux Distributions
+=== Yum Based Linux Distributions
 *IN PROGRESS*
 
 == Testing
