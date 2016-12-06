@@ -21,13 +21,16 @@
 package org.openrepose.filters.rackspaceauthuser
 
 import java.io.ByteArrayInputStream
-import javax.servlet.FilterChain
+import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 import org.junit.runner.RunWith
-import org.mockito.{ArgumentCaptor, Mockito}
-import org.mockito.Matchers._
+import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.{ArgumentCaptor, Mockito}
+import org.openrepose.commons.test.MockitoAnswers
 import org.openrepose.commons.utils.http.{OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
@@ -39,7 +42,7 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
 @RunWith(classOf[JUnitRunner])
-class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
+class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with MockitoAnswers {
 
   var filter: RackspaceAuthUserFilter = _
   var servletRequest: MockHttpServletRequest = _
@@ -436,6 +439,81 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
         domain shouldBe Some("Rackspace")
         username shouldBe Some("Racker:jqsmith")
       }
+    }
+  }
+
+  describe("mfa responses") {
+    val requestBody =
+      """
+      {
+        "auth": {
+          "passwordCredentials": {
+            "username": "bob",
+            "password": "butts"
+          }
+        }
+      }
+      """.stripMargin
+
+    List(
+      (List("OS-MF sessionId='123456', factor='PASSCODE'"),
+        Asserter({ verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":123456"),
+                                meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
+                                meq(1),
+                                meq(TimeUnit.HOURS)) })),
+      (List("OS-MF sessionId='green', factor='PASSCODE'", "Keystone uri=https://some.identity.com"),
+        Asserter({ verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":green"),
+                                meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
+                                meq(1),
+                                meq(TimeUnit.HOURS)) })),
+      (List("Keystone uri=https://some.identity.com", "OS-MF sessionId='banana', factor='PASSCODE'"),
+        Asserter({ verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":banana"),
+                                meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
+                                meq(1),
+                                meq(TimeUnit.HOURS)) })),
+      (List.empty,
+        Asserter({ verify(datastore, times(0)).put(anyString,
+                                                   any(classOf[Option[RackspaceAuthUserGroup]]),
+                                                   anyInt,
+                                                   any(classOf[TimeUnit])) })),
+      (List("OS-MF factor='PASSCODE'"),
+        Asserter({ verify(datastore, times(0)).put(anyString,
+                                                   any(classOf[Option[RackspaceAuthUserGroup]]),
+                                                   anyInt,
+                                                   any(classOf[TimeUnit])) })),
+      (List("OS-MF sessionId='123456"),
+        Asserter({ verify(datastore, times(0)).put(anyString,
+                                                   any(classOf[Option[RackspaceAuthUserGroup]]),
+                                                   anyInt,
+                                                   any(classOf[TimeUnit])) }))
+    ) foreach { case(headers: List[String], asserter: Asserter) =>
+      it(s"should write to the dd as appropriate with headers: $headers") {
+        filter.configurationUpdated(auth2_0Config())
+        servletRequest.setMethod("POST")
+        servletRequest.setContentType("application/json")
+        servletRequest.setContent(requestBody.getBytes)
+        doAnswer(answer({ invocation: InvocationOnMock =>
+          val response: HttpServletResponse = invocation.getArguments()(1).asInstanceOf[HttpServletResponse]
+          headers foreach { response.addHeader("WWW-Authenticate", _) }
+        })).when(filterChain).doFilter(any(classOf[ServletRequest]), any(classOf[ServletResponse]))
+
+        filter.doWork(servletRequest, servletResponse, filterChain)
+
+        asserter.assert()
+      }
+    }
+  }
+
+  //I couldn't get the typing and evaluation time to work right without this, if you can solve it, please do and share
+  class Asserter(assertion: => Unit) {
+    def assert(): Unit = {
+      assertion
+    }
+  }
+
+  object Asserter {
+    def apply(someCode: => Unit): Asserter = {
+      new Asserter(someCode)
     }
   }
 }

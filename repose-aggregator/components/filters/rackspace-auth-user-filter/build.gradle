@@ -6,10 +6,12 @@ dependencies {
     compile "org.scala-lang.modules:scala-xml_2.11"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
+    compile "org.apache.commons:commons-lang3"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"
 
+    testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"

@@ -20,25 +20,29 @@
 package org.openrepose.filters.rackspaceauthuser
 
 import java.io.InputStream
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.commons.utils.http.{OpenStackServiceHeader, PowerApiHeader}
+import org.apache.commons.lang3.StringUtils
+import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
-import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
 import scala.xml.XML
+import scala.collection.JavaConverters._
 
 @Named
 class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationService, datastoreService: DatastoreService)
   extends AbstractConfiguredFilter[RackspaceAuthUserConfig](configurationService) with LazyLogging {
+  import RackspaceAuthUserFilter._
 
   override final val DEFAULT_CONFIG = "rackspace-auth-user.cfg.xml"
   override final val SCHEMA_LOCATION = "/META-INF/config/schema/rackspace-auth-user-configuration.xsd"
@@ -56,7 +60,9 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         if (rawRequestInputStream.markSupported) rawRequestInputStream
         else new BufferedServletInputStream(rawRequestInputStream)
       val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest, requestInputStream)
-      parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType) foreach { rackspaceAuthUserGroup =>
+      val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val authUserGroup: Option[RackspaceAuthUserGroup] = parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType)
+      authUserGroup foreach { rackspaceAuthUserGroup =>
         rackspaceAuthUserGroup.domain.foreach { domainVal =>
           wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
         }
@@ -65,7 +71,16 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
       }
 
-      filterChain.doFilter(wrappedRequest, servletResponse)
+      filterChain.doFilter(wrappedRequest, wrappedResponse)
+
+      wrappedResponse.getHeadersList(CommonHttpHeader.WWW_AUTHENTICATE.toString).asScala.filter(_.startsWith("OS-MF")) foreach { header =>
+        Option(StringUtils.substringBetween(header, "sessionId='", "'")) match {
+          case Some(sessionId) =>
+            datastore.put(s"$ddKey:$sessionId", authUserGroup, 1, TimeUnit.HOURS)
+          case None =>
+            logger.debug("Failed to parse the session id out of '{}'", header)
+        }
+      }
     }
   }
 
@@ -208,6 +223,10 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
       limitedInputStream.reset()
     }
   }
+}
 
-  case class RackspaceAuthUserGroup(domain: Option[String], user: String, group: String, quality: Double)
+case class RackspaceAuthUserGroup(domain: Option[String], user: String, group: String, quality: Double)
+
+object RackspaceAuthUserFilter {
+  val ddKey: String = "rax-auth-user-filter"
 }
