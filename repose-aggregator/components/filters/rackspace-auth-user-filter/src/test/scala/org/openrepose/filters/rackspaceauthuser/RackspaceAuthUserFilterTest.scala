@@ -131,6 +131,88 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
       request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
     }
+
+    it("will write the headers when the user is present in the datastore") {
+      filter.configurationUpdated(auth2_0Config())
+      servletRequest.setMethod("POST")
+      servletRequest.setContentType("application/json")
+      servletRequest.setContent(
+        """{
+          |  "auth": {
+          |    "RAX-AUTH:passcodeCredentials": {
+          |      "passcode": "123456"
+          |    }
+          |  }
+          |}""".stripMargin.getBytes)
+      servletRequest.addHeader(RackspaceAuthUserFilter.sessionIdHeader, "foo-bar")
+      when(datastore.get(s"${RackspaceAuthUserFilter.ddKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
+
+      filter.doWork(servletRequest, servletResponse, filterChain)
+
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
+      verify(filterChain).doFilter(captor.capture(), any(classOf[HttpServletResponse]))
+      val request = captor.getValue
+      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
+      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
+      request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
+      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
+    }
+
+    it("will only search the datastore till it finds the session") {
+      filter.configurationUpdated(auth2_0Config())
+      servletRequest.setMethod("POST")
+      servletRequest.setContentType("application/json")
+      servletRequest.setContent(
+        """{
+          |  "auth": {
+          |    "RAX-AUTH:passcodeCredentials": {
+          |      "passcode": "123456"
+          |    }
+          |  }
+          |}""".stripMargin.getBytes)
+      servletRequest.addHeader(RackspaceAuthUserFilter.sessionIdHeader, "banana;q=0.5,foo-bar;q=0.7")
+      when(datastore.get(s"${RackspaceAuthUserFilter.ddKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
+
+      filter.doWork(servletRequest, servletResponse, filterChain)
+
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
+      verify(filterChain).doFilter(captor.capture(), any(classOf[HttpServletResponse]))
+      val request = captor.getValue
+      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
+      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
+      request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
+      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
+
+      verify(datastore, times(0)).get(s"${RackspaceAuthUserFilter.ddKey}:banana")
+    }
+
+    it("will search the datastore till it finds the session") {
+      filter.configurationUpdated(auth2_0Config())
+      servletRequest.setMethod("POST")
+      servletRequest.setContentType("application/json")
+      servletRequest.setContent(
+        """{
+          |  "auth": {
+          |    "RAX-AUTH:passcodeCredentials": {
+          |      "passcode": "123456"
+          |    }
+          |  }
+          |}""".stripMargin.getBytes)
+      servletRequest.addHeader(RackspaceAuthUserFilter.sessionIdHeader, "banana;q=0.7,foo-bar;q=0.5")
+      when(datastore.get(s"${RackspaceAuthUserFilter.ddKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
+
+      filter.doWork(servletRequest, servletResponse, filterChain)
+
+      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
+      verify(filterChain).doFilter(captor.capture(), any(classOf[HttpServletResponse]))
+      val request = captor.getValue
+      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
+      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
+      request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
+      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
+
+      verify(datastore).get(s"${RackspaceAuthUserFilter.ddKey}:banana")
+    }
   }
 
   def auth1_1Config(): RackspaceAuthUserConfig = {

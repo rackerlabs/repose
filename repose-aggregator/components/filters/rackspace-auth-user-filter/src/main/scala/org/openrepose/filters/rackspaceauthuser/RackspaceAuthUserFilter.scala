@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
-import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
+import org.openrepose.commons.utils.servlet.http.{HeaderValue, HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -61,7 +61,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         else new BufferedServletInputStream(rawRequestInputStream)
       val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest, requestInputStream)
       val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
-      val authUserGroup: Option[RackspaceAuthUserGroup] = parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType)
+      val authUserGroup: Option[RackspaceAuthUserGroup] = parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(sessionIdHeader))
       authUserGroup foreach { rackspaceAuthUserGroup =>
         rackspaceAuthUserGroup.domain.foreach { domainVal =>
           wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
@@ -187,8 +187,9 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
     }
   }
 
-  def parseUserGroupFromInputStream(inputStream: InputStream, contentType: String): Option[RackspaceAuthUserGroup] = {
-    Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, username2_0JSON, username2_0XML))
+  def parseUserGroupFromInputStream(inputStream: InputStream, contentType: String, sessionIds: List[String]): Option[RackspaceAuthUserGroup] = {
+    sessionIds.map(HeaderValue).sortWith(_.quality > _.quality).toStream.flatMap({ header => Option(datastore.get(s"$ddKey:${header.value}").asInstanceOf[Option[RackspaceAuthUserGroup]]) }).headOption
+      .getOrElse(Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, username2_0JSON, username2_0XML)))
       .orElse(Option(configuration.getV11).flatMap(parseUsername(_, inputStream, contentType, username1_1JSON, username1_1XML)))
   }
 
@@ -229,4 +230,5 @@ case class RackspaceAuthUserGroup(domain: Option[String], user: String, group: S
 
 object RackspaceAuthUserFilter {
   val ddKey: String = "rax-auth-user-filter"
+  val sessionIdHeader: String = "X-SessionId"
 }
