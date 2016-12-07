@@ -8,25 +8,62 @@ It's meant to be used for login requests to capture username for both <<../recip
 == General filter information
 * *Name:* rackspace-auth-user
 * *Default Configuration:* rackspace-auth-user.cfg.xml
-* *Released:* v?.?.?.?
+* *Released:* v3.1.1 & v6.1.1.0+
 * *Bundle:* repose-filter-bundle
 * link:../schemas/rackspace-auth-user-configuration.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required headers
-This filter doesn't look for any headers to be present in either the request or response.
+[cols="3", options="header,autowidth"]
+.Request
+|===
+| Request Headers
+| Value
+| Conditions of Requirement
+
+| `X-SessionId`
+| Multi-Factor Authentication Session Id
+| Required during the second call of a multi-factor authentication attempt
+|===
+
+[cols="3", options="header,autowidth"]
+.Response
+|===
+| Response Headers
+| Value
+| Conditions of Requirement
+
+| `WWW-Authenticate`
+| Multi-Factor Authentication Session Id
+| Required during the first call of a multi-factor authentication attempt
+|===
 
 === Required preceding filters
 This filter has no dependencies on other filters.
 
 === Request headers created
 [cols="3", options="header,autowidth"]
+.Request
 |===
-| Request Headers | Value                   | Conditions of Creation
-| `X-PP-User`     | Username in the request | Username present in the request. Prepended with `Racker:` if domain was present and had a value of `Rackspace`.
-| `X-User-Name`   | Username in the request | Username present in the request. Prepended with `Racker:` if domain was present and had a value of `Rackspace`.
-| `X-PP-Groups`   | Configured value        | Username present in the request.
-| `X-Domain`      | Domain in the request   | Username and Domain present in the request.
+| Request Headers
+| Value
+| Conditions of Creation
+
+| `X-PP-User`
+| Username of the requester
+| Username present in the request or session id present for MFA. Prepended with `Racker:` if domain was present and had a value of `Rackspace`.
+
+| `X-User-Name`
+| Username of the requester
+| Username present in the request or session id present for MFA. Prepended with `Racker:` if domain was present and had a value of `Rackspace`.
+
+| `X-PP-Groups`
+| Configured value
+| Username present in the request or session id present for MFA.
+
+| `X-Domain`
+| Domain in the request
+| Username and Domain present in the request or session id present for MFA.
 |===
 
 === Request body changes
