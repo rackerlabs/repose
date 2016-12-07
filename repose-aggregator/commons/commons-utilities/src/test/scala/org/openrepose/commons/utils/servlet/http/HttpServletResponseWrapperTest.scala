@@ -39,9 +39,12 @@ import scala.io.Source
 @RunWith(classOf[JUnitRunner])
 class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
+  val modePermutations: Array[(ResponseMode, ResponseMode)] =
+    for (headerMode <- ResponseMode.values(); bodyMode <- ResponseMode.values()) yield (headerMode, bodyMode)
+
   var originalResponse: MockHttpServletResponse = _
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     originalResponse = new MockHttpServletResponse()
   }
 
@@ -2260,6 +2263,32 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.sendError(418, "TEAPOT")
 
       verify(mockResponse, never()).sendError(anyInt(), anyString())
+    }
+  }
+
+  describe("isError") {
+    modePermutations foreach { case (headerMode, bodyMode) =>
+      it(s"should return false if sendError has not been called with header mode: $headerMode, body mode: $bodyMode") {
+        val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+
+        wrappedResponse.isError shouldBe false
+      }
+
+      it(s"should return true if sendError has been called (one argument) with header mode: $headerMode, body mode: $bodyMode") {
+        val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
+
+        wrappedResponse.sendError(404)
+
+        wrappedResponse.isError shouldBe true
+      }
+
+      it(s"should return true if sendError has been called (two arguments) with header mode: $headerMode, body mode: $bodyMode") {
+        val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
+
+        wrappedResponse.sendError(404, "floop")
+
+        wrappedResponse.isError shouldBe true
+      }
     }
   }
 
