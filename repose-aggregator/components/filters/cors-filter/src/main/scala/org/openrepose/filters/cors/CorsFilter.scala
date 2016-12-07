@@ -77,18 +77,17 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       val requestType = determineRequestType(httpServletRequest)
 
       val validationResult = requestType match {
-        case NonCorsRequest(_) => Pass(Seq.empty)
-        case InvalidCorsRequest(message, _) => BadRequest(message)
-        case PreflightCorsRequest(origin, method, _) => validateCorsRequest(origin, method, httpServletRequest.getRequestURI)
-        case ActualCorsRequest(origin, _) => validateCorsRequest(origin, httpServletRequest.getMethod, httpServletRequest.getRequestURI)
+        case NonCorsRequest => Pass(Seq.empty)
+        case InvalidCorsRequest(message) => BadRequest(message)
+        case PreflightCorsRequest(origin, method) => validateCorsRequest(origin, method, httpServletRequest.getRequestURI)
+        case ActualCorsRequest(origin) => validateCorsRequest(origin, httpServletRequest.getMethod, httpServletRequest.getRequestURI)
       }
 
       validationResult match {
         case Pass(validMethods) =>
           requestType match {
-            case NonCorsRequest(_) => filterChain.doFilter(httpServletRequest, httpServletResponse)
-            case InvalidCorsRequest(_, _) => // this is not possible, but adding this line to remove a compiler warning
-            case PreflightCorsRequest(origin, _, _) =>
+            case NonCorsRequest => filterChain.doFilter(httpServletRequest, httpServletResponse)
+            case PreflightCorsRequest(origin, _) =>
               logger.trace("Allowing CORS Preflight request.")
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
@@ -99,7 +98,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
                 httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS, _)
               }
               httpServletResponse.setStatus(HttpServletResponse.SC_OK)
-            case ActualCorsRequest(origin, _) =>
+            case ActualCorsRequest(origin) =>
               logger.trace("Allowing CORS Actual request.")
               filterChain.doFilter(httpServletRequest, httpServletResponse)
               httpServletResponse.setHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS, true.toString)
@@ -108,6 +107,8 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
               getHeaderNamesToExpose(httpServletResponse) foreach {
                 httpServletResponse.appendHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS, _)
               }
+            case _ => logger.error("The request was validated but was not a validatable request type. This should not " +
+              "be possible. ValidationResult: '{}', RequestType: '{}'", validationResult, requestType)
           }
         case OriginNotAllowed(origin) =>
           logger.debug("CORS request rejected because origin '{}' is not allowed.", origin)
@@ -126,7 +127,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 
       // always add the Vary header
       httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ORIGIN)
-      if (requestType.isOptions) {
+      if (httpServletRequest.getMethod == HttpMethod.OPTIONS) {
         httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)
         httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       }
@@ -167,21 +168,21 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     lazy val hostUri = getHostUri(request)
 
     (Option(originHeader), isOptionsRequest, Option(preflightRequestedMethod)) match {
-      case (None, isOptions, _) =>
+      case (None, _, _) =>
         logger.trace("Request is Non-CORS request because it does not have an Origin header.")
-        NonCorsRequest(isOptions)
+        NonCorsRequest
       case (Some(origin), true, Some(requestedMethod)) =>
         logger.debug("Request is CORS Preflight request because it is an OPTIONS request with Origin and preflight headers.")
         PreflightCorsRequest(origin, requestedMethod)
-      case (Some(_), isOptions, _) if originUri.isFailure =>
+      case (Some(_), _, _) if originUri.isFailure =>
         logger.debug("Request has a malformed Origin header and will be rejected.", originUri.failed.get)
-        InvalidCorsRequest("Bad Origin header", isOptions)
-      case (Some(_), isOptions, _) if originUri.get == hostUri =>
+        InvalidCorsRequest("Bad Origin header")
+      case (Some(_), _, _) if originUri.get == hostUri =>
         logger.trace("Request is Non-CORS request because the Origin header matched the Host/X-Forwarded-Host header (same-origin).")
-        NonCorsRequest(isOptions)
-      case (Some(origin), isOptions, _) =>
+        NonCorsRequest
+      case (Some(origin), _, _) =>
         logger.debug("Request is CORS Actual request because the Origin header did not match the Host/X-Forwarded-Host header.")
-        ActualCorsRequest(origin, isOptions)
+        ActualCorsRequest(origin)
     }
   }
 
@@ -245,7 +246,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
   }
 
   def getHeaderNamesToExpose(response: HttpServletResponseWrapper): List[String] =
-    (DefaultExposeHeaders.filterNot(response.containsHeader) ++ response.getHeaderNames.asScala).distinct
+    DefaultExposeHeaders.filterNot(response.containsHeader) ++ response.getHeaderNames.asScala
 }
 
 object CorsFilter {
@@ -255,14 +256,11 @@ object CorsFilter {
 
   implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
 
-  sealed trait RequestType {
-    def isOptions: Boolean
-  }
-
-  case class NonCorsRequest(isOptions: Boolean) extends RequestType
-  case class PreflightCorsRequest(origin: String, requestedMethod: String, isOptions: Boolean = true) extends RequestType
-  case class ActualCorsRequest(origin: String, isOptions: Boolean) extends RequestType
-  case class InvalidCorsRequest(message: String, isOptions: Boolean) extends RequestType
+  sealed trait RequestType
+  object NonCorsRequest extends RequestType
+  case class PreflightCorsRequest(origin: String, requestedMethod: String) extends RequestType
+  case class ActualCorsRequest(origin: String) extends RequestType
+  case class InvalidCorsRequest(message: String) extends RequestType
 
   sealed trait CorsValidationResult
   case class Pass(validMethods: Seq[String]) extends CorsValidationResult

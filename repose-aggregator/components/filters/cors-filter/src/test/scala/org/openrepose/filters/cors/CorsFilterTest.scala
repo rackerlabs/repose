@@ -725,7 +725,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       servletRequest.setServerName(null)
       servletRequest.setServerPort(-1)
 
-      corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest(isOptions = false)
+      corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest
     }
 
     List(
@@ -740,7 +740,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, "never.match.com:7070")
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin, isOptions = false)
+        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin)
       }
     }
 
@@ -865,7 +865,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.setServerPort(port)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest(isOptions = false)
+        corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest
       }
 
       val forwardedPort = if (port != -1) s":$port" else ""
@@ -877,7 +877,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, forwardedHost)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest(isOptions = false)
+        corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest
       }
     }
 
@@ -911,7 +911,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.setServerPort(port)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin, isOptions = false)
+        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin)
       }
 
       val forwardedPort = if (port != -1) s":$port" else ""
@@ -923,7 +923,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
         servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, forwardedHost)
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
 
-        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin, isOptions = false)
+        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin)
       }
     }
   }
