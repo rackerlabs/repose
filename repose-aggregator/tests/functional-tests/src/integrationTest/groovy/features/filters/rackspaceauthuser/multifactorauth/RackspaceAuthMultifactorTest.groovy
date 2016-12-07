@@ -20,6 +20,7 @@
 package features.filters.rackspaceauthuser.multifactorauth
 
 import framework.ReposeValveTest
+import org.apache.commons.lang3.RandomStringUtils
 import org.openrepose.commons.utils.http.OpenStackServiceHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -30,7 +31,6 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
     static final String USERNAME = 'test-username'
     static final String PASSWORD = 'test-password'
     static final String PASSCODE = '1411594'
-    static final String SESSION_ID = 'APU9ymMBWY5W-pTgnHuZEvjKsM5oG_ler4lC0g_EkCPYvPdUBHK55RWtsgpL5RZ22AyDNaVCNCz6mlDOw'
 
     static final String MFA_INITIAL_REQUEST_BODY =
             """
@@ -92,30 +92,35 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
                 }
             }
             """
-
-    static final Closure<Response> MFA_CHALLENGE_RESPONSE = {
-        new Response(
-                401,
-                MFA_CHALLENGE_RESPONSE_BODY,
-                [
-                        'WWW-Authenticate': "OS-MF sessionId='${SESSION_ID}', factor='PASSCODE'",
-                        'Vary'            : 'Accept, Accept-Encoding, X-Auth-Token',
-                        'Content-Type'    : 'application/json'
-                ])
-    }
     static final Closure<Response> MFA_SUCCESS_RESPONSE = {
         new Response(
                 200,
-                MFA_SUCCESS_RESPONSE_BODY,
+                null,
                 [
                         'Vary'          : 'Accept, Accept-Encoding, X-Auth-Token',
                         'Content-Type'  : 'application/json',
                         'Content-Length': MFA_SUCCESS_RESPONSE_BODY.length() as String
-                ])
+                ],
+                MFA_SUCCESS_RESPONSE_BODY)
     }
 
     static int reposePort2
     static String reposeEndpoint2
+
+    Closure<Response> getMfaChallengeResponseHandler(String sessionId) {
+        return {
+            new Response(
+                    401,
+                    null,
+                    [
+                            'WWW-Authenticate': "OS-MF sessionId='${sessionId}', factor='PASSCODE'",
+                            'Vary'            : 'Accept, Accept-Encoding, X-Auth-Token',
+                            'Content-Type'    : 'application/json',
+                            'Content-Length': MFA_CHALLENGE_RESPONSE_BODY.length() as String
+                    ],
+                    MFA_CHALLENGE_RESPONSE_BODY)
+        }
+    }
 
     def setupSpec() {
         int ddPort1 = PortFinder.Singleton.getNextOpenPort()
@@ -148,7 +153,7 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
                 method: 'POST',
                 headers: ['Content-type': 'application/json'],
                 requestBody: MFA_INITIAL_REQUEST_BODY,
-                defaultHandler: MFA_CHALLENGE_RESPONSE)
+                defaultHandler: getMfaChallengeResponseHandler(RandomStringUtils.randomAlphanumeric(60)))
 
         then: 'the request received by the origin service should contain a username header'
         messageChain.receivedResponse.code.toInteger() == 401
@@ -158,12 +163,13 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
     def "the username header should be set on the request for the additional mfa request"() {
         given: 'the initial authentication request is made'
+        String sessionId = RandomStringUtils.randomAlphanumeric(60)
         deproxy.makeRequest(
                 url: "${reposeEndpoint}/v2.0/tokens/".toString(),
                 method: 'POST',
                 headers: ['Content-type': 'application/json'],
                 requestBody: MFA_INITIAL_REQUEST_BODY,
-                defaultHandler: MFA_CHALLENGE_RESPONSE)
+                defaultHandler: getMfaChallengeResponseHandler(sessionId))
 
         when: 'the follow-up authentication request is made'
         MessageChain messageChain = deproxy.makeRequest(
@@ -171,7 +177,7 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
                 method: 'POST',
                 headers: [
                         'Content-type': 'application/json',
-                        'X-SessionId' : SESSION_ID
+                        'X-SessionId' : sessionId
                 ],
                 requestBody: MFA_FOLLOW_UP_REQUEST_BODY,
                 defaultHandler: MFA_SUCCESS_RESPONSE)
@@ -184,12 +190,13 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
     def "the username header should be set on the request for the additional mfa request when there are multiple session IDs"() {
         given: 'the initial authentication request is made'
+        String sessionId = RandomStringUtils.randomAlphanumeric(60)
         deproxy.makeRequest(
                 url: "${reposeEndpoint}/v2.0/tokens/".toString(),
                 method: 'POST',
                 headers: ['Content-type': 'application/json'],
                 requestBody: MFA_INITIAL_REQUEST_BODY,
-                defaultHandler: MFA_CHALLENGE_RESPONSE)
+                defaultHandler: getMfaChallengeResponseHandler(sessionId))
 
         when: 'the follow-up authentication request is made'
         MessageChain messageChain = deproxy.makeRequest(
@@ -197,7 +204,7 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
                 method: 'POST',
                 headers: [
                         'Content-type': 'application/json',
-                        'X-SessionId' : "${SESSION_ID};q=0.5,foobarbazsession;q=0.8"
+                        'X-SessionId' : "${sessionId};q=0.5,foobarbazsession;q=0.8"
                 ],
                 requestBody: MFA_FOLLOW_UP_REQUEST_BODY,
                 defaultHandler: MFA_SUCCESS_RESPONSE)
@@ -210,12 +217,13 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
     def "the distributed datastore is used to cache the username"() {
         given: 'the initial authentication request is made'
+        String sessionId = RandomStringUtils.randomAlphanumeric(60)
         deproxy.makeRequest(
                 url: "${reposeEndpoint}/v2.0/tokens/".toString(),
                 method: 'POST',
                 headers: ['Content-type': 'application/json'],
                 requestBody: MFA_INITIAL_REQUEST_BODY,
-                defaultHandler: MFA_CHALLENGE_RESPONSE)
+                defaultHandler: getMfaChallengeResponseHandler(sessionId))
 
         when: 'the follow-up authentication request is made to a different endpoint from the initial request'
         MessageChain messageChain = deproxy.makeRequest(
@@ -223,7 +231,7 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
                 method: 'POST',
                 headers: [
                         'Content-type': 'application/json',
-                        'X-SessionId' : SESSION_ID
+                        'X-SessionId' : sessionId
                 ],
                 requestBody: MFA_FOLLOW_UP_REQUEST_BODY,
                 defaultHandler: MFA_SUCCESS_RESPONSE)
@@ -236,12 +244,13 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
     def "the cached session ID is re-usable"() {
         given: 'the initial authentication request is made'
+        String sessionId = RandomStringUtils.randomAlphanumeric(60)
         deproxy.makeRequest(
                 url: "${reposeEndpoint}/v2.0/tokens/".toString(),
                 method: 'POST',
                 headers: ['Content-type': 'application/json'],
                 requestBody: MFA_INITIAL_REQUEST_BODY,
-                defaultHandler: MFA_CHALLENGE_RESPONSE)
+                defaultHandler: getMfaChallengeResponseHandler(sessionId))
 
         and: 'the follow-up authentication request is made'
         deproxy.makeRequest(
@@ -249,7 +258,7 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
                 method: 'POST',
                 headers: [
                         'Content-type': 'application/json',
-                        'X-SessionId' : SESSION_ID
+                        'X-SessionId' : sessionId
                 ],
                 requestBody: MFA_FOLLOW_UP_REQUEST_BODY,
                 defaultHandler: MFA_SUCCESS_RESPONSE)
@@ -260,7 +269,7 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
                 method: 'POST',
                 headers: [
                         'Content-type': 'application/json',
-                        'X-SessionId' : SESSION_ID
+                        'X-SessionId' : sessionId
                 ],
                 requestBody: MFA_FOLLOW_UP_REQUEST_BODY,
                 defaultHandler: MFA_SUCCESS_RESPONSE)
