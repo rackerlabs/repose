@@ -226,8 +226,6 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
   }
 }
 
-case class RackspaceAuthUserGroup(domain: Option[String], user: String, group: String, quality: Double)
-
 object RackspaceAuthUserFilter {
   val ddKey: String = "rax-auth-user-filter"
   val sessionIdHeader: String = "X-SessionId"
