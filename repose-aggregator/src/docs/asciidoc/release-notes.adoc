@@ -1,3 +1,7 @@
 = Release Notes
 
 include::_includes/in-progress.adoc[]
+
+== Future Release
+
+* https://repose.atlassian.net/browse/REP-4764[REP-4764] - sendError in the response wrapper will now call sendError on the underlying response when appropriate.
