@@ -14,10 +14,10 @@ Configuring CORS improperly could expose https://en.wikipedia.org/wiki/Cross-sit
 
 == General filter information
 * *Name:* cors
-* *Default Configuration:* cors.cfg.xml
 * *Released:* v7.2.0.0
 * *Bundle:* repose-filter-bundle
-* *Schema:* link:../schemas/cors-configuration.xsd[cors-configuration.xsd]
+* *Default Configuration:* cors.cfg.xml
+* *Configuration Schema:* link:../schemas/cors-configuration.xsd[cors-configuration.xsd]
 
 == Prerequisites & Postconditions
 === Required headers
@@ -387,7 +387,6 @@ This check is not performed for CORS Preflight Requests since web browsers shoul
 
 [CAUTION]
 ====
-If a proxy server sitting between the client and Repose rewrites the `Host` without updating the `X-Forwarded-Host` header with the original value,
-Repose will not be able to correctly identify same-origin requests coming from that client.
+If a proxy server sitting between the client and Repose rewrites the `Host` without updating the `X-Forwarded-Host` header with the original value, Repose will not be able to correctly identify same-origin requests coming from that client.
 This may result in requests from that client being incorrectly rejected on the basis that they are CORS requests when they may in fact be same-origin requests.
 ====
