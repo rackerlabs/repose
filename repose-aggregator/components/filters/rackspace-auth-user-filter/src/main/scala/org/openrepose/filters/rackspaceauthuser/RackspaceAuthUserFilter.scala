@@ -76,7 +76,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
       wrappedResponse.getHeadersList(CommonHttpHeader.WWW_AUTHENTICATE.toString).asScala.filter(_.startsWith("OS-MF")) foreach { header =>
         Option(StringUtils.substringBetween(header, "sessionId='", "'")) match {
           case Some(sessionId) =>
-            datastore.put(s"$ddKey:$sessionId", authUserGroup, 1, TimeUnit.HOURS)
+            datastore.put(s"$ddKey:$sessionId", authUserGroup, 5, TimeUnit.MINUTES)
           case None =>
             logger.debug("Failed to parse the session id out of '{}'", header)
         }
