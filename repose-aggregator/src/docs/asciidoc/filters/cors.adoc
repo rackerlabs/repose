@@ -12,7 +12,7 @@ Enabling CORS can increase an endpoint's exposure.
 Configuring CORS improperly could expose https://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross-Site Request Forgery (CSRF)] vulnerabilities in the origin service that were previously hidden by not supporting CORS.
 ====
 
-== General filter information
+== General Filter Information
 * *Name:* cors
 * *Released:* v7.2.0.0
 * *Bundle:* repose-filter-bundle
@@ -20,7 +20,7 @@ Configuring CORS improperly could expose https://en.wikipedia.org/wiki/Cross-sit
 * *Configuration Schema:* link:../schemas/cors-configuration.xsd[cors-configuration.xsd]
 
 == Prerequisites & Postconditions
-=== Required headers
+=== Required Headers
 The presence and values of certain headers will indicate what kind of request is being made.
 All of these headers will be supplied by the client making the request.
 
@@ -39,7 +39,7 @@ a| * `Origin`*
 *{sp}If the `Origin` header matches the original `Host` header in the request, it will be considered a non-CORS request.
 See the <<Origin Header>> section for more details.
 
-=== Required preceding filters
+=== Required Preceding Filters
 The CORS filter should be one of the first filters, if not the first filter, in the filter chain in order to properly handle CORS Preflight Requests and to properly handle exposing response headers in CORS Actual Requests.
 If you want to rate limit CORS Preflight Requests, you can add the following filters before the CORS filter in the filter chain:
 
@@ -49,20 +49,20 @@ If you want to rate limit CORS Preflight Requests, you can add the following fil
 This Rate Limiting filter would be in addition to any Rate Limiting filter you may already have in place.
 The first Rate Limiting filter would filter only by IP address, and the second Rate Limiting filter would continue to rate limit the way it's currently set up.
 
-=== Request headers created
+=== Request Headers Created
 This filter does not add any headers to the request.
 
-=== Request body changes
+=== Request Body Changes
 This filter does not modify the request body.
 
-=== Recommended follow-on (succeeding) filters
+=== Recommended Follow-On (Succeeding) Filters
 This filter is not strictly required by any other filters.
 
-=== Response body changes
+=== Response Body Changes
 This filter does not _modify_ the response body, but it will set it in certain early termination conditions.
 See the <<Response status codes>> section for more details.
 
-=== Response headers created
+=== Response Headers Created
 The filter will add the following headers to the response when the request is allowed to proceed:
 
 [cols="3", options="header,autowidth"]
@@ -95,7 +95,7 @@ a| * `Access-Control-Allow-Origin`
 | None
 |===
 
-=== Response status codes
+=== Response Status Codes
 These are the conditions in which the CORS filter will stop processing the request and immediately return a response:
 
 [cols="4", options="header,autowidth"]
