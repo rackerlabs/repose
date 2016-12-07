@@ -183,6 +183,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
   }
 
+  def isError: Boolean = sentError
+
   def getReason: String = reason.orNull
 
   override def isCommitted: Boolean = super.isCommitted || committed
@@ -494,15 +496,13 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
         throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
     }
 
-    if (flushedBuffer) {
-      originalResponse.flushBuffer()
-    }
-
     if (sentError) {
       reason match {
         case Some(msg) => originalResponse.sendError(getStatus, msg)
         case None => originalResponse.sendError(getStatus)
       }
+    } else if (flushedBuffer) {
+      originalResponse.flushBuffer()
     }
 
     committed = true
