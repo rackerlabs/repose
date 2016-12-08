@@ -1,12 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--NOTE: This filter is going to attempt to write the error message to a header.-->
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
            language="groovy">
-    filterChain.doFilter(request, response)
+    import org.openrepose.commons.utils.servlet.http.*
 
-    String reason = response.getReason()
-    if (reason) {
-        response.addHeader("${reasonHeaderName}", reason)
+    def responseCodeToReturn = request.getHeader("${responseCodeHeaderName}") as Integer
+
+    def testCase = request.getHeader("${testCaseFirstFilterHeaderName}")
+    if (testCase == "REASON_TO_HEADER") {
+        filterChain.doFilter(request, response)
+
+        String reason = response.getReason()
+        if (reason) {
+            response.addHeader("${reasonHeaderName}", reason)
+        }
+    } else if (testCase == "SEND_ERROR_WITH_MESSAGE") {
+        response.sendError(responseCodeToReturn, "${reasonMessage}")
+    } else if (testCase == "SEND_ERROR_CODE_ONLY") {
+        response.sendError(responseCodeToReturn)
+    } else if (testCase == "REWRAP_RESPONSE") {
+        def headerMode = ResponseMode.valueOf(request.getHeader("${headerModeHeaderName}"))
+        def bodyMode = ResponseMode.valueOf(request.getHeader("${bodyModeHeaderName}"))
+
+        def rewrappedResponse = new HttpServletResponseWrapper(response, headerMode, bodyMode)
+
+        rewrappedResponse.sendError(responseCodeToReturn, "${reasonMessage}")
+
+        if (headerMode == ResponseMode.MUTABLE || bodyMode == ResponseMode.MUTABLE) {
+            rewrappedResponse.commitToResponse()
+        }
     }
+
+
 </scripting>
