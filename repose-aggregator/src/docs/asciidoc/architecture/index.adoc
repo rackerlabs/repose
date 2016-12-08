@@ -11,5 +11,8 @@ Provides detail about the Repose container -- the configuration file which outli
 == <<packages.adoc#,Packages>>
 Provides details about the packages Repose maintains for easy installation by our users.
 
+== <<repose.adoc#,Repose>>
+Provides details about Repose itself.
+
 == <<system-model.adoc#,System Model>>
 Provides detail about the Repose system model -- the configuration file which outlines the deployment topology.

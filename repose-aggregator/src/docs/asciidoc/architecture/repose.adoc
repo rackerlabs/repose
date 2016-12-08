@@ -1,0 +1,36 @@
+= Repose
+
+== How Does Repose Work?
+Repose takes incoming requests from clients and adjusts them for consumption by services by passing the requests through a series of extensible filters.
+These filters provide functionality such as authentication, authorization, rate-limiting, and request modification.
+Repose can run as a stand-alone proxy server between the client and the origin service.
+The Repose instance can be on the same host as the origin service, but it doesn't have to be.
+This deployment method, illustrated in the following graphic, is called <<../recipes/valve-installation.adoc#,Valve>>.
+
+[ditaa, valve-diagram, png]
+....
++------+          +------+    +--------------+
+|      +--------->|      +=-->|              |
+|Client|          |Repose|    |Origin Service|
+|      |<---------+      |<--=+              |
++------+          +------+    +--------------+
+....
+
+Repose can also run within a servlet container such as GlassFish or Tomcat using the <<../recipes/war-installation.adoc#,WAR>> deployment.
+
+[ditaa, war-diagram, png]
+....
+                  +=-----------------------------+
+                  |      Servlet Container       |
++------+          | +------+    +--------------+ |
+|      +----------->|      +=-->|              | |
+|Client|          | |Repose|    |Origin Service| |
+|      |<-----------+      |<--=+              | |
++------+          | +------+    +--------------+ |
+                  +------------------------------+
+....
+
+You can decide which configuration works best for you, and you can tweak many of your configurations without having to restart Repose – it will pick up configuration changes on the fly, making it easy to configure and test.
+
+Repose can be configured to use a distributed data store service where cached information is exchanged across multiple nodes.
+This makes Repose fault tolerant with proven performance.

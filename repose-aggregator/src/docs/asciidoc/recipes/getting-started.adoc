@@ -1,151 +1,64 @@
 = Getting Started
 :toclevels: 3
 
-== What is Repose?
-Repose is an open-source, RESTful middleware platform that transparently integrates with your existing infrastructure.
-Technically, it is a pseudo-transparent reverse proxy.
+To use Repose, start by following the instructions for your desired environment from the <<Installation>> section.
+Alternatively, a Repose environment can be created using one of the tools listed in the <<Deployment>> section.
 
-Repose provides highly scalable, extensible solutions to common API processing tasks including authentication, rate limiting, access control, logging, and more.
+After Repose is installed, start off by customizing your <<../architecture/system-model.adoc#,system model>> configuration for your service.
+From there, you are ready to begin configuring any <<../filters/index.adoc#,filters>> and <<../services/index.adoc#,services>> you may need.
+See <<Configuration>> for more details!
 
-Additionally, Repose allows services to use https://en.wikipedia.org/wiki/Enterprise_Integration_Patterns[Enterprise Integration Patterns].
-
-== How Does Repose Work?
-Repose takes incoming requests from clients and adjusts them for consumption by services by passing the requests through a series of extensible filters.
-These filters provide functionality such as authentication, authorization, rate-limiting, and request modification.
-Repose can run as a stand-alone proxy server between the client and the origin service.
-The Repose instance can be on the same host as the origin service, but it doesn't have to be.
-This deployment method, illustrated in the following graphic, is called <<valve-installation.adoc#,Valve>>.
-
-[ditaa, valve-diagram, png]
-....
-+------+          +------+    +--------------+
-|      +--------->|      +=-->|              |
-|Client|          |Repose|    |Origin Service|
-|      |<---------+      |<--=+              |
-+------+          +------+    +--------------+
-....
-
-Repose can also run within a servlet container such as GlassFish or Tomcat using the <<war-installation.adoc#,WAR>> deployment.
-
-[ditaa, war-diagram, png]
-....
-                  +=-----------------------------+
-                  |      Servlet Container       |
-+------+          | +------+    +--------------+ |
-|      +----------->|      +=-->|              | |
-|Client|          | |Repose|    |Origin Service| |
-|      |<-----------+      |<--=+              | |
-+------+          | +------+    +--------------+ |
-                  +------------------------------+
-....
-
-You can decide which configuration works best for you, and you can tweak many of your configurations without having to restart Repose – it will pick up configuration changes on the fly, making it easy to configure and test.
-
-Repose can be configured to use a distributed data store service where cached information is exchanged across multiple nodes.
-This makes Repose fault tolerant with proven performance.
-
-== What Services Does Repose Provide?
-Repose provides a series of customizable filters that you can configure to perform a large number of API tasks.
-The full list of filters is on the <<../filters/index.adoc#,Filters>> page.
-Following are some of the most common ones:
-
-* <<../filters/translation.adoc#,Translating>> requests and responses so that services receive them in the format that they are expecting.
-* <<../filters/rate-limiting.adoc#,Rate limiting>> requests and responses to control network traffic.
-* <<../filters/keystone-v2.adoc#,Authenticating>> requests to enhance security.
-* <<../filters/api-validator.adoc#,Validating>> that requests conform to XSD and WADL specifications.
-* <<../filters/slf4j-http-logging.adoc#,Logging>> to keep inventories of events.
-* <<../filters/header-normalization.adoc#,Blacklisting>> to prevent others from spoofing authentication credentials and roles.
-* <<../filters/keystone-v2.adoc#Cache,Caching>> to reduce load on authentication services.
-* <<role-based-access-control.adoc#,Role-based access control (RBAC)>> to restrict access to authorized users.
-* <<../filters/api-validator.adoc#,API Coverage>> to map the state of your API.
-* <<../architecture/container.adoc#,HTTP Client Authentication>> for federated applications.
-* <<../architecture/container.adoc#,SSL/TLS Termination>> and Ciphers/Protocols inclusion/exclusion.
-
-== Who Can Use Repose?
-Anyone can use Repose!
-It is an open-source platform for the general public to consume, share, and improve.
-
-== How Can I Use Repose?
-To get Repose, log in to your server and run the <<Installation>> commands for your desired environment.
-Then, configure your origin service endpoint in the <<../architecture/system-model.adoc#,system model>>, and you are ready to configure <<../filters/index.adoc#,filters>> and <<../services/index.adoc#,services>> that work for you.
 We have many sample configurations that you can use to get started.
 Or, because Repose is open source, you can <<custom-filter-for-repose.adoc#,build your own>> stacks of reusable software components.
 
-=== Environment Setup
-Installation instructions are provided for Debian package managers (e.g., APT) and RPM package managers (e.g., Yum).
-
-Certain deployment methods will handle environment setup automatically.
-
-=== Installation
+== Installation
 The most common and preferred way to run Repose is as a standalone application using the Valve installation.
-This installation allows Repose to be executed either as a Linux service (e.g. systemd) or directly from the installed JAR.
-An alternative would be to run Repose inside an existing servlet container (e.g. Tomcat, GlassFish) using the WAR installation.
+This installation allows Repose to be executed either as a Linux service (e.g., using systemd) or a Java process (by invoking the installed JAR).
+An alternative would be to run Repose inside an existing servlet container (e.g., Tomcat, GlassFish) using the WAR installation.
 
 While Repose can be installed manually, there are other deployment options available.
 However, these other methods do require a little more System Administration knowledge which is not covered here.
 See: <<Deployment>>
 
-==== Proxy Server (Valve)
+=== Proxy Server (Valve)
 This is the most common setup and is detailed on the <<valve-installation.adoc#,Valve Installation>> page.
 
 After installing it this way, consult the <<running-valve.adoc#,Running Valve>> page for details on starting and stopping Repose.
 
-==== Servlet Container WAR
+=== Servlet Container WAR
 Instructions for installing the WAR are on the <<war-installation.adoc#,WAR Installation>> page.
 
-===== Tomcat Setup
-
+==== Tomcat Setup
 After installing the WAR, there is additional setup to get everything working with Tomcat.
 See <<tomcat-setup.adoc#,Tomcat Setup>> for more details.
 
-===== GlassFish Setup
-
+==== GlassFish Setup
 See <<glassfish-setup.adoc#,GlassFish Setup>> for more details.
 
-===== Container Attributes known to affect Repose
-
+==== Container Attributes known to affect Repose
 See <<http-container-attributes.adoc#,HTTP container attributes>>
 
-=== Deployment
+== Deployment
 Once you know how you'll want to configure Repose, you may want to automate the deployment using a configuration management tool or reusable container.
 
-==== Vagrant
+=== Vagrant
 If you don't already have a Linux environment ready, you can use Vagrant to easily create a new virtual machine running the Linux distribution of your choice.
 For more details, see: <<vagrant.adoc#,Vagrant>>
 
-==== Docker
+=== Docker
 Docker and Repose make a fantastic team together.
 For more details, see: <<docker.adoc#,Docker>>
 
-==== Puppet
+=== Puppet
 There is an unsupported starter module in the GitHub repository https://github.com/rackerlabs/puppet-repose[rackerlabs/puppet-repose].
 
-==== Chef
+=== Chef
 There is an unsupported starter cookbook in the GitHub repository https://github.com/rackerlabs/cookbook-repose[rackerlabs/cookbook-repose].
 
-=== Configuration
+== Configuration
 If you're ready to dive into configuration, see <<../architecture/configuration.adoc#,Configuration>> for more details.
 We also have a series of <<index.adoc#,Recipes>> that will walk you through some of our common use cases.
 
-=== Performance Tuning
+== Performance Tuning
 Repose has been battle tested in production environments and in our performance testing environments.
 See <<performance-best-practices.adoc#,Performance Best Practices>> for more details.
-
-=== Support
-
-==== Recipes
-For further information on common configuration scenarios, visit our <<index.adoc#,Recipes>> page.
-
-==== Troubleshooting
-For details on common troubleshooting techniques, visit our <<../troubleshooting.adoc#,Troubleshooting>> page.
-
-==== FAQs
-For a list of frequently asked questions and answers, visit our <<../faq.adoc#,FAQ>> page.
-
-== Need More Information About Repose?
-<<../contact-us.adoc#,Contact us!>> We would be happy to address any questions, comments, or concerns with anything having to do with Repose!
-
-[TIP]
-====
-If you wonder what we've been working on lately, visit our <<../release-notes.adoc#,release notes>>.
-====

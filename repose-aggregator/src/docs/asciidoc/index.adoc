@@ -2,6 +2,35 @@
 
 include::_includes/in-progress.adoc[]
 
+== What is Repose?
+Repose is an open-source, RESTful middleware platform that transparently integrates with your existing infrastructure.
+Technically, it is a pseudo-transparent reverse proxy.
+
+Repose provides highly scalable, extensible solutions to common API processing tasks including authentication, rate limiting, access control, logging, and more.
+
+Additionally, Repose allows services to use https://en.wikipedia.org/wiki/Enterprise_Integration_Patterns[Enterprise Integration Patterns].
+
+== What Services Does Repose Provide?
+Repose provides a series of customizable filters that you can configure to perform a large number of API tasks.
+The full list of filters is on the <<../filters/index.adoc#,Filters>> page.
+Following are some of the most common ones:
+
+* <<../filters/translation.adoc#,Translating>> requests and responses so that services receive them in the format that they are expecting.
+* <<../filters/rate-limiting.adoc#,Rate limiting>> requests and responses to control network traffic.
+* <<../filters/keystone-v2.adoc#,Authenticating>> requests to enhance security.
+* <<../filters/api-validator.adoc#,Validating>> that requests conform to XSD and WADL specifications.
+* <<../filters/slf4j-http-logging.adoc#,Logging>> to keep inventories of events.
+* <<../filters/header-normalization.adoc#,Blacklisting>> to prevent others from spoofing authentication credentials and roles.
+* <<../filters/keystone-v2.adoc#Cache,Caching>> to reduce load on authentication services.
+* <<role-based-access-control.adoc#,Role-based access control (RBAC)>> to restrict access to authorized users.
+* <<../filters/api-validator.adoc#,API Coverage>> to map the state of your API.
+* <<../architecture/container.adoc#,HTTP Client Authentication>> for federated applications.
+* <<../architecture/container.adoc#,SSL/TLS Termination>> and Ciphers/Protocols inclusion/exclusion.
+
+== Who Can Use Repose?
+Anyone can use Repose!
+It is an open-source platform for the general public to consume, share, and improve.
+
 == How to Navigate These Docs
 Here's loosely how these docs are organized.
 
@@ -41,6 +70,25 @@ But if there were something missing and you wanted to help, here's where you wou
 
 === <<faq.adoc#, Frequently Asked Questions (FAQ)>>
 Couldn't find the answer to your question elsewhere? Maybe it is hiding on our FAQ page.
+
+== Support
+
+=== Recipes
+For further information on common configuration scenarios, visit our <<recipes/index.adoc#,Recipes>> page.
+
+=== Troubleshooting
+For details on common troubleshooting techniques, visit our <<troubleshooting.adoc#,Troubleshooting>> page.
+
+=== FAQs
+For a list of frequently asked questions and answers, visit our <<faq.adoc#,FAQ>> page.
+
+== Need More Information About Repose?
+<<contact-us.adoc#,Contact us!>> We would be happy to address any questions, comments, or concerns with anything having to do with Repose!
+
+[TIP]
+====
+If you wonder what we've been working on lately, visit our <<release-notes.adoc#,release notes>>.
+====
 
 === Search
 Know vaguely what you're looking for? You can use the following Google Custom Search Engine to search all of our documentation.
