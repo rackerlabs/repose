@@ -24,10 +24,14 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.text.StrSubstitutor
 import org.linkedin.util.clock.SystemClock
 
+import java.nio.file.Files
+
 /**
  * Responsible for applying and updating configuration files for an instance of Repose
  */
 class ReposeConfigurationProvider {
+
+    private static final List<String> FILE_EXTENSIONS_SKIP_TEMPLATING = [".jks"]
 
     def File reposeConfigDir
     def File configTemplatesDir
@@ -70,15 +74,21 @@ class ReposeConfigurationProvider {
         }
 
         for (file in FileUtils.listFiles(source, null, true)) {
-
-            String contents = FileUtils.readFileToString(file)
-            def processedContents = StrSubstitutor.replace(contents, params, "\${", "}")
-
             // Note: this is necessary to get relative paths under JDK 6.
             // If using JDK 7, use java.nio.file.Path.relativize instead.
             def relativePath = source.toURI().relativize(file.toURI()).path
             def destinationFilename = FilenameUtils.concat(reposeConfigDir.absolutePath, relativePath)
-            FileUtils.writeStringToFile(new File(destinationFilename), processedContents)
+            def destinationFile = new File(destinationFilename)
+
+            if (FILE_EXTENSIONS_SKIP_TEMPLATING.any { file.name.toLowerCase().endsWith(it) }) {
+                // no template substitution
+                Files.copy(file.toPath(), new FileOutputStream(destinationFile))
+            } else {
+                // substitute template parameters in the file contents
+                String contents = FileUtils.readFileToString(file)
+                def processedContents = StrSubstitutor.replace(contents, params, "\${", "}")
+                FileUtils.writeStringToFile(destinationFile, processedContents)
+            }
         }
 
         if (sleepTimeInSeconds &&

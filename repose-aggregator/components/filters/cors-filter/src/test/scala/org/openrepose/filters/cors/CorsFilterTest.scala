@@ -20,6 +20,7 @@
 package org.openrepose.filters.cors
 
 import javax.servlet.FilterChain
+import javax.servlet.http.HttpServletRequest
 
 import org.junit.runner.RunWith
 import org.mockito.Matchers.any
@@ -49,10 +50,15 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
   var servletResponse: MockHttpServletResponse = _
   var filterChain: FilterChain = _
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = mock(classOf[FilterChain])
+
+    // unless we're specifically testing the same-origin logic, assume Host should not match the Origin
+    servletRequest.setScheme("http")
+    servletRequest.setServerName("www.does.not.match.origin.org")
+    servletRequest.setServerPort(8080)
 
     corsFilter = new CorsFilter(null)
     allowAllOriginsAndMethods()
@@ -267,7 +273,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
             servletRequest.setMethod(httpMethod)
             servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
 
-            // only add the headers to the response when the filterchain doFilter method is called
+            // only add the headers to the response when the filterChain doFilter method is called
             doAnswer(new Answer[Void]() {
               def answer(invocation: InvocationOnMock): Void = {
                 responseHeaders foreach (servletResponse.addHeader(_, "totally legit value"))
@@ -278,10 +284,10 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
             corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
             // Access-Control-Expose-Headers should have all of the response headers in it except for itself and the Vary header
-            servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).split(",") should contain theSameElementsAs
+            servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).toLowerCase.split(",") should contain theSameElementsAs
               servletResponse.getHeaderNames.asScala.filter { headerName =>
                 headerName != CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString &&
-                  headerName != CommonHttpHeader.VARY.toString}
+                  headerName != CommonHttpHeader.VARY.toString}.map(_.toLowerCase)
             servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) should have size 1
           }
         }
@@ -610,7 +616,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
     }
   }
 
-  describe("configuration") {
+  describe("the configurationUpdated method") {
     for (
       origins <- List(
         List("http://legit.com:8080"),
@@ -627,6 +633,297 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
     ) {
       it(s"should be able to load configuration for origins $origins, methods $methods, resources $resources") {
         corsFilter.configurationUpdated(createCorsConfig(origins, methods, resources))
+      }
+    }
+  }
+
+  describe("the getHostUri method") {
+    List(
+      ("http", "openrepose.org", 80, 80),
+      ("http", "10.8.4.4", -1, 80),
+      ("http", "zombo.com", 7777, 7777),
+      ("https", "[2001:db8:cafe:0:0:0:0:34]", 443, 443),
+      ("https", "rackspace.com", -1, 443)
+    ) foreach { case (scheme, serverName, port, expectedPort) =>
+      it(s"should be able to parse the request scheme '$scheme', serverName '$serverName', and port '$port' into a URI") {
+        servletRequest.setScheme(scheme)
+        servletRequest.setServerName(serverName)
+        servletRequest.setServerPort(port)
+
+        val uri = corsFilter.getHostUri(servletRequest)
+
+        uri.getScheme shouldBe scheme
+        uri.getHost shouldBe serverName
+        uri.getPort shouldBe expectedPort
+      }
+    }
+
+    it("should parse the X-Forwarded-Host header if it's available instead of using the Host header") {
+      servletRequest.setScheme("https")
+      servletRequest.setServerName("garbage.value")
+      servletRequest.setServerPort(9999999)
+      servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, "expected.host.com:8443")
+
+      val uri = corsFilter.getHostUri(servletRequest)
+
+      uri.getScheme shouldBe "https"
+      uri.getHost shouldBe "expected.host.com"
+      uri.getPort shouldBe 8443
+    }
+
+    it("should use the Host header if the X-Forwarded-Host header could not be parsed") {
+      // The X-Forwarded-Host header is not backed by an official specification, so if the filter ever has trouble
+      // parsing the value, the filter should use the Host header instead.
+      val scheme = "http"
+      val serverName = "openrepose.org"
+      val port = 80
+      servletRequest.setScheme(scheme)
+      servletRequest.setServerName(serverName)
+      servletRequest.setServerPort(port)
+      servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, "not.zombo.com:abc")
+
+      val uri = corsFilter.getHostUri(servletRequest)
+
+      uri.getScheme shouldBe scheme
+      uri.getHost shouldBe serverName
+      uri.getPort shouldBe port
+    }
+
+    List(
+      ("zombo.com", 8080, List("zombo.com:8080")),
+      ("zombo.com", 5656, List("zombo.com:5656,not.a.match.com:7474")),
+      ("zombo.com", 3434, List("zombo.com:3434", "not.a.match.com:7474")),
+      ("totally.a.match.com", 7474, List("totally.a.match.com:7474,zombo.com:8080")),
+      ("totally.a.match.com", 8989, List("totally.a.match.com:8989", "zombo.com:8080")),
+      ("zombo.com", 4747, List("zombo.com:4747,not.a.match.com:7474", "another.failed.match:5555")),
+      ("zombo.com", 1111, List("zombo.com:1111", "not.a.match.com:7474", "another.failed.match:5555")),
+      ("is.a.match.com", 222, List("is.a.match.com:222,zombo.com:8080", "another.failed.match:5555")),
+      ("is.a.match.com", 333, List("is.a.match.com:333", "zombo.com:8080", "another.failed.match:5555")),
+      ("is.a.match.com", 444, List("is.a.match.com:444,another.failed.match:invalid.port", "zombo.com:8080")),
+      ("is.a.match.com", 555, List("is.a.match.com:555", "another.failed.match:5555", "zombo.com:invalid.port"))
+    ) foreach { case (expectedHost, expectedPort, forwardedHostHeaders) =>
+      it(s"should only parse the first X-Forwarded-Host header in '$forwardedHostHeaders'") {
+        servletRequest.setScheme("http")
+        servletRequest.setServerName(null)
+        servletRequest.setServerPort(-1)
+        forwardedHostHeaders foreach { servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, _) }
+
+        val uri = corsFilter.getHostUri(servletRequest)
+
+        uri.getScheme shouldBe "http"
+        uri.getHost shouldBe expectedHost
+        uri.getPort shouldBe expectedPort
+      }
+    }
+  }
+
+  describe("the determineRequestType method") {
+    import CorsFilter._
+
+    it("should return same-origin result when Origin header is not present in request") {
+      servletRequest.setScheme(null)
+      servletRequest.setServerName(null)
+      servletRequest.setServerPort(-1)
+
+      corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest
+    }
+
+    List(
+      ("http", "2001:db8:cafe::34", 4444, "http://[2001:db8:cafe::34]:4444"),
+      ("http", "10.8.4.4", 80, "http://10.8.4.4:80"),
+      ("https", "openrepose.org", 443, "https://openrepose.org:443")
+    ) foreach { case (scheme, serverName, port, origin) =>
+      it(s"should return CORS result when Origin '$origin' does not match forwardedHost despite matching the other values") {
+        servletRequest.setScheme(scheme)
+        servletRequest.setServerName(serverName)
+        servletRequest.setServerPort(port)
+        servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, "never.match.com:7070")
+        servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
+
+        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin)
+      }
+    }
+
+    it("should return Preflight result when Origin and preflight header Access-Control-Request-Method is present in request despite the Host matching the Origin") {
+      // A CORS preflight header should never be in a same-origin request, so be sure the filter does not bother to
+      // check the Host header in this scenario.
+      servletRequest.setScheme("http")
+      servletRequest.setServerName("openrepose.org")
+      servletRequest.setServerPort(80)
+      servletRequest.setMethod("OPTIONS")
+      servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://openrepose.org:80")
+      servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "PATCH")
+
+      corsFilter.determineRequestType(servletRequest) shouldBe PreflightCorsRequest("http://openrepose.org:80", "PATCH")
+    }
+
+    it("should return Preflight result without throwing an exception when Origin and preflight header Access-Control-Request-Method is present in request when Origin contains malformed data") {
+      // A CORS preflight header should never be in a same-origin request, so be sure the filter does not bother to
+      // parse the Origin header in this scenario.
+      servletRequest.setScheme("http")
+      servletRequest.setServerName("openrepose.org")
+      servletRequest.setServerPort(80)
+      servletRequest.setMethod("OPTIONS")
+      servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://openrepose.org:not_a_number")
+      servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "PUT")
+
+      corsFilter.determineRequestType(servletRequest) shouldBe PreflightCorsRequest("http://openrepose.org:not_a_number", "PUT")
+    }
+
+    List(
+      // host/origin comparison should be case insensitive
+      ("http", "www.openrepose.org", 9191, "http://www.openrepose.org:9191"),
+      ("http", "www.openrepose.ORG", 9191, "http://WWW.openrepose.org:9191"),
+      ("http", "www.openrepose.org", 9191, "http://www.OPENREPOSE.org:9191"),
+      ("http", "WWW.openREPOSE.org", 9191, "http://Www.Openrepose.Org:9191"),
+      ("https", "www.openrepose.org", 9191, "https://www.openrepose.org:9191"),
+      ("https", "www.openrepose.ORG", 9191, "https://WWW.openrepose.org:9191"),
+      ("https", "www.openREPOSE.org", 9191, "https://www.OPENREPOSE.org:9191"),
+      ("https", "WWW.openrepose.org", 9191, "https://Www.Openrepose.Org:9191"),
+      // scheme/origin comparison should be case insensitive
+      ("http", "www.openrepose.org", 9191, "HTTP://www.openrepose.org:9191"),
+      ("http", "www.openrepose.org", 9191, "Http://www.openrepose.org:9191"),
+      ("https", "www.openrepose.org", 9191, "HTTPS://www.openrepose.org:9191"),
+      ("https", "www.openrepose.org", 9191, "Https://www.openrepose.org:9191"),
+      // default ports should be supported
+      ("http", "www.openrepose.org", -1, "http://www.openrepose.org"),
+      ("http", "www.openrepose.org", -1, "http://www.openrepose.org:"),
+      ("http", "www.openrepose.org", -1, "http://www.openrepose.org:80"),
+      ("http", "www.openrepose.org", 80, "http://www.openrepose.org"),
+      ("http", "www.openrepose.org", 80, "http://www.openrepose.org:"),
+      ("http", "www.openrepose.org", 80, "http://www.openrepose.org:80"),
+      ("https", "www.openrepose.org", -1, "https://www.openrepose.org"),
+      ("https", "www.openrepose.org", -1, "https://www.openrepose.org:"),
+      ("https", "www.openrepose.org", -1, "https://www.openrepose.org:443"),
+      ("https", "www.openrepose.org", 443, "https://www.openrepose.org"),
+      ("https", "www.openrepose.org", 443, "https://www.openrepose.org:"),
+      ("https", "www.openrepose.org", 443, "https://www.openrepose.org:443"),
+      // IPv4, default ports should be supported
+      ("http", "192.30.252.153", -1, "http://192.30.252.153"),
+      ("http", "192.30.252.153", -1, "http://192.30.252.153:"),
+      ("http", "192.30.252.153", -1, "http://192.30.252.153:80"),
+      ("http", "192.30.252.153", 80, "http://192.30.252.153"),
+      ("http", "192.30.252.153", 80, "http://192.30.252.153:"),
+      ("http", "192.30.252.153", 80, "http://192.30.252.153:80"),
+      ("https", "192.30.252.153", -1, "https://192.30.252.153"),
+      ("https", "192.30.252.153", -1, "https://192.30.252.153:"),
+      ("https", "192.30.252.153", -1, "https://192.30.252.153:443"),
+      ("https", "192.30.252.153", 443, "https://192.30.252.153"),
+      ("https", "192.30.252.153", 443, "https://192.30.252.153:"),
+      ("https", "192.30.252.153", 443, "https://192.30.252.153:443"),
+      // IPv6, host/origin comparison should support canonical and verbose formatting
+      ("http", "2001:db8::beef:28", 8888, "http://[2001:db8::beef:28]:8888"),
+      ("http", "2001:db8::beef:28", 8888, "http://[2001:db8::BEEF:28]:8888"),
+      ("http", "2001:db8::BEEF:28", 8888, "http://[2001:db8::beef:28]:8888"),
+      ("http", "2001:db8::beef:28", 8888, "http://[2001:db8:0:0:0:0:beef:28]:8888"),
+      ("http", "2001:db8::beef:28", 8888, "http://[2001:0db8:0000:0000:0000:0000:beef:0028]:8888"),
+      ("http", "2001:db8:0:0:0:0:beef:28", 8888, "http://[2001:db8::beef:28]:8888"),
+      ("http", "2001:0db8:0000:0000:0000:0000:beef:0028", 8888, "http://[2001:db8::beef:28]:8888"),
+      ("http", "2001:0db8:0000:0000:0000:0000:beef:0028", 8888, "http://[2001:0db8:0000:0000:0000:0000:beef:0028]:8888"),
+      ("http", "::2001:db8:beef:28", 8888, "http://[::2001:db8:beef:28]:8888"),
+      ("http", "::2001:db8:beef:28", 8888, "http://[0:0:0:0:2001:db8:beef:28]:8888"),
+      ("http", "::2001:db8:beef:28", 8888, "http://[0000:0000:0000:0000:2001:0db8:beef:0028]:8888"),
+      ("http", "0:0:0:0:2001:db8:beef:28", 8888, "http://[::2001:db8:beef:28]:8888"),
+      ("http", "0000:0000:0000:0000:2001:0db8:beef:0028", 8888, "http://[::2001:db8:beef:28]:8888"),
+      ("http", "2001:db8:beef:28::", 8888, "http://[2001:db8:beef:28::]:8888"),
+      ("http", "2001:db8:beef:28::", 8888, "http://[2001:db8:beef:28:0:0:0:0]:8888"),
+      ("http", "2001:db8:beef:28::", 8888, "http://[2001:0db8:beef:0028:0000:0000:0000:0000]:8888"),
+      ("http", "2001:db8:beef:28:0:0:0:0", 8888, "http://[2001:db8:beef:28::]:8888"),
+      ("http", "2001:0db8:beef:0028:0000:0000:0000:0000", 8888, "http://[2001:db8:beef:28::]:8888"),
+      ("https", "2001:db8::beef:28", 8888, "https://[2001:db8::beef:28]:8888"),
+      // IPv6, default port should be supported (none specified)
+      ("http", "2001:db8::beef:28", -1, "http://[2001:db8::beef:28]"),
+      ("http", "2001:db8:beef:28::", -1, "http://[2001:db8:beef:28::]"),
+      ("http", "::2001:db8:beef:28", -1, "http://[::2001:db8:beef:28]"),
+      ("http", "2001:db8:0:0:0:0:beef:28", -1, "http://[2001:db8:0:0:0:0:beef:28]"),
+      ("http", "2001:0db8:0000:0000:0000:0000:beef:0028", -1, "http://[2001:0db8:0000:0000:0000:0000:beef:0028]"),
+      ("https", "2001:db8::beef:28", -1, "https://[2001:db8::beef:28]"),
+      ("https", "2001:db8:beef:28::", -1, "https://[2001:db8:beef:28::]"),
+      ("https", "::2001:db8:beef:28", -1, "https://[::2001:db8:beef:28]"),
+      ("https", "2001:db8:0:0:0:0:beef:28", -1, "https://[2001:db8:0:0:0:0:beef:28]"),
+      ("https", "2001:0db8:0000:0000:0000:0000:beef:0028", -1, "https://[2001:0db8:0000:0000:0000:0000:beef:0028]"),
+      // IPv6, default port should be supported (none specified, colon in the origin)
+      ("http", "2001:db8::beef:28", -1, "http://[2001:db8::beef:28]:"),
+      ("http", "2001:db8:beef:28::", -1, "http://[2001:db8:beef:28::]:"),
+      ("http", "::2001:db8:beef:28", -1, "http://[::2001:db8:beef:28]:"),
+      ("http", "2001:db8:0:0:0:0:beef:28", -1, "http://[2001:db8:0:0:0:0:beef:28]:"),
+      ("http", "2001:0db8:0000:0000:0000:0000:beef:0028", -1, "http://[2001:0db8:0000:0000:0000:0000:beef:0028]:"),
+      ("https", "2001:db8::beef:28", -1, "https://[2001:db8::beef:28]:"),
+      ("https", "2001:db8:beef:28::", -1, "https://[2001:db8:beef:28::]:"),
+      ("https", "::2001:db8:beef:28", -1, "https://[::2001:db8:beef:28]:"),
+      ("https", "2001:db8:0:0:0:0:beef:28", -1, "https://[2001:db8:0:0:0:0:beef:28]:"),
+      ("https", "2001:0db8:0000:0000:0000:0000:beef:0028", -1, "https://[2001:0db8:0000:0000:0000:0000:beef:0028]:"),
+      // IPv6, default port should be supported (specified in one but not the other)
+      ("http", "2001:db8::beef:28", 80, "http://[2001:db8::beef:28]"),
+      ("http", "2001:db8::beef:28", -1, "http://[2001:db8::beef:28]:80"),
+      ("https", "2001:db8::beef:28", 443, "https://[2001:db8::beef:28]"),
+      ("https", "2001:db8::beef:28", -1, "https://[2001:db8::beef:28]:443")
+    ) foreach { case (scheme, serverName, port, origin) =>
+      it(s"should return same-origin result when Origin '$origin' matches the scheme '$scheme', serverName '$serverName', and port '$port'") {
+        servletRequest.setScheme(scheme)
+        servletRequest.setServerName(serverName)
+        servletRequest.setServerPort(port)
+        servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
+
+        corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest
+      }
+
+      val forwardedPort = if (port != -1) s":$port" else ""
+      val forwardedHost = if (serverName.contains(":")) s"[$serverName]$forwardedPort" else s"$serverName$forwardedPort"
+      it(s"should return same-origin result when Origin '$origin' matches the scheme '$scheme' and forwardedHost '$forwardedHost'") {
+        servletRequest.setScheme(scheme)
+        servletRequest.setServerName(null)
+        servletRequest.setServerPort(-1)
+        servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, forwardedHost)
+        servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
+
+        corsFilter.determineRequestType(servletRequest) shouldBe NonCorsRequest
+      }
+    }
+
+    List(
+      // different subdomains are considered different origins
+      ("http", "www.zombo.com", 4242, "http://zombo.com:4242"),
+      ("http", "subdomain.zombo.com", 4242, "http://zombo.com:4242"),
+      ("http", "dfw.zombo.com", 4242, "http://lon.zombo.com:4242"),
+      ("https", "www.zombo.com", 4242, "https://zombo.com:4242"),
+      ("https", "subdomain.zombo.com", 4242, "https://zombo.com:4242"),
+      ("https", "dfw.zombo.com", 4242, "https://lon.zombo.com:4242"),
+      // different ports are considered different origins
+      ("http", "zombo.com", 1111, "http://zombo.com:2222"),
+      ("http", "zombo.com", -1, "http://zombo.com:3333"),
+      ("http", "zombo.com", -1, "http://zombo.com:443"),
+      ("https", "zombo.com", 1111, "https://zombo.com:2222"),
+      ("https", "zombo.com", -1, "https://zombo.com:3333"),
+      ("https", "zombo.com", -1, "https://zombo.com:80"),
+      // different host names and TLDs are considered different origins
+      ("http", "limited.com", 4242, "http://zombo.com:4242"),
+      ("http", "zombo.org", 4242, "http://zombo.com:4242"),
+      ("https", "limited.com", 4242, "https://zombo.com:4242"),
+      ("https", "zombo.org", 4242, "https://zombo.com:4242"),
+      // different schemes are considered different origins
+      ("http", "zombo.com", 4242, "https://zombo.com:4242"),
+      ("https", "zombo.com", 4242, "http://zombo.com:4242")
+    ) foreach { case (scheme, serverName, port, origin) =>
+      it(s"should return CORS result when Origin '$origin' does not match the scheme '$scheme', serverName '$serverName', or port '$port'") {
+        servletRequest.setScheme(scheme)
+        servletRequest.setServerName(serverName)
+        servletRequest.setServerPort(port)
+        servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
+
+        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin)
+      }
+
+      val forwardedPort = if (port != -1) s":$port" else ""
+      val forwardedHost = if (serverName.contains(":")) s"[$serverName]$forwardedPort" else s"$serverName$forwardedPort"
+      it(s"should return CORS result when Origin '$origin' does not match the scheme '$scheme' and forwardedHost '$forwardedHost'") {
+        servletRequest.setScheme(scheme)
+        servletRequest.setServerName(null)
+        servletRequest.setServerPort(-1)
+        servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, forwardedHost)
+        servletRequest.addHeader(CorsHttpHeader.ORIGIN, origin)
+
+        corsFilter.determineRequestType(servletRequest) shouldBe ActualCorsRequest(origin)
       }
     }
   }
@@ -695,4 +992,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
 object CorsFilterTest {
   implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
+
+  implicit def autoRequestWrapper(request: MockHttpServletRequest): HttpServletRequestWrapper =
+    new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest])
 }

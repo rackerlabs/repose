@@ -20,6 +20,7 @@
 package features.filters.cors
 
 import framework.ReposeValveTest
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CorsHttpHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Header
@@ -30,6 +31,22 @@ import spock.lang.Unroll
 import javax.servlet.http.HttpServletResponse
 
 class CorsFilterBasicTest extends ReposeValveTest {
+
+    // The CORS filter will add all of the current response headers to the 'Access-Control-Expose-Headers' list, but this
+    // leaves out the list of response headers added after the CORS filter processes the response. Some of these headers
+    // will be hard-coded to always be added because of this (e.g. Content-Length), and some of these headers will not
+    // be added since they aren't really needed by the client. This is the list of headers that we will not expect to be
+    // in the list. If a new response header is added in the future that causes the relevant test to fail, it should
+    // either be added to the list of headers we always add in the CorsFilter if the client might need it, or it should
+    // be added here if we think the client will not need the contents of the header. The client receives the header
+    // either way, but the origin JavaScript would be forbidden from reading the contents of the header in a CORS request.
+    static final List<String> UNNECESSARY_HEADERS = [
+            CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS,
+            CommonHttpHeader.SERVER,
+            CommonHttpHeader.TRACE_GUID,
+            CommonHttpHeader.VARY,
+            CommonHttpHeader.VIA]*.toString()*.toLowerCase()
+
     def setupSpec() {
         reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
@@ -155,9 +172,11 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                                   ["/", "/status"],
-                                   ["http://test.forbidden.com", "http://test.home.site:80"]].combinations()
+        [method, path, origin] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                 ["/", "/status"],
+                 ["http://test.forbidden.com", "http://test.home.site:80", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"]]
+                        .combinations()
     }
 
     @Unroll
@@ -181,9 +200,11 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, path, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                                   ["/", "/status"],
-                                   ["http://test.forbidden.com", "http://test.home.site:80"]].combinations()
+        [method, path, origin] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                 ["/", "/status"],
+                 ["http://test.forbidden.com", "http://test.home.site:80", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"]]
+                        .combinations()
     }
 
     @Unroll
@@ -219,8 +240,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, origin] << [["PUT", "POST", "GET", "HEAD"],
-                             ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
+        [method, origin] <<
+                [["PUT", "POST", "GET", "HEAD"],
+                ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
     }
 
     @Unroll
@@ -256,8 +278,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                             ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
+        [method, origin] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
     }
 
     @Unroll
@@ -290,6 +313,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         and: "all of the special headers from the origin service are added to the list of values in the 'Access-Control-Expose-Headers' header"
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).size() == 1
         mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).tokenize(',').containsAll(responseHeaders)
+
+        and: "all of the response headers are in the 'Access-Control-Expose-Headers' header with a few exceptions"
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).toLowerCase().tokenize(',').sort() ==
+                mc.receivedResponse.headers.names.toList()*.toLowerCase().sort().unique() - UNNECESSARY_HEADERS
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -327,8 +354,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         where:
-        [method, origin] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                             ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
+        [method, origin] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                ['http://openrepose.com:80', "http://test.repose.site:80"]].combinations()
     }
 
     @Unroll
@@ -444,8 +472,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
         where:
-        [method, requestHeaders] << [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
-                                     ['x-auth-token', 'x-ponies', 'cookie']].combinations()
+        [method, requestHeaders] <<
+                [["GET", "HEAD", "PUT", "POST", "PATCH", "DELETE"],
+                ['x-auth-token', 'x-ponies', 'cookie']].combinations()
     }
 
     @Unroll

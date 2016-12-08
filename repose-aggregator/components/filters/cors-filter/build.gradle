@@ -2,6 +2,7 @@ dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.scala-lang:scala-library"
+    compile "com.google.guava:guava"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
     provided "javax.servlet:javax.servlet-api"
