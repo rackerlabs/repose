@@ -62,6 +62,8 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *    b. 0
        *
        * 5. Remove the flush output filter
+       *
+       * 6. Extract common XML types (e.g., keystore configuration).
        */
     }
   }
