@@ -1,3 +1,58 @@
 = Style Guide
 
 include::_includes/in-progress.adoc[]
+
+== One Sentence Per Line
+Don’t wrap text at a fixed column width.
+Instead, put each sentence on its own line, a technique called sentence per line.
+This technique is similar to how you write and organize source code.
+The result can be spectacular.
+
+Here are some of the advantages of using the sentence per line style:
+
+* It prevents reflows (meaning a change early in the paragraph won’t cause the remaining lines in the paragraph to reposition).
+* You can easily swap sentences.
+* You can easily separate or join paragraphs.
+* You can comment out sentences or add commentary to them.
+* You can spot sentences which are too long or sentences that vary widely in length.
+* You can spot redundant (and thus mundane) patterns in your writing.
+
+We picked up this idea from the writing guide in the Neo4j documentation.
+However, it seems like the idea dates back a discovery by Buckminster Fuller in the 1930s, who called it ventilated prose.
+The technique was also recommended in 2009 by Brandon Rhodes in a blog post about Semantic Linefeeds.
+
+It’s important to note that this technique works because AsciiDoc doesn’t treat wrapped lines in prose as hard line breaks.
+At least, it doesn’t show up that way to the reader.
+The line breaks between contiguous lines of prose will not be visible in the rendered document (i.e., as the reader sees it).
+
+[NOTE]
+====
+While line breaks don’t appear in the output, a blank line introduces a new paragraph. Use paragraphs to structure your text and don’t make them too large.
+====
+
+== Section Titles
+Section titles should be defined using Atx-style.
+
+In the Atx-style, the section title is defined on a single line.
+The section title begins with one or more equal characters (i.e., `=`) followed by a space and the section title.
+The number of leading characters representing the depth.
+The top-level section is reserved for the document title, so the first section in the document will have two leading characters.
+
+....
+== First Section
+....
+
+Of the supported section title styles, this style requires the least number of characters, and it’s intuitive since the number of leading characters represents the heading level.
+
+== Lists
+Use `*` to define lists rather than `-`.
+Nesting in lists will correspond to the number of leading asterisks.
+
+....
+* first
+** nested item
+* second
+....
+
+== Citations
+* http://asciidoctor.org/docs/asciidoc-recommended-practices/[AsciiDoc Recommended Practices]

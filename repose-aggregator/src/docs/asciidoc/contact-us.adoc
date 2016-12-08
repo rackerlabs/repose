@@ -1,19 +1,13 @@
 = Contact Us
-:toc:
-
-include::_includes/in-progress.adoc[]
 
 There are multiple ways of getting in contact with the team.
 
 == Chat
 _Actively monitored_
 
-* Using an IRC client, connect to Freenode (at irc.freenode.net:6667) and join
-  the #repose channel to ask a question.
-* (Rackspace internal) Join the repose channel on internal Slack:
-  https://rackspace.slack.com
-* Send an e-mail and we can invite you to our public Slack:
-  https://openrepose.slack.com/
+* Using an IRC client, connect to Freenode (at irc.freenode.net:6667) and join the #repose channel to ask a question.
+* (Rackspace internal) Join the repose channel on internal Slack: https://rackspace.slack.com
+* Send an e-mail and we can invite you to our public Slack: https://openrepose.slack.com/
 
 == E-Mail
 _Actively monitored_
@@ -23,9 +17,8 @@ _Actively monitored_
 == Web
 _Responses may be delayed_
 
-* Check out our https://repose.atlassian.net/wiki/questions?src=header[Atlassian Questions] page
+* Check out our https://repose.atlassian.net/wiki/questions[Atlassian Questions] page
 
 == {blank}
 
-The Software Development Manager for the Repose team is Kari Davis and she can
-be reached directly at: Kari.Davis@Rackspace.com
+The Software Development Manager for the Repose team is Kari Davis and she can be reached directly at: Kari.Davis@Rackspace.com

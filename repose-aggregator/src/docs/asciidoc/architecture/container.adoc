@@ -1,0 +1,264 @@
+= Container
+
+The container configuration is required to set up Repose.
+It is used to tell the system where to look for component artifacts and where to deploy them.
+
+== Configuration
+The following example shows a basic configuration for the Container file.
+
+[source,xml]
+.container.cfg.xml - Default
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+    <deployment-config>
+        <deployment-directory auto-clean="false">/var/repose</deployment-directory>
+        <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
+        <logging-configuration href="file:///etc/repose/log4j2.xml"/>
+    </deployment-config>
+</repose-container>
+----
+
+=== link:../schemas/container-configuration.xsd[Schema]
+
+== Cluster Specific Container Configuration
+A user may configure different values for different Repose clusters.
+This is achieved by including one or more `cluster-config` elements which map to clusters in the system-model.
+All configuration within a `cluster-config` element is optional.
+When configuration is present, it will override the base configuration (i.e., the `deployment-config` element) values.
+This functionality may be referred to as _"container configuration patching"_ or simply as _"patching"_.
+
+When discussing patches, one might notice that there is ambiguity in the rules for how patches are applied.
+Below is a list of common ambiguities, and how they are handled in this context:
+
+* Is there any way to _"patch out"_ or remove some configuration that is in the `deployment-config` element?
+** Generally speaking, no.
+   The applied patch will only override existing values.
+   There is no way to designate that some configuration should be removed.
+   However, there is a case where configuration may technically be removed – collections.
+   See the next bullet for more details.
+* How are collections (i.e., _all_ and _sequence_ XSD elements, _list_ attributes) patched?
+  Are elements in the patch collection added to the base collection?
+  Does the patch collection replace the base collection?
+** Patching will treat collections as a single unit, and so configuring a collection in the `cluster-config` (e.g., `included-protocols` for SSL) will result in that cluster using the _"patched"_ collection.
+   It will not use anything configured in the `deployment-config` element.
+   Items in collections are not combined.
+
+[NOTE]
+====
+Not all configuration is currently patchable.
+Some values (e.g., the `deployment-directory`) cannot be overridden due to internal system constraints.
+The table below shows exactly what can and cannot be patched at this time.
+====
+
+== User-Supplied Logging Configuration
+There are two steps to supply a logging configuration for Repose:
+
+. Add a log configuration file to the Repose configuration files directory (e.g. `/etc/repose`).
+. Specify the name of the log configuration file in the `container.cfg.xml` file.
+  It should look like the following example.
+
+[source,xml]
+.container.cfg.xml - Logging
+----
+<logging-configuration href="file:///etc/repose/log4j2.xml"/>
+----
+
+== Default Logging Configuration
+If a user-supplied logging configuration file is not found, Repose programmatically sets default log4j properties.
+This default properties add a
+http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/ConsoleAppender.html[ConsoleAppender]
+to the ROOT logger.
+The output will be formatted using a
+http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html[PatternLayout]
+set to the pattern `%d %-4r [%t] %-5p %c - %m%n`.
+The default log level is set to DEBUG.
+
+== SSL/TLS Client Authentication
+SSL/TLS Client Authentication is being used more and more for communications between different enclaves.
+This addition to the SSL/TLS handshake involves the Client presenting credentials to the Server in the same manner as the Server does to the Client.
+If the credentials presented by the Client are not trusted, then the Server will sever the connection just as the Client would have if the situation was reversed.
+Since a Client initiates contact with the Server, the Server's credentials are simply to validate it is who the Client was trying to contact.
+This is accomplished through Certificate Authorities (CA) and the Trust Hierarchies built into the Public Key Infrastructure (PKI).
+Even though you can optionally add a particular Server's credentials directly into a Client so that it will implicitly trust a particular Server essentially bypassing the distributed trust mechanism in favor of a more direct one, this is the only way to build a relationship for a Client to a Server.
+
+To require SSL/TLS Client Authentication, set the `need-client-auth` attribute to _True_.
+With this setting enabled, only Clients that have a Public Key imported into the trust store referenced by the `truststore-filename` element will be allowed to connect.
+The truststore is a
+https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeystoreImplementation[Java Keystore]
+that can be created/updated using the command line tool named aptly enough,
+https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html[keytool].
+Below is an example of importing a Client certificate (`client.crt`) into a truststore (`truststore.jks`):
+
+[source,bash]
+.keytool
+----
+keytool -import -file client.crt -alias client -keystore truststore.jks
+----
+
+[NOTE]
+====
+This will update the keystore if it exists or create a new one if it doesn't.
+The tool will also prompt for a password.
+The password will be used to access an existing file or set as the password on a new one.
+====
+
+To use the truststore created/updated in the example above, the following would need to be added/updated in the container.cfg.xml file:
+
+[source,xml]
+.container.cfg.xml - Truststore
+----
+<ssl-configuration need-client-auth="true">
+    <truststore-filename>truststore.jks</truststore-filename>
+    <truststore-password>password</truststore-password>
+----
+
+For more details, see:
+
+* http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html#loading-keys-and-certificates
+* https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html
+* https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeystoreImplementation
+
+== Proxy (Valve) Configuration of SSL/TLS Certificates
+Repose Valve is based on Jetty and uses its services for SSL/TLS.
+
+To make the Repose Proxy Server deployment option work with origin SSL/TLS requests:
+
+. http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html[Generate keys and certificates].
+. http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html#loading-keys-and-certificates[Load the keys and certificates into a keystore file].
+. Place the keystore file in your Repose configuration root directory.
+. Place the keystore information in your `container.cfg.xml` file.
+. Place the desired HTTPS port in your `system-model.cfg.xml` file.
+  See <<system-model.adoc#,System Model>> for more details.
+
+Keystore information is located within the `<ssl-configuration>` element as shown in the following example.
+
+[source,xml]
+.container.cfg.xml - SSL/TLS Certificates
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+    <deployment-config>
+        <deployment-directory auto-clean="false">/var/repose</deployment-directory>
+        <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
+        <logging-configuration href="log4j2.xml"/>
+        <ssl-configuration>
+            <keystore-filename>keystore.repose</keystore-filename>
+            <keystore-password>manage</keystore-password>
+            <key-password>password</key-password>
+        </ssl-configuration>
+    </deployment-config>
+</repose-container>
+----
+
+== Whitelisting and Blacklisting Ciphers and Protocols
+[WARNING]
+====
+Since security is a constantly moving target, any recommended configuration would quickly become out of date.
+A risk assessment should always be performed by the appropriately qualified people for your organization.
+Links to industry-standard references are provided in the SSL References section below.
+====
+
+Repose supports whitelisting and blacklisting specific protocols and ciphers by exposing portions of the Jetty's configuration via the `container.cfg.xml` file.
+You can use this feature if a specific protocol or cipher has been compromised and you want to block its usage and secure Repose.
+
+In the following example, the container configuration includes TLS v1.2 and TLS ciphers and excludes SSLv3 and SSL protocols.
+
+[source,xml]
+.container.cfg.xml - Protocols and ciphers
+----
+<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+    <deployment-config>
+       <deployment-directory auto-clean="false">/var/repose</deployment-directory>
+       <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
+       <logging-configuration href="file:///etc/repose/log4j2.xml"/>
+       <ssl-configuration>
+          <keystore-filename>keystore.jks</keystore-filename>
+          <keystore-password>password</keystore-password>
+          <key-password>password</key-password>
+          <included-ciphers>
+              <cipher>.*TLS.*</cipher>
+          </included-ciphers>
+          <excluded-ciphers>
+              <cipher>.*SSL.*</cipher>
+          </excluded-ciphers>
+          <excluded-protocols>
+               <protocol>SSLv3</protocol>
+          </excluded-protocols>
+          <included-protocols>
+              <protocol>TLSv1.2</protocol>
+          </included-protocols>
+          <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
+      </ssl-configuration>
+    </deployment-config>
+</repose-container>
+----
+
+[NOTE]
+====
+You need to specify your keystore in the container configuration just as you would in Jetty.
+====
+
+== Diffie-Hellman Security Risk and Key Size
+Certain attacks (such as Logjam) leverage the weakness of "small" Diffie-Hellman (DH) keys.
+To mitigate the risk of such attackers, users may either exclude vulnerable ciphers, or lengthen the DH keys used by Repose.
+Instructions for the former are above.
+For the latter, note the following:
+
+[quote, Java Secure Socket Extension (JSSE) Reference Guide]
+____
+Diffie-Hellman (DH) keys of sizes less than 1024 bits have been deprecated because of their insufficient strength.
+In JDK 8, you can customize the ephemeral DH key size with the system property jdk.tls.ephemeralDHKeySize.
+____
+
+In other words, the Java option `-Djdk.tls.ephemeralDHKeySize=2048` can be passed when starting Repose to force the use of longer DH keys.
+
+For more details, see https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#customizing_dh_keys[Customizing DH Keys].
+
+== SSL/TLS References
+For more information about cipher suites and which ones to dis/allow when setting up Repose, see the following references:
+
+* http://security.stackexchange.com/questions/76993/now-that-it-is-2015-what-ssl-tls-cipher-suites-should-be-used-in-a-high-securit
+* https://www.ssllabs.com/
+* https://wiki.eclipse.org/Jetty/Howto/CipherSuites#Enabling_Cipher_Suites
+* https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet
+* https://cipherli.st/
+
+== Available Ciphers and Protocols
+The list of available ciphers and protocols varies depending on the JVM.
+We have added a command line option to Repose Valve to display the available and default enabled ciphers and protocols:
+
+[source,bash]
+.Show SSL Params
+----
+java -jar /usr/share/repose/repose-valve.jar --show-ssl-params
+----
+
+This will dump a list of the default enabled SSL/TLS parameters for the JVM you're using.
+Additionally, it will list all available ciphers and protocols, should you wish to use one of those.
+
+== Running in Insecure Mode
+[WARNING]
+====
+This mode should only be used during development testing.
+These settings are NOT intended for a production environment.
+====
+
+When running in insecure mode, Repose will accept all certificates from external services with which it communicates (e.g. authentication service, origin service).
+
+=== Valve
+When running the Valve deployment, Repose may be placed in insecure mode by passing in the `-k` option as follows:
+[source,bash]
+.Insecure Mode - Valve
+----
+java -jar /usr/share/repose/repose-valve.jar -c /etc/repose -k
+----
+
+=== ROOT.war
+When running the ROOT.war deployment, Repose may be placed in insecure mode by passing in the following system property:
+
+[source,bash]
+.Insecure Mode - ROOT.war
+----
+-Dinsecure=true
+----

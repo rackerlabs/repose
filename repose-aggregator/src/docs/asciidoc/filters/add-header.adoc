@@ -1,84 +1,107 @@
 = Add Header Filter
-:toc:
 
 include::../_includes/in-progress.adoc[]
 
 The Add Header filter adds configured headers to a request and/or response.
-You can use the filter to add new headers with specific values to a request
-chain, and it can also replace (i.e. remove any existing headers with the
-configured name) headers.
+You can use the filter to add new headers with specific values to a request chain, and it can also replace (i.e. remove any existing headers with the configured name) headers.
 
-== General Filter Information
+== General filter information
+* *Name:* add-header
+* *Default Configuration:* add-header.cfg.xml
+* *Released:* v6.2.2.0
+* *Bundle:* repose-filter-bundle
+* link:../schemas/add-header.xsd[Schema]
 
-=== Identification
-[%hardbreaks]
-*Filter Name:* add-header
-*Default Configuration Filename:* add-header.cfg.xml
-
-=== Input
+== Prerequisites & Postconditions
+=== Required headers
 None.
 
-=== Output
-Varies based on configuration.
+=== Required preceding filters
+This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
 
-== Configuration
+=== Request headers created
+Changes to request headers vary based on configuration.
 
+=== Request body changes
+This filter does not modify the request body.
+
+=== Recommended follow-on (succeeding) filters
+This filter is not it strictly required by any other filters.
+
+=== Response body changes
+This filter does not modify the response body.
+
+=== Response headers created
+Changes to response headers vary based on configuration.
+
+=== Response Status Codes
+This filter does not modify the response code.
+
+== Examples
 === Add a New Request Header
-This configuration will add a `foo` header to the request with a value of
-`bar`. Any existing headers with the same name *will not* be removed, and
-the quality of the `bar` value will be set to 0.5.
+This configuration will add a `foo` header to the request with a value of `bar` and a quality of `0.5`.
+Any existing headers with the same name *will not* be removed.
 
 [source,xml]
+.add-header.cfg.xml
 ----
 <add-headers xmlns="http://docs.openrepose.org/repose/add-header/v1.0">
-    <request>
-        <header name="foo"
-                overwrite="false"
-                quality="0.5">
-            bar
+    <request> <!--1-->
+        <header name="foo" <!--2-->
+                overwrite="false" <!--3-->
+                quality="0.5"> <!--4-->
+            bar <!--5-->
         </header>
     </request>
 </add-headers>
 ----
+<1> Specifies that a header should be added to the `request`.
+<2> Specifies the name of the header to add as `foo`.
+<3> Specifies that the value defined here will not overwrite any existing values for the `foo` header.
+<4> Specifies that the header quality (i.e., the `;q=n.n` part of the header value) will be set to `0.5`.
+<5> Specifies the value of the `foo` header to be `bar`.
 
 === Replace a Response Header
-This configuration will add a `foo` header to the response with a value of
-`bar`. Any existing headers with the same name *will* be removed, and
-the quality of the `bar` value will be set to 0.5.
+This configuration will add a `foo` header to the response with a value of `bar` and a quality of `0.5`.
+Any existing headers with the same name *will* be removed.
 
 [source,xml]
+.add-header.cfg.xml
 ----
 <add-headers xmlns="http://docs.openrepose.org/repose/add-header/v1.0">
-    <response>
-        <header name="foo"
-                overwrite="true"
-                quality="0.5">
-            bar
+    <response> <!--1-->
+        <header name="foo" <!--2-->
+                overwrite="true" <!--3-->
+                quality="0.5"> <!--4-->
+            bar <!--5-->
         </header>
     </response>
 </add-headers>
 ----
+<1> Specifies that a header should be added to the `response`.
+<2> Specifies the name of the header to add as `foo`.
+<3> Specifies that the value defined here will overwrite any existing values for the `foo` header.
+<4> Specifies that the header quality (i.e., the `;q=n.n` part of the header value) will be set to `0.5`.
+<5> Specifies the value of the `foo` header to be `bar`.
 
-=== Modify the Request and Response
-This configuration will add a `foo` header to the request with a value of
-`bar`. Any existing request headers with the same name *will* be removed,
-and the quality of the `bar` value will be set to 0.8.
-
-It will also add a `baz` header to the response with a value of
-`qux`. Any existing response headers with the same name *will not* be removed,
-and the quality of the `qux` value will be set to `0.4`.
+=== Replace a Request Header and Add a Response Header
+This configuration will add a `foo` header to the request with a value of `bar` and a quality of `0.8`.
+Any existing request headers with the same name *will* be removed.
+It will also add a `baz` header to the response with a value of `qux` and a quality of `0.4`.
+Any existing response headers with the same name *will not* be removed.
 
 [source,xml]
+.add-header.cfg.xml
 ----
 <add-headers xmlns="http://docs.openrepose.org/repose/add-header/v1.0">
-    <request>
-        <header name="foo"
-                overwrite="true"
-                quality="0.8">
-            bar
+    <request> <!--1-->
+        <header name="foo" <!--2-->
+                overwrite="true" <!--3-->
+                quality="0.8"> <!--4-->
+            bar <!--5-->
         </header>
     </request>
-    <response>
+    <response> <!--6-->
         <header name="baz"
                 overwrite="false"
                 quality="0.4">
@@ -87,10 +110,9 @@ and the quality of the `qux` value will be set to `0.4`.
     </response>
 </add-headers>
 ----
-
-=== Schema
-
-[source,xml]
-----
-include::../../../../components/filters/add-header-filter/src/main/resources/META-INF/schema/config/add-header.xsd[]
-----
+<1> Specifies that a header should be added to the `request`.
+<2> Specifies the name of the header to add as `foo`.
+<3> Specifies that the value defined here will overwrite any existing values for the `foo` header.
+<4> Specifies that the header quality (i.e., the `;q=n.n` part of the header value) will be set to `0.8`.
+<5> Specifies the value of the `foo` header to be `bar`.
+<6> Specifies that a header should be added to the response.

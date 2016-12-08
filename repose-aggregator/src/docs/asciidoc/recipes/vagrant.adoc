@@ -1,0 +1,125 @@
+= Vagrant
+
+== Overview
+If you need a quick Linux environment setup to test or evaluate Repose, https://www.vagrantup.com/[Vagrant] makes it easy to create a new virtual machine with the https://atlas.hashicorp.com/boxes/search[Linux distribution of your choice] installed.
+
+== Installation
+=== VirtualBox
+Vagrant needs a virtual machine provider such as VirtualBox.
+https://www.virtualbox.org/[VirtualBox] can be installed on a variety of operating systems.
+Check out the https://www.virtualbox.org/wiki/Downloads[VirtualBox Downloads] page and install the binary for your operating system.
+
+=== Vagrant
+Check out the https://www.vagrantup.com/downloads.html[Vagrant Downloads] page and install the package for your operating system.
+
+=== Vagrant Plugins
+It is extremely useful to install the Vagrant plugin for the VirtualBox Guest Additions.
+To do so, run:
+
+[source,bash]
+----
+vagrant plugin install vagrant-vbguest
+----
+
+== Which way? Build Environment OR Manual?
+From here you can either install a few more tools and use the automated build environment that the Repose team uses to verify a release, or you can manually set up your environment.
+
+=== Build Environment
+==== Install Git
+Check out the https://git-scm.com/downloads[Git Downloads] page and install the package for your operating system.
+
+==== Run the Sandbox
+To start the Vagrant sandbox using the build environment, you will need to clone the repository and then run execute build task with the desired properties.
+Once the sandbox is running, the environment can be accessed directly by running the `vagrant ssh` command from the directory containing the Vagrantfile.
+
+[source,bash]
+.Sandbox Instantiation
+----
+git clone https://github.com/rackerlabs/repose.git
+export REPOSE_HOME=$(pwd)/repose
+cd ${REPOSE_HOME}
+gradlew :repose-aggregator:tests:release-verification:vagrantUp[Deb|Rpm]
+cd ${REPOSE_HOME}/repose-aggregator/tests/release-verification/src/vagrant/[deb|rpm]
+vagrant ssh
+----
+
+To access the Repose instance from the guest, simply send a request to the configured port of 8080.
+
+The Vagrant guest VM's also attempt to expose ports for both the Repose instance and Java Debug Wire Protocol (JDWP).
+For Debian/Apt VM's these are 18088 & 18038 respectively and for RHEL/RPM VM's 18089 & 18039.
+To access the Repose instance from the host simply send a request to the exposed port.
+Similarly, to debug the Repose instance, connect a remote debugger to the JDWP port.
+
+=== Manual
+==== VM Setup
+Now you're ready to use Vagrant to create a new virtual machine instance with a Linux distro installed.
+Repose has been tested on Ubuntu and CentOS.
+Setup instructions are provided for both.
+For additional information on Vagrant commands, check out the Vagrant Docs for the https://docs.vagrantup.com/v2/cli/index.html[Command-Line Interface].
+
+[source,bash]
+.Debian
+----
+# create a new directory to hold some of your VM files
+mkdir repose-vm
+cd repose-vm
+
+# create a new virtual machine and start it (VM will be downloaded if first time)
+vagrant init ubuntu/xenial64; vagrant up --provider virtualbox
+
+# ssh into your new virtual machine
+vagrant ssh
+----
+
+[source,bash]
+.CentOS
+----
+# create a new directory to hold some of your VM files
+mkdir repose-vm
+cd repose-vm
+
+# create a new virtual machine and start it (VM will be downloaded if first time)
+vagrant init centos/7; vagrant up --provider virtualbox
+
+# ssh into your new virtual machine
+vagrant ssh
+----
+
+=== Clean Up
+When you're done with your virtual machine instance, use these instructions to clean up your resources.
+
+==== Saving your work
+If you want to save any config files you created or the Repose logs, you can copy them to the `/vagrant` directory which for most instances is a shared mount between the Guest VM and Host OS where the Vagrantfile is located.
+In the manual example above, it would be the `repose-vm` directory.
+
+[source,bash]
+.Inside of your VM:
+----
+# copy your system model config to the shared directory
+sudo cp /etc/repose/system-model.cfg.xml /vagrant
+
+# here you should copy any other relevant configs as well
+
+# copy your log files
+sudo cp /var/log/repose/current.log /vagrant
+
+# shutdown the box
+sudo shutdown -h 0
+----
+
+==== Delete VM instance
+[source,bash]
+.Outside of your VM (i.e. in your host OS):
+----
+# make sure you're in the same directory as the Vagrant file
+cd ${REPOSE_HOME}/repose-aggregator/tests/release-verification/src/vagrant/[deb|rpm]
+# OR
+cd repose-vm
+
+# destroy the virtual machine (freeing up disk space)
+vagrant destroy -f
+
+# IF you manually created the Vagrantfile using vagrant init,
+# THEN remove it as well.
+rm -f Vagrantfile
+----

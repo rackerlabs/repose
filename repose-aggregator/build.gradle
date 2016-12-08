@@ -7,12 +7,26 @@ dependencies {
     asciidoctor 'org.asciidoctor:asciidoctorj-diagram'
 }
 
+task copyXsds(type: Copy) {
+    // Copy the Repose Core configuration schemas.
+    from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/container/container-configuration.xsd")
+    from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/metrics/metrics.xsd")
+    from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/system-model/system-model.xsd")
+
+    // Copy all filter and service configuration schemas.
+    from(fileTree("${project.projectDir}/components").include('**/src/main/resources/META-INF/schema/config/*.xsd').files)
+
+    // Place all schemas into a schemas directory.
+    into("${project.buildDir}/asciidoc/html5/schemas/")
+}
+
 asciidoctor {
     requires 'asciidoctor-diagram'
     attributes 'source-highlighter': 'coderay',
                'stylesdir': "${project.projectDir}/src/docs/asciidoc/_stylesheets",
                'stylesheet': 'repose.css',
-               'imagesoutdir': "${project.buildDir}/asciidoc/html5/images",
+               'toc': 'left',
+               'icons': 'font',
                'docinfo1': ''
 
     resources {
@@ -58,4 +72,5 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
 
 project.tasks.getByPath(':release').dependsOn publishDocs
 
+asciidoctor.dependsOn copyXsds
 build.dependsOn asciidoctor

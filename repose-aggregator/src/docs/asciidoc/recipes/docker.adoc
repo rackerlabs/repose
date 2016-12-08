@@ -1,120 +1,96 @@
 = Docker
-:toc:
 
-include::../_includes/in-progress.adoc[]
-
-With the advent of container technology, Repose can be fully encapsulated
-and run as a service. By bundling the environment with the software itself,
-deploying Repose becomes a much quicker, simpler process. Docker boasts
-security through isolation, and when run on platforms with native support,
-it requires very little overhead. To make everything as easy and versatile as
-possible, the Repose team will release Docker images on Docker Hub alongside
-every release of Repose.
+With the advent of container technology, Repose can be fully encapsulated and run as a service.
+By bundling the environment with the software itself, deploying Repose becomes a much quicker, simpler process.
+Docker boasts security through isolation, and when run on platforms with native support, it requires very little overhead.
+To make everything as easy and versatile as possible, the Repose team will release Docker images on Docker Hub alongside every release of Repose.
 
 == Docker
 To run Repose in Docker, there are just two basic steps:
 
 . Acquire a Repose Docker image.
-.. Download the Docker image. See: Docker Image
-.. Build the Docker image. See: Dockerfile
+.. Download the Docker image. See: <<Docker Image>>
+.. Build the Docker image. See: <<Dockerfile>>
 . Run the Repose Docker image in a Docker container. See: <<Docker Container>>
 
-To find out more about Docker, including how to install and operate it, visit
-the official Docker documentation at:
+To find out more about Docker, including how to install and operate it, visit the official Docker documentation at:
 
 https://docs.docker.com/
-
-== Dockerfile
-The Dockerfile used to build the Docker images has been copied below for the
-sake of convenience.
-
-----
-include::../../../../artifacts/docker/src/docker/Dockerfile[]
-----
-
-To modify and/or build a Repose Docker image from the Dockerfile, follow these
-steps:
-
-. Acquire a Repose Dockerfile.
-. *(Optional)* Modify the Dockerfile.
-. Run the following command to build the Dockerfile:
-+
-----
-docker build --build-args REPOSE_VERSION=9.9.9.9 -t my_repose_image /path/to/
-----
-+
-Let's break that command down and take a closer look at what it is doing:
-
-    * *docker build* - This is the part of the command that tells Docker to
-     build the image.
-    * *--build-args REPOSE_VERSION=9.9.9.9* - This option defines the version
-     of Repose that will be installed in the image. The REPOSE_VERSION key will
-     be given a value of 9.9.9.9 which can be used inside the Dockerfile. It
-     exists so that we can build Docker images for any version of Repose using
-     a single Dockerfile.
-    * *-t my_repose_image* - This option defines the tag (in repository:tag
-     format) to apply to the image.
-    * */path/to/* - This is the path to the Repose Dockerfile. The Dockerfile
-     itself must exist as a child of the provided directory. Note that this
-     directory will also be treated as the Docker build context.
-. If the Dockerfile was successfully built, a Docker image should be available
-  within Docker. Run the following command to show all available images:
-+
-----
-docker images
-----
 
 == Docker Image
 All official, published Docker images for Repose, can be found on Docker Hub at:
 
 https://hub.docker.com/r/rackerlabs/repose/
 
+== Dockerfile
+The Dockerfile used to build the Docker images has been copied below for the sake of convenience.
+
+----
+include::../../../../artifacts/docker/src/docker/Dockerfile[]
+----
+
+To modify and/or build a Repose Docker image from the Dockerfile, follow these steps:
+
+. Acquire a Repose Dockerfile.
+. *(Optional)* Modify the Dockerfile.
+. Run the following command to build the Dockerfile:
++
+----
+docker build --build-arg REPOSE_VERSION=9.9.9.9 -t my_repose_image /path/to/
+----
++
+Let's break that command down and take a closer look at what it is doing:
+
+    * *docker build* - This is the part of the command that tells Docker to build the image.
+    * *--build-args REPOSE_VERSION=9.9.9.9* - This option defines the version of Repose that will be installed in the image.
+    The REPOSE_VERSION key will be given a value of 9.9.9.9 which can be used inside the Dockerfile.
+    It exists so that we can build Docker images for any version of Repose using a single Dockerfile.
+    * *-t my_repose_image* - This option defines the tag (in repository:tag format) to apply to the image.
+    * */path/to/* - This is the path to the Repose Dockerfile.
+    The Dockerfile itself must exist as a child of the provided directory.
+    Note that this directory will also be treated as the Docker build context.
+. If the Dockerfile was successfully built, a Docker image should be available within Docker.
+Run the following command to show all available images:
++
+----
+docker images
+----
+
 == Docker Container
 
 === Running
-After you have acquired a Repose Docker image, you can run Repose by creating
-and starting a Docker container from that image. For example, the following
-command could be use:
+After you have acquired a Repose Docker image, you can run Repose by creating and starting a Docker container from that image.
+For example, the following command could be use:
 
 ----
-docker run -d -v /my/config/directory:/etc/repose -p 8080:8080 --name my_repose rackerlabs/repose:latest
+docker run                             \ <1>
+   -d                                  \ <2>
+   -v /my/config/directory:/etc/repose \ <3>
+   -p 8080:8080                        \ <4>
+   --name my_repose                    \ <5>
+   rackerlabs/repose:latest              <6>
 ----
-
 Let's break that command down and take a closer look at what it is doing:
 
-* *docker run* - This is the part of the command that tells Docker to create
-  and start a container.
-* *-d* - This flag will run the container in detached mode. In detached mode,
-  the container will run in the background. If we were to run in attached mode
-  (the default) instead of detached mode, the terminal we used to execute this
-  command would receive all of the output (i.e., STDIN, STDOUT, and STDERR)
-  from the container.
-* *-v /my/config/directory:/etc/repose* - This option defines a volume that is
-  mounted from the host (i.e., the OS running Docker) onto the Docker
-  container. The volume mapping format is HOST_DIRECTORY:CONTAINER_DIRECTORY,
-  so in this case, the contents of /my/config/directory on the host will be
-  visible within the /etc/repose directory in the container. This allows us
-  to modify configuration files without having to rebuild the Docker image or
-  restart the Docker container!
-* *-p 8080:8080* - This option defines a port mapping between the host
-  (i.e., the OS running Docker) and the Docker container. Doing so allows
-  Repose to accept traffic over the specified port from outside of Docker.
-  The port mapping format is HOST_PORT:CONTAINER_PORT, so in this case,
-  traffic on port 8080 of the host will be forwarded to port 8080 of the
-  container.
-* *--name my_repose* - This option names the container so that it's easier to
-  interact with.
-* *rackerlabs/repose:latest* - This is the image ID (in repository:tag format)
-  to create a container from. Remember that Repose images are hosted at Docker
-  Hub, which Docker can use implicitly.
+<1> This is the part of the command that tells Docker to create and start a container.
+<2> This flag will run the container in detached mode.
+    In detached mode, the container will run in the background.
+    If we were to run in attached mode (the default) instead of detached mode, the terminal we used to execute this command would receive all of the output (i.e., STDIN, STDOUT, and STDERR) from the container.
+<3> This option defines a volume that is mounted from the host (i.e., the OS running Docker) onto the Docker container.
+    The volume mapping format is HOST_DIRECTORY:CONTAINER_DIRECTORY, so in this case, the contents of /my/config/directory on the host will be visible within the /etc/repose directory in the container.
+    This allows us to modify configuration files without having to rebuild the Docker image or restart the Docker container!
+<4> This option defines a port mapping between the host (i.e., the OS running Docker) and the Docker container.
+    Doing so allows Repose to accept traffic over the specified port from outside of Docker.
+    The port mapping format is HOST_PORT:CONTAINER_PORT, so in this case, traffic on port 8080 of the host will be forwarded to port 8080 of the container.
+<5> This option names the container so that it's easier to interact with.
+<6> This is the image ID (in repository:tag format) to create a container from.
+    Remember that Repose images are hosted at Docker Hub, which Docker can use implicitly.
 
-Now if we wanted to, we could change the Docker options that define the
-environment that Repose will run in. If we wanted to forward the random ports
-instead of explicitly declaring the port mapping, we could drop the
-"-p 8080:8080" option and pass the "-P" flag instead.
+Now if we wanted to, we could change the Docker options that define the environment that Repose will run in.
+If we wanted to forward the random ports instead of explicitly declaring the port mapping, we could drop the `-p 8080:8080` option and pass the `-P` flag instead.
 
-After running that command, you should be able to see Repose running inside a
-Docker container! Use the following command to show all running containers:
+After running that command, you should be able to see Repose running inside a Docker container!
+Use the following command to show all running containers:
 
 ----
 docker ps
@@ -122,41 +98,29 @@ docker ps
 
 === Inspecting
 Once running, you may wish to inspect the internal state of the container.
-Well, the default command for the official Repose Docker images will run
-Repose in the foreground, and as a result, simply attaching to the container
-with a command like the following will only allow interaction with the Repose
-process:
+Well, the default command for the official Repose Docker images will run Repose in the foreground, and as a result, simply attaching to the container with a command like the following will only allow interaction with the Repose process:
 
 ----
 docker attach container_name_or_id
 ----
 
-Instead, you can use a command like the following to run a new bash session
-inside of your running container:
+Instead, you can use a command like the following to run a new bash session inside of your running container:
 
 ----
 docker exec -it container_name_or_id /bin/bash
 ----
 
 === Log Files
-If you need to access Repose log files, the recommended way of doing so would
-be to mount a Docker volume when starting the container using a command like
-the following:
+If you need to access Repose log files, the recommended way of doing so would be to mount a Docker volume when starting the container using a command like the following:
 
 ----
 docker run -d -v /my/config/directory:/etc/repose -v /var/log/repose:/var/log/repose -p 8080:8080 --name my_repose rackerlabs/repose:latest
 ----
 
 
-You will notice that this command is very similar to the command provided in
-the <<Running>> section, but with one more option:
-`-v /var/log/repose:/var/log/repose`. This option simply mounts the Repose log
-directory in the container to the same directory on the host.
-
-== How to Run Repose in Docker
-See: <<Docker Container>>
+You will notice that this command is very similar to the command provided in the <<Running>> section, but with one more option: `-v /var/log/repose:/var/log/repose`.
+This option simply mounts the Repose log directory in the container to the same directory on the host.
 
 == Notices
-Custom artifacts are not currently supported by our Docker images. If you
-would like to deploy custom code in Repose running in Docker, please
-<<../contact-us.adoc#,Contact Us>>!
+Custom artifacts are not currently supported by our Docker images.
+If you would like to deploy custom code in Repose running in Docker, please <<../contact-us.adoc#,Contact Us>>!

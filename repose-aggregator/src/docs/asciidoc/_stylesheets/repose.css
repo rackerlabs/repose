@@ -556,7 +556,7 @@ td.hdlist1 { font-weight: bold; padding-bottom: 1.25em; }
 
 .literalblock + .colist, .listingblock + .colist { margin-top: -0.5em; }
 
-.colist > table tr > td:first-of-type { padding: 0 0.75em; line-height: 1; }
+.colist > table tr > td:first-of-type { padding: 0.5em 0.75em; line-height: 1; vertical-align: top}
 .colist > table tr > td:last-of-type { padding: 0.25em 0; }
 
 .thumb, .th { line-height: 0; display: inline-block; border: solid 4px white; -webkit-box-shadow: 0 0 0 1px #dddddd; box-shadow: 0 0 0 1px #dddddd; }

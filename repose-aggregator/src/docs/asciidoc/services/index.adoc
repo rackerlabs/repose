@@ -1,3 +1,21 @@
 = Services
 
 include::../_includes/in-progress.adoc[]
+
+== <<atom-feed-consumption.adoc#,Atom Feed Consumption Service>>
+*IN PROGRESS*
+
+== <<datastores.adoc#,Datastores>>
+*IN PROGRESS*
+
+== <<health-check.adoc#,Health Check service>>
+*IN PROGRESS*
+
+== <<http-connection-pool.adoc#,HTTP Connection Pool service>>
+*IN PROGRESS*
+
+== <<phone-home.adoc#,Phone Home Service>>
+*IN PROGRESS*
+
+== <<response-messaging.adoc#,Response Messaging service>>
+*IN PROGRESS*
