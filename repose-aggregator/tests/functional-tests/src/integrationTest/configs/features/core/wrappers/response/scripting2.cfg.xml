@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--NOTE: This filter is going to send an error with a message.-->
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
            language="groovy">
-    response.sendError(418, "${reasonPhrase}")
+    def responseCodeToReturn = request.getHeader("${responseCodeHeaderName}") as Integer
+
+    def testCase = request.getHeader("${testCaseSecondFilterHeaderName}")
+    if (testCase == "SEND_ERROR_WITH_MESSAGE") {
+        response.sendError(responseCodeToReturn, "${reasonMessage}")
+    } else if (testCase == "THROW_EXCEPTION") {
+        throw new Exception("This test failed as it should not have reached this filter.")
+    }
 </scripting>
