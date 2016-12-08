@@ -206,19 +206,6 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   override def getParameterNames: util.Enumeration[String] =
     parameterMap.map(_.keysIterator.asJavaEnumeration).getOrElse(super.getParameterNames)
 
-  private case class HeaderValue(headerValue: String) {
-    val value = headerValue.split(";").head
-    val quality = {
-      try {
-        val headerParameters: Array[String] = headerValue.split(";").tail
-        val qualityParameters: Option[String] = headerParameters.find(param => "q".equalsIgnoreCase(param.split("=").head.trim))
-        qualityParameters.map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
-      } catch {
-        case e: NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
-      }
-    }
-  }
-
   /**
     * @return a string representation of the query parameters for this request
     */

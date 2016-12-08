@@ -17,7 +17,10 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-
 package org.openrepose.filters.rackspaceauthuser
 
+/**
+  * Created by adrian on 12/7/16.
+  */
+//This doesn't really belong in this module, but is here because of classloader hierarchies
 case class RackspaceAuthUserGroup(domain: Option[String], user: String, group: String, quality: Double)
