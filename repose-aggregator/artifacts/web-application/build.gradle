@@ -114,8 +114,8 @@ ospackage {
     from('../src/config/logrotate.d') {
         into '/etc/logrotate.d'
         createDirectoryEntry false
-        user 'repose'
-        permissionGroup 'repose'
+        user 'root'
+        permissionGroup 'root'
         fileMode 0644
     }
 
