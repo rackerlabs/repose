@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+${scriptImports}
+
+${scriptClassesFunctions}
+
+def testCase = request.getHeader("${testCaseFirstFilterHeaderName}")
+
+${scriptTestCases}
+</scripting>
