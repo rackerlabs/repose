@@ -7,11 +7,6 @@
         <message media-type="*/*">Message: %M</message>
     </status-code>
     <status-code id="411" code-regex="411" overwrite="ALWAYS">
-        <message media-type="*/*" content-type="application/json">
-            { "message": "%M" }
-        </message>
-    </status-code>
-    <status-code id="410" code-regex="410" overwrite="ALWAYS">
         <message media-type="*/*">Static Message</message>
     </status-code>
 </response-messaging>
