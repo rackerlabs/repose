@@ -2,6 +2,14 @@
 
 <scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
            language="groovy">
+    import javax.ws.rs.core.MediaType
+
+    def setBody = { responseWrapper, status, body ->
+        responseWrapper.setStatus(status)
+        responseWrapper.setContentType(MediaType.TEXT_PLAIN)
+        responseWrapper.getOutputStream().print(body)
+    }
+
     def responseCodeToReturn = request.getHeader("${responseCodeHeaderName}") as Integer
 
     def testCase = request.getHeader("${testCaseSecondFilterHeaderName}")
@@ -9,5 +17,22 @@
         response.sendError(responseCodeToReturn, "${reasonMessage}")
     } else if (testCase == "THROW_EXCEPTION") {
         throw new Exception("This test failed as it should not have reached this filter.")
+    } else if (testCase == "SEND_ERROR_UNCOMMIT_SEND_ERROR") {
+        response.sendError(499, "This message should not make it to the client.")
+        response.uncommit()
+        response.sendError(responseCodeToReturn, "${reasonMessage}")
+    } else if (testCase == "SEND_ERROR_UNCOMMIT_SET_BODY") {
+        response.sendError(499, "This message should not make it to the client.")
+        response.uncommit()
+        response.resetError()
+        setBody(response, responseCodeToReturn, "${reasonMessage}")
+    } else if (testCase == "SET_BODY_SEND_ERROR") {
+        setBody(response, 201, "This message should not make it to the client.")
+        response.sendError(responseCodeToReturn, "${reasonMessage}")
+    } else if (testCase == "SET_LARGE_BODY_SEND_ERROR") {
+        setBody(response, 201, "This message should not make it to the client." * 1_000_000)
+        response.sendError(responseCodeToReturn, "${reasonMessage}")
+    } else if (testCase == "SET_BODY") {
+        setBody(response, 201, "This message should not make it to the client.")
     }
 </scripting>
