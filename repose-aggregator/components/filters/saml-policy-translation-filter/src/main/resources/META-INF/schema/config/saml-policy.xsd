@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/repose/samlpolicy/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/samlpolicy/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <!-- Elements -->
+    <xs:element name="saml-policy" type="SamlPolicyConfig"/>
+
+    <!-- Types -->
+    <xs:complexType name="SamlPolicyConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The setting to use for saml policy based translation.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="policy-cache" type="PolicyCache"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PolicyCache">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Cache related settings</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="ttl" type="xs:positiveInteger" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The amount of time in seconds a retrieved policy should stay in the cache.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="atom-feed-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The id of the atom feed to use revoke policies from the cache. This must match an id in the atom feed service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>
