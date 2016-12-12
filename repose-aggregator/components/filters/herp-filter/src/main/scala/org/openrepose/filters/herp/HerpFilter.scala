@@ -34,6 +34,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
+import org.openrepose.commons.utils.servlet.http.{HeaderInteractor, HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.ReposeSpringProperties
@@ -42,6 +43,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 
+import scala.collection.GenTraversable
 import scala.collection.JavaConverters._
 import scala.util.Try
 import scala.util.matching.Regex
@@ -88,17 +90,18 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     } else {
       logger.trace("HERP filter passing request...")
-      filterChain.doFilter(servletRequest, servletResponse)
+      val httpServletResponseWrapper = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.READONLY, ResponseMode.READONLY)
+      filterChain.doFilter(servletRequest, httpServletResponseWrapper)
 
       logger.trace("HERP filter handling response...")
-      handleResponse(servletRequest.asInstanceOf[HttpServletRequest], servletResponse.asInstanceOf[HttpServletResponse])
+      handleResponse(servletRequest.asInstanceOf[HttpServletRequest], httpServletResponseWrapper)
 
       logger.trace("HERP filter returning response...")
     }
   }
 
   private def handleResponse(httpServletRequest: HttpServletRequest,
-                             httpServletResponse: HttpServletResponse) = {
+                             httpServletResponse: HttpServletResponseWrapper) = {
     def translateParameters(): Map[String, Array[String]] = {
       def decode(s: String) = URLDecoder.decode(s, StandardCharsets.UTF_8.name)
 
@@ -121,8 +124,16 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       else stripHeaderParams(allProjectIds.maxBy(getQuality))
     }
 
-    val projectIds = httpServletRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala
-      .++(httpServletRequest.getHeaders(X_PROJECT_ID).asScala).toTraversable
+    val tenantProjectHeaders = GenTraversable(OpenStackServiceHeader.TENANT_ID.toString, X_PROJECT_ID)
+
+    def getSplitProjectHeaders(headerInteractor: HeaderInteractor): Traversable[String] = {
+      tenantProjectHeaders.foldLeft(Traversable.empty[String]) { (accumulator, current) =>
+        accumulator ++ headerInteractor.getSplittableHeaders(current).asScala
+      }
+    }
+
+    val reqProjectIds = getSplitProjectHeaders(new HttpServletRequestWrapper(httpServletRequest))
+    val projectIds = if (reqProjectIds.nonEmpty) reqProjectIds else getSplitProjectHeaders(httpServletResponse)
 
     //def nullIfEmpty(it: Iterable[Any]) = if (it.isEmpty) null else it
     val eventValues: Map[String, Any] = Map(
@@ -172,7 +183,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
             case Some(value: Long) => pattern.findFirstIn(value.toString).isDefined
             case Some(value: String) => pattern.findFirstIn(value).isDefined
             case Some(value: Array[String]) => value.exists(pattern.findFirstIn(_).isDefined)
-            case Some(value: java.util.Set[_]) =>
+            case Some(_: java.util.Set[_]) =>
               // IF there is a sub key,
               // THEN try the map;
               // ELSE just bail.
