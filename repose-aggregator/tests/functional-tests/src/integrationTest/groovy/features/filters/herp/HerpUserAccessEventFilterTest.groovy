@@ -21,6 +21,7 @@ package features.filters.herp
 
 import framework.ReposeValveTest
 import groovy.json.JsonSlurper
+import org.openrepose.commons.utils.http.OpenStackServiceHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Header
@@ -39,7 +40,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
@@ -48,14 +49,16 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         repose.start()
     }
 
+    def setup() {
+        reposeLogSearch.cleanLog()
+    }
+
     @Unroll("Test filterout for Herp with method #method, username #username and origin service respCode #responseCode")
     def "Events match filterout condition will not go to post filter log"() {
-        setup: "declare messageChain to be of type MessageChain"
+        given:
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
                          "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
 
-        reposeLogSearch.cleanLog()
-        MessageChain mc
         Map<String, String> headers = [
                 'Accept'             : 'application/xml',
                 'Host'               : 'LocalHost',
@@ -67,22 +70,22 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
                 'x-impersonator-name': 'impersonateuser',
                 'x-impersonator-id'  : '123456'
         ]
-        def customHandler = { return new Response(responseCode, "Resource Not Fount", [], reqBody) }
+        def customHandler = { new Response(responseCode, "Resource Not Fount", [], reqBody) }
 
-        when:
-        "When Requesting " + method + " " + request
-        mc = deproxy.makeRequest(url: reposeEndpoint +
-                request, method: method, headers: headers,
-                requestBody: reqBody, defaultHandler: customHandler,
-                addDefaultHeaders: false
-        )
+        when: "requesting endpoint #request with method #method"
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint + request,
+                method: method,
+                headers: headers,
+                requestBody: reqBody,
+                defaultHandler: customHandler,
+                addDefaultHeaders: false)
         String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
 
-        then:
-        "result should be " + responseCode
+        then: "result should be #responseCode"
         mc.receivedResponse.code == responseCode
         checkAttribute(jsonpart, listattr)
         result.ServiceCode == "repose"
@@ -95,8 +98,9 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         (result.Request.URL).contains(request)
         result.Response.Code == responseCode.toInteger()
         result.Response.Message == respMsg
-        //all condition match support filterout event and not going to post filter log
-        reposeLogSearch.searchByString("INFO  org.openrepose.herp.post.filter").size() == 0
+
+        and: "all condition match support filterout event and not going to post filter log"
+        reposeLogSearch.searchByString("INFO  org.openrepose.herp.post.filter").isEmpty()
 
         where:
         responseCode | username      | request                      | method  | reqBody     | respMsg
@@ -108,59 +112,126 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         "500"        | "reposeTest1" | "/resource1/id/ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
     }
 
-    @Unroll("Test filter output for Herp with Request Tenant ID's #reqTenants and Response Tenant ID's #resTenants")
-    def "Events match expected filter output"() {
-        reposeLogSearch.cleanLog()
-        def reqHeaders = new LinkedList<Header>()
-        for (header in reqTenants) {
-            reqHeaders.add(new Header('X-Tenant-Id', header))
-        }
-        def resHeaders = new LinkedList<Header>()
-        for (header in resTenants) {
-            resHeaders.add(new Header('X-Tenant-Id', header))
-        }
-        def customHandler = { return new Response(HttpServletResponse.SC_NOT_IMPLEMENTED, null, resHeaders, null) }
+    @Unroll("Tenant IDs of '#requestTenantIds' in the request and '#responseTenantIds' in the response should result in DefaultProjectID of '#defaultProject' and ProjectID of '#projectIds' in the logged JSON")
+    def "Tenant ID test"() {
+        given:
+        def requestHeaders = requestTenantIds.collect { new Header(OpenStackServiceHeader.TENANT_ID.toString(), it) }
+        def responseHeaders = responseTenantIds.collect { new Header(OpenStackServiceHeader.TENANT_ID.toString(), it) }
+        def customHandler = { new Response(HttpServletResponse.SC_NOT_IMPLEMENTED, null, responseHeaders) }
 
-        when: "When making request with headers #reqHeaders"
+        when: "making the request with headers #requestHeaders"
         deproxy.makeRequest(
                 url: reposeEndpoint,
                 method: GET,
-                headers: reqHeaders,
-                defaultHandler: customHandler
-        )
-        String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
-        String jsonpart = logLine.substring(logLine.indexOf("{"))
-        def slurper = new JsonSlurper()
-        def result = slurper.parseText(jsonpart)
+                headers: requestHeaders,
+                defaultHandler: customHandler)
 
-        then: "result should contain Project ID's #projectIds"
-        result.Request.DefaultProjectID == defProject
-        if (projectIds.empty) {
-            result.Request.ProjectID.empty
-        } else {
-            result.Request.ProjectID.containsAll(projectIds)
-        }
+        then: "the filter will log the details of the request using JSON"
+        def logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter").first()
+        def result = new JsonSlurper().parseText(logLine.substring(logLine.indexOf("{")))
+
+        and: "the logged JSON will contain the expected Default Project ID and list of Project IDs"
+        result.Request.DefaultProjectID == defaultProject
+        result.Request.ProjectID == projectIds
 
         where:
-        reqTenants                       | resTenants                       | defProject | projectIds
-        []                               | []                               | ''         | []
-        ['reqFoo;q=0.5', 'reqBar;q=1.0'] | []                               | 'reqBar'   | ['reqFoo', 'reqBar']
-        []                               | ['resFoo;q=0.5', 'resBar;q=1.0'] | 'resBar'   | ['resFoo', 'resBar']
-        ['reqFoo;q=0.5', 'reqBar;q=1.0'] | ['resFoo;q=0.5', 'resBar;q=1.0'] | 'reqBar'   | ['reqFoo', 'reqBar']
-        ['reqFoo;q=0.5,reqBar;q=1.0']    | []                               | 'reqBar'   | ['reqFoo', 'reqBar']
-        []                               | ['resFoo;q=0.5,resBar;q=1.0']    | 'resBar'   | ['resFoo', 'resBar']
-        ['reqFoo;q=0.5,reqBar;q=1.0']    | ['resFoo;q=0.5,resBar;q=1.0']    | 'reqBar'   | ['reqFoo', 'reqBar']
+        requestTenantIds                               | responseTenantIds                              || defaultProject | projectIds
+        []                                             | []                                             || ''             | []
+        ['foo']                                        | []                                             || 'foo'          | ['foo']
+        ['foo', 'bar']                                 | []                                             || 'foo'          | ['foo', 'bar']
+        // if the tenant ID isn't available in the request, it should use the value in the response
+        []                                             | ['foo']                                        || 'foo'          | ['foo']
+        []                                             | ['foo', 'bar']                                 || 'foo'          | ['foo', 'bar']
+        // DefaultProjectID should be populated with highest quality header
+        ['foo;q=0.5', 'bar;q=1.0']                     | []                                             || 'bar'          | ['foo', 'bar']
+        ['foo;q=0.5,bar;q=1.0']                        | []                                             || 'bar'          | ['foo', 'bar']
+        []                                             | ['foo;q=0.5', 'bar;q=1.0']                     || 'bar'          | ['foo', 'bar']
+        []                                             | ['foo;q=0.5,bar;q=1.0']                        || 'bar'          | ['foo', 'bar']
+        // header quality should default to 1.0 if it's not specified
+        ['foo', 'bar;q=0.9']                           | []                                             || 'foo'          | ['foo', 'bar']
+        ['bar;q=0.9', 'foo']                           | []                                             || 'foo'          | ['bar', 'foo']
+        ['foo,bar;q=0.9']                              | []                                             || 'foo'          | ['foo', 'bar']
+        ['bar;q=0.9,foo']                              | []                                             || 'foo'          | ['bar', 'foo']
+        []                                             | ['foo', 'bar;q=0.9']                           || 'foo'          | ['foo', 'bar']
+        []                                             | ['bar;q=0.9', 'foo']                           || 'foo'          | ['bar', 'foo']
+        []                                             | ['foo,bar;q=0.9']                              || 'foo'          | ['foo', 'bar']
+        []                                             | ['bar;q=0.9,foo']                              || 'foo'          | ['bar', 'foo']
+        // headers should be properly split with the quality used to determine the DefaultProjectID
+        ['foo;q=1.0,bar;q=0.7', 'baz;q=0.3']           | []                                             || 'foo'          | ['foo', 'bar', 'baz']
+        ['foo;q=0.7,bar;q=1.0', 'baz;q=0.3']           | []                                             || 'bar'          | ['foo', 'bar', 'baz']
+        ['foo;q=0.3,bar;q=0.7', 'baz;q=1.0']           | []                                             || 'baz'          | ['foo', 'bar', 'baz']
+        ['foo,bar;q=0.7', 'baz;q=0.3']                 | []                                             || 'foo'          | ['foo', 'bar', 'baz']
+        ['foo;q=0.7,bar', 'baz;q=0.3']                 | []                                             || 'bar'          | ['foo', 'bar', 'baz']
+        ['foo;q=0.3,bar;q=0.7', 'baz']                 | []                                             || 'baz'          | ['foo', 'bar', 'baz']
+        ['foo;q=1.0,bar;q=0.7', 'baz;q=0.3,qux;q=0.4'] | []                                             || 'foo'          | ['foo', 'bar', 'baz', 'qux']
+        ['foo;q=0.7,bar;q=1.0', 'baz;q=0.3,qux;q=0.4'] | []                                             || 'bar'          | ['foo', 'bar', 'baz', 'qux']
+        ['foo;q=0.7,bar;q=0.3', 'baz;q=1.0,qux;q=0.4'] | []                                             || 'baz'          | ['foo', 'bar', 'baz', 'qux']
+        ['foo;q=0.7,bar;q=0.4', 'baz;q=0.3,qux;q=1.0'] | []                                             || 'qux'          | ['foo', 'bar', 'baz', 'qux']
+        ['foo,bar;q=0.7', 'baz;q=0.3,qux;q=0.4']       | []                                             || 'foo'          | ['foo', 'bar', 'baz', 'qux']
+        ['foo;q=0.7,bar', 'baz;q=0.3,qux;q=0.4']       | []                                             || 'bar'          | ['foo', 'bar', 'baz', 'qux']
+        ['foo;q=0.7,bar;q=0.3', 'baz,qux;q=0.4']       | []                                             || 'baz'          | ['foo', 'bar', 'baz', 'qux']
+        ['foo;q=0.7,bar;q=0.4', 'baz;q=0.3,qux']       | []                                             || 'qux'          | ['foo', 'bar', 'baz', 'qux']
+        []                                             | ['foo;q=1.0,bar;q=0.7', 'baz;q=0.3']           || 'foo'          | ['foo', 'bar', 'baz']
+        []                                             | ['foo;q=0.7,bar;q=1.0', 'baz;q=0.3']           || 'bar'          | ['foo', 'bar', 'baz']
+        []                                             | ['foo;q=0.3,bar;q=0.7', 'baz;q=1.0']           || 'baz'          | ['foo', 'bar', 'baz']
+        []                                             | ['foo,bar;q=0.7', 'baz;q=0.3']                 || 'foo'          | ['foo', 'bar', 'baz']
+        []                                             | ['foo;q=0.7,bar', 'baz;q=0.3']                 || 'bar'          | ['foo', 'bar', 'baz']
+        []                                             | ['foo;q=0.3,bar;q=0.7', 'baz']                 || 'baz'          | ['foo', 'bar', 'baz']
+        []                                             | ['foo;q=1.0,bar;q=0.7', 'baz;q=0.3,qux;q=0.4'] || 'foo'          | ['foo', 'bar', 'baz', 'qux']
+        []                                             | ['foo;q=0.7,bar;q=1.0', 'baz;q=0.3,qux;q=0.4'] || 'bar'          | ['foo', 'bar', 'baz', 'qux']
+        []                                             | ['foo;q=0.7,bar;q=0.3', 'baz;q=1.0,qux;q=0.4'] || 'baz'          | ['foo', 'bar', 'baz', 'qux']
+        []                                             | ['foo;q=0.7,bar;q=0.4', 'baz;q=0.3,qux;q=1.0'] || 'qux'          | ['foo', 'bar', 'baz', 'qux']
+        []                                             | ['foo,bar;q=0.7', 'baz;q=0.3,qux;q=0.4']       || 'foo'          | ['foo', 'bar', 'baz', 'qux']
+        []                                             | ['foo;q=0.7,bar', 'baz;q=0.3,qux;q=0.4']       || 'bar'          | ['foo', 'bar', 'baz', 'qux']
+        []                                             | ['foo;q=0.7,bar;q=0.3', 'baz,qux;q=0.4']       || 'baz'          | ['foo', 'bar', 'baz', 'qux']
+        []                                             | ['foo;q=0.7,bar;q=0.4', 'baz;q=0.3,qux']       || 'qux'          | ['foo', 'bar', 'baz', 'qux']
+        // header attributes should be properly parsed - numbers of digits
+        ['foo;q=0.1,bar;q=0.5']                        | []                                             || 'bar'          | ['foo', 'bar']
+        ['foo;q=0.01,bar;q=0.5']                       | []                                             || 'bar'          | ['foo', 'bar']
+        ['foo;q=0.001,bar;q=0.5']                      | []                                             || 'bar'          | ['foo', 'bar']
+        ['foo;q=1,bar;q=0.5']                          | []                                             || 'foo'          | ['foo', 'bar']
+        ['foo;q=1.,bar;q=0.5']                         | []                                             || 'foo'          | ['foo', 'bar']
+        ['foo;q=1.0,bar;q=0.5']                        | []                                             || 'foo'          | ['foo', 'bar']
+        ['foo;q=1.00,bar;q=0.5']                       | []                                             || 'foo'          | ['foo', 'bar']
+        ['foo;q=1.000,bar;q=0.5']                      | []                                             || 'foo'          | ['foo', 'bar']
+        []                                             | ['foo;q=0.1,bar;q=0.5']                        || 'bar'          | ['foo', 'bar']
+        []                                             | ['foo;q=0.01,bar;q=0.5']                       || 'bar'          | ['foo', 'bar']
+        []                                             | ['foo;q=0.001,bar;q=0.5']                      || 'bar'          | ['foo', 'bar']
+        []                                             | ['foo;q=1,bar;q=0.5']                          || 'foo'          | ['foo', 'bar']
+        []                                             | ['foo;q=1.,bar;q=0.5']                         || 'foo'          | ['foo', 'bar']
+        []                                             | ['foo;q=1.0,bar;q=0.5']                        || 'foo'          | ['foo', 'bar']
+        []                                             | ['foo;q=1.00,bar;q=0.5']                       || 'foo'          | ['foo', 'bar']
+        []                                             | ['foo;q=1.000,bar;q=0.5']                      || 'foo'          | ['foo', 'bar']
+        // header attributes should be properly parsed - other header attributes should be ignored
+        ['foo;q=1.0;qe=hi']                            | []                                             || 'foo'          | ['foo']
+        ['foo;qe=hi;q=1.0']                            | []                                             || 'foo'          | ['foo']
+        ['foo;q=1.0;eq=hi']                            | []                                             || 'foo'          | ['foo']
+        ['foo;eq=hi;q=1.0']                            | []                                             || 'foo'          | ['foo']
+        ['foo;q=1.0;qq=hi']                            | []                                             || 'foo'          | ['foo']
+        ['foo;qq=hi;q=1.0']                            | []                                             || 'foo'          | ['foo']
+        ['low;qq=1.0;q=0.2,high;qq=0.3;q=0.8']         | []                                             || 'high'         | ['low', 'high']
+        []                                             | ['foo;q=1.0;qe=hi']                            || 'foo'          | ['foo']
+        []                                             | ['foo;qe=hi;q=1.0']                            || 'foo'          | ['foo']
+        []                                             | ['foo;q=1.0;eq=hi']                            || 'foo'          | ['foo']
+        []                                             | ['foo;eq=hi;q=1.0']                            || 'foo'          | ['foo']
+        []                                             | ['foo;q=1.0;qq=hi']                            || 'foo'          | ['foo']
+        []                                             | ['foo;qq=hi;q=1.0']                            || 'foo'          | ['foo']
+        []                                             | ['low;qq=1.0;q=0.2,high;qq=0.3;q=0.8']         || 'high'         | ['low', 'high']
+        // the Tenant ID in the request should always take precedence over the response
+        ['requestTnt']                                 | ['responseTnt']                                || 'requestTnt'   | ['requestTnt']
+        ['requestTnt;foo=bar']                         | ['responseTnt;foo=bar']                        || 'requestTnt'   | ['requestTnt']
+        ['requestTnt;q=0.1']                           | ['responseTnt;q=1.0']                          || 'requestTnt'   | ['requestTnt']
+        ['reqFoo;q=0.5', 'reqBar;q=1.0']               | ['resFoo;q=0.5', 'resBar;q=1.0']               || 'reqBar'       | ['reqFoo', 'reqBar']
+        ['reqFoo;q=0.5,reqBar;q=1.0']                  | ['resFoo;q=0.5,resBar;q=1.0']                  || 'reqBar'       | ['reqFoo', 'reqBar']
     }
 
     @Unroll("Test not match condition from filterout: method #method, tenantId #tenantid, parameters #parameters, origin service respCode #responseCode")
     def "Events that not match the condition with find in post filter log"() {
-        setup: "declare messageChain to be of type MessageChain"
+        given:
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
                          "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
         def customHandler = ""
 
-        reposeLogSearch.cleanLog()
-        MessageChain mc
         Map<String, String> headers = [
                 'Accept'             : 'application/xml',
                 'Host'               : 'LocalHost',
@@ -173,16 +244,17 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
                 'x-impersonator-id'  : '123456'
         ]
         if (responseCode != "200") {
-            customHandler = { return new Response(responseCode, "Resource Not Fount", [], "some data") }
+            customHandler = { new Response(responseCode, "Resource Not Fount", [], "some data") }
         }
 
-        when:
-        "When Requesting " + method + "server/abcd"
-        mc = deproxy.makeRequest(url: reposeEndpoint +
-                "/resource?" + parameters, method: method, headers: headers,
-                requestBody: "some data", defaultHandler: customHandler,
-                addDefaultHeaders: false
-        )
+        when: "requesting endpoint /resource with method #method and parameters #parameters"
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint + "/resource?" + parameters,
+                method: method,
+                headers: headers,
+                requestBody: "some data",
+                defaultHandler: customHandler,
+                addDefaultHeaders: false)
         String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         def slurper = new JsonSlurper()
@@ -194,8 +266,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         def presult = pslurper.parseText(pjsonpart)
         def pmap = buildParamList(parameters)
 
-        then:
-        "result should be " + responseCode
+        then: "result should be #responseCode"
         mc.receivedResponse.code == responseCode
         checkAttribute(jsonpart, listattr)
         result.ServiceCode == "repose"
@@ -235,13 +306,11 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
     @Unroll("Filter also work for projectId and OR condition: #username, #method, #projectid, #parameters, origin service respCode #responseCode")
     def "Filter also work for projectId and OR condition"() {
-        setup: "declare messageChain to be of type MessageChain"
+        given:
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
                          "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
         def customHandler = ""
 
-        reposeLogSearch.cleanLog()
-        MessageChain mc
         Map<String, String> headers = [
                 'Accept'             : 'application/xml',
                 'Host'               : 'LocalHost',
@@ -254,16 +323,17 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
                 'x-impersonator-id'  : '123456'
         ]
         if (responseCode != "200") {
-            customHandler = { return new Response(responseCode, "Resource Not Fount", [], "some data") }
+            customHandler = { new Response(responseCode, "Resource Not Fount", [], "some data") }
         }
 
-        when:
-        "When Requesting " + method + "server/abcd"
-        mc = deproxy.makeRequest(url: reposeEndpoint +
-                "/resource?" + parameters, method: method, headers: headers,
-                requestBody: "some data", defaultHandler: customHandler,
-                addDefaultHeaders: false
-        )
+        when: "requesting endpoint /resource with method #method and parameters #parameters"
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint + "/resource?" + parameters,
+                method: method,
+                headers: headers,
+                requestBody: "some data",
+                defaultHandler: customHandler,
+                addDefaultHeaders: false)
         String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         println(jsonpart)
@@ -271,8 +341,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         def result = slurper.parseText(jsonpart)
         def map = buildParamList(parameters)
 
-        then:
-        "result should be " + responseCode
+        then: "result should be #responseCode"
         mc.receivedResponse.code == responseCode
         checkAttribute(jsonpart, listattr)
         result.ServiceCode == "repose"
@@ -288,7 +357,6 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         checkParams(jsonpart, map)
         reposeLogSearch.searchByString("INFO  org.openrepose.herp.post.filter").size() == 0
 
-
         where:
         responseCode | username   | projectid | parameters              | method  | respMsg
         "200"        | "User"     | "123456"  | "username=test"         | "POST"  | "OK"
@@ -302,13 +370,11 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
     @Unroll("Tracing header test with #method, #tenantid, #parameters")
     def "Tracing header test with user access event"() {
-        setup: "declare messageChain to be of type MessageChain"
+        given:
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "RequestID", "Method", "URL", "Parameters",
                          "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
         def customHandler = ""
 
-        reposeLogSearch.cleanLog()
-        MessageChain mc
         Map<String, String> headers = [
                 'Accept'             : 'application/xml',
                 'Host'               : 'LocalHost',
@@ -321,16 +387,17 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
                 'x-impersonator-id'  : '123456'
         ]
         if (responseCode != "200") {
-            customHandler = { return new Response(responseCode, "Resource Not Fount", [], "some data") }
+            customHandler = { new Response(responseCode, "Resource Not Fount", [], "some data") }
         }
 
-        when:
-        "When Requesting " + method + "server/abcd"
-        mc = deproxy.makeRequest(url: reposeEndpoint +
-                "/resource?" + parameters, method: method, headers: headers,
-                requestBody: "some data", defaultHandler: customHandler,
-                addDefaultHeaders: false
-        )
+        when: "requesting endpoint /resource with method #method and parameters #parameters"
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint + "/resource?" + parameters,
+                method: method,
+                headers: headers,
+                requestBody: "some data",
+                defaultHandler: customHandler,
+                addDefaultHeaders: false)
         String logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter")
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         def slurper = new JsonSlurper()
@@ -343,8 +410,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         def pmap = buildParamList(parameters)
         def requestid = TracingHeaderHelper.getTraceGuid(mc.handlings[0].request.headers.getFirstValue("x-trans-id"))
 
-        then:
-        "result should be " + responseCode
+        then: "result should be #responseCode"
         mc.receivedResponse.code == responseCode
         checkAttribute(jsonpart, listattr)
         result.ServiceCode == "repose"
@@ -373,7 +439,6 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         presult.Response.Code == responseCode.toInteger()
         presult.Response.Message == respMsg
         checkParams(pjsonpart, pmap)
-
 
         where:
         responseCode | tenantid | parameters       | method | respMsg
