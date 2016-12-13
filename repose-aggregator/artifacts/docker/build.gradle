@@ -50,4 +50,4 @@ task removeImage(type: DockerRemoveImage) {
     force = true
 }
 
-//project.tasks.getByPath(':release').dependsOn pushImage
+project.tasks.getByPath(':release').dependsOn pushImage
