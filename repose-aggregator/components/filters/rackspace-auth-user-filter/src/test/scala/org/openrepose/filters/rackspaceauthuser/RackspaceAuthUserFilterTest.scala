@@ -539,36 +539,36 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
 
     List(
       (List("OS-MF sessionId='123456', factor='PASSCODE'"),
-        Asserter({ verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":123456"),
+        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":123456"),
                                 meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
                                 meq(5),
-                                meq(TimeUnit.MINUTES)) })),
+                                meq(TimeUnit.MINUTES)) }),
       (List("OS-MF sessionId='green', factor='PASSCODE'", "Keystone uri=https://some.identity.com"),
-        Asserter({ verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":green"),
+        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":green"),
                                 meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
                                 meq(5),
-                                meq(TimeUnit.MINUTES)) })),
+                                meq(TimeUnit.MINUTES)) }),
       (List("Keystone uri=https://some.identity.com", "OS-MF sessionId='banana', factor='PASSCODE'"),
-        Asserter({ verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":banana"),
+        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":banana"),
                                 meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
                                 meq(5),
-                                meq(TimeUnit.MINUTES)) })),
+                                meq(TimeUnit.MINUTES)) }),
       (List.empty,
-        Asserter({ verify(datastore, times(0)).put(anyString,
+        { () => verify(datastore, times(0)).put(anyString,
                                                    any(classOf[Option[RackspaceAuthUserGroup]]),
                                                    anyInt,
-                                                   any(classOf[TimeUnit])) })),
+                                                   any(classOf[TimeUnit])) }),
       (List("OS-MF factor='PASSCODE'"),
-        Asserter({ verify(datastore, times(0)).put(anyString,
+        { () => verify(datastore, times(0)).put(anyString,
                                                    any(classOf[Option[RackspaceAuthUserGroup]]),
                                                    anyInt,
-                                                   any(classOf[TimeUnit])) })),
+                                                   any(classOf[TimeUnit])) }),
       (List("OS-MF sessionId='123456"),
-        Asserter({ verify(datastore, times(0)).put(anyString,
+        { () => verify(datastore, times(0)).put(anyString,
                                                    any(classOf[Option[RackspaceAuthUserGroup]]),
                                                    anyInt,
-                                                   any(classOf[TimeUnit])) }))
-    ) foreach { case(headers: List[String], asserter: Asserter) =>
+                                                   any(classOf[TimeUnit])) })
+    ) foreach { case (headers: List[String], asserter: Asserter) =>
       it(s"should write to the dd as appropriate with headers: $headers") {
         filter.configurationUpdated(auth2_0Config())
         servletRequest.setMethod("POST")
@@ -581,21 +581,10 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
 
         filter.doWork(servletRequest, servletResponse, filterChain)
 
-        asserter.assert()
+        asserter()
       }
     }
   }
 
-  //I couldn't get the typing and evaluation time to work right without this, if you can solve it, please do and share
-  class Asserter(assertion: => Unit) {
-    def assert(): Unit = {
-      assertion
-    }
-  }
-
-  object Asserter {
-    def apply(someCode: => Unit): Asserter = {
-      new Asserter(someCode)
-    }
-  }
+  type Asserter = () => Unit
 }
