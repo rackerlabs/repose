@@ -60,8 +60,10 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         if (rawRequestInputStream.markSupported) rawRequestInputStream
         else new BufferedServletInputStream(rawRequestInputStream)
       val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest, requestInputStream)
-      val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
-      val authUserGroup: Option[RackspaceAuthUserGroup] = parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(sessionIdHeader))
+      val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse],
+        ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val authUserGroup: Option[RackspaceAuthUserGroup] = parseUserGroupFromInputStream(wrappedRequest.getRequestURI,
+        wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(sessionIdHeader))
       authUserGroup foreach { rackspaceAuthUserGroup =>
         rackspaceAuthUserGroup.domain.foreach { domainVal =>
           wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
@@ -85,11 +87,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
   val usernameAuth1_1Xml: UsernameParsingFunction = { is =>
     val xml = XML.load(is)
     val username = (xml \\ "credentials" \ "@username").text
-    if (username.nonEmpty) {
-      (None, Some(username))
-    } else {
-      (None, None)
-    }
+    (None, Option(username).filterNot(_.isEmpty))
   }
   // https://www.playframework.com/documentation/2.3.x/ScalaJson
   //Using play json here because I don't have to build entire objects
@@ -176,18 +174,31 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
   }
 
   val usernameForgotPassword2_0Xml: UsernameParsingFunction = { is =>
-    (None, None)
+    val xml = XML.load(is)
+    val username = (xml \\ "forgotPasswordCredentials" \ "@username").text
+    (None, Option(username).filterNot(_.isEmpty))
   }
 
   val usernameForgotPassword2_0Json: UsernameParsingFunction = { is =>
-    (None, None)
+    val json = Json.parse(is)
+    val possibleUsername = (json \ "RAX-AUTH:forgotPasswordCredentials" \ "username").validate[String]
+
+    possibleUsername match {
+      case wrappedUsername: JsSuccess[String] if wrappedUsername.get.trim.nonEmpty => (None, Some(wrappedUsername.get))
+      case failure: JsError =>
+        logger.debug("2.0 JSON parsing failure: {}", JsError.toFlatJson(failure))
+        (None, None)
+      case _ => (None, None)
+    }
   }
 
-  def parseUserGroupFromInputStream(inputStream: InputStream, contentType: String, sessionIds: List[String]): Option[RackspaceAuthUserGroup] = {
-    sessionIds.map(HeaderValue).sortWith(_.quality > _.quality).toStream.flatMap({ header => Option(datastore.get(s"$ddKey:${header.value}").asInstanceOf[Option[RackspaceAuthUserGroup]]) }).headOption
-      .getOrElse(Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameAuth2_0Json, usernameAuth2_0Xml)))
-      .orElse(Option(configuration.getV11).flatMap(parseUsername(_, inputStream, contentType, usernameAuth1_1Json, usernameAuth1_1Xml)))
-  }
+  def parseUserGroupFromInputStream(uri: String, inputStream: InputStream, contentType: String, sessionIds: List[String]): Option[RackspaceAuthUserGroup] =
+    uri match {
+      case "/v2.0/users/RAX-AUTH/forgot-pwd" => Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameForgotPassword2_0Json, usernameForgotPassword2_0Xml))
+      case _ => sessionIds.map(HeaderValue).sortWith(_.quality > _.quality).toStream.flatMap({ header => Option(datastore.get(s"$ddKey:${header.value}").asInstanceOf[Option[RackspaceAuthUserGroup]]) }).headOption
+        .getOrElse(Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameAuth2_0Json, usernameAuth2_0Xml)))
+        .orElse(Option(configuration.getV11).flatMap(parseUsername(_, inputStream, contentType, usernameAuth1_1Json, usernameAuth1_1Xml)))
+    }
 
   /**
     * Build a function that takes our config, the request itself, functions to transform if given json, and if given XML

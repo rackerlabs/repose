@@ -704,15 +704,6 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
         domain shouldBe None
         username shouldBe None
       }
-
-      it("does not return a username nor throw an exception if request is malformed") {
-        val payload = "<legit_xml>I forgot my password. Please let me in. I am root. kthxbai.</legit_xml>"
-
-        val (domain, username) = filter.usernameForgotPassword2_0Xml(new ByteArrayInputStream(payload.getBytes))
-
-        domain shouldBe None
-        username shouldBe None
-      }
     }
 
     describe("JSON") {
@@ -766,19 +757,6 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |        "portal": "astra_prod"
             |    }
             |}""".stripMargin
-
-        val (domain, username) = filter.usernameForgotPassword2_0Json(new ByteArrayInputStream(payload.getBytes))
-
-        domain shouldBe None
-        username shouldBe None
-      }
-
-      it("does not return a username nor throw an exception if request is malformed") {
-        val payload =
-          """"RAX-AUTH:forgotPasswordCredentials":
-            |  username: rpurnell
-            |  portal: astra_prod
-            |""".stripMargin
 
         val (domain, username) = filter.usernameForgotPassword2_0Json(new ByteArrayInputStream(payload.getBytes))
 
