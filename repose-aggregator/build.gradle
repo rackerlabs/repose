@@ -51,7 +51,7 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
     def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.html")
     def versions = versionsFile.readLines()
     def date = new SimpleDateFormat('yyyy-MM-dd').format(new Date())
-    versions.add(0, """<li><a href="./versions/$version/index.html">v$version</a> - $date</li>""")
+    versions.add(0, """<li><a href="./versions/$version/index.html">v$version - $date</a></li>""")
     def writer = new PrintWriter(versionsFile.newWriter())
     versions.each {
         writer.println(it)
