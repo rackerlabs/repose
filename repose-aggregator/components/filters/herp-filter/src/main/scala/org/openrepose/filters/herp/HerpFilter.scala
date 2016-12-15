@@ -135,9 +135,10 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
     val reqProjectIds = getSplitProjectHeaders(new HttpServletRequestWrapper(httpServletRequest))
     val projectIds = if (reqProjectIds.nonEmpty) reqProjectIds else getSplitProjectHeaders(httpServletResponse)
 
-    //def nullIfEmpty(it: Iterable[Any]) = if (it.isEmpty) null else it
     val eventValues: Map[String, Any] = Map(
-      "userName" -> stripHeaderParams(httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString)),
+      "userName" -> Option(stripHeaderParams(httpServletRequest.getHeader(OpenStackServiceHeader.USER_NAME.toString)))
+        .filterNot(_.isEmpty)
+        .getOrElse(stripHeaderParams(httpServletResponse.getHeader(OpenStackServiceHeader.USER_NAME.toString))),
       "impersonatorName" -> stripHeaderParams(httpServletRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString)),
       "defaultProjectId" -> stripHeaderParams(getPreferredHeader(projectIds)),
       "projectID" -> projectIds.map(stripHeaderParams).toArray,
