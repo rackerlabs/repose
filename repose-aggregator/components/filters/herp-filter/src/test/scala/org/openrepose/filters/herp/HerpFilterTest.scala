@@ -52,7 +52,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
   var listAppenderPre: ListAppender = _
   var listAppenderPost: ListAppender = _
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     listAppenderPre = ctx.getConfiguration.getAppender("highly-efficient-record-processor-pre-ListAppender").asInstanceOf[ListAppender].clear
     listAppenderPost = ctx.getConfiguration.getAppender("highly-efficient-record-processor-post-ListAppender").asInstanceOf[ListAppender].clear
@@ -342,6 +342,51 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include("\"UserName\" : \"foo\"")
+    }
+    it("should extract and log the response user name header when the header is not available in the request") {
+      // given:
+      addResponseHeaders(List(("X-User-Name", "bar")))
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      val logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserName\" : \"bar\"")
+    }
+    List(
+      ("", "responseBar", "responseBar"),
+      (";q=1.0", "responseBar", "responseBar"),
+      ("requestFoo", "", "requestFoo"),
+      ("requestFoo", "responseBar", "requestFoo"),
+      ("requestFoo;q=1.0", "responseBar", "requestFoo"),
+      ("requestFoo;q=1.0", "responseBar;q=1.0", "requestFoo"),
+      ("requestFoo;q=0.2", "responseBar;q=0.9", "requestFoo"),
+      ("requestFoo;pie=good", "responseBar;q=0.9", "requestFoo"),
+      ("requestFoo;pie=good;q=0.4", "responseBar;q=0.8", "requestFoo"),
+      ("requestFoo;pie=good;q=0.6;foo=baz", "responseBar;q=0.7", "requestFoo"),
+      ("", "responseBar;q=1.0", "responseBar"),
+      ("", "responseBar;q=0.3", "responseBar"),
+      ("", "responseBar;pie=good", "responseBar"),
+      ("", "responseBar;pie=good;q=0.7", "responseBar"),
+      ("", "responseBar;pie=good;q=0.7;foo=bar", "responseBar")
+    ) foreach { case (requestHeader, responseHeader, expectedUsername) =>
+      it(s"should extract and log the user name header '$expectedUsername' when request header is '$requestHeader' and response header is '$responseHeader'") {
+        // given:
+        servletRequest.addHeader("X-User-Name", requestHeader)
+        addResponseHeaders(List(("X-User-Name", responseHeader)))
+
+        // when:
+        herpFilter.configurationUpdated(herpConfig)
+        herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+        // then:
+        val logEvents = listAppenderPre.getEvents
+        logEvents.size shouldBe 1
+        logEvents.get(0).getMessage.getFormattedMessage should include(s""""UserName" : "$expectedUsername"""")
+      }
     }
     it("should extract and log the request impersonator name header") {
       // given:
