@@ -33,9 +33,6 @@ import javax.servlet.http.HttpServletResponse
 
 import static javax.ws.rs.HttpMethod.GET
 
-/**
- * Created by jennyvo on 2/10/15.
- */
 class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -447,52 +444,36 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
     }
 
     // Check all required attributes in the log
-    private static boolean checkAttribute(String jsonpart, List<String> listattr) {
-        boolean check = true
-        for (attr in listattr) {
-            if (!jsonpart.contains(attr)) {
-                check = false
-                break
-            }
-        }
-        return check
+    private static boolean checkAttribute(String jsonpart, List<String> attributes) {
+        attributes.every { jsonpart.contains(it) }
     }
 
     // Build map for query parameters from request
-    private static Map<String, List> buildParamList(String parameters) {
-        Map<String, List> params = [:]
-        List<String> list = parameters.split("&")
+    private static Map<String, List> buildParamList(String parameterString) {
+        Map<String, List> parameters = [:]
         List<String> av = []
-        for (e in list) {
+
+        parameterString.split("&").each { e ->
             def (k, v) = e.split("=")
             av.add(v)
-            if (params[k] == null) {
-                params[k] = av
+            if (parameters[k] == null) {
+                parameters[k] = av
                 av = []
             } else {
-                List ov = params[k]
-                ov.add(v)
-                params[k] = ov
+                parameters[k] += v
             }
         }
-        return params
+
+        parameters
     }
 
     // Check if all parameters include in Parameters tag
-    private static boolean checkParams(String jsonpart, Map<String, List<String>> map) {
-        def slurper = new JsonSlurper()
-        def result = slurper.parseText(jsonpart)
-        boolean check = true
+    private static boolean checkParams(String jsonpart, Map<String, List<String>> parameters) {
+        def result = new JsonSlurper().parseText(jsonpart)
 
-        for (e in map) {
-            def iv = e.value
-            for (v in iv) {
-                if (!(result.Request.Parameters.(e.key).contains(URLDecoder.decode(v, "UTF-8")))) {
-                    check = false
-                    break
-                }
-            }
+        parameters.every { key, values ->
+            def jsonValue = result.Request.Parameters[key]
+            values.every { jsonValue.contains(URLDecoder.decode(it, "UTF-8")) }
         }
-        return check
     }
 }
