@@ -194,4 +194,72 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         and: "The result will be passed through"
         messageChain.receivedResponse.code == "200"
     }
+
+    @Unroll("Will parse Forgot Password request for username when sent to appropriate URL (#testName)")
+    def "Will parse a Forgot Password request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd"() {
+        when: "Request body contains forgot password credentials"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/v2.0/users/RAX-AUTH/forgot-pwd", requestBody: requestBody, headers: contentType, method: "POST"])
+        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+
+        then: "Repose will send x-pp-user with a single value"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
+        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 1
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
+        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 0
+
+        and: "Repose will send user from Request body"
+        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-user") == ("demoAuthor;q=0.8")
+        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-user-name") == "demoAuthor"
+
+        where:
+        requestBody       | contentType | testName
+        userForgotXmlV20  | contentXml  | "userForgotXmlV20"
+        userForgotJsonV20 | contentJson | "userForgotJsonV20"
+    }
+
+    @Unroll("Will not parse Forgot Password request for username when sent to an inappropriate URL (#testName)")
+    def "will not parse a Forgot Password request if the URL does not match /v2.0/users/RAX-AUTH/forgot-pwd"() {
+        when: "Request body contains forgot password credentials"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
+        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+
+        then: "Repose will send x-pp-user with a single value"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 0
+
+        where:
+        requestBody       | contentType | testName
+        userForgotXmlV20  | contentXml  | "userForgotXmlV20"
+        userForgotJsonV20 | contentJson | "userForgotJsonV20"
+    }
+
+    @Unroll("Will not parse an Auth request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd (#testName)" )
+    def "will not parse an Auth request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd" () {
+        when: "Request body contains user credentials"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/v2.0/users/RAX-AUTH/forgot-pwd", requestBody: requestBody, headers: contentType, method: "POST"])
+        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+
+        then: "Repose will send x-pp-user with a single value"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 0
+
+        where:
+        requestBody              | contentType | testName
+        userKeyXmlV11            | contentXml  | "userKeyXmlV11"
+        userKeyJsonV11           | contentJson | "userKeyJsonV11"
+        userKeyXmlEmptyV11       | contentXml  | "userKeyXmlEmptyV11"
+        userKeyJsonEmptyV11      | contentJson | "userKeyJsonEmptyV11"
+        userPasswordXmlV20       | contentXml  | "userPasswordXmlV20"
+        userPasswordJsonV20      | contentJson | "userPasswordJsonV20"
+        userApiKeyXmlV20         | contentXml  | "userApiKeyXmlV20"
+        userApiKeyJsonV20        | contentJson | "userApiKeyJsonV20"
+        userPasswordXmlEmptyV20  | contentXml  | "userPasswordXmlEmptyV20"
+        userPasswordJsonEmptyV20 | contentJson | "userPasswordJsonEmptyV20"
+        userMfaSetupXmlV20       | contentXml  | "userMfaSetupXmlV20"
+        userMfaSetupJsonV20      | contentJson | "userMfaSetupJsonV20"
+    }
 }
