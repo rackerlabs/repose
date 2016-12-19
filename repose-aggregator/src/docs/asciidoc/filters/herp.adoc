@@ -188,7 +188,8 @@ A list of supported keys follows:
 | clusterId            | The cluster ID of the Repose node on which the filter is running, configured in the Repose system model.                           | -
 | dataCenter           | The data center, configured in the highly-efficient-record-processor.cfg.xml file.
                          This string will be used in logging to note the data center of the service.                                                        | -
-| guid	               | A globally unique identifier generated for a particular request.                                                                   | -
+| guid	               | A globally unique identifier generated for a particular request.
+                         This will begin with the value provided in the Tracing header (X-Trans-Id) if present and be followed by a colon (`:`) and a GUID. | -
 | impersonatorName     | The impersonator making the request on behalf of a user.                                                                           | client-auth *or* openstack-identity-v3
 | methodLabel          | A label which describes the API call.
                          This is pulled from the WADL used by the api-validator filter.                                                                     | api-validator
