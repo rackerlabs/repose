@@ -166,8 +166,9 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code.equals("200")
-        TracingHeaderHelper.getTraceGuid(mc.handlings[0].request.headers.getFirstValue("x-trans-id")) == event.@requestID.text()
-        TracingHeaderHelper.getTraceGuid(mc.receivedResponse.headers.getFirstValue("x-trans-id")) == event.@requestID.text()
+        def transId = event.@requestID.text().tokenize(':')[0]
+        TracingHeaderHelper.getTraceGuid(mc.handlings[0].request.headers.getFirstValue("x-trans-id")) == transId
+        TracingHeaderHelper.getTraceGuid(mc.receivedResponse.headers.getFirstValue("x-trans-id")) == transId
 
         where:
         username | request                      | method   | reqBody | respMsg
