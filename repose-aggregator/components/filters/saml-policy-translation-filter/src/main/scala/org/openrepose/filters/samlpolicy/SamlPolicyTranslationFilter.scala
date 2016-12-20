@@ -20,7 +20,7 @@
 
 package org.openrepose.filters.samlpolicy
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 import org.openrepose.core.filter.AbstractConfiguredFilter
@@ -30,6 +30,7 @@ import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 /**
   * Created by adrian on 12/12/16.
   */
+@Named
 class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationService)
   extends AbstractConfiguredFilter[SamlPolicyConfig](configurationService){
 
