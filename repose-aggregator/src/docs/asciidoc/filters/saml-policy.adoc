@@ -1,0 +1,60 @@
+= SAML Policy Translation Filter
+
+include::../_includes/in-progress.adoc[]
+
+This filter takes A SAML Response in the object binding, adds a new translated assertion to it and then signs the entire response.
+It'll attempt to locate a policy to use for the translation based on the assertion issuer.
+
+
+== General filter information
+* *Name:* saml-policy
+* *Default Configuration:* saml-policy.cfg.xml
+* *Released:* v8.?.?.0
+* *Bundle:* repose-extensions-filter-bundle
+* link:../schemas/saml-policy.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Required headers
+`Content-Type` - Needs a value of `application/xml`
+
+=== Required preceding filters
+If using the post form binding, you'll need to use the <<saml-binding.adoc#,SAML Binding Translation Filter>> to decode the request first.
+
+=== Request headers created
+`Identity-API-Version` - `1.0` if the assertion issuer is in the configured list and `2.0` otherwise.
+
+=== Request body changes
+If issuer isn't in the configured list, a new assertion will be generated based on the matching issuer policy with `http://openrepose.org/filters/SAMLTranslation` as the issuer.
+Additionally the SAML Response will be signed with the configured credentials.
+
+=== Recommended follow-on (succeeding) filters
+None.
+
+=== Response body changes
+Some stuff about custom fields getting translated into the body, fill it in when we get to that story.
+
+=== Response headers created
+None.
+
+=== Response Status Codes
+`400` - If all the assertions aren't signed and if all the assertions don't come from the same issuer.
+`401` - If a policy that matches the assertion issuer can not be found.
+
+== Examples
+=== Do Something
+This configuration will do soemthing super great.
+
+[source,xml]
+.some.cfg.xml
+----
+<some xmlns="http://docs.openrepose.org/repose/some/v1.0">
+    <foo> <!--1-->
+        <bar/> <!--2-->
+    </foo>
+</some>
+----
+<1> Specifies foo.
+<2> Specifies bar.
+
+== Additional Information
+There's always money in the banana stand.

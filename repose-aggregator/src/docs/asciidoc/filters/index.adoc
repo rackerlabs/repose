@@ -74,6 +74,9 @@ For identity usage for rate limiting and user access events.
 == <<rate-limiting.adoc#,Rate Limiting Filter>>
 *IN PROGRESS*
 
+== <<saml-policy.adoc#,SAML Policy Translation Filter>>
+Allows the translation and addition of new assertions to a SAML response request.
+
 == <<scripting.adoc#,Scripting Filter>>
 Enables users to write custom filters for Repose using a variety of scripting languages.
 
