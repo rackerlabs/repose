@@ -56,6 +56,9 @@ final class CompressingFilterContext {
 
     private static final int DEFAULT_COMPRESSION_THRESHOLD = 1024;
     private static final Pattern COMMA = Pattern.compile(",");
+    private static final String FILTER_WILL = "Filter will ";
+    private static final String INCLUDE = "include";
+    private static final String EXCLUDE = "exclude";
 
     private final boolean debug;
     private final CompressingFilterLogger logger;
@@ -126,7 +129,7 @@ final class CompressingFilterContext {
         }
 
         if (!contentTypes.isEmpty()) {
-            logger.logDebug("Filter will " + (includeContentTypes ? "include" : "exclude") +
+            logger.logDebug(FILTER_WILL + (includeContentTypes ? INCLUDE : EXCLUDE) +
                     " only these content types: " + contentTypes);
         }
 
@@ -145,7 +148,7 @@ final class CompressingFilterContext {
         }
 
         if (!pathPatterns.isEmpty() && logger.isDebug()) {
-            logger.logDebug("Filter will " + (includePathPatterns ? "include" : "exclude") +
+            logger.logDebug(FILTER_WILL + (includePathPatterns ? INCLUDE : EXCLUDE) +
                     " only these file patterns: " + pathPatterns);
         }
 
@@ -165,7 +168,7 @@ final class CompressingFilterContext {
         }
 
         if (!userAgentPatterns.isEmpty() && logger.isDebug()) {
-            logger.logDebug("Filter will " + (includeUserAgentPatterns ? "include" : "exclude") +
+            logger.logDebug(FILTER_WILL + (includeUserAgentPatterns ? INCLUDE : EXCLUDE) +
                     " only these User-Agent patterns: " + userAgentPatterns);
         }
 

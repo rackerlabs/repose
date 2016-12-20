@@ -42,6 +42,7 @@ import java.util.*;
 public class FilterContextFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilterContextFactory.class);
+    private static final String REQUESTED_FILTER = "Requested filter, ";
     private final ClassLoaderManagerService classLoaderManagerService;
     private final ApplicationContext applicationContext;
 
@@ -126,14 +127,14 @@ public class FilterContextFactory {
 
             return new FilterContext(newFilterInstance, filterContext, filter);
         } catch (ClassNotFoundException e) {
-            throw new FilterInitializationException("Requested filter, " + filterClassName + " does not exist in any loaded artifacts", e);
+            throw new FilterInitializationException(REQUESTED_FILTER + filterClassName + " does not exist in any loaded artifacts", e);
         } catch (ServletException e) {
             LOG.error("Failed to initialize filter {}", filterClassName);
             throw new FilterInitializationException("Failed to initialize filter " + filterClassName, e);
         } catch (ClassCastException e) {
-            throw new FilterInitializationException("Requested filter, " + filterClassName + " is not of type javax.servlet.Filter", e);
+            throw new FilterInitializationException(REQUESTED_FILTER + filterClassName + " is not of type javax.servlet.Filter", e);
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new FilterInitializationException("Requested filter, " + filterClassName +
+            throw new FilterInitializationException(REQUESTED_FILTER + filterClassName +
                     " is not an annotated Component nor does it have a public zero-argument constructor.", e);
         }
     }

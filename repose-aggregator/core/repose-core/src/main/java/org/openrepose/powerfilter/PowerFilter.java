@@ -94,6 +94,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     public static final String APPLICATION_DEPLOYMENT_HEALTH_REPORT = "ApplicationDeploymentError";
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
+    private static final String ERROR_PROCESSING_REQUEST = "Error processing request";
     private final Object configurationLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private final UpdateListener<SystemModel> systemModelConfigurationListener;
@@ -417,13 +418,13 @@ public class PowerFilter extends DelegatingFilterProxy {
             }
         } catch (InvalidMethodException ime) {
             LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, wrappedRequest.getMethod(), ime);
-            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
+            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, ERROR_PROCESSING_REQUEST);
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
-            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
+            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, ERROR_PROCESSING_REQUEST);
         } catch (Exception ex) {
             LOG.error("{}:{} -- Exception encountered while processing filter chain.", clusterId, nodeId, ex);
-            wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
+            wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, ERROR_PROCESSING_REQUEST);
         } finally {
             // We must call this method here so that the response messaging service can potentially mutate the body of
             // the response. The method itself enables the wrapper to report a committed response as being so, while

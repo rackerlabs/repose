@@ -36,6 +36,7 @@ import java.io.IOException;
 public class UnmarshallerResourceContext implements ResourceContext<UnmarshallerValidator, Object> {
 
     private static final Logger LOG = LoggerFactory.getLogger(UnmarshallerResourceContext.class);
+    private static final String REASON = " - Reason: ";
     private final ConfigurationResource cfgResource;
 
     public UnmarshallerResourceContext(ConfigurationResource cfgResource) {
@@ -54,14 +55,14 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
             throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name() + " - " + jaxbe.getCause()
                     + " - Error code: "
                     + jaxbe.getErrorCode()
-                    + " - Reason: "
+                    + REASON
                     + jaxbe.getMessage(), jaxbe.getLinkedException());
         } catch (IOException ioe) {
-            throw new ResourceContextException("An I/O error has occured while trying to read resource " + cfgResource.name() + " - Reason: " + ioe.getMessage(), ioe);
+            throw new ResourceContextException("An I/O error has occured while trying to read resource " + cfgResource.name() + REASON + ioe.getMessage(), ioe);
         } catch (SAXException se) {
             throw new ResourceContextException("Validation error on resource " + cfgResource.name() + " - " + se.getMessage(), se);
         } catch (Exception ex) {
-            throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name() + " - Reason: " + ex.getMessage(), ex);
+            throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name() + REASON + ex.getMessage(), ex);
         }
     }
 }

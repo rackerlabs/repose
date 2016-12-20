@@ -53,6 +53,7 @@ public class RateLimitingHandler {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
     private static final MimeType DEFAULT_MIME_TYPE = MimeType.APPLICATION_JSON;
     private static final int SC_TOO_MANY_REQUESTS = 429;
+    private static final String FAILURE_REASON = "Failure when querying limits. Reason: ";
 
     private final boolean includeAbsoluteLimits;
     private final Optional<Pattern> describeLimitsUriPattern;
@@ -133,7 +134,7 @@ public class RateLimitingHandler {
             response.setContentType(mimeType.toString());
             response.setStatus(HttpServletResponse.SC_OK);
         } catch (Exception e) {
-            LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
+            LOG.error(FAILURE_REASON + e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
@@ -209,10 +210,10 @@ public class RateLimitingHandler {
             }
         } catch (UpstreamException ue) {
             //I want a 502 returned when upstream didn't respond appropriately
-            LOG.error("Failure when querying limits. Reason: " + ue.getMessage(), ue);
+            LOG.error(FAILURE_REASON + ue.getMessage(), ue);
             response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
         } catch (Exception e) {
-            LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
+            LOG.error(FAILURE_REASON + e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
