@@ -51,8 +51,9 @@ class SamlPolicyTranslationTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
         def sentRequest = ((MessageChain) mc).getHandlings()[0]
 
-        then: "The request/response should contain additional header from add-header config"
+        then: "The request/response should contain the correct value and the status code should be OK (200)"
         sentRequest.request.headers.contains(headerName)
+        sentRequest.request.headers.getCountByName(headerName) == 1
         sentRequest.request.headers.getFirstValue(headerName) == headerValue
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
     }
