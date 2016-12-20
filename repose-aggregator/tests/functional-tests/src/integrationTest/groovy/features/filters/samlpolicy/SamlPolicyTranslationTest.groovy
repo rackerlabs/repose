@@ -37,7 +37,6 @@ class SamlPolicyTranslationTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/samlpolicy", params)
-        repose.enableDebug()
         repose.start()
         reposeLogSearch.awaitByString("Repose ready", 1, 30)
     }
