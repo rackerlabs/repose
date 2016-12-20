@@ -149,7 +149,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include regex """"GUID" : ":.+""""
+      logEvents.get(0).getMessage.getFormattedMessage should include regex """"GUID" : "NO_TRANSACTION_ID:.+""""
     }
     it("should log a guid given a tracing header") {
       // given:
