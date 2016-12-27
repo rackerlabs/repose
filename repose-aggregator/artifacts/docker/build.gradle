@@ -1,6 +1,7 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import com.bmuschko.gradle.docker.tasks.image.DockerTagImage
 
 apply plugin: 'com.bmuschko.docker-remote-api'
 
@@ -33,21 +34,50 @@ docker {
 task buildImage(type: DockerBuildImage) {
     finalizedBy 'removeImage'
     inputDir = file("$projectDir/src/docker")
-    tag = "rackerlabs/repose:$reposeVersion"
     buildArgs = ['REPOSE_VERSION': reposeVersion]
     // TODO: Set "forcerm" to true once the Docker Gradle plugin supports it
 }
 
-task pushImage(type: DockerPushImage) {
+task tagImageVersion(type: DockerTagImage) {
     dependsOn 'buildImage'
-    imageName = buildImage.getTag()
+    repository = 'rackerlabs/repose'
+    tag = reposeVersion
+    targetImageId { buildImage.getImageId() }
+}
+
+task tagImageLatest(type: DockerTagImage) {
+    dependsOn 'buildImage'
+    repository = 'rackerlabs/repose'
+    tag = 'latest'
+    targetImageId { buildImage.getImageId() }
+}
+
+task pushImageVersion(type: DockerPushImage) {
+    dependsOn 'tagImageVersion'
+    imageName = 'rackerlabs/repose'
+    tag = reposeVersion
+}
+
+task pushImageLatest(type: DockerPushImage) {
+    dependsOn 'tagImageLatest'
+    imageName = 'rackerlabs/repose'
+    tag = 'latest'
 }
 
 task removeImage(type: DockerRemoveImage) {
     dependsOn 'buildImage'
-    mustRunAfter 'pushImage'
+    mustRunAfter 'tagImageVersion', 'tagImageLatest', 'pushImageVersion', 'pushImageLatest'
     targetImageId { buildImage.getImageId() }
     force = true
 }
 
-project.tasks.getByPath(':release').dependsOn pushImage
+static boolean isLatestVersion(String ver) {
+    // TODO: Fetch tags
+    // TODO: Handle paging
+    // TODO: Compare versions
+    return true
+}
+
+pushImageLatest.onlyIf { isLatestVersion(reposeVersion) }
+
+project.tasks.getByPath(':release').dependsOn pushImageVersion, pushImageLatest
