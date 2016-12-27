@@ -71,9 +71,32 @@ task removeImage(type: DockerRemoveImage) {
     force = true
 }
 
-static boolean isLatestVersion(String ver) {
+static int compareVersions(String v1, String v2) {
+    List<String> v1Parts = v1.tokenize('.')
+    List<String> v2Parts = v2.tokenize('.')
+
+    int minLen = Math.min(v1Parts.size(), v2Parts.size())
+
+    // Compare each number from the versions until either the numbers do not match,
+    // or the end of a version string is hit.
+    for (int i = 0; i < minLen; ++i) {
+        int n1 = v1Parts[i] as int
+        int n2 = v1Parts[i] as int
+
+        if (n1 != n2) {
+            return n1 <=> n2
+        }
+    }
+
+    // If we got this far, then one version is a substring of the other.
+    // Therefore, whichever version is longer is the greater version.
+    return v1Parts.size() <=> v2Parts.size()
+}
+
+static boolean isLatestVersion(String v) {
     // TODO: Fetch tags
     // TODO: Handle paging
+    // TODO: Throw out any tags that do not start with a number
     // TODO: Compare versions
     return true
 }
