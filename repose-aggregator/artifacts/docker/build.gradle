@@ -99,14 +99,22 @@ static int compareVersions(String v1, String v2) {
 static boolean isLatestVersion(String v) {
     boolean isLatest = true
 
-    // TODO: Handle paging
-    URL tagsUrl = new URL('https://hub.docker.com/v2/repositories/rackerlabs/repose/tags/?page_size=100')
-    Map jsonObject = new JsonSlurper().parse(tagsUrl) as Map
-    for (Map result : jsonObject.results) {
-        String tagName = result.name
-        if (tagName.length() > 0 && tagName.charAt(0).isDigit() && compareVersions(v, tagName) < 0) {
-            isLatest = false
+    String nextPage = 'https://hub.docker.com/v2/repositories/rackerlabs/repose/tags/'
+    while (nextPage) {
+        Map jsonObject = new JsonSlurper().parse(new URL(nextPage)) as Map
+        for (Map result : jsonObject.results) {
+            String tagName = result.name
+            if (tagName.length() > 0 && tagName.charAt(0).isDigit() && compareVersions(v, tagName) < 0) {
+                isLatest = false
+                break
+            }
         }
+
+        if (!isLatest) {
+            break
+        }
+
+        nextPage = jsonObject.next
     }
 
     return isLatest
