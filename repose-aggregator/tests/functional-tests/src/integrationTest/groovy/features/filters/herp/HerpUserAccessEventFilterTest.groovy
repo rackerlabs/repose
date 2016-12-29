@@ -420,6 +420,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         result.Request.UserName == "randomuser"
         result.Request.ImpersonatorName == "impersonateuser"
         result.Request.RequestID.tokenize(':')[0] == requestid
+        result.Request.RequestID.tokenize(':')[1].length() > 0
         result.Request.Method == method
         (result.Request.URL).contains("/resource")
         result.Response.Code == responseCode.toInteger()
