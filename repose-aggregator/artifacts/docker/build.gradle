@@ -1,7 +1,10 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 import com.bmuschko.gradle.docker.tasks.image.DockerTagImage
+import groovy.json.JsonSlurper
+
+import java.net.URL
 
 apply plugin: 'com.bmuschko.docker-remote-api'
 
@@ -81,7 +84,7 @@ static int compareVersions(String v1, String v2) {
     // or the end of a version string is hit.
     for (int i = 0; i < minLen; ++i) {
         int n1 = v1Parts[i] as int
-        int n2 = v1Parts[i] as int
+        int n2 = v2Parts[i] as int
 
         if (n1 != n2) {
             return n1 <=> n2
@@ -94,11 +97,19 @@ static int compareVersions(String v1, String v2) {
 }
 
 static boolean isLatestVersion(String v) {
-    // TODO: Fetch tags
+    boolean isLatest = true
+
     // TODO: Handle paging
-    // TODO: Throw out any tags that do not start with a number
-    // TODO: Compare versions
-    return true
+    URL tagsUrl = new URL('https://hub.docker.com/v2/repositories/rackerlabs/repose/tags/?page_size=100')
+    Map jsonObject = new JsonSlurper().parse(tagsUrl) as Map
+    for (Map result : jsonObject.results) {
+        String tagName = result.name
+        if (tagName.length() > 0 && tagName.charAt(0).isDigit() && compareVersions(v, tagName) < 0) {
+            isLatest = false
+        }
+    }
+
+    return isLatest
 }
 
 pushImageLatest.onlyIf { isLatestVersion(reposeVersion) }
