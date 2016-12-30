@@ -446,8 +446,8 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
     @Unroll
     def "will populate and log the username '#expectedUsername' when the request header username is '#requestUsername' and the response header is '#responseUsername'"() {
         given:
-        def requestHeaders = requestUsername ? [(OpenStackServiceHeader.USER_NAME.toString()): requestUsername] : [:]
-        def responseHeaders = responseUsername ? [(OpenStackServiceHeader.USER_NAME.toString()): responseUsername] : [:]
+        def requestHeaders = requestUsername != null ? [(OpenStackServiceHeader.USER_NAME.toString()): requestUsername] : [:]
+        def responseHeaders = responseUsername != null ? [(OpenStackServiceHeader.USER_NAME.toString()): responseUsername] : [:]
         def customHandler = { new Response(HttpServletResponse.SC_OK, null, responseHeaders) }
 
         when:

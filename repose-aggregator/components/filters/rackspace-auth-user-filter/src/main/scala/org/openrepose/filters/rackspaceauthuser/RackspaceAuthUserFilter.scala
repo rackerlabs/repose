@@ -103,7 +103,12 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
     }
   }
 
-  def getUsername(domain: String, user: String): String = if (domain.equals("Rackspace")) s"Racker:$user" else user
+  def getUsername(domain: String, user: String): String =
+    if (domain == "Rackspace") {
+      s"Racker:$user"
+    } else {
+      user
+    }
 
   /**
     * Many payloads to parse here, should be fun
