@@ -16,7 +16,17 @@ Events are recorded even if the API request is rejected by Repose before reachin
 
 == Prerequisites & Postconditions
 === Required Headers
-This filter has no required headers.
+[cols="15,12,73", options="header"]
+.Response
+|===
+| Response Headers
+| Value
+| Conditions of Requirement
+
+| `X-User-Name`
+| Username of the requestor
+| Required when the username was not provided in the request (e.g., for change password requests to Identity using a temporary token)
+|===
 
 === Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
@@ -65,7 +75,7 @@ To use the HERP filter, you need to:
 . Configure the data-center attribute to note the data center of the service.
 . Configure the template element to define the format of the messages to be logged by the HERP filter.
 
-=== Optional user-configurable filtering
+=== Optional User-Configurable Filtering
 The HERP filter allows user-configurable filtering along with optional pre and post log identifiers.
 
 Each `filterOut` block contains all of the criteria required for a single filter.
@@ -88,10 +98,12 @@ In other words, the `match` elements are logically AND'd and the `filterOut` blo
 .highly-efficient-record-processor.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<highly-efficient-record-processor xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
-                                   pre-filter-logger-name="org.openrepose.herp.pre.filter"
-                                   post-filter-logger-name="org.openrepose.herp.post.filter"
-                                   service-code="repose" region="USA" data-center="DFW">
+<highly-efficient-record-processor
+    xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
+    pre-filter-logger-name="org.openrepose.herp.pre.filter"
+    post-filter-logger-name="org.openrepose.herp.post.filter"
+    service-code="repose" region="USA" data-center="DFW">
+
     <template crush="true">
         <![CDATA[
             <cadf:event xmlns:cadf="http://schemas.dmtf.org/cloud/audit/1.0/event"
@@ -154,7 +166,7 @@ If you aren't using that filter, `{{methodLabel}}` will return empty string.
 ====
 
 == Additional Information
-=== Optional user-configurable filtering
+=== Optional User-Configurable Filtering
 The HERP filter allows user-configurable filtering along with optional pre and post log identifiers.
 
 Each `filterOut` block contains all of the criteria required for a single filter.
@@ -176,7 +188,7 @@ In other words, the `match` elements are logically AND'd and the `filterOut` blo
 === User Access Event Recording With Flume
 For information about using the Flume with the HERP filter for user access event recording, see <<../recipes/api-event-flume.adoc#,CF Flume Sink>> for more details.
 
-=== Configurable parameters
+=== Configurable Parameters
 In the `template` element, certain template keys may be used to add dynamic content to the text being logged.
 Any valid key enclosed in brackets (i.e., `{{<key>}}`) will be replaced, brackets included, by the value associated with that key at runtime.
 Note that key names are case sensitive.
@@ -231,7 +243,7 @@ The following helpers are available:
 | cadfMethod <requestMethod> | Converts a HTTP method into the CADF format.
 |===
 
-=== Recommendation for managing disk space
+=== Recommendation For Managing Disk Space
 If you expect heavy usage, you should use a logging tool, such as link:http://logstash.net/[Logstash], for managing events and logs and should not write events to files.
 Even if you rely on auditing, it is not recommended that you use the file system with the audit logs.
 Repose has developed <<../recipes/api-event-flume.adoc#,CF Flume Sink>> to eliminate disk space and log file issues.
