@@ -190,10 +190,13 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         messageChain.receivedResponse.code == "200"
     }
 
-    @Unroll("Will parse Forgot Password request for username when sent to appropriate URL (#testName)")
-    def "Will parse a Forgot Password request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd"() {
+    @Unroll("Will parse Forgot Password request for username with Content-Type #contentType and URL #url")
+    def "Will parse a Forgot Password request if the URL is /v2.0/users/RAX-AUTH/forgot-pwd with optional trailing slash"() {
+        given: "The correct request body is sent based on the content-type the test is going to use"
+        def requestBody = contentType == contentXml ? userForgotXmlV20 : userForgotJsonV20
+
         when: "Request body contains forgot password credentials"
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/v2.0/users/RAX-AUTH/forgot-pwd", requestBody: requestBody, headers: contentType, method: "POST")
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint + url, requestBody: requestBody, headers: contentType, method: "POST")
         def sentRequest = messageChain.getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"
@@ -207,9 +210,10 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         sentRequest.request.getHeaders().getFirstValue("x-user-name") == "demoAuthor"
 
         where:
-        requestBody       | contentType | testName
-        userForgotXmlV20  | contentXml  | "userForgotXmlV20"
-        userForgotJsonV20 | contentJson | "userForgotJsonV20"
+        [contentType, url] << [
+                [contentXml, contentJson],
+                ["/v2.0/users/RAX-AUTH/forgot-pwd", "/v2.0/users/RAX-AUTH/forgot-pwd/", "/v2.0/users/RAX-AUTH/forgot-pwd?sauce=ketchup"]
+        ].combinations()
     }
 
     @Unroll("Will not parse Forgot Password request for username when sent to an inappropriate URL (#testName)")

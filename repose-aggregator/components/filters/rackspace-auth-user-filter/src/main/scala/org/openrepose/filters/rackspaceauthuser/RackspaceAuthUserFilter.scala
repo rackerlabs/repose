@@ -38,6 +38,7 @@ import play.api.libs.json.{JsError, JsSuccess, Json}
 
 import scala.xml.XML
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 @Named
 class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationService, datastoreService: DatastoreService)
@@ -199,7 +200,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
 
   def parseUserGroupFromInputStream(uri: String, inputStream: InputStream, contentType: String, sessionIds: List[String]): Option[RackspaceAuthUserGroup] =
     uri match {
-      case "/v2.0/users/RAX-AUTH/forgot-pwd" => Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameForgotPassword2_0Json, usernameForgotPassword2_0Xml))
+      case ForgotPasswordUri(_) => Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameForgotPassword2_0Json, usernameForgotPassword2_0Xml))
       case _ => sessionIds.map(HeaderValue).sortWith(_.quality > _.quality).toStream.flatMap({ header => Option(datastore.get(s"$ddKey:${header.value}").asInstanceOf[Option[RackspaceAuthUserGroup]]) }).headOption
         .getOrElse(Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameAuth2_0Json, usernameAuth2_0Xml)))
         .orElse(Option(configuration.getV11).flatMap(parseUsername(_, inputStream, contentType, usernameAuth1_1Json, usernameAuth1_1Xml)))
@@ -230,6 +231,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
 object RackspaceAuthUserFilter {
   val ddKey: String = "rax-auth-user-filter"
   val sessionIdHeader: String = "X-SessionId"
+  val ForgotPasswordUri: Regex = "(/v2.0/users/RAX-AUTH/forgot-pwd/?)".r
 
   // function should return the tuple: (domain, username)
   type UsernameParsingFunction = InputStream => (Option[String], Option[String])

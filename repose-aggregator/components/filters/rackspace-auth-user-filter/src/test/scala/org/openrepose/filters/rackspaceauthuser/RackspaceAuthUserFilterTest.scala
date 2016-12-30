@@ -214,22 +214,51 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       verify(datastore).get(s"${RackspaceAuthUserFilter.ddKey}:banana")
     }
 
-    it("will parse a Forgot Password request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd") {
-      filter.configurationUpdated(auth2_0Config())
-      servletRequest.setRequestURI("/v2.0/users/RAX-AUTH/forgot-pwd")
-      servletRequest.setMethod("POST")
-      servletRequest.setContentType("application/json")
-      servletRequest.setContent(
-        """{
-          |    "RAX-AUTH:forgotPasswordCredentials": {
-          |        "username": "vkapoor"
-          |    }
-          |}""".stripMargin.getBytes)
+    List("/v2.0/users/RAX-AUTH/forgot-pwd", "/v2.0/users/RAX-AUTH/forgot-pwd/") foreach { uri =>
+      it(s"will parse a Forgot Password request if the URL matches $uri") {
+        filter.configurationUpdated(auth2_0Config())
+        servletRequest.setRequestURI(uri)
+        servletRequest.setMethod("POST")
+        servletRequest.setContentType("application/json")
+        servletRequest.setContent(
+          """{
+            |    "RAX-AUTH:forgotPasswordCredentials": {
+            |        "username": "vkapoor"
+            |    }
+            |}""".stripMargin.getBytes)
 
-      filter.doWork(servletRequest, servletResponse, filterChain)
+        filter.doWork(servletRequest, servletResponse, filterChain)
 
-      val request = captureRequestSentToNextFilter()
-      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "vkapoor"
+        val request = captureRequestSentToNextFilter()
+        request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "vkapoor"
+      }
+
+      it(s"will not parse an Auth request if the URL matches $uri") {
+        filter.configurationUpdated(auth2_0Config())
+        servletRequest.setRequestURI(uri)
+        servletRequest.setMethod("POST")
+        servletRequest.setContentType("application/json")
+        servletRequest.setContent(
+          """{
+            |    "auth": {
+            |        "RAX-AUTH:domain": {
+            |            "name": "Rackspace"
+            |        },
+            |        "passwordCredentials": {
+            |            "username": "mlewis",
+            |            "password": "umadbro"
+            |        }
+            |    }
+            |}""".stripMargin.getBytes)
+
+        filter.doWork(servletRequest, servletResponse, filterChain)
+
+        val request = captureRequestSentToNextFilter()
+        request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe null
+        request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe null
+        request.getHeader(PowerApiHeader.USER.toString) shouldBe null
+        request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      }
     }
 
     it("will not parse a Forgot Password request if the URL does not match /v2.0/users/RAX-AUTH/forgot-pwd") {
@@ -241,33 +270,6 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
         """{
           |    "RAX-AUTH:forgotPasswordCredentials": {
           |        "username": "avogel"
-          |    }
-          |}""".stripMargin.getBytes)
-
-      filter.doWork(servletRequest, servletResponse, filterChain)
-
-      val request = captureRequestSentToNextFilter()
-      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe null
-      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe null
-      request.getHeader(PowerApiHeader.USER.toString) shouldBe null
-      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
-    }
-
-    it("will not parse an Auth request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd") {
-      filter.configurationUpdated(auth2_0Config())
-      servletRequest.setRequestURI("/v2.0/users/RAX-AUTH/forgot-pwd")
-      servletRequest.setMethod("POST")
-      servletRequest.setContentType("application/json")
-      servletRequest.setContent(
-        """{
-          |    "auth": {
-          |        "RAX-AUTH:domain": {
-          |            "name": "Rackspace"
-          |        },
-          |        "passwordCredentials": {
-          |            "username": "mlewis",
-          |            "password": "umadbro"
-          |        }
           |    }
           |}""".stripMargin.getBytes)
 
