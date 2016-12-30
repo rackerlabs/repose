@@ -21,8 +21,6 @@ package features.filters.rackspaceauthuser
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Handling
-import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 import static features.filters.rackspaceauthuser.RackspaceAuthPayloads.*
@@ -36,7 +34,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/rackspaceauthuser", params)
-        repose.start([waitOnJmxAfterStarting: false])
+        repose.start(waitOnJmxAfterStarting: false)
         waitUntilReadyToServiceRequests()
     }
 
@@ -44,21 +42,21 @@ class RackspaceAuthUserTest extends ReposeValveTest {
     def "when identifying requests by header"() {
 
         when: "Request body contains user credentials"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST")
+        def sentRequest = messageChain.getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
+        sentRequest.request.getHeaders().findAll("x-pp-user").size() == 1
 
         and: "Repose will send user from Request body"
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-user") == (expectedUser + ";q=0.8")
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-user-name") == expectedUser
+        sentRequest.request.getHeaders().getFirstValue("x-pp-user") == expectedUser + ";q=0.8"
+        sentRequest.request.getHeaders().getFirstValue("x-user-name") == expectedUser
 
         and: "Repose will send a single value for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
+        sentRequest.request.getHeaders().findAll("x-pp-groups").size() == 1
 
         and: "Repose will send 'My Group' for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-groups") == "2_0 Group;q=0.8"
+        sentRequest.request.getHeaders().getFirstValue("x-pp-groups") == "2_0 Group;q=0.8"
 
         where:
         requestBody              | contentType | expectedUser | testName
@@ -76,27 +74,27 @@ class RackspaceAuthUserTest extends ReposeValveTest {
     def "when identifying requests by header with domain"() {
 
         when: "Request body contains user credentials"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST")
+        def sentRequest = messageChain.getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
+        sentRequest.request.getHeaders().findAll("x-pp-user").size() == 1
 
         and: "Repose will send user from Request body"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expectedUser + ";q=0.8")
-        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").contains(expectedUser)
+        sentRequest.request.getHeaders().findAll("x-pp-user").contains(expectedUser + ";q=0.8")
+        sentRequest.request.getHeaders().findAll("x-user-name").contains(expectedUser)
 
         and: "Repose will send two values for x-domain"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 1
+        sentRequest.request.getHeaders().findAll("x-domain").size() == 1
 
         and: "Repose will send #expectedDomain x-domain"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").contains(expectedDomain)
+        sentRequest.request.getHeaders().findAll("x-domain").contains(expectedDomain)
 
         and: "Repose will send a single value for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
+        sentRequest.request.getHeaders().findAll("x-pp-groups").size() == 1
 
         and: "Repose will send 'My Group' for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-groups") == "2_0 Group;q=0.8"
+        sentRequest.request.getHeaders().getFirstValue("x-pp-groups") == "2_0 Group;q=0.8"
 
         where:
         requestBody              | contentType | expectedDomain | expectedUser     | testName
@@ -112,15 +110,15 @@ class RackspaceAuthUserTest extends ReposeValveTest {
     def "when attempting to identity user by content and passed bad content"() {
 
         when: "Request body contains user credentials"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST")
+        def sentRequest = messageChain.getHandlings()[0]
 
         then: "Repose will not send x-pp-user"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
+        sentRequest.request.getHeaders().findAll("x-pp-user").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-user-name").isEmpty()
 
         and: "Repose will not send x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
+        sentRequest.request.getHeaders().findAll("x-pp-groups").isEmpty()
 
         where:
         requestBody            | contentType | testName
@@ -136,21 +134,21 @@ class RackspaceAuthUserTest extends ReposeValveTest {
     def "when using identity1.1 identifying requests by header"() {
 
         when: "Request body contains user credentials"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST")
+        def sentRequest = messageChain.getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
+        sentRequest.request.getHeaders().findAll("x-pp-user").size() == 1
 
         and: "Repose will send user from Request body"
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-user") == (expectedUser + ";q=0.75")
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-user-name") == expectedUser
+        sentRequest.request.getHeaders().getFirstValue("x-pp-user") == expectedUser + ";q=0.75"
+        sentRequest.request.getHeaders().getFirstValue("x-user-name") == expectedUser
 
         and: "Repose will send a single value for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
+        sentRequest.request.getHeaders().findAll("x-pp-groups").size() == 1
 
         and: "Repose will send 'My Group' for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-groups") == "1_1 Group;q=0.75"
+        sentRequest.request.getHeaders().getFirstValue("x-pp-groups") == "1_1 Group;q=0.75"
 
         where:
         requestBody         | contentType | expectedUser | testName
@@ -163,33 +161,30 @@ class RackspaceAuthUserTest extends ReposeValveTest {
     @Unroll("Does not affect #method requests")
     def "Does not affect non-post requests"() {
         when: "Request is a #method"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, method: method])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: method)
+        def sentRequest = messageChain.getHandlings()[0]
 
         then: "Repose will not add any headers"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
+        sentRequest.request.getHeaders().findAll("x-pp-user").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-user-name").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-pp-groups").isEmpty()
 
         and: "The result will be passed through"
         messageChain.receivedResponse.code == "200"
 
         where:
-        method   | _
-        "GET"    | _
-        "DELETE" | _
-        "PUT"    | _
+        method << ["GET", "DELETE", "PUT"]
     }
 
     def "Does not affect random post requests"() {
         when:
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, method: 'POST'])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'POST')
+        def sentRequest = messageChain.getHandlings()[0]
 
         then: "Repose will not add any headers"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
+        sentRequest.request.getHeaders().findAll("x-pp-user").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-user-name").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-pp-groups").isEmpty()
 
         and: "The result will be passed through"
         messageChain.receivedResponse.code == "200"
@@ -198,18 +193,18 @@ class RackspaceAuthUserTest extends ReposeValveTest {
     @Unroll("Will parse Forgot Password request for username when sent to appropriate URL (#testName)")
     def "Will parse a Forgot Password request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd"() {
         when: "Request body contains forgot password credentials"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/v2.0/users/RAX-AUTH/forgot-pwd", requestBody: requestBody, headers: contentType, method: "POST"])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/v2.0/users/RAX-AUTH/forgot-pwd", requestBody: requestBody, headers: contentType, method: "POST")
+        def sentRequest = messageChain.getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
-        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 1
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
-        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 0
+        sentRequest.request.getHeaders().findAll("x-pp-user").size() == 1
+        sentRequest.request.getHeaders().findAll("x-user-name").size() == 1
+        sentRequest.request.getHeaders().findAll("x-pp-groups").size() == 1
+        sentRequest.request.getHeaders().findAll("x-domain").isEmpty()
 
         and: "Repose will send user from Request body"
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-user") == ("demoAuthor;q=0.8")
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-user-name") == "demoAuthor"
+        sentRequest.request.getHeaders().getFirstValue("x-pp-user") == "demoAuthor;q=0.8"
+        sentRequest.request.getHeaders().getFirstValue("x-user-name") == "demoAuthor"
 
         where:
         requestBody       | contentType | testName
@@ -220,14 +215,14 @@ class RackspaceAuthUserTest extends ReposeValveTest {
     @Unroll("Will not parse Forgot Password request for username when sent to an inappropriate URL (#testName)")
     def "will not parse a Forgot Password request if the URL does not match /v2.0/users/RAX-AUTH/forgot-pwd"() {
         when: "Request body contains forgot password credentials"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST")
+        def sentRequest = messageChain.getHandlings()[0]
 
-        then: "Repose will send x-pp-user with a single value"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 0
+        then: "Repose will not send x-pp-user nor the other related headers"
+        sentRequest.request.getHeaders().findAll("x-pp-user").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-user-name").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-pp-groups").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-domain").isEmpty()
 
         where:
         requestBody       | contentType | testName
@@ -238,14 +233,14 @@ class RackspaceAuthUserTest extends ReposeValveTest {
     @Unroll("Will not parse an Auth request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd (#testName)" )
     def "will not parse an Auth request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd" () {
         when: "Request body contains user credentials"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/v2.0/users/RAX-AUTH/forgot-pwd", requestBody: requestBody, headers: contentType, method: "POST"])
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/v2.0/users/RAX-AUTH/forgot-pwd", requestBody: requestBody, headers: contentType, method: "POST")
+        def sentRequest = messageChain.getHandlings()[0]
 
-        then: "Repose will send x-pp-user with a single value"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-user-name").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
-        ((Handling) sentRequest).request.getHeaders().findAll("x-domain").size() == 0
+        then: "Repose will not send x-pp-user nor the other related headers"
+        sentRequest.request.getHeaders().findAll("x-pp-user").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-user-name").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-pp-groups").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-domain").isEmpty()
 
         where:
         requestBody              | contentType | testName
