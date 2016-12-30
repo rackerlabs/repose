@@ -64,7 +64,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
       val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse],
         ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
       val authUserGroup: Option[RackspaceAuthUserGroup] = parseUserGroupFromInputStream(wrappedRequest.getRequestURI,
-        wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(sessionIdHeader))
+        wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(SessionIdHeader))
       authUserGroup foreach { rackspaceAuthUserGroup =>
         rackspaceAuthUserGroup.domain.foreach { domainVal =>
           wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
@@ -78,7 +78,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
 
       wrappedResponse.getHeadersList(CommonHttpHeader.WWW_AUTHENTICATE.toString).asScala.filter(_.startsWith("OS-MF")) foreach { header =>
         Option(StringUtils.substringBetween(header, "sessionId='", "'")) match {
-          case Some(sessionId) => datastore.put(s"$ddKey:$sessionId", authUserGroup, 5, TimeUnit.MINUTES)
+          case Some(sessionId) => datastore.put(s"$DdKey:$sessionId", authUserGroup, 5, TimeUnit.MINUTES)
           case None => logger.debug("Failed to parse the session id out of '{}'", header)
         }
       }
@@ -201,7 +201,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
   def parseUserGroupFromInputStream(uri: String, inputStream: InputStream, contentType: String, sessionIds: List[String]): Option[RackspaceAuthUserGroup] =
     uri match {
       case ForgotPasswordUri(_) => Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameForgotPassword2_0Json, usernameForgotPassword2_0Xml))
-      case _ => sessionIds.map(HeaderValue).sortWith(_.quality > _.quality).toStream.flatMap({ header => Option(datastore.get(s"$ddKey:${header.value}").asInstanceOf[Option[RackspaceAuthUserGroup]]) }).headOption
+      case _ => sessionIds.map(HeaderValue).sortWith(_.quality > _.quality).toStream.flatMap({ header => Option(datastore.get(s"$DdKey:${header.value}").asInstanceOf[Option[RackspaceAuthUserGroup]]) }).headOption
         .getOrElse(Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameAuth2_0Json, usernameAuth2_0Xml)))
         .orElse(Option(configuration.getV11).flatMap(parseUsername(_, inputStream, contentType, usernameAuth1_1Json, usernameAuth1_1Xml)))
     }
@@ -229,8 +229,8 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
 }
 
 object RackspaceAuthUserFilter {
-  val ddKey: String = "rax-auth-user-filter"
-  val sessionIdHeader: String = "X-SessionId"
+  val DdKey: String = "rax-auth-user-filter"
+  val SessionIdHeader: String = "X-SessionId"
   val ForgotPasswordUri: Regex = "(/v2.0/users/RAX-AUTH/forgot-pwd/?)".r
 
   // function should return the tuple: (domain, username)

@@ -150,8 +150,8 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
           |    }
           |  }
           |}""".stripMargin.getBytes)
-      servletRequest.addHeader(RackspaceAuthUserFilter.sessionIdHeader, "foo-bar")
-      when(datastore.get(s"${RackspaceAuthUserFilter.ddKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
+      servletRequest.addHeader(RackspaceAuthUserFilter.SessionIdHeader, "foo-bar")
+      when(datastore.get(s"${RackspaceAuthUserFilter.DdKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
 
       filter.doWork(servletRequest, servletResponse, filterChain)
 
@@ -174,8 +174,8 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
           |    }
           |  }
           |}""".stripMargin.getBytes)
-      servletRequest.addHeader(RackspaceAuthUserFilter.sessionIdHeader, "banana;q=0.5,foo-bar;q=0.7")
-      when(datastore.get(s"${RackspaceAuthUserFilter.ddKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
+      servletRequest.addHeader(RackspaceAuthUserFilter.SessionIdHeader, "banana;q=0.5,foo-bar;q=0.7")
+      when(datastore.get(s"${RackspaceAuthUserFilter.DdKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
 
       filter.doWork(servletRequest, servletResponse, filterChain)
 
@@ -185,7 +185,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
       request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
 
-      verify(datastore, times(0)).get(s"${RackspaceAuthUserFilter.ddKey}:banana")
+      verify(datastore, times(0)).get(s"${RackspaceAuthUserFilter.DdKey}:banana")
     }
 
     it("will search the datastore till it finds the session") {
@@ -200,8 +200,8 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
           |    }
           |  }
           |}""".stripMargin.getBytes)
-      servletRequest.addHeader(RackspaceAuthUserFilter.sessionIdHeader, "banana;q=0.7,foo-bar;q=0.5")
-      when(datastore.get(s"${RackspaceAuthUserFilter.ddKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
+      servletRequest.addHeader(RackspaceAuthUserFilter.SessionIdHeader, "banana;q=0.7,foo-bar;q=0.5")
+      when(datastore.get(s"${RackspaceAuthUserFilter.DdKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
 
       filter.doWork(servletRequest, servletResponse, filterChain)
 
@@ -211,7 +211,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
       request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
 
-      verify(datastore).get(s"${RackspaceAuthUserFilter.ddKey}:banana")
+      verify(datastore).get(s"${RackspaceAuthUserFilter.DdKey}:banana")
     }
 
     List("/v2.0/users/RAX-AUTH/forgot-pwd", "/v2.0/users/RAX-AUTH/forgot-pwd/") foreach { uri =>
@@ -607,17 +607,17 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
 
     List(
       (List("OS-MF sessionId='123456', factor='PASSCODE'"),
-        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":123456"),
+        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.DdKey + ":123456"),
                                 meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
                                 meq(5),
                                 meq(TimeUnit.MINUTES)) }),
       (List("OS-MF sessionId='green', factor='PASSCODE'", "Keystone uri=https://some.identity.com"),
-        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":green"),
+        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.DdKey + ":green"),
                                 meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
                                 meq(5),
                                 meq(TimeUnit.MINUTES)) }),
       (List("Keystone uri=https://some.identity.com", "OS-MF sessionId='banana', factor='PASSCODE'"),
-        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":banana"),
+        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.DdKey + ":banana"),
                                 meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
                                 meq(5),
                                 meq(TimeUnit.MINUTES)) }),
