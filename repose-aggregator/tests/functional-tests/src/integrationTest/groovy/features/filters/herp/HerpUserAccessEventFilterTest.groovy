@@ -33,9 +33,6 @@ import javax.servlet.http.HttpServletResponse
 
 import static javax.ws.rs.HttpMethod.GET
 
-/**
- * Created by jennyvo on 2/10/15.
- */
 class HerpUserAccessEventFilterTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -446,53 +443,109 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         "200"        | "test12" | "tenantId=12345" | "PUT"  | "OK"
     }
 
+    @Unroll
+    def "will populate and log the username '#expectedUsername' when the request header username is '#requestUsername' and the response header is '#responseUsername'"() {
+        given:
+        def requestHeaders = requestUsername != null ? [(OpenStackServiceHeader.USER_NAME.toString()): requestUsername] : [:]
+        def responseHeaders = responseUsername != null ? [(OpenStackServiceHeader.USER_NAME.toString()): responseUsername] : [:]
+        def customHandler = { new Response(HttpServletResponse.SC_OK, null, responseHeaders) }
+
+        when:
+        deproxy.makeRequest(
+                url: reposeEndpoint,
+                method: GET,
+                headers: requestHeaders,
+                defaultHandler: customHandler)
+
+        then: "the filter will log the details of the request using JSON"
+        def logLine = reposeLogSearch.searchByString("INFO  org.openrepose.herp.pre.filter").first()
+        def result = new JsonSlurper().parseText(logLine.substring(logLine.indexOf("{")))
+
+        and: "the logged JSON will contain the expected Username"
+        result.Request.UserName == expectedUsername
+
+        where:
+        expectedUsername | requestUsername     | responseUsername
+        "requestFoo"     | "requestFoo"        | null
+        // should use the response header if the request header is missing or empty
+        "responseBar"    | null                | "responseBar"
+        "responseBar"    | ""                  | "responseBar"
+        "responseBar"    | ";q=0.8"            | "responseBar"
+        // should prefer the request header if it's available, no matter the quality
+        "requestFoo"     | "requestFoo"        | "responseBar"
+        "requestFoo"     | "requestFoo;q=0.2"  | "responseBar;q=0.9"
+        "requestFoo"     | "requestFoo;q=1.0"  | "responseBar"
+        "requestFoo"     | "requestFoo"        | "responseBar;q=1.0"
+        "requestFoo"     | "requestFoo;q=1.0"  | "responseBar;q=1.0"
+        // should not be tripped up by different header attributes
+        "foo"            | "foo;q=0.4;a=b"     | null
+        "foo"            | "foo;a=b;q=0.4"     | null
+        "foo"            | "foo;a=b;q=0.4;c=d" | null
+        "foo"            | "foo;q=0.4;qq=0.0"  | null
+        "foo"            | "foo;qq=0.0;q=0.4"  | null
+        "bar"            | null                | "bar;q=0.4;a=b"
+        "bar"            | null                | "bar;a=b;q=0.4"
+        "bar"            | null                | "bar;a=b;q=0.4;c=d"
+        "bar"            | null                | "bar;q=0.4;qq=0.0"
+        "bar"            | null                | "bar;qq=0.0;q=0.4"
+        "baz"            | "baz;q=0.4;a=b"     | "qux;q=0.4;a=b"
+        "baz"            | "baz;a=b;q=0.4"     | "qux;a=b;q=0.4"
+        "baz"            | "baz;a=b;q=0.4;c=d" | "qux;a=b;q=0.4;c=d"
+        "baz"            | "baz;q=0.4;qq=0.0"  | "qux;q=0.4;qq=0.0"
+        "baz"            | "baz;qq=0.0;q=0.4"  | "qux;qq=0.0;q=0.4"
+        // should be okay with different precision qualities
+        "foo"            | "foo;q=0.1"         | null
+        "foo"            | "foo;q=0.01"        | null
+        "foo"            | "foo;q=0.001"       | null
+        "foo"            | "foo;q=1"           | null
+        "foo"            | "foo;q=1.0"         | null
+        "foo"            | "foo;q=1.00"        | null
+        "foo"            | "foo;q=1.000"       | null
+        "bar"            | null                | "bar;q=0.1"
+        "bar"            | null                | "bar;q=0.01"
+        "bar"            | null                | "bar;q=0.001"
+        "bar"            | null                | "bar;q=1"
+        "bar"            | null                | "bar;q=1.0"
+        "bar"            | null                | "bar;q=1.00"
+        "bar"            | null                | "bar;q=1.000"
+        // should be okay with some whitespace
+        "foo"            | "foo; q=0.5"        | null
+        "bar"            | null                | "bar; q=0.5"
+        // should be okay with the same value
+        "foo"            | "foo"               | "foo"
+    }
+
     // Check all required attributes in the log
-    private static boolean checkAttribute(String jsonpart, List<String> listattr) {
-        boolean check = true
-        for (attr in listattr) {
-            if (!jsonpart.contains(attr)) {
-                check = false
-                break
-            }
-        }
-        return check
+    private static boolean checkAttribute(String jsonpart, List<String> attributes) {
+        attributes.every { jsonpart.contains(it) }
     }
 
     // Build map for query parameters from request
-    private static Map<String, List> buildParamList(String parameters) {
-        Map<String, List> params = [:]
-        List<String> list = parameters.split("&")
+    private static Map<String, List> buildParamList(String parameterString) {
+        Map<String, List> parameters = [:]
         List<String> av = []
-        for (e in list) {
+
+        parameterString.split("&").each { e ->
             def (k, v) = e.split("=")
             av.add(v)
-            if (params[k] == null) {
-                params[k] = av
+            if (parameters[k] == null) {
+                parameters[k] = av
                 av = []
             } else {
-                List ov = params[k]
-                ov.add(v)
-                params[k] = ov
+                parameters[k] += v
             }
         }
-        return params
+
+        parameters
     }
 
     // Check if all parameters include in Parameters tag
-    private static boolean checkParams(String jsonpart, Map<String, List<String>> map) {
-        def slurper = new JsonSlurper()
-        def result = slurper.parseText(jsonpart)
-        boolean check = true
+    private static boolean checkParams(String jsonpart, Map<String, List<String>> parameters) {
+        def result = new JsonSlurper().parseText(jsonpart)
 
-        for (e in map) {
-            def iv = e.value
-            for (v in iv) {
-                if (!(result.Request.Parameters.(e.key).contains(URLDecoder.decode(v, "UTF-8")))) {
-                    check = false
-                    break
-                }
-            }
+        parameters.every { key, values ->
+            def jsonValue = result.Request.Parameters[key]
+            values.every { jsonValue.contains(URLDecoder.decode(it, "UTF-8")) }
         }
-        return check
     }
 }

@@ -38,6 +38,7 @@ import play.api.libs.json.{JsError, JsSuccess, Json}
 
 import scala.xml.XML
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 @Named
 class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationService, datastoreService: DatastoreService)
@@ -60,8 +61,10 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         if (rawRequestInputStream.markSupported) rawRequestInputStream
         else new BufferedServletInputStream(rawRequestInputStream)
       val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest, requestInputStream)
-      val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
-      val authUserGroup: Option[RackspaceAuthUserGroup] = parseUserGroupFromInputStream(wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(sessionIdHeader))
+      val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse],
+        ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val authUserGroup: Option[RackspaceAuthUserGroup] = parseUserGroupFromInputStream(wrappedRequest.getRequestURI,
+        wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(SessionIdHeader))
       authUserGroup foreach { rackspaceAuthUserGroup =>
         rackspaceAuthUserGroup.domain.foreach { domainVal =>
           wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
@@ -75,65 +78,55 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
 
       wrappedResponse.getHeadersList(CommonHttpHeader.WWW_AUTHENTICATE.toString).asScala.filter(_.startsWith("OS-MF")) foreach { header =>
         Option(StringUtils.substringBetween(header, "sessionId='", "'")) match {
-          case Some(sessionId) =>
-            datastore.put(s"$ddKey:$sessionId", authUserGroup, 5, TimeUnit.MINUTES)
-          case None =>
-            logger.debug("Failed to parse the session id out of '{}'", header)
+          case Some(sessionId) => datastore.put(s"$DdKey:$sessionId", authUserGroup, 5, TimeUnit.MINUTES)
+          case None => logger.debug("Failed to parse the session id out of '{}'", header)
         }
       }
     }
   }
 
-  type UsernameParsingFunction = InputStream => (Option[String], Option[String])
-  val username1_1XML: UsernameParsingFunction = { is =>
+  val usernameAuth1_1Xml: UsernameParsingFunction = { is =>
     val xml = XML.load(is)
     val username = (xml \\ "credentials" \ "@username").text
-    if (username.nonEmpty) {
-      (None, Some(username))
-    } else {
-      (None, None)
-    }
+    (None, Option(username).filterNot(_.isEmpty))
   }
   // https://www.playframework.com/documentation/2.3.x/ScalaJson
   //Using play json here because I don't have to build entire objects
-  val username1_1JSON: UsernameParsingFunction = { is =>
+  val usernameAuth1_1Json: UsernameParsingFunction = { is =>
     val json = Json.parse(is)
     val username = (json \ "credentials" \ "username").validate[String]
     username match {
       case s: JsSuccess[String] =>
         (None, Some(s.get))
       case f: JsError =>
-        logger.debug(s"1.1 JSON parsing failure: ${
-          JsError.toFlatJson(f)
-        }")
+        logger.debug(s"1.1 JSON parsing failure: ${JsError.toFlatJson(f)}")
         (None, None)
     }
   }
 
-  def getUsername(domain: String, user: String): String = {
-    if (domain.equals("Rackspace")) {
-      "Racker:" + user
+  def getUsername(domain: String, user: String): String =
+    if (domain == "Rackspace") {
+      s"Racker:$user"
     } else {
       user
     }
-  }
 
   /**
     * Many payloads to parse here, should be fun
     */
-  val username2_0XML: UsernameParsingFunction = { is =>
+  val usernameAuth2_0Xml: UsernameParsingFunction = { is =>
     val xml = XML.load(is)
     val auth = xml \\ "auth"
+
     // This is actually prefixed with the "RAX-AUTH:" namespace.
     val domain = Option((auth \ "domain" \ "@name").text)
-    val possibleUsernames = List(
+    val usernames = List(
       (auth \ "rsaCredentials" \ "@username").text,
       (auth \ "apiKeyCredentials" \ "@username").text,
       (auth \ "passwordCredentials" \ "@username").text,
       (auth \ "@tenantId").text,
       (auth \ "@tenantName").text
-    )
-    val usernames = possibleUsernames.filterNot(_.isEmpty)
+    ).filterNot(_.isEmpty)
 
     if (usernames.isEmpty) {
       (None, None)
@@ -147,14 +140,13 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
     }
   }
 
-  val username2_0JSON: UsernameParsingFunction = { is =>
+  val usernameAuth2_0Json: UsernameParsingFunction = { is =>
     val json = Json.parse(is)
     val possibleDomain = (json \ "auth" \ "RAX-AUTH:domain" \ "name").validate[String]
 
     val domain = possibleDomain match {
       case s: JsSuccess[String] => Some(s.get)
-      case f: JsError =>
-        None
+      case _: JsError => None
     }
 
     val possibleUsernames = List(
@@ -187,11 +179,32 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
     }
   }
 
-  def parseUserGroupFromInputStream(inputStream: InputStream, contentType: String, sessionIds: List[String]): Option[RackspaceAuthUserGroup] = {
-    sessionIds.map(HeaderValue).sortWith(_.quality > _.quality).toStream.flatMap({ header => Option(datastore.get(s"$ddKey:${header.value}").asInstanceOf[Option[RackspaceAuthUserGroup]]) }).headOption
-      .getOrElse(Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, username2_0JSON, username2_0XML)))
-      .orElse(Option(configuration.getV11).flatMap(parseUsername(_, inputStream, contentType, username1_1JSON, username1_1XML)))
+  val usernameForgotPassword2_0Xml: UsernameParsingFunction = { is =>
+    val xml = XML.load(is)
+    val username = (xml \\ "forgotPasswordCredentials" \ "@username").text
+    (None, Option(username).filterNot(_.isEmpty))
   }
+
+  val usernameForgotPassword2_0Json: UsernameParsingFunction = { is =>
+    val json = Json.parse(is)
+    val possibleUsername = (json \ "RAX-AUTH:forgotPasswordCredentials" \ "username").validate[String]
+
+    possibleUsername match {
+      case wrappedUsername: JsSuccess[String] if wrappedUsername.get.trim.nonEmpty => (None, Some(wrappedUsername.get))
+      case failure: JsError =>
+        logger.debug("2.0 JSON parsing failure: {}", JsError.toFlatJson(failure))
+        (None, None)
+      case _ => (None, None)
+    }
+  }
+
+  def parseUserGroupFromInputStream(uri: String, inputStream: InputStream, contentType: String, sessionIds: List[String]): Option[RackspaceAuthUserGroup] =
+    uri match {
+      case ForgotPasswordUri(_) => Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameForgotPassword2_0Json, usernameForgotPassword2_0Xml))
+      case _ => sessionIds.map(HeaderValue).sortWith(_.quality > _.quality).toStream.flatMap({ header => Option(datastore.get(s"$DdKey:${header.value}").asInstanceOf[Option[RackspaceAuthUserGroup]]) }).headOption
+        .getOrElse(Option(configuration.getV20).flatMap(parseUsername(_, inputStream, contentType, usernameAuth2_0Json, usernameAuth2_0Xml)))
+        .orElse(Option(configuration.getV11).flatMap(parseUsername(_, inputStream, contentType, usernameAuth1_1Json, usernameAuth1_1Xml)))
+    }
 
   /**
     * Build a function that takes our config, the request itself, functions to transform if given json, and if given XML
@@ -202,22 +215,11 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
     val limitedInputStream = new LimitedReadInputStream(limit, inputStream)
     limitedInputStream.mark(limit.toInt)
     try {
-      val (domainOpt, userOpt) = if (contentType.contains("xml")) {
-        //It's probably xml, lets try to xpath it
-        xml(limitedInputStream)
-      } else {
-        //Try to run it through the JSON pather
-        json(limitedInputStream)
-      }
-
+      val (domainOpt, userOpt) = if (contentType.contains("xml")) xml(limitedInputStream) else json(limitedInputStream)
       userOpt.map(RackspaceAuthUserGroup(domainOpt, _, config.getGroup, config.quality.toDouble))
     } catch {
       case e: Exception =>
-        val identityRequestVersion = if (config.isInstanceOf[IdentityV11]) {
-          "v 1.1"
-        } else {
-          "v 2.0"
-        }
+        val identityRequestVersion = if (config.isInstanceOf[IdentityV11]) "v 1.1" else "v 2.0"
         logger.warn(s"Unable to parse username from identity $identityRequestVersion request", e)
         None
     } finally {
@@ -227,6 +229,10 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
 }
 
 object RackspaceAuthUserFilter {
-  val ddKey: String = "rax-auth-user-filter"
-  val sessionIdHeader: String = "X-SessionId"
+  val DdKey: String = "rax-auth-user-filter"
+  val SessionIdHeader: String = "X-SessionId"
+  val ForgotPasswordUri: Regex = "(/v2.0/users/RAX-AUTH/forgot-pwd/?)".r
+
+  // function should return the tuple: (domain, username)
+  type UsernameParsingFunction = InputStream => (Option[String], Option[String])
 }

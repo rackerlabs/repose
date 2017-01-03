@@ -44,13 +44,15 @@ import org.springframework.mock.web.MockHttpServletRequest
 @RunWith(classOf[JUnitRunner])
 class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with MockitoAnswers {
 
+  type Asserter = () => Unit
+
   var filter: RackspaceAuthUserFilter = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: HttpServletResponse = _
   var filterChain: FilterChain = _
   var datastore: DistributedDatastore = _
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     servletRequest = new MockHttpServletRequest
     servletResponse = mock[HttpServletResponse]
     filterChain = mock[FilterChain]
@@ -59,6 +61,12 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
     when(datastoreService.getDistributedDatastore).thenReturn(datastore)
 
     filter = new RackspaceAuthUserFilter(null, datastoreService)
+  }
+
+  def captureRequestSentToNextFilter(): HttpServletRequest = {
+    val captor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
+    verify(filterChain).doFilter(captor.capture(), any(classOf[HttpServletResponse]))
+    captor.getValue
   }
 
   describe("construction") {
@@ -83,7 +91,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
 
   describe("do work") {
     List("OPTIONS", "GET", "HEAD", "PUT", "DELETE", "TRACE", "CONNECT", "CUSTOM") foreach { httpMethod =>
-      it(s"will not update the request for method $httpMethod") {
+      it(s"will not wrap the request for HTTP method $httpMethod") {
         filter.configurationUpdated(mock[RackspaceAuthUserConfig])
         servletRequest.setMethod(httpMethod)
 
@@ -123,9 +131,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
 
       filter.doWork(servletRequest, servletResponse, filterChain)
 
-      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(filterChain).doFilter(captor.capture(), any(classOf[HttpServletResponse]))
-      val request = captor.getValue
+      val request = captureRequestSentToNextFilter()
       request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
       request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
       request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
@@ -144,14 +150,12 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
           |    }
           |  }
           |}""".stripMargin.getBytes)
-      servletRequest.addHeader(RackspaceAuthUserFilter.sessionIdHeader, "foo-bar")
-      when(datastore.get(s"${RackspaceAuthUserFilter.ddKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
+      servletRequest.addHeader(RackspaceAuthUserFilter.SessionIdHeader, "foo-bar")
+      when(datastore.get(s"${RackspaceAuthUserFilter.DdKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
 
       filter.doWork(servletRequest, servletResponse, filterChain)
 
-      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(filterChain).doFilter(captor.capture(), any(classOf[HttpServletResponse]))
-      val request = captor.getValue
+      val request = captureRequestSentToNextFilter()
       request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
       request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
       request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
@@ -170,20 +174,18 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
           |    }
           |  }
           |}""".stripMargin.getBytes)
-      servletRequest.addHeader(RackspaceAuthUserFilter.sessionIdHeader, "banana;q=0.5,foo-bar;q=0.7")
-      when(datastore.get(s"${RackspaceAuthUserFilter.ddKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
+      servletRequest.addHeader(RackspaceAuthUserFilter.SessionIdHeader, "banana;q=0.5,foo-bar;q=0.7")
+      when(datastore.get(s"${RackspaceAuthUserFilter.DdKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
 
       filter.doWork(servletRequest, servletResponse, filterChain)
 
-      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(filterChain).doFilter(captor.capture(), any(classOf[HttpServletResponse]))
-      val request = captor.getValue
+      val request = captureRequestSentToNextFilter()
       request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
       request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
       request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
       request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
 
-      verify(datastore, times(0)).get(s"${RackspaceAuthUserFilter.ddKey}:banana")
+      verify(datastore, times(0)).get(s"${RackspaceAuthUserFilter.DdKey}:banana")
     }
 
     it("will search the datastore till it finds the session") {
@@ -198,20 +200,86 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
           |    }
           |  }
           |}""".stripMargin.getBytes)
-      servletRequest.addHeader(RackspaceAuthUserFilter.sessionIdHeader, "banana;q=0.7,foo-bar;q=0.5")
-      when(datastore.get(s"${RackspaceAuthUserFilter.ddKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
+      servletRequest.addHeader(RackspaceAuthUserFilter.SessionIdHeader, "banana;q=0.7,foo-bar;q=0.5")
+      when(datastore.get(s"${RackspaceAuthUserFilter.DdKey}:foo-bar")).thenReturn(Option(RackspaceAuthUserGroup(Option("Rackspace"), "Racker:jqsmith", "GROUP", 0.6)), Nil: _*)
 
       filter.doWork(servletRequest, servletResponse, filterChain)
 
-      val captor = ArgumentCaptor.forClass(classOf[HttpServletRequest])
-      verify(filterChain).doFilter(captor.capture(), any(classOf[HttpServletResponse]))
-      val request = captor.getValue
+      val request = captureRequestSentToNextFilter()
       request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
       request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
       request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
       request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
 
-      verify(datastore).get(s"${RackspaceAuthUserFilter.ddKey}:banana")
+      verify(datastore).get(s"${RackspaceAuthUserFilter.DdKey}:banana")
+    }
+
+    List("/v2.0/users/RAX-AUTH/forgot-pwd", "/v2.0/users/RAX-AUTH/forgot-pwd/") foreach { uri =>
+      it(s"will parse a Forgot Password request if the URL matches $uri") {
+        filter.configurationUpdated(auth2_0Config())
+        servletRequest.setRequestURI(uri)
+        servletRequest.setMethod("POST")
+        servletRequest.setContentType("application/json")
+        servletRequest.setContent(
+          """{
+            |    "RAX-AUTH:forgotPasswordCredentials": {
+            |        "username": "vkapoor"
+            |    }
+            |}""".stripMargin.getBytes)
+
+        filter.doWork(servletRequest, servletResponse, filterChain)
+
+        val request = captureRequestSentToNextFilter()
+        request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "vkapoor"
+      }
+
+      it(s"will not parse an Auth request if the URL matches $uri") {
+        filter.configurationUpdated(auth2_0Config())
+        servletRequest.setRequestURI(uri)
+        servletRequest.setMethod("POST")
+        servletRequest.setContentType("application/json")
+        servletRequest.setContent(
+          """{
+            |    "auth": {
+            |        "RAX-AUTH:domain": {
+            |            "name": "Rackspace"
+            |        },
+            |        "passwordCredentials": {
+            |            "username": "mlewis",
+            |            "password": "umadbro"
+            |        }
+            |    }
+            |}""".stripMargin.getBytes)
+
+        filter.doWork(servletRequest, servletResponse, filterChain)
+
+        val request = captureRequestSentToNextFilter()
+        request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe null
+        request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe null
+        request.getHeader(PowerApiHeader.USER.toString) shouldBe null
+        request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      }
+    }
+
+    it("will not parse a Forgot Password request if the URL does not match /v2.0/users/RAX-AUTH/forgot-pwd") {
+      filter.configurationUpdated(auth2_0Config())
+      servletRequest.setRequestURI("/some/uri")
+      servletRequest.setMethod("POST")
+      servletRequest.setContentType("application/json")
+      servletRequest.setContent(
+        """{
+          |    "RAX-AUTH:forgotPasswordCredentials": {
+          |        "username": "avogel"
+          |    }
+          |}""".stripMargin.getBytes)
+
+      filter.doWork(servletRequest, servletResponse, filterChain)
+
+      val request = captureRequestSentToNextFilter()
+      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe null
+      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe null
+      request.getHeader(PowerApiHeader.USER.toString) shouldBe null
+      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
     }
   }
 
@@ -253,7 +321,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |             key="a86850deb2742ec3cb41518e26aa2d89"/>
           """.stripMargin.trim()
 
-        val (domain, username) = filter.username1_1XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth1_1Xml(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("hub_cap")
       }
@@ -270,7 +338,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |}
           """.stripMargin.trim()
 
-        val (domain, username) = filter.username1_1JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth1_1Json(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("hub_cap")
       }
@@ -291,7 +359,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |</auth>
           """.stripMargin.trim()
 
-        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Xml(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoauthor")
       }
@@ -308,7 +376,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |</auth>
           """.stripMargin.trim()
 
-        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Xml(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoauthor")
       }
@@ -323,7 +391,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |</auth>
           """.stripMargin.trim()
 
-        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Xml(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("1100111")
       }
@@ -338,7 +406,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |</auth>
           """.stripMargin.trim()
 
-        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Xml(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("nameOfTenant")
       }
@@ -356,7 +424,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
           |    <passwordCredentials username="demoAuthor" password="myPassword01"/>
           |</auth>""".stripMargin
 
-        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Xml(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoAuthor")
       }
@@ -372,7 +440,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |    <RAX-AUTH:domain name="Rackspace"/>
             |</auth>""".stripMargin
 
-        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Xml(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe Some("Rackspace")
         username shouldBe Some("Racker:jqsmith")
       }
@@ -388,7 +456,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |    <RAX-AUTH:domain name="Rackspace"/>
             |</auth>""".stripMargin
 
-        val (domain, username) = filter.username2_0XML(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Xml(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe Some("Rackspace")
         username shouldBe Some("Racker:jqsmith")
       }
@@ -409,7 +477,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |}
           """.stripMargin
 
-        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Json(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoauthor")
 
@@ -428,7 +496,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |}
           """.stripMargin
 
-        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Json(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoauthor")
       }
@@ -445,7 +513,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |}
           """.stripMargin
 
-        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Json(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("1100111")
       }
@@ -462,7 +530,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |}
           """.stripMargin
 
-        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Json(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("nameOfTenant")
       }
@@ -479,7 +547,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |    }
             |}""".stripMargin
 
-        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Json(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe None
         username shouldBe Some("demoAuthor")
       }
@@ -498,7 +566,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |    }
             |}""".stripMargin
 
-        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Json(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe Some("Rackspace")
         username shouldBe Some("Racker:jqsmith")
       }
@@ -517,7 +585,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
             |    }
             |}""".stripMargin
 
-        val (domain, username) = filter.username2_0JSON(new ByteArrayInputStream(payload.getBytes))
+        val (domain, username) = filter.usernameAuth2_0Json(new ByteArrayInputStream(payload.getBytes))
         domain shouldBe Some("Rackspace")
         username shouldBe Some("Racker:jqsmith")
       }
@@ -539,36 +607,36 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
 
     List(
       (List("OS-MF sessionId='123456', factor='PASSCODE'"),
-        Asserter({ verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":123456"),
+        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.DdKey + ":123456"),
                                 meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
                                 meq(5),
-                                meq(TimeUnit.MINUTES)) })),
+                                meq(TimeUnit.MINUTES)) }),
       (List("OS-MF sessionId='green', factor='PASSCODE'", "Keystone uri=https://some.identity.com"),
-        Asserter({ verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":green"),
+        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.DdKey + ":green"),
                                 meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
                                 meq(5),
-                                meq(TimeUnit.MINUTES)) })),
+                                meq(TimeUnit.MINUTES)) }),
       (List("Keystone uri=https://some.identity.com", "OS-MF sessionId='banana', factor='PASSCODE'"),
-        Asserter({ verify(datastore).put(meq(RackspaceAuthUserFilter.ddKey + ":banana"),
+        { () => verify(datastore).put(meq(RackspaceAuthUserFilter.DdKey + ":banana"),
                                 meq(Option(RackspaceAuthUserGroup(None, "bob", "GROUP", 0.6))),
                                 meq(5),
-                                meq(TimeUnit.MINUTES)) })),
+                                meq(TimeUnit.MINUTES)) }),
       (List.empty,
-        Asserter({ verify(datastore, times(0)).put(anyString,
+        { () => verify(datastore, times(0)).put(anyString,
                                                    any(classOf[Option[RackspaceAuthUserGroup]]),
                                                    anyInt,
-                                                   any(classOf[TimeUnit])) })),
+                                                   any(classOf[TimeUnit])) }),
       (List("OS-MF factor='PASSCODE'"),
-        Asserter({ verify(datastore, times(0)).put(anyString,
+        { () => verify(datastore, times(0)).put(anyString,
                                                    any(classOf[Option[RackspaceAuthUserGroup]]),
                                                    anyInt,
-                                                   any(classOf[TimeUnit])) })),
+                                                   any(classOf[TimeUnit])) }),
       (List("OS-MF sessionId='123456"),
-        Asserter({ verify(datastore, times(0)).put(anyString,
+        { () => verify(datastore, times(0)).put(anyString,
                                                    any(classOf[Option[RackspaceAuthUserGroup]]),
                                                    anyInt,
-                                                   any(classOf[TimeUnit])) }))
-    ) foreach { case(headers: List[String], asserter: Asserter) =>
+                                                   any(classOf[TimeUnit])) })
+    ) foreach { case (headers: List[String], asserter: Asserter) =>
       it(s"should write to the dd as appropriate with headers: $headers") {
         filter.configurationUpdated(auth2_0Config())
         servletRequest.setMethod("POST")
@@ -581,21 +649,122 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
 
         filter.doWork(servletRequest, servletResponse, filterChain)
 
-        asserter.assert()
+        asserter()
       }
     }
   }
 
-  //I couldn't get the typing and evaluation time to work right without this, if you can solve it, please do and share
-  class Asserter(assertion: => Unit) {
-    def assert(): Unit = {
-      assertion
-    }
-  }
+  describe("Forgot Password requests") {
+    filter = new RackspaceAuthUserFilter(mock[ConfigurationService], mock[DatastoreService])
+    filter.configurationUpdated(auth2_0Config())
 
-  object Asserter {
-    def apply(someCode: => Unit): Asserter = {
-      new Asserter(someCode)
+    describe("XML") {
+      it("parses the username out of a valid request containing a username") {
+        val payload =
+          """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            |<forgotPasswordCredentials xmlns="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+            |    username="mwatney" />""".stripMargin
+
+        val (domain, username) = filter.usernameForgotPassword2_0Xml(new ByteArrayInputStream(payload.getBytes))
+
+        domain shouldBe None
+        username shouldBe Some("mwatney")
+      }
+
+      it("parses the username out of a valid request containing a username and portal") {
+        val payload =
+          """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            |<forgotPasswordCredentials xmlns="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+            |    username="mpark" portal="astra_prod" />""".stripMargin
+
+        val (domain, username) = filter.usernameForgotPassword2_0Xml(new ByteArrayInputStream(payload.getBytes))
+
+        domain shouldBe None
+        username shouldBe Some("mpark")
+      }
+
+      it("does not return a username nor throw an exception if request has empty username") {
+        val payload =
+          """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            |<forgotPasswordCredentials xmlns="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+            |    username="" />""".stripMargin
+
+        val (domain, username) = filter.usernameForgotPassword2_0Xml(new ByteArrayInputStream(payload.getBytes))
+
+        domain shouldBe None
+        username shouldBe None
+      }
+
+      it("does not return a username nor throw an exception if request is missing the username") {
+        val payload =
+          """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            |<forgotPasswordCredentials xmlns="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+            |    portal="astra_prod" />""".stripMargin
+
+        val (domain, username) = filter.usernameForgotPassword2_0Xml(new ByteArrayInputStream(payload.getBytes))
+
+        domain shouldBe None
+        username shouldBe None
+      }
+    }
+
+    describe("JSON") {
+      it("parses the username out of a valid request containing a username") {
+        val payload =
+          """{
+            |    "RAX-AUTH:forgotPasswordCredentials": {
+            |        "username": "bjohanssen"
+            |    }
+            |}""".stripMargin
+
+        val (domain, username) = filter.usernameForgotPassword2_0Json(new ByteArrayInputStream(payload.getBytes))
+
+        domain shouldBe None
+        username shouldBe Some("bjohanssen")
+      }
+
+      it("parses the username out of a valid request containing a username and portal") {
+        val payload =
+          """{
+            |    "RAX-AUTH:forgotPasswordCredentials": {
+            |        "username": "tsanders",
+            |        "portal": "astra_prod"
+            |    }
+            |}""".stripMargin
+
+        val (domain, username) = filter.usernameForgotPassword2_0Json(new ByteArrayInputStream(payload.getBytes))
+
+        domain shouldBe None
+        username shouldBe Some("tsanders")
+      }
+
+      it("does not return a username nor throw an exception if request has empty username") {
+        val payload =
+          """{
+            |    "RAX-AUTH:forgotPasswordCredentials": {
+            |        "username": ""
+            |    }
+            |}""".stripMargin
+
+        val (domain, username) = filter.usernameForgotPassword2_0Json(new ByteArrayInputStream(payload.getBytes))
+
+        domain shouldBe None
+        username shouldBe None
+      }
+
+      it("does not return a username nor throw an exception if request is missing the username") {
+        val payload =
+          """{
+            |    "RAX-AUTH:forgotPasswordCredentials": {
+            |        "portal": "astra_prod"
+            |    }
+            |}""".stripMargin
+
+        val (domain, username) = filter.usernameForgotPassword2_0Json(new ByteArrayInputStream(payload.getBytes))
+
+        domain shouldBe None
+        username shouldBe None
+      }
     }
   }
 }

@@ -62,6 +62,15 @@ class RackspaceAuthPayloads {
     }
 }"""
 
+    public static String userForgotXmlV20 = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<forgotPasswordCredentials xmlns="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0" username="demoAuthor"/>"""
+
+    public static String userForgotJsonV20 = """{
+    "RAX-AUTH:forgotPasswordCredentials": {
+        "username": "demoAuthor"
+    }
+}"""
+
     public static String userApiKeyXmlV20 = """<?xml version="1.0" encoding="UTF-8"?>
 <auth>
     <apiKeyCredentials xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
