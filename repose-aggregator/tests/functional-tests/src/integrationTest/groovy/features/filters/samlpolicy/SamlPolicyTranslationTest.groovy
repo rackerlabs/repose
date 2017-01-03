@@ -23,7 +23,6 @@ package features.filters.samlpolicy
 import framework.ReposeValveTest
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
 
 import javax.servlet.http.HttpServletResponse
 
@@ -49,7 +48,7 @@ class SamlPolicyTranslationTest extends ReposeValveTest {
 
         when: "Request contains value(s) of the target header"
         def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
-        def sentRequest = ((MessageChain) mc).getHandlings()[0]
+        def sentRequest = mc.getHandlings()[0]
 
         then: "The request/response should contain the correct value and the status code should be OK (200)"
         sentRequest.request.headers.contains(headerName)
