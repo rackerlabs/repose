@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.herp
 
-import java.util.TimeZone
+import java.util.{TimeZone, UUID}
 import javax.servlet.FilterChain
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
@@ -32,6 +32,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.filters.herp.config.{FilterOut, HerpConfig, Match, Template}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -138,7 +139,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "\"ServiceCode\" : \"\".*\"URL\" : \"\""
+      logEvents.get(0).getMessage.getFormattedMessage should include regex """"ServiceCode" : "".*"URL" : """""
     }
     it("should log a guid") {
       // when:
@@ -148,7 +149,21 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "\"GUID\" : \".+\""
+      logEvents.get(0).getMessage.getFormattedMessage should include regex """"GUID" : "NO_TRANSACTION_ID:.+""""
+    }
+    it("should log a guid given a tracing header") {
+      // given:
+      val traceId = UUID.randomUUID.toString
+      servletRequest.addHeader(CommonHttpHeader.TRACE_GUID.toString, traceId)
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      val logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include regex s""""GUID" : "$traceId:.+""""
     }
     it("should log the configured service code") {
       // given:
@@ -161,7 +176,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ServiceCode\" : \"some-service\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""ServiceCode" : "some-service"""")
     }
     it("should log the configured region") {
       // given:
@@ -174,7 +189,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Region\" : \"some-region\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Region" : "some-region"""")
     }
     it("should log the configured data center") {
       // given:
@@ -187,7 +202,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"DataCenter\" : \"some-data-center\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""DataCenter" : "some-data-center"""")
     }
     it("should log the parametered cluster") {
       herpFilter.configurationUpdated(herpConfig)
@@ -195,7 +210,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Cluster\" : \"cluster\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Cluster" : "cluster"""")
     }
     it("should log the parametered node") {
       herpFilter.configurationUpdated(herpConfig)
@@ -203,7 +218,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Node\" : \"node\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Node" : "node"""")
     }
     it("should extract and log the x-forwarded-for header over the remote address") {
       // given:
@@ -217,7 +232,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"RequestorIp\" : \"1.2.3.4\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""RequestorIp" : "1.2.3.4"""")
     }
     it("should extract and log the remote address") {
       // given:
@@ -230,14 +245,14 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"RequestorIp\" : \"4.3.2.1\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""RequestorIp" : "4.3.2.1"""")
     }
     it("should expose the cadf timestamp") {
       herpFilter.configurationUpdated(herpConfig)
       herpFilter.doFilter(servletRequest, servletResponse, filterChain)
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"CadfTimestamp\" : \"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""CadfTimestamp" : """")
     }
     it("should extract and log the request method") {
       // given:
@@ -250,7 +265,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Method\" : \"POST\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Method" : "POST"""")
     }
     it("should expose the cadf method") {
       // given:
@@ -263,7 +278,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"CadfMethod\" : \"update/post\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""CadfMethod" : "update/post"""")
     }
     it("should extract and log the request url") {
       // given:
@@ -276,7 +291,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"URL\" : \"http://foo.com\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""URL" : "http://foo.com"""")
     }
     it("should extract and log the unaltered request query string") {
       // given:
@@ -289,7 +304,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"QueryString\" : \"a=b&amp;c=d%20e\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""QueryString" : "a=b&amp;c=d%20e"""")
     }
     it("should extract and log the target host") {
       // given:
@@ -302,7 +317,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"TargetHost\" : \"foo.com\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""TargetHost" : "foo.com"""")
     }
     it("should extract and log the request parameters") {
       // given:
@@ -315,7 +330,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Parameters\" : { \"foo\" : [\"bar\",\"baz\"] }")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Parameters" : { "foo" : ["bar","baz"] }""")
     }
     it("should extract and log the decoded request parameters") {
       // given:
@@ -328,7 +343,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Parameters\" : { \"foo bar\" : [\"baz test\"] }")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Parameters" : { "foo bar" : ["baz test"] }""")
     }
     it("should extract and log the request user name header") {
       // given:
@@ -341,7 +356,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserName\" : \"foo\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""UserName" : "foo"""")
     }
     it("should extract and log the response user name header when the header is not available in the request") {
       // given:
@@ -399,7 +414,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ImpersonatorName\" : \"foo\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""ImpersonatorName" : "foo"""")
     }
     it("should extract and log the request tenant id header") {
       // given:
@@ -412,7 +427,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""ProjectID" : [  "foo"  ]""")
     }
     it("should extract and log the request tenant id header from Response if not available from Request") {
       // given:
@@ -425,7 +440,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""ProjectID" : [  "foo"  ]""")
     }
     it("should extract and log the default request tenant id header") {
       // given:
@@ -439,7 +454,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"DefaultProjectID\" : \"bar\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""DefaultProjectID" : "bar"""")
     }
     it("should extract and log the default request tenant id header from Response if not available from Request") {
       // given:
@@ -452,7 +467,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"DefaultProjectID\" : \"bar\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""DefaultProjectID" : "bar"""")
     }
 
     val hdrNames = List("X-Tenant-Id", "X-Project-Id")
@@ -480,7 +495,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
           // then:
           val logEvents = listAppenderPre.getEvents
           logEvents.size shouldBe 1
-          logEvents.get(0).getMessage.getFormattedMessage should include("\"DefaultProjectID\" : \"reqBar\"")
+          logEvents.get(0).getMessage.getFormattedMessage should include(""""DefaultProjectID" : "reqBar"""")
         }
       }
     }
@@ -497,7 +512,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""ProjectID" : [  "foo"  ,"bar"  ]""")
     }
     it("should extract and log multiple tenant id header values from Response if not available from Request") {
       // given:
@@ -510,7 +525,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""ProjectID" : [  "foo"  ,"bar"  ]""")
     }
     it("should extract and log multiple project id header values") {
       // given:
@@ -524,7 +539,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""ProjectID" : [  "foo"  ,"bar"  ]""")
     }
     it("should extract and log multiple project id header values from Response if not available from Request") {
       // given:
@@ -537,7 +552,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"ProjectID\" : [  \"foo\"  ,\"bar\"  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""ProjectID" : [  "foo"  ,"bar"  ]""")
     }
     it("should extract and log the request roles header") {
       // given:
@@ -551,7 +566,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Roles\" : [  \"foo\"  ,\"bar\"  ]")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Roles" : [  "foo"  ,"bar"  ]""")
     }
     it("should extract and log the entire request user agent") {
       // given:
@@ -564,7 +579,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserAgent\" : \"Repozilla/5000.0 (Bartlett; Leg Bart OS L 50_0_0) PearWebKit/987.65 (RHTML, like Skink) Gold/98.7.6543.210 Journey/123.45\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""UserAgent" : "Repozilla/5000.0 (Bartlett; Leg Bart OS L 50_0_0) PearWebKit/987.65 (RHTML, like Skink) Gold/98.7.6543.210 Journey/123.45"""")
     }
     it("should extract and log the response code") {
       // given:
@@ -577,7 +592,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Code\" : 418")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Code" : 418""")
     }
     it("should expose the cadf outcome") {
       // given:
@@ -590,7 +605,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"CadfOutcome\" : \"failure\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""CadfOutcome" : "failure"""")
     }
     it("should extract and log the response message") {
       // given:
@@ -603,7 +618,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\" : \"I_AM_A_TEAPOT\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Message" : "I_AM_A_TEAPOT"""")
     }
     it("should extract and log the response message of an invalid response code") {
       // given:
@@ -616,7 +631,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"Message\" : \"UNKNOWN\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Message" : "UNKNOWN"""")
     }
     it("should extract and log the header corresponding to the label of a method") {
       // given:
@@ -629,7 +644,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"MethodLabel\" : \"getServers\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""MethodLabel" : "getServers"""")
     }
   }
 

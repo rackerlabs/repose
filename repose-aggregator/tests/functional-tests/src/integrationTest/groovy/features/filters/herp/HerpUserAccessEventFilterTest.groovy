@@ -416,7 +416,8 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         result.Request.ProjectID[0] == tenantid
         result.Request.UserName == "randomuser"
         result.Request.ImpersonatorName == "impersonateuser"
-        result.Request.RequestID == requestid
+        result.Request.RequestID.tokenize(':')[0] == requestid
+        result.Request.RequestID.tokenize(':')[1].length() > 0
         result.Request.Method == method
         (result.Request.URL).contains("/resource")
         result.Response.Code == responseCode.toInteger()
@@ -430,7 +431,7 @@ class HerpUserAccessEventFilterTest extends ReposeValveTest {
         presult.Request.ProjectID[0] == tenantid
         presult.Request.UserName == "randomuser"
         presult.Request.ImpersonatorName == "impersonateuser"
-        presult.Request.RequestID == requestid
+        presult.Request.RequestID.tokenize(':')[0] == requestid
         presult.Request.Method == method
         (presult.Request.URL).contains("/resource")
         presult.Response.Code == responseCode.toInteger()
