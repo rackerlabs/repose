@@ -2,7 +2,7 @@
 
 include::../_includes/in-progress.adoc[]
 
-This filter takes A SAML Response in the object binding, adds a new translated assertion to it and then signs the entire response.
+This filter takes a SAML Response in the object binding, adds a new translated assertion to it and then signs the entire response.
 It'll attempt to locate a policy to use for the translation based on the assertion issuer.
 
 
@@ -18,7 +18,7 @@ It'll attempt to locate a policy to use for the translation based on the asserti
 `Content-Type` - Needs a value of `application/xml`
 
 === Required preceding filters
-If using the post form binding, you'll need to use the <<saml-binding.adoc#,SAML Binding Translation Filter>> to decode the request first.
+If using the https://en.wikipedia.org/wiki/SAML_2.0#HTTP_POST_Binding[post form binding], you'll need to use the <<saml-binding.adoc#,SAML Binding Translation Filter>> to decode the request first.
 
 === Request headers created
 `Identity-API-Version` - `1.0` if the assertion issuer is in the configured list and `2.0` otherwise.
@@ -42,7 +42,7 @@ None.
 
 == Examples
 === Do Something
-This configuration will do soemthing super great.
+This configuration will do something super great.
 
 [source,xml]
 .some.cfg.xml
