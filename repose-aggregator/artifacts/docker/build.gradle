@@ -1,6 +1,10 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+import com.bmuschko.gradle.docker.tasks.image.DockerTagImage
+import groovy.json.JsonSlurper
+
+import java.net.URL
 
 apply plugin: 'com.bmuschko.docker-remote-api'
 
@@ -33,21 +37,89 @@ docker {
 task buildImage(type: DockerBuildImage) {
     finalizedBy 'removeImage'
     inputDir = file("$projectDir/src/docker")
-    tag = "rackerlabs/repose:$reposeVersion"
     buildArgs = ['REPOSE_VERSION': reposeVersion]
     // TODO: Set "forcerm" to true once the Docker Gradle plugin supports it
 }
 
-task pushImage(type: DockerPushImage) {
+task tagImageVersion(type: DockerTagImage) {
     dependsOn 'buildImage'
-    imageName = buildImage.getTag()
+    repository = 'rackerlabs/repose'
+    tag = reposeVersion
+    targetImageId { buildImage.getImageId() }
+}
+
+task tagImageLatest(type: DockerTagImage) {
+    dependsOn 'buildImage'
+    repository = 'rackerlabs/repose'
+    tag = 'latest'
+    targetImageId { buildImage.getImageId() }
+}
+
+task pushImageVersion(type: DockerPushImage) {
+    dependsOn 'tagImageVersion'
+    imageName = 'rackerlabs/repose'
+    tag = reposeVersion
+}
+
+task pushImageLatest(type: DockerPushImage) {
+    dependsOn 'tagImageLatest'
+    imageName = 'rackerlabs/repose'
+    tag = 'latest'
 }
 
 task removeImage(type: DockerRemoveImage) {
     dependsOn 'buildImage'
-    mustRunAfter 'pushImage'
+    mustRunAfter 'tagImageVersion', 'tagImageLatest', 'pushImageVersion', 'pushImageLatest'
     targetImageId { buildImage.getImageId() }
     force = true
 }
 
-project.tasks.getByPath(':release').dependsOn pushImage
+static int compareVersions(String v1, String v2) {
+    List<String> v1Parts = v1.tokenize('.')
+    List<String> v2Parts = v2.tokenize('.')
+
+    int minLen = Math.min(v1Parts.size(), v2Parts.size())
+
+    // Compare each number from the versions until either the numbers do not match,
+    // or the end of a version string is hit.
+    for (int i = 0; i < minLen; ++i) {
+        int n1 = v1Parts[i] as int
+        int n2 = v2Parts[i] as int
+
+        if (n1 != n2) {
+            return n1 <=> n2
+        }
+    }
+
+    // If we got this far, then one version is a substring of the other.
+    // Therefore, whichever version is longer is the greater version.
+    return v1Parts.size() <=> v2Parts.size()
+}
+
+static boolean isLatestVersion(String v) {
+    boolean isLatest = true
+
+    String nextPage = 'https://hub.docker.com/v2/repositories/rackerlabs/repose/tags/'
+    while (nextPage) {
+        Map jsonObject = new JsonSlurper().parse(new URL(nextPage)) as Map
+        for (Map result : jsonObject.results) {
+            String tagName = result.name
+            if (tagName.length() > 0 && tagName.charAt(0).isDigit() && compareVersions(v, tagName) < 0) {
+                isLatest = false
+                break
+            }
+        }
+
+        if (!isLatest) {
+            break
+        }
+
+        nextPage = jsonObject.next
+    }
+
+    return isLatest
+}
+
+pushImageLatest.onlyIf { isLatestVersion(reposeVersion) }
+
+project.tasks.getByPath(':release').dependsOn pushImageVersion, pushImageLatest
