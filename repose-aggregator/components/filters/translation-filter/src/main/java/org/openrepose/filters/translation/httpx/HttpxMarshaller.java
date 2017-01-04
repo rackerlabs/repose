@@ -41,7 +41,6 @@ import java.nio.charset.StandardCharsets;
 public class HttpxMarshaller {
 
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpxMarshaller.class);
-    private static final String ERROR_UNMARSHALLING = "Error unmarshalling xml input";
     private final SAXParserFactory parserFactory;
     private final ObjectFactory objectFactory;
 
@@ -85,15 +84,15 @@ public class HttpxMarshaller {
             } catch (Exception ex) {
                 unmarshallerPool.invalidateObject(pooledObject);
                 pooledObject = null;
-                throw new HttpxException(ERROR_UNMARSHALLING, ex);
+                throw new HttpxException("Error unmarshalling xml input", ex);
             } finally {
                 if (pooledObject != null) {
                     unmarshallerPool.returnObject(pooledObject);
                 }
             }
         } catch (Exception e) {
-            LOG.error(ERROR_UNMARSHALLING, e);
-            throw new HttpxException(ERROR_UNMARSHALLING, e);
+            LOG.error("Error unmarshalling xml input", e);
+            throw new HttpxException("Error unmarshalling xml input", e);
         }
         return rtnObject;
     }

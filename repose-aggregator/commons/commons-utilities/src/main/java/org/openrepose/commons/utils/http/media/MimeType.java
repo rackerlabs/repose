@@ -21,17 +21,18 @@ package org.openrepose.commons.utils.http.media;
 
 import org.openrepose.commons.utils.StringUtilities;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public enum MimeType {
 
-    APPLICATION_ATOM_XML(MimeType.APPLICATION, "atom+xml"),
-    APPLICATION_RDF_XML(MimeType.APPLICATION, "rdf+xml"),
-    APPLICATION_RSS_XML(MimeType.APPLICATION, "rss+xml"),
-    APPLICATION_SOAP_XML(MimeType.APPLICATION, "soap+xml"),
-    APPLICATION_XHTML_XML(MimeType.APPLICATION, "xhtml+xml"),
-    APPLICATION_XML_DTD(MimeType.APPLICATION, "xml-dtd"),
-    APPLICATION_XOP_XML(MimeType.APPLICATION, "xop+xml"),
-    APPLICATION_XML(MimeType.APPLICATION, "xml"),
-    APPLICATION_JSON(MimeType.APPLICATION, "json"),
+    APPLICATION_ATOM_XML("application", "atom+xml"),
+    APPLICATION_RDF_XML("application", "rdf+xml"),
+    APPLICATION_RSS_XML("application", "rss+xml"),
+    APPLICATION_SOAP_XML("application", "soap+xml"),
+    APPLICATION_XHTML_XML("application", "xhtml+xml"),
+    APPLICATION_XML_DTD("application", "xml-dtd"),
+    APPLICATION_XOP_XML("application", "xop+xml"),
+    APPLICATION_XML("application", "xml"),
+    APPLICATION_JSON("application", "json"),
     TEXT_HTML("text", "html"),
     TEXT_PLAIN("text", "plain"),
     TEXT_XML("text", "xml"),
@@ -42,7 +43,6 @@ public enum MimeType {
     UNKNOWN("", ""),
     UNSPECIFIED("", "");
 
-    private static final String APPLICATION = "application";
     private final String topLevelTypeName;
     private final String subTypeName;
     private final String name;

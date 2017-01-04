@@ -37,12 +37,11 @@ public enum ElementFactory {
 
     // Non-scalar Elements
     START_OBJECT(JsonToken.START_OBJECT.name(), "object", StartElement.class),
-    START_ARRAY(JsonToken.START_ARRAY.name(), ElementFactory.ARRAY, StartElement.class),
-    END_OBJECT(JsonToken.END_OBJECT.name(), ElementFactory.ARRAY, EndElement.class),
-    END_ARRAY(JsonToken.END_ARRAY.name(), ElementFactory.ARRAY, EndElement.class);
+    START_ARRAY(JsonToken.START_ARRAY.name(), "array", StartElement.class),
+    END_OBJECT(JsonToken.END_OBJECT.name(), "array", EndElement.class),
+    END_ARRAY(JsonToken.END_ARRAY.name(), "array", EndElement.class);
 
     private static final Logger LOG = LoggerFactory.getLogger(ElementFactory.class);
-    private static final String ARRAY = "array";
     private final String tokenName;
     private final String elementName;
     private final Class elementClass;
