@@ -50,7 +50,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
@@ -69,8 +69,8 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
     private final MetricsService metricsService;
-    private final ConcurrentHashMap<String, MeterByCategory> mapResponseCodes;
-    private final ConcurrentHashMap<String, MeterByCategory> mapRequestTimeouts;
+    private final ConcurrentMap<String, MeterByCategory> mapResponseCodes;
+    private final ConcurrentMap<String, MeterByCategory> mapRequestTimeouts;
     private final ReportingService reportingService;
     private final MeterByCategory mbcAllResponse;
     private final MeterByCategory mbcAllTimeouts;
@@ -84,8 +84,8 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                                  RequestHeaderService requestHeaderService,
                                  ResponseHeaderService responseHeaderService,
                                  MetricsService metricsService,
-                                 ConcurrentHashMap<String, MeterByCategory> mapResponseCodes,
-                                 ConcurrentHashMap<String, MeterByCategory> mapRequestTimeouts,
+                                 ConcurrentMap<String, MeterByCategory> mapResponseCodes,
+                                 ConcurrentMap<String, MeterByCategory> mapRequestTimeouts,
                                  ReportingService reportingService
     ) {
 
