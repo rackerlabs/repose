@@ -52,11 +52,7 @@ public class TranslationPreProcessor {
                 result = input;
                 break;
             case JSON:
-                if (jsonPreprocessing) {
-                    result = getJsonProcessor().process(input);
-                } else {
-                    result = input;
-                }
+                result = jsonPreprocessing ? getJsonProcessor().process(input) : input;
                 break;
             default:
                 result = getUnknownContentProcessor().process(input);
