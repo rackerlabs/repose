@@ -73,7 +73,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
     public static class WhenMakingValidRequests extends TestParent {
         private final ConfiguredRatelimit defaultConfig = new ConfiguredRatelimit();
-        private GregorianCalendar splodeDate = new GregorianCalendar(2017, Calendar.JANUARY, 5);
+        private GregorianCalendar splodeDate = new GregorianCalendar(2017, Calendar.APRIL, 5);
 
         @Before
         public void setup() {
