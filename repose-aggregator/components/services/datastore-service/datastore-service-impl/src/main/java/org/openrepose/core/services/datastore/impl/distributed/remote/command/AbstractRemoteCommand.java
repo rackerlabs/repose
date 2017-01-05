@@ -20,8 +20,6 @@
 package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
 import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.ServiceClientResponse;
-import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.core.services.datastore.impl.distributed.DatastoreHeader;

@@ -33,16 +33,8 @@ import java.util.*;
 public class ThreadSafeClusterView implements ClusterView {
 
     private static final Logger LOG = LoggerFactory.getLogger(ThreadSafeClusterView.class);
-    private static final Comparator<ClusterMember> CLUSTER_MEMBER_COMPARATOR = new Comparator<ClusterMember>() {
-
-        @Override
-        public int compare(ClusterMember o1, ClusterMember o2) {
-            final BigInteger o1Address = new BigInteger(o1.getMemberAddress().getAddress().getAddress());
-            final BigInteger o2Address = new BigInteger(o2.getMemberAddress().getAddress().getAddress());
-
-            return o1Address.compareTo(o2Address);
-        }
-    };
+    private static final Comparator<ClusterMember> CLUSTER_MEMBER_COMPARATOR =
+            Comparator.comparing(o -> new BigInteger(o.getMemberAddress().getAddress().getAddress()));
     private static final int DEFAULT_REST_DURATION_IN_MILISECONDS = 10000;
     private final NetworkInterfaceProvider networkInterfaceProvider;
     private final List<ClusterMember> clusterMembers;

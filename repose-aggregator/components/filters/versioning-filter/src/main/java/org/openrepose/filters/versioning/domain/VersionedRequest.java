@@ -23,7 +23,6 @@ import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
-import org.openrepose.commons.utils.string.JCharSequenceFactory;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +57,7 @@ public class VersionedRequest {
         final String requestedUri = StringUriUtilities.formatUri(request.getRequestURI());
         final String versionUri = StringUriUtilities.formatUri(mapping.getId());
 
-        return indexOfUriFragment(JCharSequenceFactory.jchars(requestedUri), versionUri) == 0;
+        return indexOfUriFragment(requestedUri, versionUri) == 0;
     }
 
     public boolean requestMatchesVersionMapping() {

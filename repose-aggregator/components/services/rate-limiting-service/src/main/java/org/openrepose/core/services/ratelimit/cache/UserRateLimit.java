@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -58,7 +59,7 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
         this.leastRemainingLimit = lowestLimit;
     }
 
-    public ConcurrentHashMap<String, CachedRateLimit> getLimitMap() {
+    public ConcurrentMap<String, CachedRateLimit> getLimitMap() {
         return limitMap;
     }
 

@@ -383,18 +383,12 @@ abstract class CompressingStreamFactory {
         @Override
         CompressingInputStream getCompressingStream(final InputStream inputStream,
                                                     final CompressingFilterContext context) {
-            return new CompressingInputStream() {
-                @Override
-                public InputStream getCompressingInputStream() throws IOException {
-                    return CompressingStreamFactory.maybeWrapStatsInputStream(
-                            new GZIPInputStream(
-                                    CompressingStreamFactory.maybeWrapStatsInputStream(
-                                            inputStream, context, CompressingFilterStats.StatsField.REQUEST_COMPRESSED_BYTES)
-                            ),
-                            context,
-                            CompressingFilterStats.StatsField.REQUEST_INPUT_BYTES);
-                }
-            };
+            return () -> CompressingStreamFactory.maybeWrapStatsInputStream(
+                    new GZIPInputStream(
+                            CompressingStreamFactory.maybeWrapStatsInputStream(
+                                    inputStream, context, CompressingFilterStats.StatsField.REQUEST_COMPRESSED_BYTES)),
+                    context,
+                    CompressingFilterStats.StatsField.REQUEST_INPUT_BYTES);
         }
     }
 
@@ -426,18 +420,12 @@ abstract class CompressingStreamFactory {
         @Override
         CompressingInputStream getCompressingStream(final InputStream inputStream,
                                                     final CompressingFilterContext context) {
-            return new CompressingInputStream() {
-                @Override
-                public InputStream getCompressingInputStream() {
-                    return CompressingStreamFactory.maybeWrapStatsInputStream(
-                            new ZipInputStream(
-                                    CompressingStreamFactory.maybeWrapStatsInputStream(
-                                            inputStream, context, CompressingFilterStats.StatsField.REQUEST_COMPRESSED_BYTES)
-                            ),
-                            context,
-                            CompressingFilterStats.StatsField.REQUEST_INPUT_BYTES);
-                }
-            };
+            return () -> CompressingStreamFactory.maybeWrapStatsInputStream(
+                    new ZipInputStream(
+                            CompressingStreamFactory.maybeWrapStatsInputStream(
+                                    inputStream, context, CompressingFilterStats.StatsField.REQUEST_COMPRESSED_BYTES)),
+                    context,
+                    CompressingFilterStats.StatsField.REQUEST_INPUT_BYTES);
         }
     }
 
@@ -469,18 +457,13 @@ abstract class CompressingStreamFactory {
         @Override
         CompressingInputStream getCompressingStream(final InputStream inputStream,
                                                     final CompressingFilterContext context) {
-            return new CompressingInputStream() {
-                @Override
-                public InputStream getCompressingInputStream() {
-                    return CompressingStreamFactory.maybeWrapStatsInputStream(
-                            new InflaterInputStream(
-                                    CompressingStreamFactory.maybeWrapStatsInputStream(
-                                            inputStream, context, CompressingFilterStats.StatsField.REQUEST_COMPRESSED_BYTES)
-                            ),
-                            context,
-                            CompressingFilterStats.StatsField.REQUEST_INPUT_BYTES);
-                }
-            };
+            return () -> CompressingStreamFactory.maybeWrapStatsInputStream(
+                    new InflaterInputStream(
+                            CompressingStreamFactory.maybeWrapStatsInputStream(
+                                    inputStream, context, CompressingFilterStats.StatsField.REQUEST_COMPRESSED_BYTES)
+                    ),
+                    context,
+                    CompressingFilterStats.StatsField.REQUEST_INPUT_BYTES);
         }
     }
 }

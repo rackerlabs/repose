@@ -19,14 +19,11 @@
  */
 package org.openrepose.commons.utils;
 
-import org.openrepose.commons.utils.string.JCharSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-
-import static org.openrepose.commons.utils.string.JCharSequenceFactory.jchars;
 
 /**
  * This is a simple helper class that can be used to generalize URI related
@@ -41,11 +38,7 @@ public final class StringUriUtilities {
         // Empty constructor for utility class.
     }
 
-    public static int indexOfUriFragment(String st, String uriFragment) {
-        return indexOfUriFragment(jchars(st), uriFragment);
-    }
-
-    public static int indexOfUriFragment(JCharSequence uri, String uriFragment) {
+    public static int indexOfUriFragment(String uri, String uriFragment) {
         final int index = uri.indexOf(uriFragment);
 
         if (uri.length() > uriFragment.length() + index) {

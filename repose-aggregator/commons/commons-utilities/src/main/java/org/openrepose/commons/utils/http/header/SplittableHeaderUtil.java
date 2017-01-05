@@ -29,12 +29,7 @@ import java.util.TreeSet;
 
 public class SplittableHeaderUtil {
 
-    public static final Comparator<String> CASE_INSENSITIVE_COMPARE = new Comparator<String>() {
-        @Override
-        public int compare(String s1, String s2) {
-            return s1.toLowerCase().compareTo(s2.toLowerCase());
-        }
-    };
+    public static final Comparator<String> CASE_INSENSITIVE_COMPARE = Comparator.comparing(String::toLowerCase);
     // Headers available for splitting (According to RFC2616
     private static final String[] DEFAULT_SPLIT = {"accept", "accept-charset", "accept-language", "allow",
             "cache-control", "connection", "content-encoding", "content-language", "expect", "pragma",

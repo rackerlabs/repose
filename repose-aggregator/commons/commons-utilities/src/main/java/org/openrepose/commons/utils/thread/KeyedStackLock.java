@@ -70,26 +70,14 @@ public class KeyedStackLock {
         final LockRequest qlr = new LockRequest(Thread.currentThread(), key);
 
         if (waitDepth > 0 || (locked && !currentKey.equals(key))) {
-            unsafeWaitOnLock(qlr);
+            do {
+                waitDepth++;
+                wait();
+                waitDepth--;
+            } while (locked && currentKey != qlr.getLockKey());
         }
 
         registerThread(qlr);
-    }
-
-    /**
-     * WARNING! WARNING! WARNING!
-     * <p/>
-     * This method expects that the object monitor is already captured by the caller's thread.
-     *
-     * @param lockRequest lockRequest
-     * @throws InterruptedException InterruptedException
-     */
-    private void unsafeWaitOnLock(LockRequest lockRequest) throws InterruptedException {
-        do {
-            waitDepth++;
-            wait();
-            waitDepth--;
-        } while (locked && currentKey != lockRequest.getLockKey());
     }
 
     private void clearLockStatus() {
