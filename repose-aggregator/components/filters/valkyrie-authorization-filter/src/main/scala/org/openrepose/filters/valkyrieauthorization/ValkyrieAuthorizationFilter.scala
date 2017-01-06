@@ -475,7 +475,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       case UserPermissions(roles, devicePermissions) =>
         if (!configuration.isEnableBypassAccountAdmin || !roles.contains(ACCOUNT_ADMIN)) {
           if (matchingResources.nonEmpty) {
-            val input: String = Source.fromInputStream(response.getOutputStreamAsInputStream).getLines() mkString ""
+            val input: String = Source.fromInputStream(response.getOutputStreamAsInputStream, response.getCharacterEncoding).getLines() mkString ""
             val initialJson: JsValue = Try(Json.parse(input))
               .recover({ case jpe: JsonParseException => throw UnexpectedJsonException("Response contained improper json.", jpe) })
               .get

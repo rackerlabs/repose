@@ -4,6 +4,7 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "commons-pool:commons-pool"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "commons-io:commons-io"
     compile "commons-codec:commons-codec"
     compile "org.apache.commons:commons-lang3"
     compile "com.fasterxml.jackson.core:jackson-core"
