@@ -38,8 +38,34 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="keystone-credentials" type="KeystoneCredentials" minOccurs="0"/>
-            <xs:element name="policy-cache" type="PolicyCache"/>
+            <xs:element name="policy-bypass-issuers" type="PolicyBypassIssuers" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="policy-acquisition" type="PolicyAcquisition"/>
+            <xs:element name="signature-credentials" type="SignatureCredentials"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PolicyBypassIssuers">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>DEPRECATED - Issuers to not try to locate a policy and do a translation for.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="issuer" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PolicyAcquisition">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Details for getting and retaining the policy to use for translation.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="keystone-credentials" type="KeystoneCredentials"/>
+            <xs:element name="policy-endpoint" type="PolicyEndpoint"/>
+            <xs:element name="cache" type="Cache"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -82,7 +108,17 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="PolicyCache">
+    <xs:complexType name="PolicyEndpoint">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The endpoint to use to acquire the policy.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="uri" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="Cache">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Cache related settings</html:p>
@@ -101,6 +137,46 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The id of the atom feed to use revoke policies from the cache. This must match an id in the atom feed service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="SignatureCredentials">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The keystore details needed to sign the saml response after applying the policy.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="keystore" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The location of the keystore to be used.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The password for the keystore.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="key-name" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The key to use for signing.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="key-password" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The password for the key to use for signing.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
