@@ -123,46 +123,57 @@ Culling will also not be performed when configured in this manner.
 The Valkyrie filter can add the user's permissions to the `X-Roles` header, but it is left to a subsequent filter or the origin service to validate the request.
 
 == Examples
+=== Basic
+This configuration will authorize users against Valkyrie.
+
+[source,xml]
+.valkyrie-authorization.cfg.xml
+----
+<valkyrie-authorization xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0">
+    <valkyrie-server uri="http://theserver:8080"/> <!--1-->
+</valkyrie-authorization>
+----
+<1> Specifies the URI of the Valkyrie service.
+
 === Full Feature Utilization
 This configuration will authorize non-admin users, translate permissions to roles, cull the response, and delegate any failures.
 
 [source,xml]
 .valkyrie-authorization.cfg.xml
 ----
-<valkyrie-authorization
-        xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
-        cache-timeout-millis="300000" <!-- 1 -->
-        enable-masking-403s="false" <!-- 2 -->
-        enable-bypass-account-admin="false" <!-- 3 -->
-        connection-pool-id="valkyrie-auth-pool" <!-- 4 -->
-        pass-non-dedicated-tenant="false"> <!-- 5 -->
+<valkyrie-authorization xmlns="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+        cache-timeout-millis="300000" <!--1-->
+        enable-masking-403s="false" <!--2-->
+        enable-bypass-account-admin="false" <!--3-->
+        connection-pool-id="valkyrie-auth-pool" <!--4-->
+        pass-non-dedicated-tenant="false"> <!--5-->
 
-    <delegating quality="0.9"/> <!-- 6 -->
+    <delegating quality="0.9"/> <!--6-->
 
-    <valkyrie-server uri="http://theserver:8080"/> <!-- 7 -->
+    <valkyrie-server uri="http://theserver:8080"/> <!--7-->
 
-    <translate-permissions-to-roles/> <!-- 8 -->
+    <translate-permissions-to-roles/> <!--8-->
 
-    <collection-resources device-id-mismatch-action="fail"> <!-- 9 -->
+    <collection-resources device-id-mismatch-action="fail"> <!--9-->
         <resource>
-            <path-regex http-methods="GET"> <!-- 10 -->
-                /devices/.* <!-- 11 -->
+            <path-regex http-methods="GET"> <!--10-->
+                /devices/.* <!--11-->
             </path-regex>
             <collection>
-                <json> <!-- 12 -->
-                    <path-to-collection>$.values</path-to-collection> <!-- 13 -->
+                <json> <!--12-->
+                    <path-to-collection>$.values</path-to-collection> <!--13-->
                     <path-to-device-id>
-                        <path>$.uri</path> <!-- 14 -->
-                        <regex capture-group="1">http://core.rackspace.com/accounts/\d*/devices/(\d*)</regex> <!-- 15 -->
+                        <path>$.uri</path> <!--14-->
+                        <regex capture-group="1">http://core.rackspace.com/accounts/\d*/devices/(\d*)</regex> <!--15-->
                     </path-to-device-id>
-                    <path-to-item-count>$.metadata.count</path-to-item-count> <!-- 16 -->
+                    <path-to-item-count>$.metadata.count</path-to-item-count> <!--16-->
                 </json>
             </collection>
         </resource>
     </collection-resources>
 
-    <pre-authorized-roles> <!-- 17 -->
-        <role>admin</role> <!-- 18 -->
+    <pre-authorized-roles> <!--17-->
+        <role>admin</role> <!--18-->
         <role>openstack:admin</role>
     </pre-authorized-roles>
 </valkyrie-authorization>
@@ -202,7 +213,7 @@ Also specifies the capture group within the regular expression which captures th
 <17> Specifies a collection of pre-authorized (admin) roles.
 <18> Specifies the name of a particular pre-authorized (admin) role.
 
-[Warning]
+[WARNING]
 ====
 The `enable-bypass-account-admin` attribute applies to users with the role permission `account_admin` as well as requests with a `X-Device-Id `header value containing a device ID to which the user has `account_admin` device permissions.
 This could unintentionally bypass culling.
