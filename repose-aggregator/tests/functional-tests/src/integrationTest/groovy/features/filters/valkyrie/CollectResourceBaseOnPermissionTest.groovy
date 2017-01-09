@@ -289,7 +289,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "204"      | 0
     }
 
-    @Unroll('#encoding encoded response should be culled')
+    @Unroll('#charset encoded response should be culled')
     def 'encoded response should be culled'() {
         given:
         String tenantId = randomTenant()
@@ -317,9 +317,9 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
             "metadata": {
                 "count": 1
             }
-        }'''.getBytes(encoding)
+        }'''.getBytes(charset)
         Closure<Response> responseClosure = { request ->
-            new Response(200, null, ['content-type': "application/json; charset=$encoding"], responseBody)
+            new Response(200, null, ['content-type': "application/json; charset=$charset"], responseBody)
         }
 
         when:
@@ -329,7 +329,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
                         'x-contact-id': '123456',
                         'x-tenant-id' : tenantId],
                 defaultHandler: responseClosure)
-        Map result = new JsonSlurper().parseText(new String(mc.receivedResponse.body)) as Map
+        Map result = new JsonSlurper().parseText(new String(mc.receivedResponse.body as byte[], charset)) as Map
 
         then:
         mc.receivedResponse.code.toInteger() == 200
@@ -337,7 +337,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         result.metadata.count == 0
 
         where:
-        encoding << ['UTF-8', 'UTF-16', 'ISO-8859-1', 'ASCII']
+        charset << ['UTF-8', 'UTF-16', 'ISO-8859-1', 'ASCII']
     }
 
     def String randomTenant() {
