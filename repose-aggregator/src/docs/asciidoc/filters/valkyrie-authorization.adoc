@@ -209,7 +209,7 @@ In this case, JSONPath is used since the response body will be JSON.
 <14> Specifies the path to the field containing the device ID relative to an object within the collection.
 <15> Specifies a regular expression used to extract the device ID from the field specified by the path.
 Also specifies the capture group within the regular expression which captures the device ID.
-<16> Specifies the path to the field containg the item count for the collection relative to the document root.
+<16> Specifies the path to the field containing the item count for the collection relative to the document root.
 <17> Specifies a collection of pre-authorized (admin) roles.
 <18> Specifies the name of a particular pre-authorized (admin) role.
 
