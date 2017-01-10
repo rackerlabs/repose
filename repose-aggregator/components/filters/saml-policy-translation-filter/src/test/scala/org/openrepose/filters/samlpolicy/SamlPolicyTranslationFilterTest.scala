@@ -25,6 +25,8 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.mockito.Mockito.verify
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
+import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
@@ -35,7 +37,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   var filter: SamlPolicyTranslationFilter =_
 
   override def beforeEach(): Unit = {
-    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService])
+    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], mock[AtomFeedService], mock[AkkaServiceClientFactory])
   }
 
   describe("doWork") {
@@ -48,5 +50,49 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       verify(chain).doFilter(request, response)
     }
+  }
+
+  describe("decodeResponse") {
+    pending
+  }
+
+  describe("readToDom") {
+    pending
+  }
+
+  describe("determineVersion") {
+    pending
+  }
+
+  describe("validateResponseAndGetIssuer") {
+    pending
+  }
+
+  describe("getPolicy") {
+    pending
+  }
+
+  describe("translateResponse") {
+    pending
+  }
+
+  describe("signResponse") {
+    pending
+  }
+
+  describe("convertDocumentToStream") {
+    pending
+  }
+
+  describe("onNewAtomEntry") {
+    pending
+  }
+
+  describe("onLifecycleEvent") {
+    pending
+  }
+
+  describe("configurationUpdated") {
+    pending
   }
 }
