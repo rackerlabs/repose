@@ -20,6 +20,7 @@
 
 package org.openrepose.filters.samlpolicy
 
+import java.io.InputStream
 import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -29,7 +30,7 @@ import javax.ws.rs.core.MediaType
 import com.google.common.cache.{Cache, LoadingCache}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.XsltExecutable
-import org.openrepose.commons.utils.http.CommonHttpHeader.CONTENT_TYPE
+import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
@@ -58,7 +59,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     try {
       val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
       var response = servletResponse.asInstanceOf[HttpServletResponse]
-      val samlResponse = decodeResponse(request)
+      val samlResponse = decodeSamlResponse(request)
       val rawDocument = readToDom(samlResponse)
 
       val version = determineVersion(rawDocument)
@@ -76,6 +77,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       val inputStream = convertDocumentToStream(finalDocument)
 
       request.replaceHeader(CONTENT_TYPE.toString, MediaType.APPLICATION_XML)
+      request.removeHeader(CONTENT_LENGTH.toString)
+      request.replaceHeader("Transfer-Encoding", "chunked")
 
       chain.doFilter(new HttpServletRequestWrapper(request, inputStream), response)
 
@@ -100,7 +103,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the decoded saml response
     * @throws SamlPolicyException if decoding fails
     */
-  def decodeResponse(request: HttpServletRequest): String = ???
+  def decodeSamlResponse(request: HttpServletRequest): InputStream = ???
 
   /**
     * Parses a saml response into a dom document.
@@ -109,7 +112,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the corresponding dom object
     * @throws SamlPolicyException if parsing fails
     */
-  def readToDom(samlResponse: String): Document = ???
+  def readToDom(samlResponse: InputStream): Document = ???
 
   /**
     * Reads the parsed saml response and checks the issuer against the filter config
@@ -200,5 +203,5 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 }
 
 case class SamlPolicyException(statusCode: Int, message: String, cause: Throwable) extends Exception(message, cause) {
-  def this(statusCode: Integer, message: String) = this(statusCode, message, null)
+  def this(statusCode: Int, message: String) = this(statusCode, message, null)
 }
