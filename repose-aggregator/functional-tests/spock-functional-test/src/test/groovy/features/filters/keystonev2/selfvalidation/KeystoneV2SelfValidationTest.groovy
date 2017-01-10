@@ -23,6 +23,7 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**
@@ -169,5 +170,43 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.contains("x-impersonator-id")
         !mc.handlings[0].request.headers.contains("x-impersonator-name")
         !mc.handlings[0].request.headers.contains("x-impersonator-roles")
+    }
+
+    def "when Identity returns a 401 a validate token call, Repose should return a 401"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            validateTokenHandler = { tokenId, tenantId, request, xml ->
+                new Response(401)
+            }
+        }
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then:
+        mc.receivedResponse.code.toInteger() == 401
+        mc.receivedResponse.headers.contains("www-authenticate")
+        mc.handlings.size() == 0
+    }
+
+    def "when Identity returns a 401 on a get groups call, Repose should return a 401"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            getGroupsHandler = { tokenId, tenantId, request, xml ->
+                new Response(401)
+            }
+        }
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then:
+        mc.receivedResponse.code.toInteger() == 401
+        mc.receivedResponse.headers.contains("www-authenticate")
+        mc.handlings.size() == 0
     }
 }
