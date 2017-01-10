@@ -4,4 +4,8 @@ include::_includes/in-progress.adoc[]
 
 == Future Release
 
+* https://repose.atlassian.net/browse/REP-4928[REP-4928] - the Keystone v2 filter will now return a 401 if self-validating tokens are being used and the Identity service responds with a 401.
+
+== 8.3.0.1 (2016-12-13)
+
 * https://repose.atlassian.net/browse/REP-4764[REP-4764] - sendError in the response wrapper will now call sendError on the underlying response when appropriate.
