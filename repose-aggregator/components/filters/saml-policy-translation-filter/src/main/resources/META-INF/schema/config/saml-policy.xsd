@@ -115,7 +115,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="uri" type="xs:string"/>
+        <xs:attribute name="uri" type="xs:anyURI"/>
     </xs:complexType>
 
     <xs:complexType name="Cache">
@@ -149,7 +149,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="keystore" type="xs:string">
+        <xs:attribute name="keystore-filename" type="xs:anyURI">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The location of the keystore to be used.</html:p>
@@ -157,7 +157,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="password" type="xs:string">
+        <xs:attribute name="keystore-password" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The password for the keystore.</html:p>
