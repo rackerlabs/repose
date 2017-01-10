@@ -13,8 +13,8 @@
         <policy-endpoint uri="http://keystone.somewhere.com"/>
         <cache ttl="300" atom-feed-id="identity-policy"/>
     </policy-acquisition>
-    <signature-credentials keystore="thing.ks"
-                           password="banana"
+    <signature-credentials keystore-filename="thing.jks"
+                           keystore-password="banana"
                            key-name="thingy"
                            key-password="phone"/>
 </saml-policy>
