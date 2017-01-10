@@ -37,7 +37,7 @@ import org.mockito.Matchers.{eq => mockitoEq, _}
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.http.{CommonHttpHeader, IdentityStatus, OpenStackServiceHeader, PowerApiHeader}
+import org.openrepose.commons.utils.http._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -423,10 +423,15 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
-      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""))
+      //Our admin token is good every time
+      mockAkkaPostResponse(
+        AkkaServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse())
+      )
+
+      //When validating a token, we're going to not be authorized
+      mockAkkaGetResponse(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")(
+        "glibglob", AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, "")
+      )
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2306,8 +2311,12 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
-      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, Array.empty[Header], "Unauthorized from Identity!"))
+      mockAkkaGetResponses(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") {
+        Seq(
+          VALID_TOKEN -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized from Identity!"),
+          VALID_TOKEN -> AkkaServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized from Identity!")
+        )
+      }
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
