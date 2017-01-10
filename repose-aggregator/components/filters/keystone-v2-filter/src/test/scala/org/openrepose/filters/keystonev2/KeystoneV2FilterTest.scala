@@ -2372,7 +2372,7 @@ with HttpDelegationManager {
       filterChain.getLastResponse shouldNot be(null)
     }
 
-    it("rejects with 401 if we are receive unauthorized from Identity (401)") {
+    it("rejects with 401 if we receive unauthorized from Identity (401)") {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
