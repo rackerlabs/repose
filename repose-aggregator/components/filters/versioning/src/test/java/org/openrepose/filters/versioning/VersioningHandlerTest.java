@@ -58,7 +58,7 @@ public class VersioningHandlerTest {
     Node localHost;
     DestinationEndpoint localEndpoint;
     HttpServletRequest request;
-    private GregorianCalendar splodeDate = new GregorianCalendar(2017, Calendar.JANUARY, 5);
+    private GregorianCalendar splodeDate = new GregorianCalendar(2017, Calendar.APRIL, 5);
 
     @Before
     public void setUp() {
