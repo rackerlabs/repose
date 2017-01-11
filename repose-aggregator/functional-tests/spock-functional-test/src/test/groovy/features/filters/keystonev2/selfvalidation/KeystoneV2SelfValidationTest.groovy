@@ -26,6 +26,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
+import javax.servlet.http.HttpServletResponse
+
 /**
  * Created by jennyvo on 9/22/15.
  */
@@ -97,6 +99,21 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         then: "They should pass"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+    }
+
+    def "Validate client token fails"() {
+        given:
+        fakeIdentityV2Service.with {
+            isTokenValid = false
+        }
+
+        when: "User passes a request through repose with valid token"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "They should fail"
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_UNAUTHORIZED // 401
+        mc.handlings.size() == 0
     }
 
     def "Validate racker token without tenant"() {
