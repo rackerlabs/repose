@@ -54,6 +54,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
 
   private var cache: LoadingCache[String, XsltExecutable] = _
+  private var feedId: Option[String] = None
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
@@ -199,7 +200,19 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     *
     * @param newConfiguration
     */
-  override def configurationUpdated(newConfiguration: SamlPolicyConfig): Unit = super.configurationUpdated(newConfiguration)
+  override def configurationUpdated(newConfiguration: SamlPolicyConfig): Unit = {
+    val requestedFeedId = Option(newConfiguration.getPolicyAcquisition.getCache.getAtomFeedId)
+    if (feedId.nonEmpty && (requestedFeedId != Option(configuration.getPolicyAcquisition.getCache.getAtomFeedId))) {
+      atomFeedService.unregisterListener(feedId.get)
+      feedId = None
+    }
+
+    if (feedId.isEmpty && requestedFeedId.nonEmpty) {
+      feedId = Option(atomFeedService.registerListener(requestedFeedId.get, this))
+    }
+
+    super.configurationUpdated(newConfiguration)
+  }
 }
 
 case class SamlPolicyException(statusCode: Int, message: String, cause: Throwable) extends Exception(message, cause) {
