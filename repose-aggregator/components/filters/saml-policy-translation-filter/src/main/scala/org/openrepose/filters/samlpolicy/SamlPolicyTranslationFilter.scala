@@ -21,13 +21,14 @@
 package org.openrepose.filters.samlpolicy
 
 import java.io.InputStream
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletInputStream, ServletRequest, ServletResponse}
 import javax.ws.rs.core.MediaType
 
-import com.google.common.cache.{Cache, LoadingCache}
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.XsltExecutable
 import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE}
@@ -209,6 +210,14 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
     if (feedId.isEmpty && requestedFeedId.nonEmpty) {
       feedId = Option(atomFeedService.registerListener(requestedFeedId.get, this))
+    }
+
+    if (Option(configuration).map(_.getPolicyAcquisition.getCache.getTtl) != Option(newConfiguration.getPolicyAcquisition.getCache.getTtl)) {
+      cache = CacheBuilder.newBuilder()
+                          .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl.longValue(), TimeUnit.SECONDS)
+                          .build(new CacheLoader[String, XsltExecutable]() {
+                            override def load(key: String): XsltExecutable = getPolicy(key)
+                          })
     }
 
     super.configurationUpdated(newConfiguration)
