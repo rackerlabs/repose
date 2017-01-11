@@ -20,7 +20,9 @@
 
 package org.openrepose.filters.samlpolicy
 
+import java.util.Base64
 import javax.servlet.FilterChain
+import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.junit.runner.RunWith
@@ -33,6 +35,8 @@ import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+
+import scala.io.Source
 
 /**
   * Created by adrian on 12/14/16.
@@ -61,7 +65,36 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("decodeSamlResponse") {
-    pending
+    it("should throw a SamlPolicyException(400) if the SAMLResponse parameter is not present") {
+      val request = mock[HttpServletRequest]
+
+      intercept[SamlPolicyException] {
+        filter.decodeSamlResponse(request)
+      }.statusCode shouldEqual SC_BAD_REQUEST
+    }
+
+    it("should throw a SamlPolicyException(400) if the SAMLResponse value is not Base64 encoded") {
+      val request = mock[HttpServletRequest]
+
+      when(request.getParameter("SAMLResponse"))
+        .thenReturn("<samlp:Response/>")
+
+      intercept[SamlPolicyException] {
+        filter.decodeSamlResponse(request)
+      }.statusCode shouldEqual SC_BAD_REQUEST
+    }
+
+    it("should return the decoded SAMLResponse") {
+      val samlResponse = "<samlp:Response/>"
+      val request = mock[HttpServletRequest]
+
+      when(request.getParameter("SAMLResponse"))
+        .thenReturn(Base64.getEncoder.encodeToString(samlResponse.getBytes))
+
+      val decodedSaml = filter.decodeSamlResponse(request)
+
+      Source.fromInputStream(decodedSaml).mkString shouldEqual samlResponse
+    }
   }
 
   describe("readToDom") {
