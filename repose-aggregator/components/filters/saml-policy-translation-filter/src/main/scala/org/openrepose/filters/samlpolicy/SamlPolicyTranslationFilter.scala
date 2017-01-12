@@ -20,9 +20,9 @@
 
 package org.openrepose.filters.samlpolicy
 
-import java.util.concurrent.TimeUnit
 import java.io.{ByteArrayInputStream, InputStream}
 import java.util.Base64
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
