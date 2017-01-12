@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <saml-policy xmlns="http://docs.openrepose.org/repose/samlpolicy/v1.0">
-    <keystone-credentials uri="http://localhost:${identityPort}"
-                          username="admin_username"
-                          password="admin_password"
-                          connection-pool-id="default"/>
-    <policy-cache ttl="300" atom-feed-id="authenticated-policy-feed"/>
+    <policy-acquisition>
+        <keystone-credentials uri="http://localhost:${identityPort}"
+                              username="admin_username"
+                              password="admin_password"
+                              connection-pool-id="default"/>
+        <policy-endpoint uri="http://localhost:${identityPort}"/>
+        <cache ttl="300" atom-feed-id="authenticated-policy-feed"/>
+    </policy-acquisition>
+    <signature-credentials keystore-filename="single.jks"
+                           keystore-password="password"
+                           key-name="server"
+                           key-password="password"/>
 </saml-policy>
