@@ -20,10 +20,11 @@
 
 package org.openrepose.filters.samlpolicy
 
-import java.io.InputStream
+import java.io.{ByteArrayInputStream, InputStream}
+import java.util.Base64
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
-import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletInputStream, ServletRequest, ServletResponse}
 import javax.ws.rs.core.MediaType
@@ -39,6 +40,8 @@ import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.w3c.dom.Document
+
+import scala.language.postfixOps
 
 /**
   * Created by adrian on 12/12/16.
@@ -99,13 +102,25 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   }
 
   /**
-    * Gets the SAMl response from the post encoded body, and decodes it into a plain String.
+    * Gets the SAMl response from the post encoded body, and decodes it.
     *
     * @param request the servlet request that has an encoded body
     * @return the decoded saml response
     * @throws SamlPolicyException if decoding fails
     */
-  def decodeSamlResponse(request: HttpServletRequest): InputStream = ???
+  def decodeSamlResponse(request: HttpServletRequest): InputStream = {
+    try {
+      Option(request.getParameter("SAMLResponse"))
+        .map(Base64.getDecoder.decode)
+        .map(new ByteArrayInputStream(_))
+        .get
+    } catch {
+      case nse: NoSuchElementException =>
+        throw SamlPolicyException(SC_BAD_REQUEST, "No SAMLResponse value found", nse)
+      case iae: IllegalArgumentException =>
+        throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse is not in valid Base64 scheme", iae)
+    }
+  }
 
   /**
     * Parses a saml response into a dom document.
