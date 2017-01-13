@@ -229,7 +229,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
     if (Option(configuration).map(_.getPolicyAcquisition.getCache.getTtl) != Option(newConfiguration.getPolicyAcquisition.getCache.getTtl)) {
       cache = CacheBuilder.newBuilder()
-                          .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl.longValue(), TimeUnit.SECONDS)
+                          .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
                           .build(new CacheLoader[String, XsltExecutable]() {
                             override def load(key: String): XsltExecutable = getPolicy(key)
                           })
