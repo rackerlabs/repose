@@ -132,7 +132,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint,
-                method: HTTP_POST,
+                method: httpMethod,
                 headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): SAML_ONE_ASSERTION_SIGNED_BASE64))
 
@@ -144,5 +144,50 @@ class SamlBasicValidationTest extends ReposeValveTest {
 
         where:
         httpMethod << HTTP_UNSUPPORTED_METHODS
+    }
+
+    @Unroll
+    def "a request will be rejected when the SAMLResponse contents are invalid due to #reason"() {
+        when: "we make a POST request"
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): paramValue))
+
+        then: "the request is rejected"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+
+        and: "the origin service does not receive the request"
+        mc.handlings.isEmpty()
+
+        where:
+        reason                    | paramValue
+        "invalid base64 encoding" | SAML_ONE_ASSERTION_SIGNED_BASE64 + "!@#%^*)*)@"
+        "invalid XML"             | encodeBase64("legit saml response kthxbai")
+        "invalid SAML"            | encodeBase64("<banana/>")
+        "missing Issuer element"  | encodeBase64(samlResponse(status() >> assertion()))
+        "empty Issuer element"    | encodeBase64(samlResponse({ 'saml2:Issuer'("") } >> status() >> assertion()))
+    }
+
+    @Unroll
+    def "verify this test can generate a valid SAML Response #testNum"() {
+        when:
+        validateSamlResponse(saml)
+
+        then:
+        notThrown(Exception)
+
+        where:
+        [testNum, saml] << [
+                [0, samlResponse {
+                    'saml2:Issuer'("http://idp.external.com")
+                    'saml2p:Status' {
+                        'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
+                    }
+                    mkp.yieldUnescaped SAML_ASSERTION_SIGNED
+                }],
+                [1, samlResponse(issuer() >> status() >> assertion())]
+        ]
     }
 }
