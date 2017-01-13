@@ -20,28 +20,37 @@
 
 package org.openrepose.filters.samlpolicy
 
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.{ByteArrayInputStream, FileInputStream, InputStream}
+import java.security.KeyStore
+import java.security.cert.X509Certificate
 import java.util.Base64
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
+import javax.servlet._
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{FilterChain, ServletInputStream, ServletRequest, ServletResponse}
 import javax.ws.rs.core.MediaType
+import javax.xml.crypto.dsig.XMLSignatureFactory
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.rackspace.identity.components.AttributeMapper
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.XsltExecutable
+import org.openrepose.commons.config.manager.UpdateFailedException
 import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE}
+import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
+import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
+import org.opensaml.security.credential.{BasicCredential, CredentialSupport}
+import org.springframework.beans.factory.annotation.Value
 import org.w3c.dom.Document
 
+import scala.collection.JavaConverters._
 import scala.language.postfixOps
 
 /**
@@ -50,16 +59,20 @@ import scala.language.postfixOps
 @Named
 class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationService,
                                             atomFeedService: AtomFeedService,
-                                            akkaServiceClientFactory: AkkaServiceClientFactory)
+                                            akkaServiceClientFactory: AkkaServiceClientFactory,
+                                            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) configRoot: String)
   extends AbstractConfiguredFilter[SamlPolicyConfig](configurationService)
-  with LazyLogging
-  with AtomFeedListener {
+    with LazyLogging
+    with AtomFeedListener {
 
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
 
   private var cache: LoadingCache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
+  private var fac: XMLSignatureFactory = _
+  private var keyEntry: KeyStore.PrivateKeyEntry = _
+  private var signingCredential: BasicCredential = _
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
@@ -154,7 +167,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
   /**
     * Retrieves the policy from the configured endpoint. The caching will be handled elsewhere.
-    * There is a possiblity that this method will have to get split into two calls is we end up needing the raw policy for the os response mangling.
+    * There is a possibility that this method will have to get split into two calls is we end up needing the raw policy for the os response mangling.
     * I hope not, because that poops on what i'm trying to do with the cache at the moment.
     *
     * @param issuer the issuer
@@ -167,7 +180,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * Applies the policy to the saml response.
     *
     * @param document the parsed saml response
-    * @param policy the xslt translation
+    * @param policy   the xslt translation
     * @return the translated document
     * @throws SamlPolicyException if the translation fails
     */
@@ -186,7 +199,38 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return a signed saml response
     * @throws SamlPolicyException if the signing fails
     */
-  def signResponse(document: Document): Document = ???
+  def signResponse(document: Document): Document = {
+    /*
+     * Based on: A Guide to OpenSAML V3 by Stefan Rasmusson pg 53.
+     */
+    try {
+//      // 1. The Signature object is created and populated with properties for the signature.
+//      val builderFactory = XMLObjectProviderRegistrySupport.getBuilderFactory
+//      val defaultElementName = classOf[Signature].getDeclaredField("DEFAULT_ELEMENT_NAME").get(null).asInstanceOf[QName]
+//      val signature = builderFactory.getBuilder(defaultElementName).buildObject(defaultElementName).asInstanceOf[Signature]
+//      signature.setSigningCredential(signingCredential)
+//      signature.setSignatureAlgorithm("http://www.w3.org/2000/09/xmldsig#rsa-sha1")
+//      signature.setCanonicalizationAlgorithm("http://www.w3.org/2001/10/xml-exc-c14n#")
+//
+//      // The credential that is used to produce the signature is set on the signature object.
+//      // Chapter 1 of Part III explains how to obtain credentials.
+//      // The algorithm that is used when the signature is computed is set on the signature object.
+//      // 2. Next, the signature is associated with an object of type SignableXMLObject.
+//      val signableXMLObject = new ResponseBuilder().buildObject
+//      signableXMLObject.setDOM(document.getDocumentElement)
+//      signableXMLObject.setSignature(signature)
+//
+//      // 3. Next, the SignableXMLObject is marshalled into a XML object.
+//      XMLObjectProviderRegistrySupport.getMarshallerFactory.getMarshaller(signableXMLObject).marshall(signableXMLObject)
+//
+//      // 4.The last step to produce the signature is to compute the signature using the Signer utility class.
+//      Signer.signObject(signature)
+      document
+    } catch {
+      case e: Exception =>
+        throw SamlPolicyException(SC_INTERNAL_SERVER_ERROR, "Could not create SAML object", e)
+    }
+  }
 
   /**
     * Converts the saml response document into a servlet input stream for passing down the filter chain.
@@ -236,10 +280,34 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
     if (Option(configuration).map(_.getPolicyAcquisition.getCache.getTtl) != Option(newConfiguration.getPolicyAcquisition.getCache.getTtl)) {
       cache = CacheBuilder.newBuilder()
-                          .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
-                          .build(new CacheLoader[String, XsltExecutable]() {
-                            override def load(key: String): XsltExecutable = getPolicy(key)
-                          })
+        .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
+        .build(new CacheLoader[String, XsltExecutable]() {
+          override def load(key: String): XsltExecutable = getPolicy(key)
+        })
+    }
+
+    try {
+      // Create a DOM XMLSignatureFactory that will be used to
+      // generate the enveloped signature.
+      fac = XMLSignatureFactory.getInstance("DOM")
+
+      // Load the KeyStore and get the signing key and certificate.
+      val creds = newConfiguration.getSignatureCredentials
+      val keyStoreFilename = FileUtilities.guardedAbsoluteFile(configRoot, creds.getKeystoreFilename).getAbsolutePath
+      logger.debug("Attempting to load keystore located at: {}", keyStoreFilename)
+      val ks = KeyStore.getInstance("JKS")
+      ks.load(new FileInputStream(keyStoreFilename), creds.getKeystorePassword.toCharArray)
+      keyEntry = ks.getEntry(creds.getKeyName, new KeyStore.PasswordProtection(creds.getKeyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
+      val cert = keyEntry.getCertificate.asInstanceOf[X509Certificate]
+      // Create the KeyInfo containing the X509Data.
+      val kif = fac.getKeyInfoFactory
+      val x509Content = new java.util.ArrayList[Any]
+      x509Content.add()
+      x509Content.add(cert)
+      val xd = kif.newX509Data(List(cert.getSubjectX500Principal.getName, cert).asJava)
+      signingCredential = CredentialSupport.getSimpleCredential(keyEntry.getCertificate.asInstanceOf[X509Certificate], keyEntry.getPrivateKey)
+    } catch {
+      case e: Exception => throw new UpdateFailedException("Failed to load the signing credentials.", e)
     }
 
     super.configurationUpdated(newConfiguration)
