@@ -3,6 +3,26 @@ dependencies {
     compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-api")
     compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
     compile "org.scala-lang:scala-library"
+    compile "org.springframework:spring-beans"
+    compile 'org.opensaml:opensaml-core'
+//    compile 'org.opensaml:opensaml-profile-api'
+//    compile 'org.opensaml:opensaml-profile-impl'
+//    compile 'org.opensaml:opensaml-soap-api'
+//    compile 'org.opensaml:opensaml-soap-impl'
+//    compile 'org.opensaml:opensaml-saml-api'
+//    compile 'org.opensaml:opensaml-saml-impl'
+//    compile 'org.opensaml:opensaml-xacml-api'
+//    compile 'org.opensaml:opensaml-xacml-impl'
+//    compile 'org.opensaml:opensaml-xacml-saml-api'
+//    compile 'org.opensaml:opensaml-xacml-saml-impl'
+//    compile 'org.opensaml:opensaml-messaging-api'
+//    compile 'org.opensaml:opensaml-messaging-impl'
+//    compile 'org.opensaml:opensaml-storage-api'
+//    compile 'org.opensaml:opensaml-storage-impl'
+//    compile 'org.opensaml:opensaml-security-api'
+//    compile 'org.opensaml:opensaml-security-impl'
+//    compile 'org.opensaml:opensaml-xmlsec-api'
+//    compile 'org.opensaml:opensaml-xmlsec-impl'
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "com.google.guava:guava"
     //todo: remove this once we can move the translation filter up to the same version of saxon
