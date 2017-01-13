@@ -38,27 +38,68 @@ import java.util.concurrent.atomic.AtomicInteger
  * Simulates responses from an Identity V2 Service
  */
 class MockIdentityV2Service {
-    int port
-    int originServicePort
-
-    /**
-     * Set initial values for some fields
-     *  Set Date time format
-     *  initialize isTokenValid, checkTokenValid
-     *  TokenExpiresAt field determines when the token exp. Consumers can set to particular DateTime
-     *      or leave it null to default as now plus one day.
-     */
     static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-    boolean isTokenValid = true
-    boolean checkTokenValid = false
-    def tokenExpiresAt = null
-    def random = new Random()
+
+    static final String getUserGlobalRolesCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/roles/
+    static final String getGroupsCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/RAX-KSGRP/
+    static final String getEndpointsCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/endpoints/
+    static final String validateTokenCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/?$/
 
     protected AtomicInteger _validateTokenCount = new AtomicInteger(0)
     protected AtomicInteger _getGroupsCount = new AtomicInteger(0)
     protected AtomicInteger _generateTokenCount = new AtomicInteger(0)
     protected AtomicInteger _getEndpointsCount = new AtomicInteger(0)
     protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0)
+
+    def templateEngine = new SimpleTemplateEngine()
+    def random = new Random()
+
+    int port
+    int originServicePort
+
+    // these fields are initialized by resetDefaultParameters()
+    def client_token
+    def client_tenantid
+    def client_tenantname
+    def client_tenantid2
+    def client_username
+    def client_userid
+    def client_apikey
+    def client_password
+    def forbidden_apikey_or_pwd
+    def not_found_apikey_or_pwd
+    def admin_token
+    def admin_tenant
+    def admin_username
+    def service_admin_role
+    def endpointUrl
+    def region
+    def admin_userid
+    def sleeptime
+    def contact_id
+    def contactIdJson
+    def contactIdXml
+    def additionalRolesXml
+    def additionalRolesJson
+    def impersonate_id
+    def impersonate_name
+    def validateTenant
+    def appendedflag
+    Validator validator
+
+    Closure<Response> handler
+    Closure<Response> validateTokenHandler
+    Closure<Response> getGroupsHandler
+    Closure<Response> generateTokenHandler
+    Closure<Response> getEndpointsHandler
+    Closure<Response> getUserGlobalRolesHandler
+
+    // if tokenExpiresAt isn't set, it will default to the current time plus one day
+    def tokenExpiresAt = null
+    boolean isTokenValid = true
+    boolean checkTokenValid = false
+
+    //def handler = { Request request -> handleRequest(request) } // todo: remove this line
 
     MockIdentityV2Service(int identityPort, int originServicePort) {
         resetHandlers()
@@ -68,7 +109,6 @@ class MockIdentityV2Service {
         this.originServicePort = originServicePort
 
         SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
-
         factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
         Schema schema = factory.newSchema(
                 new StreamSource(MockIdentityV2Service.class.getResourceAsStream("/schema/openstack/credentials.xsd")))
@@ -76,40 +116,24 @@ class MockIdentityV2Service {
         this.validator = schema.newValidator()
     }
 
-    /**
-     * Get count for number of times call validateToken function
-     * @return validateTokenCount
-     */
     int getValidateTokenCount() {
         _validateTokenCount.get()
     }
 
-    /**
-     * Get count for number of times call getGroup function
-     * @return getGroupCount
-     */
     int getGetGroupsCount() {
         _getGroupsCount.get()
     }
 
-    /**
-     * Get count for number of times call GenerationToken function
-     * @return getGenerateTokenCount
-     */
     int getGenerateTokenCount() {
         _generateTokenCount.get()
     }
 
-    /**
-     * Get count for number of times call getEndpoint function
-     * @return getEndpointCount
-     */
     int getGetEndpointsCount() {
         _getEndpointsCount.get()
     }
 
     /**
-     * Reset all counts set to zero (initial state)
+     * Reset all counts set to zero (initial state).
      */
     void resetCounts() {
         _validateTokenCount.set(0)
@@ -120,7 +144,7 @@ class MockIdentityV2Service {
     }
 
     /**
-     * Reset all handlers set to initial state
+     * Reset all handlers to initial state.
      */
     void resetHandlers() {
         handler = this.&handleRequest
@@ -131,45 +155,9 @@ class MockIdentityV2Service {
         getUserGlobalRolesHandler = this.&getUserGlobalRoles
     }
 
-    Closure<Response> validateTokenHandler
-    Closure<Response> getGroupsHandler
-    Closure<Response> generateTokenHandler
-    Closure<Response> getEndpointsHandler
-    Closure<Response> getUserGlobalRolesHandler
-
-    // initialize some field values
-    def client_token = 'this-is-the-token'
-    def client_tenantid = 'this-is-the-tenant'
-    def client_tenantname = 'this-tenant-name'
-    def client_tenantid2 = 'this-is-the-nast-id'
-    def client_username = 'username'
-    def client_userid = 'user_12345'
-    def client_apikey = 'this-is-the-api-key'
-    def client_password = 'this-is-the-pwd'
-    def forbidden_apikey_or_pwd = 'this-key-pwd-results-in-forbidden'
-    def not_found_apikey_or_pwd = 'this-key-pwd-results-in-not-found'
-    def admin_token = 'this-is-the-admin-token'
-    def admin_tenant = 'this-is-the-admin-tenant'
-    def admin_username = 'admin_username'
-    def service_admin_role = 'service:admin-role1'
-    def endpointUrl = "localhost"
-    def region = "ORD"
-    def admin_userid = 67890
-    def sleeptime = 0
-    def contact_id = "${random.nextInt()}"
-    def contactIdJson = ""
-    def contactIdXml = ""
-    def additionalRolesXml = ""
-    def additionalRolesJson = ""
-    def impersonate_id = ""
-    def impersonate_name = ""
-    def validateTenant = null
-    def appendedflag = false
-    Validator validator
-
     /**
-     * At some points some of these fields values maybe changed
-     * This function uses to reset to default state
+     * At some points some of these fields values may be changed.
+     * This function uses to reset to default state.
      */
     void resetDefaultParameters() {
         client_token = 'this-is-the-token'
@@ -201,10 +189,6 @@ class MockIdentityV2Service {
         appendedflag = false
         isTokenValid = true
     }
-
-    def templateEngine = new SimpleTemplateEngine()
-
-    def handler = { Request request -> handleRequest(request) }
 
     /**
      * HandleRequest handling all request from client to identity
@@ -336,61 +320,26 @@ class MockIdentityV2Service {
         return new Response(501)
     }
 
-    static final String getUserGlobalRolesCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/roles/
-    static final String getGroupsCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/RAX-KSGRP/
-    static final String getEndpointsCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/endpoints/
-    static final String validateTokenCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/?$/
-
-    /**
-     * Check if get user global call path
-     * @param nonQueryPath
-     * @return true/false
-     */
     static boolean isGetUserGlobalRolesCallPath(String nonQueryPath) {
         nonQueryPath ==~ getUserGlobalRolesCallPathRegex
     }
 
-    /**
-     * Check if it is get group call path
-     * @param nonQueryPath
-     * @return true/false
-     */
     static boolean isGetGroupsCallPath(String nonQueryPath) {
         nonQueryPath ==~ getGroupsCallPathRegex
     }
 
-    /**
-     * Check if it is get endpoint call path
-     * @param nonQueryPath
-     * @return true/false
-     */
     static boolean isGetEndpointsCallPath(String nonQueryPath) {
         nonQueryPath ==~ getEndpointsCallPathRegex
     }
 
-    /**
-     * Check if it is validate Token Call Path
-     * @param nonQueryPath
-     * @return true/false
-     */
     static boolean isValidateTokenCallPath(String nonQueryPath) {
         nonQueryPath ==~ validateTokenCallPathRegex
     }
 
-    /**
-     * Check if it is generateTokenCallPath
-     * @param nonQueryPath
-     * @return true/false
-     */
     static boolean isGenerateTokenCallPath(String nonQueryPath) {
         nonQueryPath == "/v2.0/tokens"
     }
 
-    /**
-     * Check Path start with /v2.0/tokens
-     * @param nonQueryPath
-     * @return true/false
-     */
     static boolean isTokenCallPath(String nonQueryPath) {
         nonQueryPath.startsWith("/v2.0/tokens")
     }
@@ -408,9 +357,7 @@ class MockIdentityV2Service {
         } else if (this.tokenExpiresAt) {
             return this.tokenExpiresAt as String
         } else {
-            def now = new DateTime()
-            def nowPlusOneDay = now.plusDays(1)
-            return nowPlusOneDay
+            return new DateTime().plusDays(1)
         }
     }
 
