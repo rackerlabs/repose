@@ -20,6 +20,9 @@
 
 package org.openrepose.filters.samlpolicy
 
+import java.io.{FileInputStream, StringReader}
+import java.security.KeyStore
+import java.security.cert.X509Certificate
 import java.util.Base64
 import java.io.StringReader
 import javax.servlet.FilterChain
@@ -29,13 +32,27 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.stream.StreamSource
 
 import net.sf.saxon.s9api.Processor
+import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.{FilterChain, FilterConfig}
+import javax.xml.parsers.DocumentBuilderFactory
+
+import com.typesafe.scalalogging.slf4j.LazyLogging
+import net.shibboleth.utilities.java.support.resolver.CriteriaSet
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.mockito.{Matchers => MM}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
-import org.openrepose.filters.samlpolicy.config.{Cache, PolicyAcquisition, SamlPolicyConfig}
+import org.openrepose.filters.samlpolicy.config.{Cache, PolicyAcquisition, SamlPolicyConfig, SignatureCredentials}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
+import org.opensaml.core.criterion.EntityIdCriterion
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport
+import org.opensaml.security.credential.CredentialSupport
+import org.opensaml.security.credential.impl.StaticCredentialResolver
+import org.opensaml.xmlsec.keyinfo.impl.StaticKeyInfoCredentialResolver
+import org.opensaml.xmlsec.signature.SignableXMLObject
+import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -43,19 +60,30 @@ import org.springframework.test.util.ReflectionTestUtils
 import org.xml.sax.InputSource
 
 import scala.io.Source
+import scala.xml.InputSource
 
 /**
   * Created by adrian on 12/14/16.
   */
 @RunWith(classOf[JUnitRunner])
-class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
+class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with LazyLogging {
+
+  import SamlPolicyTranslationFilterTest._
 
   val atomFeedService: AtomFeedService = mock[AtomFeedService]
+  val signatureCredentials = new SignatureCredentials
 
   var filter: SamlPolicyTranslationFilter = _
+  var filterConfig: FilterConfig = _
 
   override def beforeEach(): Unit = {
-    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], atomFeedService, mock[AkkaServiceClientFactory])
+    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], atomFeedService, mock[AkkaServiceClientFactory], CONFIG_ROOT)
+    filterConfig = mock[FilterConfig]
+    filter.init(filterConfig)
+    signatureCredentials.setKeystoreFilename(KEYSTORE_FILENAME)
+    signatureCredentials.setKeystorePassword(KEYSTORE_PASSWORD)
+    signatureCredentials.setKeyName(KEY_NAME)
+    signatureCredentials.setKeyPassword(KEY_PASSWORD)
   }
 
   describe("doWork") {
@@ -162,7 +190,45 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("signResponse") {
-    pending
+    it("should sign the SAML Response in the HTTP Request") {
+      val config = new SamlPolicyConfig
+      val acquisition = new PolicyAcquisition
+      val cache = new Cache
+      cache.setAtomFeedId("banana")
+      acquisition.setCache(cache)
+      config.setPolicyAcquisition(acquisition)
+      config.setSignatureCredentials(signatureCredentials)
+      reset(atomFeedService)
+
+      val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(
+        """<something that="needs">
+          |    <signed>
+          |        thing
+          |    </signed>
+          |</something>""".stripMargin)))
+
+      filter.configurationUpdated(config)
+      val signedDoc = filter.signResponse(document)
+
+      //// Unmarshall new tree around DOM to avoid side effects and Apache xmlsec bug.
+      //val unmarshallerFactory = XMLObjectProviderRegistrySupport.getUnmarshallerFactory
+      //val signedDocumentElement = signedDoc.getDocumentElement
+      //val signedXMLObject = unmarshallerFactory.getUnmarshaller(signedDocumentElement).unmarshall(signedDocumentElement).asInstanceOf[SignableXMLObject]
+
+      // Use the key that should have signed the DOM to create the validation criteria
+      val ks = KeyStore.getInstance("JKS")
+      ks.load(new FileInputStream(s"$CONFIG_ROOT/$KEYSTORE_FILENAME"), KEYSTORE_PASSWORD.toCharArray)
+      val keyEntry = ks.getEntry(KEY_NAME, new KeyStore.PasswordProtection(KEY_PASSWORD.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
+      val signingCredential = CredentialSupport.getSimpleCredential(keyEntry.getCertificate.asInstanceOf[X509Certificate], keyEntry.getPrivateKey)
+      val credResolver = new StaticCredentialResolver(signingCredential)
+      val kiResolver = new StaticKeyInfoCredentialResolver(signingCredential)
+      val trustEngine = new ExplicitKeySignatureTrustEngine(credResolver, kiResolver)
+      val criteriaSet = new CriteriaSet(new EntityIdCriterion("urn:example.org:issuer"))
+
+
+      //assert(trustEngine.validate(signedXMLObject.getSignature, criteriaSet))
+      assert(true) // This gives a break point after all other processing is complete.
+    }
   }
 
   describe("convertDocumentToStream") {
@@ -188,6 +254,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       cache.setAtomFeedId(feedId)
       acquisition.setCache(cache)
       resultConfig.setPolicyAcquisition(acquisition)
+      resultConfig.setSignatureCredentials(signatureCredentials)
       resultConfig
     }
 
@@ -290,4 +357,12 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       originalCache should be theSameInstanceAs newCache
     }
   }
+}
+
+object SamlPolicyTranslationFilterTest {
+  val CONFIG_ROOT = "./build/resources/test/"
+  val KEYSTORE_FILENAME = "single.jks"
+  val KEYSTORE_PASSWORD = "password"
+  val KEY_NAME = "server"
+  val KEY_PASSWORD = "password"
 }
