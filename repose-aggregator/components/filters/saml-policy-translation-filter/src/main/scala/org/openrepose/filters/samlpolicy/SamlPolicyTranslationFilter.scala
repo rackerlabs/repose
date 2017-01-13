@@ -30,6 +30,7 @@ import javax.servlet.{FilterChain, ServletInputStream, ServletRequest, ServletRe
 import javax.ws.rs.core.MediaType
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import com.rackspace.identity.components.AttributeMapper
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.XsltExecutable
 import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE}
@@ -170,7 +171,13 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the translated document
     * @throws SamlPolicyException if the translation fails
     */
-  def translateResponse(document: Document, policy: XsltExecutable): Document = ???
+  def translateResponse(document: Document, policy: XsltExecutable): Document = {
+    try {
+      AttributeMapper.convertAssertion(policy, document)
+    } catch {
+      case e: Exception => throw SamlPolicyException(SC_BAD_REQUEST, "Failed to translate the SAML Response", e)
+    }
+  }
 
   /**
     * Signs the saml response.
