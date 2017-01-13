@@ -125,7 +125,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="ttl" type="xs:positiveInteger" use="required">
+        <xs:attribute name="ttl" type="xs:unsignedInt" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The amount of time in seconds a retrieved policy should stay in the cache.</html:p>
