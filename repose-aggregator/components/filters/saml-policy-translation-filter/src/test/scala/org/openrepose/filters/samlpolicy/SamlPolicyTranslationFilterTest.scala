@@ -21,10 +21,14 @@
 package org.openrepose.filters.samlpolicy
 
 import java.util.Base64
+import java.io.StringReader
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.stream.StreamSource
 
+import net.sf.saxon.s9api.Processor
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.mockito.{Matchers => MM}
@@ -36,6 +40,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.test.util.ReflectionTestUtils
+import org.xml.sax.InputSource
 
 import scala.io.Source
 
@@ -47,7 +52,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   val atomFeedService: AtomFeedService = mock[AtomFeedService]
 
-  var filter: SamlPolicyTranslationFilter =_
+  var filter: SamlPolicyTranslationFilter = _
 
   override def beforeEach(): Unit = {
     filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], atomFeedService, mock[AkkaServiceClientFactory])
@@ -115,7 +120,45 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("translateResponse") {
-    pending
+    val documentString =
+      """
+        |<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+      """.stripMargin
+    val document = DocumentBuilderFactory.newInstance()
+      .newDocumentBuilder()
+      .parse(new InputSource(new StringReader(documentString)))
+    val brokenXslt =
+      """
+        |<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+        |                version="1.0">
+        |    <xsl:template match="/">
+        |        <xsl:message terminate="yes">Break ALL the things!</xsl:message>
+        |    </xsl:template>
+        |</xsl:stylesheet>
+      """.stripMargin
+    val brokenXsltExec = new Processor(false).newXsltCompiler()
+      .compile(new StreamSource(new StringReader(brokenXslt)))
+    val workingXslt =
+      """
+        |<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+        |                version="1.0">
+        |    <xsl:template match="/">
+        |        <xsl:copy-of select="."/>
+        |    </xsl:template>
+        |</xsl:stylesheet>
+      """.stripMargin
+    val workingXsltExec = new Processor(false).newXsltCompiler()
+      .compile(new StreamSource(new StringReader(workingXslt)))
+
+    it("should throw a SamlPolicyException(400) if the translation fails") {
+      intercept[SamlPolicyException] {
+        filter.translateResponse(document, brokenXsltExec)
+      }.statusCode shouldEqual SC_BAD_REQUEST
+    }
+
+    it("should return the translated document without throwing an exception") {
+      filter.translateResponse(document, workingXsltExec)
+    }
   }
 
   describe("signResponse") {
