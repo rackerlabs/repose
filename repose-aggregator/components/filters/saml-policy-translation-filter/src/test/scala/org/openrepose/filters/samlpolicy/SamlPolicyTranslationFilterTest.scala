@@ -20,6 +20,7 @@
 
 package org.openrepose.filters.samlpolicy
 
+import java.math.BigInteger
 import java.util.Base64
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
@@ -140,6 +141,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       config = new SamlPolicyConfig
       val acquisition = new PolicyAcquisition
       val cache = new Cache
+      cache.setTtl(new BigInteger("3000"))
       cache.setAtomFeedId("banana")
       acquisition.setCache(cache)
       config.setPolicyAcquisition(acquisition)
@@ -172,6 +174,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val newConfig = new SamlPolicyConfig
       val newAcquisition = new PolicyAcquisition
       val newCache = new Cache
+      newCache.setTtl(new BigInteger("5"))
       newCache.setAtomFeedId("phone")
       newAcquisition.setCache(newCache)
       newConfig.setPolicyAcquisition(newAcquisition)
@@ -190,6 +193,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val newConfig = new SamlPolicyConfig
       val newAcquisition = new PolicyAcquisition
       val newCache = new Cache
+      newCache.setTtl(new BigInteger("5"))
       newAcquisition.setCache(newCache)
       newConfig.setPolicyAcquisition(newAcquisition)
 
@@ -217,6 +221,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val newConfig = new SamlPolicyConfig
       val newAcquisition = new PolicyAcquisition
       val newCache = new Cache
+      newCache.setTtl(new BigInteger("5"))
       newCache.setAtomFeedId("phone")
       newAcquisition.setCache(newCache)
       newConfig.setPolicyAcquisition(newAcquisition)
