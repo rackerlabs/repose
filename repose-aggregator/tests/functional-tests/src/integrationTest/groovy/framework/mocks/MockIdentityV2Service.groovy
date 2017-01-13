@@ -38,24 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger
  * Simulates responses from an Identity V2 Service
  */
 class MockIdentityV2Service {
-    public MockIdentityV2Service(int identityPort, int originServicePort) {
-
-        resetHandlers()
-        resetDefaultParameters()
-
-        this.port = identityPort
-        this.originServicePort = originServicePort
-
-        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
-
-        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
-        Schema schema = factory.newSchema(
-                new StreamSource(MockIdentityService.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
-
-
-        this.validator = schema.newValidator();
-    }
-
     int port
     int originServicePort
 
@@ -65,69 +47,71 @@ class MockIdentityV2Service {
      *  initialize isTokenValid, checkTokenValid
      *  TokenExpiresAt field determines when the token exp. Consumers can set to particular DateTime
      *      or leave it null to default as now plus one day.
-     *
      */
-    final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    boolean isTokenValid = true;
-    boolean checkTokenValid = false;
-    def tokenExpiresAt = null;
+    static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+    boolean isTokenValid = true
+    boolean checkTokenValid = false
+    def tokenExpiresAt = null
     def random = new Random()
 
-    protected AtomicInteger _validateTokenCount = new AtomicInteger(0);
-    protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
-    protected AtomicInteger _generateTokenCount = new AtomicInteger(0);
-    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0);
-    protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0);
+    protected AtomicInteger _validateTokenCount = new AtomicInteger(0)
+    protected AtomicInteger _getGroupsCount = new AtomicInteger(0)
+    protected AtomicInteger _generateTokenCount = new AtomicInteger(0)
+    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0)
+    protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0)
+
+    MockIdentityV2Service(int identityPort, int originServicePort) {
+        resetHandlers()
+        resetDefaultParameters()
+
+        this.port = identityPort
+        this.originServicePort = originServicePort
+
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
+
+        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
+        Schema schema = factory.newSchema(
+                new StreamSource(MockIdentityV2Service.class.getResourceAsStream("/schema/openstack/credentials.xsd")))
+
+        this.validator = schema.newValidator()
+    }
 
     /**
      * Get count for number of times call validateToken function
      * @return validateTokenCount
      */
-    public int getValidateTokenCount() {
-        return _validateTokenCount.get()
+    int getValidateTokenCount() {
+        _validateTokenCount.get()
     }
 
     /**
      * Get count for number of times call getGroup function
      * @return getGroupCount
      */
-    public int getGetGroupsCount() {
-        return _getGroupsCount.get()
-
+    int getGetGroupsCount() {
+        _getGroupsCount.get()
     }
 
     /**
      * Get count for number of times call GenerationToken function
      * @return getGenerateTokenCount
      */
-    public int getGenerateTokenCount() {
-        return _generateTokenCount.get()
-
+    int getGenerateTokenCount() {
+        _generateTokenCount.get()
     }
 
     /**
      * Get count for number of times call getEndpoint function
      * @return getEndpointCount
      */
-    public int getGetEndpointsCount() {
-        return _getEndpointsCount.get()
-
-    }
-
-    /**
-     * Get count for number of times call GetUserGlobalRoles function
-     * @return
-     */
-    public int getGetUserGlobalRolesCount() {
-        return _getUserGlobalRolesCount.get()
-
+    int getGetEndpointsCount() {
+        _getEndpointsCount.get()
     }
 
     /**
      * Reset all counts set to zero (initial state)
      */
     void resetCounts() {
-
         _validateTokenCount.set(0)
         _getGroupsCount.set(0)
         _generateTokenCount.set(0)
@@ -139,7 +123,6 @@ class MockIdentityV2Service {
      * Reset all handlers set to initial state
      */
     void resetHandlers() {
-
         handler = this.&handleRequest
         validateTokenHandler = this.&validateToken
         getGroupsHandler = this.&getGroups
@@ -155,25 +138,24 @@ class MockIdentityV2Service {
     Closure<Response> getUserGlobalRolesHandler
 
     // initialize some field values
-    def client_token = 'this-is-the-token';
-    def client_tenantid = 'this-is-the-tenant';
+    def client_token = 'this-is-the-token'
+    def client_tenantid = 'this-is-the-tenant'
     def client_tenantname = 'this-tenant-name'
     def client_tenantid2 = 'this-is-the-nast-id'
-    //def client_tenantname2 = 'this-is-tenant-name-two'
-    def client_username = 'username';
-    def client_userid = 'user_12345';
-    def client_apikey = 'this-is-the-api-key';
+    def client_username = 'username'
+    def client_userid = 'user_12345'
+    def client_apikey = 'this-is-the-api-key'
     def client_password = 'this-is-the-pwd'
     def forbidden_apikey_or_pwd = 'this-key-pwd-results-in-forbidden'
     def not_found_apikey_or_pwd = 'this-key-pwd-results-in-not-found'
-    def admin_token = 'this-is-the-admin-token';
+    def admin_token = 'this-is-the-admin-token'
     def admin_tenant = 'this-is-the-admin-tenant'
-    def admin_username = 'admin_username';
-    def service_admin_role = 'service:admin-role1';
+    def admin_username = 'admin_username'
+    def service_admin_role = 'service:admin-role1'
     def endpointUrl = "localhost"
     def region = "ORD"
-    def admin_userid = 67890;
-    def sleeptime = 0;
+    def admin_userid = 67890
+    def sleeptime = 0
     def contact_id = "${random.nextInt()}"
     def contactIdJson = ""
     def contactIdXml = ""
@@ -183,32 +165,31 @@ class MockIdentityV2Service {
     def impersonate_name = ""
     def validateTenant = null
     def appendedflag = false
-    Validator validator;
+    Validator validator
 
     /**
      * At some points some of these fields values maybe changed
      * This function uses to reset to default state
      */
     void resetDefaultParameters() {
-        client_token = 'this-is-the-token';
-        client_tenantid = 'this-is-the-tenant';
+        client_token = 'this-is-the-token'
+        client_tenantid = 'this-is-the-tenant'
         client_tenantname = 'this-tenant-name'
         client_tenantid2 = 'this-is-the-nast-id'
-        //client_tenantname2 = 'this-is-tenant-name-two'
-        client_username = 'username';
-        client_userid = 'user_12345';
-        client_apikey = 'this-is-the-api-key';
-        client_password = 'this-is-the-pwd';
+        client_username = 'username'
+        client_userid = 'user_12345'
+        client_apikey = 'this-is-the-api-key'
+        client_password = 'this-is-the-pwd'
         forbidden_apikey_or_pwd = 'this-key-pwd-results-in-forbidden'
         not_found_apikey_or_pwd = 'this-key-pwd-results-in-not-found'
-        admin_token = 'this-is-the-admin-token';
+        admin_token = 'this-is-the-admin-token'
         admin_tenant = 'this-is-the-admin-tenant'
-        admin_username = 'admin_username';
-        service_admin_role = 'service:admin-role1';
+        admin_username = 'admin_username'
+        service_admin_role = 'service:admin-role1'
         endpointUrl = "localhost"
         region = "ORD"
-        admin_userid = 67890;
-        sleeptime = 0;
+        admin_userid = 67890
+        sleeptime = 0
         contact_id = "${random.nextInt()}"
         contactIdJson = ""
         contactIdXml = ""
@@ -220,9 +201,9 @@ class MockIdentityV2Service {
         appendedflag = false
     }
 
-    def templateEngine = new SimpleTemplateEngine();
+    def templateEngine = new SimpleTemplateEngine()
 
-    def handler = { Request request -> return handleRequest(request) }
+    def handler = { Request request -> handleRequest(request) }
 
     /**
      * HandleRequest handling all request from client to identity
@@ -231,7 +212,6 @@ class MockIdentityV2Service {
      * @return an instance of Response type
      */
     Response handleRequest(Request request) {
-
         def xml = false
 
         for (value in request.headers.findAll('Accept')) {
@@ -276,8 +256,8 @@ class MockIdentityV2Service {
         def path = request.path
         def method = request.method
 
-        String nonQueryPath;
-        String query;
+        String nonQueryPath
+        String query
 
         // Separate query and nonQueryPath
         if (path.contains("?")) {
@@ -291,14 +271,13 @@ class MockIdentityV2Service {
         if (isGenerateTokenCallPath(nonQueryPath)) {
             if (method == "POST") {
                 _generateTokenCount.incrementAndGet()
-                return generateTokenHandler(request, xml);
+                return generateTokenHandler(request, xml)
             } else {
                 return new Response(405)
             }
         }
 
         if (isTokenCallPath(nonQueryPath)) {
-
             if (isGetEndpointsCallPath(nonQueryPath)) {
                 if (method == "GET") {
                     _getEndpointsCount.incrementAndGet()
@@ -330,7 +309,6 @@ class MockIdentityV2Service {
             }
 
         } else if (nonQueryPath.startsWith("/v2.0/users/")) {
-
             if (isGetGroupsCallPath(nonQueryPath)) {
                 if (method == "GET") {
                     _getGroupsCount.incrementAndGet()
@@ -354,7 +332,7 @@ class MockIdentityV2Service {
             }
         }
 
-        return new Response(501);
+        return new Response(501)
     }
 
     static final String getUserGlobalRolesCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/roles/
@@ -367,8 +345,8 @@ class MockIdentityV2Service {
      * @param nonQueryPath
      * @return true/false
      */
-    public static boolean isGetUserGlobalRolesCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ getUserGlobalRolesCallPathRegex
+    static boolean isGetUserGlobalRolesCallPath(String nonQueryPath) {
+        nonQueryPath ==~ getUserGlobalRolesCallPathRegex
     }
 
     /**
@@ -376,8 +354,8 @@ class MockIdentityV2Service {
      * @param nonQueryPath
      * @return true/false
      */
-    public static boolean isGetGroupsCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ getGroupsCallPathRegex
+    static boolean isGetGroupsCallPath(String nonQueryPath) {
+        nonQueryPath ==~ getGroupsCallPathRegex
     }
 
     /**
@@ -385,8 +363,8 @@ class MockIdentityV2Service {
      * @param nonQueryPath
      * @return true/false
      */
-    public static boolean isGetEndpointsCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ getEndpointsCallPathRegex
+    static boolean isGetEndpointsCallPath(String nonQueryPath) {
+        nonQueryPath ==~ getEndpointsCallPathRegex
     }
 
     /**
@@ -394,8 +372,8 @@ class MockIdentityV2Service {
      * @param nonQueryPath
      * @return true/false
      */
-    public static boolean isValidateTokenCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ validateTokenCallPathRegex
+    static boolean isValidateTokenCallPath(String nonQueryPath) {
+        nonQueryPath ==~ validateTokenCallPathRegex
     }
 
     /**
@@ -403,27 +381,17 @@ class MockIdentityV2Service {
      * @param nonQueryPath
      * @return true/false
      */
-    public static boolean isGenerateTokenCallPath(String nonQueryPath) {
-        return nonQueryPath == "/v2.0/tokens"
+    static boolean isGenerateTokenCallPath(String nonQueryPath) {
+        nonQueryPath == "/v2.0/tokens"
     }
-
-    /**
-     * checkout if it is generateTokenCallPath /tokens for basic auth call
-     * @param nonQueryPath
-     * @return true/false
-     */
-    //We fix uri for identity call
-    //public static boolean isBasicAuthTokenCallPath(String nonQueryPath) {
-    //    return nonQueryPath == "/v2.0/tokens"
-    //}
 
     /**
      * Check Path start with /v2.0/tokens
      * @param nonQueryPath
      * @return true/false
      */
-    public static boolean isTokenCallPath(String nonQueryPath) {
-        return nonQueryPath.startsWith("/v2.0/tokens")
+    static boolean isTokenCallPath(String nonQueryPath) {
+        nonQueryPath.startsWith("/v2.0/tokens")
     }
 
     /**
@@ -431,25 +399,17 @@ class MockIdentityV2Service {
      * @return
      */
     String getExpires() {
-
         if (this.tokenExpiresAt != null && this.tokenExpiresAt instanceof String) {
-
-            return this.tokenExpiresAt;
-
+            return this.tokenExpiresAt
         } else if (this.tokenExpiresAt instanceof DateTime) {
-
-            DateTimeFormatter fmt = DateTimeFormat.forPattern(DATE_FORMAT).withLocale(Locale.US).withZone(DateTimeZone.UTC);
+            DateTimeFormatter fmt = DateTimeFormat.forPattern(DATE_FORMAT).withLocale(Locale.US).withZone(DateTimeZone.UTC)
             return fmt.print(tokenExpiresAt)
-
         } else if (this.tokenExpiresAt) {
-
-            return this.tokenExpiresAt.toString();
-
+            return this.tokenExpiresAt as String
         } else {
-
             def now = new DateTime()
             def nowPlusOneDay = now.plusDays(1)
-            return nowPlusOneDay;
+            return nowPlusOneDay
         }
     }
 
@@ -460,20 +420,19 @@ class MockIdentityV2Service {
      * @return an instance of response
      */
     Response generateToken(Request request, boolean xml) {
-
         // Since the SchemaFactory does not appear to import parent XSD's,
         // the validation is skipped for the API Key Credentials that are defined externally.
         if (xml && !(request.body.toString().contains("apiKeyCredentials"))) {
             try {
-                final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
-                validator.validate(sampleSource);
+                final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()))
+                validator.validate(sampleSource)
             } catch (Exception e) {
-                println("Admin token XSD validation error: " + e);
-                return new Response(400);
+                println("Admin token XSD validation error: " + e)
+                return new Response(400)
             }
         }
 
-        def params
+        def params = [:]
 
         def isTokenChecked = true
         // IF the body of the request should be evaluated to determine the validity of the Token, THEN ...
@@ -500,7 +459,7 @@ class MockIdentityV2Service {
                         serviceadmin : service_admin_role,
                         contactIdXml : contactIdXml,
                         contactIdJson: contactIdJson
-                ];
+                ]
 
                 if (contact_id != null && !contact_id.isEmpty()) {
                     params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
@@ -521,7 +480,7 @@ class MockIdentityV2Service {
                         serviceadmin : service_admin_role,
                         contactIdXml : contactIdXml,
                         contactIdJson: contactIdJson
-                ];
+                ]
                 if (contact_id != null && !contact_id.isEmpty()) {
                     params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
                     params.contactIdJson = "\"RAX-AUTH:contactId\": \"${contact_id}\","
@@ -540,7 +499,7 @@ class MockIdentityV2Service {
                     serviceadmin : service_admin_role,
                     contactIdXml : contactIdXml,
                     contactIdJson: contactIdJson
-            ];
+            ]
             if (contact_id != null && !contact_id.isEmpty()) {
                 params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
                 params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
@@ -548,23 +507,15 @@ class MockIdentityV2Service {
 
         }
 
-        def code;
-        def template;
-        def headers = [:];
+        def code
+        def template
+        def headers = [:]
 
-        if (xml) {
-            headers.put('Content-type', 'application/xml')
-        } else {
-            headers.put('Content-type', 'application/json')
-        }
+        headers.put('Content-type', xml ? 'application/xml' : 'application/json')
 
         if (isTokenValid && isTokenChecked) {
-            code = 200;
-            if (xml) {
-                template = identitySuccessXmlTemplate
-            } else {
-                template = identitySuccessJsonTemplate
-            }
+            code = 200
+            template = xml ? identitySuccessXmlTemplate : identitySuccessJsonTemplate
         } else {
             //If the username or the apikey are longer than 120 characters, barf back a 400, bad request response
             //I have to parse the XML body of the request to mimic behavior in identity
@@ -583,11 +534,8 @@ class MockIdentityV2Service {
             } else {
                 code = 401
             }
-            if (xml) {
-                template = identityFailureXmlTemplate
-            } else {
-                template = identityFailureJsonTemplate
-            }
+
+            template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
         }
 
         def body = templateEngine.createTemplate(template).make(params)
@@ -604,44 +552,36 @@ class MockIdentityV2Service {
      * @return an instance of response
      */
     Response validateToken(String tokenId, String tenantid = null, Request request, boolean xml) {
-        def path = request.getPath()
-        def request_token = tokenId
-        def passedtenant = tenantid
-        if (passedtenant == null) {
-            passedtenant = client_tenantid
-        }
+        def requestToken = tokenId
+        def passedTenant = tenantid ?: client_tenantid
 
         def params = [
                 expires        : getExpires(),
                 userid         : client_userid,
                 username       : client_username,
-                tenantid       : passedtenant,
+                tenantid       : passedTenant,
                 tenantname     : client_tenantname,
                 tenantidtwo    : client_tenantid2,
-                token          : request_token,
+                token          : requestToken,
                 serviceadmin   : service_admin_role,
                 impersonateid  : impersonate_id,
                 impersonatename: impersonate_name,
                 contactIdXml   : contactIdXml,
                 contactIdJson  : contactIdJson
-        ];
+        ]
         if (contact_id != null && !contact_id.isEmpty()) {
             params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
             params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
         }
 
-        def code;
-        def template;
-        def headers = [:];
+        def code
+        def template
+        def headers = [:]
 
-        if (xml) {
-            headers.put('Content-type', 'application/xml')
-        } else {
-            headers.put('Content-type', 'application/json')
-        }
+        headers.put('Content-type', xml ? 'application/xml' : 'application/json')
 
         if (isTokenValid) {
-            code = 200;
+            code = 200
             if (xml) {
                 if (tokenId == "rackerButts") {
                     template = rackerTokenXmlTemplate
@@ -691,51 +631,34 @@ class MockIdentityV2Service {
      * @return
      */
     Response getGroups(String userId, Request request, boolean xml) {
-        def request_userid = userId
+        def requestUserId = userId
         def params = [
                 expires     : getExpires(),
-                userid      : request_userid,
+                userid      : requestUserId,
                 username    : client_username,
                 tenantid    : client_tenantid,
                 tenantname  : client_tenantname,
                 token       : request.getHeaders().getFirstValue("X-Auth-Token"),
                 serviceadmin: service_admin_role
-
         ]
 
-        def code;
-        def template;
-        def headers = [:];
+        def code
+        def template
+        def headers = [:]
 
-        if (xml) {
-            headers.put('Content-type', 'application/xml')
-        } else {
-            headers.put('Content-type', 'application/json')
-        }
+        headers.put('Content-type', xml ? 'application/xml' : 'application/json')
 
-        if (userId.equals(client_userid.toString()) || userId.equals(admin_userid)) {
+        if (userId == client_userid.toString() || userId == (admin_userid as String)) {
             if (userId == "rackerSSOUsername" || service_admin_role.toLowerCase() == "racker") {
                 code = 404
-                if (xml) {
-                    template = identityFailureXmlTemplate
-                } else {
-                    template = identityFailureJsonTemplate
-                }
+                template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
             } else {
                 code = 200
-                if (xml) {
-                    template = groupsXmlTemplate
-                } else {
-                    template = groupsJsonTemplate
-                }
+                template = xml ? groupsXmlTemplate : groupsJsonTemplate
             }
         } else {
             code = 500
-            if (xml) {
-                template = identityFailureXmlTemplate
-            } else {
-                template = identityFailureJsonTemplate
-            }
+            template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
         }
 
         def body = templateEngine.createTemplate(template).make(params)
@@ -751,79 +674,61 @@ class MockIdentityV2Service {
      * @return
      */
     Response getEndpoints(String tokenId, Request request, boolean xml) {
-
-        def code;
-        def template;
-        def headers = [:];
+        def template
+        def headers = [:]
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
-            if (appendedflag == true) {
-                template = this.identityEndpointXmlAppendedTemplate
-            } else {
-                template = this.identityEndpointXmlTemplate
-            }
+            template = appendedflag ? this.identityEndpointXmlAppendedTemplate : this.identityEndpointXmlTemplate
         } else {
             headers.put('Content-type', 'application/json')
-            if (appendedflag == true) {
-                template = this.identityEndpointsJsonAppendedTemplate
-            } else {
-                template = this.identityEndpointsJsonTemplate
-            }
+            template = appendedflag ? this.identityEndpointsJsonAppendedTemplate : this.identityEndpointsJsonTemplate
         }
 
         def params = [
-                'identityPort'     : this.port,
-                token              : request.getHeaders().getFirstValue("X-Auth-Token"),
-                'expires'          : getExpires(),
-                'userid'           : this.client_userid,
-                'username'         : this.client_username,
-                'tenantid'         : this.client_tenantid,
-                'originServicePort': this.originServicePort,
-                'endpointUrl'      : this.endpointUrl,
-                'region'           : this.region,
-                'contactIdXml'     : this.contactIdXml,
-                'contactIdJson'    : this.contactIdJson
+                identityPort     : this.port,
+                token            : request.getHeaders().getFirstValue("X-Auth-Token"),
+                expires          : getExpires(),
+                userid           : this.client_userid,
+                username         : this.client_username,
+                tenantid         : this.client_tenantid,
+                originServicePort: this.originServicePort,
+                endpointUrl      : this.endpointUrl,
+                region           : this.region,
+                contactIdXml     : this.contactIdXml,
+                contactIdJson    : this.contactIdJson
+        ]
 
-        ];
-
-        def body = templateEngine.createTemplate(template).make(params);
-        return new Response(200, null, headers, body);
+        def body = templateEngine.createTemplate(template).make(params)
+        return new Response(200, null, headers, body)
     }
 
     /**
-     * Similate response get user global roles
+     * Simulate response get user global roles
      * @param userId
      * @param request
      * @param xml
      * @return
      */
     Response getUserGlobalRoles(String userId, Request request, boolean xml) {
+        def template
+        def headers = [:]
 
-        def template;
-        def headers = [:];
-
-
-        if (xml) {
-            headers.put('Content-type', 'application/xml')
-            template = UserGlobalRolesXmlTemplate
-        } else {
-            headers.put('Content-type', 'application/json')
-            template = UserGlobalRolesJsonTemplate;
-        }
+        headers.put('Content-type', xml ? 'application/xml' : 'application/json')
+        template = xml ? UserGlobalRolesXmlTemplate : UserGlobalRolesJsonTemplate
 
         def params = [
                 addRolesXml : additionalRolesXml,
                 addRolesJson: additionalRolesJson
-        ];
+        ]
 
-        def body = templateEngine.createTemplate(template).make(params);
-        return new Response(200, null, headers, body);
+        def body = templateEngine.createTemplate(template).make(params)
+        return new Response(200, null, headers, body)
     }
 
     // Successful generate token response in xml
-    def identitySuccessXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    def identitySuccessXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
         xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
         xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
@@ -898,8 +803,8 @@ class MockIdentityV2Service {
 """
 
     // Successful generate token response in json
-    def identitySuccessJsonTemplate =
-            """{
+    def identitySuccessJsonTemplate = """\
+{
    "access" : {
       "serviceCatalog" : [
          {
@@ -996,8 +901,8 @@ class MockIdentityV2Service {
 """
 
     // Successful validate token response in xml
-    def successfulValidateTokenXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8"?>
+    def successfulValidateTokenXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8"?>
 <access
     xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
     xmlns="http://docs.openstack.org/identity/api/v2.0">
@@ -1017,8 +922,8 @@ class MockIdentityV2Service {
 """
 
     // Successful impersonate validate token response in xml
-    def successfulImpersonateValidateTokenXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8"?>
+    def successfulImpersonateValidateTokenXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8"?>
 <access
     xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
     xmlns="http://docs.openstack.org/identity/api/v2.0">
@@ -1045,8 +950,8 @@ class MockIdentityV2Service {
 """
 
     // Successful validate token response in json
-    def successfulValidateTokenJsonTemplate =
-            """{
+    def successfulValidateTokenJsonTemplate = """\
+{
     "access":{
         "token":{
             "id":"\${token}",
@@ -1086,8 +991,8 @@ class MockIdentityV2Service {
 """
 
     // Successful validate token response in json
-    def successfulImpersonateValidateTokenJsonTemplate =
-            """{
+    def successfulImpersonateValidateTokenJsonTemplate = """\
+{
     "access":{
         "token":{
             "id":"\${token}",
@@ -1134,52 +1039,9 @@ class MockIdentityV2Service {
 }
 """
 
-    def successfulImpersonateJsonRespTemplate =
-            """{
-    "access": {
-        "token": {
-            "id": "\${token}",
-            "expires": "\${expires}",
-            "tenant": {
-                "id": "\${tenantid}",
-                "name": "\${tenantname}"
-            },
-            "RAX-AUTH:authenticatedBy": [
-                "PASSWORD"
-            ]
-        },
-        "RAX-AUTH:impersonator": {
-            "id": "\${userid}",
-            "roles": [
-                {
-                    "id": "ROLEID",
-                    "serviceId": "ROLESERVICEID",
-                    "description": "DESC.",
-                    "name": "ROLENAME"
-                }
-            ],
-            "name": "\${username}"
-        },
-        "user": {
-                    "serviceId": "SERVICEID",
-                    "description": "SERVICEDESC",
-            "id": "\${impersonateid}",
-            "roles": [
-                {
-                    "id": "ROLEID",
-                    "name": "SERVICENAME"
-                },
-                ...
-            ],
-            "name": "\${impersonatename}",
-            "RAX-AUTH:defaultRegion": "REGION"
-        }
-    }
-}
-"""
     // Failure Response for validate token in json
-    def identityFailureJsonTemplate =
-            """{
+    def identityFailureJsonTemplate = """\
+{
    "itemNotFound" : {
       "message" : "Invalid Token, not found.",
       "code" : 404
@@ -1188,8 +1050,8 @@ class MockIdentityV2Service {
 """
 
     // Failure Response for validate token in xml
-    def identityFailureXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    def identityFailureXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <itemNotFound xmlns="http://docs.openstack.org/identity/api/v2.0"
               xmlns:ns2="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
               code="404">
@@ -1198,8 +1060,8 @@ class MockIdentityV2Service {
 """
 
     // TODO: Replace this with builder
-    def groupsJsonTemplate =
-            """{
+    def groupsJsonTemplate = """\
+{
   "RAX-KSGRP:groups": [
     {
         "id": "0",
@@ -1211,8 +1073,8 @@ class MockIdentityV2Service {
 """
 
     // TODO: Replace this with builder
-    def groupsXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    def groupsXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
     <group id="0" name="Default">
         <description>Default Limits</description>
@@ -1221,8 +1083,8 @@ class MockIdentityV2Service {
 """
 
     // TODO: Replace this with builder
-    def identityEndpointsJsonTemplate =
-            """{
+    def identityEndpointsJsonTemplate = """\
+{
     "endpoints_links": [
         {
             "href": "http://localhost:\${identityPort}/tokens/\${token}/endpoints?'marker=5&limit=10'",
@@ -1265,8 +1127,8 @@ class MockIdentityV2Service {
 }"""
 
     // TODO: Replace this with builder
-    def identityEndpointsJsonAppendedTemplate =
-            """{
+    def identityEndpointsJsonAppendedTemplate = """\
+{
     "endpoints_links": [
         {
             "href": "http://localhost:\${identityPort}/tokens/\${token}/endpoints?'marker=5&limit=10'",
@@ -1320,8 +1182,8 @@ class MockIdentityV2Service {
 }"""
 
     // TODO: Replace this with builder
-    def identityEndpointXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    def identityEndpointXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
            xmlns:ns2="http://www.w3.org/2005/Atom"
            xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
@@ -1356,8 +1218,8 @@ class MockIdentityV2Service {
 </endpoints>"""
 
     // TODO: Replace this with builder
-    def identityEndpointXmlAppendedTemplate =
-            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    def identityEndpointXmlAppendedTemplate = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
            xmlns:ns2="http://www.w3.org/2005/Atom"
            xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
@@ -1384,9 +1246,8 @@ class MockIdentityV2Service {
 </endpoints>"""
 
     // TODO: Replace this with builder
-
-    def rackerTokenXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    def rackerTokenXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
     xmlns:ns2="http://www.w3.org/2005/Atom"
     xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
@@ -1427,8 +1288,8 @@ class MockIdentityV2Service {
 </access>
 """
 
-    def rackerTokenWithoutProperRoleXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    def rackerTokenWithoutProperRoleXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
     xmlns:ns2="http://www.w3.org/2005/Atom"
     xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
@@ -1454,8 +1315,9 @@ class MockIdentityV2Service {
     </user>
 </access>
 """
-    def rackerSuccessfulValidateRespXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+    def rackerSuccessfulValidateRespXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
     xmlns:ns2="http://www.w3.org/2005/Atom"
     xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
@@ -1479,8 +1341,9 @@ class MockIdentityV2Service {
     </user>
 </access>
 """
-    def rackerSuccessfulValidateRespJsonTemplate =
-            """{
+
+    def rackerSuccessfulValidateRespJsonTemplate = """\
+{
   "access": {
     "token": {
       "expires": "\${expires}",
@@ -1507,8 +1370,9 @@ class MockIdentityV2Service {
   }
 }
 """
-    def dedicatedUserSuccessfulRespXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+    def dedicatedUserSuccessfulRespXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns:atom="http://www.w3.org/2005/Atom"
         xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
         xmlns="http://docs.openstack.org/identity/api/v2.0"
@@ -1544,8 +1408,9 @@ class MockIdentityV2Service {
     </user>
 </access>
 """
-    def dedicatedUserSuccessfulRespJsonTemplate =
-            """{
+
+    def dedicatedUserSuccessfulRespJsonTemplate = """\
+{
   "access": {
     "token": {
         "id": "\${token}",
@@ -1585,8 +1450,9 @@ class MockIdentityV2Service {
   }
 }
 """
-    def UserGlobalRolesXmlTemplate =
-            """<?xml version="1.0" encoding="UTF-8"?>
+
+    def UserGlobalRolesXmlTemplate = """\
+<?xml version="1.0" encoding="UTF-8"?>
   <roles
     xmlns:atom="http://www.w3.org/2005/Atom"
     xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
@@ -1611,8 +1477,9 @@ class MockIdentityV2Service {
     \${addRolesXml}
 </roles>
 """
-    def UserGlobalRolesJsonTemplate =
-            """{
+
+    def UserGlobalRolesJsonTemplate = """\
+{
     "roles": [
         {
             "description": "Defines a user as being Racker",
