@@ -136,14 +136,19 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   describe("configurationUpdated") {
     var config = new SamlPolicyConfig
 
-    def prepTest() = {
-      config = new SamlPolicyConfig
+    def buildConfig(feedId: String): SamlPolicyConfig = {
+      val resultConfig = new SamlPolicyConfig
       val acquisition = new PolicyAcquisition
       val cache = new Cache
       cache.setTtl(3000)
-      cache.setAtomFeedId("banana")
+      cache.setAtomFeedId(feedId)
       acquisition.setCache(cache)
-      config.setPolicyAcquisition(acquisition)
+      resultConfig.setPolicyAcquisition(acquisition)
+      resultConfig
+    }
+
+    def prepTest() = {
+      config = buildConfig("banana")
       reset(atomFeedService)
     }
 
@@ -170,13 +175,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       when(atomFeedService.registerListener(MM.eq("banana"), MM.same(filter))).thenReturn("thingy")
       filter.configurationUpdated(config)
 
-      val newConfig = new SamlPolicyConfig
-      val newAcquisition = new PolicyAcquisition
-      val newCache = new Cache
-      newCache.setTtl(5)
-      newCache.setAtomFeedId("phone")
-      newAcquisition.setCache(newCache)
-      newConfig.setPolicyAcquisition(newAcquisition)
+      val newConfig = buildConfig("phone")
 
       filter.configurationUpdated(newConfig)
 
@@ -189,12 +188,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       when(atomFeedService.registerListener(MM.eq("banana"), MM.same(filter))).thenReturn("thingy")
       filter.configurationUpdated(config)
 
-      val newConfig = new SamlPolicyConfig
-      val newAcquisition = new PolicyAcquisition
-      val newCache = new Cache
-      newCache.setTtl(5)
-      newAcquisition.setCache(newCache)
-      newConfig.setPolicyAcquisition(newAcquisition)
+      val newConfig = buildConfig(null)
 
       filter.configurationUpdated(newConfig)
 
@@ -217,13 +211,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(config)
       verifyZeroInteractions(atomFeedService)
 
-      val newConfig = new SamlPolicyConfig
-      val newAcquisition = new PolicyAcquisition
-      val newCache = new Cache
-      newCache.setTtl(5)
-      newCache.setAtomFeedId("phone")
-      newAcquisition.setCache(newCache)
-      newConfig.setPolicyAcquisition(newAcquisition)
+      val newConfig = buildConfig("phone")
 
       filter.configurationUpdated(newConfig)
 
