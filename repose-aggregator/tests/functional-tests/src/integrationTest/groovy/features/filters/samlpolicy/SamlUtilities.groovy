@@ -21,13 +21,60 @@
 package features.filters.samlpolicy
 
 import groovy.xml.MarkupBuilder
+import net.shibboleth.utilities.java.support.resolver.CriteriaSet
 import org.apache.http.Consts
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.message.BasicNameValuePair
+import org.opensaml.core.config.InitializationService
+import org.opensaml.core.criterion.EntityIdCriterion
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport
+import org.opensaml.core.xml.io.UnmarshallerFactory
+import org.opensaml.saml.saml2.core.Response
+import org.opensaml.security.SecurityException
+import org.opensaml.security.x509.PKIXTrustEvaluator
+import org.opensaml.security.x509.PKIXValidationInformation
+import org.opensaml.security.x509.PKIXValidationOptions
+import org.opensaml.security.x509.X509Credential
+import org.opensaml.security.x509.impl.BasicPKIXValidationInformation
+import org.opensaml.security.x509.impl.BasicX509CredentialNameEvaluator
+import org.opensaml.security.x509.impl.StaticPKIXValidationInformationResolver
+import org.opensaml.xmlsec.config.JavaCryptoValidationInitializer
+import org.opensaml.xmlsec.keyinfo.impl.BasicProviderKeyInfoCredentialResolver
+import org.opensaml.xmlsec.keyinfo.impl.provider.InlineX509DataProvider
+import org.opensaml.xmlsec.signature.Signature
+import org.opensaml.xmlsec.signature.support.impl.PKIXSignatureTrustEngine
+import org.w3c.dom.Element
+import org.xml.sax.InputSource
+
+import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.DocumentBuilderFactory
 
 import static features.filters.samlpolicy.SamlPayloads.*
 
 class SamlUtilities {
+
+    private PKIXSignatureTrustEngine trustEngine
+    private DocumentBuilder documentBuilder
+    private UnmarshallerFactory unmarshallerFactory
+
+    SamlUtilities() {
+        // unmarshalling
+        new JavaCryptoValidationInitializer().init()
+        InitializationService.initialize()
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance()
+        docBuilderFactory.setNamespaceAware(true)
+        documentBuilder = docBuilderFactory.newDocumentBuilder()
+        unmarshallerFactory = XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
+
+        // signature validation
+        def pkixValidationInfoResolver = new StaticPKIXValidationInformationResolver(
+                [new BasicPKIXValidationInformation(null, null, null)], null, true)
+        trustEngine = new PKIXSignatureTrustEngine(
+                pkixValidationInfoResolver,
+                new BasicProviderKeyInfoCredentialResolver([new InlineX509DataProvider()]),
+                new TrustAllTheCertsEvaluator(),
+                new BasicX509CredentialNameEvaluator())
+    }
 
     static byte[] asUrlEncodedForm(Map<String, String> stringParams) {
         def paramPairs = stringParams.collect { key, value -> new BasicNameValuePair(key, value) }
@@ -47,7 +94,7 @@ class SamlUtilities {
      *     'saml2p:Status' {
      *         'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
      *     }
-     *     mkp.yieldUnescaped SAML_ASSERTION_SIGNED
+     *     mkp.yieldUnescaped ASSERTION_SIGNED
      * }
      * </pre>
      */
@@ -96,11 +143,32 @@ class SamlUtilities {
 
     static Closure assertion() {
         return {
-            mkp.yieldUnescaped SAML_ASSERTION_SIGNED
+            mkp.yieldUnescaped ASSERTION_SIGNED
         }
     }
 
-    static void validateSamlResponse(String saml) {
-        // todo: implement
+    Response unmarshallResponse(String saml) {
+        Element element = documentBuilder.parse(new InputSource(new StringReader(saml))).getDocumentElement()
+        (Response) unmarshallerFactory.getUnmarshaller(element).unmarshall(element)
+    }
+
+    /**
+     * This will validate the signature but won't ensure we trust the certificate.
+     */
+    boolean validateSignature(Signature signature, String certificateEntityId = "idp.external.com") {
+        def criteriaSet = new CriteriaSet(new EntityIdCriterion(certificateEntityId))
+        trustEngine.validate(signature, criteriaSet)
+    }
+
+    static class TrustAllTheCertsEvaluator implements PKIXTrustEvaluator {
+        @Override
+        boolean validate(PKIXValidationInformation vi, X509Credential uc) throws SecurityException {
+            true
+        }
+
+        @Override
+        PKIXValidationOptions getPKIXValidationOptions() {
+            new PKIXValidationOptions()
+        }
     }
 }

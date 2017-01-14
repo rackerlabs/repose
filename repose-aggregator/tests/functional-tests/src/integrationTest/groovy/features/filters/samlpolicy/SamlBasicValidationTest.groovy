@@ -21,6 +21,7 @@
 package features.filters.samlpolicy
 
 import framework.ReposeValveTest
+import org.opensaml.saml.saml2.core.Response
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
@@ -38,7 +39,8 @@ import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
  */
 class SamlBasicValidationTest extends ReposeValveTest {
 
-    def static xmlSlurper = new XmlSlurper()
+    static xmlSlurper = new XmlSlurper()
+    static samlUtilities = new SamlUtilities()
 
     def setupSpec() {
         reposeLogSearch.cleanLog()
@@ -170,13 +172,21 @@ class SamlBasicValidationTest extends ReposeValveTest {
         "empty Issuer element"    | encodeBase64(samlResponse({ 'saml2:Issuer'("") } >> status() >> assertion()))
     }
 
+    // todo: fix name of test
     @Unroll
-    def "verify this test can generate a valid SAML Response #testNum"() {
-        when:
-        validateSamlResponse(saml)
+    def "verify the test SAML Utility can generate a valid SAML Response #testNum"() {
+        when: "we unmarshall the SAML string and try to validate the first Assertion's signature"
+        Response response = samlUtilities.unmarshallResponse(saml)
+        def isValidSignature = samlUtilities.validateSignature(response.assertions[0].signature)
 
-        then:
+        then: "no exceptions were thrown (SAML was successfully unmarshalled)"
         notThrown(Exception)
+
+        and: "the signature was valid"
+        isValidSignature
+
+        and: "the Issuer was set correctly"
+        response.getIssuer().value == "http://idp.external.com"
 
         where:
         [testNum, saml] << [
@@ -185,9 +195,29 @@ class SamlBasicValidationTest extends ReposeValveTest {
                     'saml2p:Status' {
                         'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
                     }
-                    mkp.yieldUnescaped SAML_ASSERTION_SIGNED
+                    mkp.yieldUnescaped ASSERTION_SIGNED
                 }],
-                [1, samlResponse(issuer() >> status() >> assertion())]
+                [1, samlResponse(issuer() >> status() >> assertion())],
+                [2, SAML_ONE_ASSERTION_SIGNED]
         ]
+    }
+
+    // todo: fix name of test
+    @Unroll
+    def "verify the test SAML Utility validator will reject a SAML response with an invalid signature #testNum"() {
+        when: "we unmarshall the SAML string and try to validate the Assertion's signature"
+        Response response = samlUtilities.unmarshallResponse(saml)
+        def isValidSignature = samlUtilities.validateSignature(response.assertions[0].signature)
+
+        then: "the signature was not valid"
+        !isValidSignature
+
+        and: "the Issuer was set correctly"
+        response.getIssuer().value == "http://idp.external.com"
+
+        where:
+        testNum | saml
+        0       | SAML_ONE_ASSERTION_SIGNED.replace("    ", "")
+        1       | SAML_ASSERTION_INVALID_SIGNATURE
     }
 }
