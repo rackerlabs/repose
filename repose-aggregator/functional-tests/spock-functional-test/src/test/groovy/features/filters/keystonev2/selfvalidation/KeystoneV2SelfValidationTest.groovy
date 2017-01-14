@@ -63,7 +63,9 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
     }
 
     def setup() {
+        fakeIdentityV2Service.resetCounts()
         fakeIdentityV2Service.resetDefaultParameters()
+        fakeIdentityV2Service.resetHandlers()
     }
 
     def "Validate client token test"() {
