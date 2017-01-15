@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>external-lib-support</artifactId>
-        <version>7.3.8.2</version>
+        <version>7.3.8.3-SNAPSHOT</version>
     </parent>
 
     <name>PlanetJ CompressingFilter</name>
