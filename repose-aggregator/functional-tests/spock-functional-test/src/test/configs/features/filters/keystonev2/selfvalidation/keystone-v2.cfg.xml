@@ -11,4 +11,11 @@
         <uri-regex>/buildinfo</uri-regex>
         <uri-regex>/get</uri-regex>
     </white-list>
+    <cache>
+        <timeouts>
+            <token>-1</token>
+            <endpoints>-1</endpoints>
+            <group>-1</group>
+        </timeouts>
+    </cache>
 </keystone-v2>

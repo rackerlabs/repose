@@ -66,6 +66,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         fakeIdentityV2Service.resetCounts()
         fakeIdentityV2Service.resetDefaultParameters()
         fakeIdentityV2Service.resetHandlers()
+        sleep(500)
     }
 
     def "Validate client token test"() {
@@ -78,7 +79,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose with valid token"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -96,7 +97,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -111,7 +112,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose with valid token"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should fail"
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_UNAUTHORIZED // 401
@@ -127,7 +128,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -136,11 +137,8 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
     @Unroll("When pass request with white list uri: #path")
     def "Verify white list"() {
-        given:
-
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'GET',
-                headers: ['content-type': 'application/json'])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'GET')
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -160,7 +158,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "should have x-impersonate-roles in headers from request come through repose"
         mc.receivedResponse.code == "200"
@@ -181,7 +179,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "should have x-impersonate-roles in headers from request come through repose"
         mc.receivedResponse.code == "200"
@@ -214,7 +212,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
-            getGroupsHandler = { tokenId, tenantId, request, xml ->
+            getGroupsHandler = { userId, request, xml ->
                 new Response(401)
             }
         }
