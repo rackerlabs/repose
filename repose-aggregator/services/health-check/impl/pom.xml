@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openrepose</groupId>
         <artifactId>health-check-service-support</artifactId>
-        <version>7.3.8.2-SNAPSHOT</version>
+        <version>7.3.8.2</version>
     </parent>
 
     <name>Repose Services - Health Check Impl</name>
