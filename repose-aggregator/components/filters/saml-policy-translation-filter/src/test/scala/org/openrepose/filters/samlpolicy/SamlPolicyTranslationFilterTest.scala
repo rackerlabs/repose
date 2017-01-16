@@ -156,8 +156,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }.statusCode shouldEqual SC_BAD_REQUEST
     }
 
-    it("should return the translated document without throwing an exception") {
-      filter.translateResponse(document, workingXsltExec)
+    it("should return a translated document without throwing an exception") {
+      filter.translateResponse(document, workingXsltExec) should not be document
     }
   }
 
