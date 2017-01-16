@@ -2,7 +2,7 @@
 
 include::../_includes/in-progress.adoc[]
 
-This filter takes a SAML Response in the object binding, adds a new translated assertion to it and then signs the entire response.
+This filter takes a SAML Response in the post binding, decodes it, adds a new translated assertion to it and then signs the entire response.
 It'll attempt to locate a policy to use for the translation based on the assertion issuer.
 
 
@@ -15,15 +15,19 @@ It'll attempt to locate a policy to use for the translation based on the asserti
 
 == Prerequisites & Postconditions
 === Required headers
-`Content-Type` - Needs a value of `application/xml`
+`Content-Type` - Needs a value of `application/x-www-form-urlencoded`
 
 === Required preceding filters
-If using the https://en.wikipedia.org/wiki/SAML_2.0#HTTP_POST_Binding[post form binding], you'll need to use the <<saml-binding.adoc#,SAML Binding Translation Filter>> to decode the request first.
+None
 
 === Request headers created
+`Content-Type` - Will be changed to `application/xml`
+`Content-Length` - Will be removed if present
+`Transfer-Encoding` - Will be set to `chunked`
 `Identity-API-Version` - `1.0` if the assertion issuer is in the configured list and `2.0` otherwise.
 
 === Request body changes
+The body will be decoded and replaced with and xml version.
 If issuer isn't in the configured list, a new assertion will be generated based on the matching issuer policy with `http://openrepose.org/filters/SAMLTranslation` as the issuer.
 Additionally the SAML Response will be signed with the configured credentials.
 
@@ -41,20 +45,49 @@ None.
 `401` - If a policy that matches the assertion issuer can not be found.
 
 == Examples
-=== Do Something
-This configuration will do something super great.
+This configuration exercises all the capabilities of the filter.
 
 [source,xml]
-.some.cfg.xml
+.saml-policy.cfg.xml
 ----
-<some xmlns="http://docs.openrepose.org/repose/some/v1.0">
-    <foo> <!--1-->
-        <bar/> <!--2-->
-    </foo>
-</some>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<saml-policy xmlns="http://docs.openrepose.org/repose/samlpolicy/v1.0">
+    <policy-bypass-issuers> <!--1-->
+        <issuer>http://foo.bar</issuer>
+        <issuer>http://notmyfirst.rodeo</issuer>
+    </policy-bypass-issuers>
+    <policy-acquisition>
+        <keystone-credentials uri="http://keystone.somewhere.com" <!--2-->
+                              username="aUsername" <!--3-->
+                              password="somePassword" <!--4-->
+                              connection-pool-id="pool1"/> <!--5-->
+        <policy-endpoint uri="http://keystone.somewhere.com" <!--6-->
+                         connection-pool-id="pool2"/> <!--7-->
+        <cache ttl="300" <!--8-->
+               atom-feed-id="identity-policy"/> <!--9-->
+    </policy-acquisition>
+    <signature-credentials keystore-filename="thing.jks" <!--10-->
+                           keystore-password="banana" <!--11-->
+                           key-name="thingy" <!--12-->
+                           key-password="phone"/> <!--13-->
+</saml-policy>
 ----
-<1> Specifies foo.
-<2> Specifies bar.
+<1>  The list of 1.0 issuers.
+<2>  The keystone endpoint to get an authentication token from.
+<3>  The username of the user to use for policy acquisition.
+<4>  The password of the user to use for policy acquisition.
+<5>  The id of the connection pool to use when making the requests.
+     It's optional and will use the default if unspecified.
+<6>  The endpoint to use for policy acquisition.
+<7>  The connection pool to use when acquiring the policy.
+     It's optional and will use the default if unspecified.
+<8>  The time to live in the cache for policies.
+<9>  The atom feed id of an atom feed that contains policy events to be used for cache evictions.
+<10> The location of the keystore that contains the certificates for signing the SAMl response.
+<11> The password fir using the keystore.
+<12> The name the certificate is under in the keystore.
+<13> The password for the certificate inthe keystore.
 
 == Additional Information
 There's always money in the banana stand.
