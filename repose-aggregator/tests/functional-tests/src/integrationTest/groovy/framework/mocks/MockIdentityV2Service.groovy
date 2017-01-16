@@ -35,6 +35,8 @@ import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 import java.util.concurrent.atomic.AtomicInteger
 
+import static javax.servlet.http.HttpServletResponse.*
+
 /**
  * Created by jennyvo on 6/16/15.
  * Simulates responses from an Identity V2 Service
@@ -269,7 +271,7 @@ class MockIdentityV2Service {
                     _generateTokenCount.incrementAndGet()
                     return generateTokenHandler(request, shouldReturnXml)
                 } else {
-                    return new Response(405)
+                    return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             } else if (isGetEndpointsCallPath(path)) {
                 if (method == "GET") {
@@ -278,7 +280,7 @@ class MockIdentityV2Service {
                     def tokenId = match[0][1]
                     return getEndpointsHandler(tokenId, request, shouldReturnXml)
                 } else {
-                    return new Response(405)
+                    return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             } else if (isValidateTokenCallPath(path)) {
                 if (method == 'GET') {
@@ -307,7 +309,7 @@ class MockIdentityV2Service {
                     def tokenId = match[0][1]
                     return validateTokenHandler(tokenId, tenantid, request, shouldReturnXml)
                 } else {
-                    return new Response(405)
+                    return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             }
         } else if (path.startsWith("/v2.0/users/")) {
@@ -318,7 +320,7 @@ class MockIdentityV2Service {
                     def userId = match[0][1]
                     return getGroupsHandler(userId, request, shouldReturnXml)
                 } else {
-                    return new Response(405)
+                    return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             } else if (isGetUserGlobalRolesCallPath(path)) {
                 if (method == "GET") {
@@ -327,7 +329,7 @@ class MockIdentityV2Service {
                     def userId = match[0][1]
                     return getUserGlobalRolesHandler(userId, request, shouldReturnXml)
                 } else {
-                    return new Response(405)
+                    return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             }
         } else if (path.startsWith("/v2.0/RAX-AUTH/federation/")) {
@@ -335,25 +337,25 @@ class MockIdentityV2Service {
                 if (method == "GET") {
                     return getIdpFromIssuerHandler(queryParams.issuer)
                 } else {
-                    return new Response(405)
+                    return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             } else if (isSamlIdpMappingPolicyCallPath(path)) {
                 if (method == "GET") {
                     def idpId = (path =~ PATH_REGEX_SAML_MAPPING)[0][1]
                     return getMappingPolicyForIdpHandler(idpId)
                 } else {
-                    return new Response(405)
+                    return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             } else if (isSamlAuthCallPath(path)) {
                 if (method == "POST") {
                     return generateTokenFromSamlResponseHandler(request, shouldReturnXml)
                 } else {
-                    return new Response(405)
+                    return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             }
         }
 
-        return new Response(501)
+        return new Response(SC_NOT_IMPLEMENTED)
     }
 
     static boolean isGetUserGlobalRolesCallPath(String path) {
@@ -420,7 +422,7 @@ class MockIdentityV2Service {
                 validator.validate(sampleSource)
             } catch (Exception e) {
                 println("Admin token XSD validation error: " + e)
-                return new Response(400)
+                return new Response(SC_BAD_REQUEST)
             }
         }
 
@@ -505,7 +507,7 @@ class MockIdentityV2Service {
         headers.put('Content-type', xml ? 'application/xml' : 'application/json')
 
         if (isTokenValid && isTokenChecked) {
-            code = 200
+            code = SC_OK
             template = xml ? identitySuccessXmlTemplate : identitySuccessJsonTemplate
         } else {
             //If the username or the apikey are longer than 120 characters, barf back a 400, bad request response
@@ -517,13 +519,13 @@ class MockIdentityV2Service {
 
             //Magic numbers are how large of a value identity will parse before giving back a 400 Bad Request
             if (apikey.length() > 100 || password.length() > 100 || username.length() > 100) {
-                code = 400
+                code = SC_BAD_REQUEST
             } else if (request.body.toString().contains(forbidden_apikey_or_pwd)) {
-                code = 403
+                code = SC_FORBIDDEN
             } else if (request.body.toString().contains(not_found_apikey_or_pwd)) {
-                code = 404
+                code = SC_NOT_FOUND
             } else {
-                code = 401
+                code = SC_UNAUTHORIZED
             }
 
             template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
@@ -572,7 +574,7 @@ class MockIdentityV2Service {
         headers.put('Content-type', xml ? 'application/xml' : 'application/json')
 
         if (isTokenValid) {
-            code = 200
+            code = SC_OK
             if (xml) {
                 if (tokenId == "rackerButts") {
                     template = rackerTokenXmlTemplate
@@ -599,7 +601,7 @@ class MockIdentityV2Service {
                 }
             }
         } else {
-            code = 404
+            code = SC_NOT_FOUND
             template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
         }
 
@@ -637,14 +639,14 @@ class MockIdentityV2Service {
 
         if (userId == client_userid.toString() || userId == (admin_userid as String)) {
             if (userId == "rackerSSOUsername" || service_admin_role.toLowerCase() == "racker") {
-                code = 404
+                code = SC_NOT_FOUND
                 template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
             } else {
-                code = 200
+                code = SC_OK
                 template = xml ? groupsXmlTemplate : groupsJsonTemplate
             }
         } else {
-            code = 500
+            code = SC_INTERNAL_SERVER_ERROR
             template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
         }
 
@@ -687,7 +689,7 @@ class MockIdentityV2Service {
         ]
 
         def body = templateEngine.createTemplate(template).make(params)
-        return new Response(200, null, headers, body)
+        return new Response(SC_OK, null, headers, body)
     }
 
     /**
@@ -710,26 +712,26 @@ class MockIdentityV2Service {
         ]
 
         def body = templateEngine.createTemplate(template).make(params)
-        return new Response(200, null, headers, body)
+        return new Response(SC_OK, null, headers, body)
     }
 
     Response getIdpFromIssuer(String issuer) {
         def body = createIdpJsonWithValues(issuer: issuer)
         def headers = ['Content-type': 'application/json']
 
-        new Response(200, null, headers, body)
+        new Response(SC_OK, null, headers, body)
     }
 
     static Response getMappingPolicyForIdp(String idpId) {
         def headers = ['Content-type': 'application/json']
 
-        new Response(200, null, headers, DEFAULT_MAPPING_POLICY)
+        new Response(SC_OK, null, headers, DEFAULT_MAPPING_POLICY)
     }
 
     Response generateTokenFromSamlResponse(Request request, boolean shouldReturnXml) {
         if (shouldReturnXml) {
             // TODO: the createAccessXmlWithValues() method doesn't currently support extendedAttributes yet
-            return new Response(501)
+            return new Response(SC_NOT_IMPLEMENTED)
         }
 
         // TODO: not sure if the @Name needs the namespace.  I doubt it, though
@@ -749,7 +751,7 @@ class MockIdentityV2Service {
                 extendedAttributes: extendedAttributesGrouped)
         def headers = ['Content-type': shouldReturnXml ? 'application/xml' : 'application/json']
 
-        new Response(200, null, headers, body)
+        new Response(SC_OK, null, headers, body)
     }
 
     /**
