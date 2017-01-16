@@ -21,6 +21,7 @@
 package features.filters.samlpolicy
 
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
@@ -39,15 +40,21 @@ import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
 class SamlBasicValidationTest extends ReposeValveTest {
 
     static xmlSlurper = new XmlSlurper()
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
         reposeLogSearch.cleanLog()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort, 'origin service')
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/samlpolicy", params)
+
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
+
+        fakeIdentityV2Service = new MockIdentityV2Service(params.identityPort, params.targetPort)
+        deproxy.addEndpoint(params.identityPort, 'identity service', null, fakeIdentityV2Service.handler)
+
         repose.start()
         reposeLogSearch.awaitByString("Repose ready", 1, 30)
     }
