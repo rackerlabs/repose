@@ -334,14 +334,14 @@ class MockIdentityV2Service {
         } else if (path.startsWith("/v2.0/RAX-AUTH/federation/")) {
             if (isSamlIdpIssuerCallPath(path)) {
                 if (method == "GET") {
-                    return getIdpFromIssuerHandler(queryParams.issuer)
+                    return getIdpFromIssuerHandler(queryParams.issuer, request)
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             } else if (isSamlIdpMappingPolicyCallPath(path)) {
                 if (method == "GET") {
                     def idpId = (path =~ PATH_REGEX_SAML_MAPPING)[0][1]
-                    return getMappingPolicyForIdpHandler(idpId)
+                    return getMappingPolicyForIdpHandler(idpId, request)
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
@@ -714,17 +714,25 @@ class MockIdentityV2Service {
         return new Response(SC_OK, null, headers, body)
     }
 
-    Response getIdpFromIssuer(String issuer) {
-        def body = createIdpJsonWithValues(issuer: issuer)
-        def headers = ['Content-type': 'application/json']
+    Response getIdpFromIssuer(String issuer, Request request) {
+        if (client_token != request.getHeaders().getFirstValue("X-Auth-Token")) {
+            new Response(SC_UNAUTHORIZED)
+        } else {
+            def body = createIdpJsonWithValues(issuer: issuer)
+            def headers = ['Content-type': 'application/json']
 
-        new Response(SC_OK, null, headers, body)
+            new Response(SC_OK, null, headers, body)
+        }
     }
 
-    static Response getMappingPolicyForIdp(String idpId) {
-        def headers = ['Content-type': 'application/json']
+    Response getMappingPolicyForIdp(String idpId, Request request) {
+        if (client_token != request.getHeaders().getFirstValue("X-Auth-Token")) {
+            new Response(SC_UNAUTHORIZED)
+        } else {
+            def headers = ['Content-type': 'application/json']
 
-        new Response(SC_OK, null, headers, DEFAULT_MAPPING_POLICY)
+            new Response(SC_OK, null, headers, DEFAULT_MAPPING_POLICY)
+        }
     }
 
     Response generateTokenFromSamlResponse(Request request, boolean shouldReturnXml) {
