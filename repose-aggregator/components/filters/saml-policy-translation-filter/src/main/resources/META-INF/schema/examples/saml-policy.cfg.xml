@@ -10,7 +10,8 @@
                               username="aUsername"
                               password="somePassword"
                               connection-pool-id="default"/>
-        <policy-endpoint uri="http://keystone.somewhere.com"/>
+        <policy-endpoint uri="http://keystone.somewhere.com"
+                         connection-pool-id="different"/>
         <cache ttl="300" atom-feed-id="identity-policy"/>
     </policy-acquisition>
     <signature-credentials keystore-filename="thing.jks"
