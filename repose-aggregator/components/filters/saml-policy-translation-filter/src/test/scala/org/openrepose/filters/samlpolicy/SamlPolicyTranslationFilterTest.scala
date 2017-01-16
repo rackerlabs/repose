@@ -35,6 +35,7 @@ import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.test.util.ReflectionTestUtils
 
 import scala.io.Source
 
@@ -136,11 +137,11 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   describe("configurationUpdated") {
     var config = new SamlPolicyConfig
 
-    def buildConfig(feedId: String): SamlPolicyConfig = {
+    def buildConfig(feedId: String, ttl: Long = 3000): SamlPolicyConfig = {
       val resultConfig = new SamlPolicyConfig
       val acquisition = new PolicyAcquisition
       val cache = new Cache
-      cache.setTtl(3000)
+      cache.setTtl(ttl)
       cache.setAtomFeedId(feedId)
       acquisition.setCache(cache)
       resultConfig.setPolicyAcquisition(acquisition)
@@ -216,6 +217,34 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(newConfig)
 
       verify(atomFeedService).registerListener(MM.eq("phone"), MM.same(filter))
+    }
+
+    it("should initialize the cache when given a config") {
+      ReflectionTestUtils.getField(filter, "cache") should be (null)
+
+      filter.configurationUpdated(buildConfig("dontcare"))
+
+      ReflectionTestUtils.getField(filter, "cache") should not be null
+    }
+
+    it("should build a new cache when the ttl changes") {
+      filter.configurationUpdated(buildConfig("dontcare", 5))
+      val originalCache = ReflectionTestUtils.getField(filter, "cache")
+
+      filter.configurationUpdated(buildConfig("dontcare", 10))
+      val newCache = ReflectionTestUtils.getField(filter, "cache")
+
+      originalCache should not be theSameInstanceAs (newCache)
+    }
+
+    it("should not build a new cache if the ttl doesn't change") {
+      filter.configurationUpdated(buildConfig("dontcare", 5))
+      val originalCache = ReflectionTestUtils.getField(filter, "cache")
+
+      filter.configurationUpdated(buildConfig("dontcare", 5))
+      val newCache = ReflectionTestUtils.getField(filter, "cache")
+
+      originalCache should be theSameInstanceAs newCache
     }
   }
 }
