@@ -126,6 +126,9 @@ class SamlUtilities {
      * <pre>
      * encodeBase64(samlResponse(issuer() >> status() >> assertion()))
      * </pre>
+     *
+     * TODO: see if we can define this as:  static Closure status = { -> 'saml2p:Status' { ... } }
+     * TODO: see if you can refactor to be like the last example in this section: http://groovy-lang.org/processing-xml.html#_markupbuilder
      */
     static Closure issuer() {
         return {
