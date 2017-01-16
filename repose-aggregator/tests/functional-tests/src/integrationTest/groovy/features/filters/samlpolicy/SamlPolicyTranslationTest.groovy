@@ -23,6 +23,7 @@ package features.filters.samlpolicy
 import framework.ReposeValveTest
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Ignore
 
 import javax.servlet.http.HttpServletResponse
 
@@ -40,6 +41,7 @@ class SamlPolicyTranslationTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("Repose ready", 1, 30)
     }
 
+    @Ignore
     def "When using saml-policy filter TEMPLATE it should return OK (200)"() {
         given:
         def headerName = PowerApiHeader.USER.toString()
@@ -48,12 +50,11 @@ class SamlPolicyTranslationTest extends ReposeValveTest {
 
         when: "Request contains value(s) of the target header"
         def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
-        def sentRequest = mc.getHandlings()[0]
 
         then: "The request/response should contain the correct value and the status code should be OK (200)"
-        sentRequest.request.headers.contains(headerName)
-        sentRequest.request.headers.getCountByName(headerName) == 1
-        sentRequest.request.headers.getFirstValue(headerName) == headerValue
+        mc.handlings[0].request.headers.contains(headerName)
+        mc.handlings[0].request.headers.getCountByName(headerName) == 1
+        mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
     }
 }
