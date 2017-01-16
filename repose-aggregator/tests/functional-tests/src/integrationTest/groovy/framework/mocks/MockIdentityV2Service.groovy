@@ -19,7 +19,9 @@
  */
 package framework.mocks
 
+import groovy.json.JsonBuilder
 import groovy.text.SimpleTemplateEngine
+import groovy.xml.MarkupBuilder
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -40,10 +42,12 @@ import java.util.concurrent.atomic.AtomicInteger
 class MockIdentityV2Service {
     static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 
-    static final String getUserGlobalRolesCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/roles/
-    static final String getGroupsCallPathRegex = /^\/v2.0\/users\/([^\/]+)\/RAX-KSGRP/
-    static final String getEndpointsCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/endpoints/
-    static final String validateTokenCallPathRegex = /^\/v2.0\/tokens\/([^\/]+)\/?$/
+    static final String PATH_REGEX_USER_GLOBAL_ROLES = '^/v2.0/users/([^/]+)/roles'
+    static final String PATH_REGEX_GROUPS = '^/v2.0/users/([^/]+)/RAX-KSGRP'
+    static final String PATH_REGEX_ENDPOINTS = '^/v2.0/tokens/([^/]+)/endpoints'
+    static final String PATH_REGEX_VALIDATE_TOKEN = '^/v2.0/tokens/([^/]+)/?$'
+    static final String PATH_REGEX_SAML_IDP_ISSUER = $/^/v2.0/RAX-AUTH/federation/identity-providers/?(\?.*issuer=([^&]+)?)/$
+    static final String PATH_REGEX_SAML_MAPPING = '^/v2.0/RAX-AUTH/federation/identity-providers/([^/]+)/mapping'
 
     protected AtomicInteger _validateTokenCount = new AtomicInteger(0)
     protected AtomicInteger _getGroupsCount = new AtomicInteger(0)
@@ -52,6 +56,7 @@ class MockIdentityV2Service {
     protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0)
 
     def templateEngine = new SimpleTemplateEngine()
+    def xmlSlurper = new XmlSlurper()
     def random = new Random()
 
     int port
@@ -93,6 +98,9 @@ class MockIdentityV2Service {
     Closure<Response> generateTokenHandler
     Closure<Response> getEndpointsHandler
     Closure<Response> getUserGlobalRolesHandler
+    Closure<Response> getIdpFromIssuerHandler
+    Closure<Response> getMappingPolicyForIdpHandler
+    Closure<Response> generateTokenFromSamlResponseHandler
 
     // if tokenExpiresAt isn't set, it will default to the current time plus one day
     def tokenExpiresAt = null
@@ -153,6 +161,9 @@ class MockIdentityV2Service {
         generateTokenHandler = this.&generateToken
         getEndpointsHandler = this.&getEndpoints
         getUserGlobalRolesHandler = this.&getUserGlobalRoles
+        getIdpFromIssuerHandler = this.&getIdpFromIssuer
+        getMappingPolicyForIdpHandler = this.&getMappingPolicyForIdp
+        generateTokenFromSamlResponseHandler = this.&generateTokenFromSamlResponse
     }
 
     /**
@@ -196,40 +207,33 @@ class MockIdentityV2Service {
      * @return an instance of Response type
      */
     Response handleRequest(Request request) {
-        def xml = false
-
-        for (value in request.headers.findAll('Accept')) {
-            if (value.contains('application/xml')) {
-                xml = true
-                break
-            }
-        }
+        def shouldReturnXml = request.headers.findAll('Accept').any { it.contains('application/xml') }
 
         /*
          * From http://docs.openstack.org/api/openstack-identity-service/2.0/content/
          *
          * POST
-         * v2.0/tokens
+         * /v2.0/tokens
          * Authenticates and generates a token.
          *
          * GET
-         * v2.0/tokens/{tokenId}{?belongsTo}
+         * /v2.0/tokens/{tokenId}{?belongsTo}
          * tokenId : UUID - Required. The token ID.
          * Validates a token and confirms that it belongs to a specified tenant.
          *
          * GET
-         * v2.0/tokens/{tokenId}/endpoints
+         * /v2.0/tokens/{tokenId}/endpoints
          * tokenId : UUID - Required. The token ID.
          * Lists the endpoints associated with a specified token.
          *
          * GET
-         * v2.0/users/{userId}/RAX-KSGRP
+         * /v2.0/users/{userId}/RAX-KSGRP
          * userId : String - The user ID.
          * X-Auth-Token : String - A valid authentication token for an administrative user.
          * List groups for a specified user.
          *
          * GET
-         * users/{user_id}/roles
+         * /v2.0/users/{user_id}/roles
          * X-Auth-Token : String - A valid authentication token for an administrative user.
          * user_id : String - The user ID.
          * Lists global roles for a specified user. Excludes tenant roles.
@@ -237,79 +241,111 @@ class MockIdentityV2Service {
          *
          */
 
-        def path = request.path
+        def fullPath = request.path
         def method = request.method
 
-        String nonQueryPath
-        String query
+        String path
+        String query // TODO: after we deal with the cow below, we may move the scope of this variable
+        Map<String, String> queryParams
 
-        // Separate query and nonQueryPath
-        if (path.contains("?")) {
-            int index = path.indexOf("?")
-            query = path.substring(index + 1)
-            nonQueryPath = path.substring(0, index)
-        } else {
-            query = null
-            nonQueryPath = path
-        }
-        if (isGenerateTokenCallPath(nonQueryPath)) {
-            if (method == "POST") {
-                _generateTokenCount.incrementAndGet()
-                return generateTokenHandler(request, xml)
-            } else {
-                return new Response(405)
+        // separate query and path
+        if (fullPath.contains("?")) {
+            int index = fullPath.indexOf("?")
+            path = fullPath.substring(0, index)
+            query = fullPath.substring(index + 1)
+            queryParams = query.split("&").collectEntries { param ->
+                param.split("=").collect { URLDecoder.decode(it, "UTF-8") }
             }
+        } else {
+            path = fullPath
+            query = null
+            queryParams = [:]
         }
 
-        if (isTokenCallPath(nonQueryPath)) {
-            if (isGetEndpointsCallPath(nonQueryPath)) {
-                if (method == "GET") {
-                    _getEndpointsCount.incrementAndGet()
-                    def match = (nonQueryPath =~ getEndpointsCallPathRegex)
-                    def tokenId = match[0][1]
-                    return getEndpointsHandler(tokenId, request, xml)
+        if (path.startsWith("/v2.0/tokens")) {
+            if (isGenerateTokenCallPath(path)) {
+                if (method == "POST") {
+                    _generateTokenCount.incrementAndGet()
+                    return generateTokenHandler(request, shouldReturnXml)
                 } else {
                     return new Response(405)
                 }
-            }
-
-            if (isValidateTokenCallPath(nonQueryPath)) {
-                // add handle 'belongsTo' in query string
+            } else if (isGetEndpointsCallPath(path)) {
+                if (method == "GET") {
+                    _getEndpointsCount.incrementAndGet()
+                    def match = (path =~ PATH_REGEX_ENDPOINTS)
+                    def tokenId = match[0][1]
+                    return getEndpointsHandler(tokenId, request, shouldReturnXml)
+                } else {
+                    return new Response(405)
+                }
+            } else if (isValidateTokenCallPath(path)) {
                 if (method == 'GET') {
                     def tenantid = validateTenant
-                    if (query != null) {
+                    //
+                    // TODO: This doesn't look like it'll work even a little, and it appears to be unused.
+                    // TODO: If functional tests continue to pass with this commented out, remove it.
+                    //
+                    //                    ___________________________________________________
+                    //           (__)    /                                                   \
+                    //           (oo)   (   Do not merge branch until this is resolved. Moo.  )
+                    //    /-------\/  --'\___________________________________________________/
+                    //   / |     ||
+                    //  *  ||----||
+                    //     ^^    ^^
+                    //
+
+                    /*if (query != null) {
                         if (query.contains("belongsTo")) {
                             String belongsToquery = query.substring(indexOf("belongsTo"), indexOf(/&/))
                             tenantid = belongsToquery.split(/=/)[1]
                         }
-                    }
+                    }*/
                     _validateTokenCount.incrementAndGet()
-                    def match = (nonQueryPath =~ validateTokenCallPathRegex)
+                    def match = (path =~ PATH_REGEX_VALIDATE_TOKEN)
                     def tokenId = match[0][1]
-                    return validateTokenHandler(tokenId, tenantid, request, xml)
+                    return validateTokenHandler(tokenId, tenantid, request, shouldReturnXml)
                 } else {
                     return new Response(405)
                 }
             }
-
-        } else if (nonQueryPath.startsWith("/v2.0/users/")) {
-            if (isGetGroupsCallPath(nonQueryPath)) {
+        } else if (path.startsWith("/v2.0/users/")) {
+            if (isGetGroupsCallPath(path)) {
                 if (method == "GET") {
                     _getGroupsCount.incrementAndGet()
-                    def match = (nonQueryPath =~ getGroupsCallPathRegex)
+                    def match = (path =~ PATH_REGEX_GROUPS)
                     def userId = match[0][1]
-                    return getGroupsHandler(userId, request, xml)
+                    return getGroupsHandler(userId, request, shouldReturnXml)
+                } else {
+                    return new Response(405)
+                }
+            } else if (isGetUserGlobalRolesCallPath(path)) {
+                if (method == "GET") {
+                    _getUserGlobalRolesCount.incrementAndGet()
+                    def match = (path =~ PATH_REGEX_USER_GLOBAL_ROLES)
+                    def userId = match[0][1]
+                    return getUserGlobalRolesHandler(userId, request, shouldReturnXml)
                 } else {
                     return new Response(405)
                 }
             }
-
-            if (isGetUserGlobalRolesCallPath(nonQueryPath)) {
+        } else if (path.startsWith("/v2.0/RAX-AUTH/federation/")) {
+            if (isSamlIdpIssuerCallPath(path)) {
                 if (method == "GET") {
-                    _getUserGlobalRolesCount.incrementAndGet()
-                    def match = (nonQueryPath =~ getUserGlobalRolesCallPathRegex)
-                    def userId = match[0][1]
-                    return getUserGlobalRolesHandler(userId, request, xml)
+                    return getIdpFromIssuerHandler(queryParams.issuer)
+                } else {
+                    return new Response(405)
+                }
+            } else if (isSamlIdpMappingPolicyCallPath(path)) {
+                if (method == "GET") {
+                    def idpId = (path =~ PATH_REGEX_SAML_MAPPING)[0][1]
+                    return getMappingPolicyForIdpHandler(idpId)
+                } else {
+                    return new Response(405)
+                }
+            } else if (isSamlAuthCallPath(path)) {
+                if (method == "POST") {
+                    return generateTokenFromSamlResponseHandler(request, shouldReturnXml)
                 } else {
                     return new Response(405)
                 }
@@ -319,28 +355,36 @@ class MockIdentityV2Service {
         return new Response(501)
     }
 
-    static boolean isGetUserGlobalRolesCallPath(String nonQueryPath) {
-        nonQueryPath ==~ getUserGlobalRolesCallPathRegex
+    static boolean isGetUserGlobalRolesCallPath(String path) {
+        path ==~ PATH_REGEX_USER_GLOBAL_ROLES
     }
 
-    static boolean isGetGroupsCallPath(String nonQueryPath) {
-        nonQueryPath ==~ getGroupsCallPathRegex
+    static boolean isGetGroupsCallPath(String path) {
+        path ==~ PATH_REGEX_GROUPS
     }
 
-    static boolean isGetEndpointsCallPath(String nonQueryPath) {
-        nonQueryPath ==~ getEndpointsCallPathRegex
+    static boolean isGetEndpointsCallPath(String path) {
+        path ==~ PATH_REGEX_ENDPOINTS
     }
 
-    static boolean isValidateTokenCallPath(String nonQueryPath) {
-        nonQueryPath ==~ validateTokenCallPathRegex
+    static boolean isValidateTokenCallPath(String path) {
+        path ==~ PATH_REGEX_VALIDATE_TOKEN
     }
 
-    static boolean isGenerateTokenCallPath(String nonQueryPath) {
-        nonQueryPath == "/v2.0/tokens"
+    static boolean isGenerateTokenCallPath(String path) {
+        path == "/v2.0/tokens"
     }
 
-    static boolean isTokenCallPath(String nonQueryPath) {
-        nonQueryPath.startsWith("/v2.0/tokens")
+    static boolean isSamlIdpIssuerCallPath(String path) {
+        path ==~ PATH_REGEX_SAML_IDP_ISSUER
+    }
+
+    static boolean isSamlIdpMappingPolicyCallPath(String path) {
+        path ==~ PATH_REGEX_SAML_MAPPING
+    }
+
+    static boolean isSamlAuthCallPath(String path) {
+        path.startsWith("/v2.0/RAX-AUTH/federation/saml/auth")
     }
 
     /**
@@ -408,9 +452,9 @@ class MockIdentityV2Service {
                         contactIdJson: contactIdJson
                 ]
 
-                if (contact_id != null && !contact_id.isEmpty()) {
-                    params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
-                    params.contactIdJson = "\"RAX-AUTH:contactId\": \"${contact_id}\","
+                if (contact_id) {
+                    params.contactIdXml = /rax-auth:contactId="$contact_id"/
+                    params.contactIdJson = /"RAX-AUTH:contactId": "$contact_id",/
                 }
 
             } else if (request.body.contains("username") &&
@@ -428,9 +472,9 @@ class MockIdentityV2Service {
                         contactIdXml : contactIdXml,
                         contactIdJson: contactIdJson
                 ]
-                if (contact_id != null && !contact_id.isEmpty()) {
-                    params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
-                    params.contactIdJson = "\"RAX-AUTH:contactId\": \"${contact_id}\","
+                if (contact_id) {
+                    params.contactIdXml = /rax-auth:contactId="$contact_id"/
+                    params.contactIdJson = /"RAX-AUTH:contactId": "$contact_id",/
                 }
             } else {
                 isTokenChecked = false
@@ -447,11 +491,10 @@ class MockIdentityV2Service {
                     contactIdXml : contactIdXml,
                     contactIdJson: contactIdJson
             ]
-            if (contact_id != null && !contact_id.isEmpty()) {
-                params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
-                params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
+            if (contact_id) {
+                params.contactIdXml = /rax-auth:contactId="$contact_id"/
+                params.contactIdJson = /"RAX-AUTH:contactId" : "$contact_id",/
             }
-
         }
 
         def code
@@ -516,9 +559,9 @@ class MockIdentityV2Service {
                 contactIdXml   : contactIdXml,
                 contactIdJson  : contactIdJson
         ]
-        if (contact_id != null && !contact_id.isEmpty()) {
-            params.contactIdXml = "rax-auth:contactId=\"${contact_id}\""
-            params.contactIdJson = "\"RAX-AUTH:contactId\" : \"${contact_id}\","
+        if (contact_id) {
+            params.contactIdXml = /rax-auth:contactId="$contact_id"/
+            params.contactIdJson = /"RAX-AUTH:contactId" : "$contact_id",/
         }
 
         def code
@@ -556,11 +599,7 @@ class MockIdentityV2Service {
             }
         } else {
             code = 404
-            if (xml) {
-                template = identityFailureXmlTemplate
-            } else {
-                template = identityFailureJsonTemplate
-            }
+            template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
         }
 
         def body = templateEngine.createTemplate(template).make(params)
@@ -671,6 +710,195 @@ class MockIdentityV2Service {
 
         def body = templateEngine.createTemplate(template).make(params)
         return new Response(200, null, headers, body)
+    }
+
+    Response getIdpFromIssuer(String issuer) {
+        def body = createIdpJsonWithValues(issuer: issuer)
+        def headers = ['Content-type': 'application/json']
+
+        new Response(200, null, headers, body)
+    }
+
+    static Response getMappingPolicyForIdp(String idpId) {
+        def headers = ['Content-type': 'application/json']
+
+        new Response(200, null, headers, DEFAULT_MAPPING_POLICY)
+    }
+
+    Response generateTokenFromSamlResponse(Request request, boolean shouldReturnXml) {
+        if (shouldReturnXml) {
+            // TODO: the createAccessXmlWithValues() method doesn't currently support extendedAttributes yet
+            return new Response(501)
+        }
+
+        // TODO: not sure if the @Name needs the namespace.  I doubt it, though
+        // TODO: not sure how well AttributeValue will be handled since there can be one or more values of it
+        def samlResponse = xmlSlurper.parseText(request.body as String)
+                .declareNamespace(saml2p: "urn:oasis:names:tc:SAML:2.0:protocol", saml2: "urn:oasis:names:tc:SAML:2.0:assertion")
+        Map<String, String> samlAttributes = samlResponse.'saml2:Assertion'[0].'saml2:AttributeStatement'.'saml2:Attribute'
+                .collectEntries { [(it.@Name): it.'saml2:AttributeValue'*.text()] }
+
+        def (extendedAttributes, attributes) = samlAttributes.split { it.key.contains("/")}
+        def extendedAttributesGrouped = normalizeGroupingForExtendedAttributes(extendedAttributes)
+        def username = samlResponse.'saml2:Assertion'[0].'saml2:Subject'.'saml2::NameID'.text()
+
+        def body = createAccessJsonWithValues(
+                username: username,
+                roles: attributes.roles,
+                extendedAttributes: extendedAttributesGrouped)
+        def headers = ['Content-type': shouldReturnXml ? 'application/xml' : 'application/json']
+
+        new Response(200, null, headers, body)
+    }
+
+    /**
+     * // TODO: Make sure this works for the XML format, too.
+     * Method to convert the format of the SAML Attributes to the format that's expected in the "access" JSON.
+     *
+     * For example (formatted for convenience):
+     * input:
+     * [a/b: [1, 2],
+     *  a/c: [3],
+     *  z/d: [6, 7],
+     *  y/e: [0, 8, 9],
+     *  y/f: [10],
+     *  y/g: [11, 12]]
+     *
+     * output:
+     * [a: [b: [1, 2], c: 3],
+     *  z: [d: [6, 7]],
+     *  y: [e: [0, 8, 9], f: 10, g: [11, 12]]]
+     *
+     * Where the groups are "a", "z", and "y", the attribute names are "b", "c", "d", "e", "f", and "g", and the
+     * numbers are the attribute values.
+     */
+    static Map normalizeGroupingForExtendedAttributes(Map<String, List<String>> extendedAttributes) {
+        extendedAttributes
+                .groupBy { it.key.split("/")[0] }
+                .collectEntries { group, attributes ->
+            [(group), attributes.collectEntries { groupAndName, v -> [(groupAndName.split("/")[1]), v?.size() == 1 ? v[0] : v]}]
+        }
+    }
+
+    String createIdpJsonWithValues(Map values = [:]) {
+        def json = new JsonBuilder()
+
+        json {
+            "RAX-AUTH:identityProviders"([
+                    {
+                        name values.name ?: "External IDP"
+                        federationType values.federationType ?: "DOMAIN"
+                        approvedDomains values.approvedDomains ?: ["77366"]
+                        description values.description ?: "An External IDP Description"
+                        id values.id ?: "508daa5d406d41639c67860f25db29df"
+                        issuer values.issuer ?: "http://idp.external.com"
+                    }
+            ])
+        }
+
+        json.toString()
+    }
+
+    String createAccessJsonWithValues(Map values = [:]) {
+        def token = values.token ?: client_token
+        def expires = values.expires ?: getExpires()
+        def tenantId = values.tenantId ?: client_tenantid
+        def userId = values.userId ?: client_userid
+        def username = values.username ?: client_username
+        def roleNames = values.roles ?: ["identity:admin"]
+
+        def json = new JsonBuilder()
+
+        // TODO: make sure the "roles" work. may have to switch to a collect and return a closure
+        json {
+            access {
+                token {
+                    id token
+                    delegate.expires expires
+                    tenant {
+                        id tenantId
+                        name tenantId
+                    }
+                }
+                user {
+                    id userId
+                    name username
+                    "RAX-AUTH:defaultRegion" "the-default-region"
+                    roles roleNames.withIndex(1).each { role, index ->
+                        name role
+                        id index
+                    }
+                }
+                serviceCatalog([
+                        {
+                            name "cloudServersOpenStack"
+                            type "compute"
+                            endpoints([
+                                    {
+                                        publicURL "https://ord.servers.api.rackspacecloud.com/v2/$tenantId"
+                                        delegate.region "ORD"
+                                        delegate.tenantId tenantId
+                                        versionId "2"
+                                        versionInfo "https://ord.servers.api.rackspacecloud.com/v2"
+                                        versionList "https://ord.servers.api.rackspacecloud.com/"
+                                    }
+                            ])
+                        }
+                ])
+                if (values.extendedAttributes) {
+                    "RAX-AUTH:extendedAttributes" values.extendedAttributes
+                }
+            }
+        }
+
+        json.toString()
+    }
+
+    String createAccessXmlWithValues(Map values = [:]) {
+        def token = values.token ?: client_token
+        def expires = values.expires ?: getExpires()
+        def tenantId = values.tenantId ?: client_tenantid
+        def userId = values.userId ?: client_userid
+        def username = values.username ?: client_username
+        def roleNames = values.roles ?: ["identity:admin"]
+
+        // namespaces
+        Map<String, String> rootElementAttributes = [:]
+        rootElementAttributes.'xmlns' = "http://docs.openstack.org/identity/api/v2.0"
+        rootElementAttributes.'xmlns:rax-auth' = "http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+
+        // set up Markup Builder
+        def writer = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(new IndentPrinter(writer, "", false))
+        xmlBuilder.doubleQuotes = false
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
+
+        // build the XML
+        xmlBuilder.access(rootElementAttributes) {
+            token(id: token, expires: expires) {
+                tenant(id: tenantId, name: tenantId)
+            }
+            user(id: userId, name: username, "rax-auth:defaultRegion": "the-default-region") {
+                roles {
+                    roleNames.withIndex(1).each { name, index ->
+                        role(name: name, id: index)
+                    }
+                }
+            }
+            serviceCatalog {
+                service(type: "compute", name: "cloudServersOpenStack") {
+                    endpoint(region: "ORD",
+                            tenantId: tenantId,
+                            publicURL: "https://ord.servers.api.rackspacecloud.com/v2/$tenantId",
+                            versionId: "2",
+                            versionInfo: "https://ord.servers.api.rackspacecloud.com/v2",
+                            versionList: "https://ord.servers.api.rackspacecloud.com/")
+                }
+            }
+            // TODO: what does RAX-AUTH:extendedAttributes look like? Where is the schema at?
+        }
+
+        writer.toString()
     }
 
     // Successful generate token response in xml
@@ -1454,4 +1682,30 @@ class MockIdentityV2Service {
         },
         \${addRolesJson}
 """
+
+    static final String IDP_NO_RESULTS = """\
+{
+    "RAX-AUTH:identityProviders": []
+}"""
+
+    static final String DEFAULT_MAPPING_POLICY = """\
+{
+    "mapping": {
+        "version": "RAX-1",
+        "description": "Default mapping policy",
+        "rules": [
+            {
+                "local": {
+                    "user": {
+                        "domain": "{D}",
+                        "email": "{D}",
+                        "expire": "{D}",
+                        "name": "{D}",
+                        "roles": "{D}"
+                    }
+                }
+            }
+        ]
+    }
+}"""
 }
