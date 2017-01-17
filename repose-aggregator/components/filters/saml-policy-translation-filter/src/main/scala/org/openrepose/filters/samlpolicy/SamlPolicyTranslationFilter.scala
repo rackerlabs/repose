@@ -21,6 +21,7 @@
 package org.openrepose.filters.samlpolicy
 
 import java.io.{ByteArrayInputStream, FileInputStream, IOException, InputStream}
+import java.net.URI
 import java.security._
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
@@ -77,6 +78,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var signedInfo: SignedInfo = _
   private var keyEntry: KeyStore.PrivateKeyEntry = _
   private var keyInfo: KeyInfo = _
+  private var legacyIssuers: List[URI] = List.empty
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
@@ -267,6 +269,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
                             override def load(key: String): XsltExecutable = getPolicy(key)
                           })
     }
+
+    legacyIssuers = Option(newConfiguration.getPolicyBypassIssuers).map(_.getIssuer.asScala.toList.map(new URI(_))).getOrElse(List.empty)
 
     try {
       // Create a DOM XMLSignatureFactory that will be used to

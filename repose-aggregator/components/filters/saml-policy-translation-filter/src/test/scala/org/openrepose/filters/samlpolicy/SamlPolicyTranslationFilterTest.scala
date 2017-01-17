@@ -21,6 +21,7 @@
 package org.openrepose.filters.samlpolicy
 
 import java.io.{FileInputStream, StringReader}
+import java.net.URI
 import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
 import java.util.Base64
@@ -37,7 +38,7 @@ import org.mockito.Mockito._
 import org.mockito.{Matchers => MM}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
-import org.openrepose.filters.samlpolicy.config.{Cache, PolicyAcquisition, SamlPolicyConfig, SignatureCredentials}
+import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.opensaml.core.config.{InitializationException, InitializationService}
 import org.opensaml.core.criterion.EntityIdCriterion
@@ -345,6 +346,53 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val newCache = ReflectionTestUtils.getField(filter, "cache")
 
       originalCache should be theSameInstanceAs newCache
+    }
+
+    it("should build the list of issuers if present") {
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
+
+      val config = buildConfig("dontcare")
+      val bypassIssuers = new PolicyBypassIssuers
+      bypassIssuers.getIssuer.add("http://foo.bar")
+      config.setPolicyBypassIssuers(bypassIssuers)
+      filter.configurationUpdated(config)
+
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] should contain (new URI("http://foo.bar"))
+    }
+
+    it("should leave issuers empty if none are added") {
+      filter.configurationUpdated(buildConfig("dontcare"))
+
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
+    }
+
+    it("should replace issuers when they change") {
+      val config = buildConfig("dontcare")
+      val bypassIssuers = new PolicyBypassIssuers
+      bypassIssuers.getIssuer.add("http://foo.bar")
+      config.setPolicyBypassIssuers(bypassIssuers)
+      filter.configurationUpdated(config)
+
+      val newConfig = buildConfig("dontcare")
+      val newBypassIssuers = new PolicyBypassIssuers
+      newBypassIssuers.getIssuer.add("http://bar.foo")
+      newConfig.setPolicyBypassIssuers(newBypassIssuers)
+      filter.configurationUpdated(newConfig)
+
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] should not contain (new URI("http://foo.bar"))
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] should contain (new URI("http://bar.foo"))
+    }
+
+    it("should blank the issuers when they are removed") {
+      val config = buildConfig("dontcare")
+      val bypassIssuers = new PolicyBypassIssuers
+      bypassIssuers.getIssuer.add("http://foo.bar")
+      config.setPolicyBypassIssuers(bypassIssuers)
+      filter.configurationUpdated(config)
+
+      filter.configurationUpdated(buildConfig("dontcare"))
+
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
     }
   }
 }
