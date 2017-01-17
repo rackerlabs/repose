@@ -15,19 +15,19 @@ It'll attempt to locate a policy to use for the translation based on the asserti
 
 == Prerequisites & Postconditions
 === Required headers
-`Content-Type` - Needs a value of `application/x-www-form-urlencoded`
+* `Content-Type` - Needs a value of `application/x-www-form-urlencoded`
 
 === Required preceding filters
 None
 
 === Request headers created
-`Content-Type` - Will be changed to `application/xml`
-`Content-Length` - Will be removed if present
-`Transfer-Encoding` - Will be set to `chunked`
-`Identity-API-Version` - `1.0` if the assertion issuer is in the configured list and `2.0` otherwise.
+* `Content-Type` - Will be changed to `application/xml`
+* `Content-Length` - Will be removed if present
+* `Transfer-Encoding` - Will be set to `chunked`
+* `Identity-API-Version` - `1.0` if the assertion issuer is in the configured list and `2.0` otherwise.
 
 === Request body changes
-The body will be decoded and replaced with and xml version.
+The body will be decoded and replaced with an xml version.
 If issuer isn't in the configured list, a new assertion will be generated based on the matching issuer policy with `http://openrepose.org/filters/SAMLTranslation` as the issuer.
 Additionally the SAML Response will be signed with the configured credentials.
 
@@ -41,8 +41,18 @@ Some stuff about custom fields getting translated into the body, fill it in when
 None.
 
 === Response Status Codes
-`400` - If all the assertions aren't signed and if all the assertions don't come from the same issuer.
-`401` - If a policy that matches the assertion issuer can not be found.
+[cols="2", options="header,autowidth"]
+.Status Codes
+|===
+| Status Code
+| Reasons
+
+| `400`
+| If all the assertions aren't signed and if all the assertions don't come from the same issuer.
+
+| `401`
+| If a policy that matches the assertion issuer can not be found.
+|===
 
 == Examples
 This configuration exercises all the capabilities of the filter.
@@ -74,6 +84,7 @@ This configuration exercises all the capabilities of the filter.
 </saml-policy>
 ----
 <1>  The list of 1.0 issuers.
+     This is optional.
 <2>  The keystone endpoint to get an authentication token from.
 <3>  The username of the user to use for policy acquisition.
 <4>  The password of the user to use for policy acquisition.
@@ -84,10 +95,11 @@ This configuration exercises all the capabilities of the filter.
      It's optional and will use the default if unspecified.
 <8>  The time to live in the cache for policies.
 <9>  The atom feed id of an atom feed that contains policy events to be used for cache evictions.
-<10> The location of the keystore that contains the certificates for signing the SAMl response.
-<11> The password fir using the keystore.
+     This is optional, if unused cache eviction will be purely off ttl.
+<10> The location of the keystore that contains the certificates for signing the SAML response.
+<11> The password for using the keystore.
 <12> The name the certificate is under in the keystore.
-<13> The password for the certificate inthe keystore.
+<13> The password for the certificate in the keystore.
 
 == Additional Information
 There's always money in the banana stand.
