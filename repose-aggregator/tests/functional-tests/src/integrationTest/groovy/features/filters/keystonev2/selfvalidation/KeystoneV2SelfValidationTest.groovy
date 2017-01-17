@@ -23,7 +23,10 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
 
 /**
  * Created by jennyvo on 9/22/15.
@@ -54,7 +57,10 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
     }
 
     def setup() {
+        fakeIdentityV2Service.resetCounts()
         fakeIdentityV2Service.resetDefaultParameters()
+        fakeIdentityV2Service.resetHandlers()
+        sleep(500)
     }
 
     def "Validate client token test"() {
@@ -67,7 +73,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose with valid token"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -88,11 +94,26 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+    }
+
+    def "Validate client token fails"() {
+        given:
+        fakeIdentityV2Service.with {
+            isTokenValid = false
+        }
+
+        when: "User passes a request through repose with valid token"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "They should fail"
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED // 401
+        mc.handlings.size() == 0
     }
 
     def "Validate racker token without tenant"() {
@@ -104,7 +125,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -116,8 +137,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         given:
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'GET',
-                headers: ['content-type': 'application/json'])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'GET')
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -137,7 +157,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "should have x-impersonate-roles in headers from request come through repose"
         mc.receivedResponse.code == "200"
@@ -158,7 +178,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "should have x-impersonate-roles in headers from request come through repose"
         mc.receivedResponse.code == "200"
@@ -166,5 +186,43 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.contains("x-impersonator-id")
         !mc.handlings[0].request.headers.contains("x-impersonator-name")
         !mc.handlings[0].request.headers.contains("x-impersonator-roles")
+    }
+
+    def "when Identity returns a 401 a validate token call, Repose should return a 401"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            validateTokenHandler = { tokenId, tenantId, request, xml ->
+                new Response(401)
+            }
+        }
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then:
+        mc.receivedResponse.code.toInteger() == 401
+        mc.receivedResponse.headers.contains("www-authenticate")
+        mc.handlings.size() == 0
+    }
+
+    def "when Identity returns a 401 on a get groups call, Repose should return a 401"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            getGroupsHandler = { userId, request, xml ->
+                new Response(401)
+            }
+        }
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then:
+        mc.receivedResponse.code.toInteger() == 401
+        mc.receivedResponse.headers.contains("www-authenticate")
+        mc.handlings.size() == 0
     }
 }

@@ -218,6 +218,7 @@ class MockIdentityV2Service {
         impersonate_name = ""
         validateTenant = null
         appendedflag = false
+        isTokenValid = true
     }
 
     def templateEngine = new SimpleTemplateEngine();

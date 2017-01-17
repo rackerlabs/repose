@@ -179,6 +179,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 }
               case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
                 Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
+              case Failure(e: AdminTokenUnauthorizedException) if isSelfValidating =>
+                Reject(SC_UNAUTHORIZED, Some("Token unauthorized"))
               case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
             }
           }
