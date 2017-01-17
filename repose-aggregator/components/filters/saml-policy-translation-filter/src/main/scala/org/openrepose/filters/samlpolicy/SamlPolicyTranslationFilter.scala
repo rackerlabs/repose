@@ -239,6 +239,4 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   }
 }
 
-case class SamlPolicyException(statusCode: Int, message: String, cause: Throwable) extends Exception(message, cause) {
-  def this(statusCode: Int, message: String) = this(statusCode, message, null)
-}
+case class SamlPolicyException(statusCode: Int, message: String, cause: Throwable = null) extends Exception(message, cause)
