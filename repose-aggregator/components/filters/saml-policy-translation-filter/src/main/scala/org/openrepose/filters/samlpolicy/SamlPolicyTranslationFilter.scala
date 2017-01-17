@@ -50,7 +50,7 @@ import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
@@ -77,8 +77,13 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
 
+  private val namespaceContext: NamespaceContext = ImmutableNamespaceContext(Map("s2p" -> "urn:oasis:names:tc:SAML:2.0:protocol",
+                                                                                 "s2" -> "urn:oasis:names:tc:SAML:2.0:assertion"))
+
   private var cache: LoadingCache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
+  private var tokenServiceClient: AkkaServiceClient = _
+  private var policyServiceClient: AkkaServiceClient = _
   private var xmlSignatureFactory: XMLSignatureFactory = _
   private var signedInfo: SignedInfo = _
   private var keyEntry: KeyStore.PrivateKeyEntry = _
@@ -370,6 +375,22 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
                 _ : GeneralSecurityException |
                 _ : KeyStoreException |
                 _ : IOException) => throw new UpdateFailedException("Failed to load the signing credentials.", e)
+    }
+
+    val oldTokenPoolId = Option(configuration).flatMap(conf => Option(conf.getPolicyAcquisition.getKeystoneCredentials.getConnectionPoolId))
+    val newTokenPoolId = Option(newConfiguration.getPolicyAcquisition.getKeystoneCredentials.getConnectionPoolId)
+    if (Option(configuration).isEmpty || oldTokenPoolId != newTokenPoolId) {
+      Option(tokenServiceClient).foreach(_.destroy())
+      tokenServiceClient = newTokenPoolId.map(akkaServiceClientFactory.newAkkaServiceClient)
+        .getOrElse(akkaServiceClientFactory.newAkkaServiceClient)
+    }
+
+    val oldPolicyPoolId = Option(configuration).flatMap(conf => Option(conf.getPolicyAcquisition.getPolicyEndpoint.getConnectionPoolId))
+    val newPolicyPoolId = Option(newConfiguration.getPolicyAcquisition.getPolicyEndpoint.getConnectionPoolId)
+    if (Option(configuration).isEmpty || oldPolicyPoolId != newPolicyPoolId) {
+      Option(policyServiceClient).foreach(_.destroy())
+      policyServiceClient = newPolicyPoolId.map(akkaServiceClientFactory.newAkkaServiceClient)
+        .getOrElse(akkaServiceClientFactory.newAkkaServiceClient)
     }
   }
 
