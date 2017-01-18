@@ -132,7 +132,48 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("determineVersion") {
-    pending
+    def buildConfig(issuer: String): SamlPolicyConfig = {
+      val resultConfig = new SamlPolicyConfig
+      val bypassIssuers = new PolicyBypassIssuers
+      bypassIssuers.getIssuer.add(issuer)
+      resultConfig.setPolicyBypassIssuers(bypassIssuers)
+      val acquisition = new PolicyAcquisition
+      val cache = new Cache
+      cache.setTtl(300)
+      acquisition.setCache(cache)
+      resultConfig.setPolicyAcquisition(acquisition)
+      resultConfig.setSignatureCredentials(signatureCredentials)
+      resultConfig
+    }
+
+    it("should return 1 when the issuer is present in the configured list") {
+      val config = buildConfig("http://test.rackspace.com")
+      filter.configurationUpdated(config)
+
+      filter.determineVersion(SAML_RESPONSE_DOC) should be (1)
+    }
+
+    it("should return 2 when the issuer is not in the configured list") {
+      val config = buildConfig("http://foo.bar")
+      filter.configurationUpdated(config)
+
+      filter.determineVersion(SAML_RESPONSE_DOC) should be (2)
+    }
+
+    it("should throw an exception when it can't find the issuer in the document") {
+      val config = buildConfig("http://foo.bar")
+      filter.configurationUpdated(config)
+      val badDocument = DocumentBuilderFactory.newInstance()
+        .newDocumentBuilder()
+        .parse(new InputSource(new StringReader("""<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>""")))
+
+      val exception = intercept[SamlPolicyException] {
+        filter.determineVersion(badDocument)
+      }
+
+      exception.statusCode should be (SC_BAD_REQUEST)
+      exception.message should be ("No issuer present in SAML Response")
+    }
   }
 
   describe("validateResponseAndGetIssuer") {

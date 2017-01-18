@@ -36,8 +36,11 @@ import javax.xml.crypto.dsig.dom.DOMSignContext
 import javax.xml.crypto.dsig.keyinfo.KeyInfo
 import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSpec}
 import javax.xml.crypto.dsig.{SignedInfo, _}
+import javax.xml.namespace.NamespaceContext
+import javax.xml.xpath.{XPathConstants, XPathExpression}
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XPathExpressionPool}
 import com.rackspace.identity.components.AttributeMapper
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.XsltExecutable
@@ -79,6 +82,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var keyEntry: KeyStore.PrivateKeyEntry = _
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
+  private val namespaceContext: NamespaceContext = ImmutableNamespaceContext(Map("s2p" -> "urn:oasis:names:tc:SAML:2.0:protocol",
+                                                                                 "s2"  -> "urn:oasis:names:tc:SAML:2.0:assertion"))
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
@@ -159,7 +164,22 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return 1 or 2 as appropriate
     * @throws SamlPolicyException should it have problems finding the issuer
     */
-  def determineVersion(document: Document): Int = ???
+  def determineVersion(document: Document): Int = {
+    val xpath = "/s2p:Response/s2:Issuer/text()"
+    val version = 30
+    var xPathExpression : Option[XPathExpression] = None
+    try {
+      xPathExpression = Option(XPathExpressionPool.borrowExpression(xpath, namespaceContext, version))
+      val issuerUri = xPathExpression.get.evaluate(document, XPathConstants.STRING).asInstanceOf[String]
+      issuerUri match {
+        case s if s.isEmpty => throw SamlPolicyException(SC_BAD_REQUEST, "No issuer present in SAML Response")
+        case s if legacyIssuers.contains(new URI(s)) => 1
+        case _ => 2
+      }
+    } finally {
+      xPathExpression.foreach(XPathExpressionPool.returnExpression(xpath, namespaceContext, version, _))
+    }
+  }
 
   /**
     * Determines whether or not the response follows the rules that are required of the saml response.
