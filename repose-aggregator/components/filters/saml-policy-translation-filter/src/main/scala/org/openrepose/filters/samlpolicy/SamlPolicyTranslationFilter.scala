@@ -23,14 +23,17 @@ package org.openrepose.filters.samlpolicy
 import java.io.{ByteArrayInputStream, FileInputStream, InputStream}
 import java.security.KeyStore
 import java.security.cert.X509Certificate
-import java.util.Base64
 import java.util.concurrent.TimeUnit
+import java.util.{Base64, Collections}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
-import javax.xml.crypto.dsig.XMLSignatureFactory
+import javax.xml.crypto.dsig.dom.DOMSignContext
+import javax.xml.crypto.dsig.keyinfo.KeyInfo
+import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSpec}
+import javax.xml.crypto.dsig.{SignedInfo, _}
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.rackspace.identity.components.AttributeMapper
@@ -46,7 +49,6 @@ import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
-import org.opensaml.security.credential.{BasicCredential, CredentialSupport}
 import org.springframework.beans.factory.annotation.Value
 import org.w3c.dom.Document
 
@@ -71,8 +73,9 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var cache: LoadingCache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
   private var fac: XMLSignatureFactory = _
+  private var si: SignedInfo = _
   private var keyEntry: KeyStore.PrivateKeyEntry = _
-  private var signingCredential: BasicCredential = _
+  private var ki: KeyInfo = _
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
@@ -200,36 +203,14 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if the signing fails
     */
   def signResponse(document: Document): Document = {
-    /*
-     * Based on: A Guide to OpenSAML V3 by Stefan Rasmusson pg 53.
-     */
-    try {
-//      // 1. The Signature object is created and populated with properties for the signature.
-//      val builderFactory = XMLObjectProviderRegistrySupport.getBuilderFactory
-//      val defaultElementName = classOf[Signature].getDeclaredField("DEFAULT_ELEMENT_NAME").get(null).asInstanceOf[QName]
-//      val signature = builderFactory.getBuilder(defaultElementName).buildObject(defaultElementName).asInstanceOf[Signature]
-//      signature.setSigningCredential(signingCredential)
-//      signature.setSignatureAlgorithm("http://www.w3.org/2000/09/xmldsig#rsa-sha1")
-//      signature.setCanonicalizationAlgorithm("http://www.w3.org/2001/10/xml-exc-c14n#")
-//
-//      // The credential that is used to produce the signature is set on the signature object.
-//      // Chapter 1 of Part III explains how to obtain credentials.
-//      // The algorithm that is used when the signature is computed is set on the signature object.
-//      // 2. Next, the signature is associated with an object of type SignableXMLObject.
-//      val signableXMLObject = new ResponseBuilder().buildObject
-//      signableXMLObject.setDOM(document.getDocumentElement)
-//      signableXMLObject.setSignature(signature)
-//
-//      // 3. Next, the SignableXMLObject is marshalled into a XML object.
-//      XMLObjectProviderRegistrySupport.getMarshallerFactory.getMarshaller(signableXMLObject).marshall(signableXMLObject)
-//
-//      // 4.The last step to produce the signature is to compute the signature using the Signer utility class.
-//      Signer.signObject(signature)
-      document
-    } catch {
-      case e: Exception =>
-        throw SamlPolicyException(SC_INTERNAL_SERVER_ERROR, "Could not create SAML object", e)
-    }
+    // Create a DOMSignContext and specify the RSA PrivateKey and
+    // location of the resulting XMLSignature's parent element.
+    val dsc = new DOMSignContext(keyEntry.getPrivateKey, document.getDocumentElement)
+    // Create the XMLSignature, but don't sign it yet.
+    val signature = fac.newXMLSignature(si, ki)
+    // Marshal, generate, and sign the enveloped signature.
+    signature.sign(dsc)
+    document
   }
 
   /**
@@ -290,7 +271,22 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       // Create a DOM XMLSignatureFactory that will be used to
       // generate the enveloped signature.
       fac = XMLSignatureFactory.getInstance("DOM")
-
+      // Create a Reference to the enveloped document (in this case,
+      // you are signing the whole document, so a URI of "" signifies
+      // that, and also specify the SHA1 digest algorithm and
+      // the ENVELOPED Transform.
+      val ref = fac.newReference(
+        "",
+        fac.newDigestMethod(DigestMethod.SHA1, null),
+        Collections.singletonList(fac.newTransform(Transform.ENVELOPED, null.asInstanceOf[TransformParameterSpec])),
+        null,
+        null)
+      // Create the SignedInfo.
+      si = fac.newSignedInfo(fac.newCanonicalizationMethod(
+        CanonicalizationMethod.INCLUSIVE,
+        null.asInstanceOf[C14NMethodParameterSpec]),
+        fac.newSignatureMethod(SignatureMethod.RSA_SHA1, null),
+        Collections.singletonList(ref))
       // Load the KeyStore and get the signing key and certificate.
       val creds = newConfiguration.getSignatureCredentials
       val keyStoreFilename = FileUtilities.guardedAbsoluteFile(configRoot, creds.getKeystoreFilename).getAbsolutePath
@@ -301,11 +297,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       val cert = keyEntry.getCertificate.asInstanceOf[X509Certificate]
       // Create the KeyInfo containing the X509Data.
       val kif = fac.getKeyInfoFactory
-      val x509Content = new java.util.ArrayList[Any]
-      x509Content.add()
-      x509Content.add(cert)
       val xd = kif.newX509Data(List(cert.getSubjectX500Principal.getName, cert).asJava)
-      signingCredential = CredentialSupport.getSimpleCredential(keyEntry.getCertificate.asInstanceOf[X509Certificate], keyEntry.getPrivateKey)
+      ki = kif.newKeyInfo(Collections.singletonList(xd))
     } catch {
       case e: Exception => throw new UpdateFailedException("Failed to load the signing credentials.", e)
     }
