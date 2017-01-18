@@ -68,25 +68,24 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   import SamlPolicyTranslationFilterTest._
 
-  val atomFeedService: AtomFeedService = mock[AtomFeedService]
   val signatureCredentials = new SignatureCredentials
 
+  var atomFeedService: AtomFeedService = mock[AtomFeedService]
+  var samlPolicyProvider: SamlPolicyProvider = mock[SamlPolicyProvider]
   var filter: SamlPolicyTranslationFilter = _
-  var akkaServiceClientFactory: AkkaServiceClientFactory = _
-  var akkaServiceClient: AkkaServiceClient = _
 
   System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema", "org.apache.xerces.jaxp.validation.XMLSchemaFactory")
 
   override def beforeEach(): Unit = {
-    akkaServiceClient = mock[AkkaServiceClient]
-    akkaServiceClientFactory = mock[AkkaServiceClientFactory]
+    atomFeedService = mock[AtomFeedService]
+    samlPolicyProvider = mock[SamlPolicyProvider]
 
     signatureCredentials.setKeystoreFilename(keystoreFilename)
     signatureCredentials.setKeystorePassword(keystorePassword)
     signatureCredentials.setKeyName(keyName)
     signatureCredentials.setKeyPassword(keyPassword)
 
-    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], atomFeedService, akkaServiceClientFactory, configRoot)
+    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], samlPolicyProvider, atomFeedService, configRoot)
 
     when(akkaServiceClientFactory.newAkkaServiceClient())
       .thenReturn(akkaServiceClient)
@@ -679,7 +678,6 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("configurationUpdated") {
-    var config = new SamlPolicyConfig
 
     def buildConfig(feedId: String = "dontcare",
                     ttl: Long = 3000,
@@ -702,20 +700,15 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       resultConfig
     }
 
-    def prepTest() = {
-      config = buildConfig("banana")
-      reset(atomFeedService)
-    }
-
     it("should attempt to subscribe to the configured atom feed") {
-      prepTest()
+      val config = buildConfig("banana")
       filter.configurationUpdated(config)
 
       verify(atomFeedService).registerListener(MM.eq("banana"), MM.same(filter))
     }
 
     it("shouldn't try to change subscriptions when the feed didn't change") {
-      prepTest()
+      val config = buildConfig("banana")
       when(atomFeedService.registerListener(MM.eq("banana"), MM.same(filter))).thenReturn("thingy")
 
       filter.configurationUpdated(config)
@@ -726,7 +719,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should change subscription when the config changes") {
-      prepTest()
+      val config = buildConfig("banana")
       when(atomFeedService.registerListener(MM.eq("banana"), MM.same(filter))).thenReturn("thingy")
       filter.configurationUpdated(config)
 
@@ -739,7 +732,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should unsubscribe when the feed id is removed") {
-      prepTest()
+      val config = buildConfig("banana")
       when(atomFeedService.registerListener(MM.eq("banana"), MM.same(filter))).thenReturn("thingy")
       filter.configurationUpdated(config)
 
@@ -752,7 +745,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should not subscribe when there is no id") {
-      prepTest()
+      val config = buildConfig("banana")
       config.getPolicyAcquisition.getCache.setAtomFeedId(null)
 
       filter.configurationUpdated(config)
@@ -761,7 +754,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should subscribe when the config changes to have an id") {
-      prepTest()
+      val config = buildConfig("banana")
       config.getPolicyAcquisition.getCache.setAtomFeedId(null)
       filter.configurationUpdated(config)
       verifyZeroInteractions(atomFeedService)
@@ -788,7 +781,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(buildConfig(ttl = 10))
       val newCache = ReflectionTestUtils.getField(filter, "cache")
 
-      originalCache should not be theSameInstanceAs (newCache)
+      originalCache should not be theSameInstanceAs(newCache)
     }
 
     it("should not build a new cache if the ttl doesn't change") {
@@ -848,120 +841,10 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
     }
 
-    it("should build a new service client when the token connection pool ID changes") {
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = "foo"))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
+    it("should configure the SamlPolicyProvider") {
+      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = "foo", policyConnectionPoolId = "bar"))
 
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = "bar"))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
-    }
-
-    it("should build a new service client when the token connection pool ID changes from null") {
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = null))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
-
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = "bar"))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(akkaServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
-    }
-
-    it("should build a new service client when the token connection pool ID changes to null") {
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = "foo"))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
-
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = null))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-    }
-
-    it("should not build a new service client if the token connection pool ID does not change") {
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = "foo"))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
-
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = "foo"))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient, never).destroy()
-    }
-
-    it("should not build a new service client if the token connection pool ID does not change from/to null") {
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = null))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
-
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = null))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "tokenServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(akkaServiceClient, never).destroy()
-    }
-
-    it("should build a new service client when the policy connection pool ID changes") {
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = "foo"))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = "bar"))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
-    }
-
-    it("should build a new service client when the policy connection pool ID changes from null") {
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = null))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = "bar"))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(akkaServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
-    }
-
-    it("should build a new service client when the policy connection pool ID changes to null") {
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = "foo"))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = null))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-    }
-
-    it("should not build a new service client if the policy connection pool ID does not change") {
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = "foo"))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = "foo"))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient, never).destroy()
-    }
-
-    it("should not build a new service client if the policy connection pool ID does not change from/to null") {
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = null))
-      val oldServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      filter.configurationUpdated(buildConfig(policyConnectionPoolId = null))
-      val newServiceClient = ReflectionTestUtils.getField(filter, "policyServiceClient")
-
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(akkaServiceClient, never).destroy()
+      verify(samlPolicyProvider).using(MM.eq(Some("foo")), MM.eq(Some("bar")))
     }
   }
 }

@@ -50,7 +50,7 @@ import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
@@ -66,8 +66,8 @@ import scala.xml.XML
   */
 @Named
 class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationService,
+                                            samlPolicyProvider: SamlPolicyProvider,
                                             atomFeedService: AtomFeedService,
-                                            akkaServiceClientFactory: AkkaServiceClientFactory,
                                             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) configRoot: String)
   extends AbstractConfiguredFilter[SamlPolicyConfig](configurationService)
     with LazyLogging
@@ -369,29 +369,18 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       val x509Data = keyInfoFactory.newX509Data(List(x509Certificate.getSubjectX500Principal.getName, x509Certificate).asJava)
       keyInfo = keyInfoFactory.newKeyInfo(Collections.singletonList(x509Data))
     } catch {
-      case e @ (_ : NoSuchMechanismException |
-                _ : ClassCastException |
-                _ : IllegalArgumentException |
-                _ : GeneralSecurityException |
-                _ : KeyStoreException |
-                _ : IOException) => throw new UpdateFailedException("Failed to load the signing credentials.", e)
+      case e@(_: NoSuchMechanismException |
+              _: ClassCastException |
+              _: IllegalArgumentException |
+              _: GeneralSecurityException |
+              _: KeyStoreException |
+              _: IOException) => throw new UpdateFailedException("Failed to load the signing credentials.", e)
     }
 
-    val oldTokenPoolId = Option(configuration).flatMap(conf => Option(conf.getPolicyAcquisition.getKeystoneCredentials.getConnectionPoolId))
-    val newTokenPoolId = Option(newConfiguration.getPolicyAcquisition.getKeystoneCredentials.getConnectionPoolId)
-    if (Option(configuration).isEmpty || oldTokenPoolId != newTokenPoolId) {
-      Option(tokenServiceClient).foreach(_.destroy())
-      tokenServiceClient = newTokenPoolId.map(akkaServiceClientFactory.newAkkaServiceClient)
-        .getOrElse(akkaServiceClientFactory.newAkkaServiceClient)
-    }
-
-    val oldPolicyPoolId = Option(configuration).flatMap(conf => Option(conf.getPolicyAcquisition.getPolicyEndpoint.getConnectionPoolId))
-    val newPolicyPoolId = Option(newConfiguration.getPolicyAcquisition.getPolicyEndpoint.getConnectionPoolId)
-    if (Option(configuration).isEmpty || oldPolicyPoolId != newPolicyPoolId) {
-      Option(policyServiceClient).foreach(_.destroy())
-      policyServiceClient = newPolicyPoolId.map(akkaServiceClientFactory.newAkkaServiceClient)
-        .getOrElse(akkaServiceClientFactory.newAkkaServiceClient)
-    }
+    samlPolicyProvider.using(
+      Option(newConfiguration.getPolicyAcquisition.getKeystoneCredentials.getConnectionPoolId),
+      Option(newConfiguration.getPolicyAcquisition.getPolicyEndpoint.getConnectionPoolId)
+    )
   }
 
   /**
