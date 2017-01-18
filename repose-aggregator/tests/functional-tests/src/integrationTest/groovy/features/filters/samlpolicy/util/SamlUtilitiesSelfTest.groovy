@@ -18,14 +18,11 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package features.filters.samlpolicy
+package features.filters.samlpolicy.util
 
 import org.opensaml.saml.saml2.core.Response
 import spock.lang.Specification
 import spock.lang.Unroll
-
-import static features.filters.samlpolicy.SamlPayloads.*
-import static features.filters.samlpolicy.SamlUtilities.*
 
 /**
  * Who tests the test code?
@@ -51,15 +48,15 @@ class SamlUtilitiesSelfTest extends Specification {
 
         where:
         [testDescription, saml] << [
-                ["using MarkupBuilder, a custom closure, and a known good assertion string", samlResponse {
+                ["using MarkupBuilder, a custom closure, and a known good assertion string", SamlUtilities.samlResponse {
                     'saml2:Issuer'("http://idp.external.com")
                     'saml2p:Status' {
                         'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
                     }
-                    mkp.yieldUnescaped ASSERTION_SIGNED
+                    mkp.yieldUnescaped SamlPayloads.ASSERTION_SIGNED
                 }],
-                ["using MarkupBuilder and closure composition", samlResponse(issuer() >> status() >> assertion())],
-                ["using a known good payload", SAML_ONE_ASSERTION_SIGNED]
+                ["using MarkupBuilder and closure composition", SamlUtilities.samlResponse(SamlUtilities.issuer() >> SamlUtilities.status() >> SamlUtilities.assertion())],
+                ["using a known good payload", SamlPayloads.SAML_ONE_ASSERTION_SIGNED]
         ]
     }
 
@@ -76,8 +73,8 @@ class SamlUtilitiesSelfTest extends Specification {
         response.issuer.value == "http://idp.external.com"
 
         where:
-        saml                                          | testDescription
-        SAML_ONE_ASSERTION_SIGNED.replace("    ", "") | "by tampering with the whitespace of a valid payload"
-        SAML_ASSERTION_INVALID_SIGNATURE              | "using a known bad payload"
+        saml                                                       | testDescription
+        SamlPayloads.SAML_ONE_ASSERTION_SIGNED.replace("    ", "") | "by tampering with the whitespace of a valid payload"
+        SamlPayloads.SAML_ASSERTION_INVALID_SIGNATURE              | "using a known bad payload"
     }
 }

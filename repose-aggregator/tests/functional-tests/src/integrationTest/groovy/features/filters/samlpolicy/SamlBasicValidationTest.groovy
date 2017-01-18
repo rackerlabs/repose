@@ -25,8 +25,8 @@ import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
-import static features.filters.samlpolicy.SamlPayloads.*
-import static features.filters.samlpolicy.SamlUtilities.*
+import static features.filters.samlpolicy.util.SamlPayloads.*
+import static features.filters.samlpolicy.util.SamlUtilities.*
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED

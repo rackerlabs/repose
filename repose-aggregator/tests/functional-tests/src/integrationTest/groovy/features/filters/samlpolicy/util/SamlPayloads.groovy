@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package features.filters.samlpolicy
+package features.filters.samlpolicy.util
 
 import org.openrepose.commons.utils.http.CommonHttpHeader
 
