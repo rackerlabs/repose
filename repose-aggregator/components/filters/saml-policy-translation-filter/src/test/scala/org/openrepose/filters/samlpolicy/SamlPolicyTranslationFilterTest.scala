@@ -24,9 +24,9 @@ import java.io.{FileInputStream, StringReader}
 import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
 import java.util.Base64
+import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{FilterChain, FilterConfig}
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.stream.StreamSource
 
@@ -320,7 +320,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should initialize the cache when given a config") {
-      ReflectionTestUtils.getField(filter, "cache") should be(null)
+      ReflectionTestUtils.getField(filter, "cache") shouldBe null
 
       filter.configurationUpdated(buildConfig("dontcare"))
 
@@ -334,7 +334,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(buildConfig("dontcare", 10))
       val newCache = ReflectionTestUtils.getField(filter, "cache")
 
-      originalCache should not be theSameInstanceAs(newCache)
+      originalCache should not be theSameInstanceAs (newCache)
     }
 
     it("should not build a new cache if the ttl doesn't change") {
