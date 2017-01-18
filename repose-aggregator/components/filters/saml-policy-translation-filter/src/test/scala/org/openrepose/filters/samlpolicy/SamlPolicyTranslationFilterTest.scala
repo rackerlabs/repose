@@ -30,7 +30,6 @@ import javax.servlet.{FilterChain, FilterConfig}
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.stream.StreamSource
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.Processor
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet
 import org.junit.runner.RunWith
@@ -63,7 +62,7 @@ import scala.xml.InputSource
   * Created by adrian on 12/14/16.
   */
 @RunWith(classOf[JUnitRunner])
-class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with LazyLogging {
+class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   import SamlPolicyTranslationFilterTest._
 
@@ -71,14 +70,11 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   val signatureCredentials = new SignatureCredentials
 
   var filter: SamlPolicyTranslationFilter = _
-  var filterConfig: FilterConfig = _
 
   System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema", "org.apache.xerces.jaxp.validation.XMLSchemaFactory")
 
   override def beforeEach(): Unit = {
     filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], atomFeedService, mock[AkkaServiceClientFactory], CONFIG_ROOT)
-    filterConfig = mock[FilterConfig]
-    filter.init(filterConfig)
     signatureCredentials.setKeystoreFilename(KEYSTORE_FILENAME)
     signatureCredentials.setKeystorePassword(KEYSTORE_PASSWORD)
     signatureCredentials.setKeyName(KEY_NAME)
@@ -364,13 +360,21 @@ object SamlPolicyTranslationFilterTest {
     documentBuilderFactory.setNamespaceAware(true)
     documentBuilderFactory.newDocumentBuilder().parse(new InputSource(new StringReader(
       """<?xml version="1.0" encoding="UTF-8"?>
-        |<saml2p:Response ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30" IssueInstant="2015-12-04T15:47:15.057Z" Version="2.0" xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-        |    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">http://idp.external.com</saml2:Issuer>
+        |<saml2p:Response ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30"
+        |                 IssueInstant="2015-12-04T15:47:15.057Z"
+        |                 Version="2.0"
+        |                 xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+        |                 xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        |    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">http://test.rackspace.com</saml2:Issuer>
         |    <saml2p:Status>
         |        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
         |    </saml2p:Status>
-        |    <saml2:Assertion ID="_406fb7fe-a519-4919-a42c-f67794a670a5" IssueInstant="2013-11-15T16:19:06.310Z" Version="2.0" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-        |        <saml2:Issuer>http://idp.external.com</saml2:Issuer>
+        |    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+        |                     xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        |                     ID="_406fb7fe-a519-4919-a42c-f67794a670a5"
+        |                     IssueInstant="2013-11-15T16:19:06.310Z"
+        |                     Version="2.0">
+        |        <saml2:Issuer>http://my.rackspace.com</saml2:Issuer>
         |        <saml2:Subject>
         |            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">john.doe</saml2:NameID>
         |            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
@@ -379,25 +383,36 @@ object SamlPolicyTranslationFilterTest {
         |        </saml2:Subject>
         |        <saml2:AuthnStatement AuthnInstant="2113-11-15T16:19:04.055Z">
         |            <saml2:AuthnContext>
-        |                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
-        |            </saml2:AuthnContextClassRef>
+        |                <saml2:AuthnContextClassRef>
+        |                    urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+        |                </saml2:AuthnContextClassRef>
         |            </saml2:AuthnContext>
         |        </saml2:AuthnStatement>
         |        <saml2:AttributeStatement>
         |            <saml2:Attribute Name="roles">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">nova:admin</saml2:AttributeValue>
+        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+        |                    nova:admin
+        |                </saml2:AttributeValue>
         |            </saml2:Attribute>
         |            <saml2:Attribute Name="domain">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">323676</saml2:AttributeValue>
+        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+        |                    323676
+        |                </saml2:AttributeValue>
         |            </saml2:Attribute>
         |            <saml2:Attribute Name="email">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">no-reply@external.com</saml2:AttributeValue>
+        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+        |                    no-reply@rackspace.com
+        |                </saml2:AttributeValue>
         |            </saml2:Attribute>
         |            <saml2:Attribute Name="FirstName">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">John</saml2:AttributeValue>
+        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+        |                    John
+        |                </saml2:AttributeValue>
         |            </saml2:Attribute>
         |            <saml2:Attribute Name="LastName">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">Doe</saml2:AttributeValue>
+        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+        |                    Doe
+        |                </saml2:AttributeValue>
         |            </saml2:Attribute>
         |        </saml2:AttributeStatement>
         |    </saml2:Assertion>
