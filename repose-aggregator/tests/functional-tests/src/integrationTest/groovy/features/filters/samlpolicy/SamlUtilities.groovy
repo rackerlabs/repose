@@ -85,6 +85,10 @@ class SamlUtilities {
         return str.bytes.encodeBase64().toString()
     }
 
+    static String generateUniqueIssuer() {
+        "http://unique.external.idp.com/${UUID.randomUUID().toString()}"
+    }
+
     /**
      * Convenience method to let you create a SAML Response using the MarkupBuilder DSL.
      * For example:
@@ -100,7 +104,7 @@ class SamlUtilities {
      */
     static String samlResponse(Map<String, String> samlResponseAttribs = [:], Closure samlResponseContents) {
         // set some useful defaults if they weren't passed in
-        samlResponseAttribs.ID = samlResponseAttribs.ID ?: "_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30"
+        samlResponseAttribs.ID = samlResponseAttribs.ID ?: "_" + UUID.randomUUID().toString()
         samlResponseAttribs.IssueInstant = samlResponseAttribs.IssueInstant ?: "2015-12-04T15:47:15.057Z"
         samlResponseAttribs.Version = samlResponseAttribs.Version ?: "2.0"
 
@@ -152,7 +156,7 @@ class SamlUtilities {
 
     Response unmarshallResponse(String saml) {
         Element element = documentBuilder.parse(new InputSource(new StringReader(saml))).getDocumentElement()
-        (Response) unmarshallerFactory.getUnmarshaller(element).unmarshall(element)
+        unmarshallerFactory.getUnmarshaller(element).unmarshall(element) as Response
     }
 
     /**

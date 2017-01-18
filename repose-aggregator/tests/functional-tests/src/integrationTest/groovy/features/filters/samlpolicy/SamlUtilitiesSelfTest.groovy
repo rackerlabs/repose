@@ -47,7 +47,7 @@ class SamlUtilitiesSelfTest extends Specification {
         isValidSignature
 
         and: "the Issuer was set correctly"
-        response.getIssuer().value == "http://idp.external.com"
+        response.issuer.value == "http://idp.external.com"
 
         where:
         [testDescription, saml] << [
@@ -73,7 +73,7 @@ class SamlUtilitiesSelfTest extends Specification {
         !isValidSignature
 
         and: "the Issuer was set correctly"
-        response.getIssuer().value == "http://idp.external.com"
+        response.issuer.value == "http://idp.external.com"
 
         where:
         saml                                          | testDescription
