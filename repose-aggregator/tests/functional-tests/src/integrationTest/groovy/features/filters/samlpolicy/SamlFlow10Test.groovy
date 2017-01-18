@@ -76,10 +76,10 @@ class SamlFlow10Test extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
 
         and: "the origin service received the request with the correct header value"
-        fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
         mc.handlings[0]
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == headerValue
+        fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
 
         and: "Identity is queried for the policy mapping the correct number of times for the given flow"
         fakeIdentityV2Service.getIdpFromIssuerCount + fakeIdentityV2Service.getMappingPolicyForIdpCount == policyMappingQueries
@@ -103,10 +103,10 @@ class SamlFlow10Test extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
 
         and: "the origin service received the request with the correct header value"
-        fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
         mc.handlings[0]
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "1.0"
+        fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
 
         and: "Identity is not queried for a policy mapping"
         fakeIdentityV2Service.getIdpFromIssuerCount == 0
@@ -134,10 +134,10 @@ class SamlFlow10Test extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
 
         and: "the origin service received the request with the correct header values"
-        fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
         mc.handlings[0]
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "1.0"
+        fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
 
         and: "Identity is not queried for a policy mapping"
         fakeIdentityV2Service.getIdpFromIssuerCount == 0
