@@ -301,12 +301,12 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       val x509Data = keyInfoFactory.newX509Data(List(x509Certificate.getSubjectX500Principal.getName, x509Certificate).asJava)
       keyInfo = keyInfoFactory.newKeyInfo(Collections.singletonList(x509Data))
     } catch {
-      case e: NoSuchMechanismException |
-           ClassCastException |
-           IllegalArgumentException |
-           GeneralSecurityException |
-           KeyStoreException |
-           IOException => throw new UpdateFailedException("Failed to load the signing credentials.", e)
+      case e @ (_ : NoSuchMechanismException |
+                _ : ClassCastException |
+                _ : IllegalArgumentException |
+                _ : GeneralSecurityException |
+                _ : KeyStoreException |
+                _ : IOException) => throw new UpdateFailedException("Failed to load the signing credentials.", e)
     }
 
     super.configurationUpdated(newConfiguration)
