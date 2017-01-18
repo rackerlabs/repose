@@ -22,7 +22,7 @@ package org.openrepose.commons.utils.servlet.http
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import javax.servlet.ServletOutputStream
 
-import scala.io.Source
+import org.apache.commons.io.IOUtils
 
 class MutableServletOutputStream(servletOutputStream: ServletOutputStream)
   extends ExtendedServletOutputStream {
@@ -38,7 +38,7 @@ class MutableServletOutputStream(servletOutputStream: ServletOutputStream)
   override def setOutput(in: InputStream): Unit = {
     byteArrayOutputStream.reset()
     // Account for Java null being passed in
-    Option(in).foreach(Source.fromInputStream(_).foreach(byteArrayOutputStream.write(_)))
+    Option(in).foreach(IOUtils.copy(_, byteArrayOutputStream))
   }
 
   override def getOutputStreamAsInputStream: InputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)

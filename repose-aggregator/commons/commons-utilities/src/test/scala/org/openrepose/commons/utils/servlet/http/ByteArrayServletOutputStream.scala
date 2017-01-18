@@ -28,4 +28,6 @@ class ByteArrayServletOutputStream extends ServletOutputStream {
   override def write(b: Int): Unit = baos.write(b)
 
   override def toString: String = baos.toString
+
+  def toByteArray: Array[Byte] = baos.toByteArray
 }

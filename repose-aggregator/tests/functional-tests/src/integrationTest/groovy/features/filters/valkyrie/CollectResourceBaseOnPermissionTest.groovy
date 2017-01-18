@@ -289,7 +289,101 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         "GET"  | randomTenant() | "520708" | "511123"  | "view_product" | "204"      | 0
     }
 
+    @Unroll('#charset encoded response should be culled')
+    def 'encoded response should be culled'() {
+        given:
+        String tenantId = randomTenant()
+
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = tenantId
+        }
+
+        fakeValkyrie.with {
+            device_id = deviceId1
+            device_id2 = deviceId2
+            device_perm = 'view_product'
+        }
+
+        byte[] responseBody = '''
+        {
+            "values": [
+                {
+                    "id": "en6bShuX7a",
+                    "label": "test\u00A0nbsp",
+                    "uri": "http://core.rackspace.com/accounts/123456/devices/520705"
+                }
+            ],
+            "metadata": {
+                "count": 1
+            }
+        }'''.getBytes(charset)
+        Closure<Response> responseClosure = { request ->
+            new Response(200, null, ['content-type': "application/json; charset=$charset"], responseBody)
+        }
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + '/resources', method: 'GET',
+                headers: [
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantId],
+                defaultHandler: responseClosure)
+        Map result = new JsonSlurper().parseText(new String(mc.receivedResponse.body as byte[], charset)) as Map
+
+        then:
+        mc.receivedResponse.code.toInteger() == 200
+        result.values.size == 0
+        result.metadata.count == 0
+
+        where:
+        charset << ['UTF-8', 'UTF-16', 'ISO-8859-1', 'ASCII']
+    }
+
+    @Unroll('#charset encoded response should NOT be culled')
+    def 'encoded response should NOT be culled'() {
+        given: "a list permission devices defined in Valkyrie"
+        def tenantID = randomTenant()
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = tenantID
+        }
+
+        fakeValkyrie.with {
+            device_perm = "account_admin"
+            device_id = "520713"
+            device_id2 = "520707"
+        }
+
+        "Json Response from origin service"
+        def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json; charset=$charset"], jsonrespbody.getBytes(charset)) }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resources", method: "GET",
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token,
+                        'x-contact-id': '123456',
+                        'x-tenant-id' : tenantID
+                ],
+                defaultHandler: jsonResp
+        )
+        // Handle the cases (e.g. UTF-16) where Deproxy doesn't automagically turn the received response body byte[] into a String.
+        def body = (mc.receivedResponse.body instanceof String) ? mc.receivedResponse.body : new String(mc.receivedResponse.body, charset)
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(body)
+
+        then: "check response"
+        mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
+        result.values.size == 1
+        result.metadata.count == 1
+
+        where:
+        charset << ['UTF-8', 'UTF-16', 'ISO-8859-1', 'ASCII']
+    }
+
     def String randomTenant() {
-        "hybrid:" + random.nextInt()
+        'hybrid:' + random.nextInt()
     }
 }

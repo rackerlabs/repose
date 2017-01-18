@@ -6,7 +6,6 @@ The Scripting filter enables users to write custom filters for Repose using a va
 Custom filters can be used to perform arbitrary processing with access to the bindings described below.
 
 == General filter information
-== General filter information
 * *Name:* scripting
 * *Default Configuration:* scripting.cfg.xml
 * *Released:* v8.0.0.0

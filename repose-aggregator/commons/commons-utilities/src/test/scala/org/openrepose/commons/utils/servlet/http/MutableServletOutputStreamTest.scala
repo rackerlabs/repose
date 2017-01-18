@@ -20,9 +20,9 @@
 package org.openrepose.commons.utils.servlet.http
 
 import java.io.ByteArrayInputStream
+import java.nio.charset.StandardCharsets
 import javax.servlet.ServletOutputStream
 
-import org.mockito.Matchers.{eq => mEq}
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
@@ -80,26 +80,45 @@ class MutableServletOutputStreamTest extends FunSpec with Matchers with MockitoS
   }
 
   describe("setOutput") {
-    it("should set the contents of this wrapper to the contents of the provided InputStream") {
-      val mockOutputStream = new ByteArrayServletOutputStream()
-      val mutableOutputStream = new MutableServletOutputStream(mockOutputStream)
+    val testBody = "{ \"test\": \"nbsp\u00A0\" }"
 
-      mutableOutputStream.setOutput(new ByteArrayInputStream("foo".getBytes))
+    it("should set the contents of this wrapper to the contents of the provided InputStream") {
+      val outputStream = new ByteArrayServletOutputStream()
+      val mutableOutputStream = new MutableServletOutputStream(outputStream)
+
+      mutableOutputStream.setOutput(new ByteArrayInputStream(testBody.getBytes))
       mutableOutputStream.commit()
 
-      mockOutputStream.toString shouldEqual "foo"
+      outputStream.toString shouldEqual testBody
+    }
+
+    Set(
+      StandardCharsets.US_ASCII,
+      StandardCharsets.ISO_8859_1,
+      StandardCharsets.UTF_8,
+      StandardCharsets.UTF_16
+    ) foreach { charset =>
+      it("should be charset agnostic") {
+        val outputStream = new ByteArrayServletOutputStream()
+        val mutableOutputStream = new MutableServletOutputStream(outputStream)
+
+        mutableOutputStream.setOutput(new ByteArrayInputStream(testBody.getBytes(charset)))
+        mutableOutputStream.commit()
+
+        new String(outputStream.toByteArray, charset) shouldEqual testBody
+      }
     }
   }
 
   describe("commit") {
     it("should commit all writes to the underlying OutputStream") {
-      val mockOutputStream = new ByteArrayServletOutputStream()
-      val mutableOutputStream = new MutableServletOutputStream(mockOutputStream)
+      val outputStream = new ByteArrayServletOutputStream()
+      val mutableOutputStream = new MutableServletOutputStream(outputStream)
 
       mutableOutputStream.write("foo".getBytes)
       mutableOutputStream.commit()
 
-      mockOutputStream.toString shouldEqual "foo"
+      outputStream.toString shouldEqual "foo"
     }
   }
 
