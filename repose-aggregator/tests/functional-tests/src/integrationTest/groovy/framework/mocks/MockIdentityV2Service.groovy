@@ -25,7 +25,6 @@ import groovy.xml.MarkupBuilder
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
@@ -51,11 +50,14 @@ class MockIdentityV2Service {
     static final String PATH_REGEX_SAML_IDP_ISSUER = $/^/v2.0/RAX-AUTH/federation/identity-providers/?(\?.*issuer=([^&]+)?)/$
     static final String PATH_REGEX_SAML_MAPPING = '^/v2.0/RAX-AUTH/federation/identity-providers/([^/]+)/mapping'
 
-    protected AtomicInteger _validateTokenCount = new AtomicInteger(0)
-    protected AtomicInteger _getGroupsCount = new AtomicInteger(0)
-    protected AtomicInteger _generateTokenCount = new AtomicInteger(0)
-    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0)
-    protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0)
+    private AtomicInteger validateTokenCount = new AtomicInteger(0)
+    private AtomicInteger getGroupsCount = new AtomicInteger(0)
+    private AtomicInteger generateTokenCount = new AtomicInteger(0)
+    private AtomicInteger getEndpointsCount = new AtomicInteger(0)
+    private AtomicInteger getUserGlobalRolesCount = new AtomicInteger(0)
+    private AtomicInteger getIdpFromIssuerCount = new AtomicInteger(0)
+    private AtomicInteger getMappingPolicyForIdpCount = new AtomicInteger(0)
+    private AtomicInteger generateTokenFromSamlResponseCount = new AtomicInteger(0)
 
     def templateEngine = new SimpleTemplateEngine()
     def xmlSlurper = new XmlSlurper()
@@ -127,30 +129,45 @@ class MockIdentityV2Service {
     }
 
     int getValidateTokenCount() {
-        _validateTokenCount.get()
+        validateTokenCount.get()
     }
 
     int getGetGroupsCount() {
-        _getGroupsCount.get()
+        getGroupsCount.get()
     }
 
     int getGenerateTokenCount() {
-        _generateTokenCount.get()
+        generateTokenCount.get()
     }
 
     int getGetEndpointsCount() {
-        _getEndpointsCount.get()
+        getEndpointsCount.get()
+    }
+
+    int getGetIdpFromIssuerCount() {
+        getIdpFromIssuerCount.get()
+    }
+
+    int getGetMappingPolicyForIdpCount() {
+        getMappingPolicyForIdpCount.get()
+    }
+
+    int getGenerateTokenFromSamlResponseCount() {
+        generateTokenFromSamlResponseCount.get()
     }
 
     /**
      * Reset all counts set to zero (initial state).
      */
     void resetCounts() {
-        _validateTokenCount.set(0)
-        _getGroupsCount.set(0)
-        _generateTokenCount.set(0)
-        _getEndpointsCount.set(0)
-        _getUserGlobalRolesCount.set(0)
+        validateTokenCount.set(0)
+        getGroupsCount.set(0)
+        generateTokenCount.set(0)
+        getEndpointsCount.set(0)
+        getUserGlobalRolesCount.set(0)
+        getIdpFromIssuerCount.set(0)
+        getMappingPolicyForIdpCount.set(0)
+        generateTokenFromSamlResponseCount.set(0)
     }
 
     /**
@@ -268,14 +285,14 @@ class MockIdentityV2Service {
         if (path.startsWith("/v2.0/tokens")) {
             if (isGenerateTokenCallPath(path)) {
                 if (method == "POST") {
-                    _generateTokenCount.incrementAndGet()
+                    generateTokenCount.incrementAndGet()
                     return generateTokenHandler(request, shouldReturnXml)
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             } else if (isGetEndpointsCallPath(path)) {
                 if (method == "GET") {
-                    _getEndpointsCount.incrementAndGet()
+                    getEndpointsCount.incrementAndGet()
                     def match = (path =~ PATH_REGEX_ENDPOINTS)
                     def tokenId = match[0][1]
                     return getEndpointsHandler(tokenId, request, shouldReturnXml)
@@ -304,7 +321,7 @@ class MockIdentityV2Service {
                             tenantid = belongsToquery.split(/=/)[1]
                         }
                     }*/
-                    _validateTokenCount.incrementAndGet()
+                    validateTokenCount.incrementAndGet()
                     def match = (path =~ PATH_REGEX_VALIDATE_TOKEN)
                     def tokenId = match[0][1]
                     return validateTokenHandler(tokenId, tenantid, request, shouldReturnXml)
@@ -315,7 +332,7 @@ class MockIdentityV2Service {
         } else if (path.startsWith("/v2.0/users/")) {
             if (isGetGroupsCallPath(path)) {
                 if (method == "GET") {
-                    _getGroupsCount.incrementAndGet()
+                    getGroupsCount.incrementAndGet()
                     def match = (path =~ PATH_REGEX_GROUPS)
                     def userId = match[0][1]
                     return getGroupsHandler(userId, request, shouldReturnXml)
@@ -324,7 +341,7 @@ class MockIdentityV2Service {
                 }
             } else if (isGetUserGlobalRolesCallPath(path)) {
                 if (method == "GET") {
-                    _getUserGlobalRolesCount.incrementAndGet()
+                    getUserGlobalRolesCount.incrementAndGet()
                     def match = (path =~ PATH_REGEX_USER_GLOBAL_ROLES)
                     def userId = match[0][1]
                     return getUserGlobalRolesHandler(userId, request, shouldReturnXml)
@@ -335,12 +352,14 @@ class MockIdentityV2Service {
         } else if (path.startsWith("/v2.0/RAX-AUTH/federation/")) {
             if (isSamlIdpIssuerCallPath(path)) {
                 if (method == "GET") {
+                    getIdpFromIssuerCount.incrementAndGet()
                     return getIdpFromIssuerHandler(queryParams.issuer, request)
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             } else if (isSamlIdpMappingPolicyCallPath(path)) {
                 if (method == "GET") {
+                    getMappingPolicyForIdpCount.incrementAndGet()
                     def idpId = (path =~ PATH_REGEX_SAML_MAPPING)[0][1]
                     return getMappingPolicyForIdpHandler(idpId, request)
                 } else {
@@ -348,6 +367,7 @@ class MockIdentityV2Service {
                 }
             } else if (isSamlAuthCallPath(path)) {
                 if (method == "POST") {
+                    generateTokenFromSamlResponseCount.incrementAndGet()
                     return generateTokenFromSamlResponseHandler(request, shouldReturnXml)
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
@@ -396,14 +416,13 @@ class MockIdentityV2Service {
      */
     String getExpires() {
         if (this.tokenExpiresAt != null && this.tokenExpiresAt instanceof String) {
-            return this.tokenExpiresAt
+            this.tokenExpiresAt
         } else if (this.tokenExpiresAt instanceof DateTime) {
-            DateTimeFormatter fmt = DateTimeFormat.forPattern(DATE_FORMAT).withLocale(Locale.US).withZone(DateTimeZone.UTC)
-            return fmt.print(tokenExpiresAt)
+            DateTimeFormat.forPattern(DATE_FORMAT).withLocale(Locale.US).withZone(DateTimeZone.UTC).print(tokenExpiresAt)
         } else if (this.tokenExpiresAt) {
-            return this.tokenExpiresAt as String
+            this.tokenExpiresAt as String
         } else {
-            return new DateTime().plusDays(1)
+            new DateTime().plusDays(1)
         }
     }
 
@@ -752,10 +771,22 @@ class MockIdentityV2Service {
         def (extendedAttributes, attributes) = samlAttributes.split { it.key.contains("/")}
         def extendedAttributesGrouped = normalizeGroupingForExtendedAttributes(extendedAttributes)
         def username = samlResponse.'saml2:Assertion'[0].'saml2:Subject'.'saml2::NameID'.text()
+        def idpAuthBy = samlResponse.'saml2:Assertion'[0].'saml2:AuthnStatement'.'saml2:AuthnContext'.'saml2:AuthnContextClassRef'.text()
+
+        // TODO: put these hard coded strings some place better
+        def authBy = ["FEDERATION"]
+        if (idpAuthBy == "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport") {
+            authBy << "PASSWORD"
+        } else if (idpAuthBy == "urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken") {
+            authBy << "RSAKEY"
+        } else {
+            return new Response(400, null, ['Content-Type': 'plain/text'], "Unknown or missing AuthnContextClassRef value in SAML Response")
+        }
 
         def body = createAccessJsonWithValues(
                 username: username,
                 roles: attributes.roles,
+                authBy: authBy,
                 extendedAttributes: extendedAttributesGrouped)
         def headers = ['Content-type': shouldReturnXml ? 'application/xml' : 'application/json']
 
@@ -830,6 +861,9 @@ class MockIdentityV2Service {
                         id tenantId
                         name tenantId
                     }
+                    if (values.authBy) {
+                        "RAX-AUTH:authenticatedBy" values.authBy
+                    }
                 }
                 user {
                     id userId
@@ -865,6 +899,7 @@ class MockIdentityV2Service {
         json.toString()
     }
 
+    // TODO: consider adding authBy to the XML payload
     String createAccessXmlWithValues(Map values = [:]) {
         def token = values.token ?: client_token
         def expires = values.expires ?: getExpires()

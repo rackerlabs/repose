@@ -22,7 +22,6 @@ package features.filters.samlpolicy
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
@@ -39,8 +38,6 @@ import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
  * for the HTTP Method, Content-Type, and base64 encoding.
  */
 class SamlBasicValidationTest extends ReposeValveTest {
-    static final String AUTH_TOKEN = CommonHttpHeader.AUTH_TOKEN.toString()
-
     static xmlSlurper = new XmlSlurper()
     static MockIdentityV2Service fakeIdentityV2Service
 
@@ -52,10 +49,10 @@ class SamlBasicValidationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/samlpolicy", params)
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort, 'origin service')
 
-        fakeIdentityV2Service = new MockIdentityV2Service(params.identityPort, params.targetPort)
-        deproxy.addEndpoint(params.identityPort, 'identity service', null, fakeIdentityV2Service.handler)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
+        deproxy.addEndpoint(properties.targetPort, 'origin service', null, fakeIdentityV2Service.handler)
+        deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityV2Service.handler)
 
         repose.start()
         reposeLogSearch.awaitByString("Repose ready", 1, 30)
@@ -65,14 +62,12 @@ class SamlBasicValidationTest extends ReposeValveTest {
     def "a valid request will make it to the origin service and back to the client successfully with form parameters: #formParams.keySet()"() {
         given:
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED,
-                       (AUTH_TOKEN): fakeIdentityV2Service.client_token]
 
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
-                url: reposeEndpoint,
+                url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: headers,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm(formParams))
 
         then: "the request is successfully processed"
@@ -94,14 +89,12 @@ class SamlBasicValidationTest extends ReposeValveTest {
     def "a request with Content-Type '#contentType' and a body with #bodySummary should be rejected"() {
         given:
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-        def headers = [(CONTENT_TYPE): contentType,
-                       (AUTH_TOKEN): fakeIdentityV2Service.client_token]
 
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
-                url: reposeEndpoint,
+                url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: headers,
+                headers: [(CONTENT_TYPE): contentType],
                 requestBody: requestBody)
 
         then: "the request is rejected"
@@ -120,14 +113,12 @@ class SamlBasicValidationTest extends ReposeValveTest {
     def "a request using the wrong form parameter name should be rejected"() {
         given:
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED,
-                       (AUTH_TOKEN): fakeIdentityV2Service.client_token]
 
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
-                url: reposeEndpoint,
+                url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: headers,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_EXTRANEOUS): SAML_ONE_ASSERTION_SIGNED_BASE64))
 
         then: "the request is rejected"
@@ -140,14 +131,12 @@ class SamlBasicValidationTest extends ReposeValveTest {
     def "a request without any parameters nor a request body should be rejected"() {
         given:
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED,
-                       (AUTH_TOKEN): fakeIdentityV2Service.client_token]
 
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
-                url: reposeEndpoint,
+                url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: headers)
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED])
 
         then: "the request is rejected"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
@@ -160,14 +149,12 @@ class SamlBasicValidationTest extends ReposeValveTest {
     def "a request using the HTTP method #httpMethod should be rejected"() {
         given:
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED,
-                       (AUTH_TOKEN): fakeIdentityV2Service.client_token]
 
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
-                url: reposeEndpoint,
+                url: reposeEndpoint + SAML_AUTH_URL,
                 method: httpMethod,
-                headers: headers,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): SAML_ONE_ASSERTION_SIGNED_BASE64))
 
         then: "the request is rejected"
@@ -184,14 +171,12 @@ class SamlBasicValidationTest extends ReposeValveTest {
     def "a request should be rejected when the SAMLResponse contents are invalid due to #reason"() {
         given:
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED,
-                       (AUTH_TOKEN): fakeIdentityV2Service.client_token]
 
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
-                url: reposeEndpoint,
+                url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: headers,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): paramValue))
 
         then: "the request is rejected"
