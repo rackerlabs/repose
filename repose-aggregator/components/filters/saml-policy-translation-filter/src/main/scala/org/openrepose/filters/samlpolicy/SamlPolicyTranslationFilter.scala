@@ -20,8 +20,8 @@
 
 package org.openrepose.filters.samlpolicy
 
-import java.io.{ByteArrayInputStream, FileInputStream, InputStream}
-import java.security.KeyStore
+import java.io.{ByteArrayInputStream, FileInputStream, IOException, InputStream}
+import java.security._
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import java.util.{Base64, Collections}
@@ -30,6 +30,7 @@ import javax.servlet._
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
+import javax.xml.crypto.NoSuchMechanismException
 import javax.xml.crypto.dsig.dom.DOMSignContext
 import javax.xml.crypto.dsig.keyinfo.KeyInfo
 import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSpec}
@@ -72,10 +73,10 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
   private var cache: LoadingCache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
-  private var fac: XMLSignatureFactory = _
-  private var si: SignedInfo = _
+  private var xmlSignatureFactory: XMLSignatureFactory = _
+  private var signedInfo: SignedInfo = _
   private var keyEntry: KeyStore.PrivateKeyEntry = _
-  private var ki: KeyInfo = _
+  private var keyInfo: KeyInfo = _
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
@@ -207,7 +208,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     // location of the resulting XMLSignature's parent element.
     val dsc = new DOMSignContext(keyEntry.getPrivateKey, document.getDocumentElement)
     // Create the XMLSignature, but don't sign it yet.
-    val signature = fac.newXMLSignature(si, ki)
+    val signature = xmlSignatureFactory.newXMLSignature(signedInfo, keyInfo)
     // Marshal, generate, and sign the enveloped signature.
     signature.sign(dsc)
     document
@@ -261,46 +262,51 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
     if (Option(configuration).map(_.getPolicyAcquisition.getCache.getTtl) != Option(newConfiguration.getPolicyAcquisition.getCache.getTtl)) {
       cache = CacheBuilder.newBuilder()
-        .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
-        .build(new CacheLoader[String, XsltExecutable]() {
-          override def load(key: String): XsltExecutable = getPolicy(key)
-        })
+                          .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
+                          .build(new CacheLoader[String, XsltExecutable]() {
+                            override def load(key: String): XsltExecutable = getPolicy(key)
+                          })
     }
 
     try {
       // Create a DOM XMLSignatureFactory that will be used to
       // generate the enveloped signature.
-      fac = XMLSignatureFactory.getInstance("DOM")
+      xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM")
       // Create a Reference to the enveloped document (in this case,
       // you are signing the whole document, so a URI of "" signifies
       // that, and also specify the SHA1 digest algorithm and
       // the ENVELOPED Transform.
-      val ref = fac.newReference(
+      val ref = xmlSignatureFactory.newReference(
         "",
-        fac.newDigestMethod(DigestMethod.SHA1, null),
-        Collections.singletonList(fac.newTransform(Transform.ENVELOPED, null.asInstanceOf[TransformParameterSpec])),
+        xmlSignatureFactory.newDigestMethod(DigestMethod.SHA1, null),
+        Collections.singletonList(xmlSignatureFactory.newTransform(Transform.ENVELOPED, null.asInstanceOf[TransformParameterSpec])),
         null,
         null)
       // Create the SignedInfo.
-      si = fac.newSignedInfo(fac.newCanonicalizationMethod(
+      signedInfo = xmlSignatureFactory.newSignedInfo(xmlSignatureFactory.newCanonicalizationMethod(
         CanonicalizationMethod.INCLUSIVE,
         null.asInstanceOf[C14NMethodParameterSpec]),
-        fac.newSignatureMethod(SignatureMethod.RSA_SHA1, null),
+        xmlSignatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null),
         Collections.singletonList(ref))
       // Load the KeyStore and get the signing key and certificate.
-      val creds = newConfiguration.getSignatureCredentials
-      val keyStoreFilename = FileUtilities.guardedAbsoluteFile(configRoot, creds.getKeystoreFilename).getAbsolutePath
+      val signatureCredentials = newConfiguration.getSignatureCredentials
+      val keyStoreFilename = FileUtilities.guardedAbsoluteFile(configRoot, signatureCredentials.getKeystoreFilename).getAbsolutePath
       logger.debug("Attempting to load keystore located at: {}", keyStoreFilename)
-      val ks = KeyStore.getInstance("JKS")
-      ks.load(new FileInputStream(keyStoreFilename), creds.getKeystorePassword.toCharArray)
-      keyEntry = ks.getEntry(creds.getKeyName, new KeyStore.PasswordProtection(creds.getKeyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
-      val cert = keyEntry.getCertificate.asInstanceOf[X509Certificate]
+      val keyStore = KeyStore.getInstance("JKS")
+      keyStore.load(new FileInputStream(keyStoreFilename), signatureCredentials.getKeystorePassword.toCharArray)
+      keyEntry = keyStore.getEntry(signatureCredentials.getKeyName, new KeyStore.PasswordProtection(signatureCredentials.getKeyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
+      val x509Certificate = keyEntry.getCertificate.asInstanceOf[X509Certificate]
       // Create the KeyInfo containing the X509Data.
-      val kif = fac.getKeyInfoFactory
-      val xd = kif.newX509Data(List(cert.getSubjectX500Principal.getName, cert).asJava)
-      ki = kif.newKeyInfo(Collections.singletonList(xd))
+      val keyInfoFactory = xmlSignatureFactory.getKeyInfoFactory
+      val x509Data = keyInfoFactory.newX509Data(List(x509Certificate.getSubjectX500Principal.getName, x509Certificate).asJava)
+      keyInfo = keyInfoFactory.newKeyInfo(Collections.singletonList(x509Data))
     } catch {
-      case e: Exception => throw new UpdateFailedException("Failed to load the signing credentials.", e)
+      case e: NoSuchMechanismException |
+           ClassCastException |
+           IllegalArgumentException |
+           GeneralSecurityException |
+           KeyStoreException |
+           IOException => throw new UpdateFailedException("Failed to load the signing credentials.", e)
     }
 
     super.configurationUpdated(newConfiguration)
