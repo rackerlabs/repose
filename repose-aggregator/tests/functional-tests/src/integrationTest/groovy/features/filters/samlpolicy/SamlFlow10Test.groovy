@@ -20,14 +20,15 @@
 
 package features.filters.samlpolicy
 
+import features.filters.samlpolicy.util.SamlUtilities
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.opensaml.saml.saml2.core.Response
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
-import static features.filters.samlpolicy.SamlPayloads.*
-import static features.filters.samlpolicy.SamlUtilities.*
+import static features.filters.samlpolicy.util.SamlPayloads.*
+import static features.filters.samlpolicy.util.SamlUtilities.*
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
 /**

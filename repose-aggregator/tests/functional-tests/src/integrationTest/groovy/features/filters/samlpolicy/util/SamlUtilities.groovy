@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package features.filters.samlpolicy
+package features.filters.samlpolicy.util
 
 import groovy.xml.MarkupBuilder
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet
@@ -48,8 +48,6 @@ import org.xml.sax.InputSource
 
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
-
-import static features.filters.samlpolicy.SamlPayloads.*
 
 class SamlUtilities {
 
@@ -150,7 +148,7 @@ class SamlUtilities {
 
     static Closure assertion() {
         return {
-            mkp.yieldUnescaped ASSERTION_SIGNED
+            mkp.yieldUnescaped SamlPayloads.ASSERTION_SIGNED
         }
     }
 
