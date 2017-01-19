@@ -20,28 +20,40 @@
 
 package org.openrepose.filters.samlpolicy
 
-import java.io.{ByteArrayInputStream, InputStream}
-import java.util.Base64
+import java.io.{ByteArrayInputStream, FileInputStream, IOException, InputStream}
+import java.security._
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import java.util.{Base64, Collections}
 import javax.inject.{Inject, Named}
+import javax.servlet._
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{FilterChain, ServletInputStream, ServletRequest, ServletResponse}
 import javax.ws.rs.core.MediaType
+import javax.xml.crypto.NoSuchMechanismException
+import javax.xml.crypto.dsig.dom.DOMSignContext
+import javax.xml.crypto.dsig.keyinfo.KeyInfo
+import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSpec}
+import javax.xml.crypto.dsig.{SignedInfo, _}
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.rackspace.identity.components.AttributeMapper
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.XsltExecutable
+import org.openrepose.commons.config.manager.UpdateFailedException
 import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE}
+import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
+import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
+import org.springframework.beans.factory.annotation.Value
 import org.w3c.dom.Document
 
+import scala.collection.JavaConverters._
 import scala.language.postfixOps
 
 /**
@@ -50,16 +62,21 @@ import scala.language.postfixOps
 @Named
 class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationService,
                                             atomFeedService: AtomFeedService,
-                                            akkaServiceClientFactory: AkkaServiceClientFactory)
+                                            akkaServiceClientFactory: AkkaServiceClientFactory,
+                                            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) configRoot: String)
   extends AbstractConfiguredFilter[SamlPolicyConfig](configurationService)
-  with LazyLogging
-  with AtomFeedListener {
+    with LazyLogging
+    with AtomFeedListener {
 
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
 
   private var cache: LoadingCache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
+  private var xmlSignatureFactory: XMLSignatureFactory = _
+  private var signedInfo: SignedInfo = _
+  private var keyEntry: KeyStore.PrivateKeyEntry = _
+  private var keyInfo: KeyInfo = _
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
@@ -154,7 +171,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
   /**
     * Retrieves the policy from the configured endpoint. The caching will be handled elsewhere.
-    * There is a possiblity that this method will have to get split into two calls is we end up needing the raw policy for the os response mangling.
+    * There is a possibility that this method will have to get split into two calls is we end up needing the raw policy for the os response mangling.
     * I hope not, because that poops on what i'm trying to do with the cache at the moment.
     *
     * @param issuer the issuer
@@ -167,7 +184,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * Applies the policy to the saml response.
     *
     * @param document the parsed saml response
-    * @param policy the xslt translation
+    * @param policy   the xslt translation
     * @return the translated document
     * @throws SamlPolicyException if the translation fails
     */
@@ -186,7 +203,16 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return a signed saml response
     * @throws SamlPolicyException if the signing fails
     */
-  def signResponse(document: Document): Document = ???
+  def signResponse(document: Document): Document = {
+    // Create a DOMSignContext and specify the RSA PrivateKey and
+    // location of the resulting XMLSignature's parent element.
+    val dsc = new DOMSignContext(keyEntry.getPrivateKey, document.getDocumentElement)
+    // Create the XMLSignature, but don't sign it yet.
+    val signature = xmlSignatureFactory.newXMLSignature(signedInfo, keyInfo)
+    // Marshal, generate, and sign the enveloped signature.
+    signature.sign(dsc)
+    document
+  }
 
   /**
     * Converts the saml response document into a servlet input stream for passing down the filter chain.
@@ -240,6 +266,47 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
                           .build(new CacheLoader[String, XsltExecutable]() {
                             override def load(key: String): XsltExecutable = getPolicy(key)
                           })
+    }
+
+    try {
+      // Create a DOM XMLSignatureFactory that will be used to
+      // generate the enveloped signature.
+      xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM")
+      // Create a Reference to the enveloped document (in this case,
+      // you are signing the whole document, so a URI of "" signifies
+      // that, and also specify the SHA1 digest algorithm and
+      // the ENVELOPED Transform.
+      val ref = xmlSignatureFactory.newReference(
+        "",
+        xmlSignatureFactory.newDigestMethod(DigestMethod.SHA1, null),
+        Collections.singletonList(xmlSignatureFactory.newTransform(Transform.ENVELOPED, null.asInstanceOf[TransformParameterSpec])),
+        null,
+        null)
+      // Create the SignedInfo.
+      signedInfo = xmlSignatureFactory.newSignedInfo(xmlSignatureFactory.newCanonicalizationMethod(
+        CanonicalizationMethod.INCLUSIVE,
+        null.asInstanceOf[C14NMethodParameterSpec]),
+        xmlSignatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null),
+        Collections.singletonList(ref))
+      // Load the KeyStore and get the signing key and certificate.
+      val signatureCredentials = newConfiguration.getSignatureCredentials
+      val keyStoreFilename = FileUtilities.guardedAbsoluteFile(configRoot, signatureCredentials.getKeystoreFilename).getAbsolutePath
+      logger.debug("Attempting to load keystore located at: {}", keyStoreFilename)
+      val keyStore = KeyStore.getInstance("JKS")
+      keyStore.load(new FileInputStream(keyStoreFilename), signatureCredentials.getKeystorePassword.toCharArray)
+      keyEntry = keyStore.getEntry(signatureCredentials.getKeyName, new KeyStore.PasswordProtection(signatureCredentials.getKeyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
+      val x509Certificate = keyEntry.getCertificate.asInstanceOf[X509Certificate]
+      // Create the KeyInfo containing the X509Data.
+      val keyInfoFactory = xmlSignatureFactory.getKeyInfoFactory
+      val x509Data = keyInfoFactory.newX509Data(List(x509Certificate.getSubjectX500Principal.getName, x509Certificate).asJava)
+      keyInfo = keyInfoFactory.newKeyInfo(Collections.singletonList(x509Data))
+    } catch {
+      case e @ (_ : NoSuchMechanismException |
+                _ : ClassCastException |
+                _ : IllegalArgumentException |
+                _ : GeneralSecurityException |
+                _ : KeyStoreException |
+                _ : IOException) => throw new UpdateFailedException("Failed to load the signing credentials.", e)
     }
 
     super.configurationUpdated(newConfiguration)

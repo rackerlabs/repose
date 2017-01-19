@@ -3,6 +3,7 @@ dependencies {
     compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-api")
     compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
     compile "org.scala-lang:scala-library"
+    compile "org.springframework:spring-beans"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "com.google.guava:guava"
     //todo: remove this once we can move the translation filter up to the same version of saxon
@@ -18,4 +19,10 @@ dependencies {
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
+    testCompile "xerces:xerces-xsd11"
+    testCompile "xalan:xalan:2.7.1"
+    testCompile 'org.opensaml:opensaml-core'
+    testCompile 'org.opensaml:opensaml-saml-impl'
+    testCompile 'org.opensaml:opensaml-security-api'
+    testCompile 'org.opensaml:opensaml-xmlsec-api'
 }
