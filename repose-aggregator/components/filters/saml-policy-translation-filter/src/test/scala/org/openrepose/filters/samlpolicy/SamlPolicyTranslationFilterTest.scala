@@ -75,11 +75,11 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema", "org.apache.xerces.jaxp.validation.XMLSchemaFactory")
 
   override def beforeEach(): Unit = {
-    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], atomFeedService, mock[AkkaServiceClientFactory], CONFIG_ROOT)
-    signatureCredentials.setKeystoreFilename(KEYSTORE_FILENAME)
-    signatureCredentials.setKeystorePassword(KEYSTORE_PASSWORD)
-    signatureCredentials.setKeyName(KEY_NAME)
-    signatureCredentials.setKeyPassword(KEY_PASSWORD)
+    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], atomFeedService, mock[AkkaServiceClientFactory], configRoot)
+    signatureCredentials.setKeystoreFilename(keystoreFilename)
+    signatureCredentials.setKeystorePassword(keystorePassword)
+    signatureCredentials.setKeyName(keyName)
+    signatureCredentials.setKeyPassword(keyPassword)
   }
 
   describe("doWork") {
@@ -150,14 +150,14 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val config = buildConfig("http://test.rackspace.com")
       filter.configurationUpdated(config)
 
-      filter.determineVersion(SAML_RESPONSE_DOC) should be (1)
+      filter.determineVersion(samlResponseDoc) should be (1)
     }
 
     it("should return 2 when the issuer is not in the configured list") {
       val config = buildConfig("http://foo.bar")
       filter.configurationUpdated(config)
 
-      filter.determineVersion(SAML_RESPONSE_DOC) should be (2)
+      filter.determineVersion(samlResponseDoc) should be (2)
     }
 
     it("should throw an exception when it can't find the issuer in the document") {
@@ -241,12 +241,12 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         reset(atomFeedService)
 
         filter.configurationUpdated(config)
-        val signedDoc = filter.signResponse(SAML_RESPONSE_DOC)
+        val signedDoc = filter.signResponse(samlResponseDoc)
 
         // Use the key that should have signed the DOM to create the validation criteria
         val ks = KeyStore.getInstance("JKS")
-        ks.load(new FileInputStream(s"$CONFIG_ROOT/$KEYSTORE_FILENAME"), KEYSTORE_PASSWORD.toCharArray)
-        val keyEntry = ks.getEntry(keyName, new KeyStore.PasswordProtection(KEY_PASSWORD.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
+        ks.load(new FileInputStream(s"$configRoot/$keystoreFilename"), keystorePassword.toCharArray)
+        val keyEntry = ks.getEntry(keyName, new KeyStore.PasswordProtection(keyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
         val signingCredential = CredentialSupport.getSimpleCredential(keyEntry.getCertificate.asInstanceOf[X509Certificate], keyEntry.getPrivateKey)
         val credResolver = new StaticCredentialResolver(signingCredential)
         val kiResolver = new StaticKeyInfoCredentialResolver(signingCredential)
@@ -439,12 +439,12 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 }
 
 object SamlPolicyTranslationFilterTest {
-  val CONFIG_ROOT = "./build/resources/test/"
-  val KEYSTORE_FILENAME = "single.jks"
-  val KEYSTORE_PASSWORD = "password"
-  val KEY_NAME = "server"
-  val KEY_PASSWORD = "password"
-  val SAML_RESPONSE_DOC: Document = {
+  val configRoot = "./build/resources/test/"
+  val keystoreFilename = "single.jks"
+  val keystorePassword = "password"
+  val keyName = "server"
+  val keyPassword = "password"
+  val samlResponseDoc: Document = {
     val documentBuilderFactory = DocumentBuilderFactory.newInstance()
     documentBuilderFactory.setNamespaceAware(true)
     documentBuilderFactory.newDocumentBuilder().parse(new InputSource(new StringReader(
