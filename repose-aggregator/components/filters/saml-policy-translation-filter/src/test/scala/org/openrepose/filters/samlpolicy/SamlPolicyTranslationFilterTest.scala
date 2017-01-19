@@ -21,6 +21,7 @@
 package org.openrepose.filters.samlpolicy
 
 import java.io.{FileInputStream, StringReader}
+import java.net.URI
 import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
 import java.util.Base64
@@ -37,7 +38,7 @@ import org.mockito.Mockito._
 import org.mockito.{Matchers => MM}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientFactory
-import org.openrepose.filters.samlpolicy.config.{Cache, PolicyAcquisition, SamlPolicyConfig, SignatureCredentials}
+import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.opensaml.core.config.{InitializationException, InitializationService}
 import org.opensaml.core.criterion.EntityIdCriterion
@@ -74,11 +75,11 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema", "org.apache.xerces.jaxp.validation.XMLSchemaFactory")
 
   override def beforeEach(): Unit = {
-    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], atomFeedService, mock[AkkaServiceClientFactory], CONFIG_ROOT)
-    signatureCredentials.setKeystoreFilename(KEYSTORE_FILENAME)
-    signatureCredentials.setKeystorePassword(KEYSTORE_PASSWORD)
-    signatureCredentials.setKeyName(KEY_NAME)
-    signatureCredentials.setKeyPassword(KEY_PASSWORD)
+    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], atomFeedService, mock[AkkaServiceClientFactory], configRoot)
+    signatureCredentials.setKeystoreFilename(keystoreFilename)
+    signatureCredentials.setKeystorePassword(keystorePassword)
+    signatureCredentials.setKeyName(keyName)
+    signatureCredentials.setKeyPassword(keyPassword)
   }
 
   describe("doWork") {
@@ -131,7 +132,48 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("determineVersion") {
-    pending
+    def buildConfig(issuer: String): SamlPolicyConfig = {
+      val resultConfig = new SamlPolicyConfig
+      val bypassIssuers = new PolicyBypassIssuers
+      bypassIssuers.getIssuer.add(issuer)
+      resultConfig.setPolicyBypassIssuers(bypassIssuers)
+      val acquisition = new PolicyAcquisition
+      val cache = new Cache
+      cache.setTtl(300)
+      acquisition.setCache(cache)
+      resultConfig.setPolicyAcquisition(acquisition)
+      resultConfig.setSignatureCredentials(signatureCredentials)
+      resultConfig
+    }
+
+    it("should return 1 when the issuer is present in the configured list") {
+      val config = buildConfig("http://test.rackspace.com")
+      filter.configurationUpdated(config)
+
+      filter.determineVersion(samlResponseDoc) should be (1)
+    }
+
+    it("should return 2 when the issuer is not in the configured list") {
+      val config = buildConfig("http://foo.bar")
+      filter.configurationUpdated(config)
+
+      filter.determineVersion(samlResponseDoc) should be (2)
+    }
+
+    it("should throw an exception when it can't find the issuer in the document") {
+      val config = buildConfig("http://foo.bar")
+      filter.configurationUpdated(config)
+      val badDocument = DocumentBuilderFactory.newInstance()
+        .newDocumentBuilder()
+        .parse(new InputSource(new StringReader("""<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>""")))
+
+      val exception = intercept[SamlPolicyException] {
+        filter.determineVersion(badDocument)
+      }
+
+      exception.statusCode should be (SC_BAD_REQUEST)
+      exception.message should be ("No issuer present in SAML Response")
+    }
   }
 
   describe("validateResponseAndGetIssuer") {
@@ -199,12 +241,12 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         reset(atomFeedService)
 
         filter.configurationUpdated(config)
-        val signedDoc = filter.signResponse(SAML_RESPONSE_DOC)
+        val signedDoc = filter.signResponse(samlResponseDoc)
 
         // Use the key that should have signed the DOM to create the validation criteria
         val ks = KeyStore.getInstance("JKS")
-        ks.load(new FileInputStream(s"$CONFIG_ROOT/$KEYSTORE_FILENAME"), KEYSTORE_PASSWORD.toCharArray)
-        val keyEntry = ks.getEntry(keyName, new KeyStore.PasswordProtection(KEY_PASSWORD.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
+        ks.load(new FileInputStream(s"$configRoot/$keystoreFilename"), keystorePassword.toCharArray)
+        val keyEntry = ks.getEntry(keyName, new KeyStore.PasswordProtection(keyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
         val signingCredential = CredentialSupport.getSimpleCredential(keyEntry.getCertificate.asInstanceOf[X509Certificate], keyEntry.getPrivateKey)
         val credResolver = new StaticCredentialResolver(signingCredential)
         val kiResolver = new StaticKeyInfoCredentialResolver(signingCredential)
@@ -346,16 +388,63 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       originalCache should be theSameInstanceAs newCache
     }
+
+    it("should build the list of issuers if present") {
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
+
+      val config = buildConfig("dontcare")
+      val bypassIssuers = new PolicyBypassIssuers
+      bypassIssuers.getIssuer.add("http://foo.bar")
+      config.setPolicyBypassIssuers(bypassIssuers)
+      filter.configurationUpdated(config)
+
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] should contain (new URI("http://foo.bar"))
+    }
+
+    it("should leave issuers empty if none are added") {
+      filter.configurationUpdated(buildConfig("dontcare"))
+
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
+    }
+
+    it("should replace issuers when they change") {
+      val config = buildConfig("dontcare")
+      val bypassIssuers = new PolicyBypassIssuers
+      bypassIssuers.getIssuer.add("http://foo.bar")
+      config.setPolicyBypassIssuers(bypassIssuers)
+      filter.configurationUpdated(config)
+
+      val newConfig = buildConfig("dontcare")
+      val newBypassIssuers = new PolicyBypassIssuers
+      newBypassIssuers.getIssuer.add("http://bar.foo")
+      newConfig.setPolicyBypassIssuers(newBypassIssuers)
+      filter.configurationUpdated(newConfig)
+
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] should not contain (new URI("http://foo.bar"))
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] should contain (new URI("http://bar.foo"))
+    }
+
+    it("should blank the issuers when they are removed") {
+      val config = buildConfig("dontcare")
+      val bypassIssuers = new PolicyBypassIssuers
+      bypassIssuers.getIssuer.add("http://foo.bar")
+      config.setPolicyBypassIssuers(bypassIssuers)
+      filter.configurationUpdated(config)
+
+      filter.configurationUpdated(buildConfig("dontcare"))
+
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
+    }
   }
 }
 
 object SamlPolicyTranslationFilterTest {
-  val CONFIG_ROOT = "./build/resources/test/"
-  val KEYSTORE_FILENAME = "single.jks"
-  val KEYSTORE_PASSWORD = "password"
-  val KEY_NAME = "server"
-  val KEY_PASSWORD = "password"
-  val SAML_RESPONSE_DOC: Document = {
+  val configRoot = "./build/resources/test/"
+  val keystoreFilename = "single.jks"
+  val keystorePassword = "password"
+  val keyName = "server"
+  val keyPassword = "password"
+  val samlResponseDoc: Document = {
     val documentBuilderFactory = DocumentBuilderFactory.newInstance()
     documentBuilderFactory.setNamespaceAware(true)
     documentBuilderFactory.newDocumentBuilder().parse(new InputSource(new StringReader(
