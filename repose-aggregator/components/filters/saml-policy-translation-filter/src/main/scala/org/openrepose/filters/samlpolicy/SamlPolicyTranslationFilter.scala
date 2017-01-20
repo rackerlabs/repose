@@ -252,7 +252,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     try {
       AttributeMapper.convertAssertion(policy, document)
     } catch {
-      case e: Exception => throw SamlPolicyException(SC_BAD_REQUEST, "Failed to translate the SAML Response", e)
+      case e@(_: SaxonApiException | _: TransformerException) =>
+        throw SamlPolicyException(SC_BAD_REQUEST, "Failed to translate the SAML Response", e)
     }
   }
 
