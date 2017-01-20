@@ -46,6 +46,8 @@ class SamlPayloads {
     static final String HTTP_POST = "POST"
     static final List<String> HTTP_UNSUPPORTED_METHODS = ["GET", "OPTIONS", "PUT", "PATCH", "DELETE", "CONNECT", "TRACE"]
 
+    static final String SAML_STATUS_SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
+
     static final String SAML_ONE_ASSERTION_SIGNED = """\
 <saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xs="http://www.w3.org/2001/XMLSchema" ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30" IssueInstant="2015-12-04T15:47:15.057Z" Version="2.0">
     <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">http://idp.external.com</saml2:Issuer>

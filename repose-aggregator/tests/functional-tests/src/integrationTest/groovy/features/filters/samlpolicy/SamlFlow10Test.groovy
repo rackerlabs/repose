@@ -60,11 +60,12 @@ class SamlFlow10Test extends ReposeValveTest {
 
     def setup() {
         fakeIdentityV2Service.resetCounts()
+        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
     }
 
     @Unroll
     @FailsWith(ConditionNotSatisfiedError)
-    def "a saml:response with an Issuer that #isIt in the configured policy-bypass-issuers list will have an 'Identity-API-Version' value of #headerValue"() {
+    def "a saml:response with an Issuer that #isIt in the configured policy-bypass-issuers list will get an 'Identity-API-Version' value of #headerValue in the request to the origin service"() {
         given:
         def body = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(
                 samlResponse(issuer(samlIssuer) >> status() >> assertion())))
@@ -79,9 +80,11 @@ class SamlFlow10Test extends ReposeValveTest {
         then: "the client gets back a good response"
         mc.receivedResponse.code as Integer == SC_OK
 
-        and: "the origin service received the request with the correct header value"
+        and: "the origin service received the request with the correct header values"
         mc.handlings[0]
+        mc.handlings[0].request.headers.getCountByName(CONTENT_TYPE) == 1
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+        mc.handlings[0].request.headers.getCountByName(IDENTITY_API_VERSION) == 1
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == headerValue
         fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
 
@@ -96,7 +99,7 @@ class SamlFlow10Test extends ReposeValveTest {
 
     @Unroll
     @FailsWith(ConditionNotSatisfiedError)
-    def "a saml:response with a Flow 1.0 Issuer will work despite having #flow20ValidationIssue"() {
+    def "a saml:response with a Flow 1.0 Issuer will still be successfully processed despite having #flow20ValidationIssue"() {
         when:
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
@@ -107,7 +110,7 @@ class SamlFlow10Test extends ReposeValveTest {
         then: "the client gets back a good response"
         mc.receivedResponse.code as Integer == SC_OK
 
-        and: "the origin service received the request with the correct header value"
+        and: "the origin service received the request with the correct header values"
         mc.handlings[0]
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "1.0"
@@ -123,7 +126,7 @@ class SamlFlow10Test extends ReposeValveTest {
         where:
         saml                                     | flow20ValidationIssue
         SAML_CRAZY_INVALID                       | "assertions with inconsistent Issuers, missing Issuers, missing signatures, and an invalid signature"
-        samlResponse(issuer(SAML_LEGACY_ISSUER)) | "no other fields in it"
+        samlResponse(issuer(SAML_LEGACY_ISSUER)) | "no other fields in it other than the Issuer element"
     }
 
     @Unroll
