@@ -27,7 +27,7 @@ import java.security.{KeyStore, Security}
 import java.text.SimpleDateFormat
 import java.util.{Base64, Date, TimeZone, UUID}
 import javax.servlet.FilterChain
-import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_FORBIDDEN}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.stream.StreamSource
@@ -40,6 +40,7 @@ import org.mockito.{Matchers => MM}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.samlpolicy.config._
+import org.openrepose.filters.samlpolicy.SamlPolicyProvider.{OverLimitException, UnexpectedStatusCodeException}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.opensaml.core.config.{InitializationException, InitializationService}
 import org.opensaml.core.criterion.EntityIdCriterion
@@ -58,6 +59,7 @@ import org.springframework.test.util.ReflectionTestUtils
 import org.w3c.dom.Document
 
 import scala.io.Source
+import scala.util.{Failure, Success}
 import scala.xml.InputSource
 
 /**
@@ -531,6 +533,110 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
   }
 
+  describe("getToken") {
+    it("should return a fresh token") {
+      filter.configurationUpdated(buildConfig())
+
+      val token = "foo-token"
+      when(samlPolicyProvider.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success(token))
+
+      val result = filter.getToken(None)
+
+      verify(samlPolicyProvider).getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )
+      result shouldEqual token
+    }
+
+    it("should throw an exception if fetching a fresh token fails") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlPolicyProvider.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Failure(UnexpectedStatusCodeException(SC_FORBIDDEN, "forbidden")))
+
+      val thrown = the[UnexpectedStatusCodeException] thrownBy filter.getToken(None)
+      thrown.statusCode shouldEqual SC_FORBIDDEN
+      verify(samlPolicyProvider).getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )
+    }
+
+    it("should return retry-after header value if rate limited by Identity") {
+      filter.configurationUpdated(buildConfig())
+
+      val retryAfter = "some time"
+      when(samlPolicyProvider.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Failure(OverLimitException(retryAfter, "rate limited")))
+
+      val thrown = the[OverLimitException] thrownBy filter.getToken(None)
+      thrown.retryAfter shouldEqual retryAfter
+      verify(samlPolicyProvider).getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )
+    }
+
+    it("should return a cached token if possible") {
+      filter.configurationUpdated(buildConfig())
+
+      val token = "foo-token"
+      ReflectionTestUtils.setField(filter, "token", Some(token))
+
+      val result = filter.getToken(None)
+
+      result shouldEqual token
+      verify(samlPolicyProvider, never).getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )
+    }
+
+    it("should not check the Akka cache on a retry") {
+      filter.configurationUpdated(buildConfig())
+
+      val token = "foo-token"
+      when(samlPolicyProvider.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.eq(false)
+      )).thenReturn(Success(token))
+
+      val result = filter.getToken(None, isRetry = true)
+
+      verify(samlPolicyProvider).getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.eq(false)
+      )
+      result shouldEqual token
+    }
+  }
+
   describe("getPolicy") {
     pending
   }
@@ -567,9 +673,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       .compile(new StreamSource(new StringReader(workingXslt)))
 
     it("should throw a SamlPolicyException(400) if the translation fails") {
-      intercept[SamlPolicyException] {
-        filter.translateResponse(document, brokenXsltExec)
-      }.statusCode shouldEqual SC_BAD_REQUEST
+      val thrown = the[SamlPolicyException] thrownBy filter.translateResponse(document, brokenXsltExec)
+      thrown.statusCode shouldEqual SC_BAD_REQUEST
     }
 
     it("should return a translated document without throwing an exception") {
@@ -678,28 +783,6 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("configurationUpdated") {
-
-    def buildConfig(feedId: String = "dontcare",
-                    ttl: Long = 3000,
-                    tokenConnectionPoolId: String = "tokenPoolId",
-                    policyConnectionPoolId: String = "policyPoolId"): SamlPolicyConfig = {
-      val resultConfig = new SamlPolicyConfig
-      val acquisition = new PolicyAcquisition
-      val keystoneCredentials = new KeystoneCredentials
-      val policyEndpoint = new PolicyEndpoint
-      val cache = new Cache
-      cache.setTtl(ttl)
-      cache.setAtomFeedId(feedId)
-      policyEndpoint.setConnectionPoolId(policyConnectionPoolId)
-      keystoneCredentials.setConnectionPoolId(tokenConnectionPoolId)
-      acquisition.setCache(cache)
-      acquisition.setPolicyEndpoint(policyEndpoint)
-      acquisition.setKeystoneCredentials(keystoneCredentials)
-      resultConfig.setPolicyAcquisition(acquisition)
-      resultConfig.setSignatureCredentials(signatureCredentials)
-      resultConfig
-    }
-
     it("should attempt to subscribe to the configured atom feed") {
       val config = buildConfig("banana")
       filter.configurationUpdated(config)
@@ -842,9 +925,19 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should configure the SamlPolicyProvider") {
-      filter.configurationUpdated(buildConfig(tokenConnectionPoolId = "foo", policyConnectionPoolId = "bar"))
+      filter.configurationUpdated(buildConfig(
+        tokenUri = "http://foo.com",
+        tokenConnectionPoolId = "foo",
+        policyUri = "http://bar.com",
+        policyConnectionPoolId = "bar"
+      ))
 
-      verify(samlPolicyProvider).using(MM.eq(Some("foo")), MM.eq(Some("bar")))
+      verify(samlPolicyProvider).using(
+        MM.eq("http://foo.com"),
+        MM.eq("http://bar.com"),
+        MM.eq(Some("foo")),
+        MM.eq(Some("bar"))
+      )
     }
   }
 }
@@ -956,5 +1049,34 @@ object SamlPolicyTranslationFilterTest {
     } catch {
       case e: InitializationException => new RuntimeException("Initialization failed", e)
     }
+  }
+
+  def buildConfig(feedId: String = "dontcare",
+                  ttl: Long = 3000,
+                  tokenUri: String = "http://token.identity.com",
+                  tokenUsername: String = "username",
+                  tokenPassword: String = "password",
+                  policyUri: String = "http://policy.identity.com",
+                  tokenConnectionPoolId: String = "tokenPoolId",
+                  policyConnectionPoolId: String = "policyPoolId"): SamlPolicyConfig = {
+    val resultConfig = new SamlPolicyConfig
+    val acquisition = new PolicyAcquisition
+    val keystoneCredentials = new KeystoneCredentials
+    val policyEndpoint = new PolicyEndpoint
+    val cache = new Cache
+    cache.setTtl(ttl)
+    cache.setAtomFeedId(feedId)
+    policyEndpoint.setUri(policyUri)
+    policyEndpoint.setConnectionPoolId(policyConnectionPoolId)
+    keystoneCredentials.setUri(tokenUri)
+    keystoneCredentials.setUsername(tokenUsername)
+    keystoneCredentials.setPassword(tokenPassword)
+    keystoneCredentials.setConnectionPoolId(tokenConnectionPoolId)
+    acquisition.setCache(cache)
+    acquisition.setPolicyEndpoint(policyEndpoint)
+    acquisition.setKeystoneCredentials(keystoneCredentials)
+    resultConfig.setPolicyAcquisition(acquisition)
+    resultConfig.setSignatureCredentials(signatureCredentials)
+    resultConfig
   }
 }
