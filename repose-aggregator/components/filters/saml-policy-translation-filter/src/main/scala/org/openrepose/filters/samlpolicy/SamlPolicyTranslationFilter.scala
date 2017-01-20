@@ -293,7 +293,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   /**
     * Evict from the cache as appropriate.
     *
-    * @param atomEntry A {@link String} representation of an Atom entry. Note that Atom entries are XML elements,
+    * @param atomEntry A [[String]] representation of an Atom entry. Note that Atom entries are XML elements,
     */
   override def onNewAtomEntry(atomEntry: String): Unit = {
     logger.debug("Processing atom feed entry: {}", atomEntry)
