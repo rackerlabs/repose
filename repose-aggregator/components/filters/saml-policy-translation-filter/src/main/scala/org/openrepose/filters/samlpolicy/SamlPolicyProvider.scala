@@ -19,11 +19,20 @@
  */
 package org.openrepose.filters.samlpolicy
 
+import java.nio.charset.StandardCharsets
+import java.time.format.DateTimeFormatter
+import java.time.{ZoneId, ZonedDateTime}
 import javax.inject.{Inject, Named}
+import javax.servlet.http.HttpServletResponse.{SC_OK, SC_REQUEST_ENTITY_TOO_LARGE}
+import javax.ws.rs.core.MediaType
 
+import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import play.api.libs.json.Json
 
-import scala.util.Try
+import scala.collection.JavaConverters._
+import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
 /**
   * Handles all of the API interactions necessary for the [[SamlPolicyTranslationFilter]].
@@ -34,17 +43,21 @@ import scala.util.Try
 @Named
 class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFactory) {
 
-  @volatile
-  private var tokenServiceClient: ServiceClient = _
+  import SamlPolicyProvider._
 
-  @volatile
+  private var tokenUri: String = _
+  private var policyUri: String = _
+  private var tokenServiceClient: ServiceClient = _
   private var policyServiceClient: ServiceClient = _
 
   /**
     * Obtains service clients for the provided connection pool IDs.
     * These service clients will be used when making calls to external APIs.
     */
-  def using(tokenPoolId: Option[String], policyPoolId: Option[String]): Unit = {
+  def using(tokenUri: String, policyUri: String, tokenPoolId: Option[String], policyPoolId: Option[String]): Unit = {
+    this.tokenUri = tokenUri
+    this.policyUri = policyUri
+
     val optTokenServiceClient = Option(tokenServiceClient)
     if (optTokenServiceClient.isEmpty || tokenServiceClient.poolId != tokenPoolId) {
       optTokenServiceClient.foreach(_.akkaServiceClient.destroy())
@@ -71,8 +84,52 @@ class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     *
     * @return the token if successful, or a failure if unsuccessful
     */
-  def getToken: Try[String] = {
-    ???
+  def getToken(username: String, password: String, traceId: Option[String], checkCache: Boolean = true): Try[String] = {
+    val authenticationPayload = Json.obj(
+      "auth" -> Json.obj(
+        "passwordCredentials" -> Json.obj(
+          "username" -> username,
+          "password" -> password
+        )
+      )
+    )
+
+    val akkaResponse = Try(tokenServiceClient.akkaServiceClient.post(
+      TokenRequestKey,
+      s"$tokenUri$TokenPath",
+      (Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
+      Json.stringify(authenticationPayload),
+      MediaType.APPLICATION_JSON_TYPE,
+      checkCache
+    ))
+
+    akkaResponse match {
+      case Success(serviceClientResponse) =>
+        serviceClientResponse.getStatus match {
+          case SC_OK =>
+            Try {
+              val responseEncoding = serviceClientResponse.getHeaders
+                .find(hdr => CommonHttpHeader.CONTENT_TYPE.matches(hdr.getName))
+                .map(_.getElements.head.getParameterByName("charset"))
+                .flatMap(Option.apply)
+                .map(_.getValue)
+                .getOrElse(StandardCharsets.ISO_8859_1.name())
+              val jsonResponse = Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString
+              val json = Json.parse(jsonResponse)
+              (json \ "access" \ "token" \ "id").as[String]
+            } recover {
+              case f: Exception =>
+                throw GenericIdentityException("Token could not be parsed from response from Identity", f)
+            }
+          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when getting token"))
+          case statusCode =>
+            Failure(UnexpectedStatusCodeException(statusCode, "Unexpected response from Identity"))
+        }
+      case Failure(f) =>
+        Failure(GenericIdentityException("Failure communicating with Identity when getting token", f))
+    }
   }
 
   /**
@@ -80,11 +137,35 @@ class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     *
     * @return the policy if successful, or a failure if unsuccessful
     */
-  def getPolicy: Try[String] = {
+  def getPolicy(traceId: Option[String]): Try[String] = {
     ???
-    // TODO: Handle encoding when creating a String
   }
 
   private case class ServiceClient(poolId: Option[String], akkaServiceClient: AkkaServiceClient)
+
+}
+
+object SamlPolicyProvider {
+  final val SC_TOO_MANY_REQUESTS = 429
+  final val TokenRequestKey = "SAML:TOKEN"
+  final val TokenPath = "/v2.0/tokens"
+
+  def buildRetryValue(response: ServiceClientResponse): String = {
+    response.getHeaders
+      .find(hdr => CommonHttpHeader.RETRY_AFTER.matches(hdr.getName))
+      .map(_.getValue)
+      .getOrElse(DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneId.of("GMT")).plusSeconds(5)))
+  }
+
+  trait IdentityException extends Exception
+
+  case class GenericIdentityException(message: String, cause: Throwable)
+    extends Exception(message, cause) with IdentityException
+
+  case class UnexpectedStatusCodeException(statusCode: Int, message: String)
+    extends Exception(message)
+
+  case class OverLimitException(retryAfter: String, message: String)
+    extends Exception(message) with IdentityException
 
 }

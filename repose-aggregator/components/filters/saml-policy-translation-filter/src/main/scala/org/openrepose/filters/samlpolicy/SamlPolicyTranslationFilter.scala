@@ -37,21 +37,23 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfo
 import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSpec}
 import javax.xml.crypto.dsig.{SignedInfo, _}
 import javax.xml.namespace.NamespaceContext
+import javax.xml.transform.TransformerException
 import javax.xml.xpath.{XPathConstants, XPathExpression}
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XPathExpressionPool}
 import com.rackspace.identity.components.AttributeMapper
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import net.sf.saxon.s9api.XsltExecutable
+import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
 import org.openrepose.commons.config.manager.UpdateFailedException
-import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE}
+import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE, RETRY_AFTER}
 import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.spring.ReposeSpringProperties
+import org.openrepose.filters.samlpolicy.SamlPolicyProvider.OverLimitException
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.springframework.beans.factory.annotation.Value
@@ -82,6 +84,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
   private var cache: LoadingCache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
+  private var token: Option[String] = None
   private var tokenServiceClient: AkkaServiceClient = _
   private var policyServiceClient: AkkaServiceClient = _
   private var xmlSignatureFactory: XMLSignatureFactory = _
@@ -122,6 +125,10 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
         response.asInstanceOf[HttpServletResponseWrapper].commitToResponse()
       }
     } catch {
+      case ex: OverLimitException =>
+        servletResponse.asInstanceOf[HttpServletResponse].addHeader(RETRY_AFTER.toString, ex.retryAfter)
+        servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Identity service temporarily unavailable")
+        logger.debug("Identity service temporarily unavailable", ex)
       case ex: SamlPolicyException =>
         servletResponse.asInstanceOf[HttpServletResponse].sendError(ex.statusCode, ex.message)
         logger.debug("SAML policy translation failed", ex)
@@ -230,6 +237,29 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   }
 
   /**
+    * Retrieves a token from Identity that will be used for authorization on all other calls to Identity.
+    *
+    * @return the token if successful, or a failure if unsuccessful
+    * @throws SamlPolicyException if response is invalid
+    */
+  def getToken(traceId: Option[String], isRetry: Boolean = false): String = {
+    logger.trace("Getting a token")
+    token match {
+      case Some(cachedToken) =>
+        logger.trace("Using cached token")
+        cachedToken
+      case None =>
+        logger.trace("Fetching a fresh token with the configured credentials")
+        samlPolicyProvider.getToken(
+          configuration.getPolicyAcquisition.getKeystoneCredentials.getUsername,
+          configuration.getPolicyAcquisition.getKeystoneCredentials.getPassword,
+          traceId,
+          !isRetry
+        ).get
+    }
+  }
+
+  /**
     * Retrieves the policy from the configured endpoint. The caching will be handled elsewhere.
     * There is a possibility that this method will have to get split into two calls is we end up needing the raw policy for the os response mangling.
     * I hope not, because that poops on what i'm trying to do with the cache at the moment.
@@ -238,7 +268,9 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the compiled xslt that represents the policy
     * @throws SamlPolicyException for so many reasons
     */
-  def getPolicy(issuer: String): XsltExecutable = ???
+  def getPolicy(issuer: String): XsltExecutable = {
+    ???
+  }
 
   /**
     * Applies the policy to the saml response.
@@ -379,6 +411,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     }
 
     samlPolicyProvider.using(
+      newConfiguration.getPolicyAcquisition.getKeystoneCredentials.getUri,
+      newConfiguration.getPolicyAcquisition.getPolicyEndpoint.getUri,
       Option(newConfiguration.getPolicyAcquisition.getKeystoneCredentials.getConnectionPoolId),
       Option(newConfiguration.getPolicyAcquisition.getPolicyEndpoint.getConnectionPoolId)
     )
