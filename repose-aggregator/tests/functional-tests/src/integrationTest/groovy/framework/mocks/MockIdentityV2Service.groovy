@@ -50,6 +50,9 @@ class MockIdentityV2Service {
     static final String PATH_REGEX_SAML_IDP_ISSUER = $/^/v2.0/RAX-AUTH/federation/identity-providers/?(\?.*issuer=([^&]+)?)/$
     static final String PATH_REGEX_SAML_MAPPING = '^/v2.0/RAX-AUTH/federation/identity-providers/([^/]+)/mapping'
 
+    static final String SAML_AUTH_BY_PASSWORD = "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+    static final String SAML_AUTH_BY_RSAKEY = "urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken"
+
     private AtomicInteger validateTokenCount = new AtomicInteger(0)
     private AtomicInteger getGroupsCount = new AtomicInteger(0)
     private AtomicInteger generateTokenCount = new AtomicInteger(0)
@@ -110,8 +113,6 @@ class MockIdentityV2Service {
     def tokenExpiresAt = null
     boolean isTokenValid = true
     boolean checkTokenValid = false
-
-    //def handler = { Request request -> handleRequest(request) } // todo: remove this line
 
     MockIdentityV2Service(int identityPort, int originServicePort) {
         resetHandlers()
@@ -257,6 +258,21 @@ class MockIdentityV2Service {
          * user_id : String - The user ID.
          * Lists global roles for a specified user. Excludes tenant roles.
          *
+         * GET
+         * /v2.0/RAX-AUTH/federation/identity-providers?issuer={issuer}
+         * X-Auth-Token : String - A valid authentication token for a user that can read IDP info.
+         * issuer : String - The issuer of the IDP that should be returned.
+         * Returns a list with a single (or none if no IDPs match) IDP whose issuer matches the requested value.
+         *
+         * GET
+         * /v2.0/RAX-AUTH/federation/identity-providers/{idp_id}/mapping
+         * X-Auth-Token : String - A valid authentication token for a user that can read IDP info.
+         * idp_id : String - The internal ID representation of the IDP whose Mapping Policy should be returned.
+         * The Mapping Policy for the requested IDP.
+         *
+         * POST
+         * /v2.0/RAX-AUTH/federation/saml/auth
+         * Authenticates using a saml:response and generates a token.
          *
          */
 
@@ -559,12 +575,12 @@ class MockIdentityV2Service {
     /**
      * Simuate response for validateToken call of identity v2
      * @param tokenId
-     * @param tenantid (if validateToken with belongsTo tenant)
+     * @param tenantId (if validateToken with belongsTo tenant)
      * @return an instance of response
      */
-    Response validateToken(String tokenId, String tenantid = null, Request request, boolean xml) {
+    Response validateToken(String tokenId, String tenantId = null, Request request, boolean xml) {
         def requestToken = tokenId
-        def passedTenant = tenantid ?: client_tenantid
+        def passedTenant = tenantId ?: client_tenantid
 
         def params = [
                 expires        : getExpires(),
@@ -755,70 +771,28 @@ class MockIdentityV2Service {
     }
 
     Response generateTokenFromSamlResponse(Request request, boolean shouldReturnXml) {
-        if (shouldReturnXml) {
-            // TODO: the createAccessXmlWithValues() method doesn't currently support extendedAttributes yet
-            return new Response(SC_NOT_IMPLEMENTED)
-        }
-
-        // TODO: not sure if the @Name needs the namespace.  I doubt it, though
-        // TODO: not sure how well AttributeValue will be handled since there can be one or more values of it
         def samlResponse = xmlSlurper.parseText(request.body as String)
                 .declareNamespace(saml2p: "urn:oasis:names:tc:SAML:2.0:protocol", saml2: "urn:oasis:names:tc:SAML:2.0:assertion")
-        Map<String, String> samlAttributes = samlResponse.'saml2:Assertion'[0].'saml2:AttributeStatement'.'saml2:Attribute'
-                .collectEntries { [(it.@Name): it.'saml2:AttributeValue'*.text()] }
+        Map<String, List<String>> samlAttributes = samlResponse.'saml2:Assertion'[0].'saml2:AttributeStatement'.'saml2:Attribute'
+                .collectEntries { [(it.@Name): it.'saml2:AttributeValue'*.text() as List] }
 
-        def (extendedAttributes, attributes) = samlAttributes.split { it.key.contains("/")}
-        def extendedAttributesGrouped = normalizeGroupingForExtendedAttributes(extendedAttributes)
         def username = samlResponse.'saml2:Assertion'[0].'saml2:Subject'.'saml2::NameID'.text()
         def idpAuthBy = samlResponse.'saml2:Assertion'[0].'saml2:AuthnStatement'.'saml2:AuthnContext'.'saml2:AuthnContextClassRef'.text()
 
-        // TODO: put these hard coded strings some place better
         def authBy = ["FEDERATION"]
-        if (idpAuthBy == "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport") {
+        if (idpAuthBy == SAML_AUTH_BY_PASSWORD) {
             authBy << "PASSWORD"
-        } else if (idpAuthBy == "urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken") {
+        } else if (idpAuthBy == SAML_AUTH_BY_RSAKEY) {
             authBy << "RSAKEY"
         } else {
-            return new Response(400, null, ['Content-Type': 'plain/text'], "Unknown or missing AuthnContextClassRef value in SAML Response")
+            return new Response(400, null, ['Content-Type': 'plain/text'], "Unknown or missing AuthnContextClassRef value in SAML")
         }
 
-        def body = createAccessJsonWithValues(
-                username: username,
-                roles: attributes.roles,
-                authBy: authBy,
-                extendedAttributes: extendedAttributesGrouped)
+        def bodyBuilder = shouldReturnXml ? this.&createAccessXmlWithValues : this.&createAccessJsonWithValues
+        def body = bodyBuilder(username: username, roles: samlAttributes.roles, authBy: authBy)
         def headers = ['Content-type': shouldReturnXml ? 'application/xml' : 'application/json']
 
         new Response(SC_OK, null, headers, body)
-    }
-
-    /**
-     * // TODO: Make sure this works for the XML format, too.
-     * Method to convert the format of the SAML Attributes to the format that's expected in the "access" JSON.
-     *
-     * For example (formatted for convenience):
-     * input:
-     * [a/b: [1, 2],
-     *  a/c: [3],
-     *  z/d: [6, 7],
-     *  y/e: [0, 8, 9],
-     *  y/f: [10],
-     *  y/g: [11, 12]]
-     *
-     * output:
-     * [a: [b: [1, 2], c: 3],
-     *  z: [d: [6, 7]],
-     *  y: [e: [0, 8, 9], f: 10, g: [11, 12]]]
-     *
-     * Where the groups are "a", "z", and "y", the attribute names are "b", "c", "d", "e", "f", and "g", and the
-     * numbers are the attribute values.
-     */
-    static Map normalizeGroupingForExtendedAttributes(Map<String, List<String>> extendedAttributes) {
-        extendedAttributes
-                .groupBy { it.key.split("/")[0] }
-                .collectEntries { group, attributes ->
-            [(group), attributes.collectEntries { groupAndName, v -> [(groupAndName.split("/")[1]), v?.size() == 1 ? v[0] : v]}]
-        }
     }
 
     String createIdpJsonWithValues(Map values = [:]) {
@@ -898,7 +872,6 @@ class MockIdentityV2Service {
         json.toString()
     }
 
-    // TODO: consider adding authBy to the XML payload
     String createAccessXmlWithValues(Map values = [:]) {
         def token = values.token ?: client_token
         def expires = values.expires ?: getExpires()
@@ -922,6 +895,13 @@ class MockIdentityV2Service {
         xmlBuilder.access(rootElementAttributes) {
             token(id: token, expires: expires) {
                 tenant(id: tenantId, name: tenantId)
+                if (values.authBy) {
+                    "rax-auth:authenticatedBy" {
+                        values.authBy.each {
+                            "rax-auth:credential"(it)
+                        }
+                    }
+                }
             }
             user(id: userId, name: username, "rax-auth:defaultRegion": "the-default-region") {
                 roles {
@@ -940,7 +920,6 @@ class MockIdentityV2Service {
                             versionList: "https://ord.servers.api.rackspacecloud.com/")
                 }
             }
-            // TODO: what does RAX-AUTH:extendedAttributes look like? Where is the schema at?
         }
 
         writer.toString()
