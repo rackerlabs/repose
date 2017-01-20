@@ -66,10 +66,11 @@ class MockIdentityV2Service {
     def xmlSlurper = new XmlSlurper()
     def random = new Random()
 
+    // these fields are initialized by the constructor
     int port
     int originServicePort
 
-    // these fields are initialized by resetDefaultParameters()
+    // these fields are initialized and reset by resetDefaultParameters()
     def client_token
     def client_tenantid
     def client_tenantname
@@ -98,7 +99,13 @@ class MockIdentityV2Service {
     def validateTenant
     def appendedflag
     Validator validator
+    boolean isTokenValid
 
+    // these fields are initialized here and are never reset
+    def tokenExpiresAt = null  // defaults to current time plus one day (on read)
+    boolean checkTokenValid = false
+
+    // these fields are initialized and reset by resetCounts()
     Closure<Response> handler
     Closure<Response> validateTokenHandler
     Closure<Response> getGroupsHandler
@@ -108,11 +115,6 @@ class MockIdentityV2Service {
     Closure<Response> getIdpFromIssuerHandler
     Closure<Response> getMappingPolicyForIdpHandler
     Closure<Response> generateTokenFromSamlResponseHandler
-
-    // if tokenExpiresAt isn't set, it will default to the current time plus one day
-    def tokenExpiresAt = null
-    boolean isTokenValid = true
-    boolean checkTokenValid = false
 
     MockIdentityV2Service(int identityPort, int originServicePort) {
         resetHandlers()
@@ -218,6 +220,7 @@ class MockIdentityV2Service {
         impersonate_name = ""
         validateTenant = null
         appendedflag = false
+        isTokenValid = true
     }
 
     /**
