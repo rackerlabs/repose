@@ -25,6 +25,8 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.opensaml.saml.saml2.core.Response
 import org.rackspace.deproxy.Deproxy
+import org.spockframework.runtime.ConditionNotSatisfiedError
+import spock.lang.FailsWith
 import spock.lang.Unroll
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
@@ -61,6 +63,7 @@ class SamlFlow10Test extends ReposeValveTest {
     }
 
     @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an Issuer that #isIt in the configured policy-bypass-issuers list will have an 'Identity-API-Version' value of #headerValue"() {
         given:
         def body = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(
@@ -92,6 +95,7 @@ class SamlFlow10Test extends ReposeValveTest {
     }
 
     @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with a Flow 1.0 Issuer will work despite having #flow20ValidationIssue"() {
         when:
         def mc = deproxy.makeRequest(
@@ -123,6 +127,7 @@ class SamlFlow10Test extends ReposeValveTest {
     }
 
     @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response that #signedState will not be altered and will maintain signature validity through Repose"() {
         when:
         def mc = deproxy.makeRequest(

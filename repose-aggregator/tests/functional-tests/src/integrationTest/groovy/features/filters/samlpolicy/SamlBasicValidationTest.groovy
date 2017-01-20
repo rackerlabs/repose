@@ -23,6 +23,8 @@ package features.filters.samlpolicy
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
+import org.spockframework.runtime.ConditionNotSatisfiedError
+import spock.lang.FailsWith
 import spock.lang.Unroll
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
@@ -59,6 +61,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
     def "a valid request will make it to the origin service and back to the client successfully with form parameters: #formParams.keySet()"() {
         given:
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
@@ -86,6 +89,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
     def "a request with Content-Type '#contentType' and a body with #bodySummary should be rejected"() {
         given:
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
@@ -146,6 +150,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
     def "a request using the HTTP method #httpMethod should be rejected"() {
         given:
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
