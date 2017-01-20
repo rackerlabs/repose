@@ -38,7 +38,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.mockito.{Matchers => MM}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.filters.samlpolicy.SamlPolicyProvider.{OverLimitException, UnexpectedStatusCodeException}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
@@ -70,8 +69,6 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   import SamlPolicyTranslationFilterTest._
 
-  val signatureCredentials = new SignatureCredentials
-
   var atomFeedService: AtomFeedService = mock[AtomFeedService]
   var samlPolicyProvider: SamlPolicyProvider = mock[SamlPolicyProvider]
   var filter: SamlPolicyTranslationFilter = _
@@ -88,11 +85,6 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     signatureCredentials.setKeyPassword(keyPassword)
 
     filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], samlPolicyProvider, atomFeedService, configRoot)
-
-    when(akkaServiceClientFactory.newAkkaServiceClient())
-      .thenReturn(akkaServiceClient)
-    when(akkaServiceClientFactory.newAkkaServiceClient(MM.anyString()))
-      .thenReturn(akkaServiceClient)
   }
 
   describe("doWork") {
@@ -145,36 +137,22 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("determineVersion") {
-    def buildConfig(issuer: String): SamlPolicyConfig = {
-      val resultConfig = new SamlPolicyConfig
-      val bypassIssuers = new PolicyBypassIssuers
-      bypassIssuers.getIssuer.add(issuer)
-      resultConfig.setPolicyBypassIssuers(bypassIssuers)
-      val acquisition = new PolicyAcquisition
-      val cache = new Cache
-      cache.setTtl(300)
-      acquisition.setCache(cache)
-      resultConfig.setPolicyAcquisition(acquisition)
-      resultConfig.setSignatureCredentials(signatureCredentials)
-      resultConfig
-    }
-
     it("should return 1 when the issuer is present in the configured list") {
-      val config = buildConfig("http://test.rackspace.com")
+      val config = buildConfig(issuers = Seq("http://test.rackspace.com"))
       filter.configurationUpdated(config)
 
       filter.determineVersion(samlResponseDoc) should be (1)
     }
 
     it("should return 2 when the issuer is not in the configured list") {
-      val config = buildConfig("http://foo.bar")
+      val config = buildConfig(issuers = Seq("http://foo.bar"))
       filter.configurationUpdated(config)
 
       filter.determineVersion(samlResponseDoc) should be (2)
     }
 
     it("should throw an exception when it can't find the issuer in the document") {
-      val config = buildConfig("http://foo.bar")
+      val config = buildConfig(issuers = Seq("http://foo.bar"))
       filter.configurationUpdated(config)
       val badDocument = DocumentBuilderFactory.newInstance()
         .newDocumentBuilder()
@@ -684,17 +662,10 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   describe("signResponse") {
     SamlPolicyTranslationFilterTest.initOpenSAML()
-    Seq(("server", true), ("client", false)).foreach { case (keyName, shouldPass) =>
+    Seq(("server", true), ("client", false)) foreach { case (keyName, shouldPass) =>
       val passShould: Boolean => String = { boolean => if (boolean) "should" else "should not" }
       it(s"should sign the SAML Response in the HTTP Request and ${passShould(shouldPass)} validate against the $keyName key") {
-        val config = new SamlPolicyConfig
-        val acquisition = new PolicyAcquisition
-        val cache = new Cache
-        cache.setAtomFeedId("banana")
-        acquisition.setCache(cache)
-        config.setPolicyAcquisition(acquisition)
-        config.setSignatureCredentials(signatureCredentials)
-        reset(atomFeedService)
+        val config = buildConfig(feedId = "banana")
 
         filter.configurationUpdated(config)
         val signedDoc = filter.signResponse(samlResponseDoc)
@@ -880,7 +851,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should build the list of issuers if present") {
       ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
 
-      val config = buildConfig("dontcare")
+      val config = buildConfig()
       val bypassIssuers = new PolicyBypassIssuers
       bypassIssuers.getIssuer.add("http://foo.bar")
       config.setPolicyBypassIssuers(bypassIssuers)
@@ -890,19 +861,19 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should leave issuers empty if none are added") {
-      filter.configurationUpdated(buildConfig("dontcare"))
+      filter.configurationUpdated(buildConfig())
 
       ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
     }
 
     it("should replace issuers when they change") {
-      val config = buildConfig("dontcare")
+      val config = buildConfig()
       val bypassIssuers = new PolicyBypassIssuers
       bypassIssuers.getIssuer.add("http://foo.bar")
       config.setPolicyBypassIssuers(bypassIssuers)
       filter.configurationUpdated(config)
 
-      val newConfig = buildConfig("dontcare")
+      val newConfig = buildConfig()
       val newBypassIssuers = new PolicyBypassIssuers
       newBypassIssuers.getIssuer.add("http://bar.foo")
       newConfig.setPolicyBypassIssuers(newBypassIssuers)
@@ -913,13 +884,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should blank the issuers when they are removed") {
-      val config = buildConfig("dontcare")
-      val bypassIssuers = new PolicyBypassIssuers
-      bypassIssuers.getIssuer.add("http://foo.bar")
-      config.setPolicyBypassIssuers(bypassIssuers)
-      filter.configurationUpdated(config)
+      filter.configurationUpdated(buildConfig(issuers = Seq("http://foo.bar")))
 
-      filter.configurationUpdated(buildConfig("dontcare"))
+      filter.configurationUpdated(buildConfig())
 
       ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] shouldBe empty
     }
@@ -948,86 +915,87 @@ object SamlPolicyTranslationFilterTest {
   val keystorePassword = "password"
   val keyName = "server"
   val keyPassword = "password"
+  val signatureCredentials = new SignatureCredentials
   val samlResponseDoc: Document = makeDocument(
-      """<?xml version="1.0" encoding="UTF-8"?>
-        |<saml2p:Response ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30"
-        |                 IssueInstant="2015-12-04T15:47:15.057Z"
-        |                 Version="2.0"
-        |                 xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
-        |                 xmlns:xs="http://www.w3.org/2001/XMLSchema">
-        |    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">http://test.rackspace.com</saml2:Issuer>
-        |    <saml2p:Status>
-        |        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
-        |    </saml2p:Status>
-        |    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
-        |                     xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        |                     ID="_406fb7fe-a519-4919-a42c-f67794a670a5"
-        |                     IssueInstant="2013-11-15T16:19:06.310Z"
-        |                     Version="2.0">
-        |        <saml2:Issuer>http://test.rackspace.com</saml2:Issuer>
-        |        <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-        |            <ds:SignedInfo>
-        |                <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
-        |                <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
-        |                <ds:Reference URI="#pfx5861722e-892e-7f5c-475d-e2b5f84bb11c">
-        |                    <ds:Transforms>
-        |                        <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
-        |                        <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
-        |                    </ds:Transforms>
-        |                    <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-        |                    <ds:DigestValue>SFwS5r5WzM77rBEYtisnkLvh3U4=</ds:DigestValue>
-        |                </ds:Reference>
-        |            </ds:SignedInfo>
-        |            <ds:SignatureValue>nJEiom08C2ioT10FDvj0KwgW4vdO2eadGKbHWd8yDvOcYPKpTde+r9rGNc2wMFO31BuVLlY3zopBYOXV1+XYvcG7LPHZbPv3I5jnUaWNFq4xg4V5Bs1SDUr1YYcUHczyoCI6E8lvUu9DhoLP8xd5wYCJ3nrgWH8jRVd2GlNZqiFUc9Qtq8AvHe4qNdLjclt8xDH82B2Mk6+QZqknpwICpPnLcbYsh4tfpGYQ5Tx1xkfkQzIWqdThsEGZ4dJoPd22liCMlAgHfUBeNwaJccNSw8kEQOJf9fo4i+L9HMhriT8aFZx/jG6lGIS5vh4wP+wsJDEPHZIyW+GGoWpfNHlwvw==</ds:SignatureValue>
-        |            <ds:KeyInfo>
-        |                <ds:X509Data>
-        |                    <ds:X509Certificate>MIID1zCCAr+gAwIBAgIJANXRE4AvFkE/MA0GCSqGSIb3DQEBCwUAMIGAMQswCQYDVQQGEwJVUzEOMAwGA1UECAwFVGV4YXMxFDASBgNVBAcMC1NhbiBBbnRvbmlvMRkwFwYDVQQKDBBFeHRlcm5hbCBDb21wYW55MRUwEwYDVQQLDAxFeHRlcm5hbCBPcmcxGTAXBgNVBAMMEGlkcC5leHRlcm5hbC5jb20wIBcNMTcwMTEyMDA1MjA0WhgPMjExNjEyMTkwMDUyMDRaMIGAMQswCQYDVQQGEwJVUzEOMAwGA1UECAwFVGV4YXMxFDASBgNVBAcMC1NhbiBBbnRvbmlvMRkwFwYDVQQKDBBFeHRlcm5hbCBDb21wYW55MRUwEwYDVQQLDAxFeHRlcm5hbCBPcmcxGTAXBgNVBAMMEGlkcC5leHRlcm5hbC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCyVdLk8tyB7oPgfs5BWnttcB4QDfdKAIUvK67temK2HVlX7DQj4SHmP0Xgs45l/MwVcdI+yyqxf2kuPIrGgQ7TfsdE9b/ATePjsS8FhBYCFI0v+HmV0x7tDwwQchYPKmNVwpNx9otqC/0pRjemOhtZuhmTe/V31TGWH/Pq5+89pIYbiT4TqV0RTuN15RbJ/rHfGiCyQSH85CW4308f+qiHqnoD4S4q4xAZvZZEeJ/04a16WIoSOLI1/X63lHJ82VDh3POiuZVQYyyqC7EWcYmrNJzVvJ17GSRJR48oUiwijQUYSiX7l98XKAJfTnmuLy3J/xdvGGlOIyLdksJnE5UbAgMBAAGjUDBOMB0GA1UdDgQWBBRxOHOh+cErc+V0fu71BjZNw4FalTAfBgNVHSMEGDAWgBRxOHOh+cErc+V0fu71BjZNw4FalTAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQCP3v1/CmsaTLS4HKnGy+rURLC5hMApMIs9CERGfYfrRsC2WR1aRCGgORfPRi5+laxFxhqcK6XtW/kkipWsHLsY1beGtjji3ag6zxtCmjK/8Oi4q1c+LQx0Kf/6gie6wPI7bBYxuLgIrp6hG9wWhQWsx42ra6NLHTJXO5TxnN2RT0dbaD24d6OWY0yxB9wKwyLhND7Basrm34A1UYdlEy5mce9KywneFux67Fe0Rksfq4BAWfRW49dIYY+kVHfHqf95aSQtEpqkmMr15yVDexpixo658oRd+XebSGlPn/1y5pe7gytj/g9OvBdkVCw67MtADjpvaVW9lDnpU4v6nCnn</ds:X509Certificate>
-        |                </ds:X509Data>
-        |            </ds:KeyInfo>
-        |        </ds:Signature>
-        |        <saml2:Subject>
-        |            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">john.doe</saml2:NameID>
-        |            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-        |                <saml2:SubjectConfirmationData NotOnOrAfter="2113-11-17T16:19:06.298Z"/>
-        |            </saml2:SubjectConfirmation>
-        |        </saml2:Subject>
-        |        <saml2:AuthnStatement AuthnInstant="2113-11-15T16:19:04.055Z">
-        |            <saml2:AuthnContext>
-        |                <saml2:AuthnContextClassRef>
-        |                    urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
-        |                </saml2:AuthnContextClassRef>
-        |            </saml2:AuthnContext>
-        |        </saml2:AuthnStatement>
-        |        <saml2:AttributeStatement>
-        |            <saml2:Attribute Name="roles">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
-        |                    nova:admin
-        |                </saml2:AttributeValue>
-        |            </saml2:Attribute>
-        |            <saml2:Attribute Name="domain">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
-        |                    323676
-        |                </saml2:AttributeValue>
-        |            </saml2:Attribute>
-        |            <saml2:Attribute Name="email">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
-        |                    no-reply@rackspace.com
-        |                </saml2:AttributeValue>
-        |            </saml2:Attribute>
-        |            <saml2:Attribute Name="FirstName">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
-        |                    John
-        |                </saml2:AttributeValue>
-        |            </saml2:Attribute>
-        |            <saml2:Attribute Name="LastName">
-        |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
-        |                    Doe
-        |                </saml2:AttributeValue>
-        |            </saml2:Attribute>
-        |        </saml2:AttributeStatement>
-        |    </saml2:Assertion>
-        |</saml2p:Response>
-        |""".stripMargin)
+    """<?xml version="1.0" encoding="UTF-8"?>
+      |<saml2p:Response ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30"
+      |                 IssueInstant="2015-12-04T15:47:15.057Z"
+      |                 Version="2.0"
+      |                 xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+      |                 xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      |    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">http://test.rackspace.com</saml2:Issuer>
+      |    <saml2p:Status>
+      |        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+      |    </saml2p:Status>
+      |    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+      |                     xmlns:xs="http://www.w3.org/2001/XMLSchema"
+      |                     ID="_406fb7fe-a519-4919-a42c-f67794a670a5"
+      |                     IssueInstant="2013-11-15T16:19:06.310Z"
+      |                     Version="2.0">
+      |        <saml2:Issuer>http://test.rackspace.com</saml2:Issuer>
+      |        <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+      |            <ds:SignedInfo>
+      |                <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+      |                <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      |                <ds:Reference URI="#pfx5861722e-892e-7f5c-475d-e2b5f84bb11c">
+      |                    <ds:Transforms>
+      |                        <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+      |                        <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+      |                    </ds:Transforms>
+      |                    <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+      |                    <ds:DigestValue>SFwS5r5WzM77rBEYtisnkLvh3U4=</ds:DigestValue>
+      |                </ds:Reference>
+      |            </ds:SignedInfo>
+      |            <ds:SignatureValue>nJEiom08C2ioT10FDvj0KwgW4vdO2eadGKbHWd8yDvOcYPKpTde+r9rGNc2wMFO31BuVLlY3zopBYOXV1+XYvcG7LPHZbPv3I5jnUaWNFq4xg4V5Bs1SDUr1YYcUHczyoCI6E8lvUu9DhoLP8xd5wYCJ3nrgWH8jRVd2GlNZqiFUc9Qtq8AvHe4qNdLjclt8xDH82B2Mk6+QZqknpwICpPnLcbYsh4tfpGYQ5Tx1xkfkQzIWqdThsEGZ4dJoPd22liCMlAgHfUBeNwaJccNSw8kEQOJf9fo4i+L9HMhriT8aFZx/jG6lGIS5vh4wP+wsJDEPHZIyW+GGoWpfNHlwvw==</ds:SignatureValue>
+      |            <ds:KeyInfo>
+      |                <ds:X509Data>
+      |                    <ds:X509Certificate>MIID1zCCAr+gAwIBAgIJANXRE4AvFkE/MA0GCSqGSIb3DQEBCwUAMIGAMQswCQYDVQQGEwJVUzEOMAwGA1UECAwFVGV4YXMxFDASBgNVBAcMC1NhbiBBbnRvbmlvMRkwFwYDVQQKDBBFeHRlcm5hbCBDb21wYW55MRUwEwYDVQQLDAxFeHRlcm5hbCBPcmcxGTAXBgNVBAMMEGlkcC5leHRlcm5hbC5jb20wIBcNMTcwMTEyMDA1MjA0WhgPMjExNjEyMTkwMDUyMDRaMIGAMQswCQYDVQQGEwJVUzEOMAwGA1UECAwFVGV4YXMxFDASBgNVBAcMC1NhbiBBbnRvbmlvMRkwFwYDVQQKDBBFeHRlcm5hbCBDb21wYW55MRUwEwYDVQQLDAxFeHRlcm5hbCBPcmcxGTAXBgNVBAMMEGlkcC5leHRlcm5hbC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCyVdLk8tyB7oPgfs5BWnttcB4QDfdKAIUvK67temK2HVlX7DQj4SHmP0Xgs45l/MwVcdI+yyqxf2kuPIrGgQ7TfsdE9b/ATePjsS8FhBYCFI0v+HmV0x7tDwwQchYPKmNVwpNx9otqC/0pRjemOhtZuhmTe/V31TGWH/Pq5+89pIYbiT4TqV0RTuN15RbJ/rHfGiCyQSH85CW4308f+qiHqnoD4S4q4xAZvZZEeJ/04a16WIoSOLI1/X63lHJ82VDh3POiuZVQYyyqC7EWcYmrNJzVvJ17GSRJR48oUiwijQUYSiX7l98XKAJfTnmuLy3J/xdvGGlOIyLdksJnE5UbAgMBAAGjUDBOMB0GA1UdDgQWBBRxOHOh+cErc+V0fu71BjZNw4FalTAfBgNVHSMEGDAWgBRxOHOh+cErc+V0fu71BjZNw4FalTAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQCP3v1/CmsaTLS4HKnGy+rURLC5hMApMIs9CERGfYfrRsC2WR1aRCGgORfPRi5+laxFxhqcK6XtW/kkipWsHLsY1beGtjji3ag6zxtCmjK/8Oi4q1c+LQx0Kf/6gie6wPI7bBYxuLgIrp6hG9wWhQWsx42ra6NLHTJXO5TxnN2RT0dbaD24d6OWY0yxB9wKwyLhND7Basrm34A1UYdlEy5mce9KywneFux67Fe0Rksfq4BAWfRW49dIYY+kVHfHqf95aSQtEpqkmMr15yVDexpixo658oRd+XebSGlPn/1y5pe7gytj/g9OvBdkVCw67MtADjpvaVW9lDnpU4v6nCnn</ds:X509Certificate>
+      |                </ds:X509Data>
+      |            </ds:KeyInfo>
+      |        </ds:Signature>
+      |        <saml2:Subject>
+      |            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">john.doe</saml2:NameID>
+      |            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+      |                <saml2:SubjectConfirmationData NotOnOrAfter="2113-11-17T16:19:06.298Z"/>
+      |            </saml2:SubjectConfirmation>
+      |        </saml2:Subject>
+      |        <saml2:AuthnStatement AuthnInstant="2113-11-15T16:19:04.055Z">
+      |            <saml2:AuthnContext>
+      |                <saml2:AuthnContextClassRef>
+      |                    urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+      |                </saml2:AuthnContextClassRef>
+      |            </saml2:AuthnContext>
+      |        </saml2:AuthnStatement>
+      |        <saml2:AttributeStatement>
+      |            <saml2:Attribute Name="roles">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+      |                    nova:admin
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="domain">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+      |                    323676
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="email">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+      |                    no-reply@rackspace.com
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="FirstName">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+      |                    John
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="LastName">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+      |                    Doe
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |        </saml2:AttributeStatement>
+      |    </saml2:Assertion>
+      |</saml2p:Response>
+      |""".stripMargin)
 
   def makeDocument(stringDocument: String): Document = {
     val documentBuilderFactory = DocumentBuilderFactory.newInstance()
@@ -1058,12 +1026,14 @@ object SamlPolicyTranslationFilterTest {
                   tokenPassword: String = "password",
                   policyUri: String = "http://policy.identity.com",
                   tokenConnectionPoolId: String = "tokenPoolId",
-                  policyConnectionPoolId: String = "policyPoolId"): SamlPolicyConfig = {
+                  policyConnectionPoolId: String = "policyPoolId",
+                  issuers: Seq[String] = Seq.empty): SamlPolicyConfig = {
     val resultConfig = new SamlPolicyConfig
     val acquisition = new PolicyAcquisition
     val keystoneCredentials = new KeystoneCredentials
     val policyEndpoint = new PolicyEndpoint
     val cache = new Cache
+    val bypassIssuers = new PolicyBypassIssuers
     cache.setTtl(ttl)
     cache.setAtomFeedId(feedId)
     policyEndpoint.setUri(policyUri)
@@ -1072,9 +1042,11 @@ object SamlPolicyTranslationFilterTest {
     keystoneCredentials.setUsername(tokenUsername)
     keystoneCredentials.setPassword(tokenPassword)
     keystoneCredentials.setConnectionPoolId(tokenConnectionPoolId)
+    issuers.foreach(bypassIssuers.getIssuer.add)
     acquisition.setCache(cache)
     acquisition.setPolicyEndpoint(policyEndpoint)
     acquisition.setKeystoneCredentials(keystoneCredentials)
+    issuers.headOption.foreach(_ => resultConfig.setPolicyBypassIssuers(bypassIssuers))
     resultConfig.setPolicyAcquisition(acquisition)
     resultConfig.setSignatureCredentials(signatureCredentials)
     resultConfig

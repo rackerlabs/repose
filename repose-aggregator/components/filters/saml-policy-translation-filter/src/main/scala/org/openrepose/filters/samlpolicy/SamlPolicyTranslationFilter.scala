@@ -80,7 +80,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
 
   private val namespaceContext: NamespaceContext = ImmutableNamespaceContext(Map("s2p" -> "urn:oasis:names:tc:SAML:2.0:protocol",
-                                                                                 "s2" -> "urn:oasis:names:tc:SAML:2.0:assertion"))
+                                                                                 "s2"  -> "urn:oasis:names:tc:SAML:2.0:assertion"))
 
   private var cache: LoadingCache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
