@@ -265,7 +265,7 @@ class MockIdentityV2Service {
          * /v2.0/RAX-AUTH/federation/identity-providers?issuer={issuer}
          * X-Auth-Token : String - A valid authentication token for a user that can read IDP info.
          * issuer : String - The issuer of the IDP that should be returned.
-         * Returns a list with a single (or none if no IDPs match) IDP whose issuer matches the requested value.
+         * Returns a list with a single IDP whose issuer matches the requested value.
          *
          * GET
          * /v2.0/RAX-AUTH/federation/identity-providers/{idp_id}/mapping
@@ -787,8 +787,6 @@ class MockIdentityV2Service {
             authBy << "PASSWORD"
         } else if (idpAuthBy == SAML_AUTH_BY_RSAKEY) {
             authBy << "RSAKEY"
-        } else {
-            return new Response(400, null, ['Content-Type': 'plain/text'], "Unknown or missing AuthnContextClassRef value in SAML")
         }
 
         def bodyBuilder = shouldReturnXml ? this.&createAccessXmlWithValues : this.&createAccessJsonWithValues
@@ -866,9 +864,6 @@ class MockIdentityV2Service {
                             ])
                         }
                 ])
-                if (values.extendedAttributes) {
-                    "RAX-AUTH:extendedAttributes" values.extendedAttributes
-                }
             }
         }
 

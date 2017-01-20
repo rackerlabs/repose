@@ -29,11 +29,7 @@ import spock.lang.Unroll
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
-
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
-import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED
-import static javax.servlet.http.HttpServletResponse.SC_OK
-import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
+import static javax.servlet.http.HttpServletResponse.*
 
 /**
  * This functional test goes through the shared validation logic between Flow 1.0 and 2.0 including the requirements
@@ -60,12 +56,13 @@ class SamlBasicValidationTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("Repose ready", 1, 30)
     }
 
+    def setup() {
+        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
+    }
+
     @Unroll
     @FailsWith(ConditionNotSatisfiedError)
     def "a valid request will make it to the origin service and back to the client successfully with form parameters: #formParams.keySet()"() {
-        given:
-        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
@@ -78,6 +75,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
 
         and: "the origin service received the request as valid XML"
         mc.handlings[0]
+        mc.handlings[0].request.headers.getCountByName(CONTENT_TYPE) == 1
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
         xmlSlurper.parseText(mc.handlings[0].request.body as String)
 
@@ -91,9 +89,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
     @Unroll
     @FailsWith(ConditionNotSatisfiedError)
     def "a request with Content-Type '#contentType' and a body with #bodySummary should be rejected"() {
-        given:
-        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
@@ -115,9 +110,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     def "a request using the wrong form parameter name should be rejected"() {
-        given:
-        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
@@ -133,9 +125,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     def "a request without any parameters nor a request body should be rejected"() {
-        given:
-        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
@@ -152,10 +141,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
     @Unroll
     @FailsWith(ConditionNotSatisfiedError)
     def "a request using the HTTP method #httpMethod should be rejected"() {
-        given:
-        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-
-        when: "we make a POST request"
+        when: "we make a request with the given HTTP method"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: httpMethod,
@@ -174,9 +160,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
 
     @Unroll
     def "a request should be rejected when the SAMLResponse contents are invalid due to #reason"() {
-        given:
-        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
-
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,

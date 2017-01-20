@@ -48,15 +48,15 @@ class SamlUtilitiesSelfTest extends Specification {
         isValidSignature
 
         and: "the Issuer was set correctly"
-        response.issuer.value == "http://idp.external.com"
+        response.issuer.value == SAML_EXTERNAL_ISSUER
 
         where:
         [testDescription, saml] << [
                 ["using MarkupBuilder, a custom closure, and a known good assertion string",
                  samlResponse { MarkupBuilder builder ->
-                     builder.'saml2:Issuer'("http://idp.external.com")
+                     builder.'saml2:Issuer'(SAML_EXTERNAL_ISSUER)
                      builder.'saml2p:Status' {
-                         'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
+                         'saml2p:StatusCode'(Value: SAML_STATUS_SUCCESS)
                      }
                      builder.mkp.yieldUnescaped ASSERTION_SIGNED
                      builder
@@ -79,7 +79,7 @@ class SamlUtilitiesSelfTest extends Specification {
         !isValidSignature
 
         and: "the Issuer was set correctly"
-        response.issuer.value == "http://idp.external.com"
+        response.issuer.value == SAML_EXTERNAL_ISSUER
 
         where:
         saml                                          | testDescription

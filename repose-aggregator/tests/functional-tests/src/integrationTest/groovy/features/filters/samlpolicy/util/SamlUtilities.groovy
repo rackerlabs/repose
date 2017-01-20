@@ -82,7 +82,7 @@ class SamlUtilities {
     }
 
     static String encodeBase64(String str) {
-        return str.bytes.encodeBase64().toString()
+        str.bytes.encodeBase64().toString()
     }
 
     /**
@@ -90,19 +90,19 @@ class SamlUtilities {
      *
      * For example (formatted for convenience):
      * input:
-     * [a/b: [1, 2],
-     *  a/c: [3],
-     *  z/d: [6, 7],
-     *  y/e: [0, 8, 9],
-     *  y/f: [10],
-     *  y/g: [11, 12]]
+     * [A/b: [1, 2],
+     *  A/c: [3],
+     *  Z/d: [6, 7],
+     *  Y/e: [0, 8, 9],
+     *  Y/f: [10],
+     *  Y/g: [11, 12]]
      *
      * output:
-     * [a: [b: [1, 2], c: 3],
-     *  z: [d: [6, 7]],
-     *  y: [e: [0, 8, 9], f: 10, g: [11, 12]]]
+     * [A: [b: [1, 2], c: 3],
+     *  Z: [d: [6, 7]],
+     *  Y: [e: [0, 8, 9], f: 10, g: [11, 12]]]
      *
-     * Where the groups are "a", "z", and "y", the attribute names are "b", "c", "d", "e", "f", and "g", and the
+     * Where the groups are "A", "Z", and "Y", the attribute names are "b", "c", "d", "e", "f", and "g", and the
      * numbers are the attribute values.
      */
     static Map normalizeGroupingForExtendedAttributes(Map<String, List<String>> extendedAttributes) {
@@ -143,7 +143,7 @@ class SamlUtilities {
         attributes.'xmlns:xs' = attributes.'xmlns:xs' ?: "http://www.w3.org/2001/XMLSchema"
         attributes.'xmlns:xsi' = attributes.'xmlns:xsi' ?: "http://www.w3.org/2001/XMLSchema-instance"
 
-        // create XML builder that won't interfere with a signed Assertion
+        // create an XML builder that won't invalidate the signature of a signed Assertion
         def writer = new StringWriter()
         def xmlBuilder = new MarkupBuilder(new IndentPrinter(writer, "", false))
         xmlBuilder.doubleQuotes = false
@@ -173,7 +173,7 @@ class SamlUtilities {
     static Closure status() {
         return { MarkupBuilder builder ->
             builder.'saml2p:Status' {
-                'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
+                'saml2p:StatusCode'(Value: SAML_STATUS_SUCCESS)
             }
             builder
         }
@@ -181,7 +181,7 @@ class SamlUtilities {
 
     /**
      * Given a String containing an Assertion, returns a closure that can be used to generate a saml:response using
-     * MarkupBuilder.
+     * a MarkupBuilder.
      */
     static Closure assertion(String assertion = ASSERTION_SIGNED) {
         return { MarkupBuilder builder ->
@@ -192,7 +192,7 @@ class SamlUtilities {
 
     /**
      * Given a map of values to populate the Assertion with, creates an unsigned Assertion and returns a closure that
-     * can be used to generate a saml:response using MarkupBuilder.
+     * can be used to generate a saml:response using a MarkupBuilder.
      */
     static Closure assertion(Map values) {
         def id = values.id ?: "_" + UUID.randomUUID().toString()

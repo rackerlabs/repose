@@ -60,11 +60,12 @@ class SamlFlow20Test extends ReposeValveTest {
 
     def setup() {
         fakeIdentityV2Service.resetCounts()
+        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
     }
 
     @Unroll
     @FailsWith(ConditionNotSatisfiedError)
-    def "a saml:response that is #signatureStatus should still be successfully processed as long as its Assertion is signed"() {
+    def "a saml:response that is #signatureStatus will still be successfully processed as long as its Assertion is signed"() {
         when:
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
@@ -75,7 +76,7 @@ class SamlFlow20Test extends ReposeValveTest {
         then: "the client gets back a good response"
         mc.receivedResponse.code as Integer == SC_OK
 
-        and: "the origin service received the request with the correct header value"
+        and: "the origin service received the request with the correct header values"
         mc.handlings[0]
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
@@ -98,7 +99,7 @@ class SamlFlow20Test extends ReposeValveTest {
         response.assertions[1].issuer.value == SAML_EXTERNAL_ISSUER
         samlUtilities.validateSignature(response.assertions[1].signature)
 
-        and: "the saml:response should have a valid signature"
+        and: "the saml:response should have a valid signature since Repose should have signed it"
         samlUtilities.validateSignature(response.signature)
 
         where:
@@ -108,24 +109,9 @@ class SamlFlow20Test extends ReposeValveTest {
         "signed (invalid)" | SAML_ASSERTION_AND_MESSAGE_SIGNED.replaceFirst("\n", "").replaceFirst("\n", "")
     }
 
-    def "a saml:response without an assertion should result in a 400"() {
-        when:
-        def mc = deproxy.makeRequest(
-                url: reposeEndpoint + SAML_AUTH_URL,
-                method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
-                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(samlResponse(issuer() >> status()))))
-
-        then: "the request doesn't get to the origin service"
-        mc.handlings.isEmpty()
-
-        and: "the client gets back a bad response"
-        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
-    }
-
-    def "a saml:response with an unsigned assertion should result in a 400"() {
-        given: "a saml:response with an unsigned assertion"
-        def saml = samlResponse(issuer() >> status() >> assertion(issuer: SAML_EXTERNAL_ISSUER))
+    def "a saml:response without an assertion should be rejected"() {
+        given: "a saml:response without an assertion"
+        def saml = samlResponse(issuer() >> status())
 
         when:
         def mc = deproxy.makeRequest(
@@ -134,16 +120,34 @@ class SamlFlow20Test extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the request doesn't get to the origin service"
-        mc.handlings.isEmpty()
-
-        and: "the client gets back a bad response"
+        then: "the client gets back a bad response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
+    }
+
+    def "a saml:response with an unsigned assertion should be rejected"() {
+        given: "a saml:response with an unsigned assertion"
+        def saml = samlResponse(issuer() >> status() >> assertion([:]))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a bad response"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
     }
 
     @Unroll
     @FailsWith(ConditionNotSatisfiedError)
-    def "a saml:response with three assertions should be successful with valid signatures: #sigOne, #sigTwo, #sigThree"() {
+    def "a saml:response with three signed assertions should be successful even if the signatures aren't valid - with valid signatures: #sigOne, #sigTwo, #sigThree"() {
         given: "the saml:response has three assertions that will each have a valid or invalid signature depending on the test"
         def assertionOne = sigOne ? ASSERTION_SIGNED : ASSERTION_SIGNED.replace("    ", "")
         def assertionTwo = sigTwo ? ASSERTION_SIGNED_TWO : ASSERTION_SIGNED_TWO.replace("    ", "")
@@ -160,7 +164,7 @@ class SamlFlow20Test extends ReposeValveTest {
         then: "the client gets back a good response"
         mc.receivedResponse.code as Integer == SC_OK
 
-        and: "the origin service received the request with the correct header value"
+        and: "the origin service received the request with the correct header values"
         mc.handlings[0]
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
