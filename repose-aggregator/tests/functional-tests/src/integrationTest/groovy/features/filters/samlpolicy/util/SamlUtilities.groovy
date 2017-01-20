@@ -49,6 +49,8 @@ import org.xml.sax.InputSource
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
+import static features.filters.samlpolicy.util.SamlPayloads.*
+
 class SamlUtilities {
 
     private PKIXSignatureTrustEngine trustEngine
@@ -108,8 +110,9 @@ class SamlUtilities {
 
         // add the namespaces if they weren't already there
         samlResponseAttribs.'xmlns:saml2p' = samlResponseAttribs.'xmlns:saml2p' ?: "urn:oasis:names:tc:SAML:2.0:protocol"
-        samlResponseAttribs.'xmlns:xs' = samlResponseAttribs.'xmlns:xs' ?: "http://www.w3.org/2001/XMLSchema"
         samlResponseAttribs.'xmlns:saml2' = samlResponseAttribs.'xmlns:saml2' ?: "urn:oasis:names:tc:SAML:2.0:assertion"
+        samlResponseAttribs.'xmlns:xs' = samlResponseAttribs.'xmlns:xs' ?: "http://www.w3.org/2001/XMLSchema"
+        samlResponseAttribs.'xmlns:xsi' = samlResponseAttribs.'xmlns:xsi' ?: "http://www.w3.org/2001/XMLSchema-instance"
 
         // create XML builder that won't interfere with a signed Assertion
         def writer = new StringWriter()
@@ -132,9 +135,9 @@ class SamlUtilities {
      * TODO: see if we can define this as:  static Closure status = { -> 'saml2p:Status' { ... } }
      * TODO: see if you can refactor to be like the last example in this section: http://groovy-lang.org/processing-xml.html#_markupbuilder
      */
-    static Closure issuer() {
+    static Closure issuer(String issuer = SAML_EXTERNAL_ISSUER) {
         return {
-            'saml2:Issuer'("http://idp.external.com")
+            'saml2:Issuer'(issuer)
         }
     }
 
@@ -146,9 +149,59 @@ class SamlUtilities {
         }
     }
 
-    static Closure assertion() {
+    /**
+     * Given a String containing an Assertion, returns a closure that can be used to generate a saml:response using
+     * MarkupBuilder.
+     */
+    static Closure assertion(String assertion = ASSERTION_SIGNED) {
         return {
-            mkp.yieldUnescaped SamlPayloads.ASSERTION_SIGNED
+            mkp.yieldUnescaped assertion
+        }
+    }
+
+    /**
+     * Given a map of values to populate the Assertion with, creates an unsigned Assertion and returns a closure that
+     * can be used to generate a saml:response using MarkupBuilder.
+     */
+    static Closure assertion(Map values) {
+        def id = values.id ?: "_" + UUID.randomUUID().toString()
+        def issueInstant = values.issueInstant ?: "2013-11-15T16:19:06.310Z"
+        def issuer = values.issuer ?: SAML_EXTERNAL_ISSUER
+        def name = values.name ?: "john.doe"
+        def notOnOrAfter = values.notOnOrAfter ?: "2113-11-17T16:19:06.298Z"
+        def authnInstant = values.authnInstant ?: "2113-11-15T16:19:04.055Z"
+        def authnContextClassRef = values.authnContextClassRef ?: "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+        def attributes = values.attributes ?: [
+                roles: ["nova:admin"],
+                domain: ["323676"],
+                email: ["no-reply@external.com"],
+                FirstName: ["John"],
+                LastName: ["Doe"]]
+
+        return {
+            'saml2:Assertion'(ID: id, IssueInstant: issueInstant, Version: "2.0") {
+                'saml2:Issuer'(issuer)
+                'saml2:Subject' {
+                    'saml2:NameID'(Format: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", name)
+                    'saml2:SubjectConfirmation'(Method: "urn:oasis:names:tc:SAML:2.0:cm:bearer") {
+                        'saml2:SubjectConfirmationData'(NotOnOrAfter: notOnOrAfter)
+                    }
+                }
+                'saml2:AuthnStatement'(AuthnInstant: authnInstant) {
+                    'saml2:AuthnContext' {
+                        'saml2:AuthnContextClassRef'(authnContextClassRef)
+                    }
+                }
+                'saml2:AttributeStatement' {
+                    attributes.each { attribName, attribValues ->
+                        'saml2:Attribute'(Name: attribName) {
+                            attribValues.each {
+                                'saml2:AttributeValue'("xsi:type": "xs:string", it)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

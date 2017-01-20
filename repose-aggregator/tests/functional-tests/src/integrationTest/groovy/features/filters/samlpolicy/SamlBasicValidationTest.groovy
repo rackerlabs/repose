@@ -191,6 +191,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
         "invalid XML"             | encodeBase64("legit saml response kthxbai")
         "invalid SAML"            | encodeBase64("<banana/>")
         "missing Issuer element"  | encodeBase64(samlResponse(status() >> assertion()))
-        "empty Issuer element"    | encodeBase64(samlResponse({ 'saml2:Issuer'("") } >> status() >> assertion()))
+        "empty Issuer element"    | encodeBase64(samlResponse(issuer("") >> status() >> assertion()))
     }
 }

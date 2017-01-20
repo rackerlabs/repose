@@ -24,6 +24,9 @@ import org.opensaml.saml.saml2.core.Response
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import static features.filters.samlpolicy.util.SamlPayloads.*
+import static features.filters.samlpolicy.util.SamlUtilities.*
+
 /**
  * Who tests the test code?
  */
@@ -48,15 +51,15 @@ class SamlUtilitiesSelfTest extends Specification {
 
         where:
         [testDescription, saml] << [
-                ["using MarkupBuilder, a custom closure, and a known good assertion string", SamlUtilities.samlResponse {
+                ["using MarkupBuilder, a custom closure, and a known good assertion string", samlResponse {
                     'saml2:Issuer'("http://idp.external.com")
                     'saml2p:Status' {
                         'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
                     }
-                    mkp.yieldUnescaped SamlPayloads.ASSERTION_SIGNED
+                    mkp.yieldUnescaped ASSERTION_SIGNED
                 }],
-                ["using MarkupBuilder and closure composition", SamlUtilities.samlResponse(SamlUtilities.issuer() >> SamlUtilities.status() >> SamlUtilities.assertion())],
-                ["using a known good payload", SamlPayloads.SAML_ONE_ASSERTION_SIGNED]
+                ["using MarkupBuilder and closure composition", samlResponse(issuer() >> status() >> assertion())],
+                ["using a known good payload", SAML_ONE_ASSERTION_SIGNED]
         ]
     }
 
@@ -66,15 +69,36 @@ class SamlUtilitiesSelfTest extends Specification {
         Response response = samlUtilities.unmarshallResponse(saml)
         def isValidSignature = samlUtilities.validateSignature(response.assertions[0].signature)
 
-        then: "the signature was not valid"
+        then: "no exceptions were thrown (SAML was successfully unmarshalled)"
+        notThrown(Exception)
+
+        and: "the signature was not valid"
         !isValidSignature
 
         and: "the Issuer was set correctly"
         response.issuer.value == "http://idp.external.com"
 
         where:
-        saml                                                       | testDescription
-        SamlPayloads.SAML_ONE_ASSERTION_SIGNED.replace("    ", "") | "by tampering with the whitespace of a valid payload"
-        SamlPayloads.SAML_ASSERTION_INVALID_SIGNATURE              | "using a known bad payload"
+        saml                                          | testDescription
+        SAML_ONE_ASSERTION_SIGNED.replace("    ", "") | "by tampering with the whitespace of a valid payload"
+        SAML_ASSERTION_INVALID_SIGNATURE              | "using a known bad payload"
+    }
+
+    @Unroll
+    def "SAML Utility can unmarshall a SAML response created using MarkupBuilder with utility methods: #creationMethod"() {
+        when: "we unmarshall the SAML string"
+        Response response = samlUtilities.unmarshallResponse(saml)
+
+        then: "no exceptions were thrown (SAML was successfully unmarshalled)"
+        notThrown(Exception)
+
+        and: "the Issuer was set correctly"
+        response.issuer.value == expectedIssuer
+
+        where:
+        saml                                                 | expectedIssuer       | creationMethod
+        samlResponse(issuer() >> status() >> assertion())    | SAML_EXTERNAL_ISSUER | "issuer(), status(), assertion()"
+        samlResponse(issuer() >> status() >> assertion([:])) | SAML_EXTERNAL_ISSUER | "issuer(), status(), assertion([:])"
+        samlResponse(issuer(SAML_LEGACY_ISSUER) >> status()) | SAML_LEGACY_ISSUER   | "issuer($SAML_LEGACY_ISSUER), status()"
     }
 }
