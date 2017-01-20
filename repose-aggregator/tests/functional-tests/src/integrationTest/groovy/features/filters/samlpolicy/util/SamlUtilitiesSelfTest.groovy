@@ -20,6 +20,7 @@
 
 package features.filters.samlpolicy.util
 
+import groovy.xml.MarkupBuilder
 import org.opensaml.saml.saml2.core.Response
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -51,12 +52,14 @@ class SamlUtilitiesSelfTest extends Specification {
 
         where:
         [testDescription, saml] << [
-                ["using MarkupBuilder, a custom closure, and a known good assertion string", samlResponse {
-                    'saml2:Issuer'("http://idp.external.com")
-                    'saml2p:Status' {
-                        'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
-                    }
-                    mkp.yieldUnescaped ASSERTION_SIGNED
+                ["using MarkupBuilder, a custom closure, and a known good assertion string",
+                 samlResponse { MarkupBuilder builder ->
+                     builder.'saml2:Issuer'("http://idp.external.com")
+                     builder.'saml2p:Status' {
+                         'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
+                     }
+                     builder.mkp.yieldUnescaped ASSERTION_SIGNED
+                     builder
                 }],
                 ["using MarkupBuilder and closure composition", samlResponse(issuer() >> status() >> assertion())],
                 ["using a known good payload", SAML_ONE_ASSERTION_SIGNED]

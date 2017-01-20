@@ -102,7 +102,7 @@ class SamlFlow10Test extends ReposeValveTest {
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
                 headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
-                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(SAML_CRAZY_INVALID)))
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a good response"
         mc.receivedResponse.code as Integer == SC_OK
@@ -121,9 +121,9 @@ class SamlFlow10Test extends ReposeValveTest {
         // TODO: what is Flow 2.0 going to do to the response?
 
         where:
-        saml                                                | flow20ValidationIssue
-        SAML_CRAZY_INVALID                                  | "assertions with inconsistent Issuers, missing Issuers, missing signatures, and an invalid signature"
-        samlResponse { 'saml2:Issuer'(SAML_LEGACY_ISSUER) } | "no other fields in it"
+        saml                                     | flow20ValidationIssue
+        SAML_CRAZY_INVALID                       | "assertions with inconsistent Issuers, missing Issuers, missing signatures, and an invalid signature"
+        samlResponse(issuer(SAML_LEGACY_ISSUER)) | "no other fields in it"
     }
 
     @Unroll

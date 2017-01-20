@@ -93,26 +93,27 @@ class SamlUtilities {
      * Convenience method to let you create a SAML Response using the MarkupBuilder DSL.
      * For example:
      * <pre>
-     * def samlString = samlResponse {
-     *     'saml2:Issuer'("http://idp.external.com")
-     *     'saml2p:Status' {
+     * def samlString = samlResponse { MarkupBuilder builder ->
+     *     builder.'saml2:Issuer'("http://idp.external.com")
+     *     builder.'saml2p:Status' {
      *         'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
      *     }
-     *     mkp.yieldUnescaped ASSERTION_SIGNED
+     *     builder.mkp.yieldUnescaped ASSERTION_SIGNED
+     *     builder  // the builder needs to be returned
      * }
      * </pre>
      */
-    static String samlResponse(Map<String, String> samlResponseAttribs = [:], Closure samlResponseContents) {
+    static String samlResponse(Map<String, String> attributes = [:], Closure<MarkupBuilder> contents) {
         // set some useful defaults if they weren't passed in
-        samlResponseAttribs.ID = samlResponseAttribs.ID ?: "_" + UUID.randomUUID().toString()
-        samlResponseAttribs.IssueInstant = samlResponseAttribs.IssueInstant ?: "2015-12-04T15:47:15.057Z"
-        samlResponseAttribs.Version = samlResponseAttribs.Version ?: "2.0"
+        attributes.ID = attributes.ID ?: "_" + UUID.randomUUID().toString()
+        attributes.IssueInstant = attributes.IssueInstant ?: "2015-12-04T15:47:15.057Z"
+        attributes.Version = attributes.Version ?: "2.0"
 
         // add the namespaces if they weren't already there
-        samlResponseAttribs.'xmlns:saml2p' = samlResponseAttribs.'xmlns:saml2p' ?: "urn:oasis:names:tc:SAML:2.0:protocol"
-        samlResponseAttribs.'xmlns:saml2' = samlResponseAttribs.'xmlns:saml2' ?: "urn:oasis:names:tc:SAML:2.0:assertion"
-        samlResponseAttribs.'xmlns:xs' = samlResponseAttribs.'xmlns:xs' ?: "http://www.w3.org/2001/XMLSchema"
-        samlResponseAttribs.'xmlns:xsi' = samlResponseAttribs.'xmlns:xsi' ?: "http://www.w3.org/2001/XMLSchema-instance"
+        attributes.'xmlns:saml2p' = attributes.'xmlns:saml2p' ?: "urn:oasis:names:tc:SAML:2.0:protocol"
+        attributes.'xmlns:saml2' = attributes.'xmlns:saml2' ?: "urn:oasis:names:tc:SAML:2.0:assertion"
+        attributes.'xmlns:xs' = attributes.'xmlns:xs' ?: "http://www.w3.org/2001/XMLSchema"
+        attributes.'xmlns:xsi' = attributes.'xmlns:xsi' ?: "http://www.w3.org/2001/XMLSchema-instance"
 
         // create XML builder that won't interfere with a signed Assertion
         def writer = new StringWriter()
@@ -120,7 +121,9 @@ class SamlUtilities {
         xmlBuilder.doubleQuotes = false
         xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
 
-        xmlBuilder.'saml2p:Response'(samlResponseAttribs, samlResponseContents)
+        xmlBuilder.'saml2p:Response'(attributes) {
+            contents(xmlBuilder)
+        }
 
         writer.toString()
     }
@@ -131,21 +134,20 @@ class SamlUtilities {
      * <pre>
      * encodeBase64(samlResponse(issuer() >> status() >> assertion()))
      * </pre>
-     *
-     * TODO: see if we can define this as:  static Closure status = { -> 'saml2p:Status' { ... } }
-     * TODO: see if you can refactor to be like the last example in this section: http://groovy-lang.org/processing-xml.html#_markupbuilder
      */
     static Closure issuer(String issuer = SAML_EXTERNAL_ISSUER) {
-        return {
-            'saml2:Issuer'(issuer)
+        return { MarkupBuilder builder ->
+            builder.'saml2:Issuer'(issuer)
+            builder
         }
     }
 
     static Closure status() {
-        return {
-            'saml2p:Status' {
+        return { MarkupBuilder builder ->
+            builder.'saml2p:Status' {
                 'saml2p:StatusCode'(Value: "urn:oasis:names:tc:SAML:2.0:status:Success")
             }
+            builder
         }
     }
 
@@ -154,8 +156,9 @@ class SamlUtilities {
      * MarkupBuilder.
      */
     static Closure assertion(String assertion = ASSERTION_SIGNED) {
-        return {
-            mkp.yieldUnescaped assertion
+        return { MarkupBuilder builder ->
+            builder.mkp.yieldUnescaped assertion
+            builder
         }
     }
 
@@ -178,8 +181,8 @@ class SamlUtilities {
                 FirstName: ["John"],
                 LastName: ["Doe"]]
 
-        return {
-            'saml2:Assertion'(ID: id, IssueInstant: issueInstant, Version: "2.0") {
+        return { MarkupBuilder builder ->
+            builder.'saml2:Assertion'(ID: id, IssueInstant: issueInstant, Version: "2.0") {
                 'saml2:Issuer'(issuer)
                 'saml2:Subject' {
                     'saml2:NameID'(Format: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", name)
@@ -202,6 +205,7 @@ class SamlUtilities {
                     }
                 }
             }
+            builder
         }
     }
 
