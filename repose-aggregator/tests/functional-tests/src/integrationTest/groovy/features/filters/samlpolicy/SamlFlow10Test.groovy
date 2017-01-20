@@ -64,7 +64,7 @@ class SamlFlow10Test extends ReposeValveTest {
     def "a saml:response with an Issuer that #isIt in the configured policy-bypass-issuers list will have an 'Identity-API-Version' value of #headerValue"() {
         given:
         def body = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(
-                samlResponse({ 'saml2:Issuer'(issuer) } >> status() >> assertion())))
+                samlResponse(issuer(samlIssuer) >> status() >> assertion())))
 
         when:
         def mc = deproxy.makeRequest(
@@ -86,7 +86,7 @@ class SamlFlow10Test extends ReposeValveTest {
         fakeIdentityV2Service.getIdpFromIssuerCount + fakeIdentityV2Service.getMappingPolicyForIdpCount == policyMappingQueries
 
         where:
-        isIt     | headerValue | issuer                           | policyMappingQueries
+        isIt     | headerValue | samlIssuer                       | policyMappingQueries
         "is"     | "1.0"       | "http://legacy.idp.external.com" | 0
         "is not" | "2.0"       | generateUniqueIssuer()           | 2
     }
@@ -148,7 +148,7 @@ class SamlFlow10Test extends ReposeValveTest {
         // TODO: what is Flow 2.0 going to do to the response?
 
         when: "the saml:response received by the origin service is unmarshalled"
-        Response response = samlUtilities.unmarshallResponse(saml)
+        Response response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
 
         then: "any signatures in the XML are still valid upon arriving at the origin service"
         !validateResponse || samlUtilities.validateSignature(response.signature)
