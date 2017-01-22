@@ -54,10 +54,8 @@ class SamlBasicValidationTest extends ReposeValveTest {
 
         repose.start()
         reposeLogSearch.awaitByString("Repose ready", 1, 30)
-    }
 
-    def setup() {
-        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
+        fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
     }
 
     @Unroll

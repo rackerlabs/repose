@@ -730,7 +730,7 @@ class MockIdentityV2Service {
     }
 
     Response getIdpFromIssuer(String issuer, Request request) {
-        if (client_token != request.getHeaders().getFirstValue("X-Auth-Token")) {
+        if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token")) {
             new Response(SC_UNAUTHORIZED)
         } else {
             def body = createIdpJsonWithValues(issuer: issuer)
@@ -741,7 +741,7 @@ class MockIdentityV2Service {
     }
 
     Response getMappingPolicyForIdp(String idpId, Request request) {
-        if (client_token != request.getHeaders().getFirstValue("X-Auth-Token")) {
+        if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token")) {
             new Response(SC_UNAUTHORIZED)
         } else {
             def headers = ['Content-type': 'application/json']
