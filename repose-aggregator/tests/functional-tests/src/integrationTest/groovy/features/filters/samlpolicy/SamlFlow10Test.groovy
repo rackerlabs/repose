@@ -56,11 +56,12 @@ class SamlFlow10Test extends ReposeValveTest {
 
         repose.start()
         reposeLogSearch.awaitByString("Repose ready", 1, 30)
+
+        fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
     }
 
     def setup() {
         fakeIdentityV2Service.resetCounts()
-        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
     }
 
     @Unroll
