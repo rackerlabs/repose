@@ -36,6 +36,8 @@ class SamlPayloads {
     static final String CONTENT_TYPE_FORM_URLENCODED = "application/x-www-form-urlencoded"
     static final String CONTENT_TYPE_XML = "application/xml"
     static final String CONTENT_TYPE_INVALID = "application/potato"
+    static final String CONTENT_TYPE_JSON = "application/json"
+    static final String CONTENT_TYPE_TEXT = "text/plain"
 
     static final String IDENTITY_API_VERSION = "Identity-API-Version"
 
