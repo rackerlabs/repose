@@ -23,16 +23,21 @@ package features.filters.samlpolicy
 import features.filters.samlpolicy.util.SamlUtilities
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
+import groovy.xml.MarkupBuilder
 import org.opensaml.saml.saml2.core.Response
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Response as DeproxyResponse
 import org.spockframework.runtime.ConditionNotSatisfiedError
 import spock.lang.FailsWith
 import spock.lang.Unroll
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
+import static framework.mocks.MockIdentityV2Service.IDP_NO_RESULTS
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
 
 /**
  * This functional test goes through the validation logic unique to Flow 2.0.
@@ -60,6 +65,7 @@ class SamlFlow20Test extends ReposeValveTest {
 
     def setup() {
         fakeIdentityV2Service.resetCounts()
+        fakeIdentityV2Service.resetHandlers()
         fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
     }
 
@@ -127,6 +133,7 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
+    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an unsigned assertion should be rejected"() {
         given: "a saml:response with an unsigned assertion"
         def saml = samlResponse(issuer() >> status() >> assertion([:]))
@@ -140,15 +147,71 @@ class SamlFlow20Test extends ReposeValveTest {
 
         then: "the client gets back a bad response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.receivedResponse.body as String == "All assertions must be signed"
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_TEXT
 
         and: "the request doesn't get to the origin service"
         mc.handlings.isEmpty()
     }
 
+    @FailsWith(ConditionNotSatisfiedError)
+    def "a saml:response with an assertion that has an invalid signature will still be processed successfully"() {
+        given: "a saml:response with an assertion containing an invalid signature"
+        def saml = samlResponse(issuer() >> status() >> assertion(ASSERTION_SIGNED.replace("    ", "")))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a good response"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the origin service received the request with the correct header values"
+        mc.handlings[0]
+        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+        mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
+        fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
+    }
+
+    @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
+    def "a saml:response with three assertions that are not all signed should be rejected - with signatures: #sigOne, #sigTwo, #sigThree"() {
+        given: "a saml:response with three assertions that will each be signed depending on the test"
+        def assertionOne = sigOne ? assertion(ASSERTION_SIGNED) : assertion([:])
+        def assertionTwo = sigTwo ? assertion(ASSERTION_SIGNED_TWO) : assertion([:])
+        def assertionThree = sigThree ? assertion(ASSERTION_SIGNED_THREE) : assertion([:])
+        def saml = samlResponse(issuer() >> status() >> assertionOne >> assertionTwo >> assertionThree)
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a bad response"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.receivedResponse.body as String == "All assertions must be signed"
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_TEXT
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
+
+        where:
+        sigOne | sigTwo | sigThree
+        false  | true   | true
+        true   | false  | true
+        true   | true   | false
+        false  | false  | false
+    }
+
     @Unroll
     @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with three signed assertions should be successful even if the signatures aren't valid - with valid signatures: #sigOne, #sigTwo, #sigThree"() {
-        given: "the saml:response has three assertions that will each have a valid or invalid signature depending on the test"
+        given: "a saml:response with three assertions that will each have a valid or invalid signature depending on the test"
         def assertionOne = sigOne ? ASSERTION_SIGNED : ASSERTION_SIGNED.replace("    ", "")
         def assertionTwo = sigTwo ? ASSERTION_SIGNED_TWO : ASSERTION_SIGNED_TWO.replace("    ", "")
         def assertionThree = sigThree ? ASSERTION_SIGNED_THREE : ASSERTION_SIGNED_THREE.replace("    ", "")
@@ -190,5 +253,168 @@ class SamlFlow20Test extends ReposeValveTest {
         true   | false  | true
         true   | true   | false
         false  | false  | false
+    }
+
+    def "a saml:response with an assertion missing the Issuer element should be rejected"() {
+        given: "a saml:response with an assertion missing the Issuer element"
+        def saml = samlResponse { MarkupBuilder builder ->
+            builder.'saml2:Issuer'(SAML_EXTERNAL_ISSUER)
+            builder.'saml2p:Status' {
+                'saml2p:StatusCode'(Value: SAML_STATUS_SUCCESS)
+            }
+            builder.'saml2:Assertion'(ID: "_" + UUID.randomUUID().toString(), IssueInstant: "2013-11-15T16:19:06.310Z", Version: "2.0") {
+                'saml2:Subject' {
+                    'saml2:NameID'(Format: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", "john.doe")
+                    'saml2:SubjectConfirmation'(Method: "urn:oasis:names:tc:SAML:2.0:cm:bearer") {
+                        'saml2:SubjectConfirmationData'(NotOnOrAfter: "2113-11-17T16:19:06.298Z")
+                    }
+                }
+                'saml2:AuthnStatement'(AuthnInstant: "2113-11-15T16:19:04.055Z") {
+                    'saml2:AuthnContext' {
+                        'saml2:AuthnContextClassRef'("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport")
+                    }
+                }
+            }
+            builder
+        }
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a bad response"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
+    }
+
+    @FailsWith(ConditionNotSatisfiedError)
+    def "a saml:response with an assertion containing an empty Issuer will still be processed successfully"() {
+        given:
+        def saml = samlResponse { MarkupBuilder builder ->
+            builder.'saml2:Issuer'(SAML_EXTERNAL_ISSUER)
+            builder.'saml2p:Status' {
+                'saml2p:StatusCode'(Value: SAML_STATUS_SUCCESS)
+            }
+            builder.'saml2:Assertion'(ID: "_" + UUID.randomUUID().toString(), IssueInstant: "2013-11-15T16:19:06.310Z", Version: "2.0") {
+                'saml2:Issuer'("")
+                'saml2:Subject' {
+                    'saml2:NameID'(Format: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", "john.doe")
+                    'saml2:SubjectConfirmation'(Method: "urn:oasis:names:tc:SAML:2.0:cm:bearer") {
+                        'saml2:SubjectConfirmationData'(NotOnOrAfter: "2113-11-17T16:19:06.298Z")
+                    }
+                }
+                'saml2:AuthnStatement'(AuthnInstant: "2113-11-15T16:19:04.055Z") {
+                    'saml2:AuthnContext' {
+                        'saml2:AuthnContextClassRef'("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport")
+                    }
+                }
+            }
+            builder
+        }
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a good response"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the origin service received the request with the correct header values"
+        mc.handlings[0]
+        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+        mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
+        fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
+    }
+
+    @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
+    def "a saml:response with three assertions containing inconsistent Issuers should be rejected - with issuers: #issuerOne, #issuerTwo, #issuerThree"() {
+        given:
+        def saml = samlResponse(issuer() >> status() >>
+                assertion(issuer: issuerOne, fakeSign: true) >>
+                assertion(issuer: issuerTwo, fakeSign: true) >>
+                assertion(issuer: issuerThree, fakeSign: true))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a bad response"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.receivedResponse.body as String == "All assertions must come from the same issuer"
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_TEXT
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
+
+        where:
+        issuerOne | issuerTwo | issuerThree
+        "same"    | "same"    | "diff"
+        "same"    | "diff"    | "same"
+        "diff"    | "same"    | "same"
+        "one"     | "two"     | "three"
+    }
+
+    @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
+    def "a saml:response with an Issuer that Identity doesn't know about (returns #description) should be rejected with a 401"() {
+        given: "the IDP call will return the given response for this test"
+        // TODO: verify this is what Identity would send for this case
+        fakeIdentityV2Service.getIdpFromIssuerHandler = getIdpFromIssuerHandler
+
+        and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
+        def saml = samlResponse(issuer(generateUniqueIssuer()) >> status() >> assertion(fakeSign: true))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a bad response"
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
+
+        where:
+        description     | getIdpFromIssuerHandler
+        "a 404"         | { new DeproxyResponse(SC_NOT_FOUND) }
+        "an empty list" | { new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): CONTENT_TYPE_JSON], IDP_NO_RESULTS) }
+    }
+
+    @FailsWith(ConditionNotSatisfiedError)
+    def "a saml:response with an Issuer that Identity doesn't have a mapping policy for should be rejected with a 401"() {
+        given: "the mapping policy call will return a 404"
+        // TODO: verify this is what Identity would send for this case
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = { new DeproxyResponse(SC_NOT_FOUND) }
+
+        and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
+        def saml = samlResponse(issuer(generateUniqueIssuer()) >> status() >> assertion(fakeSign: true))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a bad response"
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
     }
 }

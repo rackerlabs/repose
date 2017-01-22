@@ -142,6 +142,7 @@ class SamlUtilities {
         attributes.'xmlns:saml2' = attributes.'xmlns:saml2' ?: "urn:oasis:names:tc:SAML:2.0:assertion"
         attributes.'xmlns:xs' = attributes.'xmlns:xs' ?: "http://www.w3.org/2001/XMLSchema"
         attributes.'xmlns:xsi' = attributes.'xmlns:xsi' ?: "http://www.w3.org/2001/XMLSchema-instance"
+        attributes.'xmlns:ds' = attributes.'xmlns:ds' ?: "http://www.w3.org/2000/09/xmldsig#"
 
         // create an XML builder that won't invalidate the signature of a signed Assertion
         def writer = new StringWriter()
@@ -192,7 +193,8 @@ class SamlUtilities {
 
     /**
      * Given a map of values to populate the Assertion with, creates an unsigned Assertion and returns a closure that
-     * can be used to generate a saml:response using a MarkupBuilder.
+     * can be used to generate a saml:response using a MarkupBuilder.  An invalid signature can be added by including
+     * "fakeSign: true" in the list of arguments.
      */
     static Closure assertion(Map values) {
         def id = values.id ?: "_" + UUID.randomUUID().toString()
@@ -212,6 +214,9 @@ class SamlUtilities {
         return { MarkupBuilder builder ->
             builder.'saml2:Assertion'(ID: id, IssueInstant: issueInstant, Version: "2.0") {
                 'saml2:Issuer'(issuer)
+                if (values.fakeSign) {
+                    invalidSignature()
+                }
                 'saml2:Subject' {
                     'saml2:NameID'(Format: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", name)
                     'saml2:SubjectConfirmation'(Method: "urn:oasis:names:tc:SAML:2.0:cm:bearer") {
@@ -230,6 +235,32 @@ class SamlUtilities {
                                 'saml2:AttributeValue'("xsi:type": "xs:string", it)
                             }
                         }
+                    }
+                }
+            }
+            builder
+        }
+    }
+
+    static Closure invalidSignature() {
+        return { MarkupBuilder builder ->
+            builder.'ds:Signature' {
+                'ds:SignedInfo' {
+                    'ds:CanonicalizationMethod'(Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#")
+                    'ds:SignatureMethod'(Algorithm: "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
+                    'ds:Reference'(URI: "#pfxc9435867-d8a6-fa15-0f6b-41228cca3e15") {
+                        'ds:Transforms' {
+                            'ds:Transform'(Algorithm: "http://www.w3.org/2000/09/xmldsig#enveloped-signature")
+                            'ds:Transform'(Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#")
+                        }
+                        'ds:DigestMethod'(Algorithm: "http://www.w3.org/2000/09/xmldsig#sha1")
+                        'ds:DigestValue'("H+PPZDnLGAC/C1WaJhOT+B79ojQ=")
+                    }
+                }
+                'ds:SignatureValue'("MtFONdlYWxzRDv")
+                'ds:KeyInfo' {
+                    'ds:X509Data' {
+                        'ds:X509Certificate'("MIICajCCAdOgAwI")
                     }
                 }
             }
