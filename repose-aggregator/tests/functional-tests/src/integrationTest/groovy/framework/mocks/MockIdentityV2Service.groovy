@@ -283,20 +283,17 @@ class MockIdentityV2Service {
         def method = request.method
 
         String path
-        String query // TODO: after we deal with the cow below, we may move the scope of this variable
         Map<String, String> queryParams
 
         // separate query and path
         if (fullPath.contains("?")) {
             int index = fullPath.indexOf("?")
             path = fullPath.substring(0, index)
-            query = fullPath.substring(index + 1)
-            queryParams = query.split("&").collectEntries { param ->
+            queryParams = fullPath.substring(index + 1).split("&").collectEntries { param ->
                 param.split("=").collect { URLDecoder.decode(it, "UTF-8") }
             }
         } else {
             path = fullPath
-            query = null
             queryParams = [:]
         }
 
@@ -319,30 +316,10 @@ class MockIdentityV2Service {
                 }
             } else if (isValidateTokenCallPath(path)) {
                 if (method == 'GET') {
-                    def tenantid = validateTenant
-                    //
-                    // TODO: This doesn't look like it'll work even a little, and it appears to be unused.
-                    // TODO: If functional tests continue to pass with this commented out, remove it.
-                    //
-                    //                    ___________________________________________________
-                    //           (__)    /                                                   \
-                    //           (oo)   (   Do not merge branch until this is resolved. Moo.  )
-                    //    /-------\/  --'\___________________________________________________/
-                    //   / |     ||
-                    //  *  ||----||
-                    //     ^^    ^^
-                    //
-
-                    /*if (query != null) {
-                        if (query.contains("belongsTo")) {
-                            String belongsToquery = query.substring(indexOf("belongsTo"), indexOf(/&/))
-                            tenantid = belongsToquery.split(/=/)[1]
-                        }
-                    }*/
                     validateTokenCount.incrementAndGet()
                     def match = (path =~ PATH_REGEX_VALIDATE_TOKEN)
                     def tokenId = match[0][1]
-                    return validateTokenHandler(tokenId, tenantid, request, shouldReturnXml)
+                    return validateTokenHandler(tokenId, validateTenant, request, shouldReturnXml)
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
