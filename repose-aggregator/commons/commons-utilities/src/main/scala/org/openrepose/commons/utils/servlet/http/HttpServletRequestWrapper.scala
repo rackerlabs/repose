@@ -215,32 +215,9 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     * @param newQueryString the desired raw (i.e., already encoded where necessary) query string for this request
     */
   def setQueryString(newQueryString: String): Unit = {
-    def parseQueryString(s: String): Map[String, Array[String]] = {
-      val parameterMap = mutable.Map.empty[String, Array[String]]
-
-      s.split(QueryPairDelimiter) foreach { queryPair =>
-        val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
-
-        /**
-          * Note: Decoding using UTF-8 is consistent with the processing performed by [[HttpComponentRequestProcessor]]
-          * on request parameters. However, if the JVM default encoding is not UTF-8, decoding may not work as expected.
-          * Perhaps the default JVM encoding should be used instead?
-          */
-        val key = URLDecoder.decode(keyValuePair(0), StandardCharsets.UTF_8.toString)
-        if (keyValuePair.length == 2) {
-          val value = URLDecoder.decode(keyValuePair(1), StandardCharsets.UTF_8.toString)
-          parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(value))
-        } else {
-          parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(""))
-        }
-      }
-
-      parameterMap.toMap
-    }
-
     val updatedParameterMap = mutable.Map.empty[String, Array[String]]
-    val curQueryMap = Option(getQueryString).map(parseQueryString).getOrElse(Map.empty[String, Array[String]])
-    val newQueryMap = Option(newQueryString).map(parseQueryString).getOrElse(Map.empty[String, Array[String]])
+    val curQueryMap = Option(getQueryString).map(parseParameterString).getOrElse(Map.empty[String, Array[String]])
+    val newQueryMap = Option(newQueryString).map(parseParameterString).getOrElse(Map.empty[String, Array[String]])
 
     // Remove all current query parameters from the parameter map
     formParameterMap match {
@@ -287,4 +264,26 @@ object HttpServletRequestWrapper {
     val Available, InputStream, Reader = Value
   }
 
+  private def parseParameterString(s: String): Map[String, Array[String]] = {
+    val parsedParameterMap = mutable.Map.empty[String, Array[String]]
+
+    s.split(QueryPairDelimiter) foreach { queryPair =>
+      val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
+
+      /**
+        * Note: Decoding using UTF-8 is consistent with the processing performed by [[HttpComponentRequestProcessor]]
+        * on request parameters. However, if the JVM default encoding is not UTF-8, decoding may not work as expected.
+        * Perhaps the default JVM encoding should be used instead?
+        */
+      val key = URLDecoder.decode(keyValuePair(0), StandardCharsets.UTF_8.toString)
+      if (keyValuePair.length == 2) {
+        val value = URLDecoder.decode(keyValuePair(1), StandardCharsets.UTF_8.toString)
+        parsedParameterMap += (key -> parsedParameterMap.getOrElse(key, Array.empty[String]).:+(value))
+      } else {
+        parsedParameterMap += (key -> parsedParameterMap.getOrElse(key, Array.empty[String]).:+(""))
+      }
+    }
+
+    parsedParameterMap.toMap
+  }
 }
