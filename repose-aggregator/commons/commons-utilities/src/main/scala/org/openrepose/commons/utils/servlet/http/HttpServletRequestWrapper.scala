@@ -217,7 +217,6 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
   def setQueryString(newQueryString: String): Unit = {
     val updatedParameterMap = mutable.Map.empty[String, Array[String]]
     val curQueryMap = Option(getQueryString).map(parseParameterString).getOrElse(Map.empty[String, Array[String]])
-    val newQueryMap = Option(newQueryString).map(parseParameterString).getOrElse(Map.empty[String, Array[String]])
 
     // Remove all current query parameters from the parameter map
     formParameterMap match {
@@ -232,11 +231,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
         }
         formParameterMap = Option(updatedParameterMap.toMap)
     }
-
-    // Add all new query parameters to the parameter map with query parameters preceding form parameters
-    newQueryMap foreach { case (key, values) =>
-      updatedParameterMap += (key -> (values ++ updatedParameterMap.getOrElse(key, Array.empty[String])))
-    }
+    // Add the new query parameters to the parameter map with the query parameters preceding the form parameters
+    insertParameters(Option(newQueryString).map(parseParameterString).getOrElse(Map.empty[String, Array[String]]), updatedParameterMap)
 
     parameterMap = Option(updatedParameterMap.toMap)
     queryString = newQueryString
@@ -285,5 +281,11 @@ object HttpServletRequestWrapper {
     }
 
     parsedParameterMap.toMap
+  }
+
+  private def insertParameters(insertMap: Map[String, Array[String]], intoMap: mutable.Map[String, Array[String]]) = {
+    insertMap foreach { case (key, values) =>
+      intoMap += (key -> (values ++ intoMap.getOrElse(key, Array.empty[String])))
+    }
   }
 }
