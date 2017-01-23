@@ -19,7 +19,8 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{BufferedReader, IOException}
+import java.io.{BufferedReader, ByteArrayInputStream, ByteArrayOutputStream, IOException}
+import java.nio.charset.StandardCharsets
 import java.util
 import javax.servlet.ServletInputStream
 
@@ -963,6 +964,24 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
     it("should return an immutable map") {
       an[UnsupportedOperationException] should be thrownBy wrappedRequest.getParameterMap.put("foo", Array("oof"))
       wrappedRequest.getParameterMap.get("foo") should contain only("bar", "baz")
+    }
+
+    it("should provide form values even if the getInputStream method has already been called") {
+      val localRequest = new MockHttpServletRequest()
+      localRequest.setContentType("application/x-www-form-urlencoded")
+      localRequest.setContent("a=b&c=d".getBytes(StandardCharsets.UTF_8))
+
+      val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
+
+      localWrappedRequest.setQueryString("a=e")
+
+      localWrappedRequest.getParameterMap should have size 2
+      localWrappedRequest.getParameterMap should contain key "a"
+      localWrappedRequest.getParameterMap.get("a") should have size 2
+      localWrappedRequest.getParameterMap.get("a") should contain inOrderOnly("e", "b")
+      localWrappedRequest.getParameterMap should contain key "c"
+      localWrappedRequest.getParameterMap.get("c") should have size 1
+      localWrappedRequest.getParameterMap.get("c") should contain ("d")
     }
   }
 
