@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{BufferedReader, InputStreamReader}
+import java.io.{BufferedReader, ByteArrayInputStream, ByteArrayOutputStream, InputStreamReader}
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util
@@ -27,12 +27,13 @@ import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
 
 import org.apache.http.client.utils.DateUtils
+import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.{TreeMap, TreeSet}
 import scala.collection.mutable
 
-class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream: ServletInputStream)
+class HttpServletRequestWrapper(originalRequest: HttpServletRequest, var inputStream: ServletInputStream)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest) with HeaderInteractor {
 
   import HttpServletRequestWrapper._
@@ -244,8 +245,46 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     *
     * @return the parameter map for this request
     */
-  override def getParameterMap: util.Map[String, Array[String]] =
-    parameterMap.map(_.asJava).getOrElse(super.getParameterMap)
+  override def getParameterMap: util.Map[String, Array[String]] = {
+    def retrieveParameterMap: util.Map[String, Array[String]] = {
+      // As per Servlet Spec 3.1 section 3.1.1, form parameters are only parsed under certain conditions.
+      if (getContentLength > 0 && "application/x-www-form-urlencoded".equalsIgnoreCase(getContentType) &&
+        ("POST".equalsIgnoreCase(getMethod) || "PUT".equalsIgnoreCase(getMethod))) {
+        val updatedParameterMap = mutable.Map.empty[String, Array[String]]
+        formParameterMap match {
+          case Some(fpm) =>
+            updatedParameterMap ++= fpm
+          case None =>
+            // This is the only place the input stream has a chance of being replaced or manipulated directly by the wrapper.
+            inputStream synchronized {
+              // As per Servlet Spec 3.1 section 3.1.1, form parameters are only available until the input stream is read.
+              if (status == RequestBodyStatus.Available) {
+                if (!inputStream.markSupported) {
+                  // Make the input stream something that supports mark/reset so we can parse it and reset it.
+                  val byteArrayOutputStream = new ByteArrayOutputStream
+                  RawInputStreamReader.instance.copyTo(inputStream, byteArrayOutputStream)
+                  inputStream = new BufferedServletInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray))
+                }
+                inputStream.mark(getContentLength)
+                updatedParameterMap ++= parseParameterString(
+                  new String(RawInputStreamReader.instance.readFully(inputStream, getContentLength), StandardCharsets.UTF_8))
+                inputStream.reset()
+              }
+            }
+            formParameterMap = Option(updatedParameterMap.toMap)
+        }
+        // Add the query parameters to the parameter map preceding the form parameters already added.
+        insertParameters(Option(getQueryString).map(parseParameterString).getOrElse(Map.empty[String, Array[String]]), updatedParameterMap)
+
+        parameterMap = Option(updatedParameterMap.toMap)
+        parameterMap.getOrElse(Map.empty[String, Array[String]]).asJava
+      } else {
+        super.getParameterMap
+      }
+    }
+
+    parameterMap.map(_.asJava).getOrElse(retrieveParameterMap)
+  }
 }
 
 object HttpServletRequestWrapper {
