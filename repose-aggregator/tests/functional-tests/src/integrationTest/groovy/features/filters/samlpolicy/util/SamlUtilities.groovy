@@ -164,15 +164,15 @@ class SamlUtilities {
      * encodeBase64(samlResponse(issuer() >> status() >> assertion()))
      * </pre>
      */
-    static Closure issuer(String issuer = SAML_EXTERNAL_ISSUER) {
-        return { MarkupBuilder builder ->
+    static Closure<MarkupBuilder> issuer(String issuer = SAML_EXTERNAL_ISSUER) {
+        { MarkupBuilder builder ->
             builder.'saml2:Issuer'(issuer)
             builder
         }
     }
 
-    static Closure status() {
-        return { MarkupBuilder builder ->
+    static Closure<MarkupBuilder> status() {
+        { MarkupBuilder builder ->
             builder.'saml2p:Status' {
                 'saml2p:StatusCode'(Value: SAML_STATUS_SUCCESS)
             }
@@ -184,8 +184,8 @@ class SamlUtilities {
      * Given a String containing an Assertion, returns a closure that can be used to generate a saml:response using
      * a MarkupBuilder.
      */
-    static Closure assertion(String assertion = ASSERTION_SIGNED) {
-        return { MarkupBuilder builder ->
+    static Closure<MarkupBuilder> assertion(String assertion = ASSERTION_SIGNED) {
+        { MarkupBuilder builder ->
             builder.mkp.yieldUnescaped assertion
             builder
         }
@@ -196,7 +196,7 @@ class SamlUtilities {
      * can be used to generate a saml:response using a MarkupBuilder.  An invalid signature can be added by including
      * "fakeSign: true" in the list of arguments.
      */
-    static Closure assertion(Map values) {
+    static Closure<MarkupBuilder> assertion(Map values) {
         def id = values.id ?: "_" + UUID.randomUUID().toString()
         def issueInstant = values.issueInstant ?: "2013-11-15T16:19:06.310Z"
         def issuer = values.issuer ?: SAML_EXTERNAL_ISSUER
@@ -215,7 +215,7 @@ class SamlUtilities {
             builder.'saml2:Assertion'(ID: id, IssueInstant: issueInstant, Version: "2.0") {
                 'saml2:Issuer'(issuer)
                 if (values.fakeSign) {
-                    invalidSignature()
+                    invalidSignature()(builder)
                 }
                 'saml2:Subject' {
                     'saml2:NameID'(Format: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", name)
@@ -242,7 +242,7 @@ class SamlUtilities {
         }
     }
 
-    static Closure invalidSignature() {
+    static Closure<MarkupBuilder> invalidSignature() {
         return { MarkupBuilder builder ->
             builder.'ds:Signature' {
                 'ds:SignedInfo' {
@@ -257,10 +257,10 @@ class SamlUtilities {
                         'ds:DigestValue'("H+PPZDnLGAC/C1WaJhOT+B79ojQ=")
                     }
                 }
-                'ds:SignatureValue'("MtFONdlYWxzRDv")
+                'ds:SignatureValue'(SAML_INVALID_SIGNATURE_VALUE)
                 'ds:KeyInfo' {
                     'ds:X509Data' {
-                        'ds:X509Certificate'("MIICajCCAdOgAwI")
+                        'ds:X509Certificate'(SAML_EXTERNAL_X509_CERTIFICATE)
                     }
                 }
             }
