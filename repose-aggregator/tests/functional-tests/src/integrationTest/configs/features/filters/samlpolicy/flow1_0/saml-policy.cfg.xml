@@ -10,7 +10,7 @@
                               password="admin_password"
                               connection-pool-id="default"/>
         <policy-endpoint uri="http://localhost:${identityPort}" connection-pool-id="default"/>
-        <cache ttl="1" atom-feed-id="authenticated-policy-feed"/>
+        <cache ttl="3600"/>
     </policy-acquisition>
     <signature-credentials keystore-filename="single.jks"
                            keystore-password="password"
