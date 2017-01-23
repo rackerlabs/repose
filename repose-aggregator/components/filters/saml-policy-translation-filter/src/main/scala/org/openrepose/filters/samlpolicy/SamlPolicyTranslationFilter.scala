@@ -55,7 +55,7 @@ import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.springframework.beans.factory.annotation.Value
-import org.w3c.dom.Document
+import org.w3c.dom.{Document, NodeList}
 
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
@@ -83,7 +83,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
   private val namespaceContext: NamespaceContext = ImmutableNamespaceContext(Map("s2p" -> "urn:oasis:names:tc:SAML:2.0:protocol",
-                                                                                 "s2"  -> "urn:oasis:names:tc:SAML:2.0:assertion"))
+                                                                                 "s2"  -> "urn:oasis:names:tc:SAML:2.0:assertion",
+                                                                                 "sig" -> "http://www.w3.org/2000/09/xmldsig#"))
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
@@ -189,7 +190,46 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the issuer for the embedded assertions
     * @throws SamlPolicyException if response is invalid
     */
-  def validateResponseAndGetIssuer(document: Document): String = ???
+  def validateResponseAndGetIssuer(document: Document): String = {
+    val version = 30
+    val assertionPath = "/s2p:Response/s2:Assertion"
+    val issuerPath = "/s2p:Response//s2:Issuer"
+    val signaturePath = "/s2p:Response/s2:Assertion/sig:Signature"
+    var assertionExpression : Option[XPathExpression] = None
+    var issuerExpression : Option[XPathExpression] = None
+    var signatureExpression : Option[XPathExpression] = None
+
+    try {
+      assertionExpression = Option(XPathExpressionPool.borrowExpression(assertionPath, namespaceContext, version))
+      issuerExpression = Option(XPathExpressionPool.borrowExpression(issuerPath, namespaceContext, version))
+      signatureExpression = Option(XPathExpressionPool.borrowExpression(signaturePath, namespaceContext, version))
+
+      val assertions = assertionExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
+      val issuers = issuerExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
+      val signatures = signatureExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
+
+      if (assertions.getLength != signatures.getLength) {
+        throw SamlPolicyException(400, "All assertions must be signed")
+      }
+
+      if (issuers.getLength != (assertions.getLength + 1)) {
+        throw SamlPolicyException(400, "SAML Response and all assertions need an issuer")
+      }
+
+      val listOfIssuers = for (i <- 0 until issuers.getLength) yield issuers.item(i).getTextContent
+
+      val uniqueIssuers = listOfIssuers.toSet
+      if (uniqueIssuers.size != 1) {
+        throw  SamlPolicyException(400, "All assertions must come from the same issuer")
+      }
+
+      uniqueIssuers.head
+    } finally {
+      assertionExpression.foreach(XPathExpressionPool.returnExpression(assertionPath, namespaceContext, version, _))
+      issuerExpression.foreach(XPathExpressionPool.returnExpression(issuerPath, namespaceContext, version, _))
+      signatureExpression.foreach(XPathExpressionPool.returnExpression(signaturePath, namespaceContext, version, _))
+    }
+  }
 
   /**
     * Retrieves the policy from the configured endpoint. The caching will be handled elsewhere.
