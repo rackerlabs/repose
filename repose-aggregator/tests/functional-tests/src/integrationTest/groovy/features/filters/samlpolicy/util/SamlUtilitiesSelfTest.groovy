@@ -82,9 +82,10 @@ class SamlUtilitiesSelfTest extends Specification {
         response.issuer.value == SAML_EXTERNAL_ISSUER
 
         where:
-        saml                                          | testDescription
-        SAML_ONE_ASSERTION_SIGNED.replace("    ", "") | "by tampering with the whitespace of a valid payload"
-        SAML_ASSERTION_INVALID_SIGNATURE              | "using a known bad payload"
+        saml                                                | testDescription
+        SAML_ONE_ASSERTION_SIGNED.replace("    ", "")       | "by tampering with the whitespace of a valid payload"
+        SAML_ASSERTION_INVALID_SIGNATURE                    | "using a known bad payload"
+        samlResponse(issuer() >> assertion(fakeSign: true)) | "generating a saml:response with an invalid signature in the Assertion"
     }
 
     @Unroll
