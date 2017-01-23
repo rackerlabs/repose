@@ -62,7 +62,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   override def getHeaderNames: util.Enumeration[String] = getHeaderNamesScala.toIterator.asJavaEnumeration
 
-  def getHeaderNamesScala: Set[String] = headerMap.keySet ++ Option(super.getHeaderNames).getOrElse(util.Collections.emptyEnumeration).asScala.toSet.filterNot(removedHeaders.contains)
+  def getHeaderNamesScala: Set[String] = headerMap.keySet ++ Option(super.getHeaderNames).getOrElse(util.Collections.emptyEnumeration).asScala.toSet.diff(removedHeaders)
 
   override def getHeaderNamesList: util.List[String] = getHeaderNamesScala.toList.asJava
 
