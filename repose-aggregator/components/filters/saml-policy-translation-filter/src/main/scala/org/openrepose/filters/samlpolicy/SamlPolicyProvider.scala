@@ -102,7 +102,7 @@ class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
       TokenRequestKey,
       s"$tokenUri$TokenPath",
       (Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString -> _)).asJava,
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava,
       Json.stringify(authenticationPayload),
       MediaType.APPLICATION_JSON_TYPE,
       checkCache

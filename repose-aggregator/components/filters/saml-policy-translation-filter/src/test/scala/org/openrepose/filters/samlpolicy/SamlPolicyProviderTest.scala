@@ -149,6 +149,17 @@ class SamlPolicyProviderTest extends FunSpec with BeforeAndAfterEach with Matche
   }
 
   describe("getToken") {
+    val sampleToken =
+      """
+        |{
+        |  "access": {
+        |    "token": {
+        |      "id": "some-token"
+        |    }
+        |  }
+        |}
+      """.stripMargin
+
     it("should return a Failure if the service client cannot connect") {
       when(akkaServiceClient.post(
         MM.anyString(),
@@ -183,7 +194,7 @@ class SamlPolicyProviderTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(akkaServiceClient).post(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(TRACE_GUID, "trace-id")),
+        MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
         MM.anyString(),
         MM.any[MediaType],
         MM.anyBoolean()
@@ -280,17 +291,7 @@ class SamlPolicyProviderTest extends FunSpec with BeforeAndAfterEach with Matche
           CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
-        new ByteArrayInputStream(
-          """
-            |{
-            |  "access": {
-            |    "token": {
-            |      "id": "some-token"
-            |    }
-            |  }
-            |}
-          """.stripMargin.getBytes
-        )
+        new ByteArrayInputStream(sampleToken.getBytes)
       ))
 
       samlPolicyProvider.using("", "", None, None)
@@ -326,7 +327,7 @@ class SamlPolicyProviderTest extends FunSpec with BeforeAndAfterEach with Matche
           MM.anyString(),
           MM.any[MediaType],
           MM.anyBoolean()
-        )).thenReturn(new ServiceClientResponse(SC_NOT_FOUND, null))
+        )).thenReturn(new ServiceClientResponse(responseCode, null))
 
         samlPolicyProvider.using("", "", None, None)
 
@@ -356,17 +357,7 @@ class SamlPolicyProviderTest extends FunSpec with BeforeAndAfterEach with Matche
             CONTENT_TYPE,
             MediaType.APPLICATION_JSON + "; charset=" + charset.name()
           )),
-          new ByteArrayInputStream(
-            """
-              |{
-              |  "access": {
-              |    "token": {
-              |      "id": "some-token"
-              |    }
-              |  }
-              |}
-            """.stripMargin.getBytes(charset)
-          )
+          new ByteArrayInputStream(sampleToken.getBytes(charset))
         ))
 
         samlPolicyProvider.using("", "", None, None)
