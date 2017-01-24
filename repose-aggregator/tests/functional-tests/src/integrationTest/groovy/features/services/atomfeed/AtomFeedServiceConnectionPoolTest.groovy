@@ -81,8 +81,8 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         startReposeWithConfigParams("atom-feed-id": atomFeedId)
 
         and: "we provide a valid atom feed entry with a handler that will capture the request headers"
-        String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: "urn:uuid:$entryId")
-        def atomFeedHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+        def atomFeedEntry = fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$entryId")
+        def atomFeedHandler = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
         HeaderCollection requestHeadersToAtomFeed = null
         def atomFeedHandlerWrapper = { Request request ->
             requestHeadersToAtomFeed = request.headers
@@ -112,8 +112,8 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         startReposeWithConfigParams("atom-feed-id": atomFeedId)
 
         and: "an atom feed entry is available for consumption"
-        String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: "urn:uuid:$entryId")
-        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+        def atomFeedEntry = fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$entryId")
+        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
         when: "we wait for the Keystone V2 filter to read the feed"
         reposeLogSearch.awaitByString("<atom:id>urn:uuid:$entryId</atom:id>", 2, 6, TimeUnit.SECONDS)
@@ -134,8 +134,8 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         startReposeWithConfigParams("atom-feed-id": atomFeedId)
 
         and: "an atom feed entry is available for consumption"
-        String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: "urn:uuid:$entryId")
-        def atomFeedHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+        def atomFeedEntry = fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$entryId")
+        def atomFeedHandler = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
         def atomFeedHandlerWrapper = { Request request ->
             sleep(2_000) // configured timeout is 1 second
             atomFeedHandler(request)
@@ -146,8 +146,8 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("java.net.SocketTimeoutException: Read timed out", 1, 5, TimeUnit.SECONDS)
 
         and: "we provide a valid atom feed entry for the next attempt with a handler that will capture the request headers"
-        atomFeedEntry = fakeAtomFeed.createAtomEntry(id: "urn:uuid:${entryId + 4}")
-        atomFeedHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+        atomFeedEntry = fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:${entryId + 4}")
+        atomFeedHandler = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
         HeaderCollection requestHeadersToAtomFeed = null
         atomFeedHandlerWrapper = { Request request ->
             requestHeadersToAtomFeed = request.headers
@@ -189,8 +189,8 @@ class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
         identityEndpoint.defaultHandler = fakeIdentityV2Service.handler
 
         and: "an atom feed entry is made available"
-        String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: 'urn:uuid:429')
-        def atomFeedHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+        def atomFeedEntry = fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:429")
+        def atomFeedHandler = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
         HeaderCollection requestHeadersToAtomFeed = null
         def atomFeedHandlerWrapper = { Request request ->
             requestHeadersToAtomFeed = request.headers
