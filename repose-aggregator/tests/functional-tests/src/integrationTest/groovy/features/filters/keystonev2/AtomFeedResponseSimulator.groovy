@@ -102,26 +102,25 @@ class AtomFeedResponseSimulator {
     String atomFeed(Map values = [:], Closure<MarkupBuilder> entries) {
         Map params = getDefaultParams() + DEFAULT_FEED_PARAMS + values
 
-        def writer = new StringWriter()
-        def xmlBuilder = new MarkupBuilder(writer)
-        xmlBuilder.doubleQuotes = true
-        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
+        return buildXmlToString { MarkupBuilder xmlBuilder ->
+            xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
 
-        xmlBuilder.'feed'(xmlns: "http://www.w3.org/2005/Atom") {
-            'link'(href: "http://localhost:${params.atomPort}/feed/", rel: "current")
-            'link'(href: "http://localhost:${params.atomPort}/feed/", rel: "self")
-            'id'(params.id)
-            'title'(type: "text", "feed")
-            if (params.isLastPage) {
-                'link'(href: "http://localhost:${params.atomPort}/feed/?marker=last&amp;limit=25&amp;search=&amp;direction=backward", rel: "last")
-            } else {
-                'link'(href: "http://localhost:${params.atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward", rel: "previous")
+            xmlBuilder.'feed'(xmlns: "http://www.w3.org/2005/Atom") {
+                'link'(href: "http://localhost:${params.atomPort}/feed/", rel: "current")
+                'link'(href: "http://localhost:${params.atomPort}/feed/", rel: "self")
+                'id'(params.id)
+                'title'(type: "text", "feed")
+                if (params.isLastPage) {
+                    'link'(href: "http://localhost:${params.atomPort}/feed/?marker=last&amp;limit=25&amp;search=&amp;direction=backward", rel: "last")
+                } else {
+                    'link'(href: "http://localhost:${params.atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward", rel: "previous")
+                }
+                'updated'(params.time)
+                entries(xmlBuilder)
             }
-            'updated'(params.time)
-            entries(xmlBuilder)
-        }
 
-        writer.toString()
+            xmlBuilder
+        }
     }
 
     String atomFeedWithNoEntries() {
