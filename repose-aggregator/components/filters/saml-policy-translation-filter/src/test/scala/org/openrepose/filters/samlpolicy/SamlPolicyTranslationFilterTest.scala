@@ -573,13 +573,14 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val result = filter.getToken(None)
 
+      result shouldBe a[Success[_]]
+      result.get shouldEqual token
       verify(samlPolicyProvider).getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
       )
-      result shouldEqual token
     }
 
     it("should throw an exception if fetching a fresh token fails") {
@@ -592,8 +593,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyBoolean()
       )).thenReturn(Failure(UnexpectedStatusCodeException(SC_FORBIDDEN, "forbidden")))
 
-      val thrown = the[UnexpectedStatusCodeException] thrownBy filter.getToken(None)
-      thrown.statusCode shouldEqual SC_FORBIDDEN
+      val result = filter.getToken(None)
+      result shouldBe a[Failure[_]]
+      (the [UnexpectedStatusCodeException] thrownBy result.get).statusCode shouldEqual SC_FORBIDDEN
       verify(samlPolicyProvider).getToken(
         MM.anyString(),
         MM.anyString(),
@@ -613,8 +615,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyBoolean()
       )).thenReturn(Failure(OverLimitException(retryAfter, "rate limited")))
 
-      val thrown = the[OverLimitException] thrownBy filter.getToken(None)
-      thrown.retryAfter shouldEqual retryAfter
+      val result = filter.getToken(None)
+      result shouldBe a[Failure[_]]
+      (the [OverLimitException] thrownBy result.get).retryAfter shouldEqual retryAfter
       verify(samlPolicyProvider).getToken(
         MM.anyString(),
         MM.anyString(),
@@ -631,7 +634,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val result = filter.getToken(None)
 
-      result shouldEqual token
+      result shouldBe a[Success[_]]
+      result.get shouldEqual token
       verify(samlPolicyProvider, never).getToken(
         MM.anyString(),
         MM.anyString(),
