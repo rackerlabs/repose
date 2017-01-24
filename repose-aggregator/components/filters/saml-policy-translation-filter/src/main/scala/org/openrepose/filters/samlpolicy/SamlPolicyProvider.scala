@@ -188,8 +188,40 @@ class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     * @param traceId an optional identifier to be sent with the request
     * @return the policy if successful, or a failure if unsuccessful
     */
-  def getPolicy(traceId: Option[String]): Try[String] = {
-    ???
+  def getPolicy(idpId: String, token: String, traceId: Option[String]): Try[String] = {
+    val akkaResponse = Try(tokenServiceClient.akkaServiceClient.get(
+      PolicyRequestKey(idpId),
+      s"$policyUri${PolicyPath(idpId)}",
+      (Map(
+        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON,
+        CommonHttpHeader.AUTH_TOKEN.toString -> token
+      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava
+    ))
+
+    akkaResponse match {
+      case Success(serviceClientResponse) =>
+        serviceClientResponse.getStatus match {
+          case SC_OK =>
+            Try {
+              val responseEncoding = serviceClientResponse.getHeaders
+                .find(hdr => CommonHttpHeader.CONTENT_TYPE.matches(hdr.getName))
+                .map(_.getElements.head.getParameterByName("charset"))
+                .flatMap(Option.apply)
+                .map(_.getValue)
+                .getOrElse(StandardCharsets.ISO_8859_1.name())
+              Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString
+            } recover {
+              case f: Exception =>
+                throw GenericIdentityException("Policy in response from Identity could not be read", f)
+            }
+          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when getting policy"))
+          case statusCode =>
+            Failure(UnexpectedStatusCodeException(statusCode, "Unexpected response from Identity"))
+        }
+      case Failure(f) =>
+        Failure(GenericIdentityException("Failure communicating with Identity when getting policy", f))
+    }
   }
 
   private case class ServiceClient(poolId: Option[String], akkaServiceClient: AkkaServiceClient)
@@ -200,9 +232,12 @@ object SamlPolicyProvider {
   final val SC_TOO_MANY_REQUESTS: Int = 429
   final val TokenRequestKey: String = "SAML:TOKEN"
   final val IdpRequestKey: (String) => String = (issuer: String) => s"SAML:IDP:$issuer"
+  final val PolicyRequestKey: (String) => String = (idpId: String) => s"SAML:POLICY:$idpId"
   final val TokenPath: String = "/v2.0/tokens"
   final val IdpPath: (String) => String =
     (issuer: String) => s"/v2.0/RAX-AUTH/federation/identity-providers?issuer=$issuer"
+  final val PolicyPath: (String) => String =
+    (idpId: String) => s"/v2.0/RAX-AUTH/federation/identity-providers/$idpId/mapping"
 
   def buildRetryValue(response: ServiceClientResponse): String = {
     response.getHeaders
