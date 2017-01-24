@@ -137,6 +137,51 @@ class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
   }
 
   /**
+    * Retrieves a IDP-ID from Identity that will be used to fetch the policy.
+    *
+    * @param issuer the issuer associated with the Identity provider
+    * @param traceId an optional identifier to be sent with the request
+    * @return the IDP ID if successful, or a failure if unsuccessful
+    */
+  def getIdpId(issuer: String, token: String, traceId: Option[String]): Try[String] = {
+    val akkaResponse = Try(tokenServiceClient.akkaServiceClient.get(
+      IdpRequestKey(issuer),
+      s"$policyUri${IdpPath(issuer)}",
+      (Map(
+        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON,
+        CommonHttpHeader.AUTH_TOKEN.toString -> token
+      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava
+    ))
+
+    akkaResponse match {
+      case Success(serviceClientResponse) =>
+        serviceClientResponse.getStatus match {
+          case SC_OK =>
+            Try {
+              val responseEncoding = serviceClientResponse.getHeaders
+                .find(hdr => CommonHttpHeader.CONTENT_TYPE.matches(hdr.getName))
+                .map(_.getElements.head.getParameterByName("charset"))
+                .flatMap(Option.apply)
+                .map(_.getValue)
+                .getOrElse(StandardCharsets.ISO_8859_1.name())
+              val jsonResponse = Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString
+              val json = Json.parse(jsonResponse)
+              ((json \ "RAX-AUTH:identityProviders")(0) \ "id").as[String]
+            } recover {
+              case f: Exception =>
+                throw GenericIdentityException("IDP ID could not be parsed from response from Identity", f)
+            }
+          case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when getting IDP ID"))
+          case statusCode =>
+            Failure(UnexpectedStatusCodeException(statusCode, "Unexpected response from Identity"))
+        }
+      case Failure(f) =>
+        Failure(GenericIdentityException("Failure communicating with Identity when getting IDP ID", f))
+    }
+  }
+
+  /**
     * Retrieves a policy from Identity that will be used during SAMLResponse translation.
     *
     * @param token the token to be sent with the request, used in authorization
@@ -152,9 +197,12 @@ class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
 }
 
 object SamlPolicyProvider {
-  final val SC_TOO_MANY_REQUESTS = 429
-  final val TokenRequestKey = "SAML:TOKEN"
-  final val TokenPath = "/v2.0/tokens"
+  final val SC_TOO_MANY_REQUESTS: Int = 429
+  final val TokenRequestKey: String = "SAML:TOKEN"
+  final val IdpRequestKey: (String) => String = (issuer: String) => s"SAML:IDP:$issuer"
+  final val TokenPath: String = "/v2.0/tokens"
+  final val IdpPath: (String) => String =
+    (issuer: String) => s"/v2.0/RAX-AUTH/federation/identity-providers?issuer=$issuer"
 
   def buildRetryValue(response: ServiceClientResponse): String = {
     response.getHeaders
