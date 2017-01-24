@@ -268,12 +268,12 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the token if successful, or a failure if unsuccessful
     * @throws SamlPolicyException if response is invalid
     */
-  def getToken(traceId: Option[String], isRetry: Boolean = false): String = {
-    logger.trace("Getting a token")
+  def getToken(traceId: Option[String], isRetry: Boolean = false): Try[String] = {
+    logger.trace("Getting token")
     token match {
       case Some(cachedToken) =>
         logger.trace("Using cached token")
-        cachedToken
+        Success(cachedToken)
       case None =>
         logger.trace("Fetching a fresh token with the configured credentials")
         samlPolicyProvider.getToken(
@@ -281,7 +281,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
           configuration.getPolicyAcquisition.getKeystoneCredentials.getPassword,
           traceId,
           !isRetry
-        ).get
+        )
     }
   }
 
