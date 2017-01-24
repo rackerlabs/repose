@@ -21,12 +21,12 @@
 package org.openrepose.filters.samlpolicy
 
 import java.io.{FileInputStream, StringReader}
-import java.net.URI
+import java.net.{URI, URL}
 import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
 import java.text.SimpleDateFormat
 import java.util.{Base64, Date, TimeZone, UUID}
-import javax.servlet.FilterChain
+import javax.servlet.{FilterChain, FilterConfig}
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_FORBIDDEN}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.parsers.DocumentBuilderFactory
@@ -37,6 +37,7 @@ import net.shibboleth.utilities.java.support.resolver.CriteriaSet
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.mockito.{Matchers => MM}
+import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.filters.samlpolicy.SamlPolicyProvider.{OverLimitException, UnexpectedStatusCodeException}
@@ -69,13 +70,15 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   import SamlPolicyTranslationFilterTest._
 
-  var atomFeedService: AtomFeedService = mock[AtomFeedService]
-  var samlPolicyProvider: SamlPolicyProvider = mock[SamlPolicyProvider]
+  var configurationService: ConfigurationService = _
+  var atomFeedService: AtomFeedService = _
+  var samlPolicyProvider: SamlPolicyProvider = _
   var filter: SamlPolicyTranslationFilter = _
 
   System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema", "org.apache.xerces.jaxp.validation.XMLSchemaFactory")
 
   override def beforeEach(): Unit = {
+    configurationService = mock[ConfigurationService]
     atomFeedService = mock[AtomFeedService]
     samlPolicyProvider = mock[SamlPolicyProvider]
 
@@ -84,7 +87,52 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     signatureCredentials.setKeyName(keyName)
     signatureCredentials.setKeyPassword(keyPassword)
 
-    filter = new SamlPolicyTranslationFilter(mock[ConfigurationService], samlPolicyProvider, atomFeedService, configRoot)
+    filter = new SamlPolicyTranslationFilter(configurationService, samlPolicyProvider, atomFeedService, configRoot)
+  }
+
+  describe("init") {
+    it("should subscribe a system model listener") {
+      filter.init(mock[FilterConfig])
+
+      verify(configurationService).subscribeTo(
+        MM.eq(SamlPolicyTranslationFilter.SystemModelConfig),
+        MM.any(),
+        MM.any[Class[_]]
+      )
+    }
+
+    it("should subscribe a filter configuration listener") {
+      filter.init(mock[FilterConfig])
+
+      verify(configurationService).subscribeTo(
+        MM.anyString(),
+        MM.eq("saml-policy.cfg.xml"),
+        MM.any[URL],
+        MM.any(),
+        MM.any[Class[_]]
+      )
+    }
+  }
+
+  describe("destroy") {
+    it("should un-subscribe the system model listener") {
+      filter.destroy()
+
+      verify(configurationService).unsubscribeFrom(
+        MM.eq(SamlPolicyTranslationFilter.SystemModelConfig),
+        MM.any()
+      )
+    }
+
+    it("should un-subscribe a filter configuration listener") {
+      filter.init(mock[FilterConfig])
+      filter.destroy()
+
+      verify(configurationService).unsubscribeFrom(
+        MM.eq("saml-policy.cfg.xml"),
+        MM.any()
+      )
+    }
   }
 
   describe("doWork") {
@@ -821,29 +869,29 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should initialize the cache when given a config") {
-      ReflectionTestUtils.getField(filter, "cache") shouldBe null
+      ReflectionTestUtils.getField(filter, "policyCache") shouldBe null
 
       filter.configurationUpdated(buildConfig())
 
-      ReflectionTestUtils.getField(filter, "cache") should not be null
+      ReflectionTestUtils.getField(filter, "policyCache") should not be null
     }
 
     it("should build a new cache when the ttl changes") {
       filter.configurationUpdated(buildConfig(ttl = 5))
-      val originalCache = ReflectionTestUtils.getField(filter, "cache")
+      val originalCache = ReflectionTestUtils.getField(filter, "policyCache")
 
       filter.configurationUpdated(buildConfig(ttl = 10))
-      val newCache = ReflectionTestUtils.getField(filter, "cache")
+      val newCache = ReflectionTestUtils.getField(filter, "policyCache")
 
       originalCache should not be theSameInstanceAs(newCache)
     }
 
     it("should not build a new cache if the ttl doesn't change") {
       filter.configurationUpdated(buildConfig(ttl = 5))
-      val originalCache = ReflectionTestUtils.getField(filter, "cache")
+      val originalCache = ReflectionTestUtils.getField(filter, "policyCache")
 
       filter.configurationUpdated(buildConfig(ttl = 5))
-      val newCache = ReflectionTestUtils.getField(filter, "cache")
+      val newCache = ReflectionTestUtils.getField(filter, "policyCache")
 
       originalCache should be theSameInstanceAs newCache
     }

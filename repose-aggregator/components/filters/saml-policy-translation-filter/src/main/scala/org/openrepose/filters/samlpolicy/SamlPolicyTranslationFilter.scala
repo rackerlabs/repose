@@ -24,7 +24,7 @@ import java.io.{ByteArrayInputStream, FileInputStream, IOException, InputStream}
 import java.net.URI
 import java.security._
 import java.security.cert.X509Certificate
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{Callable, TimeUnit}
 import java.util.{Base64, Collections}
 import javax.inject.{Inject, Named}
 import javax.servlet._
@@ -40,12 +40,13 @@ import javax.xml.namespace.NamespaceContext
 import javax.xml.transform.TransformerException
 import javax.xml.xpath.{XPathConstants, XPathExpression}
 
-import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import com.google.common.cache.{Cache, CacheBuilder}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XPathExpressionPool}
 import com.rackspace.identity.components.AttributeMapper
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
-import org.openrepose.commons.config.manager.UpdateFailedException
+import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE, RETRY_AFTER}
 import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
@@ -53,7 +54,9 @@ import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.spring.ReposeSpringProperties
+import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.samlpolicy.SamlPolicyProvider.OverLimitException
+import org.openrepose.filters.samlpolicy.SamlPolicyTranslationFilter._
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.springframework.beans.factory.annotation.Value
@@ -62,6 +65,7 @@ import org.w3c.dom.{Document, NodeList}
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
 import scala.xml.XML
+import scala.util.{Success, Try}
 
 /**
   * Created by adrian on 12/12/16.
@@ -79,12 +83,10 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
 
-  private val namespaceContext: NamespaceContext = ImmutableNamespaceContext(Map("s2p" -> "urn:oasis:names:tc:SAML:2.0:protocol",
-                                                                                 "s2"  -> "urn:oasis:names:tc:SAML:2.0:assertion"))
-
-  private var cache: LoadingCache[String, XsltExecutable] = _
+  private var policyCache: Cache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
   private var token: Option[String] = None
+  private var sendTraceHeader: Boolean = true
   private var tokenServiceClient: AkkaServiceClient = _
   private var policyServiceClient: AkkaServiceClient = _
   private var xmlSignatureFactory: XMLSignatureFactory = _
@@ -93,12 +95,34 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
 
+  override def init(filterConfig: FilterConfig): Unit = {
+    // TODO: Don't log this twice
+    logger.trace("{} initializing ...", this.getClass.getSimpleName)
+
+    logger.info("Initializing filter using config system-model.cfg.xml")
+    configurationService.subscribeTo(
+      SystemModelConfig,
+      SystemModelConfigListener,
+      classOf[SystemModel]
+    )
+
+    super.init(filterConfig)
+  }
+
+  override def destroy(): Unit = {
+    // TODO: Don't log this twice
+    logger.trace("{} destroying ...", this.getClass.getSimpleName)
+    configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigListener)
+    super.destroy()
+  }
+
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
       val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
       var response = servletResponse.asInstanceOf[HttpServletResponse]
       val samlResponse = decodeSamlResponse(request)
       val rawDocument = readToDom(samlResponse)
+      val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
 
       val version = determineVersion(rawDocument)
       val finalDocument = version match {
@@ -109,7 +133,9 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
           response = new HttpServletResponseWrapper(response, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
           request.addHeader("Identity-API-Version", "2.0")
           val issuer = validateResponseAndGetIssuer(rawDocument)
-          val translatedDocument = translateResponse(rawDocument, cache.get(issuer))
+          val translatedDocument = translateResponse(rawDocument, policyCache.get(issuer, new Callable[XsltExecutable] {
+            override def call(): XsltExecutable = getPolicy(issuer, traceId)
+          }))
           signResponse(translatedDocument)
       }
       val inputStream = convertDocumentToStream(finalDocument)
@@ -360,11 +386,10 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     }
 
     if (Option(configuration).map(_.getPolicyAcquisition.getCache.getTtl) != Option(newConfiguration.getPolicyAcquisition.getCache.getTtl)) {
-      cache = CacheBuilder.newBuilder()
-                          .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
-                          .build(new CacheLoader[String, XsltExecutable]() {
-                            override def load(key: String): XsltExecutable = getPolicy(key)
-                          })
+      policyCache = CacheBuilder.newBuilder()
+        .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
+        .build()
+        .asInstanceOf[Cache[String, XsltExecutable]]
     }
 
     legacyIssuers = Option(newConfiguration.getPolicyBypassIssuers).map(_.getIssuer.asScala.toList.map(new URI(_))).getOrElse(List.empty)
@@ -427,11 +452,25 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       feedId = None
     }
   }
+
+  object SystemModelConfigListener extends UpdateListener[SystemModel] {
+    private var initialized = false
+
+    override def configurationUpdated(configurationObject: SystemModel): Unit = {
+      sendTraceHeader = Option(configurationObject.getTracingHeader).map(_.isEnabled).getOrElse(true)
+      initialized = true
+    }
+
+    override def isInitialized: Boolean = initialized
+  }
+
 }
 
 case class SamlPolicyException(statusCode: Int, message: String, cause: Throwable = null) extends Exception(message, cause)
 
 object SamlPolicyTranslationFilter {
+  final val SystemModelConfig = "system-model.cfg.xml"
+
   val namespaceContext: NamespaceContext = ImmutableNamespaceContext(Map("s2p" -> "urn:oasis:names:tc:SAML:2.0:protocol",
                                                                          "s2"  -> "urn:oasis:names:tc:SAML:2.0:assertion",
                                                                          "sig" -> "http://www.w3.org/2000/09/xmldsig#"))
