@@ -36,6 +36,7 @@ import org.openrepose.filters.samlpolicy.SamlPolicyProvider.{OverLimitException,
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import play.api.libs.json.Json
 
 import scala.language.implicitConversions
 import scala.util.{Failure, Success}
@@ -595,7 +596,201 @@ class SamlPolicyProviderTest extends FunSpec with BeforeAndAfterEach with Matche
   }
 
   describe("getPolicy") {
-    pending
+    val samplePolicy =
+      """
+        |{
+        |  "mapping" : {
+        |    "version" : "RAX-1",
+        |    "description" : "Default mapping policy",
+        |    "rules": [
+        |      {
+        |        "local": {
+        |          "user": {
+        |            "domain":"{D}",
+        |            "name":"{D}",
+        |            "email":"{D}",
+        |            "roles":"{D}",
+        |            "expire":"{D}"
+        |          }
+        |        }
+        |      }
+        |    ]
+        |  }
+        |}
+      """.stripMargin
+
+    it("should return a Failure if the service client cannot connect") {
+      when(akkaServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String])
+      )).thenThrow(new RuntimeException("Could not connect"))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+
+      result shouldBe a[Failure[_]]
+    }
+
+    it("should forward a trace ID if provided") {
+      when(akkaServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String])
+      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      samlPolicyProvider.getPolicy("idpId", "token", Some("trace-id"))
+
+      verify(akkaServiceClient).get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id"))
+      )
+    }
+
+    it("should not forward a trace ID if not provided") {
+      when(akkaServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String])
+      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      samlPolicyProvider.getPolicy("idpId", "token", None)
+
+      verify(akkaServiceClient).get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.argThat(HM.not(HM.hasKey(TRACE_GUID)))
+      )
+    }
+
+    it("should forward the provided token as a header") {
+      val token = "a-unique-token"
+
+      when(akkaServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String])
+      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      samlPolicyProvider.getPolicy("idpId", token, Some("trace-id"))
+
+      verify(akkaServiceClient).get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token))
+      )
+    }
+
+    Set(
+      SC_REQUEST_ENTITY_TOO_LARGE,
+      SC_TOO_MANY_REQUESTS
+    ) foreach { statusCode =>
+      it(s"should return a Failure if the request is rate limited with a $statusCode") {
+        when(akkaServiceClient.get(
+          MM.anyString(),
+          MM.anyString(),
+          MM.anyMapOf(classOf[String], classOf[String])
+        )).thenReturn(new ServiceClientResponse(statusCode, null))
+
+        samlPolicyProvider.using("", "", None, None)
+
+        val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+
+        result shouldBe a[Failure[_]]
+        an [OverLimitException] should be thrownBy result.get
+      }
+    }
+
+    it("should return a Success if the response is a 200") {
+      when(akkaServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String])
+      )).thenReturn(new ServiceClientResponse(
+        SC_OK,
+        Array(new BasicHeader(
+          CONTENT_TYPE,
+          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
+        )),
+        new ByteArrayInputStream(samplePolicy.getBytes)
+      ))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+
+      result shouldBe a[Success[_]]
+      Json.stringify(Json.parse(result.get)) shouldEqual Json.stringify(Json.parse(samplePolicy))
+    }
+
+    Set(
+      SC_CREATED,
+      SC_ACCEPTED,
+      SC_NO_CONTENT,
+      SC_MOVED_PERMANENTLY,
+      SC_MOVED_TEMPORARILY,
+      SC_FOUND,
+      SC_BAD_REQUEST,
+      SC_UNAUTHORIZED,
+      SC_FORBIDDEN,
+      SC_NOT_FOUND,
+      SC_METHOD_NOT_ALLOWED,
+      SC_REQUEST_ENTITY_TOO_LARGE,
+      SC_TOO_MANY_REQUESTS,
+      SC_INTERNAL_SERVER_ERROR,
+      SC_SERVICE_UNAVAILABLE
+    ) foreach { responseCode =>
+      it(s"should return a Failure if the response is a $responseCode") {
+        when(akkaServiceClient.get(
+          MM.anyString(),
+          MM.anyString(),
+          MM.anyMapOf(classOf[String], classOf[String])
+        )).thenReturn(new ServiceClientResponse(responseCode, null))
+
+        samlPolicyProvider.using("", "", None, None)
+
+        val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+
+        result shouldBe a[Failure[_]]
+      }
+    }
+
+    Set(
+      StandardCharsets.ISO_8859_1,
+      StandardCharsets.US_ASCII,
+      StandardCharsets.UTF_8,
+      StandardCharsets.UTF_16
+    ) foreach { charset =>
+      it(s"should handle $charset response encoding") {
+        when(akkaServiceClient.get(
+          MM.anyString(),
+          MM.anyString(),
+          MM.anyMapOf(classOf[String], classOf[String])
+        )).thenReturn(new ServiceClientResponse(
+          SC_OK,
+          Array(new BasicHeader(
+            CONTENT_TYPE,
+            MediaType.APPLICATION_JSON + "; charset=" + charset.name
+          )),
+          new ByteArrayInputStream(samplePolicy.getBytes(charset))
+        ))
+
+        samlPolicyProvider.using("", "", None, None)
+
+        val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+
+        result shouldBe a[Success[_]]
+        Json.stringify(Json.parse(result.get)) shouldEqual Json.stringify(Json.parse(samplePolicy))
+      }
+    }
   }
 
   implicit def looseToStrictStringMap(sm: java.util.Map[_, _]): java.util.Map[String, String] =
