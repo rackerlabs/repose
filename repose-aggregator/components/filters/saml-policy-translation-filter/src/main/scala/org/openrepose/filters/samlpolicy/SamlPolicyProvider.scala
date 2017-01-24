@@ -82,6 +82,10 @@ class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
   /**
     * Retrieves a token from Identity that will be used for authorization on all other calls to Identity.
     *
+    * @param username the username on the account
+    * @param password the password on the account
+    * @param traceId an optional identifier to be sent with the request
+    * @param checkCache whether or not to use the HTTP request cache
     * @return the token if successful, or a failure if unsuccessful
     */
   def getToken(username: String, password: String, traceId: Option[String], checkCache: Boolean = true): Try[String] = {
@@ -135,6 +139,8 @@ class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
   /**
     * Retrieves a policy from Identity that will be used during SAMLResponse translation.
     *
+    * @param token the token to be sent with the request, used in authorization
+    * @param traceId an optional identifier to be sent with the request
     * @return the policy if successful, or a failure if unsuccessful
     */
   def getPolicy(traceId: Option[String]): Try[String] = {
