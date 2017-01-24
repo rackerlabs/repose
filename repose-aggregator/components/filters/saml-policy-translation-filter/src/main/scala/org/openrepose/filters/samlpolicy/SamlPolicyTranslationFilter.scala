@@ -55,8 +55,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.filters.samlpolicy.SamlPolicyProvider.OverLimitException
-import org.openrepose.filters.samlpolicy.SamlPolicyTranslationFilter._
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, UnexpectedStatusCodeException}
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.springframework.beans.factory.annotation.Value
@@ -72,12 +71,14 @@ import scala.util.{Success, Try}
   */
 @Named
 class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationService,
-                                            samlPolicyProvider: SamlPolicyProvider,
+                                            samlIdentityClient: SamlIdentityClient,
                                             atomFeedService: AtomFeedService,
                                             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) configRoot: String)
   extends AbstractConfiguredFilter[SamlPolicyConfig](configurationService)
     with LazyLogging
     with AtomFeedListener {
+  import SamlPolicyTranslationFilter._
+
   import SamlPolicyTranslationFilter._
 
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
@@ -276,7 +277,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
         Success(cachedToken)
       case None =>
         logger.trace("Fetching a fresh token with the configured credentials")
-        samlPolicyProvider.getToken(
+        samlIdentityClient.getToken(
           configuration.getPolicyAcquisition.getKeystoneCredentials.getUsername,
           configuration.getPolicyAcquisition.getKeystoneCredentials.getPassword,
           traceId,
@@ -435,7 +436,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
               _: IOException) => throw new UpdateFailedException("Failed to load the signing credentials.", e)
     }
 
-    samlPolicyProvider.using(
+    samlIdentityClient.using(
       newConfiguration.getPolicyAcquisition.getKeystoneCredentials.getUri,
       newConfiguration.getPolicyAcquisition.getPolicyEndpoint.getUri,
       Option(newConfiguration.getPolicyAcquisition.getKeystoneCredentials.getConnectionPoolId),

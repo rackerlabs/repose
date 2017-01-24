@@ -32,7 +32,7 @@ import org.mockito.{Matchers => MM}
 import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_TYPE, TRACE_GUID}
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.filters.samlpolicy.SamlPolicyProvider.{OverLimitException, SC_TOO_MANY_REQUESTS}
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, SC_TOO_MANY_REQUESTS}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -42,17 +42,17 @@ import scala.language.implicitConversions
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
-class SamlPolicyProviderTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
+class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   var akkaServiceClient: AkkaServiceClient = _
   var akkaServiceClientFactory: AkkaServiceClientFactory = _
-  var samlPolicyProvider: SamlPolicyProvider = _
+  var samlPolicyProvider: SamlIdentityClient = _
 
   override def beforeEach(): Unit = {
     akkaServiceClient = mock[AkkaServiceClient]
     akkaServiceClientFactory = mock[AkkaServiceClientFactory]
 
-    samlPolicyProvider = new SamlPolicyProvider(akkaServiceClientFactory)
+    samlPolicyProvider = new SamlIdentityClient(akkaServiceClientFactory)
 
     when(akkaServiceClientFactory.newAkkaServiceClient())
       .thenReturn(akkaServiceClient)

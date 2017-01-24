@@ -40,7 +40,7 @@ import org.mockito.{Matchers => MM}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.samlpolicy.config._
-import org.openrepose.filters.samlpolicy.SamlPolicyProvider.{OverLimitException, UnexpectedStatusCodeException}
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, UnexpectedStatusCodeException}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.opensaml.core.config.{InitializationException, InitializationService}
 import org.opensaml.core.criterion.EntityIdCriterion
@@ -72,7 +72,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   var configurationService: ConfigurationService = _
   var atomFeedService: AtomFeedService = _
-  var samlPolicyProvider: SamlPolicyProvider = _
+  var samlIdentityClient: SamlIdentityClient = _
   var filter: SamlPolicyTranslationFilter = _
 
   System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema", "org.apache.xerces.jaxp.validation.XMLSchemaFactory")
@@ -80,14 +80,14 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   override def beforeEach(): Unit = {
     configurationService = mock[ConfigurationService]
     atomFeedService = mock[AtomFeedService]
-    samlPolicyProvider = mock[SamlPolicyProvider]
+    samlIdentityClient = mock[SamlIdentityClient]
 
     signatureCredentials.setKeystoreFilename(keystoreFilename)
     signatureCredentials.setKeystorePassword(keystorePassword)
     signatureCredentials.setKeyName(keyName)
     signatureCredentials.setKeyPassword(keyPassword)
 
-    filter = new SamlPolicyTranslationFilter(configurationService, samlPolicyProvider, atomFeedService, configRoot)
+    filter = new SamlPolicyTranslationFilter(configurationService, samlIdentityClient, atomFeedService, configRoot)
   }
 
   describe("init") {
@@ -564,7 +564,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(buildConfig())
 
       val token = "foo-token"
-      when(samlPolicyProvider.getToken(
+      when(samlIdentityClient.getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
@@ -575,7 +575,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       result shouldBe a[Success[_]]
       result.get shouldEqual token
-      verify(samlPolicyProvider).getToken(
+      verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
@@ -586,7 +586,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should throw an exception if fetching a fresh token fails") {
       filter.configurationUpdated(buildConfig())
 
-      when(samlPolicyProvider.getToken(
+      when(samlIdentityClient.getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
@@ -596,7 +596,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val result = filter.getToken(None)
       result shouldBe a[Failure[_]]
       (the [UnexpectedStatusCodeException] thrownBy result.get).statusCode shouldEqual SC_FORBIDDEN
-      verify(samlPolicyProvider).getToken(
+      verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
@@ -608,7 +608,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(buildConfig())
 
       val retryAfter = "some time"
-      when(samlPolicyProvider.getToken(
+      when(samlIdentityClient.getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
@@ -618,7 +618,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val result = filter.getToken(None)
       result shouldBe a[Failure[_]]
       (the [OverLimitException] thrownBy result.get).retryAfter shouldEqual retryAfter
-      verify(samlPolicyProvider).getToken(
+      verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
@@ -636,7 +636,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       result shouldBe a[Success[_]]
       result.get shouldEqual token
-      verify(samlPolicyProvider, never).getToken(
+      verify(samlIdentityClient, never).getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
@@ -648,7 +648,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(buildConfig())
 
       val token = "foo-token"
-      when(samlPolicyProvider.getToken(
+      when(samlIdentityClient.getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
@@ -657,13 +657,14 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val result = filter.getToken(None, isRetry = true)
 
-      verify(samlPolicyProvider).getToken(
+      result shouldBe a[Success[_]]
+      result.get shouldEqual token
+      verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
         MM.any[Option[String]],
         MM.eq(false)
       )
-      result shouldEqual token
     }
   }
 
@@ -951,7 +952,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         policyConnectionPoolId = "bar"
       ))
 
-      verify(samlPolicyProvider).using(
+      verify(samlIdentityClient).using(
         MM.eq("http://foo.com"),
         MM.eq("http://bar.com"),
         MM.eq(Some("foo")),

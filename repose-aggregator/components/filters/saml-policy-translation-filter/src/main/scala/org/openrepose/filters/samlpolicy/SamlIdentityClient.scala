@@ -41,9 +41,9 @@ import scala.util.{Failure, Success, Try}
   * Spring contexts between filters.
   */
 @Named
-class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFactory) {
+class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFactory) {
 
-  import SamlPolicyProvider._
+  import SamlIdentityClient._
 
   private var tokenUri: String = _
   private var policyUri: String = _
@@ -228,7 +228,7 @@ class SamlPolicyProvider @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
 
 }
 
-object SamlPolicyProvider {
+object SamlIdentityClient {
   final val SC_TOO_MANY_REQUESTS: Int = 429
   final val TokenRequestKey: String = "SAML:TOKEN"
   final val IdpRequestKey: (String) => String = (issuer: String) => s"SAML:IDP:$issuer"
