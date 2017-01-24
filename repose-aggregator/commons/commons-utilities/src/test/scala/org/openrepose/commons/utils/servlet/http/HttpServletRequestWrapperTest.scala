@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{BufferedReader, ByteArrayInputStream, ByteArrayOutputStream, IOException}
+import java.io.{BufferedReader, IOException}
 import java.nio.charset.StandardCharsets
 import java.util
 import javax.servlet.ServletInputStream
@@ -966,22 +966,50 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
       wrappedRequest.getParameterMap.get("foo") should contain only("bar", "baz")
     }
 
-    it("should provide form values even if the getInputStream method has already been called") {
-      val localRequest = new MockHttpServletRequest()
-      localRequest.setContentType("application/x-www-form-urlencoded")
-      localRequest.setContent("a=b&c=d".getBytes(StandardCharsets.UTF_8))
+    val formEncodedBody = "a=b&c=d"
+    val queryString = "a=e"
+    Seq("PUT", "POST").foreach { method =>
+      it(s"should provide form values on $method even if the getInputStream method has already been called on the original request") {
+        val localRequest = new MockHttpServletRequest()
+        localRequest.setContentType("application/x-www-form-urlencoded")
+        localRequest.setContent("a=b&c=d".getBytes(StandardCharsets.UTF_8))
+        localRequest.setMethod(method)
 
-      val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
+        val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
 
-      localWrappedRequest.setQueryString("a=e")
+        localWrappedRequest.setQueryString(queryString)
 
-      localWrappedRequest.getParameterMap should have size 2
-      localWrappedRequest.getParameterMap should contain key "a"
-      localWrappedRequest.getParameterMap.get("a") should have size 2
-      localWrappedRequest.getParameterMap.get("a") should contain inOrderOnly("e", "b")
-      localWrappedRequest.getParameterMap should contain key "c"
-      localWrappedRequest.getParameterMap.get("c") should have size 1
-      localWrappedRequest.getParameterMap.get("c") should contain ("d")
+        localWrappedRequest.getParameterMap should have size 2
+        localWrappedRequest.getParameterMap should contain key "a"
+        localWrappedRequest.getParameterMap.get("a") should have size 2
+        localWrappedRequest.getParameterMap.get("a") should contain inOrderOnly("e", "b")
+        localWrappedRequest.getParameterMap should contain key "c"
+        localWrappedRequest.getParameterMap.get("c") should have size 1
+        localWrappedRequest.getParameterMap.get("c") should contain("d")
+
+        val output: String = Source.fromInputStream(localWrappedRequest.getInputStream).mkString
+        output shouldBe formEncodedBody
+      }
+
+      it(s"should not provide form values on $method if the getInputStream method has been called on the wrapper") {
+        val localRequest = new MockHttpServletRequest()
+        localRequest.setContentType("application/x-www-form-urlencoded")
+        localRequest.setContent(formEncodedBody.getBytes(StandardCharsets.UTF_8))
+        localRequest.setMethod(method)
+
+        val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
+        val inputStream = localWrappedRequest.getInputStream
+
+        localWrappedRequest.setQueryString(queryString)
+
+        localWrappedRequest.getParameterMap should have size 1
+        localWrappedRequest.getParameterMap should contain key "a"
+        localWrappedRequest.getParameterMap.get("a") should have size 1
+        localWrappedRequest.getParameterMap.get("a") should contain("e")
+
+        val output: String = Source.fromInputStream(inputStream).mkString
+        output shouldBe formEncodedBody
+      }
     }
   }
 
