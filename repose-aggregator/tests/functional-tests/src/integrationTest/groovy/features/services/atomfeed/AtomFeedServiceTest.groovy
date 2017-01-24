@@ -65,15 +65,15 @@ class AtomFeedServiceTest extends ReposeValveTest {
 
     def "when an atom feed entry is received, it is passed to the filter"() {
         given: "there is an atom feed entry available for consumption"
-        String atomFeedEntry = fakeAtomFeed.createAtomEntry(id: 'urn:uuid:101')
-        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries([atomFeedEntry])
+        def atomFeedEntry = fakeAtomFeed.atomEntryForTokenInvalidation(id: 'urn:uuid:101')
+        atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
         when: "we wait for the Keystone V2 filter to read the feed"
         reposeLogSearch.awaitByString("</atom:entry>", 1, 11, TimeUnit.SECONDS)
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
         then: "the Keystone V2 filter logs receiving the atom feed entry"
-        atomFeedEntry.eachLine { line ->
+        AtomFeedResponseSimulator.buildXmlToString(atomFeedEntry).eachLine { line ->
             assert reposeLogSearch.searchByString(line.trim()).size() == 1
             true
         }
@@ -83,7 +83,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         given: "there is a list of atom feed entries available for consumption"
         List<String> ids = (201..210).collect {it as String}
         atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries(
-                ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
+                ids.collect { fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
         reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
@@ -99,7 +99,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         given: "there is a list of atom feed entries available for consumption"
         List<String> ids = (301..325).collect {it as String}
         atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries(
-                ids.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
+                ids.collect { fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
         reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
@@ -113,7 +113,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         when: "there are more entries on the next page"
         def moreIds = (401..425).collect {it as String}
         atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntries(
-                moreIds.collect { fakeAtomFeed.createAtomEntry(id: "urn:uuid:$it") })
+                moreIds.collect { fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$it") })
 
         and: "we wait for the Keystone V2 filter to read the feed"
         reposeLogSearch.awaitByString("</atom:entry>", ids.size() + moreIds.size(), 11, TimeUnit.SECONDS)
