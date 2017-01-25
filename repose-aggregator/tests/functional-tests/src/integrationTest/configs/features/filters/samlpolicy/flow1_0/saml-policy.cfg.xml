@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <saml-policy xmlns="http://docs.openrepose.org/repose/samlpolicy/v1.0">
+    <policy-bypass-issuers>
+        <issuer>http://legacy.idp.external.com</issuer>
+    </policy-bypass-issuers>
     <policy-acquisition>
         <keystone-credentials uri="http://localhost:${identityPort}"
                               username="admin_username"
