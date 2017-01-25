@@ -103,5 +103,6 @@ class SamlUtilitiesSelfTest extends Specification {
         samlResponse(issuer() >> status() >> assertion())    | SAML_EXTERNAL_ISSUER | "issuer(), status(), assertion()"
         samlResponse(issuer() >> status() >> assertion([:])) | SAML_EXTERNAL_ISSUER | "issuer(), status(), assertion([:])"
         samlResponse(issuer(SAML_LEGACY_ISSUER) >> status()) | SAML_LEGACY_ISSUER   | "issuer($SAML_LEGACY_ISSUER), status()"
+        samlResponse(issuer() >> assertion(fakeSign: true))  | SAML_EXTERNAL_ISSUER | "issuer(), assertion(fakeSign: true)"
     }
 }

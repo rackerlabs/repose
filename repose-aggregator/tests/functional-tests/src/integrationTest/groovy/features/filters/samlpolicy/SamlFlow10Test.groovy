@@ -69,7 +69,7 @@ class SamlFlow10Test extends ReposeValveTest {
     def "a saml:response with an Issuer that #isIt in the configured policy-bypass-issuers list will get an 'Identity-API-Version' value of #headerValue in the request to the origin service"() {
         given:
         def body = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(
-                samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))))
+                samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))))
 
         when:
         def mc = deproxy.makeRequest(
