@@ -937,14 +937,14 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
         localWrappedRequest.getParameter("c") shouldBe "d"
       }
 
-      it(s"should not provide form values on $method if the getInputStream method has been called on the wrapper") {
+      it(s"should not provide form values on $method if the getReader method has been called on the wrapper") {
         val localRequest = new MockHttpServletRequest()
         localRequest.setContentType(APPLICATION_FORM_URLENCODED)
         localRequest.setContent(formEncodedBody.getBytes(UTF_8))
         localRequest.setMethod(method)
 
         val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
-        localWrappedRequest.getInputStream
+        localWrappedRequest.getReader
 
         localWrappedRequest.setQueryString(queryString)
 
@@ -995,14 +995,14 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
         localWrappedRequest.getParameterNames.asScala.toSeq should contain only("a", "c")
       }
 
-      it(s"should not provide form values on $method if the getInputStream method has been called on the wrapper") {
+      it(s"should not provide form values on $method if the getReader method has been called on the wrapper") {
         val localRequest = new MockHttpServletRequest()
         localRequest.setContentType(APPLICATION_FORM_URLENCODED)
         localRequest.setContent(formEncodedBody.getBytes(UTF_8))
         localRequest.setMethod(method)
 
         val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
-        localWrappedRequest.getInputStream
+        localWrappedRequest.getReader
 
         localWrappedRequest.setQueryString(queryString)
 
@@ -1056,14 +1056,14 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
         localWrappedRequest.getParameterValues("c") should contain only "d"
       }
 
-      it(s"should not provide form values on $method if the getInputStream method has been called on the wrapper") {
+      it(s"should not provide form values on $method if the getReader method has been called on the wrapper") {
         val localRequest = new MockHttpServletRequest()
         localRequest.setContentType(APPLICATION_FORM_URLENCODED)
         localRequest.setContent(formEncodedBody.getBytes(UTF_8))
         localRequest.setMethod(method)
 
         val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
-        localWrappedRequest.getInputStream
+        localWrappedRequest.getReader
 
         localWrappedRequest.setQueryString(queryString)
 
@@ -1130,14 +1130,14 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
         output.length shouldBe 0
       }
 
-      it(s"should not provide form values on $method if the getInputStream method has been called on the wrapper") {
+      it(s"should not provide form values on $method if the getReader method has been called on the wrapper") {
         val localRequest = new MockHttpServletRequest()
         localRequest.setContentType(APPLICATION_FORM_URLENCODED)
         localRequest.setContent(formEncodedBody.getBytes(UTF_8))
         localRequest.setMethod(method)
 
         val localWrappedRequest = new HttpServletRequestWrapper(localRequest)
-        val inputStream = localWrappedRequest.getInputStream
+        val inputReader = localWrappedRequest.getReader
 
         localWrappedRequest.setQueryString(queryString)
 
@@ -1146,7 +1146,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
         localWrappedRequest.getParameterMap.get("a") should have size 1
         localWrappedRequest.getParameterMap.get("a") should contain only "e"
 
-        val output: String = Source.fromInputStream(inputStream).mkString
+        val output: String = inputReader.readLine()
         output shouldBe formEncodedBody
       }
     }
