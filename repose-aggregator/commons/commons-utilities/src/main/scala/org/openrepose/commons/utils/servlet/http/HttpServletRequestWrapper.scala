@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{BufferedReader, ByteArrayInputStream, ByteArrayOutputStream, InputStreamReader}
+import java.io.{BufferedReader, InputStreamReader}
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util
@@ -27,7 +27,7 @@ import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
 
 import org.apache.http.client.utils.DateUtils
-import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
+import org.openrepose.commons.utils.io.RawInputStreamReader
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.{TreeMap, TreeSet}
@@ -259,16 +259,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, var inputSt
             inputStream synchronized {
               // As per Servlet Spec 3.1 section 3.1.1, form parameters are only available until the input stream is read.
               if (status == RequestBodyStatus.Available) {
-                if (!inputStream.markSupported) {
-                  // Make the input stream something that supports mark/reset so we can parse it and reset it.
-                  val byteArrayOutputStream = new ByteArrayOutputStream
-                  RawInputStreamReader.instance.copyTo(inputStream, byteArrayOutputStream)
-                  inputStream = new BufferedServletInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray))
-                }
-                inputStream.mark(getContentLength)
                 updatedParameterMap ++= parseParameterString(
                   new String(RawInputStreamReader.instance.readFully(inputStream, getContentLength), StandardCharsets.UTF_8))
-                inputStream.reset()
               }
             }
             formParameterMap = Option(updatedParameterMap.toMap)

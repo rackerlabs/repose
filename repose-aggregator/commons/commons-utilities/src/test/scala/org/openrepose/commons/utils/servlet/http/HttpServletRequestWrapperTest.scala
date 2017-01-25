@@ -988,7 +988,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
         localWrappedRequest.getParameterMap.get("c") should contain("d")
 
         val output: String = Source.fromInputStream(localWrappedRequest.getInputStream).mkString
-        output shouldBe formEncodedBody
+        output.length shouldBe 0
       }
 
       it(s"should not provide form values on $method if the getInputStream method has been called on the wrapper") {
