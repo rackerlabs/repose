@@ -95,6 +95,7 @@ This configuration exercises all the capabilities of the filter.
      It's optional and will use the default if unspecified.
 <8>  The time to live in the cache for policies.
 <9>  The atom feed id of an atom feed that contains policy events to be used for cache evictions.
+     Policies will be evicted from the cache for all three event types (i.e. CREATE, UPDATE, DELETE).
      This is optional, if unused cache eviction will be purely off ttl.
 <10> The location of the keystore that contains the certificates for signing the SAML response.
 <11> The password for using the keystore.
