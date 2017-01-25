@@ -24,6 +24,8 @@ import org.joda.time.DateTime
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
+import static javax.servlet.http.HttpServletResponse.SC_OK
+
 /**
  * Simulates responses from an Identity Atom Feed
  */
@@ -63,7 +65,7 @@ class AtomFeedResponseSimulator {
                 // reset for next time
                 hasEntry = false
 
-                new Response(200, null, headers, atomFeed(atomEntryForTokenRevocationRecord(userId: userId)))
+                new Response(SC_OK, null, headers, atomFeed(atomEntryForTokenRevocationRecord(userId: userId)))
             }
         }
     }
@@ -74,7 +76,7 @@ class AtomFeedResponseSimulator {
                 // reset for next time
                 hasEntry = false
 
-                new Response(200, null, headers, atomFeed(atomEntryForUserUpdate(userId: userId)))
+                new Response(SC_OK, null, headers, atomFeed(atomEntryForUserUpdate(userId: userId)))
             }
         }
     }
@@ -85,11 +87,11 @@ class AtomFeedResponseSimulator {
         // reset for next time
         hasEntry = false
 
-        new Response(200, null, headers, body)
+        new Response(SC_OK, null, headers, body)
     }
 
     def handlerWithEntry(Closure<MarkupBuilder> entry) {
-        { Request request -> new Response(200, null, headers, atomFeed(entry)) }
+        { Request request -> new Response(SC_OK, null, headers, atomFeed(entry)) }
     }
 
     def handlerWithEntries(List<Closure<MarkupBuilder>> entries) {
