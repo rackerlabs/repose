@@ -75,6 +75,8 @@ class SamlBasicValidationTest extends ReposeValveTest {
         mc.handlings[0]
         mc.handlings[0].request.headers.getCountByName(CONTENT_TYPE) == 1
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+
+        and: "the request body received by the origin service can be parsed as XML"
         xmlSlurper.parseText(mc.handlings[0].request.body as String)
 
         where:
@@ -107,6 +109,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
         CONTENT_TYPE_INVALID | "xml"             | SAML_ONE_ASSERTION_SIGNED
     }
 
+    @FailsWith(ConditionNotSatisfiedError)
     def "a request using the wrong form parameter name should be rejected"() {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
@@ -117,11 +120,13 @@ class SamlBasicValidationTest extends ReposeValveTest {
 
         then: "the request is rejected"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.receivedResponse.body as String == "No SAMLResponse value found"
 
         and: "the origin service does not receive the request"
         mc.handlings.isEmpty()
     }
 
+    @FailsWith(ConditionNotSatisfiedError)
     def "a request without any parameters nor a request body should be rejected"() {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
@@ -131,6 +136,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
 
         then: "the request is rejected"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.receivedResponse.body as String == "No SAMLResponse value found"
 
         and: "the origin service does not receive the request"
         mc.handlings.isEmpty()
@@ -167,16 +173,17 @@ class SamlBasicValidationTest extends ReposeValveTest {
 
         then: "the request is rejected"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.receivedResponse.body as String == expectedResponse
 
         and: "the origin service does not receive the request"
         mc.handlings.isEmpty()
 
         where:
-        reason                    | paramValue
-        "invalid base64 encoding" | SAML_ONE_ASSERTION_SIGNED_BASE64 + "!@#%^*)*)@"
-        "invalid XML"             | encodeBase64("legit saml response kthxbai")
-        "invalid SAML"            | encodeBase64("<banana/>")
-        "missing Issuer element"  | encodeBase64(samlResponse(status() >> assertion()))
-        "empty Issuer element"    | encodeBase64(samlResponse(issuer("") >> status() >> assertion()))
+        reason                    | paramValue                                                        | expectedResponse
+        "invalid base64 encoding" | SAML_ONE_ASSERTION_SIGNED_BASE64 + "!@#%^*)*)@"                   | "SAMLResponse is not in valid Base64 scheme"
+        "invalid XML"             | encodeBase64("legit saml response kthxbai")                       | "" // TODO: figure out what the error is going to be
+        "invalid SAML"            | encodeBase64("<banana/>")                                         | "" // TODO: figure out what the error is going to be
+        "missing Issuer element"  | encodeBase64(samlResponse(status() >> assertion()))               | "No issuer present in SAML Response"
+        "empty Issuer element"    | encodeBase64(samlResponse(issuer("") >> status() >> assertion())) | "No issuer present in SAML Response"
     }
 }
