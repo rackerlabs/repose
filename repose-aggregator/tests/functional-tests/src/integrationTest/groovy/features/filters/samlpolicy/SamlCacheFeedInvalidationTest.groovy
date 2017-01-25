@@ -87,7 +87,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         def atomFeedHandlerWithEntry = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
         when: "a request is sent for the first time"
-        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         def mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
@@ -101,7 +101,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
 
         when: "a request is sent again immediately after the first request"
         fakeIdentityV2Service.resetCounts()
-        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
@@ -120,7 +120,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         and: "a request is sent after the cache entry is supposed to be invalidated"
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
         fakeIdentityV2Service.resetCounts()
-        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
@@ -149,7 +149,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
 
         when: "requests are sent for each issuer for the first time"
         def mcs = samlIssuers.collect { samlIssuer ->
-            def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+            def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
             def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
             deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
         }
@@ -165,7 +165,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         when: "requests are sent again immediately after the first round of requests"
         fakeIdentityV2Service.resetCounts()
         mcs = samlIssuers.collect { samlIssuer ->
-            def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+            def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
             def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
             deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
         }
@@ -186,7 +186,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
         fakeIdentityV2Service.resetCounts()
         mcs = samlIssuers.collect { samlIssuer ->
-            def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+            def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
             def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
             deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
         }
@@ -214,7 +214,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         def atomFeedHandlerWithEntry = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
         when: "a request is sent for the first time"
-        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         def mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
@@ -228,7 +228,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
 
         when: "a request is sent again immediately after the first request"
         fakeIdentityV2Service.resetCounts()
-        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
@@ -247,7 +247,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         and: "a request is sent after the cache entry is supposed to be invalidated"
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
         fakeIdentityV2Service.resetCounts()
-        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
