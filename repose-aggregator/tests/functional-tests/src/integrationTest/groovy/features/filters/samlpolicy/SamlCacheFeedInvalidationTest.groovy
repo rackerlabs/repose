@@ -82,7 +82,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         def url = reposeEndpoint + SAML_AUTH_URL
         def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
 
-        and: "an atom feed entry will be received with the same issuer as the saml:responses contain"
+        and: "an atom feed entry will be received with the same issuer as the saml:response contains"
         def atomFeedEntry = fakeAtomFeed.atomEntryForIdpUpdate(eventType: eventType, issuer: samlIssuer)
         def atomFeedHandlerWithEntry = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
@@ -138,7 +138,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
 
     @FailsWith(ConditionNotSatisfiedError)
     def "when an atom feed is received with multiple entries containing multiple issuers, the correct mapping policies are removed from the cache"() {
-        given: "a list of issuers that will be used to in the saml:responses"
+        given: "a list of issuers that will be used in the saml:responses"
         def samlIssuers = (1..5).collect { generateUniqueIssuer() }
         def url = reposeEndpoint + SAML_AUTH_URL
         def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
