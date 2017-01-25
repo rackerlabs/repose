@@ -73,11 +73,11 @@ class SamlCacheTtlTest extends ReposeValveTest {
         when: "a request is sent for the first time"
         def mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
-        then: "the IDP and Mapping Policy endpoints were called"
+        then: "the IDP and Mapping Policy endpoints are called"
         fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
         fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
 
-        and: "the request was overall successful"
+        and: "the request is overall successful"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings[0]
 
@@ -89,7 +89,7 @@ class SamlCacheTtlTest extends ReposeValveTest {
         fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
         fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
 
-        and: "the request was overall successful"
+        and: "the request is overall successful"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings[0]
 
@@ -98,11 +98,11 @@ class SamlCacheTtlTest extends ReposeValveTest {
         fakeIdentityV2Service.resetCounts()
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
-        then: "the IDP and Mapping Policy endpoints were called again"
+        then: "the IDP and Mapping Policy endpoints are called again"
         fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
         fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
 
-        and: "the request was overall successful"
+        and: "the request is overall successful"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings[0]
     }
@@ -115,21 +115,21 @@ class SamlCacheTtlTest extends ReposeValveTest {
         def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
 
         when: "a request is sent for the first time"
-        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion())
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
         def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         def mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
-        then: "the IDP and Mapping Policy endpoints were called"
+        then: "the IDP and Mapping Policy endpoints are called"
         fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
         fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
 
-        and: "the request was overall successful"
+        and: "the request is overall successful"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings[0]
 
         when: "a request is sent again immediately after the first request"
         fakeIdentityV2Service.resetCounts()
-        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion())
+        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
@@ -137,22 +137,22 @@ class SamlCacheTtlTest extends ReposeValveTest {
         fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
         fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
 
-        and: "the request was overall successful"
+        and: "the request is overall successful"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings[0]
 
         when: "a request is sent after the cache entry is supposed to expire"
         sleep(CACHE_TTL_MILLIS)
         fakeIdentityV2Service.resetCounts()
-        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion())
+        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
-        then: "the IDP and Mapping Policy endpoints were called again"
+        then: "the IDP and Mapping Policy endpoints are called again"
         fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
         fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
 
-        and: "the request was overall successful"
+        and: "the request is overall successful"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings[0]
     }
