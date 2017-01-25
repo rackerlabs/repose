@@ -1152,7 +1152,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
     }
 
     Seq("GET", "DELETE", "PATCH", "HEAD", "OPTIONS", "CONNECT", "TRACE", "ALL").foreach { method =>
-      it(s"should provide form values on $method even if the getInputStream method has already been called on the original request") {
+      it(s"should not provide form values on $method") {
         val localRequest = new MockHttpServletRequest()
         localRequest.setContentType(APPLICATION_FORM_URLENCODED)
         localRequest.setContent(formEncodedBody.getBytes(UTF_8))
