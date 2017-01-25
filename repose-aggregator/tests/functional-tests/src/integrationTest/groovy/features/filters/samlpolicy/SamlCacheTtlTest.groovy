@@ -115,7 +115,7 @@ class SamlCacheTtlTest extends ReposeValveTest {
         def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
 
         when: "a request is sent for the first time"
-        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         def mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
@@ -129,7 +129,7 @@ class SamlCacheTtlTest extends ReposeValveTest {
 
         when: "a request is sent again immediately after the first request"
         fakeIdentityV2Service.resetCounts()
-        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
@@ -144,7 +144,7 @@ class SamlCacheTtlTest extends ReposeValveTest {
         when: "a request is sent after the cache entry is supposed to expire"
         sleep(CACHE_TTL_MILLIS)
         fakeIdentityV2Service.resetCounts()
-        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+        saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 

@@ -99,7 +99,7 @@ class SamlCacheDisabledTest extends ReposeValveTest {
 
         when:
         def mcs = (1..numOfRequests).collect {
-            def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer))
+            def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
             def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
             deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
         }
