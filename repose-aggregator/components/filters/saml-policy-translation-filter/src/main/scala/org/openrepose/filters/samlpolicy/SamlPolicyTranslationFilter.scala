@@ -59,6 +59,7 @@ import org.w3c.dom.{Document, NodeList}
 
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
+import scala.xml.XML
 
 /**
   * Created by adrian on 12/12/16.
@@ -288,14 +289,20 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     *
     * @param atomEntry A {@link String} representation of an Atom entry. Note that Atom entries are XML elements,
     */
-  override def onNewAtomEntry(atomEntry: String): Unit = ???
+  override def onNewAtomEntry(atomEntry: String): Unit = {
+    logger.debug("Processing atom feed entry: {}", atomEntry)
+    val atomXml = XML.loadString(atomEntry)
+    (atomXml \\ "event" \\ "@issuer").map(_.text).headOption.foreach(cache.invalidate(_))
+  }
 
   /**
     * I suspect we don't care, but i could be wrong.
     *
     * @param event A value representing the new lifecycle stage of the system associated with the Feed that this
     */
-  override def onLifecycleEvent(event: LifecycleEvents): Unit = ???
+  override def onLifecycleEvent(event: LifecycleEvents): Unit = {
+    logger.debug(s"Received Lifecycle Event: $event")
+  }
 
   /**
     * Stores the configuration and marks the filter as initialized.
