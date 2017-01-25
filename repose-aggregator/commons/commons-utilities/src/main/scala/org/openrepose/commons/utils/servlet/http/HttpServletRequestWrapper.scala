@@ -200,13 +200,13 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, var inputSt
     * @return all parameter values associated with the provided key for this request
     */
   override def getParameterValues(key: String): Array[String] =
-    parameterMap.map(_.get(key).orNull).getOrElse(super.getParameterValues(key))
+    getParameterMap.get(key)
 
   /**
     * @return all parameter names for this request
     */
   override def getParameterNames: util.Enumeration[String] =
-    parameterMap.map(_.keysIterator.asJavaEnumeration).getOrElse(super.getParameterNames)
+    util.Collections.enumeration(getParameterMap.keySet())
 
   /**
     * @return a string representation of the query parameters for this request
