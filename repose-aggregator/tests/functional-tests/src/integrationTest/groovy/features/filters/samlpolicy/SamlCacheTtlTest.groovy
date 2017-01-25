@@ -36,6 +36,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK
 class SamlCacheTtlTest extends ReposeValveTest {
     static final int CACHE_TTL_SEC = 2
     static final int CACHE_TTL_MILLIS = CACHE_TTL_SEC * 1_000
+    static final int SLEEP_PADDING_MILLIS = 500
 
     static MockIdentityV2Service fakeIdentityV2Service
 
@@ -94,7 +95,7 @@ class SamlCacheTtlTest extends ReposeValveTest {
         mc.handlings[0]
 
         when: "a request is sent after the cache entry is supposed to expire"
-        sleep(CACHE_TTL_MILLIS)
+        sleep(CACHE_TTL_MILLIS + SLEEP_PADDING_MILLIS)
         fakeIdentityV2Service.resetCounts()
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
@@ -142,7 +143,7 @@ class SamlCacheTtlTest extends ReposeValveTest {
         mc.handlings[0]
 
         when: "a request is sent after the cache entry is supposed to expire"
-        sleep(CACHE_TTL_MILLIS)
+        sleep(CACHE_TTL_MILLIS + SLEEP_PADDING_MILLIS)
         fakeIdentityV2Service.resetCounts()
         saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
