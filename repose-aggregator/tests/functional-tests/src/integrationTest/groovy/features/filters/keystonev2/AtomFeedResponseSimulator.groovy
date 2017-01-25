@@ -244,6 +244,38 @@ class AtomFeedResponseSimulator {
         }
     }
 
+    Closure<MarkupBuilder> atomEntryForIdpUpdate(Map values = [:]) {
+        Map params = getDefaultParams()
+        params += [
+                title: "Identity Provider Event",
+                id: "urn:uuid:${UUID.randomUUID().toString()}",
+                eventId: UUID.randomUUID().toString(),
+                idpId: "_${UUID.randomUUID().toString()}",
+                issuer: "http://idp.external.com",
+                eventType: "UPDATE",
+                resourceType: "IDP",
+                serviceCode: "CloudIdentity",
+                categories: [],
+                selfLink: "http://localhost:${params.atomPort}/feed/"]
+        params += values
+
+        return atomEntry(params) { MarkupBuilder builder ->
+            builder.'event'(
+                    'xmlns:idfed': "http://docs.rackspace.com/event/identity/idp",
+                    dataCenter: "DFW1",
+                    eventTime: params.time,
+                    id: params.eventId,
+                    region: "DFW",
+                    resourceId: params.idpId,
+                    type: params.eventType,
+                    version: "2") {
+                'idfed:product'(resourceType: params.resourceType, serviceCode: params.serviceCode, version: "1", issuer: params.issuer)
+            }
+
+            builder
+        }
+    }
+
     static String buildXmlToString(Closure<MarkupBuilder> buildFunction) {
         def writer = new StringWriter()
         def xmlBuilder = new MarkupBuilder(writer)
