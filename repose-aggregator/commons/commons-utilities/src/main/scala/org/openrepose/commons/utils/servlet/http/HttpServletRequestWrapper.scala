@@ -34,7 +34,7 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable.{TreeMap, TreeSet}
 import scala.collection.mutable
 
-class HttpServletRequestWrapper(originalRequest: HttpServletRequest, var inputStream: ServletInputStream)
+class HttpServletRequestWrapper(originalRequest: HttpServletRequest, val inputStream: ServletInputStream)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest) with HeaderInteractor {
 
   import HttpServletRequestWrapper._
@@ -257,9 +257,11 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, var inputSt
             updatedParameterMap ++= fpm
           case None =>
             // As per Servlet Spec 3.1 section 3.1.1, form parameters are only available until the input stream is read.
-            if (status == RequestBodyStatus.Available) {
+            try {
               updatedParameterMap ++= parseParameterString(
-                new String(RawInputStreamReader.instance.readFully(inputStream, getContentLength), StandardCharsets.UTF_8))
+                new String(RawInputStreamReader.instance.readFully(getInputStream, getContentLength), StandardCharsets.UTF_8))
+            } catch {
+              case _: IllegalStateException => // Just consume it since the stream has already been read.
             }
             formParameterMap = Option(updatedParameterMap.toMap)
         }
