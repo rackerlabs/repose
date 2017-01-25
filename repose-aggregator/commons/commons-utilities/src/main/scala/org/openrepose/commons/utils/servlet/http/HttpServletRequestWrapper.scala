@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets
 import java.util
 import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
+import javax.ws.rs.core.MediaType._
 
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.utils.io.RawInputStreamReader
@@ -248,7 +249,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, var inputSt
   override def getParameterMap: util.Map[String, Array[String]] = {
     def retrieveParameterMap: util.Map[String, Array[String]] = {
       // As per Servlet Spec 3.1 section 3.1.1, form parameters are only parsed under certain conditions.
-      if (getContentLength > 0 && "application/x-www-form-urlencoded".equalsIgnoreCase(getContentType) &&
+      if (getContentLength > 0 && APPLICATION_FORM_URLENCODED.equalsIgnoreCase(getContentType) &&
         ("POST".equalsIgnoreCase(getMethod) || "PUT".equalsIgnoreCase(getMethod))) {
         val updatedParameterMap = mutable.Map.empty[String, Array[String]]
         formParameterMap match {
