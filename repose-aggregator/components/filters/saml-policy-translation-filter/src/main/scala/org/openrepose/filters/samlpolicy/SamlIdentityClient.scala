@@ -85,10 +85,9 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     * @param username the username on the account
     * @param password the password on the account
     * @param traceId an optional identifier to be sent with the request
-    * @param checkCache whether or not to use the HTTP request cache
     * @return the token if successful, or a failure if unsuccessful
     */
-  def getToken(username: String, password: String, traceId: Option[String], checkCache: Boolean = true): Try[String] = {
+  def getToken(username: String, password: String, traceId: Option[String]): Try[String] = {
     val authenticationPayload = Json.obj(
       "auth" -> Json.obj(
         "passwordCredentials" -> Json.obj(
@@ -104,8 +103,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
       (Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava,
       Json.stringify(authenticationPayload),
-      MediaType.APPLICATION_JSON_TYPE,
-      checkCache
+      MediaType.APPLICATION_JSON_TYPE
     ))
 
     akkaResponse match {
@@ -141,16 +139,18 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     *
     * @param issuer the issuer associated with the Identity provider
     * @param traceId an optional identifier to be sent with the request
+    * @param checkCache whether or not to use the HTTP request cache
     * @return the IDP ID if successful, or a failure if unsuccessful
     */
-  def getIdpId(issuer: String, token: String, traceId: Option[String]): Try[String] = {
+  def getIdpId(issuer: String, token: String, traceId: Option[String], checkCache: Boolean = true): Try[String] = {
     val akkaResponse = Try(tokenServiceClient.akkaServiceClient.get(
       IdpRequestKey(issuer),
       s"$policyUri${IdpPath(issuer)}",
       (Map(
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON,
         CommonHttpHeader.AUTH_TOKEN.toString -> token
-      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava
+      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava,
+      checkCache
     ))
 
     akkaResponse match {
@@ -186,16 +186,18 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     *
     * @param token the token to be sent with the request, used in authorization
     * @param traceId an optional identifier to be sent with the request
+    * @param checkCache whether or not to use the HTTP request cache
     * @return the policy if successful, or a failure if unsuccessful
     */
-  def getPolicy(idpId: String, token: String, traceId: Option[String]): Try[String] = {
+  def getPolicy(idpId: String, token: String, traceId: Option[String], checkCache: Boolean = true): Try[String] = {
     val akkaResponse = Try(tokenServiceClient.akkaServiceClient.get(
       PolicyRequestKey(idpId),
       s"$policyUri${PolicyPath(idpId)}",
       (Map(
         CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON,
         CommonHttpHeader.AUTH_TOKEN.toString -> token
-      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava
+      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava,
+      checkCache
     ))
 
     akkaResponse match {

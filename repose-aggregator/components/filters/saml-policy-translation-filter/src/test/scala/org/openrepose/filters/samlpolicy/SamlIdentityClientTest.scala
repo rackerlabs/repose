@@ -166,8 +166,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyString(),
-        MM.any[MediaType],
-        MM.anyBoolean()
+        MM.any[MediaType]
       )).thenThrow(new RuntimeException("Could not connect"))
 
       samlPolicyProvider.using("", "", None, None)
@@ -183,8 +182,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyString(),
-        MM.any[MediaType],
-        MM.anyBoolean()
+        MM.any[MediaType]
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
       samlPolicyProvider.using("", "", None, None)
@@ -196,8 +194,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.anyString(),
         MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
         MM.anyString(),
-        MM.any[MediaType],
-        MM.anyBoolean()
+        MM.any[MediaType]
       )
     }
 
@@ -207,8 +204,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyString(),
-        MM.any[MediaType],
-        MM.anyBoolean()
+        MM.any[MediaType]
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
       samlPolicyProvider.using("", "", None, None)
@@ -218,10 +214,9 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(akkaServiceClient).post(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.not(HM.hasKey(TRACE_GUID))),
+        MM.argThat(HM.not(HM.hasKey(TRACE_GUID.toString))),
         MM.anyString(),
-        MM.any[MediaType],
-        MM.anyBoolean()
+        MM.any[MediaType]
       )
     }
 
@@ -231,12 +226,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyString(),
-        MM.any[MediaType],
-        MM.anyBoolean()
+        MM.any[MediaType]
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE,
+          CONTENT_TYPE.toString,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(
@@ -264,8 +258,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
           MM.anyString(),
-          MM.any[MediaType],
-          MM.anyBoolean()
+          MM.any[MediaType]
         )).thenReturn(new ServiceClientResponse(statusCode, null))
 
         samlPolicyProvider.using("", "", None, None)
@@ -283,12 +276,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyString(),
-        MM.any[MediaType],
-        MM.anyBoolean()
+        MM.any[MediaType]
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE,
+          CONTENT_TYPE.toString,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(sampleToken.getBytes)
@@ -325,8 +317,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
           MM.anyString(),
-          MM.any[MediaType],
-          MM.anyBoolean()
+          MM.any[MediaType]
         )).thenReturn(new ServiceClientResponse(responseCode, null))
 
         samlPolicyProvider.using("", "", None, None)
@@ -349,12 +340,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
           MM.anyString(),
-          MM.any[MediaType],
-          MM.anyBoolean()
+          MM.any[MediaType]
         )).thenReturn(new ServiceClientResponse(
           SC_OK,
           Array(new BasicHeader(
-            CONTENT_TYPE,
+            CONTENT_TYPE.toString,
             MediaType.APPLICATION_JSON + "; charset=" + charset.name()
           )),
           new ByteArrayInputStream(sampleToken.getBytes(charset))
@@ -367,6 +357,35 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         result shouldBe a[Success[_]]
         result.get shouldEqual "some-token"
       }
+    }
+
+    it("should always check the HTTP request cache") {
+      when(akkaServiceClient.post(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyString(),
+        MM.any[MediaType]
+      )).thenReturn(new ServiceClientResponse(
+        SC_OK,
+        Array(new BasicHeader(
+          CONTENT_TYPE.toString,
+          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
+        )),
+        new ByteArrayInputStream(sampleToken.getBytes)
+      ))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      samlPolicyProvider.getToken("username", "password", None)
+
+      verify(akkaServiceClient).post(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyString(),
+        MM.any[MediaType]
+      )
     }
   }
 
@@ -390,7 +409,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenThrow(new RuntimeException("Could not connect"))
 
       samlPolicyProvider.using("", "", None, None)
@@ -404,7 +424,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
       samlPolicyProvider.using("", "", None, None)
@@ -414,7 +435,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(akkaServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id"))
+        MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
+        MM.anyBoolean()
       )
     }
 
@@ -422,7 +444,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
       samlPolicyProvider.using("", "", None, None)
@@ -432,7 +455,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(akkaServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.not(HM.hasKey(TRACE_GUID)))
+        MM.argThat(HM.not(HM.hasKey(TRACE_GUID.toString))),
+        MM.anyBoolean()
       )
     }
 
@@ -442,7 +466,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
       samlPolicyProvider.using("", "", None, None)
@@ -452,7 +477,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(akkaServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token))
+        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token)),
+        MM.anyBoolean()
       )
     }
 
@@ -460,11 +486,12 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE,
+          CONTENT_TYPE.toString,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(
@@ -490,7 +517,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         when(akkaServiceClient.get(
           MM.anyString(),
           MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String])
+          MM.anyMapOf(classOf[String], classOf[String]),
+          MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(statusCode, null))
 
         samlPolicyProvider.using("", "", None, None)
@@ -506,11 +534,12 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE,
+          CONTENT_TYPE.toString,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(sampleIdp.getBytes)
@@ -545,7 +574,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         when(akkaServiceClient.get(
           MM.anyString(),
           MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String])
+          MM.anyMapOf(classOf[String], classOf[String]),
+          MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(responseCode, null))
 
         samlPolicyProvider.using("", "", None, None)
@@ -566,11 +596,12 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         when(akkaServiceClient.get(
           MM.anyString(),
           MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String])
+          MM.anyMapOf(classOf[String], classOf[String]),
+          MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(
           SC_OK,
           Array(new BasicHeader(
-            CONTENT_TYPE,
+            CONTENT_TYPE.toString,
             MediaType.APPLICATION_JSON + "; charset=" + charset.name
           )),
           new ByteArrayInputStream(sampleIdp.getBytes(charset))
@@ -583,6 +614,60 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         result shouldBe a[Success[_]]
         result.get shouldEqual sampleIdpId
       }
+    }
+
+    it("should check the HTTP request cache if not retrying") {
+      when(akkaServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
+      )).thenReturn(new ServiceClientResponse(
+        SC_OK,
+        Array(new BasicHeader(
+          CONTENT_TYPE.toString,
+          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
+        )),
+        new ByteArrayInputStream(sampleIdp.getBytes)
+      ))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      samlPolicyProvider.getIdpId("issuer", "token", None)
+
+      verify(akkaServiceClient).get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.eq(true)
+      )
+    }
+
+    it("should not check the HTTP request cache if retrying") {
+      when(akkaServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
+      )).thenReturn(new ServiceClientResponse(
+        SC_OK,
+        Array(new BasicHeader(
+          CONTENT_TYPE.toString,
+          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
+        )),
+        new ByteArrayInputStream(sampleIdp.getBytes)
+      ))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = false)
+
+      verify(akkaServiceClient).get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.eq(false)
+      )
     }
   }
 
@@ -614,7 +699,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenThrow(new RuntimeException("Could not connect"))
 
       samlPolicyProvider.using("", "", None, None)
@@ -628,7 +714,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
       samlPolicyProvider.using("", "", None, None)
@@ -638,7 +725,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(akkaServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id"))
+        MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
+        MM.anyBoolean()
       )
     }
 
@@ -646,7 +734,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
       samlPolicyProvider.using("", "", None, None)
@@ -656,7 +745,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(akkaServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.not(HM.hasKey(TRACE_GUID)))
+        MM.argThat(HM.not(HM.hasKey(TRACE_GUID))),
+        MM.anyBoolean()
       )
     }
 
@@ -666,7 +756,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
       samlPolicyProvider.using("", "", None, None)
@@ -676,7 +767,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(akkaServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token))
+        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token)),
+        MM.anyBoolean()
       )
     }
 
@@ -688,7 +780,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         when(akkaServiceClient.get(
           MM.anyString(),
           MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String])
+          MM.anyMapOf(classOf[String], classOf[String]),
+          MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(statusCode, null))
 
         samlPolicyProvider.using("", "", None, None)
@@ -704,11 +797,12 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       when(akkaServiceClient.get(
         MM.anyString(),
         MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String])
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE,
+          CONTENT_TYPE.toString,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(samplePolicy.getBytes)
@@ -743,7 +837,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         when(akkaServiceClient.get(
           MM.anyString(),
           MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String])
+          MM.anyMapOf(classOf[String], classOf[String]),
+          MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(responseCode, null))
 
         samlPolicyProvider.using("", "", None, None)
@@ -764,11 +859,12 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         when(akkaServiceClient.get(
           MM.anyString(),
           MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String])
+          MM.anyMapOf(classOf[String], classOf[String]),
+          MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(
           SC_OK,
           Array(new BasicHeader(
-            CONTENT_TYPE,
+            CONTENT_TYPE.toString,
             MediaType.APPLICATION_JSON + "; charset=" + charset.name
           )),
           new ByteArrayInputStream(samplePolicy.getBytes(charset))
@@ -782,10 +878,62 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         Json.stringify(Json.parse(result.get)) shouldEqual Json.stringify(Json.parse(samplePolicy))
       }
     }
+
+    it("should check the HTTP request cache if not retrying") {
+      when(akkaServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
+      )).thenReturn(new ServiceClientResponse(
+        SC_OK,
+        Array(new BasicHeader(
+          CONTENT_TYPE.toString,
+          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
+        )),
+        new ByteArrayInputStream(samplePolicy.getBytes)
+      ))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      samlPolicyProvider.getPolicy("idpId", "token", None)
+
+      verify(akkaServiceClient).get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.eq(true)
+      )
+    }
+
+    it("should not check the HTTP request cache if retrying") {
+      when(akkaServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
+      )).thenReturn(new ServiceClientResponse(
+        SC_OK,
+        Array(new BasicHeader(
+          CONTENT_TYPE.toString,
+          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
+        )),
+        new ByteArrayInputStream(samplePolicy.getBytes)
+      ))
+
+      samlPolicyProvider.using("", "", None, None)
+
+      samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = false)
+
+      verify(akkaServiceClient).get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.eq(false)
+      )
+    }
   }
 
   implicit def looseToStrictStringMap(sm: java.util.Map[_, _]): java.util.Map[String, String] =
     sm.asInstanceOf[java.util.Map[String, String]]
-
-  implicit def commonHeaderToString(h: CommonHttpHeader): String = h.toString
 }
