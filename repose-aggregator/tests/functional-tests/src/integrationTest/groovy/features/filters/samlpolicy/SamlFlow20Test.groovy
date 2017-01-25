@@ -138,7 +138,7 @@ class SamlFlow20Test extends ReposeValveTest {
     @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an unsigned assertion should be rejected"() {
         given: "a saml:response with an unsigned assertion"
-        def saml = samlResponse(issuer() >> status() >> assertion([:]))
+        def saml = samlResponse(issuer() >> status() >> assertion(fakeSign: false))
 
         when:
         def mc = deproxy.makeRequest(
@@ -181,9 +181,9 @@ class SamlFlow20Test extends ReposeValveTest {
     @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with three assertions that are not all signed should be rejected - with signatures: #sigOne, #sigTwo, #sigThree"() {
         given: "a saml:response with three assertions that will each be signed depending on the test"
-        def assertionOne = sigOne ? assertion(ASSERTION_SIGNED) : assertion([:])
-        def assertionTwo = sigTwo ? assertion(ASSERTION_SIGNED_TWO) : assertion([:])
-        def assertionThree = sigThree ? assertion(ASSERTION_SIGNED_THREE) : assertion([:])
+        def assertionOne = sigOne ? assertion(ASSERTION_SIGNED) : assertion(fakeSign: false)
+        def assertionTwo = sigTwo ? assertion(ASSERTION_SIGNED_TWO) : assertion(fakeSign: false)
+        def assertionThree = sigThree ? assertion(ASSERTION_SIGNED_THREE) : assertion(fakeSign: false)
         def saml = samlResponse(issuer() >> status() >> assertionOne >> assertionTwo >> assertionThree)
 
         when:
@@ -375,7 +375,8 @@ class SamlFlow20Test extends ReposeValveTest {
         fakeIdentityV2Service.getIdpFromIssuerHandler = getIdpFromIssuerHandler
 
         and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
-        def saml = samlResponse(issuer(generateUniqueIssuer()) >> status() >> assertion(fakeSign: true))
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
 
         when:
         def mc = deproxy.makeRequest(
@@ -403,7 +404,8 @@ class SamlFlow20Test extends ReposeValveTest {
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = { new DeproxyResponse(SC_NOT_FOUND) }
 
         and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
-        def saml = samlResponse(issuer(generateUniqueIssuer()) >> status() >> assertion(fakeSign: true))
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
 
         when:
         def mc = deproxy.makeRequest(
