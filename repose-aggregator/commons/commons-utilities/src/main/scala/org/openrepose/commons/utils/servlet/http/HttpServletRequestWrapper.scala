@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets
 import java.util
 import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
-import javax.ws.rs.core.MediaType._
+import javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.utils.io.RawInputStreamReader
