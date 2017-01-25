@@ -256,13 +256,10 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, var inputSt
           case Some(fpm) =>
             updatedParameterMap ++= fpm
           case None =>
-            // This is the only place the input stream has a chance of being replaced or manipulated directly by the wrapper.
-            inputStream synchronized {
-              // As per Servlet Spec 3.1 section 3.1.1, form parameters are only available until the input stream is read.
-              if (status == RequestBodyStatus.Available) {
-                updatedParameterMap ++= parseParameterString(
-                  new String(RawInputStreamReader.instance.readFully(inputStream, getContentLength), StandardCharsets.UTF_8))
-              }
+            // As per Servlet Spec 3.1 section 3.1.1, form parameters are only available until the input stream is read.
+            if (status == RequestBodyStatus.Available) {
+              updatedParameterMap ++= parseParameterString(
+                new String(RawInputStreamReader.instance.readFully(inputStream, getContentLength), StandardCharsets.UTF_8))
             }
             formParameterMap = Option(updatedParameterMap.toMap)
         }
