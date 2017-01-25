@@ -86,7 +86,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
   private var policyCache: Cache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
-  private var token: Option[String] = None
+  private var authToken: Option[String] = None
   private var sendTraceHeader: Boolean = true
   private var tokenServiceClient: AkkaServiceClient = _
   private var policyServiceClient: AkkaServiceClient = _
@@ -135,7 +135,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
           request.addHeader("Identity-API-Version", "2.0")
           val issuer = validateResponseAndGetIssuer(rawDocument)
           val translatedDocument = translateResponse(rawDocument, policyCache.get(issuer, new Callable[XsltExecutable] {
-            override def call(): XsltExecutable = getPolicy(issuer, traceId)
+            override def call(): XsltExecutable = getPolicy(issuer)
           }))
           signResponse(translatedDocument)
       }
@@ -269,20 +269,26 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the token if successful, or a failure if unsuccessful
     * @throws SamlPolicyException if response is invalid
     */
-  def getToken(traceId: Option[String], isRetry: Boolean = false): Try[String] = {
+  def getToken(traceId: Option[String], checkCache: Boolean = true): Try[String] = {
     logger.trace("Getting token")
-    token match {
+
+    if (!checkCache) {
+      authToken = None
+    }
+
+    authToken match {
       case Some(cachedToken) =>
         logger.trace("Using cached token")
         Success(cachedToken)
       case None =>
         logger.trace("Fetching a fresh token with the configured credentials")
-        samlIdentityClient.getToken(
+        val token = samlIdentityClient.getToken(
           configuration.getPolicyAcquisition.getKeystoneCredentials.getUsername,
           configuration.getPolicyAcquisition.getKeystoneCredentials.getPassword,
-          traceId,
-          !isRetry
+          traceId
         )
+        token.foreach(t => authToken = Some(t))
+        token
     }
   }
 

@@ -567,8 +567,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       when(samlIdentityClient.getToken(
         MM.anyString(),
         MM.anyString(),
-        MM.any[Option[String]],
-        MM.anyBoolean()
+        MM.any[Option[String]]
       )).thenReturn(Success(token))
 
       val result = filter.getToken(None)
@@ -578,8 +577,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
-        MM.any[Option[String]],
-        MM.anyBoolean()
+        MM.any[Option[String]]
       )
     }
 
@@ -589,8 +587,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       when(samlIdentityClient.getToken(
         MM.anyString(),
         MM.anyString(),
-        MM.any[Option[String]],
-        MM.anyBoolean()
+        MM.any[Option[String]]
       )).thenReturn(Failure(UnexpectedStatusCodeException(SC_FORBIDDEN, "forbidden")))
 
       val result = filter.getToken(None)
@@ -599,8 +596,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
-        MM.any[Option[String]],
-        MM.anyBoolean()
+        MM.any[Option[String]]
       )
     }
 
@@ -611,8 +607,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       when(samlIdentityClient.getToken(
         MM.anyString(),
         MM.anyString(),
-        MM.any[Option[String]],
-        MM.anyBoolean()
+        MM.any[Option[String]]
       )).thenReturn(Failure(OverLimitException(retryAfter, "rate limited")))
 
       val result = filter.getToken(None)
@@ -621,8 +616,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
-        MM.any[Option[String]],
-        MM.anyBoolean()
+        MM.any[Option[String]]
       )
     }
 
@@ -630,7 +624,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(buildConfig())
 
       val token = "foo-token"
-      ReflectionTestUtils.setField(filter, "token", Some(token))
+      ReflectionTestUtils.setField(filter, "authToken", Some(token))
 
       val result = filter.getToken(None)
 
@@ -639,31 +633,30 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       verify(samlIdentityClient, never).getToken(
         MM.anyString(),
         MM.anyString(),
-        MM.any[Option[String]],
-        MM.anyBoolean()
+        MM.any[Option[String]]
       )
     }
 
-    it("should not check the Akka cache on a retry") {
+    it("should not check the cache on a retry") {
       filter.configurationUpdated(buildConfig())
 
-      val token = "foo-token"
+      ReflectionTestUtils.setField(filter, "authToken", Some("cached-token"))
+
+      val token = "fresh-token"
       when(samlIdentityClient.getToken(
         MM.anyString(),
         MM.anyString(),
-        MM.any[Option[String]],
-        MM.eq(false)
+        MM.any[Option[String]]
       )).thenReturn(Success(token))
 
-      val result = filter.getToken(None, isRetry = true)
+      val result = filter.getToken(None, checkCache = false)
 
       result shouldBe a[Success[_]]
       result.get shouldEqual token
       verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
-        MM.any[Option[String]],
-        MM.eq(false)
+        MM.any[Option[String]]
       )
     }
   }
