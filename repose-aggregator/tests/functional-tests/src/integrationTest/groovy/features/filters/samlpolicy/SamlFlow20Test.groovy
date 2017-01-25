@@ -35,6 +35,7 @@ import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
 import static framework.mocks.MockIdentityV2Service.IDP_NO_RESULTS
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
@@ -116,7 +117,7 @@ class SamlFlow20Test extends ReposeValveTest {
         "signed (invalid)" | SAML_ASSERTION_AND_MESSAGE_SIGNED.replaceFirst("\n", "").replaceFirst("\n", "")
     }
 
-    def "a saml:response without an assertion should be rejected"() {
+    def "a saml:response without an assertion should NOT be rejected with a 50x error"() {
         given: "a saml:response without an assertion"
         def saml = samlResponse(issuer() >> status())
 
@@ -127,11 +128,11 @@ class SamlFlow20Test extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the client gets back a bad response"
-        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
-
-        and: "the request doesn't get to the origin service"
-        mc.handlings.isEmpty()
+        then: "the client does not get back a server-side error"
+        (mc.receivedResponse.code as Integer) < SC_INTERNAL_SERVER_ERROR
+        // TODO: Identity seems to need 2 assertions by their point, but it doesn't necessarily mean we should be
+        // TODO: validating that we get at least 1 assertion here. Figure out what we should be validating, and clarify
+        // TODO: this test if possible to a specific response code and response body.
     }
 
     @FailsWith(ConditionNotSatisfiedError)
@@ -149,7 +150,6 @@ class SamlFlow20Test extends ReposeValveTest {
         then: "the client gets back a bad response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.receivedResponse.body as String == "All assertions must be signed"
-        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_TEXT
 
         and: "the request doesn't get to the origin service"
         mc.handlings.isEmpty()
@@ -196,7 +196,6 @@ class SamlFlow20Test extends ReposeValveTest {
         then: "the client gets back a bad response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.receivedResponse.body as String == "All assertions must be signed"
-        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_TEXT
 
         and: "the request doesn't get to the origin service"
         mc.handlings.isEmpty()
@@ -288,6 +287,7 @@ class SamlFlow20Test extends ReposeValveTest {
 
         then: "the client gets back a bad response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.receivedResponse.body as String == "SAML Response and all assertions need an issuer"
 
         and: "the request doesn't get to the origin service"
         mc.handlings.isEmpty()
@@ -354,7 +354,6 @@ class SamlFlow20Test extends ReposeValveTest {
         then: "the client gets back a bad response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.receivedResponse.body as String == "All assertions must come from the same issuer"
-        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_TEXT
 
         and: "the request doesn't get to the origin service"
         mc.handlings.isEmpty()
