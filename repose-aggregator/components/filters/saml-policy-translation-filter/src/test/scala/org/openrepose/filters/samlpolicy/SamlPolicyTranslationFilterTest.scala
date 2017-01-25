@@ -624,7 +624,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(buildConfig())
 
       val token = "foo-token"
-      ReflectionTestUtils.setField(filter, "authToken", Some(token))
+      ReflectionTestUtils.setField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$authToken", Some(token))
 
       val result = filter.getToken(None)
 
@@ -640,7 +640,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should not check the cache on a retry") {
       filter.configurationUpdated(buildConfig())
 
-      ReflectionTestUtils.setField(filter, "authToken", Some("cached-token"))
+      ReflectionTestUtils.setField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$authToken", Some("cached-token"))
 
       val token = "fresh-token"
       when(samlIdentityClient.getToken(
