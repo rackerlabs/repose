@@ -255,6 +255,7 @@ class SamlFlow20Test extends ReposeValveTest {
         false  | false  | false
     }
 
+    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an assertion missing the Issuer element should be rejected"() {
         given: "a saml:response with an assertion missing the Issuer element"
         def saml = samlResponse { MarkupBuilder builder ->

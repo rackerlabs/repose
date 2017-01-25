@@ -109,7 +109,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
         CONTENT_TYPE_INVALID | "xml"             | SAML_ONE_ASSERTION_SIGNED
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "a request using the wrong form parameter name should be rejected"() {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
@@ -126,7 +125,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "a request without any parameters nor a request body should be rejected"() {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
@@ -163,6 +161,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     @Unroll
+    @FailsWith(ConditionNotSatisfiedError)
     def "a request should be rejected when the SAMLResponse contents are invalid due to #reason"() {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
