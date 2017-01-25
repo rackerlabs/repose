@@ -55,7 +55,7 @@ import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.springframework.beans.factory.annotation.Value
-import org.w3c.dom.Document
+import org.w3c.dom.{Document, NodeList}
 
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
@@ -71,6 +71,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   extends AbstractConfiguredFilter[SamlPolicyConfig](configurationService)
     with LazyLogging
     with AtomFeedListener {
+  import SamlPolicyTranslationFilter._
 
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
@@ -82,8 +83,6 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var keyEntry: KeyStore.PrivateKeyEntry = _
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
-  private val namespaceContext: NamespaceContext = ImmutableNamespaceContext(Map("s2p" -> "urn:oasis:names:tc:SAML:2.0:protocol",
-                                                                                 "s2"  -> "urn:oasis:names:tc:SAML:2.0:assertion"))
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
@@ -165,11 +164,9 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException should it have problems finding the issuer
     */
   def determineVersion(document: Document): Int = {
-    val xpath = "/s2p:Response/s2:Issuer/text()"
-    val version = 30
     var xPathExpression : Option[XPathExpression] = None
     try {
-      xPathExpression = Option(XPathExpressionPool.borrowExpression(xpath, namespaceContext, version))
+      xPathExpression = Option(XPathExpressionPool.borrowExpression(responseIssuerXPath, namespaceContext, xPathVersion))
       val issuerUri = xPathExpression.get.evaluate(document, XPathConstants.STRING).asInstanceOf[String]
       issuerUri match {
         case s if s.isEmpty => throw SamlPolicyException(SC_BAD_REQUEST, "No issuer present in SAML Response")
@@ -177,7 +174,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
         case _ => 2
       }
     } finally {
-      xPathExpression.foreach(XPathExpressionPool.returnExpression(xpath, namespaceContext, version, _))
+      xPathExpression.foreach(XPathExpressionPool.returnExpression(responseIssuerXPath, namespaceContext, xPathVersion, _))
     }
   }
 
@@ -189,7 +186,42 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the issuer for the embedded assertions
     * @throws SamlPolicyException if response is invalid
     */
-  def validateResponseAndGetIssuer(document: Document): String = ???
+  def validateResponseAndGetIssuer(document: Document): String = {
+    var assertionExpression : Option[XPathExpression] = None
+    var issuerExpression : Option[XPathExpression] = None
+    var signatureExpression : Option[XPathExpression] = None
+
+    try {
+      assertionExpression = Option(XPathExpressionPool.borrowExpression(assertionXPath, namespaceContext, xPathVersion))
+      issuerExpression = Option(XPathExpressionPool.borrowExpression(issuersXPath, namespaceContext, xPathVersion))
+      signatureExpression = Option(XPathExpressionPool.borrowExpression(signatureXPath, namespaceContext, xPathVersion))
+
+      val assertions = assertionExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
+      val issuers = issuerExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
+      val signatures = signatureExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
+
+      if (assertions.getLength != signatures.getLength) {
+        throw SamlPolicyException(400, "All assertions must be signed")
+      }
+
+      if (issuers.getLength != (assertions.getLength + 1)) {
+        throw SamlPolicyException(400, "SAML Response and all assertions need an issuer")
+      }
+
+      val listOfIssuers = for (i <- 0 until issuers.getLength) yield issuers.item(i).getTextContent
+
+      val uniqueIssuers = listOfIssuers.toSet
+      if (uniqueIssuers.size != 1) {
+        throw SamlPolicyException(400, "All assertions must come from the same issuer")
+      }
+
+      uniqueIssuers.head
+    } finally {
+      assertionExpression.foreach(XPathExpressionPool.returnExpression(assertionXPath, namespaceContext, xPathVersion, _))
+      issuerExpression.foreach(XPathExpressionPool.returnExpression(issuersXPath, namespaceContext, xPathVersion, _))
+      signatureExpression.foreach(XPathExpressionPool.returnExpression(signatureXPath, namespaceContext, xPathVersion, _))
+    }
+  }
 
   /**
     * Retrieves the policy from the configured endpoint. The caching will be handled elsewhere.
@@ -338,3 +370,14 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 }
 
 case class SamlPolicyException(statusCode: Int, message: String, cause: Throwable = null) extends Exception(message, cause)
+
+object SamlPolicyTranslationFilter {
+  val namespaceContext: NamespaceContext = ImmutableNamespaceContext(Map("s2p" -> "urn:oasis:names:tc:SAML:2.0:protocol",
+                                                                         "s2"  -> "urn:oasis:names:tc:SAML:2.0:assertion",
+                                                                         "sig" -> "http://www.w3.org/2000/09/xmldsig#"))
+  val responseIssuerXPath = "/s2p:Response/s2:Issuer/text()"
+  val assertionXPath = "/s2p:Response/s2:Assertion"
+  val issuersXPath = "/s2p:Response//s2:Issuer"
+  val signatureXPath = "/s2p:Response/s2:Assertion/sig:Signature"
+  val xPathVersion = 30
+}
