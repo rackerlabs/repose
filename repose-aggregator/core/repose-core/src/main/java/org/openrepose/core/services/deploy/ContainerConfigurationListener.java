@@ -56,14 +56,11 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
                 if (ad.getCheckInterval() > 0) {
                     dirWatcher.updateCheckInterval(ad.getCheckInterval());
                 }
-
-                dirWatcher.updateArtifactDirectoryLocation(new File(ad.getValue()));
-
-                deploymentDirectory = new File(dd.getValue());
+                dirWatcher.updateArtifactDirectoryLocation(new File(ad.getValue().trim()));
+                deploymentDirectory = new File(dd.getValue().trim());
             }
         }
         isInitialized = true;
-
     }
 
 
