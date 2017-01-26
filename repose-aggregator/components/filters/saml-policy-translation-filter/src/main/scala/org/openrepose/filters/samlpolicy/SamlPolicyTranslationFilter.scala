@@ -81,8 +81,6 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     with AtomFeedListener {
   import SamlPolicyTranslationFilter._
 
-  import SamlPolicyTranslationFilter._
-
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
 
