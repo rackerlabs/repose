@@ -85,18 +85,17 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
     */
   override def configurationUpdated(configurationObject: T): Unit = {
     logger.trace("{} received a configuration update", this.getClass.getSimpleName)
-    val oldConfiguration = configuration
+    doConfigurationUpdated(configurationObject)
     configuration = configurationObject
-    doConfigurationUpdated(oldConfiguration)
     initialized = true
   }
 
   /**
-    * Called after the configuration reference is updated.
+    * Called before the configuration reference is updated.
     *
-    * @param oldConfiguration
+    * @param newConfiguration
     */
-  def doConfigurationUpdated(oldConfiguration: T): Unit = {
+  def doConfigurationUpdated(newConfiguration: T): Unit = {
     logger.trace("{} Default doConfigurationUpdated ...", this.getClass.getSimpleName)
   }
 
