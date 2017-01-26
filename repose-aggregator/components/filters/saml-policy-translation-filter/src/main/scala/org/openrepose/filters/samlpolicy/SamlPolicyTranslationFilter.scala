@@ -308,11 +308,11 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * Stores the configuration and marks the filter as initialized.
     * I'm going to have to initialize the cache and atom feed listener here, but it's not in the critical path for the moment.
     *
-    * @param oldConfiguration
+    * @param newConfiguration
     */
-  override def doConfigurationUpdated(oldConfiguration: SamlPolicyConfig): Unit = {
-    val requestedFeedId = Option(configuration.getPolicyAcquisition.getCache.getAtomFeedId)
-    if (feedId.nonEmpty && (requestedFeedId != Option(oldConfiguration.getPolicyAcquisition.getCache.getAtomFeedId))) {
+  override def doConfigurationUpdated(newConfiguration: SamlPolicyConfig): Unit = {
+    val requestedFeedId = Option(newConfiguration.getPolicyAcquisition.getCache.getAtomFeedId)
+    if (feedId.nonEmpty && (requestedFeedId != Option(configuration.getPolicyAcquisition.getCache.getAtomFeedId))) {
       atomFeedService.unregisterListener(feedId.get)
       feedId = None
     }
@@ -321,15 +321,15 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       feedId = Option(atomFeedService.registerListener(requestedFeedId.get, this))
     }
 
-    if (Option(oldConfiguration).map(_.getPolicyAcquisition.getCache.getTtl) != Option(configuration.getPolicyAcquisition.getCache.getTtl)) {
+    if (Option(configuration).map(_.getPolicyAcquisition.getCache.getTtl) != Option(newConfiguration.getPolicyAcquisition.getCache.getTtl)) {
       cache = CacheBuilder.newBuilder()
-                          .expireAfterWrite(configuration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
+                          .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
                           .build(new CacheLoader[String, XsltExecutable]() {
                             override def load(key: String): XsltExecutable = getPolicy(key)
                           })
     }
 
-    legacyIssuers = Option(configuration.getPolicyBypassIssuers).map(_.getIssuer.asScala.toList.map(new URI(_))).getOrElse(List.empty)
+    legacyIssuers = Option(newConfiguration.getPolicyBypassIssuers).map(_.getIssuer.asScala.toList.map(new URI(_))).getOrElse(List.empty)
 
     try {
       // Create a DOM XMLSignatureFactory that will be used to
@@ -352,7 +352,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
         xmlSignatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null),
         Collections.singletonList(ref))
       // Load the KeyStore and get the signing key and certificate.
-      val signatureCredentials = configuration.getSignatureCredentials
+      val signatureCredentials = newConfiguration.getSignatureCredentials
       val keyStoreFilename = FileUtilities.guardedAbsoluteFile(configRoot, signatureCredentials.getKeystoreFilename).getAbsolutePath
       logger.debug("Attempting to load keystore located at: {}", keyStoreFilename)
       val keyStore = KeyStore.getInstance("JKS")
