@@ -415,7 +415,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      val result = samlPolicyProvider.getIdpId("issuer", "token", None)
+      val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
       result shouldBe a[Failure[_]]
     }
@@ -430,7 +430,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      samlPolicyProvider.getIdpId("issuer", "token", Some("trace-id"))
+      samlPolicyProvider.getIdpId("issuer", "token", Some("trace-id"), checkCache = true)
 
       verify(akkaServiceClient).get(
         MM.anyString(),
@@ -450,7 +450,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      samlPolicyProvider.getIdpId("issuer", "token", None)
+      samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
       verify(akkaServiceClient).get(
         MM.anyString(),
@@ -472,7 +472,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      samlPolicyProvider.getIdpId("issuer", token, Some("trace-id"))
+      samlPolicyProvider.getIdpId("issuer", token, Some("trace-id"), checkCache = true)
 
       verify(akkaServiceClient).get(
         MM.anyString(),
@@ -504,7 +504,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      val result = samlPolicyProvider.getIdpId("issuer", "token", None)
+      val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
       result shouldBe a[Failure[_]]
     }
@@ -523,7 +523,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, None)
 
-        val result = samlPolicyProvider.getIdpId("issuer", "token", None)
+        val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
         result shouldBe a[Failure[_]]
         an [OverLimitException] should be thrownBy result.get
@@ -547,7 +547,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      val result = samlPolicyProvider.getIdpId("issuer", "token", None)
+      val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
       result shouldBe a[Success[_]]
       result.get shouldEqual sampleIdpId
@@ -580,7 +580,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, None)
 
-        val result = samlPolicyProvider.getIdpId("issuer", "token", None)
+        val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
         result shouldBe a[Failure[_]]
       }
@@ -609,7 +609,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, None)
 
-        val result = samlPolicyProvider.getIdpId("issuer", "token", None)
+        val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
         result shouldBe a[Success[_]]
         result.get shouldEqual sampleIdpId
@@ -633,7 +633,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      samlPolicyProvider.getIdpId("issuer", "token", None)
+      samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
       verify(akkaServiceClient).get(
         MM.anyString(),
@@ -705,7 +705,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+      val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
       result shouldBe a[Failure[_]]
     }
@@ -720,7 +720,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      samlPolicyProvider.getPolicy("idpId", "token", Some("trace-id"))
+      samlPolicyProvider.getPolicy("idpId", "token", Some("trace-id"), checkCache = true)
 
       verify(akkaServiceClient).get(
         MM.anyString(),
@@ -740,7 +740,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      samlPolicyProvider.getPolicy("idpId", "token", None)
+      samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
       verify(akkaServiceClient).get(
         MM.anyString(),
@@ -762,7 +762,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      samlPolicyProvider.getPolicy("idpId", token, Some("trace-id"))
+      samlPolicyProvider.getPolicy("idpId", token, Some("trace-id"), checkCache = true)
 
       verify(akkaServiceClient).get(
         MM.anyString(),
@@ -786,7 +786,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, None)
 
-        val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+        val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
         result shouldBe a[Failure[_]]
         an [OverLimitException] should be thrownBy result.get
@@ -810,7 +810,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+      val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
       result shouldBe a[Success[_]]
       Json.stringify(Json.parse(result.get)) shouldEqual Json.stringify(Json.parse(samplePolicy))
@@ -843,7 +843,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, None)
 
-        val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+        val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
         result shouldBe a[Failure[_]]
       }
@@ -872,7 +872,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, None)
 
-        val result = samlPolicyProvider.getPolicy("idpId", "token", None)
+        val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
         result shouldBe a[Success[_]]
         Json.stringify(Json.parse(result.get)) shouldEqual Json.stringify(Json.parse(samplePolicy))
@@ -896,7 +896,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, None)
 
-      samlPolicyProvider.getPolicy("idpId", "token", None)
+      samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
       verify(akkaServiceClient).get(
         MM.anyString(),

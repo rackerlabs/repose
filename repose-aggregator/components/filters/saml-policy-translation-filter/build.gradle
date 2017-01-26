@@ -11,6 +11,7 @@ dependencies {
     compile "net.sf.saxon:Saxon-EE:9.7.0-8"
     compile "com.rackspace.identity.components.attribute-mapper:mapper-core"
     compile "com.rackspace.papi.components.api-checker:checker-util"
+    compile "com.fasterxml.jackson.core:jackson-databind"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"

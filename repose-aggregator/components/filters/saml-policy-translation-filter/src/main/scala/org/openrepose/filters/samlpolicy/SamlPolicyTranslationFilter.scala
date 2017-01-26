@@ -24,11 +24,11 @@ import java.io.{ByteArrayInputStream, FileInputStream, IOException, InputStream}
 import java.net.URI
 import java.security._
 import java.security.cert.X509Certificate
-import java.util.concurrent.{Callable, TimeUnit}
+import java.util.concurrent.{Callable, TimeUnit, TimeoutException}
 import java.util.{Base64, Collections}
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR}
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
 import javax.xml.crypto.NoSuchMechanismException
@@ -40,9 +40,11 @@ import javax.xml.namespace.NamespaceContext
 import javax.xml.transform.TransformerException
 import javax.xml.xpath.{XPathConstants, XPathExpression}
 
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.cache.{Cache, CacheBuilder}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XPathExpressionPool}
-import com.rackspace.identity.components.AttributeMapper
+import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
@@ -52,10 +54,10 @@ import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException}
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, UnexpectedStatusCodeException}
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{GenericIdentityException, OverLimitException, UnexpectedStatusCodeException}
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.springframework.beans.factory.annotation.Value
@@ -84,9 +86,11 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
 
+  private final val JsonObjectMapper = new ObjectMapper()
+
   private var policyCache: Cache[String, XsltExecutable] = _
   private var feedId: Option[String] = None
-  private var authToken: Option[String] = None
+  private var serviceToken: Option[String] = None
   private var sendTraceHeader: Boolean = true
   private var tokenServiceClient: AkkaServiceClient = _
   private var policyServiceClient: AkkaServiceClient = _
@@ -135,7 +139,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
           request.addHeader("Identity-API-Version", "2.0")
           val issuer = validateResponseAndGetIssuer(rawDocument)
           val translatedDocument = translateResponse(rawDocument, policyCache.get(issuer, new Callable[XsltExecutable] {
-            override def call(): XsltExecutable = getPolicy(issuer)
+            override def call(): XsltExecutable = getPolicy(issuer, traceId)
           }))
           signResponse(translatedDocument)
       }
@@ -154,7 +158,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     } catch {
       case ex: OverLimitException =>
         servletResponse.asInstanceOf[HttpServletResponse].addHeader(RETRY_AFTER.toString, ex.retryAfter)
-        servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Identity service temporarily unavailable")
+        servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_SERVICE_UNAVAILABLE, "Identity service temporarily unavailable")
         logger.debug("Identity service temporarily unavailable", ex)
       case ex: SamlPolicyException =>
         servletResponse.asInstanceOf[HttpServletResponse].sendError(ex.statusCode, ex.message)
@@ -270,15 +274,15 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if response is invalid
     */
   def getToken(traceId: Option[String], checkCache: Boolean = true): Try[String] = {
-    logger.trace("Getting token")
+    logger.trace("Getting service token")
 
     if (!checkCache) {
-      authToken = None
+      serviceToken = None
     }
 
-    authToken match {
+    serviceToken match {
       case Some(cachedToken) =>
-        logger.trace("Using cached token")
+        logger.trace("Using cached service token")
         Success(cachedToken)
       case None =>
         logger.trace("Fetching a fresh token with the configured credentials")
@@ -287,7 +291,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
           configuration.getPolicyAcquisition.getKeystoneCredentials.getPassword,
           traceId
         )
-        token.foreach(t => authToken = Some(t))
+        token.foreach(t => serviceToken = Some(t))
         token
     }
   }
@@ -301,8 +305,32 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the compiled xslt that represents the policy
     * @throws SamlPolicyException for so many reasons
     */
-  def getPolicy(issuer: String): XsltExecutable = {
-    ???
+  def getPolicy(issuer: String, traceId: Option[String]): XsltExecutable = {
+    logger.trace(s"Getting policy for issuer: $issuer")
+    getToken(traceId) flatMap { token =>
+      samlIdentityClient.getIdpId(issuer, token, traceId, checkCache = true) recoverWith {
+        case UnexpectedStatusCodeException(SC_UNAUTHORIZED, _) =>
+          getToken(traceId, checkCache = false) flatMap { newToken =>
+            samlIdentityClient.getIdpId(issuer, newToken, traceId, checkCache = false)
+          }
+      } flatMap { idpId =>
+        samlIdentityClient.getPolicy(idpId, token, traceId, checkCache = true) recoverWith {
+          case UnexpectedStatusCodeException(SC_UNAUTHORIZED, _) =>
+            getToken(traceId, checkCache = false) flatMap { newToken =>
+              samlIdentityClient.getPolicy(idpId, newToken, traceId, checkCache = false)
+            }
+        }
+      }
+    } map { policy =>
+      AttributeMapper.generateXSLExec(JsonObjectMapper.readTree(policy), validate = true, XSDEngine.AUTO.toString)
+    } recover {
+      case e: JsonProcessingException =>
+        throw SamlPolicyException(SC_BAD_REQUEST, "Error parsing the policy as JSON", e)
+      case e: UnexpectedStatusCodeException if e.statusCode >= 500 && e.statusCode < 600 =>
+        throw SamlPolicyException(SC_BAD_GATEWAY, "Call to Identity failed", e)
+      case e: GenericIdentityException if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
+        throw SamlPolicyException(SC_GATEWAY_TIMEOUT, "Call to Identity timed out", e)
+    } get
   }
 
   /**
