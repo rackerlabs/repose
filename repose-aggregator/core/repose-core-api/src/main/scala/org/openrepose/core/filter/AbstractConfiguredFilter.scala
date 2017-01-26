@@ -75,7 +75,18 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
       this,
       classTag[T].runtimeClass.asInstanceOf[Class[T]]
     )
+
+    doInit(filterConfig)
+
     logger.trace("{} initialized.", this.getClass.getSimpleName)
+  }
+
+  /**
+    * Called immediately after the [[configFile]] is subscribed to.
+    * Should be overridden when additional processing needs to be performed on initialization.
+    */
+  def doInit(filterConfig: FilterConfig): Unit = {
+    logger.trace("{} default doInit ...", this.getClass.getSimpleName)
   }
 
   /**
@@ -96,7 +107,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
     * @param newConfiguration
     */
   def doConfigurationUpdated(newConfiguration: T): Unit = {
-    logger.trace("{} Default doConfigurationUpdated ...", this.getClass.getSimpleName)
+    logger.trace("{} default doConfigurationUpdated ...", this.getClass.getSimpleName)
   }
 
 
@@ -108,7 +119,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   override def isInitialized: Boolean = initialized
 
   /**
-    * Does an intitialization check. Will return 500 if not yet initialized, otherwise calls through to doWork.
+    * Does an initialization check. Will return 500 if not yet initialized, otherwise calls through to doWork.
     *
     * @param request
     * @param response
@@ -135,7 +146,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit
 
   /**
-    * Unsubscribes from the configuration service.
+    * Un-subscribes from the configuration service.
     */
   override def destroy(): Unit = {
     logger.trace("{} destroying ...", this.getClass.getSimpleName)
@@ -145,9 +156,10 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   }
 
   /**
-    * Called immediately after the configFile is unsubscribed from.
+    * Called immediately after the [[configFile]] is un-subscribed from.
+    * Should be overridden when additional processing needs to be performed on destruction.
     */
   def doDestroy(): Unit = {
-    logger.trace("{} Default postDestroy ...", this.getClass.getSimpleName)
+    logger.trace("{} default doDestroy ...", this.getClass.getSimpleName)
   }
 }

@@ -98,25 +98,17 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
 
-  override def init(filterConfig: FilterConfig): Unit = {
-    // TODO: Don't log this twice
-    logger.trace("{} initializing ...", this.getClass.getSimpleName)
-
+  override def doInit(filterConfig: FilterConfig): Unit = {
     logger.info("Initializing filter using config system-model.cfg.xml")
     configurationService.subscribeTo(
       SystemModelConfig,
       SystemModelConfigListener,
       classOf[SystemModel]
     )
-
-    super.init(filterConfig)
   }
 
-  override def destroy(): Unit = {
-    // TODO: Don't log this twice
-    logger.trace("{} destroying ...", this.getClass.getSimpleName)
+  override def doDestroy(): Unit = {
     configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigListener)
-    super.destroy()
   }
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
