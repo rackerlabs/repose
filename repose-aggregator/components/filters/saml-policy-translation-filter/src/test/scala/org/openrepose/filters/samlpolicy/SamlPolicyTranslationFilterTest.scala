@@ -27,12 +27,12 @@ import java.security.{KeyStore, Security}
 import java.text.SimpleDateFormat
 import java.util.{Base64, Date, TimeZone, UUID}
 import javax.servlet.{FilterChain, FilterConfig}
-import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_FORBIDDEN}
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.stream.StreamSource
 
-import net.sf.saxon.s9api.Processor
+import net.sf.saxon.s9api.{Processor, XsltExecutable}
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
@@ -624,7 +624,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.configurationUpdated(buildConfig())
 
       val token = "foo-token"
-      ReflectionTestUtils.setField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$authToken", Some(token))
+      ReflectionTestUtils.setField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$serviceToken", Some(token))
 
       val result = filter.getToken(None)
 
@@ -640,7 +640,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should not check the cache on a retry") {
       filter.configurationUpdated(buildConfig())
 
-      ReflectionTestUtils.setField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$authToken", Some("cached-token"))
+      ReflectionTestUtils.setField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$serviceToken", Some("cached-token"))
 
       val token = "fresh-token"
       when(samlIdentityClient.getToken(
@@ -662,7 +662,283 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("getPolicy") {
-    pending
+    it("should fetch a token to make the call") {
+      filter.configurationUpdated(buildConfig())
+
+      try {
+        filter.getPolicy("issuer", None)
+      } catch { case _: Throwable => }
+
+      verify(samlIdentityClient).getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )
+    }
+
+    it("should retry getIdpId once with a fresh token if token is unauthorized") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Success("token"))
+      when(samlIdentityClient.getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Failure(UnexpectedStatusCodeException(SC_UNAUTHORIZED, "token unauthorized")))
+
+      try {
+        filter.getPolicy("issuer", None)
+      } catch { case _: Throwable => }
+
+      verify(samlIdentityClient, times(2)).getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )
+      verify(samlIdentityClient).getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.eq(true)
+      )
+      verify(samlIdentityClient).getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.eq(false)
+      )
+    }
+
+    it("should retry getPolicy once with a fresh token if token is unauthorized") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Success("token"))
+      when(samlIdentityClient.getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success("idp-id"))
+      when(samlIdentityClient.getPolicy(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Failure(UnexpectedStatusCodeException(SC_UNAUTHORIZED, "token unauthorized")))
+
+      try {
+        filter.getPolicy("issuer", None)
+      } catch { case _: Throwable => }
+
+      verify(samlIdentityClient, times(2)).getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )
+      verify(samlIdentityClient).getPolicy(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.eq(true)
+      )
+      verify(samlIdentityClient).getPolicy(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.eq(false)
+      )
+    }
+
+    it("should throw an exception if fetching a token fails") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Failure(UnexpectedStatusCodeException(SC_FORBIDDEN, "forbidden")))
+
+      val result = the [UnexpectedStatusCodeException] thrownBy filter.getPolicy("issuer", None)
+      result.statusCode shouldEqual SC_FORBIDDEN
+    }
+
+    it("should throw an exception if fetching the IDP ID fails") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Success("token"))
+      when(samlIdentityClient.getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Failure(UnexpectedStatusCodeException(SC_INTERNAL_SERVER_ERROR, "Identity error")))
+
+      val result = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+      result.statusCode shouldEqual SC_BAD_GATEWAY
+    }
+
+    it("should throw an exception if fetching the policy fails") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Success("token"))
+      when(samlIdentityClient.getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success("idp-id"))
+      when(samlIdentityClient.getPolicy(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Failure(UnexpectedStatusCodeException(SC_INTERNAL_SERVER_ERROR, "Identity error")))
+
+      val result = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+      result.statusCode shouldEqual SC_BAD_GATEWAY
+    }
+
+    it("should throw an exception if parsing the policy fails") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Success("token"))
+      when(samlIdentityClient.getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success("idp-id"))
+      when(samlIdentityClient.getPolicy(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success(
+        """
+          |{
+          |  "mapping" : [
+          |    "version" : "RAX-1",
+          |    "description" : "Default mapping policy",
+          |    "rules": [
+          |      {
+          |        "local": {
+          |          "user": {
+          |            "domain":"{D}",
+          |            "name":"{D}",
+          |            "email":"{D}",
+          |            "roles":"{D}",
+          |            "expire":"{D}"
+          |          }
+          |        }
+          |      }
+          |    ]
+          |  }
+          |}
+        """.stripMargin))
+
+      val result = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+      result.statusCode shouldEqual SC_BAD_REQUEST
+    }
+
+    it("should throw an exception if compiling the policy fails") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Success("token"))
+      when(samlIdentityClient.getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success("idp-id"))
+      when(samlIdentityClient.getPolicy(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success(
+        """
+          |{
+          |  "foo" : {
+          |    "bar" : "1",
+          |  }
+          |}
+        """.stripMargin))
+
+      val result = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+      result.statusCode shouldEqual SC_BAD_REQUEST
+    }
+
+    it("should return the compiled policy") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Success("token"))
+      when(samlIdentityClient.getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success("idp-id"))
+      when(samlIdentityClient.getPolicy(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success(
+        """
+          |{
+          |  "mapping" : {
+          |    "version" : "RAX-1",
+          |    "description" : "Default mapping policy",
+          |    "rules": [
+          |      {
+          |        "local": {
+          |          "user": {
+          |            "domain":"{D}",
+          |            "name":"{D}",
+          |            "email":"{D}",
+          |            "roles":"{D}",
+          |            "expire":"{D}"
+          |          }
+          |        }
+          |      }
+          |    ]
+          |  }
+          |}
+        """.stripMargin))
+
+      val result = filter.getPolicy("issuer", None)
+
+      result shouldBe a [XsltExecutable]
+    }
   }
 
   describe("translateResponse") {

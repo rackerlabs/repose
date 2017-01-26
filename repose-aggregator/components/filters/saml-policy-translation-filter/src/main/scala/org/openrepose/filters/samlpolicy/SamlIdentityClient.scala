@@ -142,7 +142,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     * @param checkCache whether or not to use the HTTP request cache
     * @return the IDP ID if successful, or a failure if unsuccessful
     */
-  def getIdpId(issuer: String, token: String, traceId: Option[String], checkCache: Boolean = true): Try[String] = {
+  def getIdpId(issuer: String, token: String, traceId: Option[String], checkCache: Boolean): Try[String] = {
     val akkaResponse = Try(tokenServiceClient.akkaServiceClient.get(
       IdpRequestKey(issuer),
       s"$policyUri${IdpPath(issuer)}",
@@ -189,7 +189,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     * @param checkCache whether or not to use the HTTP request cache
     * @return the policy if successful, or a failure if unsuccessful
     */
-  def getPolicy(idpId: String, token: String, traceId: Option[String], checkCache: Boolean = true): Try[String] = {
+  def getPolicy(idpId: String, token: String, traceId: Option[String], checkCache: Boolean): Try[String] = {
     val akkaResponse = Try(tokenServiceClient.akkaServiceClient.get(
       PolicyRequestKey(idpId),
       s"$policyUri${PolicyPath(idpId)}",
