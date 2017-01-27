@@ -20,7 +20,7 @@
 
 package org.openrepose.filters.samlpolicy
 
-import java.io.{FileInputStream, StringReader}
+import java.io.{ByteArrayInputStream, FileInputStream, StringReader}
 import java.net.{URI, URL}
 import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
@@ -32,6 +32,9 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.stream.StreamSource
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.common.cache.{Cache => GCache}
+import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import net.sf.saxon.s9api.{Processor, XsltExecutable}
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet
 import org.junit.runner.RunWith
@@ -1020,26 +1023,28 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     val issuer = "http://rackspace.com"
     val sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     sdf.setTimeZone(TimeZone.getTimeZone("GMT"))
-    val request = mock[HttpServletRequest]
-    val response = mock[HttpServletResponse]
-    val chain = mock[FilterChain]
 
     Seq("CREATE", "UPDATE", "DELETE").foreach { eventType =>
       it(s"removes the policy from the cache on a $eventType event") {
-        val config = new SamlPolicyConfig
-        val acquisition = new PolicyAcquisition
-        val cache = new Cache
-        cache.setTtl(60)
-        cache.setAtomFeedId("banana")
-        acquisition.setCache(cache)
-        config.setPolicyAcquisition(acquisition)
-        config.setSignatureCredentials(signatureCredentials)
-        filter.configurationUpdated(config)
+        filter.configurationUpdated(buildConfig(ttl = 60))
 
         val filterSpy: SamlPolicyTranslationFilter = spy(filter)
 
-        filterSpy.doWork(request, response, chain) // Cache the issuers policy.
-        filterSpy.doWork(request, response, chain) // Use the cached issuers policy.
+        // Cache the issuers policy.
+        val xslExec = AttributeMapper.compiler.compile(new StreamSource(new ByteArrayInputStream(
+          """
+            |<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            |  <xsl:template match="/">
+            |    <xsl:copy-of select="."/>
+            |  </xsl:template>
+            |</xsl:stylesheet>
+          """.stripMargin.getBytes)))
+        val policyCache = ReflectionTestUtils.getField(
+          filterSpy,
+          "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache"
+        ).asInstanceOf[GCache[String, XsltExecutable]]
+        policyCache.put(issuer, xslExec)
+
         // This was taken from: https://github.rackspace.com/jorge-williams/Platform_Architecture/blob/21b0c8fa6cd9df286c10e9bd08751207f4aea2d4/AttribMap.pdf
         filterSpy.onNewAtomEntry( // Remove the cached issuers policy.
           s"""<atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
@@ -1064,9 +1069,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
              |  </atom:content>
              |</atom:entry>
              |""".stripMargin)
-        filterSpy.doWork(request, response, chain) // Re-Cache the issuers policy.
 
-        verify(filterSpy, times(2)).getPolicy(issuer)
+        policyCache.getIfPresent(issuer) shouldBe null
       }
     }
   }
@@ -1143,29 +1147,29 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should initialize the cache when given a config") {
-      ReflectionTestUtils.getField(filter, "policyCache") shouldBe null
+      ReflectionTestUtils.getField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache") shouldBe null
 
       filter.configurationUpdated(buildConfig())
 
-      ReflectionTestUtils.getField(filter, "policyCache") should not be null
+      ReflectionTestUtils.getField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache") should not be null
     }
 
     it("should build a new cache when the ttl changes") {
       filter.configurationUpdated(buildConfig(ttl = 5))
-      val originalCache = ReflectionTestUtils.getField(filter, "policyCache")
+      val originalCache = ReflectionTestUtils.getField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache")
 
       filter.configurationUpdated(buildConfig(ttl = 10))
-      val newCache = ReflectionTestUtils.getField(filter, "policyCache")
+      val newCache = ReflectionTestUtils.getField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache")
 
       originalCache should not be theSameInstanceAs(newCache)
     }
 
     it("should not build a new cache if the ttl doesn't change") {
       filter.configurationUpdated(buildConfig(ttl = 5))
-      val originalCache = ReflectionTestUtils.getField(filter, "policyCache")
+      val originalCache = ReflectionTestUtils.getField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache")
 
       filter.configurationUpdated(buildConfig(ttl = 5))
-      val newCache = ReflectionTestUtils.getField(filter, "policyCache")
+      val newCache = ReflectionTestUtils.getField(filter, "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache")
 
       originalCache should be theSameInstanceAs newCache
     }
@@ -1232,6 +1236,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 }
 
 object SamlPolicyTranslationFilterTest {
+  final val JsonObjectMapper = new ObjectMapper()
+
   val configRoot = "./build/resources/test/"
   val keystoreFilename = "single.jks"
   val keystorePassword = "password"
