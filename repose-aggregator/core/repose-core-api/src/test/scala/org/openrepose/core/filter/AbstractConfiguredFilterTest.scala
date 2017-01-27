@@ -101,6 +101,18 @@ class AbstractConfiguredFilterTest
       verify(configurationService).subscribeTo(anyString(), anyString(), any(classOf[URL]),
         any(classOf[UpdateListener[String]]), any(classOf[Class[String]]))
     }
+
+    it("should call doInit") {
+      var doInitCalled = false
+
+      val aFilter = new StubbedFilter(configurationService) {
+        override def doInit(filterConfig: FilterConfig): Unit = doInitCalled = true
+      }
+
+      aFilter.init(mock[FilterConfig])
+
+      doInitCalled shouldBe true
+    }
   }
 
   describe("destroy method") {
@@ -128,6 +140,18 @@ class AbstractConfiguredFilterTest
 
       verify(configurationService).unsubscribeFrom(anyString(), same(filter))
     }
+
+    it("should call doDestroy") {
+      var doDestroyCalled = false
+
+      val aFilter = new StubbedFilter(configurationService) {
+        override def doDestroy(): Unit = doDestroyCalled = true
+      }
+
+      aFilter.destroy()
+
+      doDestroyCalled shouldBe true
+    }
   }
 
   describe("configurationUpdated method") {
@@ -142,6 +166,18 @@ class AbstractConfiguredFilterTest
       filter.configurationUpdated("bar")
 
       filter.getInitialized shouldBe true
+    }
+
+    it("should call doConfigurationUpdated") {
+      var doConfigurationUpdatedCalled = false
+
+      val aFilter = new StubbedFilter(configurationService) {
+        override def doConfigurationUpdated(newConfiguration: String): Unit = doConfigurationUpdatedCalled = true
+      }
+
+      aFilter.configurationUpdated("bar")
+
+      doConfigurationUpdatedCalled shouldBe true
     }
   }
 
@@ -189,9 +225,9 @@ class StubbedFilter(configurationService: ConfigurationService) extends Abstract
 
   var passedObjects: PassedObjects = _
 
-  def getConfig(): String = configuration
+  def getConfig: String = configuration
 
-  def getInitialized(): Boolean = initialized
+  def getInitialized: Boolean = initialized
 
   override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit =
     passedObjects = new PassedObjects(request.asInstanceOf[HttpServletRequest], response.asInstanceOf[HttpServletResponse], chain)
