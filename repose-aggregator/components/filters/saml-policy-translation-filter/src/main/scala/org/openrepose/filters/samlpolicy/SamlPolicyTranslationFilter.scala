@@ -472,8 +472,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   override def doDestroy(): Unit = {
     configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigListener)
 
-    if (feedId.nonEmpty) {
-      atomFeedService.unregisterListener(feedId.get)
+    feedId foreach { id =>
+      atomFeedService.unregisterListener(id)
       feedId = None
     }
   }
