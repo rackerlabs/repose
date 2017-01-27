@@ -107,10 +107,6 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     )
   }
 
-  override def doDestroy(): Unit = {
-    configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigListener)
-  }
-
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
       val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
@@ -383,7 +379,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   override def onNewAtomEntry(atomEntry: String): Unit = {
     logger.debug("Processing atom feed entry: {}", atomEntry)
     val atomXml = XML.loadString(atomEntry)
-    (atomXml \\ "event" \\ "@issuer").map(_.text).headOption.foreach(cache.invalidate(_))
+    (atomXml \\ "event" \\ "@issuer").map(_.text).headOption.foreach(policyCache.invalidate(_))
   }
 
   /**
@@ -474,6 +470,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * Unsubscribe from the Atom Feed service.
     */
   override def doDestroy(): Unit = {
+    configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigListener)
+
     if (feedId.nonEmpty) {
       atomFeedService.unregisterListener(feedId.get)
       feedId = None
