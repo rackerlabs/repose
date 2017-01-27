@@ -314,8 +314,10 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     } map { policy =>
       AttributeMapper.generateXSLExec(JsonObjectMapper.readTree(policy), validate = true, XSDEngine.AUTO.toString)
     } recover {
+      case e@(_: SaxonApiException | _: TransformerException) =>
+        throw SamlPolicyException(SC_BAD_REQUEST, "Failed to generate the policy transformation", e)
       case e: JsonProcessingException =>
-        throw SamlPolicyException(SC_BAD_REQUEST, "Error parsing the policy as JSON", e)
+        throw SamlPolicyException(SC_BAD_REQUEST, "Failed parsing the policy as JSON", e)
       case e: UnexpectedStatusCodeException if e.statusCode >= 500 && e.statusCode < 600 =>
         throw SamlPolicyException(SC_BAD_GATEWAY, "Call to Identity failed", e)
       case e: GenericIdentityException if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
