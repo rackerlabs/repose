@@ -22,6 +22,7 @@ package org.openrepose.filters.samlpolicy
 
 import java.io.{ByteArrayInputStream, FileInputStream, StringReader}
 import java.net.{URI, URL}
+import java.nio.charset.StandardCharsets.UTF_8
 import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
 import java.text.SimpleDateFormat
@@ -41,6 +42,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.mockito.{Matchers => MM}
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, UnexpectedStatusCodeException}
@@ -184,7 +186,19 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("readToDom") {
-    pending
+    it("should return a Document if the stream is able to be parsed") {
+      val document = filter.readToDom(new BufferedServletInputStream(new ByteArrayInputStream(samlResponseStr.getBytes(UTF_8))))
+      document should not be null
+    }
+
+    it("should throw an exception if the stream is not able to be parsed") {
+      val exception = intercept[SamlPolicyException] {
+        filter.readToDom(new BufferedServletInputStream(new ByteArrayInputStream("Invalid SAML Response".getBytes(UTF_8))))
+      }
+
+      exception.statusCode should be (SC_BAD_REQUEST)
+      exception.message should be ("SAMLResponse was not able to be parsed")
+    }
   }
 
   describe("determineVersion") {
@@ -1244,7 +1258,7 @@ object SamlPolicyTranslationFilterTest {
   val keyName = "server"
   val keyPassword = "password"
   val signatureCredentials = new SignatureCredentials
-  val samlResponseDoc: Document = makeDocument(
+  val samlResponseStr =
     """<?xml version="1.0" encoding="UTF-8"?>
       |<saml2p:Response ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30"
       |                 IssueInstant="2015-12-04T15:47:15.057Z"
@@ -1323,7 +1337,9 @@ object SamlPolicyTranslationFilterTest {
       |        </saml2:AttributeStatement>
       |    </saml2:Assertion>
       |</saml2p:Response>
-      |""".stripMargin)
+      |""".stripMargin
+
+  val samlResponseDoc: Document = makeDocument(samlResponseStr)
 
   def makeDocument(stringDocument: String): Document = {
     val documentBuilderFactory = DocumentBuilderFactory.newInstance()
