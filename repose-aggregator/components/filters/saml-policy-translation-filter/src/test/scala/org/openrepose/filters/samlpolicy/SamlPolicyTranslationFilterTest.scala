@@ -24,7 +24,8 @@ import java.io.{FileInputStream, StringReader}
 import java.net.URI
 import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
-import java.util.Base64
+import java.text.SimpleDateFormat
+import java.util.{Base64, Date, TimeZone, UUID}
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -608,7 +609,58 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("onNewAtomEntry") {
-    pending
+    val issuer = "http://rackspace.com"
+    val sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+    sdf.setTimeZone(TimeZone.getTimeZone("GMT"))
+    val request = mock[HttpServletRequest]
+    val response = mock[HttpServletResponse]
+    val chain = mock[FilterChain]
+
+    Seq("CREATE", "UPDATE", "DELETE").foreach { eventType =>
+      it(s"removes the policy from the cache on a $eventType event") {
+        val config = new SamlPolicyConfig
+        val acquisition = new PolicyAcquisition
+        val cache = new Cache
+        cache.setTtl(60)
+        cache.setAtomFeedId("banana")
+        acquisition.setCache(cache)
+        config.setPolicyAcquisition(acquisition)
+        config.setSignatureCredentials(signatureCredentials)
+        filter.configurationUpdated(config)
+
+        val filterSpy: SamlPolicyTranslationFilter = spy(filter)
+
+        filterSpy.doWork(request, response, chain) // Cache the issuers policy.
+        filterSpy.doWork(request, response, chain) // Use the cached issuers policy.
+        // This was taken from: https://github.rackspace.com/jorge-williams/Platform_Architecture/blob/21b0c8fa6cd9df286c10e9bd08751207f4aea2d4/AttribMap.pdf
+        filterSpy.onNewAtomEntry( // Remove the cached issuers policy.
+          s"""<atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+             |            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             |            xmlns="http://www.w3.org/2001/XMLSchema">
+             |  <atom:title>CloudIdentity</atom:title>
+             |  <atom:content type="application/xml">
+             |    <event xmlns="http://docs.rackspace.com/core/event"
+             |           xmlns:idfed="http://docs.rackspace.com/event/identity/idp"
+             |           id="${UUID.randomUUID().toString}"
+             |           version="2"
+             |           resourceId="_${UUID.randomUUID().toString}"
+             |           eventTime="${sdf.format(new Date())}"
+             |           type="$eventType"
+             |           dataCenter="DFW1"
+             |           region="DFW">
+             |      <idfed:product serviceCode="CloudIdentity"
+             |                     version="1"
+             |                     resourceType="IDP"
+             |                     issuer="$issuer"/>
+             |    </event>
+             |  </atom:content>
+             |</atom:entry>
+             |""".stripMargin)
+        filterSpy.doWork(request, response, chain) // Re-Cache the issuers policy.
+
+        verify(filterSpy, times(2)).getPolicy(issuer)
+      }
+    }
   }
 
   describe("onLifecycleEvent") {
