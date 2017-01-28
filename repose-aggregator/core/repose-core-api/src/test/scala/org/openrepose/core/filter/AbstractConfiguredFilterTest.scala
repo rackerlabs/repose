@@ -179,6 +179,21 @@ class AbstractConfiguredFilterTest
 
       doConfigurationUpdatedCalled shouldBe true
     }
+
+    it("should call doConfigurationUpdated before setting the initialization flag") {
+      var doConfigurationUpdatedCalled = false
+
+      val aFilter = new StubbedFilter(configurationService) {
+        override def doConfigurationUpdated(newConfiguration: String): Unit = {
+          doConfigurationUpdatedCalled = true
+          throw new Exception()
+        }
+      }
+
+      an[Exception] should be thrownBy aFilter.configurationUpdated("bar")
+      doConfigurationUpdatedCalled shouldBe true
+      aFilter.isInitialized shouldBe false
+    }
   }
 
   describe("isInitialized method") {
