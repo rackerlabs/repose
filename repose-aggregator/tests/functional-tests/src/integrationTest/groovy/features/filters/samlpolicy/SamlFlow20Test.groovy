@@ -36,6 +36,7 @@ import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
 import static framework.mocks.MockIdentityV2Service.DEFAULT_MAPPING_POLICY
 import static framework.mocks.MockIdentityV2Service.IDP_NO_RESULTS
+import static framework.mocks.MockIdentityV2Service.createGetIdpFromIssuerHandler
 import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
 import static framework.mocks.MockIdentityV2Service.createIdpJsonWithValues
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
@@ -500,11 +501,7 @@ class SamlFlow20Test extends ReposeValveTest {
 
         and: "we're going to ensure the IDP ID returned is unique"
         String idpId = generateUniqueIdpId()
-        fakeIdentityV2Service.getIdpFromIssuerHandler = { String issuerParam, Request request ->
-            def body = createIdpJsonWithValues(issuer: issuerParam, id: idpId)
-            def headers = [(CONTENT_TYPE): CONTENT_TYPE_JSON]
-            new DeproxyResponse(SC_OK, null, headers, body)
-        }
+        fakeIdentityV2Service.getIdpFromIssuerHandler = createGetIdpFromIssuerHandler(id: idpId)
 
         and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
         def samlIssuer = generateUniqueIssuer()

@@ -183,7 +183,7 @@ class MockIdentityV2Service {
         generateTokenHandler = this.&generateToken
         getEndpointsHandler = this.&getEndpoints
         getUserGlobalRolesHandler = this.&getUserGlobalRoles
-        getIdpFromIssuerHandler = this.&getIdpFromIssuer
+        getIdpFromIssuerHandler = createGetIdpFromIssuerHandler()
         getMappingPolicyForIdpHandler = this.&getMappingPolicyForIdp
         generateTokenFromSamlResponseHandler = this.&generateTokenFromSamlResponse
     }
@@ -729,14 +729,16 @@ class MockIdentityV2Service {
         return new Response(SC_OK, null, headers, body)
     }
 
-    Response getIdpFromIssuer(String issuer, Request request) {
-        if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token")) {
-            new Response(SC_UNAUTHORIZED)
-        } else {
-            def body = createIdpJsonWithValues(issuer: issuer)
-            def headers = ['Content-type': 'application/json']
+    static Closure<Response> createGetIdpFromIssuerHandler(Map values = [:]) {
+        return { String issuer, Request request ->
+            if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token") && !values.skipAuthCheck) {
+                new Response(SC_UNAUTHORIZED)
+            } else {
+                def body = createIdpJsonWithValues([issuer: issuer] + values)
+                def headers = ['Content-type': 'application/json']
 
-            new Response(SC_OK, null, headers, body)
+                new Response(SC_OK, null, headers, body)
+            }
         }
     }
 
@@ -802,10 +804,9 @@ class MockIdentityV2Service {
 
         def json = new JsonBuilder()
 
-        // TODO: make sure the "roles" work. may have to switch to a collect and return a closure
         json {
             access {
-                token {
+                delegate.token {
                     id token
                     delegate.expires expires
                     tenant {
@@ -820,9 +821,8 @@ class MockIdentityV2Service {
                     id userId
                     name username
                     "RAX-AUTH:defaultRegion" "the-default-region"
-                    roles roleNames.withIndex(1).each { role, index ->
-                        name role
-                        id index
+                    roles roleNames.withIndex(1).collect { role, index ->
+                        [name: role, id: index]
                     }
                 }
                 serviceCatalog([
@@ -862,13 +862,13 @@ class MockIdentityV2Service {
 
         // set up Markup Builder
         def writer = new StringWriter()
-        def xmlBuilder = new MarkupBuilder(new IndentPrinter(writer, "", false))
-        xmlBuilder.doubleQuotes = false
+        def xmlBuilder = new MarkupBuilder(writer)
+        xmlBuilder.doubleQuotes = true
         xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
 
         // build the XML
         xmlBuilder.access(rootElementAttributes) {
-            token(id: token, expires: expires) {
+            delegate.token(id: token, expires: expires) {
                 tenant(id: tenantId, name: tenantId)
                 if (values.authBy) {
                     "rax-auth:authenticatedBy" {
