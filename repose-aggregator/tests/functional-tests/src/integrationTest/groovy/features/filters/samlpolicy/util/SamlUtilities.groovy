@@ -117,6 +117,10 @@ class SamlUtilities {
         "http://unique.external.idp.com/${UUID.randomUUID().toString()}"
     }
 
+    static String generateUniqueIdpId() {
+        UUID.randomUUID().toString().replace("-", "")
+    }
+
     /**
      * Convenience method to let you create a SAML Response using the MarkupBuilder DSL.
      * For example:

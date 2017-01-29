@@ -773,11 +773,11 @@ class MockIdentityV2Service {
         new Response(SC_OK, null, headers, body)
     }
 
-    String createIdpJsonWithValues(Map values = [:]) {
+    static String createIdpJsonWithValues(Map values = [:]) {
         def json = new JsonBuilder()
 
         json {
-            "RAX-AUTH:identityProviders"([
+            'RAX-AUTH:identityProviders'([
                     {
                         name values.name ?: "External IDP"
                         federationType values.federationType ?: "DOMAIN"
@@ -898,6 +898,23 @@ class MockIdentityV2Service {
         }
 
         writer.toString()
+    }
+
+    static String createIdentityFaultJsonWithValues(Map values = [:]) {
+        def name = values.name ?: "identityFault"
+        def code = values.code ?: 500
+        def message = values.message ?: "Internal server error."
+
+        def json = new JsonBuilder()
+
+        json {
+            "$name" {
+                delegate.code code
+                delegate.message message
+            }
+        }
+
+        json.toString()
     }
 
     // Successful generate token response in xml
@@ -1686,6 +1703,8 @@ class MockIdentityV2Service {
 {
     "RAX-AUTH:identityProviders": []
 }"""
+
+    static final String DEFAULT_MAPPING_VALUE = "{D}"
 
     static final String DEFAULT_MAPPING_POLICY = """\
 {
