@@ -823,6 +823,31 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       exception.statusCode shouldEqual SC_BAD_GATEWAY
     }
 
+    it("should throw a SamlPolicyException(401) if the policy is missing") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Success("token"))
+      when(samlIdentityClient.getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success("idp-id"))
+      when(samlIdentityClient.getPolicy(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Failure(UnexpectedStatusCodeException(SC_NOT_FOUND, "policy not found")))
+
+      val result = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+      result.statusCode shouldEqual SC_UNAUTHORIZED
+    }
+
     it("should throw an exception if parsing the policy fails") {
       filter.configurationUpdated(buildConfig())
 
@@ -867,7 +892,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
 
-      exception.statusCode shouldEqual SC_BAD_REQUEST
+      exception.statusCode shouldEqual SC_BAD_GATEWAY
     }
 
     it("should throw an exception if compiling the policy fails") {
@@ -900,7 +925,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
 
-      exception.statusCode shouldEqual SC_BAD_REQUEST
+      exception.statusCode shouldEqual SC_BAD_GATEWAY
     }
 
     it("should return the compiled policy") {
