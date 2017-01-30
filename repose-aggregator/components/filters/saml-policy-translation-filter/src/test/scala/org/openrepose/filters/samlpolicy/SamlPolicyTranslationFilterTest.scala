@@ -157,6 +157,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val request = mock[HttpServletRequest]
 
       val exception = the [SamlPolicyException] thrownBy filter.decodeSamlResponse(request)
+
       exception.statusCode shouldEqual SC_BAD_REQUEST
     }
 
@@ -167,6 +168,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         .thenReturn("<samlp:Response/>")
 
       val exception = the [SamlPolicyException] thrownBy filter.decodeSamlResponse(request)
+
       exception.statusCode shouldEqual SC_BAD_REQUEST
     }
 
@@ -593,9 +595,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.any[Option[String]]
       )).thenReturn(Failure(UnexpectedStatusCodeException(SC_FORBIDDEN, "forbidden")))
 
-      val result = filter.getToken(None)
-      result shouldBe a[Failure[_]]
-      val exception = the [UnexpectedStatusCodeException] thrownBy result.get
+      val exception = the [UnexpectedStatusCodeException] thrownBy filter.getToken(None).get
+
       exception.statusCode shouldEqual SC_FORBIDDEN
       verify(samlIdentityClient).getToken(
         MM.anyString(),
@@ -614,9 +615,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.any[Option[String]]
       )).thenReturn(Failure(OverLimitException(retryAfter, "rate limited")))
 
-      val result = filter.getToken(None)
-      result shouldBe a[Failure[_]]
-      val exception = the [OverLimitException] thrownBy result.get
+      val exception = the [OverLimitException] thrownBy filter.getToken(None).get
+
       exception.retryAfter shouldEqual retryAfter
       verify(samlIdentityClient).getToken(
         MM.anyString(),
@@ -772,8 +772,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.any[Option[String]]
       )).thenReturn(Failure(UnexpectedStatusCodeException(SC_FORBIDDEN, "forbidden")))
 
-      val result = the [UnexpectedStatusCodeException] thrownBy filter.getPolicy("issuer", None)
-      result.statusCode shouldEqual SC_FORBIDDEN
+      val exception = the [UnexpectedStatusCodeException] thrownBy filter.getPolicy("issuer", None)
+
+      exception.statusCode shouldEqual SC_FORBIDDEN
     }
 
     it("should throw an exception if fetching the IDP ID fails") {
@@ -791,8 +792,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyBoolean()
       )).thenReturn(Failure(UnexpectedStatusCodeException(SC_INTERNAL_SERVER_ERROR, "Identity error")))
 
-      val result = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
-      result.statusCode shouldEqual SC_BAD_GATEWAY
+      val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+
+      exception.statusCode shouldEqual SC_BAD_GATEWAY
     }
 
     it("should throw an exception if fetching the policy fails") {
@@ -816,8 +818,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyBoolean()
       )).thenReturn(Failure(UnexpectedStatusCodeException(SC_INTERNAL_SERVER_ERROR, "Identity error")))
 
-      val result = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
-      result.statusCode shouldEqual SC_BAD_GATEWAY
+      val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+
+      exception.statusCode shouldEqual SC_BAD_GATEWAY
     }
 
     it("should throw an exception if parsing the policy fails") {
@@ -862,8 +865,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |}
         """.stripMargin))
 
-      val result = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
-      result.statusCode shouldEqual SC_BAD_REQUEST
+      val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+
+      exception.statusCode shouldEqual SC_BAD_REQUEST
     }
 
     it("should throw an exception if compiling the policy fails") {
@@ -894,8 +898,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |}
         """.stripMargin))
 
-      val result = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
-      result.statusCode shouldEqual SC_BAD_REQUEST
+      val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+
+      exception.statusCode shouldEqual SC_BAD_REQUEST
     }
 
     it("should return the compiled policy") {
