@@ -52,18 +52,19 @@ a| * If the `SAMLResponse` parameter cannot be found.
    * If the `SAMLResponse` parameter value is not properly Base64 encoded.
    * If all the SAML response assertions aren't signed and if all the assertions don't come from the same issuer.
    * If translation of the SAML response fails.
-   * If parsing the policy fails.
    * If translation of the policy fails.
 
 | `401`
-| If a policy that matches the assertion issuer can not be found.
+a| * If a policy that matches the assertion issuer can not be found.
+   * If Identity returns a 404 when the policy is requested.
 
 | `500`
 | If there is any error in this filter that is not explicitly mapped to a status code.
 In other words, if an unexpected problem occurs.
 
 | `502`
-| If Identity returns a 5xx response.
+a| * If Identity returns a 5xx response.
+   * If parsing the policy fails.
 
 | `502`
 | If Identity returns a 413 or 429 response code, indicating that this filter's request was rate limited.
