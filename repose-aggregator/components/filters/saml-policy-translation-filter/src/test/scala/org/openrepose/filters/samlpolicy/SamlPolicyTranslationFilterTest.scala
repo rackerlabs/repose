@@ -156,9 +156,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should throw a SamlPolicyException(400) if the SAMLResponse parameter is not present") {
       val request = mock[HttpServletRequest]
 
-      intercept[SamlPolicyException] {
-        filter.decodeSamlResponse(request)
-      }.statusCode shouldEqual SC_BAD_REQUEST
+      (the [SamlPolicyException] thrownBy filter.decodeSamlResponse(request)).statusCode shouldEqual SC_BAD_REQUEST
     }
 
     it("should throw a SamlPolicyException(400) if the SAMLResponse value is not Base64 encoded") {
@@ -167,9 +165,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       when(request.getParameter("SAMLResponse"))
         .thenReturn("<samlp:Response/>")
 
-      intercept[SamlPolicyException] {
-        filter.decodeSamlResponse(request)
-      }.statusCode shouldEqual SC_BAD_REQUEST
+      (the [SamlPolicyException] thrownBy filter.decodeSamlResponse(request)).statusCode shouldEqual SC_BAD_REQUEST
     }
 
     it("should return the decoded SAMLResponse") {
@@ -192,9 +188,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should throw an exception if the stream is not able to be parsed") {
-      val exception = intercept[SamlPolicyException] {
-        filter.readToDom(new BufferedServletInputStream(new ByteArrayInputStream("Invalid SAML Response".getBytes(UTF_8))))
-      }
+      val exception = the [SamlPolicyException] thrownBy filter.readToDom(new BufferedServletInputStream(new ByteArrayInputStream("Invalid SAML Response".getBytes(UTF_8))))
 
       exception.statusCode should be (SC_BAD_REQUEST)
       exception.message should be ("SAMLResponse was not able to be parsed")
@@ -223,9 +217,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         .newDocumentBuilder()
         .parse(new InputSource(new StringReader("""<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>""")))
 
-      val exception = intercept[SamlPolicyException] {
-        filter.determineVersion(badDocument)
-      }
+      val exception = the [SamlPolicyException] thrownBy filter.determineVersion(badDocument)
 
       exception.statusCode should be (SC_BAD_REQUEST)
       exception.message should be ("No issuer present in SAML Response")
@@ -299,9 +291,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |</saml2p:Response>
           |""".stripMargin)
 
-      val exception = intercept[SamlPolicyException] {
-        filter.validateResponseAndGetIssuer(doc)
-      }
+      val exception = the [SamlPolicyException] thrownBy filter.validateResponseAndGetIssuer(doc)
 
       exception.statusCode shouldBe SC_BAD_REQUEST
       exception.message shouldBe "All assertions must be signed"
@@ -388,9 +378,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |</saml2p:Response>
           |""".stripMargin)
 
-      val exception = intercept[SamlPolicyException] {
-        filter.validateResponseAndGetIssuer(doc)
-      }
+      val exception = the [SamlPolicyException] thrownBy filter.validateResponseAndGetIssuer(doc)
 
       exception.statusCode shouldBe SC_BAD_REQUEST
       exception.message shouldBe "SAML Response and all assertions need an issuer"
@@ -477,9 +465,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |</saml2p:Response>
           |""".stripMargin)
 
-      val exception = intercept[SamlPolicyException] {
-        filter.validateResponseAndGetIssuer(doc)
-      }
+      val exception = the [SamlPolicyException] thrownBy filter.validateResponseAndGetIssuer(doc)
 
       exception.statusCode shouldBe SC_BAD_REQUEST
       exception.message shouldBe "SAML Response and all assertions need an issuer"
@@ -567,9 +553,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |</saml2p:Response>
           |""".stripMargin)
 
-      val exception = intercept[SamlPolicyException] {
-        filter.validateResponseAndGetIssuer(doc)
-      }
+      val exception = the [SamlPolicyException] thrownBy filter.validateResponseAndGetIssuer(doc)
 
       exception.statusCode shouldBe SC_BAD_REQUEST
       exception.message shouldBe "All assertions must come from the same issuer"
