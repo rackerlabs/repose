@@ -48,10 +48,29 @@ None.
 | Reasons
 
 | `400`
-| If all the assertions aren't signed and if all the assertions don't come from the same issuer.
+a| * If the `SAMLResponse` parameter cannot be found.
+   * If the `SAMLResponse` parameter value is not properly Base64 encoded.
+   * If all the SAML response assertions aren't signed and if all the assertions don't come from the same issuer.
+   * If translation of the SAML response fails.
+   * If parsing the policy fails.
+   * If translation of the policy fails.
 
 | `401`
 | If a policy that matches the assertion issuer can not be found.
+
+| `500`
+| If there is any error in this filter that is not explicitly mapped to a status code.
+In other words, if an unexpected problem occurs.
+
+| `502`
+| If Identity returns a 5xx response.
+
+| `502`
+| If Identity returns a 413 or 429 response code, indicating that this filter's request was rate limited.
+The response from this filter will contain a *Retry-After* header.
+
+| `504`
+| If a connection to Identity times out.
 |===
 
 == Examples
@@ -103,4 +122,4 @@ This configuration exercises all the capabilities of the filter.
 <13> The password for the certificate in the keystore.
 
 == Additional Information
-There's always money in the banana stand.
+The Keystone user account configured for use in this filter must possess a role of `identity:identity-provider-read-only`.
