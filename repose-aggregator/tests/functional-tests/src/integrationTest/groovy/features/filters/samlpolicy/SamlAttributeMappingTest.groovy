@@ -25,9 +25,12 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
+import static framework.mocks.MockIdentityV2Service.createIdpJsonWithValues
 import static framework.mocks.MockIdentityV2Service.createMappingJsonWithValues
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
@@ -100,7 +103,10 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        and: "the saml:response received by the origin service is unmarshalled"
+        then: "the origin service received the request"
+        mc.handlings[0]
+
+        when: "the saml:response received by the origin service is unmarshalled"
         def response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
         def attributes = response.assertions[0].attributeStatements[0].attributes
 
@@ -151,7 +157,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
         mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_JSON
 
-        when: "the response sent to the client is parsed into JSON"
+        when: "the response sent to the client is parsed as JSON"
         def json = jsonSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the extended attributes are set correctly"
@@ -193,7 +199,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
         mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
 
-        when: "the response sent to the client is parsed into XML"
+        when: "the response sent to the client is parsed as XML"
         def access = xmlSlurper.parseText(mc.receivedResponse.body as String)
 
         and: "we get the 'user' group in the extended attributes"
@@ -202,5 +208,213 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         then: "the extended attributes are set correctly"
         userGroup.'*'.find { it.@name == extAttribLiteral }.value[0].text() == extAttribLiteralValue
         userGroup.'*'.find { it.@name == extAttribPath }.value[0].text() == extAttribPathValue
+    }
+
+    def "the correct translation will be used on the request and response when cached"() {
+        given: "mapping policies with a literal value and a path-based value for three issuers"
+        def numOfIssuers = 3
+        def extAttribLiteral = "color"
+        def extAttribLiteralValues = ["red", "green", "blue"]
+        def extAttribPath = "shape"
+        def extAttribPathValues = ["square", "circle", "triangle"]
+        def mappingPolicies = extAttribLiteralValues.collect { extAttribLiteralValue ->
+            createMappingJsonWithValues(
+                    userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
+                    remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
+        }
+
+        and: "saml:responses with a value at the path specified by the respective mapping policy for each issuer"
+        def samlIssuers = (1..numOfIssuers).collect { generateUniqueIssuer() }
+        def samls = [samlIssuers, extAttribPathValues].transpose().collect { samlIssuer, extAttribPathValue ->
+            samlResponse(issuer(samlIssuer) >> status() >> assertion(
+                    issuer: samlIssuer,
+                    spProvidedId: extAttribPathValue,
+                    fakeSign: true))
+        }
+
+        and: "a different set of path values and and saml:responses will be sent in the second round of requests"
+        def extAttribPathValuesRoundTwo = ["polygon", "tesseract", "hexadecachoron"]
+        def samlsRoundTwo = [samlIssuers, extAttribPathValuesRoundTwo].transpose().collect { samlIssuer, extAttribPathValue ->
+            samlResponse(issuer(samlIssuer) >> status() >> assertion(
+                    issuer: samlIssuer,
+                    spProvidedId: extAttribPathValue,
+                    fakeSign: true))
+        }
+
+        and: "an Identity mock that will return the mapping policy"
+        def idpIds = (1..numOfIssuers).collect { generateUniqueIdpId() }
+        Map issuerToIdpId = [samlIssuers, idpIds].transpose().collectEntries()
+        Map idpIdToMapping = [idpIds, mappingPolicies].transpose().collectEntries()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = { String issuer, Request request ->
+            new Response(
+                    SC_OK,
+                    null,
+                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    createIdpJsonWithValues(issuer: issuer, id: issuerToIdpId.get(issuer)))
+        }
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
+                .createGetMappingPolicyForIdp(mappings: idpIdToMapping)
+
+        when: "requests are sent to Repose for the first time for each issuer"
+        def mcs = samls.collect { saml ->
+            deproxy.makeRequest(
+                    url: reposeEndpoint + SAML_AUTH_URL,
+                    method: HTTP_POST,
+                    headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
+                    requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+        }
+
+        then: "the origin service received the requests and the client received the responses"
+        mcs.every { it.handlings[0] }
+        mcs.every { it.receivedResponse.code as Integer == SC_OK }
+
+        when: "the saml:responses received by the origin service are unmarshalled"
+        def responses = mcs.collect { samlUtilities.unmarshallResponse(it.handlings[0].request.body as String)}
+        def attributess = responses.collect { it.assertions[0].attributeStatements[0].attributes }
+
+        then: "all of the requests have two assertions"
+        responses.every { it.assertions.size() == 2 }
+
+        and: "the extended attributes are set correctly in the requests"
+        attributess.collect { attributes ->
+            attributes.find { it.name == "user/$extAttribLiteral" as String }.attributeValues[0].value
+        } == extAttribLiteralValues
+
+        attributess.collect { attributes ->
+            attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value
+        } == extAttribPathValues
+
+        when: "the responses sent to the client are parsed as JSON"
+        def jsons = mcs.collect { jsonSlurper.parseText(it.receivedResponse.body as String) }
+
+        then: "the extended attributes are set correctly in the responses"
+        jsons.collect { it.access.'RAX-AUTH:extendedAttributes'.user."$extAttribLiteral" } == extAttribLiteralValues
+        jsons.collect { it.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" } == extAttribPathValues
+
+        when: "we disable the Identity mock handlers"
+        fakeIdentityV2Service.getIdpFromIssuerHandler = null
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = null
+
+        and: "the requests are sent again with the different values at the path'd attribute"
+        mcs = samlsRoundTwo.collect { saml ->
+            deproxy.makeRequest(
+                    url: reposeEndpoint + SAML_AUTH_URL,
+                    method: HTTP_POST,
+                    headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
+                    requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+        }
+
+        then: "the origin service received the requests and the client received the responses"
+        mcs.every { it.handlings[0] }
+        mcs.every { it.receivedResponse.code as Integer == SC_OK }
+
+        when: "the saml:responses received by the origin service are unmarshalled"
+        responses = mcs.collect { samlUtilities.unmarshallResponse(it.handlings[0].request.body as String)}
+        attributess = responses.collect { it.assertions[0].attributeStatements[0].attributes }
+
+        then: "all of the requests have two assertions"
+        responses.every { it.assertions.size() == 2 }
+
+        and: "the extended attributes are set correctly in the requests"
+        attributess.collect { attributes ->
+            attributes.find { it.name == "user/$extAttribLiteral" as String }.attributeValues[0].value
+        } == extAttribLiteralValues
+
+        attributess.collect { attributes ->
+            attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value
+        } == extAttribPathValuesRoundTwo
+
+        when: "the responses sent to the client are parsed as JSON"
+        jsons = mcs.collect { jsonSlurper.parseText(it.receivedResponse.body as String) }
+
+        then: "the extended attributes are set correctly in the responses"
+        jsons.collect { it.access.'RAX-AUTH:extendedAttributes'.user."$extAttribLiteral" } == extAttribLiteralValues
+        jsons.collect { it.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" } == extAttribPathValuesRoundTwo
+    }
+
+    def "the extended attributes are not added to the request/response when the mapping policy does not include any"() {
+        given: "a mapping policy with only the defaults set and a saml:response with a unique issuer"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service received the request and the client received the response"
+        mc.handlings[0]
+        mc.receivedResponse.code as Integer == SC_OK
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        def response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        def attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the request does not contain any extended attributes"
+        !attributes.any { it.name.contains("/") }
+
+        when: "the response sent to the client is parsed as JSON"
+        def json = jsonSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the response does not contain any extended attributes"
+        !json.access.'RAX-AUTH:extendedAttributes'
+
+    }
+    def "when the specified path for an extended attribute is not present in the saml:response, it is not added to the request/response"() {
+        given: "a mapping policy with a literal value and a path-based value (that won't be in the saml:response)"
+        def extAttribLiteral = "Captain"
+        def extAttribLiteralValue = "Planet"
+        def extAttribPath = "cake"
+        def mappingPolicy = createMappingJsonWithValues(
+                userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
+                remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
+
+        and: "a saml:response with no value at the path specified by the mapping policy"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
+
+        and: "an Identity mock that will return the mapping policy"
+        String idpId = generateUniqueIdpId()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
+                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
+
+        when: "a request is sent to Repose"
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service received the request and the client received the response"
+        mc.handlings[0]
+        mc.receivedResponse.code as Integer == SC_OK
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        def response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        def attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the extended attribute for the literal value is set in the request"
+        attributes.find { it.name == "user/$extAttribLiteral" as String }.attributeValues[0].value == extAttribLiteralValue
+
+        and: "the extended attribute for the path value is not in the request"
+        !attributes.any { it.name == "user/$extAttribPath" as String }
+
+        when: "the response sent to the client is parsed as JSON"
+        def json = jsonSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the extended attribute for the literal value is set in the response"
+        json.access.'RAX-AUTH:extendedAttributes'.user."$extAttribLiteral" == extAttribLiteralValue
+
+        and: "the extended attribute for the path value is not in the response"
+        !json.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath"
     }
 }
