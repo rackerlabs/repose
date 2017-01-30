@@ -38,6 +38,7 @@ import static framework.mocks.MockIdentityV2Service.DEFAULT_MAPPING_POLICY
 import static framework.mocks.MockIdentityV2Service.IDP_NO_RESULTS
 import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
 import static framework.mocks.MockIdentityV2Service.createIdpJsonWithValues
+import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
@@ -394,14 +395,17 @@ class SamlFlow20Test extends ReposeValveTest {
     }
 
     @FailsWith(ConditionNotSatisfiedError)
-    def "a saml:response with an Issuer that Identity has a blank mapping policy for should be rejected with a 401"() {
-        given: "the mapping policy call will return a blank mapping policy"
+    def "a saml:response with an Issuer that Identity doesn't have a mapping policy for should be rejected with a 401"() {
+        given: "the mapping policy call will a 404"
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
             new DeproxyResponse(
-                    SC_OK,
+                    SC_NOT_FOUND,
                     null,
                     [(CONTENT_TYPE): CONTENT_TYPE_JSON],
-                    /{"policy":{"name":"name"}}/)  // TODO: verify this is an example of an empty policy
+                    createIdentityFaultJsonWithValues(
+                            name: "itemNotFound",
+                            code: SC_NOT_FOUND,
+                            message: "Identity Provider with id/name was not found."))
         }
 
         and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
@@ -422,16 +426,15 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    @Unroll
     @FailsWith(ConditionNotSatisfiedError)
-    def "when Identity returns a #code from the mapping policy endpoint, Repose should return a 500"() {
-        given: "the mapping policy call will not be successful"
+    def "when Identity returns an invalid mapping policy, Repose should return a 502"() {
+        given: "the Identity mock will return an invalid mapping policy"
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
             new DeproxyResponse(
-                    code,
+                    SC_OK,
                     null,
                     [(CONTENT_TYPE): CONTENT_TYPE_JSON],
-                    createIdentityFaultJsonWithValues(name: fault, code: code, message: message))
+                    '{"nope":{}}')
         }
 
         and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
@@ -446,15 +449,42 @@ class SamlFlow20Test extends ReposeValveTest {
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a bad response"
-        mc.receivedResponse.code as Integer == SC_INTERNAL_SERVER_ERROR
+        mc.receivedResponse.code as Integer == SC_BAD_GATEWAY
 
         and: "the request doesn't get to the origin service"
         mc.handlings.isEmpty()
+    }
 
-        where:
-        code                      | fault           | message
-        SC_NOT_FOUND              | "itemNotFound"  | "Identity Provider with id/name was not found."
-        SC_INTERNAL_SERVER_ERROR  | "identityFault" | "The default IDP policy is not properly configured."
+    @FailsWith(ConditionNotSatisfiedError)
+    def "when Identity returns a 500 from the mapping policy endpoint, Repose should return a 502"() {
+        given: "the mapping policy call will not be successful"
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
+            new DeproxyResponse(
+                    SC_INTERNAL_SERVER_ERROR,
+                    null,
+                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    createIdentityFaultJsonWithValues(
+                            name: "identityFault",
+                            code: SC_INTERNAL_SERVER_ERROR,
+                            message: "The default IDP policy is not properly configured."))
+        }
+
+        and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a bad response"
+        mc.receivedResponse.code as Integer == SC_BAD_GATEWAY
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
     }
 
     @FailsWith(ConditionNotSatisfiedError)

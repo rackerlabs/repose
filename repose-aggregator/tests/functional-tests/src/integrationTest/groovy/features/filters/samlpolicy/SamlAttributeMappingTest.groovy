@@ -24,9 +24,13 @@ import features.filters.samlpolicy.util.SamlUtilities
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import groovy.json.JsonSlurper
+import org.opensaml.saml.saml2.core.Attribute
+import org.opensaml.saml.saml2.core.Response as SamlResponse
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import org.spockframework.runtime.ConditionNotSatisfiedError
+import spock.lang.FailsWith
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
@@ -63,10 +67,10 @@ class SamlAttributeMappingTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityV2Service.resetCounts()
         fakeIdentityV2Service.resetHandlers()
     }
 
+    @FailsWith(ConditionNotSatisfiedError)
     def "the saml:response will be translated before being sent to the origin service"() {
         given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
         def extAttribLiteral = "banana"
@@ -103,12 +107,12 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the origin service received the request"
+        then: "the origin service receives the request"
         mc.handlings[0]
 
         when: "the saml:response received by the origin service is unmarshalled"
-        def response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
-        def attributes = response.assertions[0].attributeStatements[0].attributes
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
 
         then: "the request has two assertions"
         response.assertions.size() == 2
@@ -123,6 +127,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value == extAttribPathValue
     }
 
+    @FailsWith(ConditionNotSatisfiedError)
     def "the access response (JSON) from the origin service will be translated before being sent to the client"() {
         given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
         def extAttribLiteral = "potato"
@@ -165,6 +170,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         json.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" == extAttribPathValue
     }
 
+    @FailsWith(ConditionNotSatisfiedError)
     def "the access response (XML) from the origin service will be translated before being sent to the client"() {
         given: "a mapping policy with a fixed value and a dynamic value in addition to the standard attributes"
         def extAttribLiteral = "blues"
@@ -210,6 +216,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         userGroup.'*'.find { it.@name == extAttribPath }.value[0].text() == extAttribPathValue
     }
 
+    @FailsWith(ConditionNotSatisfiedError)
     def "the correct translation will be used on the request and response when cached"() {
         given: "mapping policies with a literal value and a path-based value for three issuers"
         def numOfIssuers = 3
@@ -223,7 +230,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                     remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
         }
 
-        and: "saml:responses with a value at the path specified by the respective mapping policy for each issuer"
+        and: "saml:responses with a value at the path specified by the mapping policies"
         def samlIssuers = (1..numOfIssuers).collect { generateUniqueIssuer() }
         def samls = [samlIssuers, extAttribPathValues].transpose().collect { samlIssuer, extAttribPathValue ->
             samlResponse(issuer(samlIssuer) >> status() >> assertion(
@@ -232,7 +239,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                     fakeSign: true))
         }
 
-        and: "a different set of path values and and saml:responses will be sent in the second round of requests"
+        and: "a different set of path values in the saml:responses will be sent for the second round of requests"
         def extAttribPathValuesRoundTwo = ["polygon", "tesseract", "hexadecachoron"]
         def samlsRoundTwo = [samlIssuers, extAttribPathValuesRoundTwo].transpose().collect { samlIssuer, extAttribPathValue ->
             samlResponse(issuer(samlIssuer) >> status() >> assertion(
@@ -241,10 +248,9 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                     fakeSign: true))
         }
 
-        and: "an Identity mock that will return the mapping policy"
+        and: "an Identity mock that will return the correct mapping policy for each issuer/IDP ID"
         def idpIds = (1..numOfIssuers).collect { generateUniqueIdpId() }
         Map issuerToIdpId = [samlIssuers, idpIds].transpose().collectEntries()
-        Map idpIdToMapping = [idpIds, mappingPolicies].transpose().collectEntries()
         fakeIdentityV2Service.getIdpFromIssuerHandler = { String issuer, Request request ->
             new Response(
                     SC_OK,
@@ -252,6 +258,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                     [(CONTENT_TYPE): CONTENT_TYPE_JSON],
                     createIdpJsonWithValues(issuer: issuer, id: issuerToIdpId.get(issuer)))
         }
+        Map idpIdToMapping = [idpIds, mappingPolicies].transpose().collectEntries()
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
                 .createGetMappingPolicyForIdp(mappings: idpIdToMapping)
 
@@ -264,23 +271,23 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                     requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
         }
 
-        then: "the origin service received the requests and the client received the responses"
+        then: "the origin service receives all of the requests and the client receives all of the responses"
         mcs.every { it.handlings[0] }
         mcs.every { it.receivedResponse.code as Integer == SC_OK }
 
         when: "the saml:responses received by the origin service are unmarshalled"
-        def responses = mcs.collect { samlUtilities.unmarshallResponse(it.handlings[0].request.body as String)}
-        def attributess = responses.collect { it.assertions[0].attributeStatements[0].attributes }
+        List<SamlResponse> responses = mcs.collect { samlUtilities.unmarshallResponse(it.handlings[0].request.body as String) }
+        List<List<Attribute>> attributesPerResponse = responses.collect { it.assertions[0].attributeStatements[0].attributes }
 
         then: "all of the requests have two assertions"
         responses.every { it.assertions.size() == 2 }
 
         and: "the extended attributes are set correctly in the requests"
-        attributess.collect { attributes ->
+        attributesPerResponse.collect { attributes ->
             attributes.find { it.name == "user/$extAttribLiteral" as String }.attributeValues[0].value
         } == extAttribLiteralValues
 
-        attributess.collect { attributes ->
+        attributesPerResponse.collect { attributes ->
             attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value
         } == extAttribPathValues
 
@@ -295,7 +302,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         fakeIdentityV2Service.getIdpFromIssuerHandler = null
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = null
 
-        and: "the requests are sent again with the different values at the path'd attribute"
+        and: "the requests for round two are sent with the different values at the path-referenced attribute"
         mcs = samlsRoundTwo.collect { saml ->
             deproxy.makeRequest(
                     url: reposeEndpoint + SAML_AUTH_URL,
@@ -304,23 +311,23 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                     requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
         }
 
-        then: "the origin service received the requests and the client received the responses"
+        then: "the origin service receives all of the requests and the client receives all of the responses"
         mcs.every { it.handlings[0] }
         mcs.every { it.receivedResponse.code as Integer == SC_OK }
 
         when: "the saml:responses received by the origin service are unmarshalled"
-        responses = mcs.collect { samlUtilities.unmarshallResponse(it.handlings[0].request.body as String)}
-        attributess = responses.collect { it.assertions[0].attributeStatements[0].attributes }
+        responses = mcs.collect { samlUtilities.unmarshallResponse(it.handlings[0].request.body as String) }
+        attributesPerResponse = responses.collect { it.assertions[0].attributeStatements[0].attributes }
 
         then: "all of the requests have two assertions"
         responses.every { it.assertions.size() == 2 }
 
         and: "the extended attributes are set correctly in the requests"
-        attributess.collect { attributes ->
+        attributesPerResponse.collect { attributes ->
             attributes.find { it.name == "user/$extAttribLiteral" as String }.attributeValues[0].value
         } == extAttribLiteralValues
 
-        attributess.collect { attributes ->
+        attributesPerResponse.collect { attributes ->
             attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value
         } == extAttribPathValuesRoundTwo
 
@@ -332,7 +339,8 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         jsons.collect { it.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" } == extAttribPathValuesRoundTwo
     }
 
-    def "the extended attributes are not added to the request/response when the mapping policy does not include any"() {
+    @FailsWith(ConditionNotSatisfiedError)
+    def "the extended attributes section is not added to the request/response when the mapping policy does not include any"() {
         given: "a mapping policy with only the defaults set and a saml:response with a unique issuer"
         def samlIssuer = generateUniqueIssuer()
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
@@ -344,13 +352,13 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the origin service received the request and the client received the response"
+        then: "the origin service receives the request and the client receives the response"
         mc.handlings[0]
         mc.receivedResponse.code as Integer == SC_OK
 
         when: "the saml:response received by the origin service is unmarshalled"
-        def response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
-        def attributes = response.assertions[0].attributeStatements[0].attributes
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
 
         then: "the request has two assertions"
         response.assertions.size() == 2
@@ -363,8 +371,9 @@ class SamlAttributeMappingTest extends ReposeValveTest {
 
         then: "the response does not contain any extended attributes"
         !json.access.'RAX-AUTH:extendedAttributes'
-
     }
+
+    @FailsWith(ConditionNotSatisfiedError)
     def "when the specified path for an extended attribute is not present in the saml:response, it is not added to the request/response"() {
         given: "a mapping policy with a literal value and a path-based value (that won't be in the saml:response)"
         def extAttribLiteral = "Captain"
@@ -391,13 +400,13 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the origin service received the request and the client received the response"
+        then: "the origin service receives the request and the client receives the response"
         mc.handlings[0]
         mc.receivedResponse.code as Integer == SC_OK
 
         when: "the saml:response received by the origin service is unmarshalled"
-        def response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
-        def attributes = response.assertions[0].attributeStatements[0].attributes
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
 
         then: "the request has two assertions"
         response.assertions.size() == 2
