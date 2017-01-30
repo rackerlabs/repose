@@ -156,7 +156,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should throw a SamlPolicyException(400) if the SAMLResponse parameter is not present") {
       val request = mock[HttpServletRequest]
 
-      (the [SamlPolicyException] thrownBy filter.decodeSamlResponse(request)).statusCode shouldEqual SC_BAD_REQUEST
+      val exception = the [SamlPolicyException] thrownBy filter.decodeSamlResponse(request)
+      exception.statusCode shouldEqual SC_BAD_REQUEST
     }
 
     it("should throw a SamlPolicyException(400) if the SAMLResponse value is not Base64 encoded") {
@@ -165,7 +166,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       when(request.getParameter("SAMLResponse"))
         .thenReturn("<samlp:Response/>")
 
-      (the [SamlPolicyException] thrownBy filter.decodeSamlResponse(request)).statusCode shouldEqual SC_BAD_REQUEST
+      val exception = the [SamlPolicyException] thrownBy filter.decodeSamlResponse(request)
+      exception.statusCode shouldEqual SC_BAD_REQUEST
     }
 
     it("should return the decoded SAMLResponse") {
@@ -593,7 +595,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val result = filter.getToken(None)
       result shouldBe a[Failure[_]]
-      (the [UnexpectedStatusCodeException] thrownBy result.get).statusCode shouldEqual SC_FORBIDDEN
+      val exception = the [UnexpectedStatusCodeException] thrownBy result.get
+      exception.statusCode shouldEqual SC_FORBIDDEN
       verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
@@ -613,7 +616,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val result = filter.getToken(None)
       result shouldBe a[Failure[_]]
-      (the [OverLimitException] thrownBy result.get).retryAfter shouldEqual retryAfter
+      val exception = the [OverLimitException] thrownBy result.get
+      exception.retryAfter shouldEqual retryAfter
       verify(samlIdentityClient).getToken(
         MM.anyString(),
         MM.anyString(),
