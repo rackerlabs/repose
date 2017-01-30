@@ -38,6 +38,7 @@ import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSp
 import javax.xml.crypto.dsig.{SignedInfo, _}
 import javax.xml.namespace.NamespaceContext
 import javax.xml.transform.TransformerException
+import javax.xml.parsers.{DocumentBuilderFactory, ParserConfigurationException}
 import javax.xml.xpath.{XPathConstants, XPathExpression}
 
 import com.fasterxml.jackson.core.JsonProcessingException
@@ -62,6 +63,7 @@ import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.springframework.beans.factory.annotation.Value
 import org.w3c.dom.{Document, NodeList}
+import org.xml.sax.SAXException
 
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
@@ -97,6 +99,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var keyEntry: KeyStore.PrivateKeyEntry = _
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
+  private val documentBuilderFactory = DocumentBuilderFactory.newInstance()
+  documentBuilderFactory.setNamespaceAware(true)
 
   override def doInit(filterConfig: FilterConfig): Unit = {
     logger.info("Initializing filter using config system-model.cfg.xml")
@@ -183,7 +187,14 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the corresponding dom object
     * @throws SamlPolicyException if parsing fails
     */
-  def readToDom(samlResponse: InputStream): Document = ???
+  def readToDom(samlResponse: InputStream): Document = {
+    try {
+      documentBuilderFactory.newDocumentBuilder().parse(samlResponse)
+    } catch {
+      case se: SAXException =>
+        throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse was not able to be parsed", se)
+    }
+  }
 
   /**
     * Reads the parsed saml response and checks the issuer against the filter config
