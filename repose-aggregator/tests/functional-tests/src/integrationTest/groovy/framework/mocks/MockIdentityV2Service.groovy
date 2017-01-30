@@ -184,7 +184,7 @@ class MockIdentityV2Service {
         getEndpointsHandler = this.&getEndpoints
         getUserGlobalRolesHandler = this.&getUserGlobalRoles
         getIdpFromIssuerHandler = createGetIdpFromIssuerHandler()
-        getMappingPolicyForIdpHandler = this.&getMappingPolicyForIdp
+        getMappingPolicyForIdpHandler = createGetMappingPolicyForIdp()
         generateTokenFromSamlResponseHandler = this.&generateTokenFromSamlResponse
     }
 
@@ -729,26 +729,41 @@ class MockIdentityV2Service {
         return new Response(SC_OK, null, headers, body)
     }
 
-    static Closure<Response> createGetIdpFromIssuerHandler(Map values = [:]) {
+    Closure<Response> createGetIdpFromIssuerHandler(Map values = [:]) {
+        def headers = ['Content-type': 'application/json']
+
         return { String issuer, Request request ->
             if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token") && !values.skipAuthCheck) {
-                new Response(SC_UNAUTHORIZED)
+                new Response(SC_UNAUTHORIZED, null, headers, UNAUTHORIZED_JSON)
             } else {
                 def body = createIdpJsonWithValues([issuer: issuer] + values)
-                def headers = ['Content-type': 'application/json']
 
                 new Response(SC_OK, null, headers, body)
             }
         }
     }
 
-    Response getMappingPolicyForIdp(String idpId, Request request) {
-        if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token")) {
-            new Response(SC_UNAUTHORIZED)
-        } else {
-            def headers = ['Content-type': 'application/json']
+    Closure<Response> createGetMappingPolicyForIdp(Map values = [defaultMapping: true]) {
+        def headers = ['Content-type': 'application/json']
 
-            new Response(SC_OK, null, headers, DEFAULT_MAPPING_POLICY)
+        return { String idpId, Request request ->
+            if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token") && !values.skipAuthCheck) {
+                new Response(SC_UNAUTHORIZED, null, headers, UNAUTHORIZED_JSON)
+            } else {
+                def mappingForIdpId = values.mappings?.get(idpId)
+
+                if (mappingForIdpId) {
+                    new Response(SC_OK, null, headers, mappingForIdpId)
+                } else if (values.defaultMapping) {
+                    new Response(SC_OK, null, headers, DEFAULT_MAPPING_POLICY)
+                } else {
+                    def body = createIdentityFaultJsonWithValues(
+                            name: "itemNotFound",
+                            code: SC_NOT_FOUND,
+                            message: "Identity Provider with id/name: '$idpId' was not found.")
+                    new Response(SC_NOT_FOUND, null, headers, body)
+                }
+            }
         }
     }
 
@@ -794,6 +809,44 @@ class MockIdentityV2Service {
         json.toString()
     }
 
+    static String createMappingJsonWithValues(Map values = [:]) {
+        def json = new JsonBuilder()
+
+        json {
+            mapping {
+                rules([
+                        {
+                            local {
+                                user {
+                                    domain values.domain ?: DEFAULT_MAPPING_VALUE
+                                    name values.name ?: DEFAULT_MAPPING_VALUE
+                                    email values.email ?: DEFAULT_MAPPING_VALUE
+                                    roles values.roles ?: DEFAULT_MAPPING_VALUE
+                                    delegate.expires values.expires ?: DEFAULT_MAPPING_VALUE
+                                    if (values.userExtAttribs) {
+                                        values.userExtAttribs.each { key, value ->
+                                            "$key" value
+                                        }
+                                    }
+                                }
+                                if (values.local) {
+                                    values.local.each { key, value ->
+                                        "$key" value
+                                    }
+                                }
+                            }
+                            if (values.remote) {
+                                remote values.remote
+                            }
+                        }
+                ] + (values.rules ?: []))
+                version "RAX-1"
+            }
+        }
+
+        json.toString()
+    }
+
     String createAccessJsonWithValues(Map values = [:]) {
         def token = values.token ?: client_token
         def expires = values.expires ?: getExpires()
@@ -814,13 +867,13 @@ class MockIdentityV2Service {
                         name tenantId
                     }
                     if (values.authBy) {
-                        "RAX-AUTH:authenticatedBy" values.authBy
+                        'RAX-AUTH:authenticatedBy' values.authBy
                     }
                 }
                 user {
                     id userId
                     name username
-                    "RAX-AUTH:defaultRegion" "the-default-region"
+                    'RAX-AUTH:defaultRegion' "the-default-region"
                     roles roleNames.withIndex(1).collect { role, index ->
                         [name: role, id: index]
                     }
@@ -916,6 +969,11 @@ class MockIdentityV2Service {
 
         json.toString()
     }
+
+    static final String UNAUTHORIZED_JSON = createIdentityFaultJsonWithValues(
+            name: "unauthorized",
+            code: SC_UNAUTHORIZED,
+            message: "No valid token provided. Please use the 'X-Auth-Token' header with a valid token.")
 
     // Successful generate token response in xml
     def identitySuccessXmlTemplate = """\

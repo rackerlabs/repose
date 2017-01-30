@@ -20,8 +20,6 @@
 
 package features.filters.samlpolicy.util
 
-import org.openrepose.commons.utils.http.CommonHttpHeader
-
 /**
  * WARNING! The white space in the these payloads matters. Do not re-format them.
  */
@@ -32,7 +30,9 @@ class SamlPayloads {
     static final String SAML_EXTERNAL_ISSUER = "http://idp.external.com"
     static final String SAML_REPOSE_ISSUER = "http://openrepose.org/filters/SAMLTranslation"
 
-    static final String CONTENT_TYPE = CommonHttpHeader.CONTENT_TYPE.toString()
+    static final String CONTENT_TYPE = "Content-Type"
+    static final String ACCEPT = "Accept"
+
     static final String CONTENT_TYPE_FORM_URLENCODED = "application/x-www-form-urlencoded"
     static final String CONTENT_TYPE_XML = "application/xml"
     static final String CONTENT_TYPE_INVALID = "application/potato"

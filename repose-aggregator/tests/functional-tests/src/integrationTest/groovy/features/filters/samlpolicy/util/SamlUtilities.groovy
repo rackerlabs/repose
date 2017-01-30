@@ -204,6 +204,8 @@ class SamlUtilities {
         def id = values.id ?: "_" + UUID.randomUUID().toString()
         def issueInstant = values.issueInstant ?: "2013-11-15T16:19:06.310Z"
         def issuer = values.issuer ?: SAML_EXTERNAL_ISSUER
+        def nameFormat = values.nameFormat ?: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+        def nameSpProvidedIdAttrib = values.spProvidedId ? [SPProvidedID: values.spProvidedId] : [:]
         def name = values.name ?: "john.doe"
         def notOnOrAfter = values.notOnOrAfter ?: "2113-11-17T16:19:06.298Z"
         def authnInstant = values.authnInstant ?: "2113-11-15T16:19:04.055Z"
@@ -222,7 +224,7 @@ class SamlUtilities {
                     invalidSignature()(builder)
                 }
                 'saml2:Subject' {
-                    'saml2:NameID'(Format: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", name)
+                    'saml2:NameID'([Format: nameFormat] + nameSpProvidedIdAttrib, name)
                     'saml2:SubjectConfirmation'(Method: "urn:oasis:names:tc:SAML:2.0:cm:bearer") {
                         'saml2:SubjectConfirmationData'(NotOnOrAfter: notOnOrAfter)
                     }
