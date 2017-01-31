@@ -366,8 +366,9 @@ public class PowerFilter extends DelegatingFilterProxy {
         //        .map(l -> new LimitedReadInputStream(l, request.getInputStream()))
         //        .orElseGet(request.getInputStream());
 
+        final BufferedServletInputStream bufferedInputStream = new BufferedServletInputStream(requestBodyInputStream);
         final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request,
-                new BufferedServletInputStream(requestBodyInputStream));
+                bufferedInputStream);
         final HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper((HttpServletResponse) response,
                 ResponseMode.MUTABLE,
                 ResponseMode.MUTABLE);
@@ -413,6 +414,13 @@ public class PowerFilter extends DelegatingFilterProxy {
                     LOG.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader));
                     wrappedResponse.addHeader(TRACE_GUID.toString(), tracingHeader);
                 }
+
+                // Since getParameterMap may read the body, we must reset the InputStream so that we aren't stripping
+                // the body when form parameters are sent.
+                bufferedInputStream.mark(Integer.MAX_VALUE);
+                wrappedRequest.setAttribute("http://openrepose.org/queryParams", wrappedRequest.getParameterMap());
+                bufferedInputStream.reset();
+
                 requestFilterChain.startFilterChain(wrappedRequest, wrappedResponse);
             }
         } catch (InvalidMethodException ime) {
