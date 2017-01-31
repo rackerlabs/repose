@@ -36,6 +36,7 @@ import static framework.mocks.MockIdentityV2Service.DEFAULT_MAPPING_POLICY
 import static framework.mocks.MockIdentityV2Service.IDP_NO_RESULTS
 import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
 import static framework.mocks.MockIdentityV2Service.createIdpJsonWithValues
+import static framework.mocks.MockIdentityV2Service.createMappingJsonWithValues
 import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
@@ -421,7 +422,35 @@ class SamlFlow20Test extends ReposeValveTest {
                     SC_OK,
                     null,
                     [(CONTENT_TYPE): CONTENT_TYPE_JSON],
-                    '{"nope":{}}')
+                    createMappingJsonWithValues(rules: [[potato: [fries: [yummy: "yes"], hashBrowns: [:]]]]))
+        }
+
+        and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a bad response"
+        mc.receivedResponse.code as Integer == SC_BAD_GATEWAY
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
+    }
+
+    def "when Identity returns a malformed mapping policy, Repose should return a 502"() {
+        given: "the Identity mock will return a malformed mapping policy (not valid JSON)"
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
+            new DeproxyResponse(
+                    SC_OK,
+                    null,
+                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    "Hi, Principal Skinner! Hi, Super Nintendo Chalmers.")
         }
 
         and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
