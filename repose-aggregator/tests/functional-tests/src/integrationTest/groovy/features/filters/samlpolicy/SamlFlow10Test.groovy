@@ -174,7 +174,6 @@ class SamlFlow10Test extends ReposeValveTest {
         SAML_LEGACY_ISSUER_SIGNED_MESSAGE_AND_ASSERTION | "has a signed assertion and is signed" | true             | true
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "the response to the client should not be translated by Repose when the saml:response has a Flow 1.0 Issuer"() {
         given: "a saml:response with a legacy issuer"
         def saml = samlResponse(issuer(SAML_LEGACY_ISSUER) >> status() >> assertion(issuer: SAML_LEGACY_ISSUER))
@@ -212,7 +211,6 @@ class SamlFlow10Test extends ReposeValveTest {
         receivedResponseJson == sentResponseJson
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "the JSON response to the client should not be translated by Repose even if the saml:response contained extended attributes when it has a Flow 1.0 Issuer"() {
         given: "a saml:response with a legacy issuer and the extended attribute 'user/foo'"
         def saml = samlResponse(issuer(SAML_LEGACY_ISSUER) >> status() >> assertion(
@@ -243,7 +241,6 @@ class SamlFlow10Test extends ReposeValveTest {
         receivedResponseJson == sentResponseJson
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "the XML response to the client should not be translated by Repose even if the saml:response contained extended attributes when it has a Flow 1.0 Issuer"() {
         given: "a saml:response with a legacy issuer and the extended attribute 'user/foo'"
         def saml = samlResponse(issuer(SAML_LEGACY_ISSUER) >> status() >> assertion(
