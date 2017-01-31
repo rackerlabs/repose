@@ -822,7 +822,7 @@ class MockIdentityV2Service {
                                     name values.name ?: DEFAULT_MAPPING_VALUE
                                     email values.email ?: DEFAULT_MAPPING_VALUE
                                     roles values.roles ?: DEFAULT_MAPPING_VALUE
-                                    delegate.expires values.expires ?: DEFAULT_MAPPING_VALUE
+                                    expire values.expire ?: DEFAULT_MAPPING_VALUE
                                     if (values.userExtAttribs) {
                                         values.userExtAttribs.each { key, value ->
                                             "$key" value

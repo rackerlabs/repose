@@ -36,6 +36,7 @@ import static framework.mocks.MockIdentityV2Service.DEFAULT_MAPPING_POLICY
 import static framework.mocks.MockIdentityV2Service.IDP_NO_RESULTS
 import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
 import static framework.mocks.MockIdentityV2Service.createIdpJsonWithValues
+import static framework.mocks.MockIdentityV2Service.createMappingJsonWithValues
 import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
@@ -421,7 +422,35 @@ class SamlFlow20Test extends ReposeValveTest {
                     SC_OK,
                     null,
                     [(CONTENT_TYPE): CONTENT_TYPE_JSON],
-                    '{"nope":{}}')
+                    createMappingJsonWithValues(rules: [[potato: [fries: [yummy: "yes"], hashBrowns: [:]]]]))
+        }
+
+        and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the client gets back a bad response"
+        mc.receivedResponse.code as Integer == SC_BAD_GATEWAY
+
+        and: "the request doesn't get to the origin service"
+        mc.handlings.isEmpty()
+    }
+
+    def "when Identity returns a malformed mapping policy, Repose should return a 502"() {
+        given: "the Identity mock will return a malformed mapping policy (not valid JSON)"
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
+            new DeproxyResponse(
+                    SC_OK,
+                    null,
+                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    "Hi, Principal Skinner! Hi, Super Nintendo Chalmers.")
         }
 
         and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
@@ -529,5 +558,55 @@ class SamlFlow20Test extends ReposeValveTest {
 
         then: "the requested IDP ID should match what was returned from the first Identity call"
         requestedIdpId == idpId
+    }
+
+    def "an X-Auth-Token should not be sent to the origin service"() {
+        given: "a valid saml:response"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service receives the request and the client receives the response"
+        mc.handlings[0]
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the origin service does not receive an X-Auth-Token header"
+        mc.handlings[0].request.headers.getCountByName(X_AUTH_TOKEN) == 0
+    }
+
+    def "Repose does not alter the order of the assertions coming in the request"() {
+        given: "a saml:response with a number of assertions (with unique data stored in the SPProvidedID)"
+        def numOfAssertions = 7
+        def samlIssuer = generateUniqueIssuer()
+        def assertions = (1..numOfAssertions).inject({ MarkupBuilder builder -> builder }) { assertionsSoFar, num ->
+            assertionsSoFar >> assertion(issuer: samlIssuer, spProvidedId: num as String, fakeSign: true)
+        }
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertions)
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service receives the request and the client receives the response"
+        mc.handlings[0]
+        mc.receivedResponse.code as Integer == SC_OK
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        Response response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+
+        then: "there should be one extra assertion added by Repose"
+        response.assertions.size() == numOfAssertions + 1
+
+        and: "the original assertions are in the original order"
+        response.assertions.drop(1).collect { it.subject.nameID.getSPProvidedID() } == (1..numOfAssertions)*.toString()
     }
 }
