@@ -31,7 +31,6 @@ import spock.lang.Unroll
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
-import static framework.mocks.MockIdentityV2Service.createMappingJsonWithValues
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
 /**
@@ -64,7 +63,11 @@ class SamlFlow10Test extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityV2Service.resetCounts()
+        fakeIdentityV2Service.with {
+            resetCounts()
+            getIdpFromIssuerHandler = null
+            getMappingPolicyForIdpHandler = null
+        }
     }
 
     @Unroll
@@ -72,6 +75,9 @@ class SamlFlow10Test extends ReposeValveTest {
         given:
         def body = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(
                 samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))))
+
+        and: "the Identity mocks are available for the Flow 2.0 call"
+        fakeIdentityV2Service.resetHandlers()
 
         when:
         def mc = deproxy.makeRequest(
@@ -130,15 +136,6 @@ class SamlFlow10Test extends ReposeValveTest {
 
     @Unroll
     def "a saml:response that #signedState will not be altered and will maintain signature validity through Repose"() {
-        given: "the Identity mock will return a mapping policy with extended attributes should one be requested (it shouldn't be)"
-        def mappingPolicy = createMappingJsonWithValues(
-                userExtAttribs: [banana: "phone", potato: "{0}"],
-                remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
-        def idpId = generateUniqueIdpId()
-        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
-        fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
-                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
-
         when: "a request containing a saml:response with a legacy Issuer is sent to Repose"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
@@ -177,15 +174,6 @@ class SamlFlow10Test extends ReposeValveTest {
     def "the response to the client should not be translated by Repose when the saml:response has a Flow 1.0 Issuer"() {
         given: "a saml:response with a legacy issuer"
         def saml = samlResponse(issuer(SAML_LEGACY_ISSUER) >> status() >> assertion(issuer: SAML_LEGACY_ISSUER))
-
-        and: "the Identity mock will return a mapping policy with extended attributes should one be requested (it shouldn't be)"
-        def mappingPolicy = createMappingJsonWithValues(
-                userExtAttribs: [banana: "phone", potato: "{0}"],
-                remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
-        def idpId = generateUniqueIdpId()
-        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
-        fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
-                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
 
         when: "the request is sent to Repose asking for a JSON response"
         def mc = deproxy.makeRequest(
