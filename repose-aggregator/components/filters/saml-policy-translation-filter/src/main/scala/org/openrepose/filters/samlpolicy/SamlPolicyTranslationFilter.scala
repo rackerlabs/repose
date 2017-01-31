@@ -193,15 +193,15 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if parsing fails
     */
   def readToDom(samlResponse: InputStream): Document = {
-    var documentBuilder : DocumentBuilder = null
+    var docBuilder: Option[DocumentBuilder] = None
     try {
-      documentBuilder = XMLParserPool.borrowParser
-      documentBuilder.parse(samlResponse)
+      docBuilder = Option(XMLParserPool.borrowParser)
+      docBuilder.get.parse(samlResponse)
     } catch {
       case se: SAXException =>
         throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse was not able to be parsed", se)
     } finally {
-      if (documentBuilder != null) XMLParserPool.returnParser(documentBuilder)
+      docBuilder.foreach(XMLParserPool.returnParser)
     }
   }
 
