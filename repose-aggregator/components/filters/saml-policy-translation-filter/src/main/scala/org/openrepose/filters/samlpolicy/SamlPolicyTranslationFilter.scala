@@ -20,7 +20,7 @@
 
 package org.openrepose.filters.samlpolicy
 
-import java.io.{ByteArrayInputStream, FileInputStream, IOException, InputStream}
+import java.io._
 import java.net.URI
 import java.security._
 import java.security.cert.X509Certificate
@@ -37,8 +37,10 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfo
 import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSpec}
 import javax.xml.crypto.dsig.{SignedInfo, _}
 import javax.xml.namespace.NamespaceContext
-import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.{DocumentBuilder, DocumentBuilderFactory}
 import javax.xml.transform.TransformerException
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.{StreamResult, StreamSource}
 import javax.xml.xpath.{XPathConstants, XPathExpression}
 
 import com.fasterxml.jackson.core.JsonProcessingException
@@ -47,11 +49,12 @@ import com.google.common.cache.{Cache, CacheBuilder}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
 import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
+import net.sf.saxon.TransformerFactoryImpl
+import net.sf.saxon.s9api.{DOMDestination, SaxonApiException, XsltExecutable}
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE, RETRY_AFTER}
-import org.openrepose.commons.utils.io.FileUtilities
+import org.openrepose.commons.utils.io.{BufferedServletInputStream, FileUtilities}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
@@ -81,6 +84,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   extends AbstractConfiguredFilter[SamlPolicyConfig](configurationService)
     with LazyLogging
     with AtomFeedListener {
+
   import SamlPolicyTranslationFilter._
 
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
@@ -99,6 +103,9 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var keyEntry: KeyStore.PrivateKeyEntry = _
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
+  private val transformerFactory = new TransformerFactoryImpl
+  private val documentBuilderFactory = DocumentBuilderFactory.newInstance()
+  documentBuilderFactory.setNamespaceAware(true)
 
   override def doInit(filterConfig: FilterConfig): Unit = {
     logger.info("Initializing filter using config system-model.cfg.xml")
@@ -207,7 +214,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException should it have problems finding the issuer
     */
   def determineVersion(document: Document): Int = {
-    var xPathExpression : Option[XPathExpression] = None
+    var xPathExpression: Option[XPathExpression] = None
     try {
       xPathExpression = Option(XPathExpressionPool.borrowExpression(responseIssuerXPath, namespaceContext, xPathVersion))
       val issuerUri = xPathExpression.get.evaluate(document, XPathConstants.STRING).asInstanceOf[String]
@@ -230,9 +237,9 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if response is invalid
     */
   def validateResponseAndGetIssuer(document: Document): String = {
-    var assertionExpression : Option[XPathExpression] = None
-    var issuerExpression : Option[XPathExpression] = None
-    var signatureExpression : Option[XPathExpression] = None
+    var assertionExpression: Option[XPathExpression] = None
+    var issuerExpression: Option[XPathExpression] = None
+    var signatureExpression: Option[XPathExpression] = None
 
     try {
       assertionExpression = Option(XPathExpressionPool.borrowExpression(assertionXPath, namespaceContext, xPathVersion))
@@ -375,9 +382,15 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * Converts the saml response document into a servlet input stream for passing down the filter chain.
     *
     * @param document the final saml response
-    * @return the sinput stream that can be wrapped and passed along
+    * @return the input stream that can be wrapped and passed along
     */
-  def convertDocumentToStream(document: Document): ServletInputStream = ???
+  def convertDocumentToStream(document: Document): ServletInputStream = {
+    val source = new DOMSource(document)
+    val baos = new ByteArrayOutputStream()
+    val outputTarget = new StreamResult(baos)
+    transformerFactory.newTransformer().transform(source, outputTarget)
+    new BufferedServletInputStream(new ByteArrayInputStream(baos.toByteArray))
+  }
 
   /**
     * This is super vague because we don't know what it looks like yet.
