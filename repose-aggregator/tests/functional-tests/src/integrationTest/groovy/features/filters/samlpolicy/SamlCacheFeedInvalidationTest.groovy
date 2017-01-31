@@ -25,8 +25,6 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
-import org.spockframework.runtime.ConditionNotSatisfiedError
-import spock.lang.FailsWith
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
@@ -75,7 +73,6 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "when an atom feed entry with serviceCode 'CloudIdentity', resourceType 'IDP', and type '#eventType' is received for an issuer, the mapping policy is removed from the cache"() {
         given: "the same issuer will be used to generate each unique saml:response"
         def samlIssuer = generateUniqueIssuer()
@@ -136,7 +133,6 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         eventType << ["CREATE", "UPDATE", "DELETE"]
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "when an atom feed is received with multiple entries containing multiple issuers, the correct mapping policies are removed from the cache"() {
         given: "a list of issuers that will be used in the saml:responses"
         def samlIssuers = (1..5).collect { generateUniqueIssuer() }
@@ -201,7 +197,6 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "when an atom feed entry with serviceCode '#serviceCode', resourceType '#resourceType', and type '#eventType' is received for the same issuer (#issuerMatch), the mapping policy is NOT removed from the cache"() {
         given: "the same issuer will be used to generate each unique saml:response"
         def samlIssuer = generateUniqueIssuer()
