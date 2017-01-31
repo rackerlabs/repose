@@ -27,7 +27,7 @@ import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
 import java.text.SimpleDateFormat
 import java.util.{Base64, Date, TimeZone, UUID}
-import javax.servlet.{FilterChain, FilterConfig}
+import javax.servlet.{FilterChain, FilterConfig, ServletInputStream}
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.parsers.DocumentBuilderFactory
@@ -1048,7 +1048,11 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("convertDocumentToStream") {
-    pending
+    it("should convert a Document to a ServletInputStream") {
+      val stream = filter.convertDocumentToStream(samlResponseDoc)
+      assert(stream.isInstanceOf[ServletInputStream])
+      assert(samlResponseStr === scala.io.Source.fromInputStream(stream).mkString)
+    }
   }
 
   describe("onNewAtomEntry") {
