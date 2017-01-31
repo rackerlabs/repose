@@ -38,9 +38,9 @@ import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSp
 import javax.xml.crypto.dsig.{SignedInfo, _}
 import javax.xml.namespace.NamespaceContext
 import javax.xml.parsers.{DocumentBuilder, DocumentBuilderFactory}
-import javax.xml.transform.TransformerException
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.{StreamResult, StreamSource}
+import javax.xml.transform.{TransformerException, TransformerFactory}
 import javax.xml.xpath.{XPathConstants, XPathExpression}
 
 import com.fasterxml.jackson.core.JsonProcessingException
@@ -49,7 +49,6 @@ import com.google.common.cache.{Cache, CacheBuilder}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
 import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import net.sf.saxon.TransformerFactoryImpl
 import net.sf.saxon.s9api.{DOMDestination, SaxonApiException, XsltExecutable}
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -103,7 +102,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var keyEntry: KeyStore.PrivateKeyEntry = _
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
-  private val transformerFactory = new TransformerFactoryImpl
+  private val transformerFactory = TransformerFactory.newInstance("org.apache.xalan.xsltc.trax.TransformerFactoryImpl", this.getClass.getClassLoader)
   private val documentBuilderFactory = DocumentBuilderFactory.newInstance()
   documentBuilderFactory.setNamespaceAware(true)
 
@@ -146,9 +145,11 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
       chain.doFilter(new HttpServletRequestWrapper(request, inputStream), response)
 
-      if (version == 2) {
-        doResponseStuff()
-        response.asInstanceOf[HttpServletResponseWrapper].commitToResponse()
+      if (version == 2 && response.getStatus == SC_OK) {
+        val responseWrapper = response.asInstanceOf[HttpServletResponseWrapper]
+        val stream = addExtendedAttributes(responseWrapper, finalDocument)
+        stream.foreach(responseWrapper.setOutput)
+        responseWrapper.commitToResponse()
       }
     } catch {
       case ex: OverLimitException =>
@@ -393,11 +394,45 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   }
 
   /**
-    * This is super vague because we don't know what it looks like yet.
+    * Added the extended attributes passed in the SAML Response.
     *
     * @return
     */
-  def doResponseStuff() = ???
+  def addExtendedAttributes(response: HttpServletResponseWrapper, translatedSamlResponse: Document): Option[InputStream] = {
+    logger.debug("Starting the Response processing.")
+    response.getContentType.toLowerCase match {
+      case json if json.contains("json") =>
+        val baos = new ByteArrayOutputStream
+        val destination = AttributeMapper.processor.newSerializer(baos)
+        AttributeMapper.addExtendedAttributes(
+          new StreamSource(response.getOutputStreamAsInputStream),
+          new StreamSource(convertDocumentToStream(translatedSamlResponse)),
+          destination,
+          isJSON = true,
+          validate = true,
+          XSDEngine.AUTO.toString)
+        Option(new ByteArrayInputStream(baos.toString().getBytes(response.getCharacterEncoding)))
+      case xml if xml.contains("xml") =>
+        var docBuilder: Option[DocumentBuilder] = None
+        try {
+          docBuilder = Option(XMLParserPool.borrowParser)
+          val outDoc = docBuilder.get.newDocument
+          val destination = new DOMDestination(outDoc)
+          AttributeMapper.addExtendedAttributes(
+            new StreamSource(response.getOutputStreamAsInputStream),
+            new StreamSource(convertDocumentToStream(translatedSamlResponse)),
+            destination,
+            isJSON = false,
+            validate = true,
+            XSDEngine.AUTO.toString)
+          Option(convertDocumentToStream(outDoc))
+        } finally {
+          docBuilder.foreach(XMLParserPool.returnParser)
+        }
+      case _ =>
+        None
+    }
+  }
 
   /**
     * Evict from the cache as appropriate.
