@@ -37,14 +37,14 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfo
 import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSpec}
 import javax.xml.crypto.dsig.{SignedInfo, _}
 import javax.xml.namespace.NamespaceContext
+import javax.xml.parsers.DocumentBuilder
 import javax.xml.transform.TransformerException
-import javax.xml.parsers.{DocumentBuilderFactory, ParserConfigurationException}
 import javax.xml.xpath.{XPathConstants, XPathExpression}
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.cache.{Cache, CacheBuilder}
-import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XPathExpressionPool}
+import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
 import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
@@ -67,8 +67,8 @@ import org.xml.sax.SAXException
 
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
-import scala.xml.XML
 import scala.util.{Success, Try}
+import scala.xml.XML
 
 /**
   * Created by adrian on 12/12/16.
@@ -99,8 +99,6 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var keyEntry: KeyStore.PrivateKeyEntry = _
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
-  private val documentBuilderFactory = DocumentBuilderFactory.newInstance()
-  documentBuilderFactory.setNamespaceAware(true)
 
   override def doInit(filterConfig: FilterConfig): Unit = {
     logger.info("Initializing filter using config system-model.cfg.xml")
@@ -188,11 +186,15 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if parsing fails
     */
   def readToDom(samlResponse: InputStream): Document = {
+    var documentBuilder : DocumentBuilder = null
     try {
-      documentBuilderFactory.newDocumentBuilder().parse(samlResponse)
+      documentBuilder = XMLParserPool.borrowParser
+      documentBuilder.parse(samlResponse)
     } catch {
       case se: SAXException =>
         throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse was not able to be parsed", se)
+    } finally {
+      if (documentBuilder != null) XMLParserPool.returnParser(documentBuilder)
     }
   }
 
@@ -242,18 +244,18 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       val signatures = signatureExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
 
       if (assertions.getLength != signatures.getLength) {
-        throw SamlPolicyException(400, "All assertions must be signed")
+        throw SamlPolicyException(SC_BAD_REQUEST, "All assertions must be signed")
       }
 
       if (issuers.getLength != (assertions.getLength + 1)) {
-        throw SamlPolicyException(400, "SAML Response and all assertions need an issuer")
+        throw SamlPolicyException(SC_BAD_REQUEST, "SAML Response and all assertions need an issuer")
       }
 
       val listOfIssuers = for (i <- 0 until issuers.getLength) yield issuers.item(i).getTextContent
 
       val uniqueIssuers = listOfIssuers.toSet
       if (uniqueIssuers.size != 1) {
-        throw SamlPolicyException(400, "All assertions must come from the same issuer")
+        throw SamlPolicyException(SC_BAD_REQUEST, "All assertions must come from the same issuer")
       }
 
       uniqueIssuers.head
@@ -493,7 +495,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     private var initialized = false
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
-      sendTraceHeader = Option(configurationObject.getTracingHeader).map(_.isEnabled).getOrElse(true)
+      sendTraceHeader = Option(configurationObject.getTracingHeader).forall(_.isEnabled)
       initialized = true
     }
 
