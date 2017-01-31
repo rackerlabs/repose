@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+>
+    <token expires="2017-01-26T14:17:34.455Z"
+           id="AAC9CRHnJjmSziTDtHbLfAQyc7KLgpY9Xhs39Jato8xLmdng9lWaJtd_0lCyaNp_VTJoXwn6R1xBXlnB3EDU5l7lmmAf4dGbYz7lx_S3onPZa44jerMkdH7b">
+        <rax-auth:authenticatedBy>
+            <rax-auth:credential>PASSWORD</rax-auth:credential>
+        </rax-auth:authenticatedBy>
+    </token>
+    <user id="user123" name="user123">
+        <roles>
+            <role name="user"/>
+            <role name="admin"/>
+            <role name="test"/>
+        </roles>
+    </user>
+    <serviceCatalog/>
+    <RAX-AUTH:extendedAttributes xmlns="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+                                 xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+        <group name="user">
+            <attribute name="foo">
+                <value>2017-01-25T21:50:56.399-06:00</value>
+            </attribute>
+        </group>
+        <group name="test">
+            <attribute name="policy">
+                <value>TestPolicy</value>
+                <value>TestPolicy2</value>
+                <value>TestPolicy YEA!</value>
+                <value>TestPolicy3</value>
+                <value>TestPolicy YEA!!</value>
+            </attribute>
+        </group>
+    </RAX-AUTH:extendedAttributes>
+</access>

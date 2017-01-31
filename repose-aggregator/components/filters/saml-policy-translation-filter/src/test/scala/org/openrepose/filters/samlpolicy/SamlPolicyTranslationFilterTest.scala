@@ -20,32 +20,33 @@
 
 package org.openrepose.filters.samlpolicy
 
-import java.io.{ByteArrayInputStream, FileInputStream, StringReader}
+import java.io.{ByteArrayInputStream, FileInputStream, InputStream, StringReader}
 import java.net.{URI, URL}
 import java.nio.charset.StandardCharsets.UTF_8
 import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
 import java.text.SimpleDateFormat
 import java.util.{Base64, Date, TimeZone, UUID}
-import javax.servlet.{FilterChain, FilterConfig, ServletInputStream}
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.{FilterChain, FilterConfig, ServletInputStream}
+import javax.ws.rs.core.MediaType._
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.stream.StreamSource
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.cache.{Cache => GCache}
-import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
+import com.rackspace.identity.components.AttributeMapper
 import net.sf.saxon.s9api.{Processor, XsltExecutable}
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.mockito.{Matchers => MM}
-import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.io.BufferedServletInputStream
+import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, UnexpectedStatusCodeException}
+import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.opensaml.core.config.{InitializationException, InitializationService}
 import org.opensaml.core.criterion.EntityIdCriterion
@@ -1047,11 +1048,40 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
   }
 
+  val clazz = getClass
+  def removeWhitespace(s: String): String = s.replaceAll("\\s+", "")
+  def resourceAsString(resourceName: String): String = streamToString(clazz.getResourceAsStream(resourceName))
+  def streamToString(inputStream: InputStream): String = scala.io.Source.fromInputStream(inputStream).mkString
+  val translatedIDPStr = resourceAsString("/tidp-mapping-rule-ext-attribute2-2.xml")
+  val translatedIDPDoc = makeDocument(translatedIDPStr)
   describe("convertDocumentToStream") {
     it("should convert a Document to a ServletInputStream") {
-      val stream = filter.convertDocumentToStream(samlResponseDoc)
+      val stream = filter.convertDocumentToStream(translatedIDPDoc)
       assert(stream.isInstanceOf[ServletInputStream])
-      assert(samlResponseStr === scala.io.Source.fromInputStream(stream).mkString)
+      assert(removeWhitespace(translatedIDPStr) === removeWhitespace(streamToString(stream)))
+    }
+  }
+
+  describe("addExtendedAttributes") {
+    Seq((APPLICATION_JSON, clazz.getResourceAsStream("/os-mapping-rule-ext-attribute2-2.json"), clazz.getResourceAsStream("/response-mapping-rule-ext-attribute2-2.json")),
+      (APPLICATION_XML, clazz.getResourceAsStream("/os-mapping-rule-ext-attribute2-2.xml"), clazz.getResourceAsStream("/response-mapping-rule-ext-attribute2-2.xml"))).foreach {
+      case (mediaType, osBody, responseBody) =>
+        it(s"should add the Extended Attributes for media type $mediaType") {
+          val responseWrapper = new HttpServletResponseWrapper(mock[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+          responseWrapper.setContentType(mediaType)
+          responseWrapper.setOutput(osBody)
+          val inStreamOption = filter.addExtendedAttributes(responseWrapper, translatedIDPDoc)
+          assert(inStreamOption.isDefined)
+          assert(removeWhitespace(streamToString(responseBody)) === removeWhitespace(streamToString(inStreamOption.get)))
+        }
+    }
+
+    it(s"should not add the Extended Attributes for media type $TEXT_PLAIN") {
+      val responseWrapper = new HttpServletResponseWrapper(mock[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+      responseWrapper.setContentType(TEXT_PLAIN)
+      responseWrapper.setOutput(new ByteArrayInputStream("This is some text.".getBytes(UTF_8)))
+      val inStreamOption = filter.addExtendedAttributes(responseWrapper, translatedIDPDoc)
+      assert(inStreamOption.isEmpty)
     }
   }
 
