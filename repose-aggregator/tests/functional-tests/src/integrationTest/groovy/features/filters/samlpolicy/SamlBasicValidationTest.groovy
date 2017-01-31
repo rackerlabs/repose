@@ -23,8 +23,6 @@ package features.filters.samlpolicy
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
-import org.spockframework.runtime.ConditionNotSatisfiedError
-import spock.lang.FailsWith
 import spock.lang.Unroll
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
@@ -59,7 +57,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "a valid request will make it to the origin service and back to the client successfully with form parameters: #formParams.keySet()"() {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
@@ -87,7 +84,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "a request with Content-Type '#contentType' and a body with #bodySummary should be rejected"() {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
@@ -141,7 +137,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "a request using the HTTP method #httpMethod should be rejected"() {
         when: "we make a request with the given HTTP method"
         def mc = deproxy.makeRequest(
@@ -161,7 +156,6 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "a request should be rejected when the SAMLResponse contents are invalid due to #reason"() {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
@@ -180,8 +174,8 @@ class SamlBasicValidationTest extends ReposeValveTest {
         where:
         reason                    | paramValue                                                        | expectedResponse
         "invalid base64 encoding" | SAML_ONE_ASSERTION_SIGNED_BASE64 + "!@#%^*)*)@"                   | "SAMLResponse is not in valid Base64 scheme"
-        "invalid XML"             | encodeBase64("legit saml response kthxbai")                       | "" // TODO: figure out what the error is going to be
-        "invalid SAML"            | encodeBase64("<banana/>")                                         | "" // TODO: figure out what the error is going to be
+        "invalid XML"             | encodeBase64("legit saml response kthxbai")                       | "SAMLResponse was not able to be parsed"
+        "invalid SAML"            | encodeBase64("<banana/>")                                         | "No issuer present in SAML Response"
         "missing Issuer element"  | encodeBase64(samlResponse(status() >> assertion()))               | "No issuer present in SAML Response"
         "empty Issuer element"    | encodeBase64(samlResponse(issuer("") >> status() >> assertion())) | "No issuer present in SAML Response"
     }
