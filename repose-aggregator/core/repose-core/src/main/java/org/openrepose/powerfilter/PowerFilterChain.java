@@ -111,8 +111,6 @@ public class PowerFilterChain implements FilterChain {
         filterChainAvailable = isCurrentFilterChainAvailable();
         wrappedRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
         wrappedRequest.setAttribute("http://openrepose.org/requestUrl", wrappedRequest.getRequestURL().toString());
-        // TODO: This may now read the input stream. It must reset it if it does.
-        wrappedRequest.setAttribute("http://openrepose.org/queryParams", wrappedRequest.getParameterMap());
 
         splitRequestHeaders(wrappedRequest);
 
