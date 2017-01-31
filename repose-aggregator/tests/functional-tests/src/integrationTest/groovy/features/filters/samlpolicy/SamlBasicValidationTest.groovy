@@ -174,8 +174,8 @@ class SamlBasicValidationTest extends ReposeValveTest {
         where:
         reason                    | paramValue                                                        | expectedResponse
         "invalid base64 encoding" | SAML_ONE_ASSERTION_SIGNED_BASE64 + "!@#%^*)*)@"                   | "SAMLResponse is not in valid Base64 scheme"
-        "invalid XML"             | encodeBase64("legit saml response kthxbai")                       | "" // TODO: figure out what the error is going to be
-        "invalid SAML"            | encodeBase64("<banana/>")                                         | "" // TODO: figure out what the error is going to be
+        "invalid XML"             | encodeBase64("legit saml response kthxbai")                       | "SAMLResponse was not able to be parsed"
+        "invalid SAML"            | encodeBase64("<banana/>")                                         | "No issuer present in SAML Response"
         "missing Issuer element"  | encodeBase64(samlResponse(status() >> assertion()))               | "No issuer present in SAML Response"
         "empty Issuer element"    | encodeBase64(samlResponse(issuer("") >> status() >> assertion())) | "No issuer present in SAML Response"
     }
