@@ -38,7 +38,6 @@ ext {
     scalaMinor = '11'
     scalaPatch = '7'
     scalaMajDotMin = "$scalaMajor.$scalaMinor"
-    docsHome = "https://repose.atlassian.net/wiki/display/REPOSE/Configuration"
 }
 
 task('publishToPackageRepo', group: 'publishing', description: 'Publishes the debian and rpm packages to the package repo.',
@@ -100,6 +99,10 @@ allprojects {
         maven {
             url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
         }
+    }
+
+    ext {
+        docsHome = "http://www.openrepose.org/versions/$version/index.html".toString()
     }
 }
 
