@@ -19,13 +19,14 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{BufferedReader, IOException}
+import java.io.{BufferedReader, ByteArrayInputStream, IOException}
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util
 import javax.servlet.ServletInputStream
 import javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 
 import org.junit.runner.RunWith
+import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
@@ -1128,6 +1129,23 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
 
         val output: String = Source.fromInputStream(localWrappedRequest.getInputStream).mkString
         output.length shouldBe 0
+      }
+
+      it(s"should not create an empty parameter provided an empty $method body") {
+        val localRequest = new MockHttpServletRequest()
+        localRequest.setContentType(APPLICATION_FORM_URLENCODED)
+        localRequest.setContent("some=stuff".getBytes(UTF_8))
+        localRequest.setMethod(method)
+
+        val localWrappedRequest = new HttpServletRequestWrapper(
+          localRequest,
+          new ServletInputStreamWrapper(new ByteArrayInputStream(Array.emptyByteArray))
+        )
+
+        // If this value changes to 1, it is probably because we started getting the parameters from
+        // the wrapped request. Just update this test to expect a size of 1 instead, and verify that
+        // the 1 parameter is "some=stuff".
+        localWrappedRequest.getParameterMap should have size 0
       }
 
       it(s"should not provide form values on $method if the getReader method has been called on the wrapper") {
