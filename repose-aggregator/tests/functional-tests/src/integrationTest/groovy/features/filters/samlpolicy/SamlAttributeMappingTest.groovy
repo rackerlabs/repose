@@ -29,8 +29,6 @@ import org.opensaml.saml.saml2.core.Response as SamlResponse
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import org.spockframework.runtime.ConditionNotSatisfiedError
-import spock.lang.FailsWith
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
@@ -70,7 +68,6 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         fakeIdentityV2Service.resetHandlers()
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "the saml:response will be translated before being sent to the origin service"() {
         given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
         def extAttribLiteral = "banana"
@@ -127,7 +124,6 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value == extAttribPathValue
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "the access response (JSON) from the origin service will be translated before being sent to the client"() {
         given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
         def extAttribLiteral = "potato"
@@ -170,7 +166,6 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         json.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" == extAttribPathValue
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "the access response (XML) from the origin service will be translated before being sent to the client"() {
         given: "a mapping policy with a fixed value and a dynamic value in addition to the standard attributes"
         def extAttribLiteral = "blues"
@@ -216,7 +211,6 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         userGroup.'*'.find { it.@name == extAttribPath }.value[0].text() == extAttribPathValue
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "the correct translation will be used on the request and response when cached"() {
         given: "mapping policies with a literal value and a path-based value for three issuers"
         def numOfIssuers = 3
@@ -339,7 +333,6 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         jsons.collect { it.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" } == extAttribPathValuesRoundTwo
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "the extended attributes section is not added to the request/response when the mapping policy does not include any"() {
         given: "a mapping policy with only the defaults set and a saml:response with a unique issuer"
         def samlIssuer = generateUniqueIssuer()
@@ -373,7 +366,6 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         !json.access.'RAX-AUTH:extendedAttributes'
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "when the specified path for an extended attribute is not present in the saml:response, it is not added to the request/response"() {
         given: "a mapping policy with a literal value and a path-based value (that won't be in the saml:response)"
         def extAttribLiteral = "Captain"

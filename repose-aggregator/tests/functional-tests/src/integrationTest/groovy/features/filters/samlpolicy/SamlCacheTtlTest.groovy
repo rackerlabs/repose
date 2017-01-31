@@ -23,8 +23,6 @@ package features.filters.samlpolicy
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
-import org.spockframework.runtime.ConditionNotSatisfiedError
-import spock.lang.FailsWith
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
@@ -64,7 +62,6 @@ class SamlCacheTtlTest extends ReposeValveTest {
         fakeIdentityV2Service.resetCounts()
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "when the same saml:response is sent after the cache entry is supposed to expire, the mapping policy should be retrieved from Identity again"() {
         given: "the same saml:response will be used in each request"
         def url = reposeEndpoint + SAML_AUTH_URL
@@ -108,7 +105,6 @@ class SamlCacheTtlTest extends ReposeValveTest {
         mc.handlings[0]
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "when a saml:response with the same Issuer as a previous one is sent after the cache entry is supposed to expire, the mapping policy should be retrieved from Identity again"() {
         given: "the same saml:response will be used in each request"
         def samlIssuer = generateUniqueIssuer()

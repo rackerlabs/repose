@@ -28,8 +28,6 @@ import org.opensaml.saml.saml2.core.Response
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response as DeproxyResponse
-import org.spockframework.runtime.ConditionNotSatisfiedError
-import spock.lang.FailsWith
 import spock.lang.Unroll
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
@@ -77,7 +75,6 @@ class SamlFlow20Test extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response that is #signatureStatus will still be successfully processed as long as its Assertion is signed"() {
         when:
         def mc = deproxy.makeRequest(
@@ -137,7 +134,6 @@ class SamlFlow20Test extends ReposeValveTest {
         // TODO: this test if possible to a specific response code and response body.
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an unsigned assertion should be rejected"() {
         given: "a saml:response with an unsigned assertion"
         def saml = samlResponse(issuer() >> status() >> assertion(fakeSign: false))
@@ -157,7 +153,6 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an assertion that has an invalid signature will still be processed successfully"() {
         given: "a saml:response with an assertion containing an invalid signature"
         def saml = samlResponse(issuer() >> status() >> assertion(ASSERTION_SIGNED.replace("    ", "")))
@@ -180,7 +175,6 @@ class SamlFlow20Test extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with three assertions that are not all signed should be rejected - with signatures: #sigOne, #sigTwo, #sigThree"() {
         given: "a saml:response with three assertions that will each be signed depending on the test"
         def assertionOne = sigOne ? assertion(ASSERTION_SIGNED) : assertion(fakeSign: false)
@@ -211,7 +205,6 @@ class SamlFlow20Test extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with three signed assertions should be successful even if the signatures aren't valid - with valid signatures: #sigOne, #sigTwo, #sigThree"() {
         given: "a saml:response with three assertions that will each have a valid or invalid signature depending on the test"
         def assertionOne = sigOne ? ASSERTION_SIGNED : ASSERTION_SIGNED.replace("    ", "")
@@ -257,7 +250,6 @@ class SamlFlow20Test extends ReposeValveTest {
         false  | false  | false
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an assertion missing the Issuer element should be rejected"() {
         given: "a saml:response with an assertion missing the Issuer element"
         def saml = samlResponse { MarkupBuilder builder ->
@@ -296,7 +288,6 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an assertion containing an empty Issuer will still be processed successfully"() {
         given:
         def saml = samlResponse { MarkupBuilder builder ->
@@ -339,7 +330,6 @@ class SamlFlow20Test extends ReposeValveTest {
     }
 
     @Unroll
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with three assertions containing inconsistent Issuers should be rejected - with issuers: #issuerOne, #issuerTwo, #issuerThree"() {
         given:
         def saml = samlResponse(issuer() >> status() >>
@@ -369,7 +359,6 @@ class SamlFlow20Test extends ReposeValveTest {
         "one"     | "two"     | "three"
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an Issuer that Identity doesn't know about should be rejected with a 401"() {
         given: "the IDP call will return an empty list"
         fakeIdentityV2Service.getIdpFromIssuerHandler = { String issuerParam, Request request ->
@@ -394,7 +383,6 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "a saml:response with an Issuer that Identity doesn't have a mapping policy for should be rejected with a 401"() {
         given: "the mapping policy call will a 404"
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
@@ -426,7 +414,6 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "when Identity returns an invalid mapping policy, Repose should return a 502"() {
         given: "the Identity mock will return an invalid mapping policy"
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
@@ -455,7 +442,6 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "when Identity returns a 500 from the mapping policy endpoint, Repose should return a 502"() {
         given: "the mapping policy call will not be successful"
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
@@ -487,7 +473,6 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "Identity is queried with the correct Issuer when looking for the identity provider ID"() {
         given: "we're going to capture the requested issuer and path to Identity for the issuer to IDP ID call"
         String requestedIssuerParam = null
@@ -519,7 +504,6 @@ class SamlFlow20Test extends ReposeValveTest {
         !fullRequestPath.contains(samlIssuer)
     }
 
-    @FailsWith(ConditionNotSatisfiedError)
     def "Identity is queried with the correct IDP ID when looking for the identity provider mapping policy"() {
         given: "we're going to capture the requested IDP ID to Identity for the IDP ID to mapping policy call"
         String requestedIdpId = null
