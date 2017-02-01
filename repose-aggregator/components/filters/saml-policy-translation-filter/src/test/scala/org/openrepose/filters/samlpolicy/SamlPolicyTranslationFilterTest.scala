@@ -1052,7 +1052,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should convert a Document to a ServletInputStream") {
       val stream = filter.convertDocumentToStream(translatedIDPDoc)
       assert(stream.isInstanceOf[ServletInputStream])
-      assert(removeWhitespace(translatedIDPStr) === removeWhitespace(streamToString(stream)))
+      removeWhitespace(translatedIDPStr) shouldBe removeWhitespace(streamToString(stream))
     }
   }
 
@@ -1195,7 +1195,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           responseWrapper.setOutput(stringToStream(osBody))
           val inStreamOption = filter.addExtendedAttributes(responseWrapper, translatedIDPDoc)
           assert(inStreamOption.isDefined)
-          assert(removeWhitespace(streamToString(responseBody)) === removeWhitespace(streamToString(inStreamOption.get)))
+          removeWhitespace(responseBody) shouldBe removeWhitespace(streamToString(inStreamOption.get))
         }
     }
 
