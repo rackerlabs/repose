@@ -619,29 +619,10 @@ class SamlFlow20Test extends ReposeValveTest {
         SC_INTERNAL_SERVER_ERROR | "identityFault" | "Internal Server Error"
     }
 
-    def "a response with an unsupported content-type from the origin service will be returned to the client unaltered"() {
-        given: "the origin service will return a text/plain response"
-        def responseBody = "This is a response. It is not very long."
-        def contentType = TEXT_PLAIN
-        fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
-            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): contentType], responseBody)
-        }
-
-        when:
-        def mc = sendSamlRequestWithUniqueIssuer()
-
-        then: "the client receives the response code sent by the origin service"
-        mc.receivedResponse.code as Integer == SC_OK
-
-        and: "the response was not altered by Repose"
-        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == contentType
-        mc.receivedResponse.body as String == responseBody
-    }
-
     @Unroll
-    def "a malformed response with content-type #contentType from the origin service will result in a 502 response"() {
+    def "a response from the origin service with content-type #contentType that is either unsupported or the content is malformed will result in a Bad Gateway (502) response"() {
         given: "the origin service will return a response that can't be parsed as the specified content-type"
-        def responseBody = "This is neither JSON nor XML."
+        def responseBody = "This is neither JSON nor XML, but is plain text."
         fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
             new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): contentType], responseBody)
         }
@@ -657,7 +638,7 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_BAD_GATEWAY
 
         where:
-        contentType << [APPLICATION_JSON, APPLICATION_XML]
+        contentType << [APPLICATION_JSON, APPLICATION_XML, TEXT_PLAIN]
     }
 
     def sendSamlRequestWithUniqueIssuer(Map headers = [:]) {
