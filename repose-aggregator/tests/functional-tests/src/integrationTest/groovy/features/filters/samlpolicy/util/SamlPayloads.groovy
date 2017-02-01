@@ -34,6 +34,9 @@ class SamlPayloads {
 
     static final String IDENTITY_API_VERSION = "Identity-API-Version"
     static final String X_AUTH_TOKEN = "X-Auth-Token"
+    static final String TRANSFER_ENCODING = "Transfer-Encoding"
+
+    static final String CHUNKED_ENCODING = "chunked"
 
     static final String PARAM_SAML_RESPONSE = "SAMLResponse"
     static final String PARAM_RELAY_STATE = "RelayState"
