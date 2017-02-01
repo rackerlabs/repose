@@ -953,7 +953,7 @@ class MockIdentityV2Service {
         writer.toString()
     }
 
-    static String createIdentityFaultJsonWithValues(Map values = [:]) {
+    static Closure<String> createIdentityFaultJsonWithValues = { Map values = [:] ->
         def name = values.name ?: "identityFault"
         def code = values.code ?: 500
         def message = values.message ?: "Internal server error."
@@ -968,6 +968,23 @@ class MockIdentityV2Service {
         }
 
         json.toString()
+    }
+
+    static Closure<String> createIdentityFaultXmlWithValues = { Map values = [:] ->
+        def name = values.name ?: "identityFault"
+        def code = values.code ?: 500
+        def message = values.message ?: "Internal server error."
+
+        def writer = new StringWriter()
+        def xmlBuilder = new MarkupBuilder(writer)
+        xmlBuilder.doubleQuotes = true
+        xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8", standalone: "yes")
+
+        xmlBuilder."$name"(code: code, xmlns: "http://docs.openstack.org/identity/api/v2.0") {
+            delegate.message(message)
+        }
+
+        writer.toString()
     }
 
     static final String UNAUTHORIZED_JSON = createIdentityFaultJsonWithValues(

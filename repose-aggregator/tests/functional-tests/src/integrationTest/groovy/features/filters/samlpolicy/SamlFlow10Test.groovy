@@ -27,10 +27,16 @@ import groovy.json.JsonSlurper
 import org.custommonkey.xmlunit.Diff
 import org.opensaml.saml.saml2.core.Response
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response as DeproxyResponse
 import spock.lang.Unroll
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
+import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
+import static framework.mocks.MockIdentityV2Service.createIdentityFaultXmlWithValues
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
 /**
@@ -172,15 +178,8 @@ class SamlFlow10Test extends ReposeValveTest {
     }
 
     def "the response to the client should not be translated by Repose when the saml:response has a Flow 1.0 Issuer"() {
-        given: "a saml:response with a legacy issuer"
-        def saml = samlResponse(issuer(SAML_LEGACY_ISSUER) >> status() >> assertion(issuer: SAML_LEGACY_ISSUER))
-
         when: "the request is sent to Repose asking for a JSON response"
-        def mc = deproxy.makeRequest(
-                url: reposeEndpoint + SAML_AUTH_URL,
-                method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
-                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+        def mc = sendSamlRequestForLegacyIssuer((ACCEPT): CONTENT_TYPE_JSON)
 
         then: "the origin service receives the request and the client receives the response"
         mc.handlings[0]
@@ -254,5 +253,105 @@ class SamlFlow10Test extends ReposeValveTest {
 
         and: "the XML sent by the origin service and received by the client are similar enough"
         new Diff(mc.handlings[0].response.body as String, mc.receivedResponse.body as String).similar()
+    }
+
+    @Unroll
+    def "a non-successful response code of #code from the origin service with content-type application/json will be returned to the client unaltered"() {
+        given: "the origin service will return an Identity fault as JSON"
+        fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
+            def values = [name: fault, code: code, message: message]
+            new DeproxyResponse(code, null, [(CONTENT_TYPE): CONTENT_TYPE_JSON], createIdentityFaultJsonWithValues(values))
+        }
+
+        when: "the request is sent to Repose asking for a JSON response"
+        def mc = sendSamlRequestForLegacyIssuer((ACCEPT): CONTENT_TYPE_JSON)
+
+        then: "the client receives the response code sent by the origin service"
+        mc.receivedResponse.code as Integer == code
+
+        when: "the fault response sent by the origin service is parsed as JSON"
+        def sentResponseJson = jsonSlurper.parseText(mc.handlings[0].response.body as String)
+
+        and: "the fault response received by the client is parsed as JSON"
+        def receivedResponseJson = jsonSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the JSON response was not altered by Repose"
+        receivedResponseJson == sentResponseJson
+
+        where:
+        code                     | fault           | message
+        SC_BAD_REQUEST           | "badRequest"    | "Error code: 'FED-006'; Subject is not specified"
+        SC_INTERNAL_SERVER_ERROR | "identityFault" | "Service Unavailable"
+    }
+
+    @Unroll
+    def "a non-successful response code of #code from the origin service with content-type application/xml will be returned to the client unaltered"() {
+        given: "the origin service will return an Identity fault as XML"
+        fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
+            def values = [name: fault, code: code, message: message]
+            new DeproxyResponse(code, null, [(CONTENT_TYPE): CONTENT_TYPE_XML], createIdentityFaultXmlWithValues(values))
+        }
+
+        when: "the request is sent to Repose asking for an XML response"
+        def mc = sendSamlRequestForLegacyIssuer((ACCEPT): CONTENT_TYPE_XML)
+
+        then: "the client receives the response code sent by the origin service"
+        mc.receivedResponse.code as Integer == code
+
+        and: "the XML sent by the origin service and received by the client are similar enough"
+        new Diff(mc.handlings[0].response.body as String, mc.receivedResponse.body as String).similar()
+
+        where:
+        code                     | fault           | message
+        SC_BAD_REQUEST           | "badRequest"    | "Saml response issueInstant cannot be in the future."
+        SC_INTERNAL_SERVER_ERROR | "identityFault" | "Internal Server Error"
+    }
+
+    def "an unsupported content-type from the origin service will be returned to the client unaltered"() {
+        given: "the origin service will return a text/plain response"
+        def responseBody = "This is a response. It is not very long."
+        fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
+            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): CONTENT_TYPE_TEXT], responseBody)
+        }
+
+        when:
+        def mc = sendSamlRequestForLegacyIssuer()
+
+        then: "the client receives the response code sent by the origin service"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the response was not altered by Repose"
+        mc.receivedResponse.body as String == responseBody
+    }
+
+    @Unroll
+    def "a malformed response with content-type #contentType from the origin service will be returned to the client unaltered"() {
+        given: "the origin service will return a response that can't be parsed as the specified content-type"
+        def responseBody = "This is neither JSON nor XML."
+        fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
+            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): contentType], responseBody)
+        }
+
+        when: "the request is sent to Repose asking a response with the specified content-type"
+        def mc = sendSamlRequestForLegacyIssuer((ACCEPT): contentType)
+
+        then: "the client receives the response code sent by the origin service"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the response was not altered by Repose (because the filter should not care about legacy Issuer requests)"
+        mc.receivedResponse.body as String == responseBody
+
+        where:
+        contentType << [CONTENT_TYPE_JSON, CONTENT_TYPE_XML]
+    }
+
+    def sendSamlRequestForLegacyIssuer(Map headers = [:]) {
+        def saml = samlResponse(issuer(SAML_LEGACY_ISSUER) >> status() >> assertion(issuer: SAML_LEGACY_ISSUER))
+
+        deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED] + headers,
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
     }
 }
