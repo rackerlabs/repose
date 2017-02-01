@@ -1041,9 +1041,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   describe("signResponse") {
     SamlPolicyTranslationFilterTest.initOpenSAML()
-    Seq(("server", true), ("client", false)) foreach { case (keyName, shouldPass) =>
+    Seq(("server", true), ("client", false)) foreach { case (keyAlias, shouldPass) =>
       val passShould: Boolean => String = { boolean => if (boolean) "should" else "should not" }
-      it(s"should sign the SAML Response in the HTTP Request and ${passShould(shouldPass)} validate against the $keyName key") {
+      it(s"should sign the SAML Response in the HTTP Request and ${passShould(shouldPass)} validate against the $keyAlias key") {
         val config = buildConfig(feedId = "banana")
 
         filter.configurationUpdated(config)
@@ -1052,7 +1052,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         // Use the key that should have signed the DOM to create the validation criteria
         val ks = KeyStore.getInstance("JKS")
         ks.load(new FileInputStream(s"$configRoot/$keystoreFilename"), keystorePassword.toCharArray)
-        val keyEntry = ks.getEntry(keyName, new KeyStore.PasswordProtection(keyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
+        val keyEntry = ks.getEntry(keyAlias, new KeyStore.PasswordProtection(keyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
         val signingCredential = CredentialSupport.getSimpleCredential(keyEntry.getCertificate.asInstanceOf[X509Certificate], keyEntry.getPrivateKey)
         val credResolver = new StaticCredentialResolver(signingCredential)
         val kiResolver = new StaticKeyInfoCredentialResolver(signingCredential)
@@ -1415,7 +1415,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       newConfig.setPolicyBypassIssuers(newBypassIssuers)
       filter.configurationUpdated(newConfig)
 
-      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] should not contain (new URI("http://foo.bar"))
+      ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] should not contain new URI("http://foo.bar")
       ReflectionTestUtils.getField(filter, "legacyIssuers").asInstanceOf[List[URI]] should contain (new URI("http://bar.foo"))
     }
 
@@ -1454,7 +1454,7 @@ object SamlPolicyTranslationFilterTest {
   val keyName = "server"
   val keyPassword = "password"
   val signatureCredentials = new SignatureCredentials
-  val samlResponseStr =
+  val samlResponseStr: String =
     """<?xml version="1.0" encoding="UTF-8"?>
       |<saml2p:Response ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30"
       |                 IssueInstant="2015-12-04T15:47:15.057Z"
