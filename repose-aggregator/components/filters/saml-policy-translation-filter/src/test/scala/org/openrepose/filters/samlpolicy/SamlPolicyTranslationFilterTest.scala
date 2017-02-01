@@ -1220,12 +1220,26 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         }
     }
 
-    it(s"should not add the Extended Attributes for media type $TEXT_PLAIN") {
+    it(s"should throw an exception for media type $TEXT_PLAIN") {
       val responseWrapper = new HttpServletResponseWrapper(mock[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
       responseWrapper.setContentType(TEXT_PLAIN)
       responseWrapper.setOutput(new ByteArrayInputStream("This is some text.".getBytes(UTF_8)))
-      val inStreamOption = filter.addExtendedAttributes(responseWrapper, translatedIDPDoc)
-      assert(inStreamOption.isEmpty)
+      val exception = the [SamlPolicyException] thrownBy filter.addExtendedAttributes(responseWrapper, translatedIDPDoc)
+      exception.statusCode shouldBe SC_BAD_GATEWAY
+      exception.message shouldBe "Origin service provided bad response"
+    }
+
+    Seq((APPLICATION_JSON, originJson, responseJson),
+      (APPLICATION_XML, originXml, responseXml)).foreach {
+      case (mediaType, osBody, responseBody) =>
+      it(s"should throw an exception for malformed $mediaType content") {
+        val responseWrapper = new HttpServletResponseWrapper(mock[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+        responseWrapper.setContentType(mediaType)
+        responseWrapper.setOutput(new ByteArrayInputStream("This is some text.".getBytes(UTF_8)))
+        val exception = the[SamlPolicyException] thrownBy filter.addExtendedAttributes(responseWrapper, translatedIDPDoc)
+        exception.statusCode shouldBe SC_BAD_GATEWAY
+        exception.message shouldBe "Origin service provided bad response"
+      }
     }
   }
 
