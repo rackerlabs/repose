@@ -41,6 +41,8 @@ import static framework.mocks.MockIdentityV2Service.createIdentityFaultXmlWithVa
 import static framework.mocks.MockIdentityV2Service.createIdpJsonWithValues
 import static framework.mocks.MockIdentityV2Service.createMappingJsonWithValues
 import static javax.servlet.http.HttpServletResponse.*
+import static javax.ws.rs.core.HttpHeaders.ACCEPT
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON
 import static javax.ws.rs.core.MediaType.APPLICATION_XML

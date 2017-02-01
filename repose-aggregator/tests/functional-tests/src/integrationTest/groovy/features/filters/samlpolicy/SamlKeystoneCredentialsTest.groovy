@@ -32,6 +32,7 @@ import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithV
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON
 

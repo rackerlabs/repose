@@ -28,6 +28,7 @@ import spock.lang.Unroll
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
 import static javax.servlet.http.HttpServletResponse.*
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 import static javax.ws.rs.core.MediaType.APPLICATION_XML
 
