@@ -118,7 +118,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
         fakeIdentityV2Service.getGenerateTokenCount() == 1
 
         and: "the issuer endpoint was called twice (first time resulting in a 401, second time being successful)"
-        fakeIdentityV2Service.getIdpFromIssuerCount() == 2
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 2
     }
 
     def "the admin token will be generated again when the mapping policy call returns a 401"() {
