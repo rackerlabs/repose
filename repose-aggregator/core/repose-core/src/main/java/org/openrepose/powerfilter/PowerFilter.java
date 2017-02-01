@@ -366,11 +366,21 @@ public class PowerFilter extends DelegatingFilterProxy {
         //        .map(l -> new LimitedReadInputStream(l, request.getInputStream()))
         //        .orElseGet(request.getInputStream());
 
-        final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request,
-                new BufferedServletInputStream(requestBodyInputStream));
         final HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper((HttpServletResponse) response,
                 ResponseMode.MUTABLE,
                 ResponseMode.MUTABLE);
+        final BufferedServletInputStream bufferedInputStream = new BufferedServletInputStream(requestBodyInputStream);
+        HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request,
+                bufferedInputStream);
+
+        // Since getParameterMap may read the body, we must reset the InputStream so that we aren't stripping
+        // the body when form parameters are sent.
+        bufferedInputStream.mark(Integer.MAX_VALUE);
+        wrappedRequest.setAttribute("http://openrepose.org/queryParams", wrappedRequest.getParameterMap());
+        bufferedInputStream.reset();
+
+        // Re-wrapping the request to reset the inputStream/Reader flag
+        wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request, bufferedInputStream);
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
             wrappedRequest.removeHeader(TRACE_GUID.toString());
@@ -413,6 +423,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                     LOG.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader));
                     wrappedResponse.addHeader(TRACE_GUID.toString(), tracingHeader);
                 }
+
                 requestFilterChain.startFilterChain(wrappedRequest, wrappedResponse);
             }
         } catch (InvalidMethodException ime) {

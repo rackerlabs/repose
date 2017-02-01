@@ -258,6 +258,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, val inputSt
           case None =>
             // As per Servlet Spec 3.1 section 3.1.1, form parameters are only available until the input stream is read.
             try {
+              // TODO: UTF-8 is not always the correct encoding
               updatedParameterMap ++= parseParameterString(
                 new String(RawInputStreamReader.instance.readFully(getInputStream, getContentLength), StandardCharsets.UTF_8))
             } catch {
@@ -294,20 +295,23 @@ object HttpServletRequestWrapper {
   private def parseParameterString(s: String): Map[String, Array[String]] = {
     val parsedParameterMap = mutable.Map.empty[String, Array[String]]
 
-    s.split(QueryPairDelimiter) foreach { queryPair =>
-      val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
+    if (s.nonEmpty) {
+      s.split(QueryPairDelimiter) foreach { queryPair =>
+        val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
 
-      /**
-        * Note: Decoding using UTF-8 is consistent with the processing performed by [[HttpComponentRequestProcessor]]
-        * on request parameters. However, if the JVM default encoding is not UTF-8, decoding may not work as expected.
-        * Perhaps the default JVM encoding should be used instead?
-        */
-      val key = URLDecoder.decode(keyValuePair(0), StandardCharsets.UTF_8.toString)
-      if (keyValuePair.length == 2) {
-        val value = URLDecoder.decode(keyValuePair(1), StandardCharsets.UTF_8.toString)
-        parsedParameterMap += (key -> parsedParameterMap.getOrElse(key, Array.empty[String]).:+(value))
-      } else {
-        parsedParameterMap += (key -> parsedParameterMap.getOrElse(key, Array.empty[String]).:+(""))
+        // TODO: UTF-8 is not always the correct encoding
+        /**
+          * Note: Decoding using UTF-8 is consistent with the processing performed by [[HttpComponentRequestProcessor]]
+          * on request parameters. However, if the JVM default encoding is not UTF-8, decoding may not work as expected.
+          * Perhaps the default JVM encoding should be used instead?
+          */
+        val key = URLDecoder.decode(keyValuePair(0), StandardCharsets.UTF_8.toString)
+        if (keyValuePair.length == 2) {
+          val value = URLDecoder.decode(keyValuePair(1), StandardCharsets.UTF_8.toString)
+          parsedParameterMap += (key -> parsedParameterMap.getOrElse(key, Array.empty[String]).:+(value))
+        } else {
+          parsedParameterMap += (key -> parsedParameterMap.getOrElse(key, Array.empty[String]).:+(""))
+        }
       }
     }
 
