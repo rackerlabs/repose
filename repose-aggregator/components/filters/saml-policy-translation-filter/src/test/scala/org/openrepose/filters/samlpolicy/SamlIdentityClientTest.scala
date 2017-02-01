@@ -44,20 +44,31 @@ import scala.util.{Failure, Success}
 @RunWith(classOf[JUnitRunner])
 class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
-  var akkaServiceClient: AkkaServiceClient = _
+  final val TokenServiceClientId = "token-service-client"
+  final val PolicyServiceClientId = "policy-service-client"
+
+  var defaultServiceClient: AkkaServiceClient = _
+  var tokenServiceClient: AkkaServiceClient = _
+  var policyServiceClient: AkkaServiceClient = _
   var akkaServiceClientFactory: AkkaServiceClientFactory = _
   var samlPolicyProvider: SamlIdentityClient = _
 
   override def beforeEach(): Unit = {
-    akkaServiceClient = mock[AkkaServiceClient]
+    defaultServiceClient = mock[AkkaServiceClient]
+    tokenServiceClient = mock[AkkaServiceClient]
+    policyServiceClient = mock[AkkaServiceClient]
     akkaServiceClientFactory = mock[AkkaServiceClientFactory]
 
     samlPolicyProvider = new SamlIdentityClient(akkaServiceClientFactory)
 
     when(akkaServiceClientFactory.newAkkaServiceClient())
-      .thenReturn(akkaServiceClient)
+      .thenReturn(defaultServiceClient)
     when(akkaServiceClientFactory.newAkkaServiceClient(MM.anyString()))
-      .thenReturn(akkaServiceClient)
+      .thenReturn(defaultServiceClient)
+    when(akkaServiceClientFactory.newAkkaServiceClient(MM.eq(TokenServiceClientId)))
+      .thenReturn(tokenServiceClient)
+    when(akkaServiceClientFactory.newAkkaServiceClient(MM.eq(PolicyServiceClientId)))
+      .thenReturn(policyServiceClient)
   }
 
   describe("using") {
@@ -66,7 +77,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", Some("bar"), Some("baz"))
 
       verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient).destroy()
+      verify(defaultServiceClient).destroy()
       verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
     }
 
@@ -75,7 +86,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", Some("bar"), Some("baz"))
 
       verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(akkaServiceClient).destroy()
+      verify(defaultServiceClient).destroy()
       verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
     }
 
@@ -84,7 +95,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", None, Some("baz"))
 
       verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient).destroy()
+      verify(defaultServiceClient).destroy()
       verify(akkaServiceClientFactory).newAkkaServiceClient()
     }
 
@@ -93,7 +104,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", Some("foo"), Some("baz"))
 
       verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient, never).destroy()
+      verify(defaultServiceClient, never).destroy()
     }
 
     it("should not build a new service client if the token connection pool ID does not change from/to null") {
@@ -101,7 +112,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", None, Some("baz"))
 
       verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(akkaServiceClient, never).destroy()
+      verify(defaultServiceClient, never).destroy()
     }
 
     it("should build a new service client when the policy connection pool ID changes") {
@@ -109,7 +120,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), Some("bar"))
 
       verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient).destroy()
+      verify(defaultServiceClient).destroy()
       verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
     }
 
@@ -118,7 +129,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), Some("bar"))
 
       verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(akkaServiceClient).destroy()
+      verify(defaultServiceClient).destroy()
       verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
     }
 
@@ -127,7 +138,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), None)
 
       verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient).destroy()
+      verify(defaultServiceClient).destroy()
       verify(akkaServiceClientFactory).newAkkaServiceClient()
     }
 
@@ -136,7 +147,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), Some("foo"))
 
       verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(akkaServiceClient, never).destroy()
+      verify(defaultServiceClient, never).destroy()
     }
 
     it("should not build a new service client if the policy connection pool ID does not change from/to null") {
@@ -144,7 +155,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), None)
 
       verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(akkaServiceClient, never).destroy()
+      verify(defaultServiceClient, never).destroy()
     }
   }
 
@@ -161,7 +172,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       """.stripMargin
 
     it("should return a Failure if the service client cannot connect") {
-      when(akkaServiceClient.post(
+      when(tokenServiceClient.post(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -169,7 +180,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.any[MediaType]
       )).thenThrow(new RuntimeException("Could not connect"))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
       val result = samlPolicyProvider.getToken("username", "password", None)
 
@@ -177,7 +188,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should forward a trace ID if provided") {
-      when(akkaServiceClient.post(
+      when(tokenServiceClient.post(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -185,11 +196,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.any[MediaType]
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
       samlPolicyProvider.getToken("username", "password", Some("trace-id"))
 
-      verify(akkaServiceClient).post(
+      verify(tokenServiceClient).post(
         MM.anyString(),
         MM.anyString(),
         MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
@@ -199,7 +210,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should not forward a trace ID if not provided") {
-      when(akkaServiceClient.post(
+      when(tokenServiceClient.post(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -207,11 +218,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.any[MediaType]
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
       samlPolicyProvider.getToken("username", "password", None)
 
-      verify(akkaServiceClient).post(
+      verify(tokenServiceClient).post(
         MM.anyString(),
         MM.anyString(),
         MM.argThat(HM.not(HM.hasKey(TRACE_GUID.toString))),
@@ -221,7 +232,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should return a Failure if the response cannot be parsed") {
-      when(akkaServiceClient.post(
+      when(tokenServiceClient.post(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -241,7 +252,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         )
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
       val result = samlPolicyProvider.getToken("username", "password", None)
 
@@ -253,7 +264,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_TOO_MANY_REQUESTS
     ) foreach { statusCode =>
       it(s"should return a Failure if the request is rate limited with a $statusCode") {
-        when(akkaServiceClient.post(
+        when(tokenServiceClient.post(
           MM.anyString(),
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
@@ -261,7 +272,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
           MM.any[MediaType]
         )).thenReturn(new ServiceClientResponse(statusCode, null))
 
-        samlPolicyProvider.using("", "", None, None)
+        samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
         val result = samlPolicyProvider.getToken("username", "password", None)
 
@@ -271,7 +282,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should return a Success if the response is a 200") {
-      when(akkaServiceClient.post(
+      when(tokenServiceClient.post(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -286,7 +297,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         new ByteArrayInputStream(sampleToken.getBytes)
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
       val result = samlPolicyProvider.getToken("username", "password", None)
 
@@ -312,7 +323,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_SERVICE_UNAVAILABLE
     ) foreach { responseCode =>
       it(s"should return a Failure if the response is a $responseCode") {
-        when(akkaServiceClient.post(
+        when(tokenServiceClient.post(
           MM.anyString(),
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
@@ -320,7 +331,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
           MM.any[MediaType]
         )).thenReturn(new ServiceClientResponse(responseCode, null))
 
-        samlPolicyProvider.using("", "", None, None)
+        samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
         val result = samlPolicyProvider.getToken("username", "password", None)
 
@@ -335,7 +346,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       StandardCharsets.UTF_16
     ) foreach { charset =>
       it(s"should handle $charset response encoding") {
-        when(akkaServiceClient.post(
+        when(tokenServiceClient.post(
           MM.anyString(),
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
@@ -350,7 +361,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
           new ByteArrayInputStream(sampleToken.getBytes(charset))
         ))
 
-        samlPolicyProvider.using("", "", None, None)
+        samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
         val result = samlPolicyProvider.getToken("username", "password", None)
 
@@ -360,7 +371,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should always check the HTTP request cache") {
-      when(akkaServiceClient.post(
+      when(tokenServiceClient.post(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -375,11 +386,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         new ByteArrayInputStream(sampleToken.getBytes)
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
       samlPolicyProvider.getToken("username", "password", None)
 
-      verify(akkaServiceClient).post(
+      verify(tokenServiceClient).post(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -406,14 +417,14 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       """.stripMargin
 
     it("should return a Failure if the service client cannot connect") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyBoolean()
       )).thenThrow(new RuntimeException("Could not connect"))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
@@ -421,18 +432,18 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should forward a trace ID if provided") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", "token", Some("trace-id"), checkCache = true)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
@@ -441,18 +452,18 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should not forward a trace ID if not provided") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.argThat(HM.not(HM.hasKey(TRACE_GUID.toString))),
@@ -463,18 +474,18 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     it("should forward the provided token as a header") {
       val token = "a-unique-token"
 
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", token, Some("trace-id"), checkCache = true)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token)),
@@ -483,7 +494,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should return a Failure if the response cannot be parsed") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -502,7 +513,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         )
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
@@ -514,14 +525,14 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_TOO_MANY_REQUESTS
     ) foreach { statusCode =>
       it(s"should return a Failure if the request is rate limited with a $statusCode") {
-        when(akkaServiceClient.get(
+        when(policyServiceClient.get(
           MM.anyString(),
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
           MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(statusCode, null))
 
-        samlPolicyProvider.using("", "", None, None)
+        samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
         val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
@@ -531,7 +542,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should return a Success if the response is a 200") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -545,7 +556,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         new ByteArrayInputStream(sampleIdp.getBytes)
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
@@ -571,14 +582,14 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_SERVICE_UNAVAILABLE
     ) foreach { responseCode =>
       it(s"should return a Failure if the response is a $responseCode") {
-        when(akkaServiceClient.get(
+        when(policyServiceClient.get(
           MM.anyString(),
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
           MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(responseCode, null))
 
-        samlPolicyProvider.using("", "", None, None)
+        samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
         val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
@@ -593,7 +604,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       StandardCharsets.UTF_16
     ) foreach { charset =>
       it(s"should handle $charset response encoding") {
-        when(akkaServiceClient.get(
+        when(policyServiceClient.get(
           MM.anyString(),
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
@@ -607,7 +618,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
           new ByteArrayInputStream(sampleIdp.getBytes(charset))
         ))
 
-        samlPolicyProvider.using("", "", None, None)
+        samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
         val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
@@ -617,7 +628,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should check the HTTP request cache if not retrying") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -631,11 +642,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         new ByteArrayInputStream(sampleIdp.getBytes)
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -644,7 +655,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should not check the HTTP request cache if retrying") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -658,11 +669,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         new ByteArrayInputStream(sampleIdp.getBytes)
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = false)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -696,14 +707,14 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       """.stripMargin
 
     it("should return a Failure if the service client cannot connect") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyBoolean()
       )).thenThrow(new RuntimeException("Could not connect"))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
@@ -711,18 +722,18 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should forward a trace ID if provided") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy("idpId", "token", Some("trace-id"), checkCache = true)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
@@ -731,18 +742,18 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should not forward a trace ID if not provided") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.argThat(HM.not(HM.hasKey(TRACE_GUID))),
@@ -753,18 +764,18 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     it("should forward the provided token as a header") {
       val token = "a-unique-token"
 
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyBoolean()
       )).thenReturn(new ServiceClientResponse(SC_OK, null))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy("idpId", token, Some("trace-id"), checkCache = true)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token)),
@@ -777,14 +788,14 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_TOO_MANY_REQUESTS
     ) foreach { statusCode =>
       it(s"should return a Failure if the request is rate limited with a $statusCode") {
-        when(akkaServiceClient.get(
+        when(policyServiceClient.get(
           MM.anyString(),
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
           MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(statusCode, null))
 
-        samlPolicyProvider.using("", "", None, None)
+        samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
         val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
@@ -794,7 +805,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should return a Success if the response is a 200") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -808,7 +819,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         new ByteArrayInputStream(samplePolicy.getBytes)
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
@@ -834,14 +845,14 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_SERVICE_UNAVAILABLE
     ) foreach { responseCode =>
       it(s"should return a Failure if the response is a $responseCode") {
-        when(akkaServiceClient.get(
+        when(policyServiceClient.get(
           MM.anyString(),
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
           MM.anyBoolean()
         )).thenReturn(new ServiceClientResponse(responseCode, null))
 
-        samlPolicyProvider.using("", "", None, None)
+        samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
         val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
@@ -856,7 +867,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       StandardCharsets.UTF_16
     ) foreach { charset =>
       it(s"should handle $charset response encoding") {
-        when(akkaServiceClient.get(
+        when(policyServiceClient.get(
           MM.anyString(),
           MM.anyString(),
           MM.anyMapOf(classOf[String], classOf[String]),
@@ -870,7 +881,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
           new ByteArrayInputStream(samplePolicy.getBytes(charset))
         ))
 
-        samlPolicyProvider.using("", "", None, None)
+        samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
         val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
@@ -880,7 +891,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should check the HTTP request cache if not retrying") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -894,11 +905,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         new ByteArrayInputStream(samplePolicy.getBytes)
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -907,7 +918,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should not check the HTTP request cache if retrying") {
-      when(akkaServiceClient.get(
+      when(policyServiceClient.get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
@@ -921,11 +932,11 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         new ByteArrayInputStream(samplePolicy.getBytes)
       ))
 
-      samlPolicyProvider.using("", "", None, None)
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = false)
 
-      verify(akkaServiceClient).get(
+      verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),

@@ -34,6 +34,7 @@ import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 import java.util.concurrent.atomic.AtomicInteger
 
+import static features.filters.samlpolicy.util.SamlUtilities.generateUniqueIdpId
 import static javax.servlet.http.HttpServletResponse.*
 
 /**
@@ -47,7 +48,7 @@ class MockIdentityV2Service {
     static final String PATH_REGEX_GROUPS = '^/v2.0/users/([^/]+)/RAX-KSGRP'
     static final String PATH_REGEX_ENDPOINTS = '^/v2.0/tokens/([^/]+)/endpoints'
     static final String PATH_REGEX_VALIDATE_TOKEN = '^/v2.0/tokens/([^/]+)/?$'
-    static final String PATH_REGEX_SAML_IDP_ISSUER = $/^/v2.0/RAX-AUTH/federation/identity-providers/?/$
+    static final String PATH_REGEX_SAML_IDP_ISSUER = $/^/v2.0/RAX-AUTH/federation/identity-providers/?(\?.*)?/$
     static final String PATH_REGEX_SAML_MAPPING = '^/v2.0/RAX-AUTH/federation/identity-providers/([^/]+)/mapping'
 
     static final String SAML_AUTH_BY_PASSWORD = "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
@@ -800,7 +801,7 @@ class MockIdentityV2Service {
                         federationType values.federationType ?: "DOMAIN"
                         approvedDomains values.approvedDomains ?: ["77366"]
                         description values.description ?: "An External IDP Description"
-                        id values.id ?: "508daa5d406d41639c67860f25db29df"
+                        id values.id ?: generateUniqueIdpId()
                         issuer values.issuer ?: "http://idp.external.com"
                     }
             ])

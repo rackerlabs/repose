@@ -30,3 +30,7 @@ dependencies {
     testCompile 'org.opensaml:opensaml-security-api'
     testCompile 'org.opensaml:opensaml-xmlsec-api'
 }
+
+license {
+    excludes(["**/*2-2.*"])
+}

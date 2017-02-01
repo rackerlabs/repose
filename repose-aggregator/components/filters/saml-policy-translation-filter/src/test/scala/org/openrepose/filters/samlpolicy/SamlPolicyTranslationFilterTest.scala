@@ -234,6 +234,27 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.validateResponseAndGetIssuer(samlResponseDoc) shouldBe "http://test.rackspace.com"
     }
 
+    it("should error when there are no assertions") {
+      val doc = makeDocument(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<saml2p:Response ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30"
+          |                 IssueInstant="2015-12-04T15:47:15.057Z"
+          |                 Version="2.0"
+          |                 xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+          |                 xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          |    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">http://test.rackspace.com</saml2:Issuer>
+          |    <saml2p:Status>
+          |        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+          |    </saml2p:Status>
+          |</saml2p:Response>
+          |""".stripMargin)
+
+      val exception = the [SamlPolicyException] thrownBy filter.validateResponseAndGetIssuer(doc)
+
+      exception.statusCode shouldBe SC_BAD_REQUEST
+      exception.message shouldBe "At least one assertion is required"
+    }
+
     it("should error when every assertion isn't signed") {
       val doc = makeDocument(
         """<?xml version="1.0" encoding="UTF-8"?>
