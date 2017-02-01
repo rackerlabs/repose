@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 
 /**
  * This functional test exercises the cache feed invalidation.
@@ -77,7 +79,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         given: "the same issuer will be used to generate each unique saml:response"
         def samlIssuer = generateUniqueIssuer()
         def url = reposeEndpoint + SAML_AUTH_URL
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
+        def headers = [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED]
 
         and: "an atom feed entry will be received with the same issuer as the saml:response contains"
         def atomFeedEntry = fakeAtomFeed.atomEntryForIdpUpdate(eventType: eventType, issuer: samlIssuer)
@@ -137,7 +139,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         given: "a list of issuers that will be used in the saml:responses"
         def samlIssuers = (1..5).collect { generateUniqueIssuer() }
         def url = reposeEndpoint + SAML_AUTH_URL
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
+        def headers = [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED]
 
         and: "an atom feed will be received with entries containing the same issuers plus one more"
         def atomFeedHandlerWithEntries = fakeAtomFeed.handlerWithEntries(
@@ -201,7 +203,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         given: "the same issuer will be used to generate each unique saml:response"
         def samlIssuer = generateUniqueIssuer()
         def url = reposeEndpoint + SAML_AUTH_URL
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
+        def headers = [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED]
 
         and: "an atom feed entry will be received with the specific values for the specific test"
         def atomFeedEntry = fakeAtomFeed.atomEntryForIdpUpdate(

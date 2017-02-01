@@ -85,34 +85,6 @@ class SamlUtilities {
         str.bytes.encodeBase64().toString()
     }
 
-    /**
-     * Method to convert the format of the SAML Attributes to the format that's expected in the "access" JSON.
-     *
-     * For example (formatted for convenience):
-     * input:
-     * [A/b: [1, 2],
-     *  A/c: [3],
-     *  Z/d: [6, 7],
-     *  Y/e: [0, 8, 9],
-     *  Y/f: [10],
-     *  Y/g: [11, 12]]
-     *
-     * output:
-     * [A: [b: [1, 2], c: 3],
-     *  Z: [d: [6, 7]],
-     *  Y: [e: [0, 8, 9], f: 10, g: [11, 12]]]
-     *
-     * Where the groups are "A", "Z", and "Y", the attribute names are "b", "c", "d", "e", "f", and "g", and the
-     * numbers are the attribute values.
-     */
-    static Map normalizeGroupingForExtendedAttributes(Map<String, List<String>> extendedAttributes) {
-        extendedAttributes
-                .groupBy { it.key.split("/")[0] }
-                .collectEntries { group, attributes ->
-            [(group), attributes.collectEntries { groupAndName, v -> [(groupAndName.split("/")[1]), v?.size() == 1 ? v[0] : v]}]
-        }
-    }
-
     static String generateUniqueIssuer() {
         "http://unique.external.idp.com/${UUID.randomUUID().toString()}"
     }

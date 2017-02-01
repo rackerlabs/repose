@@ -30,13 +30,7 @@ class SamlPayloads {
     static final String SAML_EXTERNAL_ISSUER = "http://idp.external.com"
     static final String SAML_REPOSE_ISSUER = "http://openrepose.org/filters/SAMLTranslation"
 
-    static final String CONTENT_TYPE = "Content-Type"
-    static final String ACCEPT = "Accept"
-
-    static final String CONTENT_TYPE_FORM_URLENCODED = "application/x-www-form-urlencoded"
-    static final String CONTENT_TYPE_XML = "application/xml"
-    static final String CONTENT_TYPE_INVALID = "application/potato"
-    static final String CONTENT_TYPE_JSON = "application/json"
+    static final String APPLICATION_INVALID = "application/potato"
 
     static final String IDENTITY_API_VERSION = "Identity-API-Version"
     static final String X_AUTH_TOKEN = "X-Auth-Token"

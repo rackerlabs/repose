@@ -27,6 +27,8 @@ import org.rackspace.deproxy.Deproxy
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 
 /**
  * This functional test exercises the cache TTL expiration.
@@ -65,7 +67,7 @@ class SamlCacheTtlTest extends ReposeValveTest {
     def "when the same saml:response is sent after the cache entry is supposed to expire, the mapping policy should be retrieved from Identity again"() {
         given: "the same saml:response will be used in each request"
         def url = reposeEndpoint + SAML_AUTH_URL
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
+        def headers = [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED]
         def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(SAML_ONE_ASSERTION_SIGNED))
 
         when: "a request is sent for the first time"
@@ -109,7 +111,7 @@ class SamlCacheTtlTest extends ReposeValveTest {
         given: "the same saml:response will be used in each request"
         def samlIssuer = generateUniqueIssuer()
         def url = reposeEndpoint + SAML_AUTH_URL
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
+        def headers = [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED]
 
         when: "a request is sent for the first time"
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))

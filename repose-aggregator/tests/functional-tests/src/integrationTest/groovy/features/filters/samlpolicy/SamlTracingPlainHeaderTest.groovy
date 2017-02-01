@@ -29,6 +29,8 @@ import static features.filters.samlpolicy.util.SamlUtilities.*
 import static framework.mocks.MockIdentityV2Service.isSamlIdpIssuerCallPath
 import static framework.mocks.MockIdentityV2Service.isSamlIdpMappingPolicyCallPath
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 
 /**
  * This functional test verifies the plain text version of the tracing header can be added to the connections being
@@ -64,7 +66,7 @@ class SamlTracingPlainHeaderTest extends ReposeValveTest {
         fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
 
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         and: "we look for orphaned handlings matching the generate token endpoint"
         def adminHandlings = mc.orphanedHandlings.findAll { it.request.path.contains("/v2.0/tokens") && it.request.method == "POST" }
@@ -85,7 +87,7 @@ class SamlTracingPlainHeaderTest extends ReposeValveTest {
 
     def "the call to Identity to get the IDP ID for a given Issuer includes the plain tracing header"() {
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         and: "we look for orphaned handlings matching the Issuer to IDP ID endpoint"
         def issuerHandlings = mc.orphanedHandlings.findAll { isSamlIdpIssuerCallPath(it.request.path) && it.request.method == "GET" }
@@ -106,7 +108,7 @@ class SamlTracingPlainHeaderTest extends ReposeValveTest {
 
     def "the call to Identity to get the Mapping Policy for a given IDP ID includes the plain tracing header"() {
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         and: "we look for orphaned handlings matching the Mapping Policy to Issuer endpoint"
         def mappingPolicyHandlings = mc.orphanedHandlings.findAll { isSamlIdpMappingPolicyCallPath(it.request.path) && it.request.method == "GET" }
@@ -125,14 +127,14 @@ class SamlTracingPlainHeaderTest extends ReposeValveTest {
         mappingPolicyHandlings[0].request.headers.getFirstValue(TRACING_PLAIN_HEADER) == mc.handlings[0].request.headers.getFirstValue(TRACING_PLAIN_HEADER)
     }
 
-    def sendSamlRequest() {
+    def sendSamlRequestWithUniqueIssuer() {
         def samlIssuer = generateUniqueIssuer()
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
 
         deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
     }
 }

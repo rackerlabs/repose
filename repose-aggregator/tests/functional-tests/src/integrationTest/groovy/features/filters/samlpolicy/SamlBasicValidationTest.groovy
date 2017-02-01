@@ -28,6 +28,9 @@ import spock.lang.Unroll
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
 import static javax.servlet.http.HttpServletResponse.*
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
+import static javax.ws.rs.core.MediaType.APPLICATION_XML
 
 /**
  * This functional test goes through the shared validation logic between Flow 1.0 and 2.0 including the requirements
@@ -62,7 +65,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm(formParams))
 
         then: "the request is successfully processed"
@@ -71,7 +74,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
         and: "the origin service received the request as valid XML"
         mc.handlings[0]
         mc.handlings[0].request.headers.getCountByName(CONTENT_TYPE) == 1
-        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_XML
 
         and: "the request body received by the origin service can be parsed as XML"
         xmlSlurper.parseText(mc.handlings[0].request.body as String)
@@ -99,10 +102,10 @@ class SamlBasicValidationTest extends ReposeValveTest {
         mc.handlings.isEmpty()
 
         where:
-        contentType          | bodySummary       | requestBody
-        CONTENT_TYPE_XML     | "valid form data" | asUrlEncodedForm((PARAM_SAML_RESPONSE): SAML_ONE_ASSERTION_SIGNED_BASE64)
-        CONTENT_TYPE_XML     | "xml"             | SAML_ONE_ASSERTION_SIGNED
-        CONTENT_TYPE_INVALID | "xml"             | SAML_ONE_ASSERTION_SIGNED
+        contentType         | bodySummary       | requestBody
+        APPLICATION_XML     | "valid form data" | asUrlEncodedForm((PARAM_SAML_RESPONSE): SAML_ONE_ASSERTION_SIGNED_BASE64)
+        APPLICATION_XML     | "xml"             | SAML_ONE_ASSERTION_SIGNED
+        APPLICATION_INVALID | "xml"             | SAML_ONE_ASSERTION_SIGNED
     }
 
     def "a request using the wrong form parameter name should be rejected"() {
@@ -110,7 +113,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_EXTRANEOUS): SAML_ONE_ASSERTION_SIGNED_BASE64))
 
         then: "the request is rejected"
@@ -126,7 +129,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED])
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED])
 
         then: "the request is rejected"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
@@ -142,7 +145,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: httpMethod,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): SAML_ONE_ASSERTION_SIGNED_BASE64))
 
         then: "the request is rejected"
@@ -161,7 +164,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): paramValue))
 
         then: "the request is rejected"
