@@ -27,15 +27,16 @@ None
 * `Identity-API-Version` - `1.0` if the assertion issuer is in the configured list and `2.0` otherwise.
 
 === Request body changes
-The body will be decoded and replaced with an xml version.
-If issuer isn't in the configured list, a new assertion will be generated based on the matching issuer policy with `http://openrepose.org/filters/SAMLTranslation` as the issuer.
+The request body will be decoded and replaced with an xml version.
+If issuer isn't in the configured bypass list indicating the use of the legacy v1.0 API, then the v2.0 API is assumed and a new assertion will be generated based on the matching issuer policy with `http://openrepose.org/filters/SAMLTranslation` as the issuer.
 Additionally the SAML Response will be signed with the configured credentials.
 
 === Recommended follow-on (succeeding) filters
 None.
 
 === Response body changes
-Some stuff about custom fields getting translated into the body, fill it in when we get to that story.
+If the legacy v1.0 API is in use, then the response body is not modified.
+However, if the v2.0 API is in use, then the response body will be updated with the additional attributes specified in the original SAML Response issuer's configured policy.
 
 === Response headers created
 None.
@@ -50,6 +51,7 @@ None.
 | `400`
 a| * If the `SAMLResponse` parameter cannot be found.
    * If the `SAMLResponse` parameter value is not properly Base64 encoded.
+   * If the SAML response is not properly formatted or is unable to be parsed.
    * If all the SAML response assertions aren't signed and if all the assertions don't come from the same issuer.
    * If translation of the SAML response fails.
    * If translation of the policy fails.

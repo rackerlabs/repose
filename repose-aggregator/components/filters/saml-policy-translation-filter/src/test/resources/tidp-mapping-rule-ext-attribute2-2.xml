@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                 ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30"
+                 IssueInstant="2015-12-04T15:47:15.057Z"
+                 Version="2.0">
+    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">http://test.rackspace.com</saml2:Issuer>
+    <saml2p:Status>
+        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+    </saml2p:Status>
+    <saml2:Assertion xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+                     xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     ID="_406fb7fe-a519-4919-a42c-f67794a670a5__RAX__"
+                     IssueInstant="2013-11-15T16:19:06.310Z"
+                     Version="2.0">
+        <saml2:Issuer>http://my.rackspace.com</saml2:Issuer>
+        <saml2:Subject>
+            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">john.doe</saml2:NameID>
+            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+                <saml2:SubjectConfirmationData NotOnOrAfter="2013-11-17T16:19:06.298Z"/>
+            </saml2:SubjectConfirmation>
+        </saml2:Subject>
+        <saml2:AuthnStatement AuthnInstant="2013-11-15T16:19:04.055Z">
+            <saml2:AuthnContext>
+                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+                </saml2:AuthnContextClassRef>
+            </saml2:AuthnContext>
+        </saml2:AuthnStatement>
+        <saml2:AttributeStatement>
+            <saml2:Attribute Name="email">
+                <saml2:AttributeValue xsi:type="xs:string">no-reply@rackspace.com</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute Name="domain">
+                <saml2:AttributeValue xsi:type="xs:string">323676</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute Name="roles">
+                <saml2:AttributeValue xsi:type="xs:string">nova:admin</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute Name="user/foo">
+                <saml2:AttributeValue xsi:type="xs:dateTime">2017-01-25T21:50:56.399-06:00</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute Name="test/policy">
+                <saml2:AttributeValue xsi:type="xs:string">TestPolicy</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xs:string">TestPolicy2</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xs:string">TestPolicy YEA!</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xs:string">TestPolicy3</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xs:string">TestPolicy YEA!!</saml2:AttributeValue>
+            </saml2:Attribute>
+        </saml2:AttributeStatement>
+    </saml2:Assertion>
+    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+                     ID="_406fb7fe-a519-4919-a42c-f67794a670a5"
+                     IssueInstant="2013-11-15T16:19:06.310Z"
+                     Version="2.0">
+        <saml2:Issuer>http://my.rackspace.com</saml2:Issuer>
+        <saml2:Subject>
+            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">john.doe</saml2:NameID>
+            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+                <saml2:SubjectConfirmationData NotOnOrAfter="2013-11-17T16:19:06.298Z"/>
+            </saml2:SubjectConfirmation>
+        </saml2:Subject>
+        <saml2:AuthnStatement AuthnInstant="2013-11-15T16:19:04.055Z">
+            <saml2:AuthnContext>
+                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+                </saml2:AuthnContextClassRef>
+            </saml2:AuthnContext>
+        </saml2:AuthnStatement>
+        <saml2:AttributeStatement>
+            <saml2:Attribute Name="roles">
+                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+                    nova:admin
+                </saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute Name="domain">
+                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+                    323676
+                </saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute Name="email">
+                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+                    no-reply@rackspace.com
+                </saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute Name="bar">
+                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">BAR!
+                </saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute Name="FirstName">
+                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">John
+                </saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute Name="LastName">
+                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">Doe
+                </saml2:AttributeValue>
+            </saml2:Attribute>
+        </saml2:AttributeStatement>
+    </saml2:Assertion>
+</saml2p:Response>
