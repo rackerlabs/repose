@@ -100,6 +100,9 @@ class SamlNoTracingHeaderTest extends ReposeValveTest {
     }
 
     def "the call to Identity to get the Mapping Policy for a given IDP ID does not include the tracing header"() {
+        given: "an Identity IDP ID response with a unique IDP ID to miss any caching"
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: generateUniqueIdpId())
+
         when: "a request is sent to Repose"
         def mc = sendSamlRequestWithUniqueIssuer()
 
