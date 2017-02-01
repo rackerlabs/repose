@@ -435,8 +435,14 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     */
   override def onNewAtomEntry(atomEntry: String): Unit = {
     logger.debug("Processing atom feed entry: {}", atomEntry)
-    val atomXml = XML.loadString(atomEntry)
-    (atomXml \\ "event" \\ "@issuer").map(_.text).headOption.foreach(policyCache.invalidate(_))
+    try {
+      val atomXml = XML.loadString(atomEntry)
+      if ((atomXml \\ "event" \\ "@serviceCode").text.equals("CloudIdentity") && (atomXml \\ "event" \\ "@resourceType").text.equals("IDP")) {
+        (atomXml \\ "event" \\ "@issuer").map(_.text).headOption.foreach(policyCache.invalidate(_))
+      }
+    } catch {
+      case _ : SAXException => // Just consume it and press
+    }
   }
 
   /**
