@@ -46,6 +46,10 @@ import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON
+import static javax.ws.rs.core.MediaType.APPLICATION_XML
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN
 
 /**
  * This functional test goes through the validation logic unique to Flow 2.0.
@@ -85,7 +89,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a good response"
@@ -93,7 +97,7 @@ class SamlFlow20Test extends ReposeValveTest {
 
         and: "the origin service received the request with the correct header values"
         mc.handlings[0]
-        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
         fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
 
@@ -129,7 +133,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client does not get back a server-side error"
@@ -147,7 +151,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a bad response"
@@ -166,7 +170,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a good response"
@@ -174,7 +178,7 @@ class SamlFlow20Test extends ReposeValveTest {
 
         and: "the origin service received the request with the correct header values"
         mc.handlings[0]
-        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
         fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
     }
@@ -191,7 +195,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a bad response"
@@ -221,7 +225,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a good response"
@@ -229,7 +233,7 @@ class SamlFlow20Test extends ReposeValveTest {
 
         and: "the origin service received the request with the correct header values"
         mc.handlings[0]
-        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
         fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
 
@@ -282,7 +286,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a bad response"
@@ -321,7 +325,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a good response"
@@ -329,7 +333,7 @@ class SamlFlow20Test extends ReposeValveTest {
 
         and: "the origin service received the request with the correct header values"
         mc.handlings[0]
-        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
         fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
     }
@@ -346,7 +350,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a bad response"
@@ -367,7 +371,7 @@ class SamlFlow20Test extends ReposeValveTest {
     def "a saml:response with an Issuer that Identity doesn't know about should be rejected with a 401"() {
         given: "the IDP call will return an empty list"
         fakeIdentityV2Service.getIdpFromIssuerHandler = { String issuerParam, Request request ->
-            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): CONTENT_TYPE_JSON], IDP_NO_RESULTS)
+            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): APPLICATION_JSON], IDP_NO_RESULTS)
         }
 
         when:
@@ -386,7 +390,7 @@ class SamlFlow20Test extends ReposeValveTest {
             new DeproxyResponse(
                     SC_NOT_FOUND,
                     null,
-                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    [(CONTENT_TYPE): APPLICATION_JSON],
                     createIdentityFaultJsonWithValues(
                             name: "itemNotFound",
                             code: SC_NOT_FOUND,
@@ -409,7 +413,7 @@ class SamlFlow20Test extends ReposeValveTest {
             new DeproxyResponse(
                     SC_OK,
                     null,
-                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    [(CONTENT_TYPE): APPLICATION_JSON],
                     createMappingJsonWithValues(rules: [[potato: [fries: [yummy: "yes"], hashBrowns: [:]]]]))
         }
 
@@ -429,7 +433,7 @@ class SamlFlow20Test extends ReposeValveTest {
             new DeproxyResponse(
                     SC_OK,
                     null,
-                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    [(CONTENT_TYPE): APPLICATION_JSON],
                     "Hi, Principal Skinner! Hi, Super Nintendo Chalmers.")
         }
 
@@ -449,7 +453,7 @@ class SamlFlow20Test extends ReposeValveTest {
             new DeproxyResponse(
                     SC_INTERNAL_SERVER_ERROR,
                     null,
-                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    [(CONTENT_TYPE): APPLICATION_JSON],
                     createIdentityFaultJsonWithValues(
                             name: "identityFault",
                             code: SC_INTERNAL_SERVER_ERROR,
@@ -475,7 +479,7 @@ class SamlFlow20Test extends ReposeValveTest {
             fullRequestPath = request.path
 
             def body = createIdpJsonWithValues(issuer: issuerParam)
-            def headers = [(CONTENT_TYPE): CONTENT_TYPE_JSON]
+            def headers = [(CONTENT_TYPE): APPLICATION_JSON]
             new DeproxyResponse(SC_OK, null, headers, body)
         }
 
@@ -487,7 +491,7 @@ class SamlFlow20Test extends ReposeValveTest {
         deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the requested issuer should match what was in the saml:response"
@@ -502,7 +506,7 @@ class SamlFlow20Test extends ReposeValveTest {
         String requestedIdpId = null
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
             requestedIdpId = idpId
-            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): CONTENT_TYPE_JSON], DEFAULT_MAPPING_POLICY)
+            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): APPLICATION_JSON], DEFAULT_MAPPING_POLICY)
         }
 
         and: "we're going to ensure the IDP ID returned is unique"
@@ -517,7 +521,7 @@ class SamlFlow20Test extends ReposeValveTest {
         deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the requested IDP ID should match what was returned from the first Identity call"
@@ -549,7 +553,7 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the origin service receives the request and the client receives the response"
@@ -571,11 +575,11 @@ class SamlFlow20Test extends ReposeValveTest {
         given: "the origin service will return an Identity fault as JSON"
         fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
             def values = [name: fault, code: code, message: message]
-            new DeproxyResponse(code, null, [(CONTENT_TYPE): CONTENT_TYPE_JSON], createIdentityFaultJsonWithValues(values))
+            new DeproxyResponse(code, null, [(CONTENT_TYPE): APPLICATION_JSON], createIdentityFaultJsonWithValues(values))
         }
 
         when: "the request is sent to Repose asking for a JSON response"
-        def mc = sendSamlRequestWithUniqueIssuer((ACCEPT): CONTENT_TYPE_JSON)
+        def mc = sendSamlRequestWithUniqueIssuer((ACCEPT): APPLICATION_JSON)
 
         then: "the client receives the response code sent by the origin service"
         mc.receivedResponse.code as Integer == code
@@ -600,11 +604,11 @@ class SamlFlow20Test extends ReposeValveTest {
         given: "the origin service will return an Identity fault as XML"
         fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
             def values = [name: fault, code: code, message: message]
-            new DeproxyResponse(code, null, [(CONTENT_TYPE): CONTENT_TYPE_XML], createIdentityFaultXmlWithValues(values))
+            new DeproxyResponse(code, null, [(CONTENT_TYPE): APPLICATION_XML], createIdentityFaultXmlWithValues(values))
         }
 
         when: "the request is sent to Repose asking for an XML response"
-        def mc = sendSamlRequestWithUniqueIssuer((ACCEPT): CONTENT_TYPE_XML)
+        def mc = sendSamlRequestWithUniqueIssuer((ACCEPT): APPLICATION_XML)
 
         then: "the client receives the response code sent by the origin service"
         mc.receivedResponse.code as Integer == code
@@ -622,7 +626,7 @@ class SamlFlow20Test extends ReposeValveTest {
         given: "the origin service will return a text/plain response"
         def responseBody = "This is a response. It is not very long."
         fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
-            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): CONTENT_TYPE_TEXT], responseBody)
+            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): TEXT_PLAIN], responseBody)
         }
 
         when:
@@ -649,7 +653,7 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_INTERNAL_SERVER_ERROR
 
         where:
-        contentType << [CONTENT_TYPE_JSON, CONTENT_TYPE_XML]
+        contentType << [APPLICATION_JSON, APPLICATION_XML]
     }
 
     def sendSamlRequestWithUniqueIssuer(Map headers = [:]) {
@@ -659,7 +663,7 @@ class SamlFlow20Test extends ReposeValveTest {
         deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED] + headers,
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED] + headers,
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
     }
 }
