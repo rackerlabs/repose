@@ -49,7 +49,7 @@ import com.google.common.cache.{Cache, CacheBuilder}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
 import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import net.sf.saxon.s9api.{DOMDestination, SaxonApiException, XsltExecutable}
+import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE, RETRY_AFTER}
@@ -250,6 +250,10 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       val assertions = assertionExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
       val issuers = issuerExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
       val signatures = signatureExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
+
+      if (assertions.getLength == 0) {
+        throw SamlPolicyException(SC_BAD_REQUEST, "At least one assertion is required")
+      }
 
       if (assertions.getLength != signatures.getLength) {
         throw SamlPolicyException(SC_BAD_REQUEST, "All assertions must be signed")
