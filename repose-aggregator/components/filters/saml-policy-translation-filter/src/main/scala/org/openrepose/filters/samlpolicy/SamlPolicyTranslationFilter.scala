@@ -402,14 +402,19 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     logger.debug("Starting the Response processing.")
     response.getContentType.toLowerCase match {
       case json if json.contains("json") =>
-        val destination = AttributeMapper.addExtendedAttributes(
-          AttributeMapper.parseJsonNode(new StreamSource(response.getOutputStreamAsInputStream)),
-          translatedSamlResponse,
-          validate = true,
-          XSDEngine.AUTO.toString)
-        val mapper = new ObjectMapper()
-        mapper.getFactory.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true)
-        Option(new ByteArrayInputStream(mapper.writeValueAsBytes(destination)))
+        try {
+          val destination = AttributeMapper.addExtendedAttributes(
+            AttributeMapper.parseJsonNode(new StreamSource(response.getOutputStreamAsInputStream)),
+            translatedSamlResponse,
+            validate = true,
+            XSDEngine.AUTO.toString)
+          val mapper = new ObjectMapper()
+          mapper.getFactory.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true)
+          Option(new ByteArrayInputStream(mapper.writeValueAsBytes(destination)))
+        } catch {
+          case jpe: JsonProcessingException =>
+            throw SamlPolicyException(SC_BAD_GATEWAY, "Origin service provided bad response", jpe)
+        }
       case xml if xml.contains("xml") =>
         var docBuilder: Option[DocumentBuilder] = None
         try {
@@ -420,11 +425,14 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
             validate = true,
             XSDEngine.AUTO.toString)
           Option(convertDocumentToStream(destination))
+        } catch {
+          case se@(_: SAXException | _: SaxonApiException) =>
+            throw SamlPolicyException(SC_BAD_GATEWAY, "Origin service provided bad response", se)
         } finally {
           docBuilder.foreach(XMLParserPool.returnParser)
         }
       case _ =>
-        None
+        throw SamlPolicyException(SC_BAD_GATEWAY, "Origin service provided bad response")
     }
   }
 
