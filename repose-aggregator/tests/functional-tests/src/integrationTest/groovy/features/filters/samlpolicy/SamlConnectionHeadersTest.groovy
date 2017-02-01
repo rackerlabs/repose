@@ -64,7 +64,7 @@ class SamlConnectionHeadersTest extends ReposeValveTest {
         fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
 
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         and: "we look for orphaned handlings matching the generate token endpoint"
         def adminHandlings = mc.orphanedHandlings.findAll { it.request.path.contains("/v2.0/tokens") && it.request.method == "POST" }
@@ -88,7 +88,7 @@ class SamlConnectionHeadersTest extends ReposeValveTest {
 
     def "the call to Identity to get the IDP ID for a given Issuer includes the expected headers"() {
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         and: "we look for orphaned handlings matching the Issuer to IDP ID endpoint"
         def issuerHandlings = mc.orphanedHandlings.findAll { isSamlIdpIssuerCallPath(it.request.path) && it.request.method == "GET" }
@@ -112,7 +112,7 @@ class SamlConnectionHeadersTest extends ReposeValveTest {
 
     def "the call to Identity to get the Mapping Policy for a given IDP ID includes the expected headers"() {
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         and: "we look for orphaned handlings matching the Mapping Policy to Issuer endpoint"
         def mappingPolicyHandlings = mc.orphanedHandlings.findAll { isSamlIdpMappingPolicyCallPath(it.request.path) && it.request.method == "GET" }
@@ -134,7 +134,7 @@ class SamlConnectionHeadersTest extends ReposeValveTest {
         mappingPolicyHandlings[0].request.headers.getFirstValue(TRACING_HEADER) == mc.handlings[0].request.headers.getFirstValue(TRACING_HEADER)
     }
 
-    def sendSamlRequest() {
+    def sendSamlRequestWithUniqueIssuer() {
         def samlIssuer = generateUniqueIssuer()
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
 
