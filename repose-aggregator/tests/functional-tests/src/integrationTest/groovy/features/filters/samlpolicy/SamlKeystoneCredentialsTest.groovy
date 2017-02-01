@@ -70,7 +70,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
 
     def "the admin token will only be generated once (as long as it remains valid)"() {
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         then: "the origin service receives the request and the client receives the response"
         mc.handlings[0]
@@ -81,7 +81,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
 
         when: "another request is sent to Repose"
         fakeIdentityV2Service.resetCounts()
-        mc = sendSamlRequest()
+        mc = sendSamlRequestWithUniqueIssuer()
 
         then: "the origin service receives the request and the client receives the response"
         mc.handlings[0]
@@ -93,7 +93,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
 
     def "the admin token will be generated again when the issuer call returns a 401"() {
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         then: "the origin service receives the request and the client receives the response"
         mc.handlings[0]
@@ -107,7 +107,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
 
         and: "another request is sent to Repose"
         fakeIdentityV2Service.resetCounts()
-        mc = sendSamlRequest()
+        mc = sendSamlRequestWithUniqueIssuer()
 
         then: "the origin service receives the request and the client receives the response"
         mc.handlings[0]
@@ -125,7 +125,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
         fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(skipAuthCheck: true)
 
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         then: "the origin service receives the request and the client receives the response"
         mc.handlings[0]
@@ -139,7 +139,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
 
         and: "another request is sent to Repose"
         fakeIdentityV2Service.resetCounts()
-        mc = sendSamlRequest()
+        mc = sendSamlRequestWithUniqueIssuer()
 
         then: "the origin service receives the request and the client receives the response"
         mc.handlings[0]
@@ -166,7 +166,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
         }
 
         when: "a request is sent to Repose"
-        def mc = sendSamlRequest()
+        def mc = sendSamlRequestWithUniqueIssuer()
 
         then: "the request does not get to the origin service"
         mc.handlings.isEmpty()
@@ -175,7 +175,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_INTERNAL_SERVER_ERROR
     }
 
-    def sendSamlRequest() {
+    def sendSamlRequestWithUniqueIssuer() {
         def samlIssuer = generateUniqueIssuer()
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
 
