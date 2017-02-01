@@ -43,7 +43,7 @@ import javax.xml.transform.stream.{StreamResult, StreamSource}
 import javax.xml.transform.{TransformerException, TransformerFactory}
 import javax.xml.xpath.{XPathConstants, XPathExpression}
 
-import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.core.{JsonGenerator, JsonProcessingException}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.cache.{Cache, CacheBuilder}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
@@ -402,30 +402,24 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     logger.debug("Starting the Response processing.")
     response.getContentType.toLowerCase match {
       case json if json.contains("json") =>
-        val baos = new ByteArrayOutputStream
-        val destination = AttributeMapper.processor.newSerializer(baos)
-        AttributeMapper.addExtendedAttributes(
-          new StreamSource(response.getOutputStreamAsInputStream),
-          new StreamSource(convertDocumentToStream(translatedSamlResponse)),
-          destination,
-          isJSON = true,
+        val destination = AttributeMapper.addExtendedAttributes(
+          AttributeMapper.parseJsonNode(new StreamSource(response.getOutputStreamAsInputStream)),
+          translatedSamlResponse,
           validate = true,
           XSDEngine.AUTO.toString)
-        Option(new ByteArrayInputStream(baos.toString().getBytes(response.getCharacterEncoding)))
+        val mapper = new ObjectMapper()
+        mapper.getFactory.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true)
+        Option(new ByteArrayInputStream(mapper.writeValueAsBytes(destination)))
       case xml if xml.contains("xml") =>
         var docBuilder: Option[DocumentBuilder] = None
         try {
           docBuilder = Option(XMLParserPool.borrowParser)
-          val outDoc = docBuilder.get.newDocument
-          val destination = new DOMDestination(outDoc)
-          AttributeMapper.addExtendedAttributes(
+          val destination = AttributeMapper.addExtendedAttributes(
             new StreamSource(response.getOutputStreamAsInputStream),
-            new StreamSource(convertDocumentToStream(translatedSamlResponse)),
-            destination,
-            isJSON = false,
+            translatedSamlResponse,
             validate = true,
             XSDEngine.AUTO.toString)
-          Option(convertDocumentToStream(outDoc))
+          Option(convertDocumentToStream(destination))
         } finally {
           docBuilder.foreach(XMLParserPool.returnParser)
         }
