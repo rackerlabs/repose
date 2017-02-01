@@ -40,12 +40,7 @@ import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithV
 import static framework.mocks.MockIdentityV2Service.createIdentityFaultXmlWithValues
 import static framework.mocks.MockIdentityV2Service.createIdpJsonWithValues
 import static framework.mocks.MockIdentityV2Service.createMappingJsonWithValues
-import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
-import static javax.servlet.http.HttpServletResponse.SC_OK
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
+import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON
 import static javax.ws.rs.core.MediaType.APPLICATION_XML
@@ -622,11 +617,12 @@ class SamlFlow20Test extends ReposeValveTest {
         SC_INTERNAL_SERVER_ERROR | "identityFault" | "Internal Server Error"
     }
 
-    def "an unsupported content-type from the origin service will be returned to the client unaltered"() {
+    def "a response with an unsupported content-type from the origin service will be returned to the client unaltered"() {
         given: "the origin service will return a text/plain response"
         def responseBody = "This is a response. It is not very long."
+        def contentType = TEXT_PLAIN
         fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
-            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): TEXT_PLAIN], responseBody)
+            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): contentType], responseBody)
         }
 
         when:
@@ -636,21 +632,27 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
 
         and: "the response was not altered by Repose"
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == contentType
         mc.receivedResponse.body as String == responseBody
     }
 
     @Unroll
-    def "a malformed response with content-type #contentType from the origin service will result in a 500 response"() {
+    def "a malformed response with content-type #contentType from the origin service will result in a 502 response"() {
         given: "the origin service will return a response that can't be parsed as the specified content-type"
+        def responseBody = "This is neither JSON nor XML."
         fakeIdentityV2Service.generateTokenFromSamlResponseHandler = { Request request, boolean shouldReturnXml ->
-            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): contentType], "This is neither JSON nor XML.")
+            new DeproxyResponse(SC_OK, null, [(CONTENT_TYPE): contentType], responseBody)
         }
 
-        when: "the request is sent to Repose asking a response with the specified content-type"
+        when: "the request is sent to Repose asking for a response with the specified content-type"
         def mc = sendSamlRequestWithUniqueIssuer((ACCEPT): contentType)
 
-        then: "the client receives a 500"
-        mc.receivedResponse.code as Integer == SC_INTERNAL_SERVER_ERROR
+        then: "the origin service returns the malformed data"
+        mc.handlings[0]
+        mc.handlings[0].response.body as String == responseBody
+
+        and: "the client receives a 502"
+        mc.receivedResponse.code as Integer == SC_BAD_GATEWAY
 
         where:
         contentType << [APPLICATION_JSON, APPLICATION_XML]
