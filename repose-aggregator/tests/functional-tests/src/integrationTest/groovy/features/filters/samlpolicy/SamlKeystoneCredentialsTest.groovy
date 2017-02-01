@@ -32,7 +32,8 @@ import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithV
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import static javax.servlet.http.HttpServletResponse.SC_OK
-
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON
 
 /**
  * This functional test exercises the keystone credentials logic.
@@ -157,7 +158,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
             new Response(
                     SC_FORBIDDEN,
                     null,
-                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    [(CONTENT_TYPE): APPLICATION_JSON],
                     createIdentityFaultJsonWithValues(
                             name: "forbidden",
                             code: SC_FORBIDDEN,
@@ -181,7 +182,7 @@ class SamlKeystoneCredentialsTest extends ReposeValveTest {
         deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
     }
 }

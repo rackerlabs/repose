@@ -29,6 +29,7 @@ import static features.filters.samlpolicy.util.SamlUtilities.*
 import static framework.mocks.MockIdentityV2Service.isSamlIdpIssuerCallPath
 import static framework.mocks.MockIdentityV2Service.isSamlIdpMappingPolicyCallPath
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 
 /**
  * This functional test verifies we can turn the tracing header off for the requests being made by the SAML filter.
@@ -122,7 +123,7 @@ class SamlNoTracingHeaderTest extends ReposeValveTest {
         deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
     }
 }

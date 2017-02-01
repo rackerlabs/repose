@@ -35,6 +35,9 @@ import static features.filters.samlpolicy.util.SamlUtilities.*
 import static framework.mocks.MockIdentityV2Service.createIdpJsonWithValues
 import static framework.mocks.MockIdentityV2Service.createMappingJsonWithValues
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON
+import static javax.ws.rs.core.MediaType.APPLICATION_XML
 
 /**
  * This functional test ensures the attribute mappings are being set correctly on the request and the response.
@@ -101,7 +104,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the origin service receives the request"
@@ -151,12 +154,12 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED, (ACCEPT): APPLICATION_JSON],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client receives JSON successfully"
         mc.receivedResponse.code as Integer == SC_OK
-        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_JSON
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_JSON
 
         when: "the response sent to the client is parsed as JSON"
         def json = jsonSlurper.parseText(mc.receivedResponse.body as String)
@@ -193,12 +196,12 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_XML],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED, (ACCEPT): APPLICATION_XML],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client receives XML successfully"
         mc.receivedResponse.code as Integer == SC_OK
-        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == CONTENT_TYPE_XML
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_XML
 
         when: "the response sent to the client is parsed as XML"
         def access = xmlSlurper.parseText(mc.receivedResponse.body as String)
@@ -249,7 +252,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
             new Response(
                     SC_OK,
                     null,
-                    [(CONTENT_TYPE): CONTENT_TYPE_JSON],
+                    [(CONTENT_TYPE): APPLICATION_JSON],
                     createIdpJsonWithValues(issuer: issuer, id: issuerToIdpId.get(issuer)))
         }
         Map idpIdToMapping = [idpIds, mappingPolicies].transpose().collectEntries()
@@ -261,7 +264,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
             deproxy.makeRequest(
                     url: reposeEndpoint + SAML_AUTH_URL,
                     method: HTTP_POST,
-                    headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
+                    headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED, (ACCEPT): APPLICATION_JSON],
                     requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
         }
 
@@ -301,7 +304,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
             deproxy.makeRequest(
                     url: reposeEndpoint + SAML_AUTH_URL,
                     method: HTTP_POST,
-                    headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
+                    headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED, (ACCEPT): APPLICATION_JSON],
                     requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
         }
 
@@ -342,7 +345,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED, (ACCEPT): APPLICATION_JSON],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the origin service receives the request and the client receives the response"
@@ -389,7 +392,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED, (ACCEPT): CONTENT_TYPE_JSON],
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED, (ACCEPT): APPLICATION_JSON],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the origin service receives the request and the client receives the response"

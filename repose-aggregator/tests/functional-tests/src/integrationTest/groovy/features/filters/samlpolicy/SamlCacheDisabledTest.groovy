@@ -27,6 +27,7 @@ import org.rackspace.deproxy.Deproxy
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 
 /**
  * This functional test verifies that the cache can be turned off.
@@ -61,7 +62,7 @@ class SamlCacheDisabledTest extends ReposeValveTest {
     def "when the same saml:response is sent multiple times (same Issuer), the mapping policy should be retrieved from Identity each time"() {
         given: "the same saml:response will be used in each request"
         def url = reposeEndpoint + SAML_AUTH_URL
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
+        def headers = [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED]
         def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(SAML_ONE_ASSERTION_SIGNED))
 
         and: "we will make several requests"
@@ -88,7 +89,7 @@ class SamlCacheDisabledTest extends ReposeValveTest {
         given: "the same issuer will be used to generate each unique saml:response"
         def samlIssuer = generateUniqueIssuer()
         def url = reposeEndpoint + SAML_AUTH_URL
-        def headers = [(CONTENT_TYPE): CONTENT_TYPE_FORM_URLENCODED]
+        def headers = [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED]
 
         and: "we will make several requests"
         def numOfRequests = 21
