@@ -1213,7 +1213,33 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     val sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     sdf.setTimeZone(TimeZone.getTimeZone("GMT"))
 
-    Seq("CREATE", "UPDATE", "DELETE").foreach { eventType =>
+    def buildAtomEntry(eventType: String, serviceCode: String, resourceType: String, issuer: String): String = {
+      // This was taken from: https://github.rackspace.com/jorge-williams/Platform_Architecture/blob/21b0c8fa6cd9df286c10e9bd08751207f4aea2d4/AttribMap.pdf
+      s"""<atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
+         |            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+         |            xmlns="http://www.w3.org/2001/XMLSchema">
+         |  <atom:title>CloudIdentity</atom:title>
+         |  <atom:content type="application/xml">
+         |    <event xmlns="http://docs.rackspace.com/core/event"
+         |           xmlns:idfed="http://docs.rackspace.com/event/identity/idp"
+         |           id="${UUID.randomUUID().toString}"
+         |           version="2"
+         |           resourceId="_${UUID.randomUUID().toString}"
+         |           eventTime="${sdf.format(new Date())}"
+         |           type="$eventType"
+         |           dataCenter="DFW1"
+         |           region="DFW">
+         |      <idfed:product serviceCode="$serviceCode"
+         |                     version="1"
+         |                     resourceType="$resourceType"
+         |                     issuer="$issuer"/>
+         |    </event>
+         |  </atom:content>
+         |</atom:entry>
+         |""".stripMargin
+    }
+
+    Seq("CREATE", "UPDATE", "DELETE", "Surprise").foreach { eventType =>
       it(s"removes the policy from the cache on a $eventType event") {
         filter.configurationUpdated(buildConfig(ttl = 60))
 
@@ -1235,32 +1261,65 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         policyCache.put(issuer, xslExec)
 
         // This was taken from: https://github.rackspace.com/jorge-williams/Platform_Architecture/blob/21b0c8fa6cd9df286c10e9bd08751207f4aea2d4/AttribMap.pdf
-        filterSpy.onNewAtomEntry( // Remove the cached issuers policy.
-          s"""<atom:entry xmlns:atom="http://www.w3.org/2005/Atom"
-             |            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-             |            xmlns="http://www.w3.org/2001/XMLSchema">
-             |  <atom:title>CloudIdentity</atom:title>
-             |  <atom:content type="application/xml">
-             |    <event xmlns="http://docs.rackspace.com/core/event"
-             |           xmlns:idfed="http://docs.rackspace.com/event/identity/idp"
-             |           id="${UUID.randomUUID().toString}"
-             |           version="2"
-             |           resourceId="_${UUID.randomUUID().toString}"
-             |           eventTime="${sdf.format(new Date())}"
-             |           type="$eventType"
-             |           dataCenter="DFW1"
-             |           region="DFW">
-             |      <idfed:product serviceCode="CloudIdentity"
-             |                     version="1"
-             |                     resourceType="IDP"
-             |                     issuer="$issuer"/>
-             |    </event>
-             |  </atom:content>
-             |</atom:entry>
-             |""".stripMargin)
+        // Remove the cached issuers policy.
+        filterSpy.onNewAtomEntry(buildAtomEntry(eventType, "CloudIdentity", "IDP", issuer))
 
         policyCache.getIfPresent(issuer) shouldBe null
       }
+
+      Seq(("Surprise", "IDP"), ("CloudIdentity", "Surprise"), ("Surprise", "Surprise")).foreach { case (serviceCode, resourceType) =>
+        it(s"doesn't remove the policy from the cache when eventType='$eventType', serviceCode='$serviceCode', & resourceType='$resourceType'") {
+          filter.configurationUpdated(buildConfig(ttl = 60))
+
+          val filterSpy: SamlPolicyTranslationFilter = spy(filter)
+
+          // Cache the issuers policy.
+          val xslExec = AttributeMapper.compiler.compile(new StreamSource(new ByteArrayInputStream(
+            """
+              |<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+              |  <xsl:template match="/">
+              |    <xsl:copy-of select="."/>
+              |  </xsl:template>
+              |</xsl:stylesheet>
+            """.stripMargin.getBytes)))
+          val policyCache = ReflectionTestUtils.getField(
+            filterSpy,
+            "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache"
+          ).asInstanceOf[GCache[String, XsltExecutable]]
+          policyCache.put(issuer, xslExec)
+
+          // Remove the cached issuers policy.
+          filterSpy.onNewAtomEntry(buildAtomEntry(eventType, serviceCode, resourceType, issuer))
+
+          policyCache.getIfPresent(issuer) shouldNot be(null)
+        }
+      }
+    }
+
+    it(s"doesn't remove the policy from the cache when it is a bogus event") {
+      filter.configurationUpdated(buildConfig(ttl = 60))
+
+      val filterSpy: SamlPolicyTranslationFilter = spy(filter)
+
+      // Cache the issuers policy.
+      val xslExec = AttributeMapper.compiler.compile(new StreamSource(new ByteArrayInputStream(
+        """
+          |<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          |  <xsl:template match="/">
+          |    <xsl:copy-of select="."/>
+          |  </xsl:template>
+          |</xsl:stylesheet>
+        """.stripMargin.getBytes)))
+      val policyCache = ReflectionTestUtils.getField(
+        filterSpy,
+        "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache"
+      ).asInstanceOf[GCache[String, XsltExecutable]]
+      policyCache.put(issuer, xslExec)
+
+      // Remove the cached issuers policy.
+      filterSpy.onNewAtomEntry("Bogus Event")
+
+      policyCache.getIfPresent(issuer) shouldNot be(null)
     }
   }
 
