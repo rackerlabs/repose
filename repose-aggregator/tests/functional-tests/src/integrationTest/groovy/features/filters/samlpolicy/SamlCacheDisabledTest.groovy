@@ -67,10 +67,11 @@ class SamlCacheDisabledTest extends ReposeValveTest {
         def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(SAML_ONE_ASSERTION_SIGNED))
 
         and: "we will make several requests"
-        def numOfRequests = 22
+        def numOfRequests = 8
 
         when:
         def mcs = (1..numOfRequests).collect {
+            sleep(500) //needed to bust the akka cache
             deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
         }
 
@@ -93,10 +94,11 @@ class SamlCacheDisabledTest extends ReposeValveTest {
         def headers = [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED]
 
         and: "we will make several requests"
-        def numOfRequests = 21
+        def numOfRequests = 7
 
         when:
         def mcs = (1..numOfRequests).collect {
+            sleep(500) //needed to bust the akka cache
             def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
             def requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
             deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
