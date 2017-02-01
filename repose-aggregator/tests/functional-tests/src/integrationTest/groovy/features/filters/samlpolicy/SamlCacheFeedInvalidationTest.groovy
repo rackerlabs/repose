@@ -132,7 +132,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         mc.handlings[0]
 
         where:
-        eventType << ["CREATE", "UPDATE", "DELETE"]
+        eventType << ["CREATE", "UPDATE", "DELETE", "Surprise"]
     }
 
     def "when an atom feed is received with multiple entries containing multiple issuers, the correct mapping policies are removed from the cache"() {
@@ -199,7 +199,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "when an atom feed entry with serviceCode '#serviceCode', resourceType '#resourceType', and type '#eventType' is received for the same issuer (#issuerMatch), the mapping policy is NOT removed from the cache"() {
+    def "when an atom feed entry with serviceCode '#serviceCode' and resourceType '#resourceType' is received for the same issuer (#issuerMatch), the mapping policy is NOT removed from the cache"() {
         given: "the same issuer will be used to generate each unique saml:response"
         def samlIssuer = generateUniqueIssuer()
         def url = reposeEndpoint + SAML_AUTH_URL
@@ -207,7 +207,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
 
         and: "an atom feed entry will be received with the specific values for the specific test"
         def atomFeedEntry = fakeAtomFeed.atomEntryForIdpUpdate(
-                serviceCode: serviceCode, resourceType: resourceType, eventType: eventType, issuer: issuerMatch ? samlIssuer : "pineapple")
+                serviceCode: serviceCode, resourceType: resourceType, eventType: "UPDATE", issuer: issuerMatch ? samlIssuer : "pineapple")
         def atomFeedHandlerWithEntry = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
         when: "a request is sent for the first time"
@@ -257,10 +257,9 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         mc.handlings[0]
 
         where:
-        serviceCode     | resourceType  | eventType  | issuerMatch
-        "RandomService" | RESOURCE_TYPE | "UPDATE"   | true
-        SERVICE_CODE    | "POTATO_FARM" | "UPDATE"   | true
-        SERVICE_CODE    | RESOURCE_TYPE | "SURPRISE" | true
-        SERVICE_CODE    | RESOURCE_TYPE | "UPDATE"   | false
+        serviceCode     | resourceType  | issuerMatch
+        "RandomService" | RESOURCE_TYPE | true
+        SERVICE_CODE    | "POTATO_FARM" | true
+        SERVICE_CODE    | RESOURCE_TYPE | false
     }
 }
