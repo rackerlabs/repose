@@ -1048,12 +1048,6 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
   }
 
-  val clazz = getClass
-  def removeWhitespace(s: String): String = s.replaceAll("\\s+", "")
-  def resourceAsString(resourceName: String): String = streamToString(clazz.getResourceAsStream(resourceName))
-  def streamToString(inputStream: InputStream): String = scala.io.Source.fromInputStream(inputStream).mkString
-  val translatedIDPStr = resourceAsString("/tidp-mapping-rule-ext-attribute2-2.xml")
-  val translatedIDPDoc = makeDocument(translatedIDPStr)
   describe("convertDocumentToStream") {
     it("should convert a Document to a ServletInputStream") {
       val stream = filter.convertDocumentToStream(translatedIDPDoc)
@@ -1063,13 +1057,142 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("addExtendedAttributes") {
-    Seq((APPLICATION_JSON, clazz.getResourceAsStream("/os-mapping-rule-ext-attribute2-2.json"), clazz.getResourceAsStream("/response-mapping-rule-ext-attribute2-2.json")),
-      (APPLICATION_XML, clazz.getResourceAsStream("/os-mapping-rule-ext-attribute2-2.xml"), clazz.getResourceAsStream("/response-mapping-rule-ext-attribute2-2.xml"))).foreach {
+    val originJson =
+      """{
+        |  "access": {
+        |    "serviceCatalog": [],
+        |    "token": {
+        |      "RAX-AUTH:authenticatedBy": [
+        |        "PASSWORD"
+        |      ],
+        |      "expires": "2016-10-19T03:08:21.154Z",
+        |      "id": "AABNP1tN2MWDL9Edr6fkrb8vSqxC8ZhkcnMfv6f5zKfV5fFrtJ5lbgGwWroBFY_iT-lW9f7W0GRCYKZpaqfVGGoOvkgNynfBK8ZhSSAfFvmazX9Zc-twJEBd"
+        |    },
+        |    "user": {
+        |      "RAX-AUTH:defaultRegion": "",
+        |      "id": "user123",
+        |      "name": "user123",
+        |      "roles": [
+        |        {
+        |          "name": "user"
+        |        },
+        |        {
+        |          "name": "admin"
+        |        },
+        |        {
+        |          "name": "test"
+        |        }
+        |      ]
+        |    }
+        |  }
+        |}""".stripMargin
+    val responseJson =
+      """{
+        |  "access": {
+        |    "serviceCatalog": [],
+        |    "token": {
+        |      "RAX-AUTH:authenticatedBy": [
+        |        "PASSWORD"
+        |      ],
+        |      "expires": "2016-10-19T03:08:21.154Z",
+        |      "id": "AABNP1tN2MWDL9Edr6fkrb8vSqxC8ZhkcnMfv6f5zKfV5fFrtJ5lbgGwWroBFY_iT-lW9f7W0GRCYKZpaqfVGGoOvkgNynfBK8ZhSSAfFvmazX9Zc-twJEBd"
+        |    },
+        |    "user": {
+        |      "RAX-AUTH:defaultRegion": "",
+        |      "id": "user123",
+        |      "name": "user123",
+        |      "roles": [
+        |        {
+        |          "name": "user"
+        |        },
+        |        {
+        |          "name": "admin"
+        |        },
+        |        {
+        |          "name": "test"
+        |        }
+        |      ]
+        |    },
+        |    "RAX-AUTH:extendedAttributes": {
+        |      "user": {
+        |        "foo": "2017-01-25T21:50:56.399-06:00"
+        |      },
+        |      "test": {
+        |        "policy": [
+        |          "TestPolicy",
+        |          "TestPolicy2",
+        |          "TestPolicy YEA!",
+        |          "TestPolicy3",
+        |          "TestPolicy YEA!!"
+        |        ]
+        |      }
+        |    }
+        |  }
+        |}""".stripMargin
+    val originXml =
+      """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        |<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+        |        xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+        |    <token expires="2017-01-26T14:17:34.455Z"
+        |           id="AAC9CRHnJjmSziTDtHbLfAQyc7KLgpY9Xhs39Jato8xLmdng9lWaJtd_0lCyaNp_VTJoXwn6R1xBXlnB3EDU5l7lmmAf4dGbYz7lx_S3onPZa44jerMkdH7b">
+        |        <rax-auth:authenticatedBy>
+        |            <rax-auth:credential>PASSWORD</rax-auth:credential>
+        |        </rax-auth:authenticatedBy>
+        |    </token>
+        |    <user id="user123" name="user123">
+        |        <roles>
+        |            <role name="user"/>
+        |            <role name="admin"/>
+        |            <role name="test"/>
+        |        </roles>
+        |    </user>
+        |    <serviceCatalog/>
+        |</access>
+        |""".stripMargin
+    val responseXml =
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+        |        xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+        |    <token expires="2017-01-26T14:17:34.455Z"
+        |           id="AAC9CRHnJjmSziTDtHbLfAQyc7KLgpY9Xhs39Jato8xLmdng9lWaJtd_0lCyaNp_VTJoXwn6R1xBXlnB3EDU5l7lmmAf4dGbYz7lx_S3onPZa44jerMkdH7b">
+        |        <rax-auth:authenticatedBy>
+        |            <rax-auth:credential>PASSWORD</rax-auth:credential>
+        |        </rax-auth:authenticatedBy>
+        |    </token>
+        |    <user id="user123" name="user123">
+        |        <roles>
+        |            <role name="user"/>
+        |            <role name="admin"/>
+        |            <role name="test"/>
+        |        </roles>
+        |    </user>
+        |    <serviceCatalog/>
+        |    <RAX-AUTH:extendedAttributes xmlns="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+        |                                 xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+        |        <group name="user">
+        |            <attribute name="foo">
+        |                <value>2017-01-25T21:50:56.399-06:00</value>
+        |            </attribute>
+        |        </group>
+        |        <group name="test">
+        |            <attribute name="policy">
+        |                <value>TestPolicy</value>
+        |                <value>TestPolicy2</value>
+        |                <value>TestPolicy YEA!</value>
+        |                <value>TestPolicy3</value>
+        |                <value>TestPolicy YEA!!</value>
+        |            </attribute>
+        |        </group>
+        |    </RAX-AUTH:extendedAttributes>
+        |</access>
+        |""".stripMargin
+    Seq((APPLICATION_JSON, originJson, responseJson),
+      (APPLICATION_XML, originXml, responseXml)).foreach {
       case (mediaType, osBody, responseBody) =>
         it(s"should add the Extended Attributes for media type $mediaType") {
           val responseWrapper = new HttpServletResponseWrapper(mock[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
           responseWrapper.setContentType(mediaType)
-          responseWrapper.setOutput(osBody)
+          responseWrapper.setOutput(stringToStream(osBody))
           val inStreamOption = filter.addExtendedAttributes(responseWrapper, translatedIDPDoc)
           assert(inStreamOption.isDefined)
           assert(removeWhitespace(streamToString(responseBody)) === removeWhitespace(streamToString(inStreamOption.get)))
@@ -1393,6 +1516,110 @@ object SamlPolicyTranslationFilterTest {
 
   val samlResponseDoc: Document = makeDocument(samlResponseStr)
 
+  val translatedIDPStr: String =
+    """<?xml version="1.0" encoding="UTF-8"?>
+      |<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+      |                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
+      |                 ID="_7fcd6173-e6e0-45a4-a2fd-74a4ef85bf30"
+      |                 IssueInstant="2015-12-04T15:47:15.057Z"
+      |                 Version="2.0">
+      |    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">http://test.rackspace.com</saml2:Issuer>
+      |    <saml2p:Status>
+      |        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+      |    </saml2p:Status>
+      |    <saml2:Assertion xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+      |                     xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+      |                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      |                     ID="_406fb7fe-a519-4919-a42c-f67794a670a5__RAX__"
+      |                     IssueInstant="2013-11-15T16:19:06.310Z"
+      |                     Version="2.0">
+      |        <saml2:Issuer>http://my.rackspace.com</saml2:Issuer>
+      |        <saml2:Subject>
+      |            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">john.doe</saml2:NameID>
+      |            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+      |                <saml2:SubjectConfirmationData NotOnOrAfter="2013-11-17T16:19:06.298Z"/>
+      |            </saml2:SubjectConfirmation>
+      |        </saml2:Subject>
+      |        <saml2:AuthnStatement AuthnInstant="2013-11-15T16:19:04.055Z">
+      |            <saml2:AuthnContext>
+      |                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+      |                </saml2:AuthnContextClassRef>
+      |            </saml2:AuthnContext>
+      |        </saml2:AuthnStatement>
+      |        <saml2:AttributeStatement>
+      |            <saml2:Attribute Name="email">
+      |                <saml2:AttributeValue xsi:type="xs:string">no-reply@rackspace.com</saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="domain">
+      |                <saml2:AttributeValue xsi:type="xs:string">323676</saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="roles">
+      |                <saml2:AttributeValue xsi:type="xs:string">nova:admin</saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="user/foo">
+      |                <saml2:AttributeValue xsi:type="xs:dateTime">2017-01-25T21:50:56.399-06:00</saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="test/policy">
+      |                <saml2:AttributeValue xsi:type="xs:string">TestPolicy</saml2:AttributeValue>
+      |                <saml2:AttributeValue xsi:type="xs:string">TestPolicy2</saml2:AttributeValue>
+      |                <saml2:AttributeValue xsi:type="xs:string">TestPolicy YEA!</saml2:AttributeValue>
+      |                <saml2:AttributeValue xsi:type="xs:string">TestPolicy3</saml2:AttributeValue>
+      |                <saml2:AttributeValue xsi:type="xs:string">TestPolicy YEA!!</saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |        </saml2:AttributeStatement>
+      |    </saml2:Assertion>
+      |    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+      |                     ID="_406fb7fe-a519-4919-a42c-f67794a670a5"
+      |                     IssueInstant="2013-11-15T16:19:06.310Z"
+      |                     Version="2.0">
+      |        <saml2:Issuer>http://my.rackspace.com</saml2:Issuer>
+      |        <saml2:Subject>
+      |            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">john.doe</saml2:NameID>
+      |            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+      |                <saml2:SubjectConfirmationData NotOnOrAfter="2013-11-17T16:19:06.298Z"/>
+      |            </saml2:SubjectConfirmation>
+      |        </saml2:Subject>
+      |        <saml2:AuthnStatement AuthnInstant="2013-11-15T16:19:04.055Z">
+      |            <saml2:AuthnContext>
+      |                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+      |                </saml2:AuthnContextClassRef>
+      |            </saml2:AuthnContext>
+      |        </saml2:AuthnStatement>
+      |        <saml2:AttributeStatement>
+      |            <saml2:Attribute Name="roles">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+      |                    nova:admin
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="domain">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+      |                    323676
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="email">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+      |                    no-reply@rackspace.com
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="bar">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">BAR!
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="FirstName">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">John
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |            <saml2:Attribute Name="LastName">
+      |                <saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">Doe
+      |                </saml2:AttributeValue>
+      |            </saml2:Attribute>
+      |        </saml2:AttributeStatement>
+      |    </saml2:Assertion>
+      |</saml2p:Response>
+      |""".stripMargin
+
+  val translatedIDPDoc: Document = makeDocument(translatedIDPStr)
+
   def makeDocument(stringDocument: String): Document = {
     val documentBuilderFactory = DocumentBuilderFactory.newInstance()
     documentBuilderFactory.setNamespaceAware(true)
@@ -1400,6 +1627,10 @@ object SamlPolicyTranslationFilterTest {
   }
 
   private val LOG: Logger = LoggerFactory.getLogger(classOf[SamlPolicyTranslationFilterTest].getName)
+
+  def removeWhitespace(s: String): String = s.replaceAll("\\s+", "")
+  def stringToStream(s: String): InputStream = new ByteArrayInputStream(s.getBytes(UTF_8))
+  def streamToString(inputStream: InputStream): String = scala.io.Source.fromInputStream(inputStream).mkString
 
   def initOpenSAML(): Unit = {
     // Adapted from: A Guide to OpenSAML V3 by Stefan Rasmusson pg 32
