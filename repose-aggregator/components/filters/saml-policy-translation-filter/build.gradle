@@ -4,6 +4,7 @@ dependencies {
     compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
     compile "org.scala-lang:scala-library"
     compile "org.springframework:spring-beans"
+    compile "org.springframework:spring-web"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "com.google.guava:guava"
