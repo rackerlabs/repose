@@ -78,6 +78,11 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         }
     }
 
+    def cleanup() {
+        repose?.stop()
+        deproxy?.shutdown()
+    }
+
     def "when no atom feed is initially configured but one gets configured while Repose is running, the filter should start reading from the feed"() {
         given: "we start Repose with no atom feed configured for the SAML filter"
         repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/nofeed", params)
@@ -316,6 +321,7 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         waitForReposeToLoadConfiguration()
 
         when: "another round of requests are sent"
+        fakeIdentityV2Service.resetCounts()
         mc = sendSamlRequest(samlIssuer)
         mc2 = sendSamlRequest(samlIssuer2)
 
@@ -432,7 +438,7 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         mc.handlings[0]
 
         when: "we update the filter's configuration to switch to a different atom feed"
-        repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/feedone", params)
+        repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/feedtwo", params)
 
         then:
         waitForReposeToLoadConfiguration()
@@ -469,11 +475,12 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         mc.handlings[0]
 
         when: "the atom feed entry is made available on the newly configured atom feed and we wait until Repose logs that it processed the entry"
+        reposeLogSearch.cleanLog()
         atomEndpointTwo.defaultHandler = atomFeedHandlerWithEntry
         reposeLogSearch.awaitByString(ATOM_FEED_LOG_SEARCH_STRING, 1, FEED_POLLING_FREQUENCY_SEC + 1)
 
         and: "we wait for the akka cache to time out and reset the mock call counts"
-        atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+        atomEndpointTwo.defaultHandler = fakeAtomFeed.handler
         sleep(AKKA_CACHE_TIMEOUT_MILLIS)
         fakeIdentityV2Service.resetCounts()
 
