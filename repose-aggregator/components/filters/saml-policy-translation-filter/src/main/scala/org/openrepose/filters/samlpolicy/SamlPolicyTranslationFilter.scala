@@ -30,7 +30,8 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.HttpHeaders._
+import javax.ws.rs.core.MediaType._
 import javax.xml.crypto.NoSuchMechanismException
 import javax.xml.crypto.dsig.dom.DOMSignContext
 import javax.xml.crypto.dsig.keyinfo.KeyInfo
@@ -51,8 +52,7 @@ import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
-import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_LENGTH, CONTENT_TYPE, RETRY_AFTER}
+import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, FileUtilities}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
@@ -115,13 +115,23 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     )
   }
 
+  def preValidateRequest(request: HttpServletRequest): Unit = {
+    if (!"POST".equalsIgnoreCase(request.getMethod)) {
+      throw SamlPolicyException(SC_METHOD_NOT_ALLOWED, "Unsupported method")
+    }
+    if (!APPLICATION_FORM_URLENCODED.equalsIgnoreCase(request.getHeader(CONTENT_TYPE))) {
+      throw SamlPolicyException(SC_UNSUPPORTED_MEDIA_TYPE, "Unsupported content")
+    }
+  }
+
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
     try {
+      preValidateRequest(servletRequest.asInstanceOf[HttpServletRequest])
       val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
       var response = servletResponse.asInstanceOf[HttpServletResponse]
       val samlResponse = decodeSamlResponse(request)
       val rawDocument = readToDom(samlResponse)
-      val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
+      val traceId = Option(request.getHeader(TRACE_GUID.toString)).filter(_ => sendTraceHeader)
 
       val version = determineVersion(rawDocument)
       val finalDocument = version match {
@@ -139,7 +149,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       }
       val inputStream = convertDocumentToStream(finalDocument)
 
-      request.replaceHeader(CONTENT_TYPE.toString, MediaType.APPLICATION_XML)
+      request.replaceHeader(CONTENT_TYPE, APPLICATION_XML)
       request.removeHeader(CONTENT_LENGTH.toString)
       request.replaceHeader("Transfer-Encoding", "chunked")
 
@@ -175,20 +185,16 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if decoding fails
     */
   def decodeSamlResponse(request: HttpServletRequest): InputStream = {
-    if ("POST".equalsIgnoreCase(request.getMethod)) {
-      try {
-        Option(request.getParameter("SAMLResponse"))
-          .map(Base64.getDecoder.decode)
-          .map(new ByteArrayInputStream(_))
-          .get
-      } catch {
-        case nse: NoSuchElementException =>
-          throw SamlPolicyException(SC_BAD_REQUEST, "No SAMLResponse value found", nse)
-        case iae: IllegalArgumentException =>
-          throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse is not in valid Base64 scheme", iae)
-      }
-    } else {
-      throw SamlPolicyException(SC_METHOD_NOT_ALLOWED, "Unsupported method")
+    try {
+      Option(request.getParameter("SAMLResponse"))
+        .map(Base64.getDecoder.decode)
+        .map(new ByteArrayInputStream(_))
+        .get
+    } catch {
+      case nse: NoSuchElementException =>
+        throw SamlPolicyException(SC_BAD_REQUEST, "No SAMLResponse value found", nse)
+      case iae: IllegalArgumentException =>
+        throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse is not in valid Base64 scheme", iae)
     }
   }
 
