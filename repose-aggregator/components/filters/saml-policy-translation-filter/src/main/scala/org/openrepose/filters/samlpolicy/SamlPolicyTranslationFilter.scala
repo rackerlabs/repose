@@ -115,16 +115,17 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     )
   }
 
-  def preValidateRequest(request: HttpServletRequest): Unit = {
-    if (!"POST".equalsIgnoreCase(request.getMethod)) {
-      throw SamlPolicyException(SC_METHOD_NOT_ALLOWED, "Unsupported method")
-    }
-    if (!APPLICATION_FORM_URLENCODED.equalsIgnoreCase(request.getHeader(CONTENT_TYPE))) {
-      throw SamlPolicyException(SC_UNSUPPORTED_MEDIA_TYPE, "Unsupported content")
-    }
-  }
-
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
+
+    def preValidateRequest(request: HttpServletRequest): Unit = {
+      if (!"POST".equalsIgnoreCase(request.getMethod)) {
+        throw SamlPolicyException(SC_METHOD_NOT_ALLOWED, "Unsupported method")
+      }
+      if (!APPLICATION_FORM_URLENCODED.equalsIgnoreCase(request.getHeader(CONTENT_TYPE))) {
+        throw SamlPolicyException(SC_UNSUPPORTED_MEDIA_TYPE, "Unsupported content")
+      }
+    }
+
     try {
       preValidateRequest(servletRequest.asInstanceOf[HttpServletRequest])
       val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
