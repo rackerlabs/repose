@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
 import javax.inject.{Inject, Named}
-import javax.servlet.http.HttpServletResponse.{SC_OK, SC_REQUEST_ENTITY_TOO_LARGE}
+import javax.servlet.http.HttpServletResponse.{SC_OK, SC_REQUEST_ENTITY_TOO_LARGE, SC_UNAUTHORIZED}
 import javax.ws.rs.core.MediaType
 
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
@@ -167,7 +167,10 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
                 .getOrElse(StandardCharsets.ISO_8859_1.name())
               val jsonResponse = Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString
               val json = Json.parse(jsonResponse)
-              ((json \ "RAX-AUTH:identityProviders")(0) \ "id").as[String]
+              ((json \ "RAX-AUTH:identityProviders")(0) \ "id").asOpt[String] match {
+                case Some(idpId) => idpId
+                case None => throw SamlPolicyException(SC_UNAUTHORIZED, "Unknown issuer")
+              }
             } recover {
               case f: Exception =>
                 throw GenericIdentityException("IDP ID could not be parsed from response from Identity", f)
