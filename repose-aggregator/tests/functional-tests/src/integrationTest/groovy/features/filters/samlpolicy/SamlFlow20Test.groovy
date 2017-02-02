@@ -52,6 +52,9 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN
  * This functional test goes through the validation logic unique to Flow 2.0.
  */
 class SamlFlow20Test extends ReposeValveTest {
+    static final String RESERVED_QUERY_PARAM_CHARS = "=+&#"
+    static final String ENCODED_RESERVED_QUERY_PARAM_CHARS = "%3D%2B%26%23"
+
     static samlUtilities = new SamlUtilities()
     static jsonSlurper = new JsonSlurper()
     static MockIdentityV2Service fakeIdentityV2Service
@@ -478,7 +481,8 @@ class SamlFlow20Test extends ReposeValveTest {
         }
 
         and: "the Issuer is unique which will force the call to Identity (avoiding the cache)"
-        def samlIssuer = generateUniqueIssuer()
+        def samlIssuerPart = generateUniqueIssuer()
+        def samlIssuer = samlIssuerPart + RESERVED_QUERY_PARAM_CHARS
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
 
         when:
@@ -491,8 +495,8 @@ class SamlFlow20Test extends ReposeValveTest {
         then: "the requested issuer should match what was in the saml:response"
         requestedIssuerParam == samlIssuer
 
-        and: "the raw path should not contain the issuer since it should have been URL encoded"
-        !fullRequestPath.contains(samlIssuer)
+        and: "the raw path should contain the query param encoded issuer"
+        fullRequestPath.contains(samlIssuerPart + ENCODED_RESERVED_QUERY_PARAM_CHARS)
     }
 
     def "Identity is queried with the correct IDP ID when looking for the identity provider mapping policy"() {
