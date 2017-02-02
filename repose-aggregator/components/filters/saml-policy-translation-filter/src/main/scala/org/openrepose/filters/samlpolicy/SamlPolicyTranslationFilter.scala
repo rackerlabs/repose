@@ -145,10 +145,12 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
       chain.doFilter(new HttpServletRequestWrapper(request, inputStream), response)
 
-      if (version == 2 && response.getStatus == SC_OK) {
+      if (version == 2) {
         val responseWrapper = response.asInstanceOf[HttpServletResponseWrapper]
-        val stream = addExtendedAttributes(responseWrapper, finalDocument)
-        stream.foreach(responseWrapper.setOutput)
+        if (response.getStatus == SC_OK) {
+          val stream = addExtendedAttributes(responseWrapper, finalDocument)
+          stream.foreach(responseWrapper.setOutput)
+        }
         responseWrapper.commitToResponse()
       }
     } catch {
