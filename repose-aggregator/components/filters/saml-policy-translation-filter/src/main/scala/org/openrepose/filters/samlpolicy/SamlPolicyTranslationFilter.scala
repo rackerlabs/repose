@@ -175,16 +175,20 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if decoding fails
     */
   def decodeSamlResponse(request: HttpServletRequest): InputStream = {
-    try {
-      Option(request.getParameter("SAMLResponse"))
-        .map(Base64.getDecoder.decode)
-        .map(new ByteArrayInputStream(_))
-        .get
-    } catch {
-      case nse: NoSuchElementException =>
-        throw SamlPolicyException(SC_BAD_REQUEST, "No SAMLResponse value found", nse)
-      case iae: IllegalArgumentException =>
-        throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse is not in valid Base64 scheme", iae)
+    if ("POST".equalsIgnoreCase(request.getMethod)) {
+      try {
+        Option(request.getParameter("SAMLResponse"))
+          .map(Base64.getDecoder.decode)
+          .map(new ByteArrayInputStream(_))
+          .get
+      } catch {
+        case nse: NoSuchElementException =>
+          throw SamlPolicyException(SC_BAD_REQUEST, "No SAMLResponse value found", nse)
+        case iae: IllegalArgumentException =>
+          throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse is not in valid Base64 scheme", iae)
+      }
+    } else {
+      throw SamlPolicyException(SC_METHOD_NOT_ALLOWED, "Unsupported method")
     }
   }
 
