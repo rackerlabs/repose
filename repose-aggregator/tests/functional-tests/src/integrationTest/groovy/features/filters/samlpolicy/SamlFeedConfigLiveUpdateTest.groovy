@@ -160,9 +160,12 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         atomEndpointOne.defaultHandler = atomFeedHandlerWithEntry
         reposeLogSearch.awaitByString(ATOM_FEED_LOG_SEARCH_STRING, 1, FEED_POLLING_FREQUENCY_SEC + 1)
 
-        and: "a request is sent after the cache entry is supposed to be invalidated"
+        and: "we wait for the akka cache to time out and reset the mock call counts"
         atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+        sleep(AKKA_CACHE_TIMEOUT_MILLIS)
         fakeIdentityV2Service.resetCounts()
+
+        and: "a request is sent after the cache entry is supposed to be invalidated"
         mc = sendSamlRequest(samlIssuer)
 
         then: "the IDP and Mapping Policy endpoints are called again indicating the cache entry was invalidated"
@@ -278,9 +281,12 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         atomEndpointOne.defaultHandler = atomFeedHandlerWithEntry
         reposeLogSearch.awaitByString(ATOM_FEED_LOG_SEARCH_STRING, 1, FEED_POLLING_FREQUENCY_SEC + 1)
 
-        and: "a request for the second issuer is sent"
+        and: "we wait for the akka cache to time out and reset the mock call counts"
         atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+        sleep(AKKA_CACHE_TIMEOUT_MILLIS)
         fakeIdentityV2Service.resetCounts()
+
+        and: "a request for the second issuer is sent"
         mc2 = sendSamlRequest(samlIssuer2)
 
         then: "the IDP and Mapping Policy endpoints are not called again"
@@ -390,9 +396,12 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         atomEndpointOne.defaultHandler = atomFeedHandlerWithEntry
         reposeLogSearch.awaitByString(ATOM_FEED_LOG_SEARCH_STRING, 1, FEED_POLLING_FREQUENCY_SEC + 1)
 
-        and: "a request is sent after the cache entry is supposed to be invalidated"
+        and: "we wait for the akka cache to time out and reset the mock call counts"
         atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+        sleep(AKKA_CACHE_TIMEOUT_MILLIS)
         fakeIdentityV2Service.resetCounts()
+
+        and: "a request is sent after the cache entry is supposed to be invalidated"
         mc = sendSamlRequest(samlIssuer)
 
         then: "the IDP and Mapping Policy endpoints are called again indicating the cache entry was invalidated"
@@ -463,9 +472,12 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         atomEndpointTwo.defaultHandler = atomFeedHandlerWithEntry
         reposeLogSearch.awaitByString(ATOM_FEED_LOG_SEARCH_STRING, 1, FEED_POLLING_FREQUENCY_SEC + 1)
 
-        and: "a request is sent after the cache entry is supposed to be invalidated"
-        atomEndpointTwo.defaultHandler = fakeAtomFeed.handler
+        and: "we wait for the akka cache to time out and reset the mock call counts"
+        atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+        sleep(AKKA_CACHE_TIMEOUT_MILLIS)
         fakeIdentityV2Service.resetCounts()
+
+        and: "a request is sent after the cache entry is supposed to be invalidated"
         mc = sendSamlRequest(samlIssuer)
 
         then: "the IDP and Mapping Policy endpoints are called again indicating the cache entry was invalidated"
