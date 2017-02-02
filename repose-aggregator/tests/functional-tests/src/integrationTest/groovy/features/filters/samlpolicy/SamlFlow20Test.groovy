@@ -122,7 +122,7 @@ class SamlFlow20Test extends ReposeValveTest {
         "signed (invalid)" | SAML_ASSERTION_AND_MESSAGE_SIGNED.replaceFirst("\n", "").replaceFirst("\n", "")
     }
 
-    def "a saml:response without an assertion should NOT be rejected with a 50x error"() {
+    def "a saml:response without an assertion should be rejected"() {
         given: "a saml:response without an assertion"
         def saml = samlResponse(issuer() >> status())
 
@@ -133,11 +133,8 @@ class SamlFlow20Test extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the client does not get back a server-side error"
-        (mc.receivedResponse.code as Integer) < SC_INTERNAL_SERVER_ERROR
-        // TODO: Identity seems to need 2 assertions by their point, but it doesn't necessarily mean we should be
-        // TODO: validating that we get at least 1 assertion here. Figure out what we should be validating, and clarify
-        // TODO: this test if possible to a specific response code and response body.
+        then: "the client gets back a Bad Request response"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
     }
 
     def "a saml:response with an unsigned assertion should be rejected"() {
@@ -151,7 +148,7 @@ class SamlFlow20Test extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the client gets back a bad response"
+        then: "the client gets back a Bad Request response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.receivedResponse.body as String == "All assertions must be signed"
 
@@ -195,7 +192,7 @@ class SamlFlow20Test extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the client gets back a bad response"
+        then: "the client gets back a Bad Request response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.receivedResponse.body as String == "All assertions must be signed"
 
@@ -286,7 +283,7 @@ class SamlFlow20Test extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the client gets back a bad response"
+        then: "the client gets back a Bad Request response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.receivedResponse.body as String == "SAML Response and all assertions need an issuer"
 
@@ -350,7 +347,7 @@ class SamlFlow20Test extends ReposeValveTest {
                 headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
-        then: "the client gets back a bad response"
+        then: "the client gets back a Bad Request response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.receivedResponse.body as String == "All assertions must come from the same issuer"
 
