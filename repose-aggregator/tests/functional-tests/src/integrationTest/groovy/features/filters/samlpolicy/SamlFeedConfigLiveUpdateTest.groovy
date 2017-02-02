@@ -84,14 +84,14 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
         waitForReposeToStart()
 
-        and: "this unique issuer will be used when generating each saml:response"
+        and: "a unique issuer will be used when generating each saml:response"
         def samlIssuer = generateUniqueIssuer()
 
         and: "an atom feed entry will be received with the same issuer as the saml:response issuer at some future point"
         def atomFeedEntry = fakeAtomFeed.atomEntryForIdpUpdate(issuer: samlIssuer)
         def atomFeedHandlerWithEntry = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
-        when: "we send our first request for this issuer"
+        when: "we send our first request for the issuer"
         def mc = sendSamlRequest(samlIssuer)
 
         then: "the IDP and Mapping Policy endpoints are called"
@@ -138,7 +138,7 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings[0]
 
-        when: "we update the filter's configuration to add an atom feed and"
+        when: "we update the filter's configuration to add an atom feed"
         repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/feedone", params)
 
         then:
@@ -162,6 +162,309 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
 
         and: "a request is sent after the cache entry is supposed to be invalidated"
         atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+        fakeIdentityV2Service.resetCounts()
+        mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are called again indicating the cache entry was invalidated"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+    }
+
+    def "when no atom feed is configured and a configuration update changes the cache TTL while Repose is running, the entire cache is invalidated"() {
+        given: "we start Repose with no atom feed configured for the SAML filter"
+        repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/nofeed", params)
+        repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
+        waitForReposeToStart()
+
+        and: "a unique issuer will be used when generating each saml:response"
+        def samlIssuer = generateUniqueIssuer()
+
+        when: "we send our first request for the issuer"
+        def mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are called"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+
+        when: "we wait for the akka cache to time out and reset the mock call counts"
+        sleep(AKKA_CACHE_TIMEOUT_MILLIS)
+        fakeIdentityV2Service.resetCounts()
+
+        and: "another request is sent"
+        mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are not called again"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+
+        when: "we update the filter's configuration to change the cache TTL"
+        repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/nofeedlongttl", params)
+
+        then:
+        waitForReposeToLoadConfiguration()
+
+        when: "a request is sent"
+        fakeIdentityV2Service.resetCounts()
+        mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are called again indicating the cache entry was invalidated"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+    }
+
+    def "when an atom feed is initially configured but gets removed from configuration while Repose is running, the filter should stop reading from the feed"() {
+        given: "we start Repose with an atom feed configured for the SAML filter"
+        repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/feedone", params)
+        repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
+        waitForReposeToStart()
+
+        and: "two unique issuers will be used when generating each saml:response, one to prove the atom feed works and another to prove it stops working"
+        def samlIssuer = generateUniqueIssuer()
+        def samlIssuer2 = generateUniqueIssuer()
+
+        and: "an atom feed entry will be received with the first issuer as the saml:response issuer at some future point"
+        def atomFeedEntry = fakeAtomFeed.atomEntryForIdpUpdate(issuer: samlIssuer)
+        def atomFeedHandlerWithEntry = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
+
+        when: "we send our first round of requests for the issuers"
+        def mc = sendSamlRequest(samlIssuer)
+        def mc2 = sendSamlRequest(samlIssuer2)
+
+        then: "the IDP and Mapping Policy endpoints are called for both issuers"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 2
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 2
+
+        and: "the requests are overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+        mc2.receivedResponse.code as Integer == SC_OK
+        mc2.handlings[0]
+
+        when: "we wait for the akka cache to time out and reset the mock call counts"
+        sleep(AKKA_CACHE_TIMEOUT_MILLIS)
+        fakeIdentityV2Service.resetCounts()
+
+        and: "another round of requests are sent"
+        mc = sendSamlRequest(samlIssuer)
+        mc2 = sendSamlRequest(samlIssuer2)
+
+        then: "the IDP and Mapping Policy endpoints are not called again"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
+
+        and: "the requests are overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+        mc2.receivedResponse.code as Integer == SC_OK
+        mc2.handlings[0]
+
+        when: "the atom feed entry is made available and we wait until Repose logs that it processed the entry"
+        atomEndpointOne.defaultHandler = atomFeedHandlerWithEntry
+        reposeLogSearch.awaitByString(ATOM_FEED_LOG_SEARCH_STRING, 1, FEED_POLLING_FREQUENCY_SEC + 1)
+
+        and: "a request for the second issuer is sent"
+        atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+        fakeIdentityV2Service.resetCounts()
+        mc2 = sendSamlRequest(samlIssuer2)
+
+        then: "the IDP and Mapping Policy endpoints are not called again"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
+
+        and: "the request is overall successful"
+        mc2.receivedResponse.code as Integer == SC_OK
+        mc2.handlings[0]
+
+        when: "a request for the first issuer is sent after its cache entry is supposed to have been invalidated"
+        fakeIdentityV2Service.resetCounts()
+        mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are called again indicating the cache entry was invalidated"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+
+        when: "we update the filter's configuration to remove the atom feed"
+        repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/nofeed", params)
+
+        then:
+        waitForReposeToLoadConfiguration()
+
+        when: "another round of requests are sent"
+        mc = sendSamlRequest(samlIssuer)
+        mc2 = sendSamlRequest(samlIssuer2)
+
+        then: "the IDP and Mapping Policy endpoints are not called again indicating the cache is still intact"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
+
+        and: "the requests are overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+        mc2.receivedResponse.code as Integer == SC_OK
+        mc2.handlings[0]
+
+        when: "the atom feed entry is made available and we give Repose a chance to have a nibble"
+        atomEndpointOne.defaultHandler = atomFeedHandlerWithEntry
+        atomEndpointTwo.defaultHandler = atomFeedHandlerWithEntry
+        sleep(FEED_POLLING_FREQUENCY_MILLIS * 3)
+
+        and: "the atom feed entries are made unavailable"
+        atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+        atomEndpointTwo.defaultHandler = fakeAtomFeed.handler
+
+        and: "another round of requests are sent"
+        mc = sendSamlRequest(samlIssuer)
+        mc2 = sendSamlRequest(samlIssuer2)
+
+        then: "the IDP and Mapping Policy endpoints are not called again indicating the cache is still intact"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
+
+        and: "the requests are overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+        mc2.receivedResponse.code as Integer == SC_OK
+        mc2.handlings[0]
+    }
+
+    def "when one atom feed is initially configured but a different atom feed gets configured while Repose is running, the filter should start reading the other feed instead"() {
+        given: "we start Repose with a particular atom feed configured for the SAML filter"
+        repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/feedone", params)
+        repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
+        waitForReposeToStart()
+
+        and: "a unique issuer will be used when generating each saml:response"
+        def samlIssuer = generateUniqueIssuer()
+
+        and: "an atom feed entry will be received with the same issuer as the saml:response issuer at some future point"
+        def atomFeedEntry = fakeAtomFeed.atomEntryForIdpUpdate(issuer: samlIssuer)
+        def atomFeedHandlerWithEntry = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
+
+        when: "we send our first request for the issuer"
+        def mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are called"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+
+        when: "we wait for the akka cache to time out and reset the mock call counts"
+        sleep(AKKA_CACHE_TIMEOUT_MILLIS)
+        fakeIdentityV2Service.resetCounts()
+
+        and: "another request is sent"
+        mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are not called again"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+
+        when: "the atom feed entry is made available on the configured atom feed and we wait until Repose logs that it processed the entry"
+        atomEndpointOne.defaultHandler = atomFeedHandlerWithEntry
+        reposeLogSearch.awaitByString(ATOM_FEED_LOG_SEARCH_STRING, 1, FEED_POLLING_FREQUENCY_SEC + 1)
+
+        and: "a request is sent after the cache entry is supposed to be invalidated"
+        atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+        fakeIdentityV2Service.resetCounts()
+        mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are called again indicating the cache entry was invalidated"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+
+        when: "the atom feed entry is made available on the atom feed that is NOT configured and we give Repose a chance to have a nibble"
+        atomEndpointTwo.defaultHandler = atomFeedHandlerWithEntry
+        sleep(FEED_POLLING_FREQUENCY_MILLIS * 3)
+
+        and: "the atom feed entry is made unavailable"
+        atomEndpointTwo.defaultHandler = fakeAtomFeed.handler
+
+        and: "a request is sent"
+        fakeIdentityV2Service.resetCounts()
+        mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are not called again"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+
+        when: "we update the filter's configuration to switch to a different atom feed"
+        repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/feedone", params)
+
+        then:
+        waitForReposeToLoadConfiguration()
+
+        when: "a request is sent"
+        fakeIdentityV2Service.resetCounts()
+        mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are not called again indicating the cache is still intact"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+
+        when: "the atom feed entry is made available on the atom feed that is NO longer configured and we give Repose a chance to have a nibble"
+        atomEndpointOne.defaultHandler = atomFeedHandlerWithEntry
+        sleep(FEED_POLLING_FREQUENCY_MILLIS * 3)
+
+        and: "the atom feed entry is made unavailable"
+        atomEndpointOne.defaultHandler = fakeAtomFeed.handler
+
+        and: "a request is sent"
+        fakeIdentityV2Service.resetCounts()
+        mc = sendSamlRequest(samlIssuer)
+
+        then: "the IDP and Mapping Policy endpoints are not called again"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 0
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 0
+
+        and: "the request is overall successful"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0]
+
+        when: "the atom feed entry is made available on the newly configured atom feed and we wait until Repose logs that it processed the entry"
+        atomEndpointTwo.defaultHandler = atomFeedHandlerWithEntry
+        reposeLogSearch.awaitByString(ATOM_FEED_LOG_SEARCH_STRING, 1, FEED_POLLING_FREQUENCY_SEC + 1)
+
+        and: "a request is sent after the cache entry is supposed to be invalidated"
+        atomEndpointTwo.defaultHandler = fakeAtomFeed.handler
         fakeIdentityV2Service.resetCounts()
         mc = sendSamlRequest(samlIssuer)
 
