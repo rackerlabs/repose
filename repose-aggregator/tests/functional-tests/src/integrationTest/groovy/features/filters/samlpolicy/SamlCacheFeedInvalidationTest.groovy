@@ -207,7 +207,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
 
         and: "an atom feed entry will be received with the specific values for the specific test"
         def atomFeedEntry = fakeAtomFeed.atomEntryForIdpUpdate(
-                serviceCode: serviceCode, resourceType: resourceType, eventType: "UPDATE", issuer: issuerMatch ? samlIssuer : "pineapple")
+                serviceCode: serviceCode, resourceType: resourceType, issuer: issuerMatch ? samlIssuer : "pineapple")
         def atomFeedHandlerWithEntry = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
         when: "a request is sent for the first time"
