@@ -81,7 +81,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def extAttribPathValue = "Mordor"
         def mappingPolicy = createMappingJsonWithValues(
                 userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
+                remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
 
         and: "a saml:response with a value at the path specified by the mapping policy"
         def samlIssuer = generateUniqueIssuer()
@@ -137,7 +137,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def extAttribPathValue = "eye"
         def mappingPolicy = createMappingJsonWithValues(
                 userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
+                remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
 
         and: "a saml:response with a value at the path specified by the mapping policy"
         def samlIssuer = generateUniqueIssuer()
@@ -179,7 +179,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def extAttribPathValue = "no swiping plz"
         def mappingPolicy = createMappingJsonWithValues(
                 userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
+                remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
 
         and: "a saml:response with a value at the path specified by the mapping policy"
         def samlIssuer = generateUniqueIssuer()
@@ -226,7 +226,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def mappingPolicies = extAttribLiteralValues.collect { extAttribLiteralValue ->
             createMappingJsonWithValues(
                     userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                    remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
+                    remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
         }
 
         and: "saml:responses with a value at the path specified by the mapping policies"
@@ -378,7 +378,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def extAttribPath = "cake"
         def mappingPolicy = createMappingJsonWithValues(
                 userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                remote: [[path: $/\/saml2p:Response\/saml2:Assertion\/saml2:Subject\/saml2:NameID\/@SPProvidedID/$]])
+                remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
 
         and: "a saml:response with no value at the path specified by the mapping policy"
         def samlIssuer = generateUniqueIssuer()
