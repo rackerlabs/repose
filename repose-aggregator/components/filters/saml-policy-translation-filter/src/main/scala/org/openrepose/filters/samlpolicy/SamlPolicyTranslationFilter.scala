@@ -150,7 +150,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       val inputStream = convertDocumentToStream(finalDocument)
 
       request.replaceHeader(CONTENT_TYPE, APPLICATION_XML)
-      request.removeHeader(CONTENT_LENGTH.toString)
+      request.removeHeader(CONTENT_LENGTH)
       request.replaceHeader("Transfer-Encoding", "chunked")
 
       chain.doFilter(new HttpServletRequestWrapper(request, inputStream), response)
@@ -165,7 +165,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       }
     } catch {
       case ex: OverLimitException =>
-        servletResponse.asInstanceOf[HttpServletResponse].addHeader(RETRY_AFTER.toString, ex.retryAfter)
+        servletResponse.asInstanceOf[HttpServletResponse].addHeader(RETRY_AFTER, ex.retryAfter)
         servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_SERVICE_UNAVAILABLE, "Identity service temporarily unavailable")
         logger.debug("Identity service temporarily unavailable", ex)
       case ex: SamlPolicyException =>
