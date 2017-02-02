@@ -255,7 +255,7 @@ class SamlFlow10Test extends ReposeValveTest {
         def access = xmlSlurper.parseText(mc.receivedResponse.body as String)
 
         then: "the response does not contain any extended attributes"
-        !access.'RAX-AUTH:extendedAttributes'
+        access.'RAX-AUTH:extendedAttributes'.isEmpty()
 
         and: "the XML sent by the origin service and received by the client are similar enough"
         new Diff(mc.handlings[0].response.body as String, mc.receivedResponse.body as String).similar()
