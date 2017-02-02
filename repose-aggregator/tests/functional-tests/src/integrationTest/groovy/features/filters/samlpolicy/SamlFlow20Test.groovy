@@ -382,7 +382,7 @@ class SamlFlow20Test extends ReposeValveTest {
     }
 
     def "a saml:response with an Issuer that Identity doesn't have a mapping policy for should be rejected with a 401"() {
-        given: "the mapping policy call will a 404"
+        given: "the mapping policy call will return a 404"
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
             new DeproxyResponse(
                     SC_NOT_FOUND,

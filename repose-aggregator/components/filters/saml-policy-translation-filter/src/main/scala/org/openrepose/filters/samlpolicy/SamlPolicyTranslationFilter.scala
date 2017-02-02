@@ -172,6 +172,9 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       case ex: SamlPolicyException =>
         servletResponse.asInstanceOf[HttpServletResponse].sendError(ex.statusCode, ex.message)
         logger.debug("SAML policy translation failed", ex)
+      case CausedBy(ex: SamlPolicyException) =>
+        servletResponse.asInstanceOf[HttpServletResponse].sendError(ex.statusCode, ex.message)
+        logger.debug("SAML policy translation failed", ex)
       case ex: Exception =>
         servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR, "Unknown error in SAML Policy Filter")
         logger.warn("Unexpected problem in SAML Policy Filter", ex)
@@ -580,6 +583,11 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 }
 
 case class SamlPolicyException(statusCode: Int, message: String, cause: Throwable = null) extends Exception(message, cause)
+
+// based off of: http://stackoverflow.com/questions/27446012/matching-on-nested-exception-type
+object CausedBy {
+  def unapply(e: Throwable): Option[Throwable] = Option(e.getCause)
+}
 
 object SamlPolicyTranslationFilter {
   final val SystemModelConfig = "system-model.cfg.xml"
