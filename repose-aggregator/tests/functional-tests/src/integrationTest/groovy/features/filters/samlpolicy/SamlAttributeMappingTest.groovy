@@ -209,7 +209,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def access = xmlSlurper.parseText(mc.receivedResponse.body as String)
 
         and: "we get the 'user' group in the extended attributes"
-        def userGroup = access.'RAX-AUTH:extendedAttributes'.'*'.find { it.@name == "user" }
+        def userGroup = access.extendedAttributes.'*'.find { it.@name == "user" }
 
         then: "the extended attributes are set correctly"
         userGroup.'*'.find { it.@name == extAttribLiteral }.value[0].text() == extAttribLiteralValue
@@ -411,6 +411,8 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         and: "the extended attribute for the literal value is set in the request"
         attributes.find { it.name == "user/$extAttribLiteral" as String }.attributeValues[0].value == extAttribLiteralValue
 
+        // TODO: This may be a bug in the attibuteMapping library.
+        // TODO: It is adding an extended attribute that references a path in the SAML Response even though it doesn't exist.
         and: "the extended attribute for the path value is not in the request"
         !attributes.any { it.name == "user/$extAttribPath" as String }
 
