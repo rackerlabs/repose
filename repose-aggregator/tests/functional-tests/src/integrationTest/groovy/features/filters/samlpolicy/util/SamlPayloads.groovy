@@ -43,7 +43,7 @@ class SamlPayloads {
     static final String PARAM_EXTRANEOUS = "Banana"
 
     static final String HTTP_POST = "POST"
-    static final List<String> HTTP_UNSUPPORTED_METHODS = ["GET", "OPTIONS", "PUT", "PATCH", "DELETE", "CONNECT", "TRACE"]
+    static final List<String> HTTP_UNSUPPORTED_METHODS = ["GET", "OPTIONS", "PUT", "PATCH", "DELETE", "TRACE"]
 
     static final String SAML_STATUS_SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
 
