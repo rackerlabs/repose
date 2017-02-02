@@ -20,6 +20,7 @@
 package org.openrepose.filters.samlpolicy
 
 import java.io.ByteArrayInputStream
+import java.net.URLEncoder
 import java.nio.charset.{Charset, StandardCharsets}
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.MediaType
@@ -678,6 +679,23 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.anyString(),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.eq(false)
+      )
+    }
+
+    it("should encode the issuer query parameter") {
+      val issuer = "http://example.com/path?query=string"
+
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
+
+      try {
+        samlPolicyProvider.getIdpId(issuer, "token", None, checkCache = false)
+      } catch { case _: Throwable => }
+
+      verify(policyServiceClient).get(
+        MM.anyString(),
+        MM.endsWith(URLEncoder.encode(issuer, StandardCharsets.UTF_8.name())),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
       )
     }
   }
