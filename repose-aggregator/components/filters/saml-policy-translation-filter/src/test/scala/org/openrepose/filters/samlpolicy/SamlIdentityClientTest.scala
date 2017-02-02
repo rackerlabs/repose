@@ -20,7 +20,6 @@
 package org.openrepose.filters.samlpolicy
 
 import java.io.ByteArrayInputStream
-import java.net.URLEncoder
 import java.nio.charset.{Charset, StandardCharsets}
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.MediaType
@@ -37,6 +36,7 @@ import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException,
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.web.util.UriUtils
 import play.api.libs.json.Json
 
 import scala.language.implicitConversions
@@ -693,7 +693,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       verify(policyServiceClient).get(
         MM.anyString(),
-        MM.endsWith(URLEncoder.encode(issuer, StandardCharsets.UTF_8.name())),
+        MM.endsWith(UriUtils.encodeQueryParam(issuer, StandardCharsets.UTF_8.name())),
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.anyBoolean()
       )

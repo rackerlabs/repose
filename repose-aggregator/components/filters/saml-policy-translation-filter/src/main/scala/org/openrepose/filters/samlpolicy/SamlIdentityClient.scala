@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.samlpolicy
 
-import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
@@ -29,6 +28,7 @@ import javax.ws.rs.core.MediaType
 
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.springframework.web.util.UriUtils
 import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
@@ -238,7 +238,7 @@ object SamlIdentityClient {
   final val PolicyRequestKey: (String) => String = (idpId: String) => s"SAML:POLICY:$idpId"
   final val TokenPath: String = "/v2.0/tokens"
   final val IdpPath: (String) => String =
-    (issuer: String) => s"/v2.0/RAX-AUTH/federation/identity-providers?issuer=${URLEncoder.encode(issuer, StandardCharsets.UTF_8.name())}"
+    (issuer: String) => s"/v2.0/RAX-AUTH/federation/identity-providers?issuer=${UriUtils.encodeQueryParam(issuer, StandardCharsets.UTF_8.name())}"
   final val PolicyPath: (String) => String =
     (idpId: String) => s"/v2.0/RAX-AUTH/federation/identity-providers/$idpId/mapping"
 
