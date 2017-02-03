@@ -42,7 +42,7 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
     static final String ATOM_FEED_LOG_SEARCH_STRING = "</atom:entry>"
 
     static final int REPOSE_START_WAIT_SEC = 30
-    static final int CONFIG_REFRESH_WAIT_SEC = 15
+    static final int CONFIG_REFRESH_WAIT_SEC = 20
     static final String CONFIG_DIR_SRC = "features/filters/samlpolicy/feedconfigliveupdate"
 
     static final int AKKA_CACHE_TIMEOUT_MILLIS = 500
