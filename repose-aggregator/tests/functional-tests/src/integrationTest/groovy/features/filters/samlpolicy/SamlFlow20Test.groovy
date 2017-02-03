@@ -264,6 +264,7 @@ class SamlFlow20Test extends ReposeValveTest {
                 'saml2p:StatusCode'(Value: SAML_STATUS_SUCCESS)
             }
             builder.'saml2:Assertion'(ID: "_" + UUID.randomUUID().toString(), IssueInstant: "2013-11-15T16:19:06.310Z", Version: "2.0") {
+                invalidSignature()(builder)
                 'saml2:Subject' {
                     'saml2:NameID'(Format: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", "john.doe")
                     'saml2:SubjectConfirmation'(Method: "urn:oasis:names:tc:SAML:2.0:cm:bearer") {
