@@ -49,7 +49,7 @@ import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException,
 import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.opensaml.core.config.{InitializationException, InitializationService}
-import org.opensaml.core.criterion.EntityIdCriterion
+import org.opensaml.core.criterion.SatisfyAnyCriterion
 import org.opensaml.saml.saml2.core.impl.ResponseUnmarshaller
 import org.opensaml.security.credential.CredentialSupport
 import org.opensaml.security.credential.impl.StaticCredentialResolver
@@ -1041,30 +1041,32 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   describe("signResponse") {
     SamlPolicyTranslationFilterTest.initOpenSAML()
-    Seq(("server", true), ("client", false)) foreach { case (keyAlias, shouldPass) =>
-      val passShould: Boolean => String = { boolean => if (boolean) "should" else "should not" }
-      it(s"should sign the SAML Response in the HTTP Request and ${passShould(shouldPass)} validate against the $keyAlias key") {
-        val config = buildConfig(feedId = "banana")
+    Seq(("sign", samlResponseDoc), ("re-sign", samlResponseSignedDoc)) foreach { case (sign, document) =>
+      Seq(("server", true), ("client", false)) foreach { case (keyAlias, shouldPass) =>
+        val passShould: Boolean => String = { boolean => if (boolean) "should" else "should not" }
+        it(s"should $sign the SAML Response in the HTTP Request and ${passShould(shouldPass)} validate against the $keyAlias key") {
+          val config = buildConfig(feedId = "banana")
 
-        filter.configurationUpdated(config)
-        val signedDoc = filter.signResponse(samlResponseDoc)
+          filter.configurationUpdated(config)
+          val signedDoc = filter.signResponse(document)
 
-        // Use the key that should have signed the DOM to create the validation criteria
-        val ks = KeyStore.getInstance("JKS")
-        ks.load(new FileInputStream(s"$configRoot/$keystoreFilename"), keystorePassword.toCharArray)
-        val keyEntry = ks.getEntry(keyAlias, new KeyStore.PasswordProtection(keyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
-        val signingCredential = CredentialSupport.getSimpleCredential(keyEntry.getCertificate.asInstanceOf[X509Certificate], keyEntry.getPrivateKey)
-        val credResolver = new StaticCredentialResolver(signingCredential)
-        val kiResolver = new StaticKeyInfoCredentialResolver(signingCredential)
-        val trustEngine = new ExplicitKeySignatureTrustEngine(credResolver, kiResolver)
-        val criteriaSet = new CriteriaSet(new EntityIdCriterion("urn:example.org:issuer"))
+          // Use the key that should have signed the DOM to create the validation criteria
+          val ks = KeyStore.getInstance("JKS")
+          ks.load(new FileInputStream(s"$configRoot/$keystoreFilename"), keystorePassword.toCharArray)
+          val keyEntry = ks.getEntry(keyAlias, new KeyStore.PasswordProtection(keyPassword.toCharArray)).asInstanceOf[KeyStore.PrivateKeyEntry]
+          val signingCredential = CredentialSupport.getSimpleCredential(keyEntry.getCertificate.asInstanceOf[X509Certificate], keyEntry.getPrivateKey)
+          val credResolver = new StaticCredentialResolver(signingCredential)
+          val kiResolver = new StaticKeyInfoCredentialResolver(signingCredential)
+          val trustEngine = new ExplicitKeySignatureTrustEngine(credResolver, kiResolver)
+          val criteriaSet = new CriteriaSet(new SatisfyAnyCriterion)
 
-        // Extract the signed SAML Response object to ensure it was signed correctly
-        val signedDocumentElement = signedDoc.getDocumentElement
-        val signedXMLObject = new ResponseUnmarshaller().unmarshall(signedDocumentElement).asInstanceOf[SignableXMLObject]
+          // Extract the signed SAML Response object to ensure it was signed correctly
+          val signedDocumentElement = signedDoc.getDocumentElement
+          val signedXMLObject = new ResponseUnmarshaller().unmarshall(signedDocumentElement).asInstanceOf[SignableXMLObject]
 
-        assert(signedXMLObject.isSigned)
-        assert(trustEngine.validate(signedXMLObject.getSignature, criteriaSet) == shouldPass)
+          assert(signedXMLObject.isSigned)
+          assert(trustEngine.validate(signedXMLObject.getSignature, criteriaSet) == shouldPass)
+        }
       }
     }
   }
