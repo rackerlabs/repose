@@ -29,7 +29,7 @@ import javax.ws.rs.core.MediaType
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.springframework.web.util.UriUtils
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, Json}
 
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -167,11 +167,13 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
                 .getOrElse(StandardCharsets.ISO_8859_1.name())
               val jsonResponse = Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString
               val json = Json.parse(jsonResponse)
-              ((json \ "RAX-AUTH:identityProviders")(0) \ "id").asOpt[String] match {
-                case Some(idpId) => idpId
-                case None => throw SamlPolicyException(SC_UNAUTHORIZED, "Unknown issuer")
-              }
+              val idp = (json \ "RAX-AUTH:identityProviders").as[JsArray].value
+                .headOption
+                .getOrElse(throw SamlPolicyException(SC_UNAUTHORIZED, "Unknown issuer"))
+              (idp \ "id").as[String]
             } recover {
+              case s: SamlPolicyException =>
+                throw s
               case f: Exception =>
                 throw GenericIdentityException("IDP ID could not be parsed from response from Identity", f)
             }
