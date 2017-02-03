@@ -172,8 +172,8 @@ class SamlFlow10Test extends ReposeValveTest {
         Response response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
 
         then: "any signatures in the XML are still valid upon arriving at the origin service"
-        !validateResponse || samlUtilities.validateSignature(response.signature)
-        !validateAssertion || samlUtilities.validateSignature(response.assertions[0].signature)
+        !validateResponse || samlUtilities.validateSignature(response.signature, "legacy.idp.external.com")
+        !validateAssertion || samlUtilities.validateSignature(response.assertions[0].signature, "legacy.idp.external.com")
 
         where:
         saml                                            | signedState                            | validateResponse | validateAssertion
