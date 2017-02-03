@@ -67,7 +67,7 @@ class SamlUtilitiesSelfTest extends Specification {
     }
 
     @Unroll
-    def "the signature of the SAML payload '#payloadDescription' is deemed valid '#shouldBeValid' when checked against the cert entity id '#certificateEntityId'"() {
+    def "the Assertion signature of the SAML payload '#payloadDescription' is deemed valid '#shouldBeValid' when checked against the cert entity id '#certificateEntityId'"() {
         when: "we unmarshall the SAML string and try to validate the first Assertion's signature"
         Response response = samlUtilities.unmarshallResponse(saml)
         def isValidSignature = samlUtilities.validateSignature(response.assertions[0].signature, certificateEntityId)
@@ -92,6 +92,28 @@ class SamlUtilitiesSelfTest extends Specification {
         samlResponse(issuer() >> assertion(ASSERTION_SIGNED))       | "idp.external.com"        | true          | "generated saml with signature payload 1"
         samlResponse(issuer() >> assertion(ASSERTION_SIGNED_TWO))   | "idp.external.com"        | true          | "generated saml with signature payload 2"
         samlResponse(issuer() >> assertion(ASSERTION_SIGNED_THREE)) | "idp.external.com"        | true          | "generated saml with signature payload 3"
+    }
+
+    @Unroll
+    def "the Response signature of the SAML payload '#payloadDescription' is deemed valid '#shouldBeValid' when checked against the cert entity id '#certificateEntityId'"() {
+        when: "we unmarshall the SAML string and try to validate the first Assertion's signature"
+        Response response = samlUtilities.unmarshallResponse(saml)
+        def isValidSignature = samlUtilities.validateSignature(response.signature, certificateEntityId)
+
+        then: "no exceptions were thrown (SAML was successfully unmarshalled)"
+        notThrown(Exception)
+
+        and: "the signature's validity matches expectations"
+        isValidSignature == shouldBeValid
+
+        where:
+        saml                                                                | certificateEntityId       | shouldBeValid | payloadDescription
+        SAML_ASSERTION_AND_MESSAGE_SIGNED                                   | "idp.external.com"        | true          | "known good payload"
+        SAML_LEGACY_ISSUER_SIGNED_MESSAGE_AND_ASSERTION                     | "legacy.idp.external.com" | true          | "known good payload with legacy issuer"
+        SAML_ASSERTION_AND_MESSAGE_SIGNED                                   | "not.the.idp.com"         | false         | "known good payload"
+        SAML_LEGACY_ISSUER_SIGNED_MESSAGE_AND_ASSERTION                     | "not.the.idp.com"         | false         | "known good payload with legacy issuer"
+        SAML_ASSERTION_AND_MESSAGE_SIGNED.replace("    ", "")               | "idp.external.com"        | false         | "altered known good payload"
+        SAML_LEGACY_ISSUER_SIGNED_MESSAGE_AND_ASSERTION.replace("    ", "") | "legacy.idp.external.com" | false         | "altered known good payload with legacy issuer"
     }
 
     @Unroll
