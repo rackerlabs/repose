@@ -389,6 +389,16 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if the signing fails
     */
   def signResponse(document: Document): Document = {
+    // Remove any signatures that might already be on the document.
+    var envSignatureExpression: Option[XPathExpression] = None
+    try {
+      envSignatureExpression = Option(XPathExpressionPool.borrowExpression(envSignatureXPath, namespaceContext, xPathVersion))
+      val envSignatures = envSignatureExpression.get.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
+      for (i <- 0 until envSignatures.getLength) envSignatures.item(i).getParentNode.removeChild(envSignatures.item(i))
+    } finally {
+      envSignatureExpression.foreach(XPathExpressionPool.returnExpression(envSignatureXPath, namespaceContext, xPathVersion, _))
+    }
+
     // Create a DOMSignContext and specify the RSA PrivateKey and
     // location of the resulting XMLSignature's parent element.
     val dsc = new DOMSignContext(keyEntry.getPrivateKey, document.getDocumentElement)
@@ -599,5 +609,6 @@ object SamlPolicyTranslationFilter {
   val assertionXPath = "/s2p:Response/s2:Assertion"
   val issuersXPath = "/s2p:Response//s2:Issuer"
   val signatureXPath = "/s2p:Response/s2:Assertion/sig:Signature"
+  val envSignatureXPath = "/s2p:Response/sig:Signature"
   val xPathVersion = 30
 }
