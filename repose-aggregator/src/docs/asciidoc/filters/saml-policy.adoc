@@ -60,6 +60,12 @@ a| * If the `SAMLResponse` parameter cannot be found.
 a| * If a policy that matches the assertion issuer can not be found.
    * If Identity returns a 404 when the policy is requested.
 
+| `405`
+| If the request HTTP method is not `POST`.
+
+| `415`
+| If the request `Content-Type` header does not have a value of `application/x-www-form-urlencoded`.
+
 | `500`
 | If there is any error in this filter that is not explicitly mapped to a status code.
 In other words, if an unexpected problem occurs.
