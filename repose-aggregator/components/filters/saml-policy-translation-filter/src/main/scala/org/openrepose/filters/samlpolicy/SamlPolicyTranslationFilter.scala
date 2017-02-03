@@ -117,15 +117,6 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
   override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
 
-    def preValidateRequest(request: HttpServletRequest): Unit = {
-      if (!"POST".equalsIgnoreCase(request.getMethod)) {
-        throw SamlPolicyException(SC_METHOD_NOT_ALLOWED, "Unsupported method")
-      }
-      if (!APPLICATION_FORM_URLENCODED.equalsIgnoreCase(request.getHeader(CONTENT_TYPE))) {
-        throw SamlPolicyException(SC_UNSUPPORTED_MEDIA_TYPE, "Unsupported content")
-      }
-    }
-
     try {
       preValidateRequest(servletRequest.asInstanceOf[HttpServletRequest])
       val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
@@ -178,6 +169,15 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       case ex: Exception =>
         servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR, "Unknown error in SAML Policy Filter")
         logger.warn("Unexpected problem in SAML Policy Filter", ex)
+    }
+  }
+
+  def preValidateRequest(request: HttpServletRequest): Unit = {
+    if (!"POST".equalsIgnoreCase(request.getMethod)) {
+      throw SamlPolicyException(SC_METHOD_NOT_ALLOWED, "Unsupported method")
+    }
+    if (!APPLICATION_FORM_URLENCODED.equalsIgnoreCase(request.getHeader(CONTENT_TYPE))) {
+      throw SamlPolicyException(SC_UNSUPPORTED_MEDIA_TYPE, "Unsupported content")
     }
   }
 
@@ -489,7 +489,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @param event A value representing the new lifecycle stage of the system associated with the Feed that this
     */
   override def onLifecycleEvent(event: LifecycleEvents): Unit = {
-    logger.debug(s"Received Lifecycle Event: $event")
+    logger.trace(s"Received Lifecycle Event: $event")
   }
 
   /**

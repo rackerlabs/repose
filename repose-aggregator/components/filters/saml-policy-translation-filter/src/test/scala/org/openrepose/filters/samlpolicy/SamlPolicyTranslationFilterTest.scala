@@ -61,6 +61,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.slf4j.{Logger, LoggerFactory}
+import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.test.util.ReflectionTestUtils
 import org.w3c.dom.Document
 
@@ -150,6 +151,38 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.doWork(request, response, chain)
 
       verify(chain).doFilter(request, response)
+    }
+  }
+
+  describe("preValidateRequest") {
+    it("should accept requests that are POST with form encoding content type") {
+      val request = new MockHttpServletRequest("POST", "http://foo.bar")
+      request.setContentType(APPLICATION_FORM_URLENCODED)
+
+      filter.preValidateRequest(request)
+    }
+
+    List("GET", "PUT", "DELETE", "TRACE", "OPTIONS", "HEAD").foreach { method: String =>
+      it(s"should fail for method $method") {
+        val request = new MockHttpServletRequest(method, "http://foo.bar")
+
+        val exception = the [SamlPolicyException] thrownBy filter.preValidateRequest(request)
+
+        exception.statusCode shouldBe SC_METHOD_NOT_ALLOWED
+        exception.message shouldBe "Unsupported method"
+      }
+    }
+
+    List(APPLICATION_JSON, APPLICATION_XML, APPLICATION_ATOM_XML, MULTIPART_FORM_DATA).foreach { contentType: String =>
+      it(s"should fail for content type $contentType") {
+        val request = new MockHttpServletRequest("POST", "http://foo.bar")
+        request.setContentType(contentType)
+
+        val exception = the [SamlPolicyException] thrownBy filter.preValidateRequest(request)
+
+        exception.statusCode shouldBe SC_UNSUPPORTED_MEDIA_TYPE
+        exception.message shouldBe "Unsupported content"
+      }
     }
   }
 
