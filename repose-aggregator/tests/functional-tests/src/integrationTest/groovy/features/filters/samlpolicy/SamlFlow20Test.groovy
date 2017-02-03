@@ -116,7 +116,7 @@ class SamlFlow20Test extends ReposeValveTest {
         samlUtilities.validateSignature(response.assertions[1].signature)
 
         and: "the saml:response should have a valid signature since Repose should have signed it"
-        samlUtilities.validateSignature(response.signature)
+        samlUtilities.validateSignature(response.signature, getEntityIdForSignature(response.signature))
 
         where:
         signatureStatus    | saml

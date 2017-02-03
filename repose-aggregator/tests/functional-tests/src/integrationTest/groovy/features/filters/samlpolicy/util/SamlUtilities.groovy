@@ -35,6 +35,7 @@ import org.opensaml.security.x509.PKIXTrustEvaluator
 import org.opensaml.security.x509.PKIXValidationInformation
 import org.opensaml.security.x509.PKIXValidationOptions
 import org.opensaml.security.x509.X509Credential
+import org.opensaml.security.x509.X509Support
 import org.opensaml.security.x509.impl.BasicPKIXValidationInformation
 import org.opensaml.security.x509.impl.BasicX509CredentialNameEvaluator
 import org.opensaml.security.x509.impl.StaticPKIXValidationInformationResolver
@@ -46,6 +47,7 @@ import org.opensaml.xmlsec.signature.support.impl.PKIXSignatureTrustEngine
 import org.w3c.dom.Element
 import org.xml.sax.InputSource
 
+import javax.security.auth.x500.X500Principal
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -244,6 +246,10 @@ class SamlUtilities {
             }
             builder
         }
+    }
+
+    static String getEntityIdForSignature(Signature signature) {
+        X509Support.getCommonNames(new X500Principal(signature.keyInfo.x509Datas[0].x509SubjectNames[0].value))[0]
     }
 
     Response unmarshallResponse(String saml) {
