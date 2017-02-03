@@ -33,10 +33,10 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders._
 import javax.ws.rs.core.MediaType._
 import javax.xml.crypto.NoSuchMechanismException
+import javax.xml.crypto.dsig._
 import javax.xml.crypto.dsig.dom.DOMSignContext
 import javax.xml.crypto.dsig.keyinfo.KeyInfo
 import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSpec}
-import javax.xml.crypto.dsig.{SignedInfo, _}
 import javax.xml.namespace.NamespaceContext
 import javax.xml.parsers.{DocumentBuilder, DocumentBuilderFactory}
 import javax.xml.transform.dom.DOMSource
@@ -57,7 +57,7 @@ import org.openrepose.commons.utils.io.{BufferedServletInputStream, FileUtilitie
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException}
+import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.SystemModel
 import org.openrepose.filters.samlpolicy.SamlIdentityClient.{GenericIdentityException, OverLimitException, UnexpectedStatusCodeException}
@@ -96,7 +96,6 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var serviceToken: Option[String] = None
   private var sendTraceHeader: Boolean = true
   private var xmlSignatureFactory: XMLSignatureFactory = _
-  private var signedInfo: SignedInfo = _
   private var keyEntry: KeyStore.PrivateKeyEntry = _
   private var keyInfo: KeyInfo = _
   private var legacyIssuers: List[URI] = List.empty
@@ -387,6 +386,22 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if the signing fails
     */
   def signResponse(document: Document): Document = {
+    // Create a Reference to the enveloped document (in this case,
+    // you are signing the whole document, so a URI of "" signifies
+    // that, and also specify the SHA1 digest algorithm and
+    // the ENVELOPED Transform.
+    val ref = xmlSignatureFactory.newReference(
+      "",
+      xmlSignatureFactory.newDigestMethod(DigestMethod.SHA1, null),
+      Collections.singletonList(xmlSignatureFactory.newTransform(Transform.ENVELOPED, null.asInstanceOf[TransformParameterSpec])),
+      null,
+      null)
+    // Create the SignedInfo.
+    val signedInfo = xmlSignatureFactory.newSignedInfo(xmlSignatureFactory.newCanonicalizationMethod(
+      CanonicalizationMethod.INCLUSIVE,
+      null.asInstanceOf[C14NMethodParameterSpec]),
+      xmlSignatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null),
+      Collections.singletonList(ref))
     // Remove any signatures that might already be on the document.
     var envSignatureExpression: Option[XPathExpression] = None
     try {
@@ -520,22 +535,6 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       // Create a DOM XMLSignatureFactory that will be used to
       // generate the enveloped signature.
       xmlSignatureFactory = XMLSignatureFactory.getInstance("DOM")
-      // Create a Reference to the enveloped document (in this case,
-      // you are signing the whole document, so a URI of "" signifies
-      // that, and also specify the SHA1 digest algorithm and
-      // the ENVELOPED Transform.
-      val ref = xmlSignatureFactory.newReference(
-        "",
-        xmlSignatureFactory.newDigestMethod(DigestMethod.SHA1, null),
-        Collections.singletonList(xmlSignatureFactory.newTransform(Transform.ENVELOPED, null.asInstanceOf[TransformParameterSpec])),
-        null,
-        null)
-      // Create the SignedInfo.
-      signedInfo = xmlSignatureFactory.newSignedInfo(xmlSignatureFactory.newCanonicalizationMethod(
-        CanonicalizationMethod.INCLUSIVE,
-        null.asInstanceOf[C14NMethodParameterSpec]),
-        xmlSignatureFactory.newSignatureMethod(SignatureMethod.RSA_SHA1, null),
-        Collections.singletonList(ref))
       // Load the KeyStore and get the signing key and certificate.
       val signatureCredentials = newConfiguration.getSignatureCredentials
       val keyStoreFilename = FileUtilities.guardedAbsoluteFile(configRoot, signatureCredentials.getKeystoreFilename).getAbsolutePath
