@@ -95,8 +95,6 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   private var feedId: Option[String] = None
   private var serviceToken: Option[String] = None
   private var sendTraceHeader: Boolean = true
-  private var tokenServiceClient: AkkaServiceClient = _
-  private var policyServiceClient: AkkaServiceClient = _
   private var xmlSignatureFactory: XMLSignatureFactory = _
   private var signedInfo: SignedInfo = _
   private var keyEntry: KeyStore.PrivateKeyEntry = _
