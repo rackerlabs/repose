@@ -254,7 +254,7 @@ class SamlUtilities {
     /**
      * This will validate the signature but won't ensure we trust the certificate.
      */
-    boolean validateSignature(Signature signature, String certificateEntityId = "legacy.idp.external.com") {
+    boolean validateSignature(Signature signature, String certificateEntityId = "idp.external.com") {
         def criteriaSet = new CriteriaSet(new EntityIdCriterion(certificateEntityId))
         trustEngine.validate(signature, criteriaSet)
     }
