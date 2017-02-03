@@ -294,7 +294,7 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    def "a saml:response with an assertion containing an empty Issuer will still be processed successfully"() {
+    def "a saml:response with an assertion containing an empty Issuer will be rejected"() {
         given:
         def saml = samlResponse { MarkupBuilder builder ->
             builder.'saml2:Issuer'(SAML_EXTERNAL_ISSUER)
@@ -326,13 +326,7 @@ class SamlFlow20Test extends ReposeValveTest {
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
 
         then: "the client gets back a good response"
-        mc.receivedResponse.code as Integer == SC_OK
-
-        and: "the origin service received the request with the correct header values"
-        mc.handlings[0]
-        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_XML
-        mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
-        fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
     }
 
     @Unroll
