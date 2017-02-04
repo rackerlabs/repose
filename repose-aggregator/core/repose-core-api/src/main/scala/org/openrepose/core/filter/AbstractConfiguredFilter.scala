@@ -59,13 +59,14 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   /**
     * Subscribes with the configuration service. If the filter config doesn't have a custom file name,
     * it uses the name provided by DEFAULT_CONFIG. It tries to load and use the schema provided by SCHEMA_LOCATION.
+    *
     * @param filterConfig
     */
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("{} initializing ...", this.getClass.getSimpleName)
     configFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
 
-    logger.info("Initializing filter using config {}",  configFile)
+    logger.info("Initializing filter using config {}", configFile)
     val xsdURL: URL = getClass.getResource(SCHEMA_LOCATION)
     configurationService.subscribeTo(
       filterConfig.getFilterName,
@@ -75,37 +76,51 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
       classTag[T].runtimeClass.asInstanceOf[Class[T]]
     )
 
+    doInit(filterConfig)
+
     logger.trace("{} initialized.", this.getClass.getSimpleName)
   }
 
   /**
-    * Unsubscribes from the configuration service.
+    * Called immediately after the [[configFile]] is subscribed to.
+    * Should be overridden when additional processing needs to be performed on initialization.
     */
-  override def destroy(): Unit = {
-    logger.trace("{} destroying ...", this.getClass.getSimpleName)
-    configurationService.unsubscribeFrom(configFile, this)
-    logger.trace("{} destroyed.", this.getClass.getSimpleName)
+  def doInit(filterConfig: FilterConfig): Unit = {
+    logger.trace("{} default doInit ...", this.getClass.getSimpleName)
   }
 
   /**
     * Stores the configuration and marks the filter as initialized.
+    *
     * @param configurationObject
     */
   override def configurationUpdated(configurationObject: T): Unit = {
     logger.trace("{} received a configuration update", this.getClass.getSimpleName)
+    doConfigurationUpdated(configurationObject)
     configuration = configurationObject
-
     initialized = true
   }
 
   /**
+    * Called before the configuration reference is updated.
+    *
+    * @param newConfiguration
+    */
+  def doConfigurationUpdated(newConfiguration: T): Unit = {
+    logger.trace("{} default doConfigurationUpdated ...", this.getClass.getSimpleName)
+  }
+
+
+  /**
     * Returns true once configurationUpdated successfully completes.
+    *
     * @return
     */
   override def isInitialized: Boolean = initialized
 
   /**
-    * Does an intitialization check. Will return 500 if not yet initialized, otherwise calls through to doWork.
+    * Does an initialization check. Will return 500 if not yet initialized, otherwise calls through to doWork.
+    *
     * @param request
     * @param response
     * @param chain
@@ -119,14 +134,32 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
       doWork(request, response, chain)
       logger.trace("{} returning response...", this.getClass.getSimpleName)
     }
-
   }
 
   /**
     * Where the concrete class does it's work. This method is the equivalent doFilter in a normal filter.
+    *
     * @param request
     * @param response
     * @param chain
     */
   def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit
+
+  /**
+    * Un-subscribes from the configuration service.
+    */
+  override def destroy(): Unit = {
+    logger.trace("{} destroying ...", this.getClass.getSimpleName)
+    configurationService.unsubscribeFrom(configFile, this)
+    doDestroy()
+    logger.trace("{} destroyed.", this.getClass.getSimpleName)
+  }
+
+  /**
+    * Called immediately after the [[configFile]] is un-subscribed from.
+    * Should be overridden when additional processing needs to be performed on destruction.
+    */
+  def doDestroy(): Unit = {
+    logger.trace("{} default doDestroy ...", this.getClass.getSimpleName)
+  }
 }

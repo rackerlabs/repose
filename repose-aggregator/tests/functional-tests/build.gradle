@@ -22,6 +22,9 @@ dependencies {
     integrationTestCompile "org.apache.commons:commons-lang3"
     integrationTestCompile "org.springframework:spring-web"
     integrationTestCompile "org.slf4j:jcl-over-slf4j"
+    integrationTestCompile "org.opensaml:opensaml-core"
+    integrationTestCompile "org.opensaml:opensaml-saml-impl"
+    integrationTestCompile "xmlunit:xmlunit"
 
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")

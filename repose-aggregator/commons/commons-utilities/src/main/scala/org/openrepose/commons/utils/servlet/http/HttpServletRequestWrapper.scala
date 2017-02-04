@@ -25,14 +25,16 @@ import java.nio.charset.StandardCharsets
 import java.util
 import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
+import javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 
 import org.apache.http.client.utils.DateUtils
+import org.openrepose.commons.utils.io.RawInputStreamReader
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.{TreeMap, TreeSet}
 import scala.collection.mutable
 
-class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream: ServletInputStream)
+class HttpServletRequestWrapper(originalRequest: HttpServletRequest, val inputStream: ServletInputStream)
   extends javax.servlet.http.HttpServletRequestWrapper(originalRequest) with HeaderInteractor {
 
   import HttpServletRequestWrapper._
@@ -62,7 +64,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
 
   override def getHeaderNames: util.Enumeration[String] = getHeaderNamesScala.toIterator.asJavaEnumeration
 
-  def getHeaderNamesScala: Set[String] = headerMap.keySet ++ Option(super.getHeaderNames).getOrElse(util.Collections.emptyEnumeration).asScala.toSet.filterNot(removedHeaders.contains)
+  def getHeaderNamesScala: Set[String] = headerMap.keySet ++ Option(super.getHeaderNames).getOrElse(util.Collections.emptyEnumeration).asScala.toSet.diff(removedHeaders)
 
   override def getHeaderNamesList: util.List[String] = getHeaderNamesScala.toList.asJava
 
@@ -198,13 +200,13 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     * @return all parameter values associated with the provided key for this request
     */
   override def getParameterValues(key: String): Array[String] =
-    parameterMap.map(_.get(key).orNull).getOrElse(super.getParameterValues(key))
+    getParameterMap.get(key)
 
   /**
     * @return all parameter names for this request
     */
   override def getParameterNames: util.Enumeration[String] =
-    parameterMap.map(_.keysIterator.asJavaEnumeration).getOrElse(super.getParameterNames)
+    util.Collections.enumeration(getParameterMap.keySet())
 
   /**
     * @return a string representation of the query parameters for this request
@@ -215,32 +217,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     * @param newQueryString the desired raw (i.e., already encoded where necessary) query string for this request
     */
   def setQueryString(newQueryString: String): Unit = {
-    def parseQueryString(s: String): Map[String, Array[String]] = {
-      val parameterMap = mutable.Map.empty[String, Array[String]]
-
-      s.split(QueryPairDelimiter) foreach { queryPair =>
-        val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
-
-        /**
-          * Note: Decoding using UTF-8 is consistent with the processing performed by [[HttpComponentRequestProcessor]]
-          * on request parameters. However, if the JVM default encoding is not UTF-8, decoding may not work as expected.
-          * Perhaps the default JVM encoding should be used instead?
-          */
-        val key = URLDecoder.decode(keyValuePair(0), StandardCharsets.UTF_8.toString)
-        if (keyValuePair.length == 2) {
-          val value = URLDecoder.decode(keyValuePair(1), StandardCharsets.UTF_8.toString)
-          parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(value))
-        } else {
-          parameterMap += (key -> parameterMap.getOrElse(key, Array.empty[String]).:+(""))
-        }
-      }
-
-      parameterMap.toMap
-    }
-
     val updatedParameterMap = mutable.Map.empty[String, Array[String]]
-    val curQueryMap = Option(getQueryString).map(parseQueryString).getOrElse(Map.empty[String, Array[String]])
-    val newQueryMap = Option(newQueryString).map(parseQueryString).getOrElse(Map.empty[String, Array[String]])
+    val curQueryMap = Option(getQueryString).map(parseParameterString).getOrElse(Map.empty[String, Array[String]])
 
     // Remove all current query parameters from the parameter map
     formParameterMap match {
@@ -255,11 +233,8 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
         }
         formParameterMap = Option(updatedParameterMap.toMap)
     }
-
-    // Add all new query parameters to the parameter map with query parameters preceding form parameters
-    newQueryMap foreach { case (key, values) =>
-      updatedParameterMap += (key -> (values ++ updatedParameterMap.getOrElse(key, Array.empty[String])))
-    }
+    // Add the new query parameters to the parameter map with the query parameters preceding the form parameters
+    insertParameters(Option(newQueryString).map(parseParameterString).getOrElse(Map.empty[String, Array[String]]), updatedParameterMap)
 
     parameterMap = Option(updatedParameterMap.toMap)
     queryString = newQueryString
@@ -271,8 +246,38 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, inputStream
     *
     * @return the parameter map for this request
     */
-  override def getParameterMap: util.Map[String, Array[String]] =
-    parameterMap.map(_.asJava).getOrElse(super.getParameterMap)
+  override def getParameterMap: util.Map[String, Array[String]] = {
+    def retrieveParameterMap: util.Map[String, Array[String]] = {
+      // As per Servlet Spec 3.1 section 3.1.1, form parameters are only parsed under certain conditions.
+      if (getContentLength > 0 && APPLICATION_FORM_URLENCODED.equalsIgnoreCase(getContentType) &&
+        ("POST".equalsIgnoreCase(getMethod) || "PUT".equalsIgnoreCase(getMethod))) {
+        val updatedParameterMap = mutable.Map.empty[String, Array[String]]
+        formParameterMap match {
+          case Some(fpm) =>
+            updatedParameterMap ++= fpm
+          case None =>
+            // As per Servlet Spec 3.1 section 3.1.1, form parameters are only available until the input stream is read.
+            try {
+              // TODO: UTF-8 is not always the correct encoding
+              updatedParameterMap ++= parseParameterString(
+                new String(RawInputStreamReader.instance.readFully(getInputStream, getContentLength), StandardCharsets.UTF_8))
+            } catch {
+              case _: IllegalStateException => // Just consume it since the stream has already been read.
+            }
+            formParameterMap = Option(updatedParameterMap.toMap)
+        }
+        // Add the query parameters to the parameter map preceding the form parameters already added.
+        insertParameters(Option(getQueryString).map(parseParameterString).getOrElse(Map.empty[String, Array[String]]), updatedParameterMap)
+
+        parameterMap = Option(updatedParameterMap.toMap)
+        parameterMap.getOrElse(Map.empty[String, Array[String]]).asJava
+      } else {
+        super.getParameterMap
+      }
+    }
+
+    parameterMap.map(_.asJava).getOrElse(retrieveParameterMap)
+  }
 }
 
 object HttpServletRequestWrapper {
@@ -287,4 +292,35 @@ object HttpServletRequestWrapper {
     val Available, InputStream, Reader = Value
   }
 
+  private def parseParameterString(s: String): Map[String, Array[String]] = {
+    val parsedParameterMap = mutable.Map.empty[String, Array[String]]
+
+    if (s.nonEmpty) {
+      s.split(QueryPairDelimiter) foreach { queryPair =>
+        val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
+
+        // TODO: UTF-8 is not always the correct encoding
+        /**
+          * Note: Decoding using UTF-8 is consistent with the processing performed by [[HttpComponentRequestProcessor]]
+          * on request parameters. However, if the JVM default encoding is not UTF-8, decoding may not work as expected.
+          * Perhaps the default JVM encoding should be used instead?
+          */
+        val key = URLDecoder.decode(keyValuePair(0), StandardCharsets.UTF_8.toString)
+        if (keyValuePair.length == 2) {
+          val value = URLDecoder.decode(keyValuePair(1), StandardCharsets.UTF_8.toString)
+          parsedParameterMap += (key -> parsedParameterMap.getOrElse(key, Array.empty[String]).:+(value))
+        } else {
+          parsedParameterMap += (key -> parsedParameterMap.getOrElse(key, Array.empty[String]).:+(""))
+        }
+      }
+    }
+
+    parsedParameterMap.toMap
+  }
+
+  private def insertParameters(insertMap: Map[String, Array[String]], intoMap: mutable.Map[String, Array[String]]) = {
+    insertMap foreach { case (key, values) =>
+      intoMap += (key -> (values ++ intoMap.getOrElse(key, Array.empty[String])))
+    }
+  }
 }
