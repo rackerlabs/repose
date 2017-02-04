@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           targetNamespace="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
+           xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0">
+
+    <!-- Elements -->
+    <xs:element name="highly-efficient-record-processor" type="HerpConfig"/>
+
+    <!-- Types -->
+    <xs:complexType name="HerpConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The root config type for the Highly Efficient Record Processor (HERP) filter configuration
+                    file.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="template" type="Template"/>
+            <xs:element name="filterOut" type="FilterOut" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="pre-filter-logger-name" type="xs:string" use="optional"
+                      default="org.openrepose.herp.pre.filter">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This ID will be the SLF4j logger target, it can be used in the backend logger configuration
+                        to direct it's output to an appender. See the log4j documentation as for how to do this.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="post-filter-logger-name" type="xs:string" use="optional"
+                      default="org.openrepose.herp.post.filter">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This ID will be the SLF4j logger target, it can be used in the backend logger configuration
+                        to direct it's output to an appender. See the log4j documentation as for how to do this.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="service-code" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This string will be used in logging to describe the service being accessed.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="region" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This string will be used in logging to note the region of the service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="data-center" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This string will be used in logging to note the data center of the service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="Template">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This is the Handlebars or Mustache based template that will be used to output events.
+                    Supported fields include guid, serviceCode, region, dataCenter, timestamp, requestMethod,
+                    requestURL, requestQueryString, targetHost, parameters, userName, impersonatorName, projectID,
+                    roles, userAgent, responseCode, responseMessage, clusterId, nodeId, requestorIp.
+                    A number of helpers are available for formatting for cadf including cadfOutcome, cadfTimestamp,
+                    cadfMethod.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="crush" type="xs:boolean" use="optional" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Indicates whether or not to replace a newline sequence (i.e. \r, \n, \r\n) plus any
+                                following whitespace with a single space.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="FilterOut">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This is the set of criteria applied to the events to determine if an event is sent through to the
+                    named post filter logger. Multiple FilterOut elements are logically OR'd together.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="match" type="Match" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Match">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This is an individual criterion used in determining if an event passes through.
+                    Multiple Match elements are logically AND'd together.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="field" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is the event field to compare the regular expression against.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is the regular expression to apply to the event field.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>
