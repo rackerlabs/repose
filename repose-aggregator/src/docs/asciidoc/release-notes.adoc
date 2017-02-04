@@ -4,7 +4,7 @@ include::_includes/in-progress.adoc[]
 
 == Future Release
 
-== 8.4.0.0
+== 8.4.0.1
 
 * https://repose.atlassian.net/browse/REP-4795[REP-4795] https://repose.atlassian.net/browse/REP-4831[REP-4831] - the <<filters/saml-policy.adoc#, SamlPolicyTranslationFilter>> has been released!
 * https://repose.atlassian.net/browse/REP-4928[REP-4928] - the Keystone v2 filter will now return a 401 if self-validating tokens are being used and the Identity service responds with a 401.
