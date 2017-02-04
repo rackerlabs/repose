@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema xmlns:header-translation="http://docs.openrepose.org/repose/header-translation/v1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           attributeFormDefault="unqualified"
+           elementFormDefault="qualified"
+           targetNamespace="http://docs.openrepose.org/repose/header-translation/v1.0">
+
+    <xs:element name="header-translation" type="header-translation:header-translationType"/>
+
+    <xs:complexType name="header-translationType">
+
+        <xs:sequence>
+            <xs:element type="header-translation:header" name="header" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(distinct-values(tokenize(lower-case(string-join(
+                   (header-translation:header/@original-name),',')),',')))
+                   = count(header-translation:header/@original-name)"
+                   xerces:message="Original names must be unique. Evaluation is case insensitive."
+                   saxon:message="Original names must be unique. Evaluation is case insensitive."/>
+
+    </xs:complexType>
+
+    <xs:complexType name="header">
+
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Header translation can be used to change the name of a header and
+                    optionally remove the original header.
+                </html:p>
+                <html:p>To translate a header you provide the old header name and a
+                    list of new header names. Original header names are evaluated in a case
+                    insensitive manner.
+                </html:p>
+                <html:p>Optionally you can remove the old header, which is left in by default.</html:p>
+                <html:p>New header names are limited to 64 characters.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="original-name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The name of the original header to look for in the request.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="new-name" type="header-translation:StringList" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The list of new headers this filter should create using the values of the original header.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="remove-original" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Whether or not the original header should be removed in the request.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="quality" type="header-translation:doubleBetweenZeroAndOne" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Quality for the new headers. If no quality is specified, the original quality (if any) is used.
+                        When quality is specified, any specified quality in the original value will be removed before
+                        the new quality is added.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="splittable" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Whether or not the original header should be split.  If the value of the original header can
+                        contain commas that are not meant to delimit individual header values (e.g. User-Agent), this
+                        should be set to false (or left out since the default is false).  When set to false, each
+                        header entry will be treated as a single value when it comes to applying the configured
+                        quality (if applicable).  It is important to set this attribute to true when configured
+                        to set a new header quality on a splittable header (otherwise, not all of the qualities will
+                        be correctly updated).
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="overwrite-target" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sets whether or not you'd like this translation to replace any existing values
+                        in the new location.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <xs:simpleType name="header-string">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This limits a header name string to 64 characters.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="64"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="StringList">
+        <xs:list itemType="header-translation:header-string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="doubleBetweenZeroAndOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

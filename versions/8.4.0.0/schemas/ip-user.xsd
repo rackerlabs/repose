@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/repose/ip-user/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/ip-user/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <xs:element name="ip-user" type="IpUserConfig"/>
+
+    <xs:complexType name="IpUserConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root configuration for the Repose IP Classification filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="user-header" type="UserHeaderType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="group-header" type="GroupHeaderType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="group" type="GroupType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- because this became a complex type now, I cannot use defaults. Have to put them in the scala :( -->
+    <!-- well, the quality could be optional, but not the name, and if the name isn't there, the quality isn't there either -->
+    <xs:complexType name="HeaderType">
+        <!-- quality attribute follows the default from ip-identity -->
+        <xs:attribute name="quality" type="doubleBetweenZeroandOne" use="optional" default="0.4">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The quality associated with this header value.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="UserHeaderType">
+        <xs:complexContent>
+            <xs:extension base="HeaderType">
+                <xs:attribute name="name" type="xs:string" use="optional" default="x-pp-user">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>The header name to be used.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="GroupHeaderType">
+        <xs:complexContent>
+            <xs:extension base="HeaderType">
+                <xs:attribute name="name" type="xs:string" use="optional" default="x-pp-groups">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>The header name to be used.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="GroupType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>A list of Classless Inter-Domain Routing (CIDR) addresses.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="cidr-ip" type="xs:string" minOccurs="1" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The Classless Inter-Domain Routing (CIDR) expression to match against.
+                            See: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The name to be placed in the named group header.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
