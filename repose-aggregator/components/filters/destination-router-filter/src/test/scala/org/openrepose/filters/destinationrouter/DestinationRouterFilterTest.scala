@@ -20,8 +20,6 @@
 package org.openrepose.filters.destinationrouter
 
 import java.net.URL
-
-import com.mockrunner.mock.web.MockHttpServletResponse
 import org.mockito.Matchers.{any, anyString, same}
 import org.mockito.Mockito.{reset, verify}
 import org.openrepose.commons.utils.http.CommonRequestAttributes
@@ -31,7 +29,7 @@ import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.filters.routing.servlet.config.{DestinationRouterConfiguration, Target}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
-import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest}
+import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
 class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAfterEach with MockitoSugar {
 

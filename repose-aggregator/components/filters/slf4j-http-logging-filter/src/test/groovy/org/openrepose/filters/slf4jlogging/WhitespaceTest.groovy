@@ -19,13 +19,13 @@
  */
 package org.openrepose.filters.slf4jlogging
 
-import com.mockrunner.mock.web.MockFilterChain
-import com.mockrunner.mock.web.MockHttpServletRequest
-import com.mockrunner.mock.web.MockHttpServletResponse
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.Ignore
+import org.springframework.mock.web.MockFilterChain
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
 import spock.lang.Shared
 import spock.lang.Specification
 

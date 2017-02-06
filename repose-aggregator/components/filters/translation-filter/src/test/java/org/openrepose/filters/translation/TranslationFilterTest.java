@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.translation;
 
-import com.mockrunner.mock.web.MockFilterConfig;
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
@@ -34,6 +33,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.ResponseMode;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.filters.translation.config.*;
+import org.springframework.mock.web.MockFilterConfig;
 import org.xml.sax.SAXException;
 
 import javax.servlet.ServletInputStream;

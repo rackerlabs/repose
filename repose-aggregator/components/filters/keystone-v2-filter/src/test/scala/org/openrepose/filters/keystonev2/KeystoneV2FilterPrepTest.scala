@@ -21,7 +21,6 @@ package org.openrepose.filters.keystonev2
 
 import java.net.URL
 
-import com.mockrunner.mock.web.MockFilterConfig
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -38,6 +37,7 @@ import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.mock.web.MockFilterConfig
 
 import scala.collection.JavaConversions._
 

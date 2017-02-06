@@ -32,7 +32,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -41,8 +40,6 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.systemmodel.*;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.net.URL;
 import java.util.Iterator;
@@ -55,8 +52,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
 public class RequestHeaderServiceContextTest {
     private static final String CONFIG = "classpath:log4j2-RequestHeaderServiceContext.xml";
     private static LoggerContext ctx;

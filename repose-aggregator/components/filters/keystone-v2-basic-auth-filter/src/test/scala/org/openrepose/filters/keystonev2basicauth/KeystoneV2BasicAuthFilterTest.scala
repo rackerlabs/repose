@@ -21,7 +21,6 @@ package org.openrepose.filters.keystonev2basicauth
 
 import javax.servlet.http.HttpServletResponse
 
-import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
@@ -39,6 +38,7 @@ import org.openrepose.filters.keystonev2basicauth.config.KeystoneV2BasicAuthConf
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConversions._
 

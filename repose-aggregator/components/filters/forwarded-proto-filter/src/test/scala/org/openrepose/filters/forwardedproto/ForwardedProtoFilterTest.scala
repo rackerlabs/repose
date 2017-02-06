@@ -22,7 +22,6 @@ package org.openrepose.filters.forwardedproto
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.{FilterChain, ServletResponse}
 
-import com.mockrunner.mock.web.MockHttpServletRequest
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
@@ -30,6 +29,7 @@ import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
+import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConverters._
 

@@ -19,10 +19,10 @@
  */
 package org.openrepose.filters.ratelimiting
 
-import com.mockrunner.mock.web.MockHttpServletRequest
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.core.services.ratelimit.RateLimitingService
+import org.springframework.mock.web.MockHttpServletRequest
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll

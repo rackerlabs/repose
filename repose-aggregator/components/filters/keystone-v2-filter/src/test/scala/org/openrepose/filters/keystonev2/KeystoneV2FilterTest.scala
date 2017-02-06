@@ -26,7 +26,6 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Servlet, ServletRequest, ServletResponse}
 import javax.ws.rs.core.MediaType
 
-import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
 import org.apache.commons.codec.binary.Base64
 import org.apache.http.client.utils.DateUtils
@@ -52,6 +51,7 @@ import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec}
+import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions

@@ -21,7 +21,7 @@ package org.openrepose.filters.valkyrieauthorization
 
 import java.io.ByteArrayInputStream
 import java.net.URL
-import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.charset.StandardCharsets
 import java.util
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequestWrapper, HttpServletResponse, HttpServletResponseWrapper}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
-import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
 import org.apache.http.message.BasicHeader
 import org.apache.http.{Header, HttpHeaders}
@@ -50,7 +49,7 @@ import org.openrepose.filters.valkyrieauthorization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers => ScalaTestMatchers}
-import org.springframework.mock.web.{MockHttpServletResponse => SpringHttpServletResponse}
+import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._

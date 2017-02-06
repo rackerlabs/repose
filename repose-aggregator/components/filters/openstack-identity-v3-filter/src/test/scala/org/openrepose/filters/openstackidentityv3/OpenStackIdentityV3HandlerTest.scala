@@ -22,7 +22,6 @@ package org.openrepose.filters.openstackidentityv3
 import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.HttpServletResponse
 
-import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mockitoEq}
 import org.mockito.Mockito.{verify, when}
@@ -37,6 +36,7 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.springframework.http.HttpHeaders
+import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.util.{Failure, Try}
 

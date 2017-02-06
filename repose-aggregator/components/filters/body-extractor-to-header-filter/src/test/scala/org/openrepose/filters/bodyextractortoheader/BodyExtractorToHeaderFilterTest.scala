@@ -23,7 +23,6 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import javax.servlet.http.HttpServletRequest
 
-import com.mockrunner.mock.web.MockFilterConfig
 import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.runner.RunWith
 import org.mockito.Matchers._
@@ -32,7 +31,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodyextractortoheader.config.{BodyExtractorToHeaderConfig, Extractor}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
-import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
+import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
 

@@ -19,12 +19,11 @@
  */
 package org.openrepose.commons.utils.servlet.http
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, IOException, UnsupportedEncodingException}
+import java.io.{ByteArrayInputStream, IOException, UnsupportedEncodingException}
 import java.nio.charset.UnsupportedCharsetException
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
 
-import com.mockrunner.mock.web.MockHttpServletResponse
 import org.apache.http.client.utils.DateUtils
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mEq, _}
@@ -33,6 +32,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.mock.web.MockHttpServletResponse
 
 import scala.io.Source
 
