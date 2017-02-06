@@ -72,12 +72,10 @@ a| * If a policy that matches the assertion issuer can not be found.
 In other words, if an unexpected problem occurs.
 
 | `502`
-a| * If Identity returns a 5xx response.
-   * If parsing the policy fails.
-
-| `502`
-| If Identity returns a 413 or 429 response code, indicating that this filter's request was rate limited.
+a| * If Identity returns a 413 or 429 response code, indicating that this filter's request was rate limited.
 The response from this filter will contain a *Retry-After* header.
+   * If Identity returns a 5xx response.
+   * If parsing the policy fails.
 
 | `504`
 | If a connection to Identity times out.
