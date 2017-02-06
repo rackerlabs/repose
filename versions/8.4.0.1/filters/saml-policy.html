@@ -1046,6 +1046,10 @@ In other words, if an unexpected problem occurs.</p></td>
 <td class="tableblock halign-left valign-top"><div><div class="ulist">
 <ul>
 <li>
+<p>If Identity returns a 413 or 429 response code, indicating that this filter&#8217;s request was rate limited.
+The response from this filter will contain a <strong>Retry-After</strong> header.</p>
+</li>
+<li>
 <p>If Identity returns a 5xx response.</p>
 </li>
 <li>
@@ -1053,11 +1057,6 @@ In other words, if an unexpected problem occurs.</p></td>
 </li>
 </ul>
 </div></div></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>502</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If Identity returns a 413 or 429 response code, indicating that this filter&#8217;s request was rate limited.
-The response from this filter will contain a <strong>Retry-After</strong> header.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>504</code></p></td>
