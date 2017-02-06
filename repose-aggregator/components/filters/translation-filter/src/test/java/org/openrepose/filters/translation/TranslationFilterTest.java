@@ -69,8 +69,7 @@ public class TranslationFilterTest {
             configurationRoot = "";
             filter = new TranslationFilter(configurationService, configurationRoot);
 
-            MockFilterConfig mockFilterConfig = new MockFilterConfig();
-            mockFilterConfig.setFilterName("TranslationFilter");
+            MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
             filter.init(mockFilterConfig);
 
             TranslationConfig config = new TranslationConfig();
@@ -239,8 +238,7 @@ public class TranslationFilterTest {
             configurationRoot = "";
             filter = new TranslationFilter(configurationService, configurationRoot);
 
-            MockFilterConfig mockFilterConfig = new MockFilterConfig();
-            mockFilterConfig.setFilterName("TranslationFilter");
+            MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
             filter.init(mockFilterConfig);
 
             TranslationConfig config = new TranslationConfig();
@@ -368,8 +366,7 @@ public class TranslationFilterTest {
             configurationRoot = "";
             filter = new TranslationFilter(configurationService, configurationRoot);
 
-            MockFilterConfig mockFilterConfig = new MockFilterConfig();
-            mockFilterConfig.setFilterName("TranslationFilter");
+            MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
             filter.init(mockFilterConfig);
         }
 

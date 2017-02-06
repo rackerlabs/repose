@@ -232,7 +232,7 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           roles = List(Role("admin", Some("ProjectToNotSee"))))))
       val mockRequest = new MockHttpServletRequest()
-      mockRequest.setHeader("X-Subject-Token", "123456")
+      mockRequest.addHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
       val wrappedRequest = new HttpServletRequestWrapper(mockRequest)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
@@ -253,7 +253,7 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           roles = List(Role("admin", Some("ProjectToNotSee"))))))
       val mockRequest = new MockHttpServletRequest()
-      mockRequest.setHeader("X-Subject-Token", "123456")
+      mockRequest.addHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/bar")
       val wrappedRequest = new HttpServletRequestWrapper(mockRequest)
       identityConfig.setValidateProjectIdInUri(null)
@@ -275,7 +275,7 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           roles = List(Role("admin", Some("ProjectToNotSee"))))))
       val mockRequest = new MockHttpServletRequest()
-      mockRequest.setHeader("X-Subject-Token", "123456")
+      mockRequest.addHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/bar")
       val wrappedRequest = new HttpServletRequestWrapper(mockRequest)
       identityConfig.setValidateProjectIdInUri(null)
@@ -297,7 +297,7 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           roles = List(Role("admin", Some("ProjectIdFromRoles"))))))
       val mockRequest = new MockHttpServletRequest()
-      mockRequest.setHeader("X-Subject-Token", "123456")
+      mockRequest.addHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
       val wrappedRequest = new HttpServletRequestWrapper(mockRequest)
       identityConfig.setSendAllProjectIds(true)
@@ -319,7 +319,7 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
           catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
           roles = List(Role("admin", Some("ProjectIdFromRoles"), Some("RaxExtensionProjectId"))))))
       val mockRequest = new MockHttpServletRequest()
-      mockRequest.setHeader("X-Subject-Token", "123456")
+      mockRequest.addHeader("X-Subject-Token", "123456")
       mockRequest.setRequestURI("/foo/12345")
       val wrappedRequest = new HttpServletRequestWrapper(mockRequest)
       identityConfig.setSendAllProjectIds(true)
@@ -337,7 +337,7 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
         when(identityAPI.validateToken("123456", None)).thenReturn(
           Failure(new IdentityServiceOverLimitException("Rate limited by OpenStack Identity service", statusCode, retryString)))
         val mockRequest = new MockHttpServletRequest()
-        mockRequest.setHeader("X-Subject-Token", "123456")
+        mockRequest.addHeader("X-Subject-Token", "123456")
         val wrappedRequest = new HttpServletRequestWrapper(mockRequest)
         val mockResponse = new MockHttpServletResponse()
         identityConfig.setForwardGroups(false)

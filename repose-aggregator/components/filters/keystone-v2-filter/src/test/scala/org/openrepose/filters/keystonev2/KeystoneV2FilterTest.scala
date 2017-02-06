@@ -94,7 +94,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain
       filter.isInitialized shouldBe false
       filter.doFilter(request, response, filterChain)
-      response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
     }
 
     it("should subscribe a listener to the configuration service on init") {
@@ -223,8 +223,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("should handle identity service uri ending with a '/'") {
@@ -250,8 +250,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       keystoneFilter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
       verify(mockAkkaClient).get(anyString(), mockitoEq(s"https://some.identity.com$TOKEN_ENDPOINT/$VALID_TOKEN"), any(), anyBoolean())
     }
 
@@ -274,8 +274,8 @@ with HttpDelegationManager {
 
       verify(mockDatastore).put(ADMIN_TOKEN_KEY, "glibglob")
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("caches a valid token for 10 minutes") {
@@ -302,8 +302,8 @@ with HttpDelegationManager {
         mockitoEq(600),
         mockitoEq(TimeUnit.SECONDS))
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("Makes no other calls if the token is already cached with a valid result") {
@@ -324,8 +324,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("rejects with 401 an invalid token") {
@@ -342,10 +342,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
     }
 
@@ -357,10 +357,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
     }
 
@@ -383,8 +383,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("rejects with 500 if the admin token is not authorized to validate tokens (401)") {
@@ -401,10 +401,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     it("rejects with 500 if the admin token is not authorized to validate tokens (403)") {
@@ -421,10 +421,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     it("rejects with 500 if we cannot reach identity") {
@@ -439,10 +439,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     it("rejects with 500 if we cannot authenticate as the admin user") {
@@ -459,10 +459,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     it("rejects with 503 if we are rate limited by identity (413)") {
@@ -478,11 +478,11 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     it("rejects with 503 if we are rate limited by identity (429)") {
@@ -498,11 +498,11 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     it("does not forward the authenticatedBy field if it is an empty array") {
@@ -517,8 +517,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest should not be null
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.AUTHENTICATED_BY.toString) shouldBe null
+      filterChain.getRequest should not be null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.AUTHENTICATED_BY.toString) shouldBe null
     }
 
     it("forwards the authenticatedBy field if present and non-empty") {
@@ -534,8 +534,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest should not be null
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.AUTHENTICATED_BY.toString) shouldBe "password"
+      filterChain.getRequest should not be null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.AUTHENTICATED_BY.toString) shouldBe "password"
     }
 
     it("forwards all values from the authenticatedBy field") {
@@ -551,8 +551,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest should not be null
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeaders(OpenStackServiceHeader.AUTHENTICATED_BY.toString).asScala.toSeq should contain only("PASSWORD", "PASSCODE")
+      filterChain.getRequest should not be null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(OpenStackServiceHeader.AUTHENTICATED_BY.toString).asScala.toSeq should contain only("PASSWORD", "PASSCODE")
     }
   }
 
@@ -600,8 +600,8 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       //Continues with the chain
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("allows a user through if they have the endpoint configured in their endpoints list with tenant appended") {
@@ -639,8 +639,8 @@ with HttpDelegationManager {
       testFilter.doFilter(request, response, filterChain)
 
       //Continues with the chain
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("handles 203 response from endpoints call") {
@@ -660,8 +660,8 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       //Continues with the chain
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("handles 403 response from endpoints call") {
@@ -682,10 +682,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     it("handles 401 response from endpoints call") {
@@ -708,7 +708,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     it("handles akka service client call failing") {
@@ -729,10 +729,10 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       //Continues with the chain
-      filterChain.getLastRequest shouldBe null
-      filterChain.getLastResponse shouldBe null
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     it("handles unexpected response from endpoints call") {
@@ -753,10 +753,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldBe null
-      filterChain.getLastResponse shouldBe null
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
+      response.getStatus shouldBe HttpServletResponse.SC_BAD_GATEWAY
     }
 
     it("rejects with 403 if the user does not have the required endpoint") {
@@ -776,10 +776,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      response.getStatus shouldBe HttpServletResponse.SC_FORBIDDEN
       //Continues with the chain
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     it("bypasses validation if the user has the role listed in pre-authorized-roles") {
@@ -799,8 +799,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("rejects with 401 if the token is no longer valid when catalog variable is set") {
@@ -827,10 +827,10 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
       //Continues with the chain
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     describe("when endpoints are cached") {
@@ -852,9 +852,9 @@ with HttpDelegationManager {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        response.getErrorCode shouldBe HttpServletResponse.SC_FORBIDDEN
-        filterChain.getLastRequest should be(null)
-        filterChain.getLastResponse should be(null)
+        response.getStatus shouldBe HttpServletResponse.SC_FORBIDDEN
+        filterChain.getRequest should be(null)
+        filterChain.getResponse should be(null)
       }
 
       it("will allow through if the user has the endpoint") {
@@ -875,8 +875,8 @@ with HttpDelegationManager {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        filterChain.getLastRequest shouldNot be(null)
-        filterChain.getLastResponse shouldNot be(null)
+        filterChain.getRequest shouldNot be(null)
+        filterChain.getResponse shouldNot be(null)
       }
 
       it("will allow through if the user matches the bypass roles") {
@@ -897,8 +897,8 @@ with HttpDelegationManager {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        filterChain.getLastRequest shouldNot be(null)
-        filterChain.getLastResponse shouldNot be(null)
+        filterChain.getRequest shouldNot be(null)
+        filterChain.getResponse shouldNot be(null)
       }
 
       it("rejects with 503 if we are rate limited by identity (413)") {
@@ -918,11 +918,11 @@ with HttpDelegationManager {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
         response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-        filterChain.getLastRequest should be(null)
-        filterChain.getLastResponse should be(null)
+        filterChain.getRequest should be(null)
+        filterChain.getResponse should be(null)
       }
 
       it("rejects with 503 if we are rate limited by identity (429)") {
@@ -942,11 +942,11 @@ with HttpDelegationManager {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
         response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-        filterChain.getLastRequest should be(null)
-        filterChain.getLastResponse should be(null)
+        filterChain.getRequest should be(null)
+        filterChain.getResponse should be(null)
       }
     }
   }
@@ -987,10 +987,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe "DERP"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe "DERP"
     }
 
     it("handles when serviceClientResponse.getStatus fails") {
@@ -1010,8 +1010,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-      filterChain.getLastRequest shouldBe null
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      filterChain.getRequest shouldBe null
     }
 
     it("handles 401 response from groups call") {
@@ -1034,8 +1034,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-      filterChain.getLastRequest shouldBe null
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      filterChain.getRequest shouldBe null
     }
 
     it("handles 403 response from groups call") {
@@ -1056,8 +1056,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-      filterChain.getLastRequest shouldBe null
+      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      filterChain.getRequest shouldBe null
     }
 
     it("handles 413 response from groups call") {
@@ -1077,8 +1077,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
-      filterChain.getLastRequest shouldBe null
+      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      filterChain.getRequest shouldBe null
     }
 
     it("handles 429 response from groups call") {
@@ -1098,8 +1098,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
-      filterChain.getLastRequest shouldBe null
+      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      filterChain.getRequest shouldBe null
     }
 
     it("handles unexpected response from groups call") {
@@ -1120,8 +1120,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
-      filterChain.getLastRequest shouldBe null
+      response.getStatus shouldBe HttpServletResponse.SC_BAD_GATEWAY
+      filterChain.getRequest shouldBe null
     }
 
     it("handles 404s from groups call by allowing users through with no X-PP-Groups") {
@@ -1142,7 +1142,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
     }
   }
 
@@ -1170,7 +1170,7 @@ with HttpDelegationManager {
 
     it("delegates with an invalid token and adds the header") {
       val request = new MockHttpServletRequest
-      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/some/path/application.wadl")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "INVALID_TOKEN")
 
@@ -1183,7 +1183,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
+      val delegationHeader = parseDelegationHeader(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
@@ -1194,7 +1194,7 @@ with HttpDelegationManager {
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest
-      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/some/path/application.wadl")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1207,7 +1207,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      val lastRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val lastRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       val delegationHeader = parseDelegationHeader(lastRequest.getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_FORBIDDEN
@@ -1218,7 +1218,7 @@ with HttpDelegationManager {
 
     it("delegates if identity doesn't respond properly") {
       val request = new MockHttpServletRequest
-      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/some/path/application.wadl")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1231,14 +1231,14 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
+      val delegationHeader = parseDelegationHeader(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
     }
 
     it("delegates if the admin token is invalid") {
       val request = new MockHttpServletRequest
-      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/some/path/application.wadl")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1253,7 +1253,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      val delegationHeader = parseDelegationHeader(filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
+      val delegationHeader = parseDelegationHeader(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
@@ -1270,12 +1270,12 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.CONFIRMED.toString
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.CONFIRMED.toString
     }
 
     it("forwards the identity status as Indeterminate in the x-identity-status header when delegating failure") {
       val request = new MockHttpServletRequest
-      request.setRequestURL("http://www.sample.com/some/path/application.wadl")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/some/path/application.wadl")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "INVALID_TOKEN")
 
@@ -1288,12 +1288,11 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.INDETERMINATE.toString
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString) shouldBe IdentityStatus.INDETERMINATE.toString
     }
 
     it("responds with a www-authenticate header when delegating") {
       val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
       val mockServlet = mock[Servlet]
       doAnswer(new Answer[Unit] {
         override def answer(invocation: InvocationOnMock): Unit = {
@@ -1301,8 +1300,7 @@ with HttpDelegationManager {
           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
         }
       }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
-
-      filterChain.setServlet(mockServlet)
+      val filterChain = new MockFilterChain(mockServlet)
 
       val request = new MockHttpServletRequest
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, "notValidToken")
@@ -1313,7 +1311,7 @@ with HttpDelegationManager {
 
       filter.doFilter(request, response, filterChain)
 
-      response.getStatusCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString) should contain("Keystone uri=https://some.identity.com")
     }
   }
@@ -1352,8 +1350,8 @@ with HttpDelegationManager {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        filterChain.getLastRequest shouldNot be(null)
-        filterChain.getLastResponse shouldNot be(null)
+        filterChain.getRequest shouldNot be(null)
+        filterChain.getResponse shouldNot be(null)
       }
     }
   }
@@ -1404,8 +1402,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
       verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), isA(classOf[SetPatch[String]]), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
@@ -1437,8 +1435,8 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
       verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"),
         isA(classOf[SetPatch[String]]),
         intThat(both(greaterThanOrEqualTo(Int.box(269))).and(lessThanOrEqualTo(Int.box(271)))),
@@ -1480,8 +1478,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
       verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), isA(classOf[SetPatch[String]]), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
@@ -1523,7 +1521,7 @@ with HttpDelegationManager {
 
     it("will not require a default tenant ID") {
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1533,13 +1531,13 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("will extract the tenant from the URI and validate that the user has that tenant in their list") {
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1549,13 +1547,13 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("will extract the tenant from the URI and validate that the user has a prefixed tenant as the default") {
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1565,13 +1563,13 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("will extract the tenant from the URI and validate that the user has a prefixed tenant in their roles") {
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1581,13 +1579,13 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("will extract the tenant from the URI and reject if the user does not have that tenant in their list") {
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1607,7 +1605,7 @@ with HttpDelegationManager {
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1618,7 +1616,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("tenant")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("rick")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("morty")
@@ -1626,7 +1624,7 @@ with HttpDelegationManager {
 
     it("sends all tenant IDs with a quality when all three are configured") {
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/rick/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/rick/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1636,7 +1634,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("tenant;q=0.9")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("rick;q=0.7")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) should include("morty;q=0.5")
@@ -1648,7 +1646,7 @@ with HttpDelegationManager {
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/rick/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/rick/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1659,14 +1657,14 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "rick;q=0.7"
     }
 
     it("bypasses the URI tenant validation check when a user has a role in the pre-authorized-roles list") {
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/tenant/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1676,8 +1674,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("sends the tenant matching the URI when send all tenants is false and validate-tenant is enabled") {
@@ -1687,7 +1685,7 @@ with HttpDelegationManager {
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/morty/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/morty/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1698,7 +1696,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "morty"
     }
@@ -1711,7 +1709,7 @@ with HttpDelegationManager {
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/years/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/years/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1722,14 +1720,14 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID.toString).asScala.size shouldBe 1
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString) shouldBe "one"
     }
 
     it("should return a failure if a tenant could not be parsed from the URI") {
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/bu-%tts/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/bu-%tts/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1745,7 +1743,7 @@ with HttpDelegationManager {
 
     it("should send the X-Authorization header with the tenant in the uri") {
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/years/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/years/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1755,7 +1753,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy years"
     }
 
@@ -1765,7 +1763,7 @@ with HttpDelegationManager {
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/years/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/years/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1776,7 +1774,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy foo"
     }
 
@@ -1786,7 +1784,7 @@ with HttpDelegationManager {
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/years/test")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/years/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -1797,7 +1795,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      val processedRequest = filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString) shouldBe "Proxy foo"
     }
   }
@@ -1837,9 +1835,9 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.USER.toString) shouldBe "testuser"
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "testuser"
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_ID.toString) shouldBe "123"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.USER.toString) shouldBe "testuser"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "testuser"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_ID.toString) shouldBe "123"
     }
 
     it("forwards the user's roles information in the x-roles header") {
@@ -1858,8 +1856,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include("compute:admin")
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include("object-store:admin")
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include("compute:admin")
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) should include("object-store:admin")
     }
 
     it("forwards the user's contact id information in the x-contact-id header") {
@@ -1878,7 +1876,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.CONTACT_ID.toString) shouldBe "abc123"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.CONTACT_ID.toString) shouldBe "abc123"
     }
 
     it("forwards the user's impersonator information in the x-impersonator-id, x-impersonator-name, and x-impersonator roles headers") {
@@ -1897,10 +1895,10 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString) shouldBe "567"
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString) shouldBe "rick"
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString) should include("Racker")
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString) should include("object-store:admin")
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString) shouldBe "567"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString) shouldBe "rick"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString) should include("Racker")
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString) should include("object-store:admin")
     }
 
     it("forwards the user's default region information in the x-default-region header") {
@@ -1919,7 +1917,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.DEFAULT_REGION.toString) shouldBe "DFW"
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.DEFAULT_REGION.toString) shouldBe "DFW"
     }
 
     it("forwards the expiration date information in the x-expiration header") {
@@ -1939,7 +1937,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest]
+      filterChain.getRequest.asInstanceOf[HttpServletRequest]
         .getHeader(OpenStackServiceHeader.X_EXPIRATION.toString) shouldBe iso8601ToRfc1123(tokenDateFormat(dateTime))
     }
 
@@ -1959,7 +1957,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) should include("test-group-id")
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) should include("test-group-id")
     }
 
     it("should not add the groups in the x-pp-groups header when RAX-KSGRP:groups not defined") {
@@ -1978,7 +1976,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
     }
 
     it("should not add the roles in the x-roles header when isSetRolesInHeader is false") {
@@ -2000,7 +1998,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) shouldBe null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES.toString) shouldBe null
     }
 
     it("forwards the user's catalog in x-catalog header base64 JSON encoded by default") {
@@ -2023,7 +2021,7 @@ with HttpDelegationManager {
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
       val encodedEndpoints = Base64.encodeBase64String(endpointsResponse().getBytes)
-      filterChain.getLastRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.X_CATALOG.toString) shouldBe encodedEndpoints
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.X_CATALOG.toString) shouldBe encodedEndpoints
     }
   }
 
@@ -2053,7 +2051,7 @@ with HttpDelegationManager {
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/567/foo")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/567/foo")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -2062,7 +2060,7 @@ with HttpDelegationManager {
 
       filter.doFilter(request, response, chain)
 
-      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val postFilterRequest = chain.getRequest.asInstanceOf[HttpServletRequest]
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:234")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
@@ -2098,7 +2096,7 @@ with HttpDelegationManager {
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/456/foo")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/456/foo")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -2107,7 +2105,7 @@ with HttpDelegationManager {
 
       filter.doFilter(request, response, chain)
 
-      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val postFilterRequest = chain.getRequest.asInstanceOf[HttpServletRequest]
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:234")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
@@ -2143,7 +2141,7 @@ with HttpDelegationManager {
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/345/foo")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/345/foo")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -2152,7 +2150,7 @@ with HttpDelegationManager {
 
       filter.doFilter(request, response, chain)
 
-      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val postFilterRequest = chain.getRequest.asInstanceOf[HttpServletRequest]
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
     }
@@ -2190,7 +2188,7 @@ with HttpDelegationManager {
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/345/foo")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/345/foo")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -2199,7 +2197,7 @@ with HttpDelegationManager {
 
       filter.doFilter(request, response, chain)
 
-      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val postFilterRequest = chain.getRequest.asInstanceOf[HttpServletRequest]
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:234")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
@@ -2238,7 +2236,7 @@ with HttpDelegationManager {
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
       val request = new MockHttpServletRequest()
-      request.setRequestURL("http://www.sample.com/345/foo")
+      request.setServerName("www.sample.com")
       request.setRequestURI("/345/foo")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN.toString, VALID_TOKEN)
 
@@ -2247,7 +2245,7 @@ with HttpDelegationManager {
 
       filter.doFilter(request, response, chain)
 
-      val postFilterRequest = chain.getLastRequest.asInstanceOf[HttpServletRequest]
+      val postFilterRequest = chain.getRequest.asInstanceOf[HttpServletRequest]
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:123")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES.toString) should include("role:345")
     }
@@ -2368,8 +2366,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getLastRequest shouldNot be(null)
-      filterChain.getLastResponse shouldNot be(null)
+      filterChain.getRequest shouldNot be(null)
+      filterChain.getResponse shouldNot be(null)
     }
 
     it("rejects with 401 if we receive unauthorized from Identity (401)") {
@@ -2383,11 +2381,11 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     it("rejects with 413 if we are rate limited by identity (413)") {
@@ -2403,11 +2401,11 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+      response.getStatus shouldBe HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
 
     it("rejects with 429 if we are rate limited by identity (429)") {
@@ -2423,11 +2421,11 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getErrorCode shouldBe SC_TOO_MANY_REQUESTS
+      response.getStatus shouldBe SC_TOO_MANY_REQUESTS
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-      filterChain.getLastRequest should be(null)
-      filterChain.getLastResponse should be(null)
+      filterChain.getRequest should be(null)
+      filterChain.getResponse should be(null)
     }
   }
 
@@ -2548,5 +2546,4 @@ with HttpDelegationManager {
         authenticatedBy)
     }
   }
-
 }

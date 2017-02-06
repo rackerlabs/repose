@@ -81,8 +81,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val mockConfigService = mock[ConfigurationService]
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mockConfigService, akkaServiceClientFactory, mockDatastoreService)
 
-      val config: MockFilterConfig = new MockFilterConfig
-      config.setFilterName("ValkyrieFilter")
+      val config: MockFilterConfig = new MockFilterConfig("ValkyrieFilter")
 
       filter.init(config)
 
@@ -102,7 +101,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mockConfigService, akkaServiceClientFactory, mockDatastoreService)
 
       val config: MockFilterConfig = new MockFilterConfig
-      config.setInitParameter("filter-config", "another-name.cfg.xml")
+      config.addInitParameter("filter-config", "another-name.cfg.xml")
 
       filter.init(config)
 

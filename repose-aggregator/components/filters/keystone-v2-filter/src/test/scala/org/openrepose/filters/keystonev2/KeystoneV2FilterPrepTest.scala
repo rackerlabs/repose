@@ -64,8 +64,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       Mockito.when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
       val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-      val config = new MockFilterConfig
-      config.setFilterName("KeystoneV2Filter")
+      val config = new MockFilterConfig("KeystoneV2Filter")
 
       filter.init(config)
 
@@ -92,9 +91,8 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       Mockito.when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
       val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
-      val config = new MockFilterConfig
-      config.setFilterName("KeystoneV2Filter")
-      config.setInitParameter("filter-config", "some-other-config.xml")
+      val config = new MockFilterConfig("KeystoneV2Filter")
+      config.addInitParameter("filter-config", "some-other-config.xml")
 
       filter.init(config)
 

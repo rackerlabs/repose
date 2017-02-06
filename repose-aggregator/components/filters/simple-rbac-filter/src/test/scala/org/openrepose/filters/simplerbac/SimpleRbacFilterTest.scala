@@ -53,7 +53,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
     mockConfigService = mock[ConfigurationService]
-    mockFilterConfig = new MockFilterConfig
+    mockFilterConfig = new MockFilterConfig("SimpleRbacFilter")
     filter = new SimpleRbacFilter(mockConfigService, new File("./repose-aggregator/extensions/simple-rbac/target").getAbsolutePath)
     config = new SimpleRbacConfig
     config.setWadlOutput("simple-rbac.wadl")
@@ -155,7 +155,6 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
       Given("an un-initialized filter and a mock'd Filter Config")
       filter.configuration shouldBe null
       !filter.isInitialized
-      mockFilterConfig.setFilterName("SimpleRbacFilter")
       val resourceCaptor = ArgumentCaptor.forClass(classOf[URL])
 
       When("the filter is initialized")
@@ -175,7 +174,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
       Given("an un-initialized filter and a mock'd Filter Config")
       filter.configuration shouldBe null
       !filter.isInitialized
-      mockFilterConfig.setInitParameter("filter-config", "another-name.cfg.xml")
+      mockFilterConfig.addInitParameter("filter-config", "another-name.cfg.xml")
 
       When("the filter is initialized")
       filter.init(mockFilterConfig)
@@ -195,7 +194,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
       Given("an un-initialized filter and a mock'd Filter Config")
       filter.configuration shouldBe null
       !filter.isInitialized
-      mockFilterConfig.setInitParameter("filter-config", "another-name.cfg.xml")
+      mockFilterConfig.addInitParameter("filter-config", "another-name.cfg.xml")
 
       When("the filter is initialized and destroyed")
       filter.init(mockFilterConfig)
