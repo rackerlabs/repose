@@ -9,7 +9,7 @@ It'll attempt to locate a policy to use for the translation based on the asserti
 == General filter information
 * *Name:* saml-policy
 * *Default Configuration:* saml-policy.cfg.xml
-* *Released:* v8.?.?.0
+* *Released:* v8.4.0.1
 * *Bundle:* repose-extensions-filter-bundle
 * link:../schemas/saml-policy.xsd[Schema]
 
