@@ -9,4 +9,6 @@ dependencies {
     testCompile "junit:junit"
     testCompile "org.mockito:mockito-all"
     testCompile "com.mockrunner:mockrunner-servlet:1.0.0"
+    testCompile "org.springframework:spring-test"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }
