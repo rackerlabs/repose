@@ -62,13 +62,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
   //todo: I suspect some of these tests are repetitive now, although they test it from different perspectives so
   // probably still worthwhile. I think some describe mocking behavior where it's not necessary as well. Short
   // timelines mean i can't dig into them right now.
-  val akkaServiceClient = mock[AkkaServiceClient]
-  val akkaServiceClientFactory = mock[AkkaServiceClientFactory]
-  val mockDatastoreService = mock[DatastoreService]
+  val akkaServiceClient: AkkaServiceClient = mock[AkkaServiceClient]
+  val akkaServiceClientFactory: AkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+  val mockDatastoreService: DatastoreService = mock[DatastoreService]
   val mockDatastore: Datastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     Mockito.reset(mockDatastore)
     Mockito.reset(akkaServiceClient)
     Mockito.reset(akkaServiceClientFactory)
@@ -121,7 +121,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val config: MockFilterConfig = new MockFilterConfig
       filter.init(config)
-      filter.destroy
+      filter.destroy()
 
       Mockito.verify(mockConfigService).unsubscribeFrom("valkyrie-authorization.cfg.xml", filter)
     }
@@ -133,7 +133,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val config: MockFilterConfig = new MockFilterConfig
       filter.init(config)
       filter.configurationUpdated(new ValkyrieAuthorizationConfig)
-      filter.destroy
+      filter.destroy()
 
       Mockito.verify(akkaServiceClient).destroy()
     }
@@ -203,7 +203,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   describe("when a request to authorize occurs") {
-    case class RequestProcessor(method: String, headers: Map[String, String], url: String = "http://foo.com:8080")
+    case class RequestProcessor(method: String, headers: Map[String, String], name: String = "foo.com", port: Int = 8080, uri: String = "/")
     case class ValkyrieResponse(code: Int, payload: String)
     case class Result(code: Int, message: String)
 
@@ -221,8 +221,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(request.method)
-        mockServletRequest.setRequestURL(request.url)
-        request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+        mockServletRequest.setServerName(request.name)
+        mockServletRequest.setServerPort(request.port)
+        mockServletRequest.setRequestURI(request.uri)
+        request.headers.foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
 
         val mockFilterChain = mock[FilterChain]
         filter.doFilter(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
@@ -233,14 +235,14 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
     }
 
-    List((RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //View role
-      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //Without colon in tenant
-      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "edit_product")))), //Edit role
-      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "admin_product")))), //Admin role
-      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //View role
-      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //Without colon in tenant
-      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "edit_product")))), //Edit role
-      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "http://foo.com:8080/bar"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "admin_product")))) //Admin role
+    List((RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "foo.com", 8080, "/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //View role
+      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "foo.com", 8080, "/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //Without colon in tenant
+      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "foo.com", 8080, "/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "edit_product")))), //Edit role
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "foo.com", 8080, "/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "admin_product")))), //Admin role
+      (RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "foo.com", 8080, "/bar"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //View role
+      (RequestProcessor("HEAD", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "foo.com", 8080, "/bar"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //Without colon in tenant
+      (RequestProcessor("POST", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "foo.com", 8080, "/bar"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "edit_product")))), //Edit role
+      (RequestProcessor("PUT", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Contact-Id" -> "123456"), "foo.com", 8080, "/bar"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "admin_product")))) //Admin role
     ).foreach { case (request, valkyrie) =>
       it(s"should allow requests for $request with Valkyrie response of $valkyrie without device id when on either accepted list") {
         setMockAkkaBehavior("someTenant", request.headers.getOrElse("X-Contact-Id", "ThisIsMissingAContact"), valkyrie.code, valkyrie.payload)
@@ -250,8 +252,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(request.method)
-        mockServletRequest.setRequestURL(request.url)
-        request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+        mockServletRequest.setServerName(request.name)
+        mockServletRequest.setServerPort(request.port)
+        mockServletRequest.setRequestURI(request.uri)
+        request.headers.foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
 
         val mockFilterChain = mock[FilterChain]
         Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
@@ -286,21 +290,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
           val mockServletRequest = new MockHttpServletRequest
           mockServletRequest.setMethod(request.method)
-          mockServletRequest.setRequestURL(request.url)
-          request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+          mockServletRequest.setServerName(request.name)
+          mockServletRequest.setServerPort(request.port)
+          mockServletRequest.setRequestURI(request.uri)
+          request.headers.foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
 
           val mockServletResponse = new MockHttpServletResponse
           val mockFilterChain = mock[FilterChain]
           filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
           if (Option(delegation).isDefined) {
-            assert(mockServletResponse.getStatusCode == SC_OK)
+            assert(mockServletResponse.getStatus == SC_OK)
             val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
             Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
             val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(result.code, "valkyrie-authorization", result.message, .1)
-            assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders.get(HttpDelegationHeaderNames.Delegated).get)
+            assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders(HttpDelegationHeaderNames.Delegated))
           } else {
-            assert(mockServletResponse.getStatusCode == result.code)
+            assert(mockServletResponse.getStatus == result.code)
           }
         }
       }
@@ -316,21 +322,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com:8080")
-        Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456").foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+        mockServletRequest.setServerName("foo.com")
+        mockServletRequest.setServerPort(8080)
+        mockServletRequest.setRequestURI("/")
+        Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456").foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
 
         val mockFilterChain = mock[FilterChain]
         val mockServletResponse = new MockHttpServletResponse
         filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
         if (Option(delegation).isDefined) {
-          assert(mockServletResponse.getStatusCode == SC_OK)
+          assert(mockServletResponse.getStatus == SC_OK)
           val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
           Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
           val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(SC_BAD_GATEWAY, "valkyrie-authorization", "Unable to communicate with Valkyrie: Valkyrie is missing", .1)
-          assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders.get(HttpDelegationHeaderNames.Delegated).get)
+          assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders(HttpDelegationHeaderNames.Delegated))
         } else {
-          assert(mockServletResponse.getStatusCode == SC_BAD_GATEWAY)
+          assert(mockServletResponse.getStatus == SC_BAD_GATEWAY)
         }
       }
     }
@@ -349,14 +357,16 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
-      mockServletRequest.setRequestURL("http://foo.com:8080")
-      mockServletRequest.setHeader("X-Roles", s"$superRootAdminUser,buttsRole")
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
+      mockServletRequest.addHeader("X-Roles", s"$superRootAdminUser,buttsRole")
       val mockServletResponse = new MockHttpServletResponse
       val mockFilterChain = mock[FilterChain]
 
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
-      assert(mockServletResponse.getStatusCode == SC_OK)
+      assert(mockServletResponse.getStatus == SC_OK)
     }
 
     it("should be able to cache the valkyrie permissions so we dont have to make repeated calls") {
@@ -382,13 +392,15 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod(request.method)
-      mockServletRequest.setRequestURL("http://foo.com:8080")
-      request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
+      request.headers.foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
 
       val mockServletResponse = new MockHttpServletResponse
       val mockFilterChain = mock[FilterChain]
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
-      assert(mockServletResponse.getStatusCode == SC_FORBIDDEN)
+      assert(mockServletResponse.getStatus == SC_FORBIDDEN)
 
       Mockito.verify(mockDatastore).put("VALKYRIE-FILTERanysomeTenant123456", filter.UserPermissions(Vector.empty[String], Vector(filter.DeviceToPermission(1234561, "view_product1"), filter.DeviceToPermission(123456, "view_product"))), 300000, TimeUnit.MILLISECONDS)
 
@@ -396,14 +408,16 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val secondServletResponse = new MockHttpServletResponse
       val secondRequestProcessor = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456", "X-Contact-Id" -> "123456"))
       secondRequest.setMethod(secondRequestProcessor.method)
-      secondRequest.setRequestURL("http://foo.com:8080")
-      secondRequestProcessor.headers.foreach { case (k, v) => secondRequest.setHeader(k, v) }
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
+      secondRequestProcessor.headers.foreach { case (k, v) => secondRequest.addHeader(k, v) }
       filter.doFilter(secondRequest, secondServletResponse, mockFilterChain)
-      assert(secondServletResponse.getStatusCode == SC_OK)
+      assert(secondServletResponse.getStatus == SC_OK)
 
       Mockito.verify(akkaServiceClient, Mockito.times(1)).get(
-        "VALKYRIE-FILTERanysomeTenant" + request.headers.get("X-Contact-Id").get,
-        s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.get("X-Contact-Id").get}/effective",
+        "VALKYRIE-FILTERanysomeTenant" + request.headers("X-Contact-Id"),
+        s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers("X-Contact-Id")}/effective",
         Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword"))
     }
 
@@ -426,21 +440,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(request.method)
-        mockServletRequest.setRequestURL("http://foo.com:8080")
-        request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+        mockServletRequest.setServerName("foo.com")
+        mockServletRequest.setServerPort(8080)
+        mockServletRequest.setRequestURI("/")
+        request.headers.foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
 
         val mockServletResponse = new MockHttpServletResponse
         val mockFilterChain = mock[FilterChain]
         filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
         if (Option(delegation).isDefined) {
-          assert(mockServletResponse.getStatusCode == SC_OK)
+          assert(mockServletResponse.getStatus == SC_OK)
           val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
           Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
           val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(SC_NOT_FOUND, "valkyrie-authorization", "Not Found", .1)
-          assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders.get(HttpDelegationHeaderNames.Delegated).get)
+          assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders(HttpDelegationHeaderNames.Delegated))
         } else {
-          assert(mockServletResponse.getStatusCode == SC_NOT_FOUND)
+          assert(mockServletResponse.getStatus == SC_NOT_FOUND)
         }
       }
     }
@@ -467,15 +483,17 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
           val mockServletRequest = new MockHttpServletRequest
           val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> deviceId, "X-Contact-Id" -> "123456"))
           mockServletRequest.setMethod(request.method)
-          mockServletRequest.setRequestURL(request.url)
-          request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+          mockServletRequest.setServerName(request.name)
+          mockServletRequest.setServerPort(request.port)
+          mockServletRequest.setRequestURI(request.uri)
+          request.headers.foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
 
           val mockServletResponse = new MockHttpServletResponse
           val mockFilterChain = mock[FilterChain]
 
           filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
-          assert(mockServletResponse.getStatusCode == responseCode)
+          assert(mockServletResponse.getStatus == responseCode)
         }
       }
     }
@@ -490,15 +508,17 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val mockServletRequest = new MockHttpServletRequest
       val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "12345", "X-Contact-Id" -> "123456"))
       mockServletRequest.setMethod(request.method)
-      mockServletRequest.setRequestURL(request.url)
-      request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+      mockServletRequest.setServerName(request.name)
+      mockServletRequest.setServerPort(request.port)
+      mockServletRequest.setRequestURI(request.uri)
+      request.headers.foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
 
       val mockServletResponse = new MockHttpServletResponse
       val mockFilterChain = mock[FilterChain]
 
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
-      assert(mockServletResponse.getStatusCode == SC_BAD_GATEWAY)
+      assert(mockServletResponse.getStatus == SC_BAD_GATEWAY)
     }
 
     it("should send a request guid to valkyrie if present in incoming request") {
@@ -515,8 +535,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod(request.method)
-      mockServletRequest.setRequestURL("http://foo.com:8080")
-      request.headers.foreach { case (k, v) => mockServletRequest.setHeader(k, v) }
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
+      request.headers.foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
 
       val mockFilterChain = mock[FilterChain]
       filter.doFilter(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
@@ -535,20 +557,22 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     val contactId = "123456"
     val deviceId = "98765"
     val filterChain = mock[FilterChain]
-    val mockServletRequest = new MockHttpServletRequest
-    val mockServletResponse = new MockHttpServletResponse
+    var mockServletRequest = new MockHttpServletRequest
+    var mockServletResponse = new MockHttpServletResponse
     Mockito.when(akkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(akkaServiceClient)
     val filter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
     filter.configurationUpdated(config)
 
     def setup() = {
-      mockServletRequest.resetAll()
+      mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
-      mockServletRequest.setRequestURL("http://foo.com:8080")
-      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
-      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
+      mockServletRequest.addHeader("X-Tenant-Id", tenantId)
+      mockServletRequest.addHeader("X-Contact-Id", contactId)
 
-      mockServletResponse.resetAll()
+      mockServletResponse = new MockHttpServletResponse
 
       Mockito.reset(filterChain)
     }
@@ -557,7 +581,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       it(s"should translate permissions to roles with device permission $devicePermission") {
         setup()
         val devices = devicePermissions(deviceId, devicePermission)
-        mockServletRequest.setHeader("X-Device-Id", deviceId)
+        mockServletRequest.addHeader("X-Device-Id", deviceId)
         setMockAkkaBehavior(transformedTenant, contactId, SC_OK,
           createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
         val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
@@ -576,13 +600,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       it(s"should not be authorized to translate permissions to roles with device permission $devicePermission") {
         setup()
         val devices = devicePermissions(deviceId, devicePermission)
-        mockServletRequest.setHeader("X-Device-Id", deviceId)
+        mockServletRequest.addHeader("X-Device-Id", deviceId)
         setMockAkkaBehavior(transformedTenant, contactId, SC_OK,
           createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
 
         filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
-        assert(mockServletResponse.getStatusCode == SC_FORBIDDEN)
+        assert(mockServletResponse.getStatus == SC_FORBIDDEN)
       }
     }
   }
@@ -594,26 +618,32 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     val transformedTenant = "98765"
     val contactId = "123456"
     val filterChain = mock[FilterChain]
-    val mockServletRequest = new MockHttpServletRequest
-    val mockServletResponse = new MockHttpServletResponse
+    var mockServletRequest = new MockHttpServletRequest
+    var mockServletResponse = new MockHttpServletResponse
     val devices = devicePermissions("98765", "view_product")
     val filter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
     filter.configurationUpdated(config)
 
     def setup() = {
-      mockServletRequest.resetAll()
+      mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
-      mockServletRequest.setRequestURL("http://foo.com:8080")
-      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
-      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
 
-      mockServletResponse.resetAll()
+      mockServletResponse = new MockHttpServletResponse
 
       Mockito.reset(filterChain)
     }
 
-    it("should translate permissions to roles") {
+    def setupWithHeaders() = {
       setup()
+      mockServletRequest.addHeader("X-Tenant-Id", tenantId)
+      mockServletRequest.addHeader("X-Contact-Id", contactId)
+    }
+
+    it("should translate permissions to roles") {
+      setupWithHeaders()
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
@@ -627,8 +657,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 401 when tenant id isn't present") {
       setup()
-      mockServletRequest.clearHeaders()
-      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      mockServletRequest.addHeader("X-Contact-Id", contactId)
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -638,8 +667,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 401 when contact id isn't present") {
       setup()
-      mockServletRequest.clearHeaders()
-      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
+      mockServletRequest.addHeader("X-Tenant-Id", tenantId)
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -649,9 +677,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 403 when tenant is non-hybrid") {
       setup()
-      mockServletRequest.clearHeaders()
-      mockServletRequest.setHeader("X-Tenant-Id", "987654")
-      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      mockServletRequest.addHeader("X-Tenant-Id", "987654")
+      mockServletRequest.addHeader("X-Contact-Id", contactId)
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -660,7 +687,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should 502 when valkyrie 404s") {
-      setup()
+      setupWithHeaders()
       setMockAkkaBehavior(transformedTenant, contactId, SC_NOT_FOUND, "Not found")
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -669,7 +696,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should 502 when valkyrie 500s") {
-      setup()
+      setupWithHeaders()
       setMockAkkaBehavior(transformedTenant, contactId, SC_INTERNAL_SERVER_ERROR, "Internal Server Error")
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -678,7 +705,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should 502 when valkyrie gives an unexpected response") {
-      setup()
+      setupWithHeaders()
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, """{"banana":"phone"}""")
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
@@ -687,7 +714,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should 502 when we have an exception while talking to valkyrie") {
-      setup()
+      setupWithHeaders()
       Mockito.when(akkaServiceClient.get(Matchers.any(classOf[String]),
         Matchers.eq(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective"),
         Matchers.any(classOf[java.util.Map[String, String]]))).thenThrow(new AkkaServiceClientException("test exception", null))
@@ -698,7 +725,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should use the values from the datastore when available") {
-      setup()
+      setupWithHeaders()
       Mockito.when(mockDatastore.get(CACHE_PREFIX + "any" + transformedTenant + contactId))
         .thenReturn(filter.UserPermissions(Vector("some_permission", "a_different_permission"), Vector.empty[filter.DeviceToPermission]), Nil: _*)
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
@@ -724,13 +751,15 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val mockFilterChain = new MockFilterChain()
 
       mockServletRequest.setMethod("GET")
-      mockServletRequest.setRequestURL("http://foo.com:8080")
-      mockServletRequest.setHeader("X-Tenant-Id", "987654")
-      mockServletRequest.setHeader("X-Contact-Id", "12345")
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
+      mockServletRequest.addHeader("X-Tenant-Id", "987654")
+      mockServletRequest.addHeader("X-Contact-Id", "12345")
 
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
-      mockFilterChain.getLastRequest should not be null
+      mockFilterChain.getRequest should not be null
     }
   }
 
@@ -743,25 +772,31 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     val transformedTenant = "98765"
     val contactId = "123456"
     val filterChain = mock[FilterChain]
-    val mockServletRequest = new MockHttpServletRequest
-    val mockServletResponse = new MockHttpServletResponse
+    var mockServletRequest = new MockHttpServletRequest
+    var mockServletResponse = new MockHttpServletResponse
     val filter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
     filter.configurationUpdated(config)
 
     def setup() = {
-      mockServletRequest.resetAll()
+      mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
-      mockServletRequest.setRequestURL("http://foo.com:8080")
-      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
-      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
 
-      mockServletResponse.resetAll()
+      mockServletResponse = new MockHttpServletResponse
 
       Mockito.reset(filterChain)
     }
 
-    it("should translate permissions to roles") {
+    def setupWithHeaders() = {
       setup()
+      mockServletRequest.addHeader("X-Tenant-Id", tenantId)
+      mockServletRequest.addHeader("X-Contact-Id", contactId)
+    }
+
+    it("should translate permissions to roles") {
+      setupWithHeaders()
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
@@ -775,8 +810,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 401 when tenant id isn't present") {
       setup()
-      mockServletRequest.clearHeaders()
-      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      mockServletRequest.addHeader("X-Contact-Id", contactId)
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
@@ -789,8 +823,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 401 when contact id isn't present") {
       setup()
-      mockServletRequest.clearHeaders()
-      mockServletRequest.setHeader("X-Tenant-Id", tenantId)
+      mockServletRequest.addHeader("X-Tenant-Id", tenantId)
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
@@ -803,9 +836,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 403 when tenant is non-hybrid") {
       setup()
-      mockServletRequest.clearHeaders()
-      mockServletRequest.setHeader("X-Tenant-Id", "987654")
-      mockServletRequest.setHeader("X-Contact-Id", contactId)
+      mockServletRequest.addHeader("X-Tenant-Id", "987654")
+      mockServletRequest.addHeader("X-Contact-Id", contactId)
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
@@ -817,7 +849,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should 502 when valkyrie 404s") {
-      setup()
+      setupWithHeaders()
       setMockAkkaBehavior(transformedTenant, contactId, SC_NOT_FOUND, "Not found")
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
@@ -829,7 +861,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should 502 when valkyrie 500s") {
-      setup()
+      setupWithHeaders()
       setMockAkkaBehavior(transformedTenant, contactId, SC_INTERNAL_SERVER_ERROR, "Internal Server Error")
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
@@ -841,7 +873,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should 502 when valkyrie gives an unexpected response") {
-      setup()
+      setupWithHeaders()
       setMockAkkaBehavior(transformedTenant, contactId, SC_OK, """{"banana":"phone"}""")
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
@@ -853,7 +885,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should 502 when we have an exception while talking to valkyrie") {
-      setup()
+      setupWithHeaders()
       Mockito.when(akkaServiceClient.get(Matchers.any(classOf[String]),
         Matchers.eq(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective"),
         Matchers.any(classOf[java.util.Map[String, String]]))).thenThrow(new AkkaServiceClientException("test exception", null))
@@ -881,12 +913,12 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val writeJsonResponse: (HttpServletResponse, String) => Unit = charset match {
         case Some(cs) =>
           (response: HttpServletResponse, content: String) => {
-            response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString, s"application/json; charset=$charsetLabel")
+            response.addHeader(CommonHttpHeader.CONTENT_TYPE.toString, s"application/json; charset=$charsetLabel")
             response.getOutputStream.write(content.getBytes(cs))
           }
         case None =>
           (response: HttpServletResponse, content: String) => {
-            response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString, "application/json")
+            response.addHeader(CommonHttpHeader.CONTENT_TYPE.toString, "application/json")
             response.getOutputStream.print(content)
           }
       }
@@ -902,10 +934,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -917,7 +949,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 1)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 1)
@@ -931,10 +963,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -946,7 +978,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.isEmpty)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 0)
@@ -960,10 +992,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -975,7 +1007,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 2)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
@@ -989,10 +1021,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1004,7 +1036,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 0)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 0)
@@ -1018,10 +1050,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1033,7 +1065,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 2)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
@@ -1047,10 +1079,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1062,7 +1094,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatusCode == SC_INTERNAL_SERVER_ERROR)
+        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
       }
 
       it(s"should remove mismatched values [charset: $charsetLabel]") {
@@ -1073,10 +1105,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1088,7 +1120,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 0)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 0)
@@ -1102,10 +1134,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1117,7 +1149,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 2)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
@@ -1131,10 +1163,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1146,7 +1178,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatusCode == SC_INTERNAL_SERVER_ERROR)
+        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
       }
 
       it(s"should remove no values for account admins with Bypass Account Admin enabled [charset: $charsetLabel]") {
@@ -1157,10 +1189,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1172,7 +1204,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString 
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 2)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
@@ -1187,10 +1219,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1202,7 +1234,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 1)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 1)
@@ -1216,10 +1248,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/foo")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/foo")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1231,7 +1263,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getOutputStreamContent
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 2)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
@@ -1247,10 +1279,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1262,7 +1294,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatusCode == SC_INTERNAL_SERVER_ERROR)
+        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
 
       }
 
@@ -1276,10 +1308,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1291,7 +1323,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatusCode == SC_INTERNAL_SERVER_ERROR)
+        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
       }
 
       it(s"should throw a 500 when the path for the collection is bad [charset: $charsetLabel]") {
@@ -1304,10 +1336,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1319,7 +1351,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatusCode == SC_INTERNAL_SERVER_ERROR)
+        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
       }
 
       it(s"should throw a 500 when the path for the device id is bad [charset: $charsetLabel]") {
@@ -1332,10 +1364,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1347,7 +1379,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatusCode == SC_INTERNAL_SERVER_ERROR)
+        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
       }
 
       it(s"should throw a 500 when the path for the count is bad [charset: $charsetLabel]") {
@@ -1360,10 +1392,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1375,7 +1407,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatusCode == SC_INTERNAL_SERVER_ERROR)
+        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
       }
 
       it(s"should throw a 500 when the response contains bad json [charset: $charsetLabel]") {
@@ -1387,10 +1419,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1403,7 +1435,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatusCode == SC_INTERNAL_SERVER_ERROR)
+        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
       }
     }
 
@@ -1419,10 +1451,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod("GET")
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1437,7 +1469,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
         assert(originalResponse.getStatus.equals(status))
-        assert(originalResponse.getOutputStreamContent.equals(responseBody))
+        assert(originalResponse.getContentAsString.equals(responseBody))
       }
     }
 
@@ -1456,15 +1488,15 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         setMockAkkaBehavior("someTenant", "123456", SC_OK, createValkyrieResponse(devicePermissions("98765", "view_product")))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
-        val valkyrieAuthorizationConfig: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(enableBypassAccountAdmin = true, httpMethods = configured)
+        val valkyrieAuthorizationConfig: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(httpMethods = configured)
         filter.configurationUpdated(setNullDeviceIdAction(valkyrieAuthorizationConfig, DeviceIdMismatchAction.REMOVE))
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(method)
-        mockServletRequest.setRequestURL("http://foo.com/bar")
+        mockServletRequest.setServerName("foo.com")
         mockServletRequest.setRequestURI("/bar")
-        mockServletRequest.setHeader("X-Contact-Id", "123456")
-        mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
+        mockServletRequest.addHeader("X-Contact-Id", "123456")
+        mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
 
         val mockFilterChain = mock[FilterChain]
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
@@ -1477,7 +1509,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
         assert(originalResponse.getStatus.equals(SC_OK))
-        assert(originalResponse.getOutputStreamContent.equals(responseBody))
+        assert(originalResponse.getContentAsString.equals(responseBody))
       }
     }
   }
@@ -1498,11 +1530,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val mockServletRequest = new MockHttpServletRequest
       mockServletRequest.setMethod("GET")
-      mockServletRequest.setRequestURL("http://foo.com:8080")
-      mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
-      mockServletRequest.setHeader("X-Device-Id", "123456")
-      mockServletRequest.setHeader("X-Contact-Id", "123456")
-      mockServletRequest.setHeader("X-Auth-Token", "someToken")
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
+      mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
+      mockServletRequest.addHeader("X-Device-Id", "123456")
+      mockServletRequest.addHeader("X-Contact-Id", "123456")
+      mockServletRequest.addHeader("X-Auth-Token", "someToken")
 
       val mockFilterChain = mock[FilterChain]
       filter.doFilter(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
@@ -1547,17 +1581,19 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
           val mockServletRequest = new MockHttpServletRequest
           mockServletRequest.setMethod("GET")
-          mockServletRequest.setRequestURL("http://foo.com:8080")
-          mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
-          mockServletRequest.setHeader("X-Device-Id", "123456")
-          mockServletRequest.setHeader("X-Contact-Id", "123456")
+          mockServletRequest.setServerName("foo.com")
+          mockServletRequest.setServerPort(8080)
+          mockServletRequest.setRequestURI("/")
+          mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
+          mockServletRequest.addHeader("X-Device-Id", "123456")
+          mockServletRequest.addHeader("X-Contact-Id", "123456")
 
           val mockFilterChain = mock[FilterChain]
-          val response = new SpringHttpServletResponse()
+          val response = new MockHttpServletResponse()
           filter.doFilter(mockServletRequest, response, mockFilterChain)
 
-          response.getStatus shouldBe (valkyrie.filterStatusCode)
-          valkyrie.filterHeaders.entrySet.foreach(entry => response.getHeader(entry.getKey) shouldBe (entry.getValue))
+          response.getStatus shouldBe valkyrie.filterStatusCode
+          valkyrie.filterHeaders.entrySet.foreach(entry => response.getHeader(entry.getKey) shouldBe entry.getValue)
         }
       }
 
@@ -1586,18 +1622,20 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
           val mockServletRequest = new MockHttpServletRequest
           mockServletRequest.setMethod("GET")
-          mockServletRequest.setRequestURL("http://foo.com:8080")
-          mockServletRequest.setHeader("X-Tenant-Id", "hybrid:someTenant")
-          mockServletRequest.setHeader("X-Device-Id", "123456")
-          mockServletRequest.setHeader("X-Contact-Id", "123456")
-          mockServletRequest.setHeader("X-Auth-Token", "someToken")
+          mockServletRequest.setServerName("foo.com")
+          mockServletRequest.setServerPort(8080)
+          mockServletRequest.setRequestURI("/")
+          mockServletRequest.addHeader("X-Tenant-Id", "hybrid:someTenant")
+          mockServletRequest.addHeader("X-Device-Id", "123456")
+          mockServletRequest.addHeader("X-Contact-Id", "123456")
+          mockServletRequest.addHeader("X-Auth-Token", "someToken")
 
           val mockFilterChain = mock[FilterChain]
-          val response = new SpringHttpServletResponse()
+          val response = new MockHttpServletResponse()
           filter.doFilter(mockServletRequest, response, mockFilterChain)
 
-          response.getStatus shouldBe (valkyrie.filterStatusCode)
-          valkyrie.filterHeaders.entrySet.foreach(entry => response.getHeader(entry.getKey) shouldBe (entry.getValue))
+          response.getStatus shouldBe valkyrie.filterStatusCode
+          valkyrie.filterHeaders.entrySet.foreach(entry => response.getHeader(entry.getKey) shouldBe entry.getValue)
         }
       }
   }
