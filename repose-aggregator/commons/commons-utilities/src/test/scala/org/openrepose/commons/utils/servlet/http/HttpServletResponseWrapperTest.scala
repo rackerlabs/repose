@@ -2364,13 +2364,27 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.isCommitted shouldBe true
     }
 
-    it("should return false after uncommit is called") {
+    it("should thrown an exception after uncommit is called while in PASSTHROUGH mode following a sendError on a non-wrapped HttpServletResponse") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND)
-      wrappedResponse.uncommit()
+      val exception = the [IllegalStateException] thrownBy wrappedResponse.uncommit()
 
-      wrappedResponse.isCommitted shouldBe false
+      exception.getMessage shouldBe "the wrapped response has already been committed"
+    }
+
+    Seq((ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE),
+      (ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH),
+      (ResponseMode.MUTABLE, ResponseMode.MUTABLE)).foreach {
+      case (headerMode, bodyMode) =>
+        it(s"should return false after uncommit is called with headerMode $headerMode and bodyMode $bodyMode") {
+          val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
+
+          wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND)
+          wrappedResponse.uncommit()
+
+          wrappedResponse.isCommitted shouldBe false
+        }
     }
   }
 
@@ -2384,14 +2398,28 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       an[IllegalStateException] should be thrownBy wrappedResponse.uncommit()
     }
 
-    it("should enable calling methods normally blocked by committing") {
+    it("should thrown an exception after uncommit is called while in PASSTHROUGH mode following a flushBuffer on a non-wrapped HttpServletResponse") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.flushBuffer()
-      wrappedResponse.uncommit()
+      val exception = the [IllegalStateException] thrownBy wrappedResponse.uncommit()
 
-      // should not throw an exception
-      wrappedResponse.resetBuffer()
+      exception.getMessage shouldBe "the wrapped response has already been committed"
+    }
+
+    Seq((ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE),
+      (ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH),
+      (ResponseMode.MUTABLE, ResponseMode.MUTABLE)).foreach {
+      case (headerMode, bodyMode) =>
+        it(s"should enable calling methods normally blocked by committing with headerMode $headerMode and bodyMode $bodyMode") {
+          val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
+
+          wrappedResponse.flushBuffer()
+          wrappedResponse.uncommit()
+
+          // should not throw an exception
+          wrappedResponse.resetBuffer()
+        }
     }
   }
 
