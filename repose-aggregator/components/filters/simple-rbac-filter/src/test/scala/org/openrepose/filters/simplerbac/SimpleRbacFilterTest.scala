@@ -48,7 +48,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
   var mockConfigService: ConfigurationService = _
   var mockFilterConfig: MockFilterConfig = _
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
@@ -71,7 +71,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
     config.setResources(resources)
   }
 
-  override def afterEach() = {
+  override def afterEach(): Unit = {
     if (filter.isInitialized) filter.destroy()
   }
 

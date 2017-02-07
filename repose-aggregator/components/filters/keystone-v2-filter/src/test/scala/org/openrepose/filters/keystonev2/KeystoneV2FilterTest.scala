@@ -79,7 +79,7 @@ with HttpDelegationManager {
   when(mockTracingHeader.isEnabled).thenReturn(true, Nil: _*)
   private val mockFilterConfig = new MockFilterConfig
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     reset(mockDatastore)
     reset(mockConfigurationService)
     reset(mockAkkaServiceClient)
@@ -1591,12 +1591,12 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("not-tenant")), Nil: _*)
 
-      val response = new MockHttpServletResponse
+      val responseSpy = spy(new MockHttpServletResponse)
       val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
+      filter.doFilter(request, responseSpy, filterChain)
 
-      response.wasErrorSent shouldBe true
-      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      verify(responseSpy).sendError(anyInt(), anyString())
+      responseSpy.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
 
     it("sends all tenant IDs when configured to") {
@@ -1733,12 +1733,12 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("bu-%tts")), Nil: _*)
 
-      val response = new MockHttpServletResponse
+      val responseSpy = spy(new MockHttpServletResponse)
       val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
+      filter.doFilter(request, responseSpy, filterChain)
 
-      response.wasErrorSent shouldBe true
-      response.getErrorCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      verify(responseSpy).sendError(anyInt(), anyString())
+      responseSpy.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
     }
 
     it("should send the X-Authorization header with the tenant in the uri") {
@@ -2530,7 +2530,7 @@ with HttpDelegationManager {
               impersonatorRoles: Seq[String] = Seq.empty[String],
               defaultRegion: Option[String] = None,
               contactId: Option[String] = None,
-              authenticatedBy: Option[Seq[String]] = None) = {
+              authenticatedBy: Option[Seq[String]] = None): ValidToken = {
       ValidToken(expirationDate,
         userId,
         roles,

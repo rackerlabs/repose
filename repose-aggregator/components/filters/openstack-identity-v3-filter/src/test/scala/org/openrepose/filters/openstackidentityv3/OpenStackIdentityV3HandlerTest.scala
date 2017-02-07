@@ -49,7 +49,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
   var identityConfig: OpenstackIdentityV3Config = _
   var identityAPI: OpenStackIdentityV3API = _
 
-  def defaultConfig() = {
+  def defaultConfig(): Unit = {
     identityConfig = new OpenstackIdentityV3Config()
     identityConfig.setOpenstackIdentityService(new OpenstackIdentityService())
     identityConfig.getOpenstackIdentityService.setUsername("user")
@@ -65,7 +65,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     identityConfig.setForwardGroups(false)
   }
 
-  def defaultHeaderConfig() = {
+  def defaultHeaderConfig(): Unit = {
     defaultConfig()
     identityConfig.setSendProjectIdQuality(new SendProjectIdQuality)
     identityConfig.getSendProjectIdQuality.setDefaultProjectQuality(0.9)
@@ -75,7 +75,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
     identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
   }
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     defaultConfig()
     identityAPI = mock[OpenStackIdentityV3API]
     identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
@@ -391,17 +391,17 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           resultStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED
         )
       ) foreach { parameterMap =>
-        mockServletResponse.setStatus(parameterMap.get(responseStatus).get.asInstanceOf[Integer])
+        mockServletResponse.setStatus(parameterMap(responseStatus).asInstanceOf[Integer])
         if (parameterMap.get(responseWwwAuthenticate).isDefined) {
-          mockServletResponse.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, parameterMap.get(responseWwwAuthenticate).get.asInstanceOf[String])
+          mockServletResponse.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, parameterMap(responseWwwAuthenticate).asInstanceOf[String])
         }
 
         val filterAction = identityV3Handler.handleResponse(mockServletResponse)
 
         filterAction should not be FilterAction.NOT_SET
-        mockServletResponse.getStatus shouldBe parameterMap.get(resultStatus).get
+        mockServletResponse.getStatus shouldBe parameterMap(resultStatus)
         if (parameterMap.get(resultWwwAuthenticate).isDefined) {
-          mockServletResponse.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString) should contain(parameterMap.get(resultWwwAuthenticate).get)
+          mockServletResponse.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString) should contain(parameterMap(resultWwwAuthenticate))
         }
       }
     }

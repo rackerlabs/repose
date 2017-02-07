@@ -184,8 +184,8 @@ public class RateLimitingServiceHelperTest extends Specification {
     @Unroll
     def "when getting URI, #expectedBehavior"() {
         given:
-        def RateLimitingService mockRlService = mock(RateLimitingService.class)
-        def RateLimitingServiceHelper rateLimitingServiceHelper = new RateLimitingServiceHelper(mockRlService, null, null)
+        def mockRlService = mock(RateLimitingService.class)
+        def rateLimitingServiceHelper = new RateLimitingServiceHelper(mockRlService, null, null)
         when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.emptyEnumeration())
 
         MockHttpServletRequest request = new MockHttpServletRequest()
