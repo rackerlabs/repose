@@ -35,11 +35,9 @@
 
 package org.openrepose.external.pjlcompression;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockServletContext;
-import com.mockrunner.mock.web.WebMockObjectFactory;
-import com.mockrunner.servlet.ServletTestModule;
+import org.springframework.mock.web.*;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,15 +56,17 @@ public final class LoadRunner {
         // do nothing
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException, ServletException {
 
-        WebMockObjectFactory factory = new WebMockObjectFactory();
-        MockServletContext context = factory.getMockServletContext();
-        context.setInitParameter("debug", "true");
-        context.setInitParameter("statsEnabled", "true");
-        ServletTestModule module = new ServletTestModule(factory);
-        module.addFilter(new CompressingFilter(), true);
-        module.setDoChain(true);
+        MockFilterConfig filterConfig = new MockFilterConfig();
+        filterConfig.addInitParameter("debug", "true");
+        filterConfig.addInitParameter("statsEnabled", "true");
+        CompressingFilter filter = new CompressingFilter();
+        filter.init(filterConfig);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setMethod("GET");
+        request.addHeader("Accept-Encoding", "gzip");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
         Random r = new Random(0xDEADBEEFL);
         final String[] data = new String[200];
@@ -76,7 +76,7 @@ public final class LoadRunner {
             data[i] = new String(bytes);
         }
 
-        module.setServlet(new HttpServlet() {
+        MockFilterChain filterChain = new MockFilterChain(new HttpServlet() {
             @Override
             public void doGet(HttpServletRequest request,
                               HttpServletResponse response) throws IOException {
@@ -86,19 +86,14 @@ public final class LoadRunner {
                 }
             }
         });
-        MockHttpServletRequest request = factory.getMockRequest();
-        request.addHeader("Accept-Encoding", "gzip");
 
         long start = System.currentTimeMillis();
         int iterations = 1000;
         for (int i = 0; i < iterations; i++) {
-            module.doGet();
+            filter.doFilter(request, response, filterChain);
         }
         long end = System.currentTimeMillis();
         long time = end - start;
         System.out.println("Completed in " + time + "ms (" + (double) time / iterations + " per request)");
-
     }
-
-
 }
