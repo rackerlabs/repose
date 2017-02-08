@@ -42,6 +42,16 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
   val modePermutations: Array[(ResponseMode, ResponseMode)] =
     for (headerMode <- ResponseMode.values(); bodyMode <- ResponseMode.values()) yield (headerMode, bodyMode)
 
+  val modePermutationsMutable: Seq[(ResponseMode, ResponseMode)] =
+  {{ for (headerMode <- Seq(ResponseMode.MUTABLE);
+         bodyMode <- ResponseMode.values())
+      yield (headerMode, bodyMode)
+  } ++ {
+    for (headerMode <- ResponseMode.values();
+         bodyMode <- Seq(ResponseMode.MUTABLE))
+      yield (headerMode, bodyMode)
+  }}.distinct
+
   var originalResponse: MockHttpServletResponse = _
 
   override def beforeEach(): Unit = {
@@ -2368,14 +2378,12 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND)
-      val exception = the [IllegalStateException] thrownBy wrappedResponse.uncommit()
+      val exception = the[IllegalStateException] thrownBy wrappedResponse.uncommit()
 
       exception.getMessage shouldBe "the wrapped response has already been committed"
     }
 
-    Seq((ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE),
-      (ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH),
-      (ResponseMode.MUTABLE, ResponseMode.MUTABLE)).foreach {
+    modePermutationsMutable.foreach {
       case (headerMode, bodyMode) =>
         it(s"should return false after uncommit is called with headerMode $headerMode and bodyMode $bodyMode") {
           val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
@@ -2402,14 +2410,12 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.flushBuffer()
-      val exception = the [IllegalStateException] thrownBy wrappedResponse.uncommit()
+      val exception = the[IllegalStateException] thrownBy wrappedResponse.uncommit()
 
       exception.getMessage shouldBe "the wrapped response has already been committed"
     }
 
-    Seq((ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE),
-      (ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH),
-      (ResponseMode.MUTABLE, ResponseMode.MUTABLE)).foreach {
+    modePermutationsMutable.foreach {
       case (headerMode, bodyMode) =>
         it(s"should enable calling methods normally blocked by committing with headerMode $headerMode and bodyMode $bodyMode") {
           val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
