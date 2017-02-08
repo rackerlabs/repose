@@ -1591,11 +1591,11 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("not-tenant")), Nil: _*)
 
-      val responseSpy = mock[HttpServletResponse]
+      val response = mock[HttpServletResponse]
       val filterChain = new MockFilterChain()
-      filter.doFilter(request, responseSpy, filterChain)
+      filter.doFilter(request, response, filterChain)
 
-      verify(responseSpy).sendError(mockitoEq(HttpServletResponse.SC_UNAUTHORIZED), anyString())
+      verify(response).sendError(mockitoEq(HttpServletResponse.SC_UNAUTHORIZED), anyString())
     }
 
     it("sends all tenant IDs when configured to") {
@@ -1732,12 +1732,11 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("bu-%tts")), Nil: _*)
 
-      val responseSpy = spy(new MockHttpServletResponse)
+      val response = mock[HttpServletResponse]
       val filterChain = new MockFilterChain()
-      filter.doFilter(request, responseSpy, filterChain)
+      filter.doFilter(request, response, filterChain)
 
-      verify(responseSpy).sendError(anyInt(), anyString())
-      responseSpy.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      verify(response).sendError(mockitoEq(HttpServletResponse.SC_UNAUTHORIZED), anyString())
     }
 
     it("should send the X-Authorization header with the tenant in the uri") {
