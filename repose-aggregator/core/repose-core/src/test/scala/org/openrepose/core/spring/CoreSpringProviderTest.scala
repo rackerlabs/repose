@@ -78,7 +78,7 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
       intercept[ClassNotFoundException] {
         CoreSpringProvider.getContextForFilter(coreSpringProvider.getCoreContext, getClass.getClassLoader, "org.openrepose.filters.core.test.TestFilter", "TestFilterContextBaseLoader")
       }
-      filterBeanContext.getDisplayName should be("TestFilterContextName")
+      filterBeanContext.getDisplayName shouldBe "TestFilterContextName"
 
       val actualFilter = filterBeanContext.getBean[Filter](classOf[Filter])
 

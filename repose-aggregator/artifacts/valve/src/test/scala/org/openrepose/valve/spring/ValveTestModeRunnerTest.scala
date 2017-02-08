@@ -188,7 +188,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
         val oldPort = node.runningHttpPort
         val jmxOldPort = getValvePortMXBean.getPort("repose", "repose_node1")
 
-        oldPort should equal(jmxOldPort)
+        oldPort shouldEqual jmxOldPort
 
         updateContainerConfig("/valveTesting/without-keystore.cfg.xml")
         runner.getActiveNodes.size shouldBe 1
@@ -196,7 +196,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
 
         val jmxNewPort = getValvePortMXBean.getPort("repose", "repose_node1")
         jmxNewPort shouldNot equal(0)
-        jmxNewPort should equal(runner.getActiveNodes.head.runningHttpPort)
+        jmxNewPort shouldEqual runner.getActiveNodes.head.runningHttpPort
       }
     }
     describe("When updating the system-model") {
@@ -204,8 +204,8 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
         withSingleNodeRunner { runner =>
           val node = runner.getActiveNodes.head
           node.nodeId shouldBe "repose_node1"
-          node.httpPort.isDefined should equal(true)
-          node.httpPort.get should equal(10234) //Configured port
+          node.httpPort.isDefined shouldEqual true
+          node.httpPort.get shouldEqual 10234 //Configured port
           node.runningHttpPort shouldNot equal(10234) //Actually running port
 
           val jmxOldPort = getValvePortMXBean.getPort("repose", "repose_node1")
@@ -215,13 +215,13 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           runner.getActiveNodes.size shouldBe 1
           val newNode = runner.getActiveNodes.head
           newNode shouldNot be(node)
-          newNode.httpPort.isDefined should equal(true)
-          newNode.httpPort.get should equal(10235) //configured port
+          newNode.httpPort.isDefined shouldEqual true
+          newNode.httpPort.get shouldEqual 10235 //configured port
           newNode.runningHttpPort shouldNot equal(10235) //actually running port
 
           val jmxNewPort = getValvePortMXBean.getPort("repose", "repose_node1")
           jmxNewPort shouldNot equal(0)
-          jmxNewPort should equal(newNode.runningHttpPort)
+          jmxNewPort shouldEqual newNode.runningHttpPort
 
           newNode.nodeId shouldBe "repose_node1"
         }
@@ -239,7 +239,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           val afterPort = getValvePortMXBean.getPort("repose", "le_repose_node")
           afterPort shouldNot equal(0)
 
-          getValvePortMXBean.getPort("repose", "repose_node1") should equal(0)
+          getValvePortMXBean.getPort("repose", "repose_node1") shouldEqual 0
 
           val changedNode = runner.getActiveNodes.head
           changedNode.nodeId shouldBe "le_repose_node"
@@ -255,7 +255,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           updateSystemModel("/valveTesting/1node/system-model-1.cfg.xml")
           runner.getActiveNodes.size shouldBe 1
           runner.getActiveNodes.head shouldBe node
-          beforePort should equal(getValvePortMXBean.getPort("repose", "repose_node1"))
+          beforePort shouldEqual getValvePortMXBean.getPort("repose", "repose_node1")
         }
       }
     }
@@ -320,7 +320,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           val newNode2Port = getValvePortMXBean.getPort("repose", "repose_node2")
           newNode2Port shouldNot equal(node2Port)
 
-          getValvePortMXBean.getPort("repose", "repose_node1") should equal(node1Port)
+          getValvePortMXBean.getPort("repose", "repose_node1") shouldEqual node1Port
         }
       }
       it("Stops removed nodes") {
@@ -334,7 +334,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
 
           stillNode1 shouldBe node1
 
-          getValvePortMXBean.getPort("repose", "repose_node2") should equal(0)
+          getValvePortMXBean.getPort("repose", "repose_node2") shouldEqual 0
           getValvePortMXBean.getPort("repose", "repose_node1") shouldNot equal(0)
         }
       }
@@ -348,7 +348,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           val node2Port = getValvePortMXBean.getPort("repose", "repose_node2")
           val node3Port = getValvePortMXBean.getPort("repose", "repose_node3")
 
-          node3Port should equal(0)
+          node3Port shouldEqual 0
 
           updateSystemModel("/valveTesting/2node/add-node-3.cfg.xml")
 
@@ -366,8 +366,8 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           val newNode2Port = getValvePortMXBean.getPort("repose", "repose_node2")
           val newNode3Port = getValvePortMXBean.getPort("repose", "repose_node3")
 
-          newNode1Port should equal(node1Port)
-          newNode2Port should equal(node2Port)
+          newNode1Port shouldEqual node1Port
+          newNode2Port shouldEqual node2Port
           newNode3Port shouldNot equal(0)
 
         }
@@ -390,8 +390,8 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging wit
           newNode1 shouldBe node1
           newNode2 shouldBe node2
 
-          node1Port should equal(getValvePortMXBean.getPort("repose", "repose_node1"))
-          node2Port should equal(getValvePortMXBean.getPort("repose", "repose_node2"))
+          node1Port shouldEqual getValvePortMXBean.getPort("repose", "repose_node1")
+          node2Port shouldEqual getValvePortMXBean.getPort("repose", "repose_node2")
         }
       }
     }

@@ -143,10 +143,10 @@ class EarClassProviderTest extends FunSpec with Matchers {
       }
 
       //Verify that a warning was logged
-      appender.getEvents.size() should be(1)
+      appender.getEvents.size() shouldBe 1
 
       val event = appender.getEvents.toList.head
-      event.getLevel should be(Level.WARN)
+      event.getLevel shouldBe Level.WARN
 
 
     }
@@ -207,7 +207,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       val tehClass = p.getClassLoader().loadClass(earClass)
 
       tehClass shouldNot be(null)
-      tehClass.getName should be(earClass)
+      tehClass.getName shouldBe earClass
 
       intercept[ClassNotFoundException] {
         Class.forName(earClass)
@@ -244,14 +244,14 @@ class EarClassProviderTest extends FunSpec with Matchers {
       }
 
       val class1 = p1.getClassLoader().loadClass(ear1Class)
-      class1.getName should be(ear1Class)
+      class1.getName shouldBe ear1Class
 
       intercept[ClassNotFoundException] {
         p2.getClassLoader().loadClass(ear1Class)
       }
 
       val class2 = p2.getClassLoader().loadClass(ear2Class)
-      class2.getName should be(ear2Class)
+      class2.getName shouldBe ear2Class
 
       intercept[ClassNotFoundException] {
         p1.getClassLoader().loadClass(ear2Class)
@@ -277,7 +277,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
       val descriptor = p1.getEarDescriptor()
 
-      descriptor.getApplicationName should be("core-test-filter-bundle")
+      descriptor.getApplicationName shouldBe "core-test-filter-bundle"
 
       descriptor.getRegisteredFilters.keySet() should contain("test-filter")
     }

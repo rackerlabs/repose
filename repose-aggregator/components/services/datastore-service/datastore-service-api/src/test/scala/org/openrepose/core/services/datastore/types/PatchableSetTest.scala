@@ -32,20 +32,20 @@ class KeystoneV2FilterCacheInvalidationTest extends FunSpec
 
   describe("Patch") {
     it("returns a new set with just the initialized value") {
-      val set = new SetPatch("butts").newFromPatch()
-      set.size should be(1)
+      val set = SetPatch("butts").newFromPatch()
+      set.size shouldBe 1
       set should contain("butts")
     }
   }
 
   describe("PatchableSet Companion object") {
     it("should return an empty set") {
-      PatchableSet.empty.isEmpty should be(true)
+      PatchableSet.empty.isEmpty shouldBe true
     }
 
     it("should return a set with all the provided items") {
       val set = PatchableSet(1, 2, 3, 4, 5, 1)
-      set.size should be(5)
+      set.size shouldBe 5
       set should contain allOf(1, 2, 3, 4, 5)
     }
   }
@@ -53,7 +53,7 @@ class KeystoneV2FilterCacheInvalidationTest extends FunSpec
   describe("PatchableSet") {
     it("should add the value from a patch to its set") {
       val originalSet = PatchableSet.empty[Int]
-      val patchedSet = originalSet.applyPatch(new SetPatch(5))
+      val patchedSet = originalSet.applyPatch(SetPatch(5))
       originalSet should contain(5)
       patchedSet should contain(5)
       originalSet should not be theSameInstanceAs(patchedSet)

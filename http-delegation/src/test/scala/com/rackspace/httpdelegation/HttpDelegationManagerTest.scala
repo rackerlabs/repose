@@ -46,20 +46,20 @@ class HttpDelegationManagerTest extends FunSuite with Matchers with HttpDelegati
     testValues foreach { headerValue =>
       val res = parseDelegationHeader("status_code=404`component=foo`message=not found;q=1")
       res shouldBe a[Success[_]]
-      res.get.statusCode should equal(404)
-      res.get.component should equal("foo")
-      res.get.message should equal("not found")
-      res.get.quality should equal(1)
+      res.get.statusCode shouldEqual 404
+      res.get.component shouldEqual "foo"
+      res.get.message shouldEqual "not found"
+      res.get.quality shouldEqual 1
     }
   }
 
   test("parseDelegationHeader should default quality value to 1") {
     val res = parseDelegationHeader("status_code=404`component=foo`message=not found")
     res shouldBe a[Success[_]]
-    res.get.statusCode should equal(404)
-    res.get.component should equal("foo")
-    res.get.message should equal("not found")
-    res.get.quality should equal(1)
+    res.get.statusCode shouldEqual 404
+    res.get.component shouldEqual "foo"
+    res.get.message shouldEqual "not found"
+    res.get.quality shouldEqual 1
   }
 
   test("parseDelegationHeader should return a Failure if parsing fails") {

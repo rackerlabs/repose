@@ -342,8 +342,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
 
       response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
@@ -357,8 +357,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
 
       response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
@@ -403,8 +403,8 @@ with HttpDelegationManager {
 
       response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     it("rejects with 500 if the admin token is not authorized to validate tokens (403)") {
@@ -423,8 +423,8 @@ with HttpDelegationManager {
 
       response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     it("rejects with 500 if we cannot reach identity") {
@@ -441,8 +441,8 @@ with HttpDelegationManager {
 
       response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     it("rejects with 500 if we cannot authenticate as the admin user") {
@@ -461,8 +461,8 @@ with HttpDelegationManager {
 
       response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     it("rejects with 503 if we are rate limited by identity (413)") {
@@ -481,8 +481,8 @@ with HttpDelegationManager {
       response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     it("rejects with 503 if we are rate limited by identity (429)") {
@@ -501,8 +501,8 @@ with HttpDelegationManager {
       response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     it("does not forward the authenticatedBy field if it is an empty array") {
@@ -682,8 +682,8 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
 
       response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
@@ -778,8 +778,8 @@ with HttpDelegationManager {
 
       response.getStatus shouldBe HttpServletResponse.SC_FORBIDDEN
       //Continues with the chain
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     it("bypasses validation if the user has the role listed in pre-authorized-roles") {
@@ -829,8 +829,8 @@ with HttpDelegationManager {
 
       response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
       //Continues with the chain
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     describe("when endpoints are cached") {
@@ -853,8 +853,8 @@ with HttpDelegationManager {
         filter.doFilter(request, response, filterChain)
 
         response.getStatus shouldBe HttpServletResponse.SC_FORBIDDEN
-        filterChain.getRequest should be(null)
-        filterChain.getResponse should be(null)
+        filterChain.getRequest shouldBe null
+        filterChain.getResponse shouldBe null
       }
 
       it("will allow through if the user has the endpoint") {
@@ -921,8 +921,8 @@ with HttpDelegationManager {
         response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
         response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-        filterChain.getRequest should be(null)
-        filterChain.getResponse should be(null)
+        filterChain.getRequest shouldBe null
+        filterChain.getResponse shouldBe null
       }
 
       it("rejects with 503 if we are rate limited by identity (429)") {
@@ -945,8 +945,8 @@ with HttpDelegationManager {
         response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
         response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-        filterChain.getRequest should be(null)
-        filterChain.getResponse should be(null)
+        filterChain.getRequest shouldBe null
+        filterChain.getResponse shouldBe null
       }
     }
   }
@@ -2383,8 +2383,8 @@ with HttpDelegationManager {
       response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
       response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString) shouldBe "Keystone uri=https://some.identity.com"
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     it("rejects with 413 if we are rate limited by identity (413)") {
@@ -2403,8 +2403,8 @@ with HttpDelegationManager {
       response.getStatus shouldBe HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
 
     it("rejects with 429 if we are rate limited by identity (429)") {
@@ -2423,8 +2423,8 @@ with HttpDelegationManager {
       response.getStatus shouldBe SC_TOO_MANY_REQUESTS
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
-      filterChain.getRequest should be(null)
-      filterChain.getResponse should be(null)
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
     }
   }
 

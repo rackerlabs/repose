@@ -49,22 +49,22 @@ class LabelApplicationTest extends FunSpec with Matchers {
     filter.configurationUpdated(Marshaller.configFromString(validConfig))
 
     it("returns the correct label for an IPv4 address in 10.10.220.0/24") {
-      filter.getClassificationLabel("10.10.220.101") should equal(Some("bolth-group"))
+      filter.getClassificationLabel("10.10.220.101") shouldEqual Some("bolth-group")
     }
     it("returns the correct label for an IPv4 address in 192.168.1.0/24") {
-      filter.getClassificationLabel("192.168.1.1") should equal(Some("sample-group"))
+      filter.getClassificationLabel("192.168.1.1") shouldEqual Some("sample-group")
     }
     it("returns the correct label for an IPv4 address in 192.168.0.1/32") {
-      filter.getClassificationLabel("192.168.0.1") should equal(Some("sample-group"))
+      filter.getClassificationLabel("192.168.0.1") shouldEqual Some("sample-group")
     }
     it("returns the correct label for an IPv6 address in 2001:1938:80:bc::1/64") {
-      filter.getClassificationLabel("2001:1938:80:bc::DEAD:BEEF") should equal(Some("bolth-group"))
+      filter.getClassificationLabel("2001:1938:80:bc::DEAD:BEEF") shouldEqual Some("bolth-group")
     }
     it("returns the correct label for the catch all IPv4 entry") {
-      filter.getClassificationLabel("8.8.8.8") should equal(Some("ipv4-match-all"))
+      filter.getClassificationLabel("8.8.8.8") shouldEqual Some("ipv4-match-all")
     }
     it("Will not return a catch all for an IPv6 address") {
-      filter.getClassificationLabel("2002::1") should equal(None)
+      filter.getClassificationLabel("2002::1") shouldEqual None
     }
   }
   describe("A configured filter with an ipv6 catch all rule") {
@@ -80,10 +80,10 @@ class LabelApplicationTest extends FunSpec with Matchers {
     filter.configurationUpdated(Marshaller.configFromString(validConfig))
 
     it("returns the IpV6 catch all, since the servlet filter doesn't know that it's IPv6 or IPv4") {
-      filter.getClassificationLabel("8.8.8.8") should equal(Some("ipv6-match-all"))
+      filter.getClassificationLabel("8.8.8.8") shouldEqual Some("ipv6-match-all")
     }
     it("returns the ipv6 catchall label") {
-      filter.getClassificationLabel("2002::1") should equal(Some("ipv6-match-all"))
+      filter.getClassificationLabel("2002::1") shouldEqual Some("ipv6-match-all")
     }
   }
 }

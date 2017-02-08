@@ -117,7 +117,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      wrappedResponse.getPreferredHeaders("a") should be('empty)
+      wrappedResponse.getPreferredHeaders("a") shouldBe 'empty
     }
 
     it("should return headers added by succeeding interactions") {
@@ -136,7 +136,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
 
-      wrappedResponse.getPreferredHeaders("a") should be('empty)
+      wrappedResponse.getPreferredHeaders("a") shouldBe 'empty
     }
 
     it("should not return query parameters in the header value") {
@@ -172,7 +172,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      wrappedResponse.getPreferredHeadersWithParameters("a") should be('empty)
+      wrappedResponse.getPreferredHeadersWithParameters("a") shouldBe 'empty
     }
 
     it("should return headers added by succeeding interactions") {
@@ -191,7 +191,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
 
-      wrappedResponse.getPreferredHeadersWithParameters("a") should be('empty)
+      wrappedResponse.getPreferredHeadersWithParameters("a") shouldBe 'empty
     }
 
     it("should return query parameters in the header value") {
@@ -383,7 +383,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      wrappedResponse.getHeaders("a") should be('empty)
+      wrappedResponse.getHeaders("a") shouldBe 'empty
     }
 
     it("should return headers added by succeeding interactions") {
@@ -401,7 +401,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
 
-      wrappedResponse.getHeaders("a") should be('empty)
+      wrappedResponse.getHeaders("a") shouldBe 'empty
     }
 
     it("should return the full headers value, with query parameters included") {
@@ -429,7 +429,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      wrappedResponse.getSplittableHeaders("a") should be('empty)
+      wrappedResponse.getSplittableHeaders("a") shouldBe 'empty
     }
 
     it("should return headers added by succeeding interactions") {
@@ -447,7 +447,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
 
-      wrappedResponse.getSplittableHeaders("a") should be('empty)
+      wrappedResponse.getSplittableHeaders("a") shouldBe 'empty
     }
 
     it("should trim the space around the comma") {
@@ -499,7 +499,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      wrappedResponse.getPreferredSplittableHeaders("a") should be('empty)
+      wrappedResponse.getPreferredSplittableHeaders("a") shouldBe 'empty
     }
 
     it("should return headers added by succeeding interactions") {
@@ -517,7 +517,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
 
-      wrappedResponse.getPreferredSplittableHeaders("a") should be('empty)
+      wrappedResponse.getPreferredSplittableHeaders("a") shouldBe 'empty
     }
 
     it("should not return query parameters in the header value") {
@@ -571,7 +571,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      wrappedResponse.getPreferredSplittableHeadersWithParameters("a") should be('empty)
+      wrappedResponse.getPreferredSplittableHeadersWithParameters("a") shouldBe 'empty
     }
 
     it("should return headers added by succeeding interactions") {
@@ -589,7 +589,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
 
-      wrappedResponse.getPreferredSplittableHeadersWithParameters("a") should be('empty)
+      wrappedResponse.getPreferredSplittableHeadersWithParameters("a") shouldBe 'empty
     }
 
     it("should return query parameters in the header value") {
@@ -1163,7 +1163,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
-      wrappedResponse.getHeadersList("a") should be('empty)
+      wrappedResponse.getHeadersList("a") shouldBe 'empty
     }
 
     it("should return headers added by succeeding interactions") {
@@ -1181,7 +1181,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addHeader("a", "a")
       wrappedResponse.removeHeader("a")
 
-      wrappedResponse.getHeadersList("a") should be('empty)
+      wrappedResponse.getHeadersList("a") shouldBe 'empty
     }
 
     it("should return header values with the casing they were added with") {

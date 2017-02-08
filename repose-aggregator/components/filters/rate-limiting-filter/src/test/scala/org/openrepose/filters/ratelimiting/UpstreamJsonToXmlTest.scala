@@ -68,7 +68,7 @@ class UpstreamJsonToXmlTest extends FunSpec with Matchers {
       namedLimit <- limits if (limits \ "@name").text == "maxServerMeta"
       value <- namedLimit \ "@value"
     } yield {
-      value.text.toInt should equal(40)
+      value.text.toInt shouldEqual 40
     }
   }
 }

@@ -163,7 +163,7 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
 
       // then: "the filter's response status code should be No Content (204)"
       filterAction should not be FilterAction.NOT_SET
-      mockServletResponse.getStatus should be(HttpServletResponse.SC_NO_CONTENT)
+      mockServletResponse.getStatus shouldBe HttpServletResponse.SC_NO_CONTENT
     }
   }
 

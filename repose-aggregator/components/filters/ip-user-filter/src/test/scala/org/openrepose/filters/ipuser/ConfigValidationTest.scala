@@ -56,13 +56,13 @@ class ConfigValidationTest extends FunSpec with Matchers {
         """.stripMargin
       val resultant = Marshaller.configFromString(validConfig)
       resultant shouldNot be(null)
-      resultant.getClass should equal(classOf[IpUserConfig])
+      resultant.getClass shouldEqual classOf[IpUserConfig]
 
       //Verify the group settings and such are not the defaults
-      resultant.getUserHeader.getName should equal("user-header")
-      resultant.getUserHeader.getQuality should equal(0.5D)
-      resultant.getGroupHeader.getName should equal("group-header")
-      resultant.getGroupHeader.getQuality should equal(0.5D)
+      resultant.getUserHeader.getName shouldEqual "user-header"
+      resultant.getUserHeader.getQuality shouldEqual 0.5D
+      resultant.getGroupHeader.getName shouldEqual "group-header"
+      resultant.getGroupHeader.getQuality shouldEqual 0.5D
     }
     //TODO: IF we want default true values, THEN we have to re-work where the defaults are specified; because XSD
     //      IF the element is present but empty, THEN you get default values.
@@ -81,8 +81,8 @@ class ConfigValidationTest extends FunSpec with Matchers {
       resultant shouldNot be(null)
 
       //Cannot actually get a default value when it's an element :(
-      resultant.getGroupHeader.getName should be("x-pp-groups")
-      resultant.getGroupHeader.getQuality should be(0.4)
+      resultant.getGroupHeader.getName shouldBe "x-pp-groups"
+      resultant.getGroupHeader.getQuality shouldBe 0.4
     }
     //TODO: IF we want default true values, THEN we have to re-work where the defaults are specified; because XSD
     //      IF the element is present but empty, THEN you get default values.
@@ -101,8 +101,8 @@ class ConfigValidationTest extends FunSpec with Matchers {
       resultant shouldNot be(null)
 
       //Cannot actually get a default value when it's an element :(
-      resultant.getUserHeader.getName should be("x-pp-user")
-      resultant.getUserHeader.getQuality should be(0.4)
+      resultant.getUserHeader.getName shouldBe "x-pp-user"
+      resultant.getUserHeader.getQuality shouldBe 0.4
     }
 
     it("validation fails when not given any cidr-ip elements") {

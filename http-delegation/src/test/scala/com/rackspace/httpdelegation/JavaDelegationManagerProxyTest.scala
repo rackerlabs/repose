@@ -39,19 +39,19 @@ class JavaDelegationManagerProxyTest extends FunSuite with Matchers {
   test("JavaDelegationManagerProxy.parseDelegationHeader should return a bean with the data parsed from the input") {
     val res = JavaDelegationManagerProxy.parseDelegationHeader("status_code=404`component=foo`message=not found;q=1")
     res shouldBe a[HttpDelegationHeader]
-    res.statusCode should equal(404)
-    res.component should equal("foo")
-    res.message should equal("not found")
-    res.quality should equal(1)
+    res.statusCode shouldEqual 404
+    res.component shouldEqual "foo"
+    res.message shouldEqual "not found"
+    res.quality shouldEqual 1
   }
 
   test("JavaDelegationManagerProxy.parseDelegationHeader should default quality value to 1") {
     val res = JavaDelegationManagerProxy.parseDelegationHeader("status_code=404`component=foo`message=not found")
     res shouldBe a[HttpDelegationHeader]
-    res.statusCode should equal(404)
-    res.component should equal("foo")
-    res.message should equal("not found")
-    res.quality should equal(1)
+    res.statusCode shouldEqual 404
+    res.component shouldEqual "foo"
+    res.message shouldEqual "not found"
+    res.quality shouldEqual 1
   }
 
   test("JavaDelegationManagerProxy.parseDelegationHeader should throw an exception if parsing fails") {

@@ -127,7 +127,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
   describe("when the configuration is updated") {
     it("sets the current configuration on the filter asserting the defaults and initialized is true") {
       val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
-      filter.isInitialized shouldNot be(true)
+      filter.isInitialized shouldBe false
 
       val configuration = Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -145,26 +145,26 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
       val timeouts = filter.keystoneV2Config.getCache.getTimeouts
-      timeouts.getEndpoints should be(600)
-      timeouts.getGroup should be(600)
-      timeouts.getToken should be(600)
-      timeouts.getVariability should be(0)
+      timeouts.getEndpoints shouldBe 600
+      timeouts.getGroup shouldBe 600
+      timeouts.getToken shouldBe 600
+      timeouts.getVariability shouldBe 0
 
-      filter.keystoneV2Config.getIdentityService.isSetGroupsInHeader should be(true)
-      filter.keystoneV2Config.getIdentityService.isSetCatalogInHeader should be(false)
+      filter.keystoneV2Config.getIdentityService.isSetGroupsInHeader shouldBe true
+      filter.keystoneV2Config.getIdentityService.isSetCatalogInHeader shouldBe false
 
-      filter.keystoneV2Config.getDelegating should be(null)
+      filter.keystoneV2Config.getDelegating shouldBe null
 
       filter.keystoneV2Config.getWhiteList.getUriRegex.size() shouldBe 0
 
-      filter.keystoneV2Config.getTenantHandling.getValidateTenant should be(null)
+      filter.keystoneV2Config.getTenantHandling.getValidateTenant shouldBe null
 
-      filter.keystoneV2Config.getRequireServiceEndpoint should be(null)
+      filter.keystoneV2Config.getRequireServiceEndpoint shouldBe null
     }
 
     it("sets the default delegating quality to 0.7") {
       val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
-      filter.isInitialized shouldNot be(true)
+      filter.isInitialized shouldBe false
 
       val configuration = Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -182,7 +182,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-      filter.keystoneV2Config.getDelegating.getQuality should be(0.7)
+      filter.keystoneV2Config.getDelegating.getQuality shouldBe 0.7
     }
 
     it("should register to listen to the Atom Feed") {

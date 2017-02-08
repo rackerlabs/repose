@@ -493,63 +493,63 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
         Endpoint(None, None, None, "http://www.notreallyawebsite.com")
-      ) should be(true)
+      ) shouldBe true
     }
 
     it("should return true when there is an endpoint that matches the url with the project id appended") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(None, None, None, "http://www.notreallyawebsite.com/tenantId")),
         Endpoint(None, None, None, "http://www.notreallyawebsite.com")
-      ) should be(true)
+      ) shouldBe true
     }
 
     it("should return false when there isn't an endpoint that matches the url") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(None, None, None, "http://www.banana.com")),
         Endpoint(None, None, None, "http://www.notreallyawebsite.com")
-      ) should be(false)
+      ) shouldBe false
     }
 
     it("Should return true when the url matches and region does") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(None, null, Option("DFW"), "http://www.notreallyawebsite.com")),
         Endpoint(None, None, Option("DFW"), "http://www.notreallyawebsite.com")
-      ) should be(true)
+      ) shouldBe true
     }
 
     it("Should return false when the url matches and region doesn't") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(None, None, None, "http://www.notreallyawebsite.com")),
         Endpoint(None, None, Option("DFW"), "http://www.notreallyawebsite.com")
-      ) should be(false)
+      ) shouldBe false
     }
 
     it("Should return true when the url matches and name does") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(Option("foo"), None, Option("DFW"), "http://www.notreallyawebsite.com")),
         Endpoint(Option("foo"), None, None, "http://www.notreallyawebsite.com")
-      ) should be(true)
+      ) shouldBe true
     }
 
     it("Should return false when the url matches and name doesn't") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(Option("bar"), null, None, "http://www.notreallyawebsite.com")),
         Endpoint(Option("foo"), None, None, "http://www.notreallyawebsite.com")
-      ) should be(false)
+      ) shouldBe false
     }
 
     it("Should return true when the url matches and interface does") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com")),
         Endpoint(None, Option("foo"), None, "http://www.notreallyawebsite.com")
-      ) should be(true)
+      ) shouldBe true
     }
 
     it("Should return false when the url matches and interface doesn't") {
       identityV3Handler invokePrivate containsRequiredEndpoint(
         List(Endpoint(None, None, None, "http://www.woot.com"), Endpoint(Option("bar"), None, None, "http://www.notreallyawebsite.com")),
         Endpoint(None, Option("foo"), None, "http://www.notreallyawebsite.com")
-      ) should be(false)
+      ) shouldBe false
     }
   }
 
@@ -563,21 +563,21 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
 
       val handler = new OpenStackIdentityV3Handler(config, identityAPI)
 
-      handler invokePrivate isAuthorized(ValidToken(None, None, None, null, null, null, null, null, null)) should be(true)
+      handler invokePrivate isAuthorized(ValidToken(None, None, None, null, null, null, null, null, null)) shouldBe true
     }
 
     it("should return true when configured and the endpoint is present") {
       val catalogEndpoints = List(Endpoint(None, None, None, "http://www.notreallyawebsite.com"))
       val authToken = ValidToken(None, None, None, null, None, None, None, catalogEndpoints, null)
 
-      identityV3Handler invokePrivate isAuthorized(authToken) should be(true)
+      identityV3Handler invokePrivate isAuthorized(authToken) shouldBe true
     }
 
     it("should return false when configured and the endpoint is not present") {
       val catalogEndpoints = List(Endpoint(None, None, None, "http://www.woot.com"))
       val authToken = ValidToken(None, None, None, null, None, None, None, catalogEndpoints, null)
 
-      identityV3Handler invokePrivate isAuthorized(authToken) should be(false)
+      identityV3Handler invokePrivate isAuthorized(authToken) shouldBe false
     }
   }
 
