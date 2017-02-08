@@ -231,7 +231,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         val responseCaptor = ArgumentCaptor.forClass(classOf[HttpServletResponseWrapper])
         Mockito.verify(mockFilterChain).doFilter(Matchers.any(classOf[ServletRequest]), responseCaptor.capture())
-        assert(responseCaptor.getValue.getStatus == SC_OK)
+        responseCaptor.getValue.getStatus shouldBe SC_OK
       }
     }
 
@@ -266,7 +266,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         val originalResponse: MockHttpServletResponse = new MockHttpServletResponse
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatus == SC_OK)
+        originalResponse.getStatus shouldBe SC_OK
       }
     }
 
@@ -300,13 +300,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
           filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
           if (Option(delegation).isDefined) {
-            assert(mockServletResponse.getStatus == SC_OK)
+            mockServletResponse.getStatus shouldBe SC_OK
             val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
             Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
             val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(result.code, "valkyrie-authorization", result.message, .1)
             assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders(HttpDelegationHeaderNames.Delegated))
           } else {
-            assert(mockServletResponse.getStatus == result.code)
+            mockServletResponse.getStatus shouldBe result.code
           }
         }
       }
@@ -332,13 +332,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
         if (Option(delegation).isDefined) {
-          assert(mockServletResponse.getStatus == SC_OK)
+          mockServletResponse.getStatus shouldBe SC_OK
           val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
           Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
           val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(SC_BAD_GATEWAY, "valkyrie-authorization", "Unable to communicate with Valkyrie: Valkyrie is missing", .1)
           assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders(HttpDelegationHeaderNames.Delegated))
         } else {
-          assert(mockServletResponse.getStatus == SC_BAD_GATEWAY)
+          mockServletResponse.getStatus shouldBe SC_BAD_GATEWAY
         }
       }
     }
@@ -366,7 +366,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
-      assert(mockServletResponse.getStatus == SC_OK)
+      mockServletResponse.getStatus shouldBe SC_OK
     }
 
     it("should be able to cache the valkyrie permissions so we dont have to make repeated calls") {
@@ -400,7 +400,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val mockServletResponse = new MockHttpServletResponse
       val mockFilterChain = mock[FilterChain]
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
-      assert(mockServletResponse.getStatus == SC_FORBIDDEN)
+      mockServletResponse.getStatus shouldBe SC_FORBIDDEN
 
       Mockito.verify(mockDatastore).put("VALKYRIE-FILTERanysomeTenant123456", filter.UserPermissions(Vector.empty[String], Vector(filter.DeviceToPermission(1234561, "view_product1"), filter.DeviceToPermission(123456, "view_product"))), 300000, TimeUnit.MILLISECONDS)
 
@@ -413,7 +413,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       mockServletRequest.setRequestURI("/")
       secondRequestProcessor.headers.foreach { case (k, v) => secondRequest.addHeader(k, v) }
       filter.doFilter(secondRequest, secondServletResponse, mockFilterChain)
-      assert(secondServletResponse.getStatus == SC_OK)
+      secondServletResponse.getStatus shouldBe SC_OK
 
       Mockito.verify(akkaServiceClient, Mockito.times(1)).get(
         "VALKYRIE-FILTERanysomeTenant" + request.headers("X-Contact-Id"),
@@ -450,13 +450,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
         if (Option(delegation).isDefined) {
-          assert(mockServletResponse.getStatus == SC_OK)
+          mockServletResponse.getStatus shouldBe SC_OK
           val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
           Mockito.verify(mockFilterChain).doFilter(requestCaptor.capture(), Matchers.any(classOf[ServletResponse]))
           val delegationHeaders: Map[String, List[String]] = buildDelegationHeaders(SC_NOT_FOUND, "valkyrie-authorization", "Not Found", .1)
           assert(requestCaptor.getValue.getHeaders(HttpDelegationHeaderNames.Delegated).toList == delegationHeaders(HttpDelegationHeaderNames.Delegated))
         } else {
-          assert(mockServletResponse.getStatus == SC_NOT_FOUND)
+          mockServletResponse.getStatus shouldBe SC_NOT_FOUND
         }
       }
     }
@@ -493,7 +493,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
           filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
-          assert(mockServletResponse.getStatus == responseCode)
+          mockServletResponse.getStatus shouldBe responseCode
         }
       }
     }
@@ -518,7 +518,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(mockServletRequest, mockServletResponse, mockFilterChain)
 
-      assert(mockServletResponse.getStatus == SC_BAD_GATEWAY)
+      mockServletResponse.getStatus shouldBe SC_BAD_GATEWAY
     }
 
     it("should send a request guid to valkyrie if present in incoming request") {
@@ -606,7 +606,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
-        assert(mockServletResponse.getStatus == SC_FORBIDDEN)
+        mockServletResponse.getStatus shouldBe SC_FORBIDDEN
       }
     }
   }
@@ -662,7 +662,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
-      assert(mockServletResponse.getStatus == SC_UNAUTHORIZED)
+      mockServletResponse.getStatus shouldBe SC_UNAUTHORIZED
     }
 
     it("should 401 when contact id isn't present") {
@@ -672,7 +672,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
-      assert(mockServletResponse.getStatus == SC_UNAUTHORIZED)
+      mockServletResponse.getStatus shouldBe SC_UNAUTHORIZED
     }
 
     it("should 403 when tenant is non-hybrid") {
@@ -683,7 +683,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
-      assert(mockServletResponse.getStatus == SC_FORBIDDEN)
+      mockServletResponse.getStatus shouldBe SC_FORBIDDEN
     }
 
     it("should 502 when valkyrie 404s") {
@@ -692,7 +692,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
-      assert(mockServletResponse.getStatus == SC_BAD_GATEWAY)
+      mockServletResponse.getStatus shouldBe SC_BAD_GATEWAY
     }
 
     it("should 502 when valkyrie 500s") {
@@ -701,7 +701,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
-      assert(mockServletResponse.getStatus == SC_BAD_GATEWAY)
+      mockServletResponse.getStatus shouldBe SC_BAD_GATEWAY
     }
 
     it("should 502 when valkyrie gives an unexpected response") {
@@ -710,7 +710,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
-      assert(mockServletResponse.getStatus == SC_BAD_GATEWAY)
+      mockServletResponse.getStatus shouldBe SC_BAD_GATEWAY
     }
 
     it("should 502 when we have an exception while talking to valkyrie") {
@@ -721,7 +721,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
 
-      assert(mockServletResponse.getStatus == SC_BAD_GATEWAY)
+      mockServletResponse.getStatus shouldBe SC_BAD_GATEWAY
     }
 
     it("should use the values from the datastore when available") {
@@ -817,7 +817,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
 
-      assert(mockServletResponse.getStatus == SC_OK)
+      mockServletResponse.getStatus shouldBe SC_OK
       assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("401"))
     }
 
@@ -830,7 +830,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
 
-      assert(mockServletResponse.getStatus == SC_OK)
+      mockServletResponse.getStatus shouldBe SC_OK
       assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("401"))
     }
 
@@ -844,7 +844,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
 
-      assert(mockServletResponse.getStatus == SC_OK)
+      mockServletResponse.getStatus shouldBe SC_OK
       assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("403"))
     }
 
@@ -856,7 +856,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
 
-      assert(mockServletResponse.getStatus == SC_OK)
+      mockServletResponse.getStatus shouldBe SC_OK
       assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("502"))
     }
 
@@ -868,7 +868,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
 
-      assert(mockServletResponse.getStatus == SC_OK)
+      mockServletResponse.getStatus shouldBe SC_OK
       assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("502"))
     }
 
@@ -880,7 +880,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
 
-      assert(mockServletResponse.getStatus == SC_OK)
+      mockServletResponse.getStatus shouldBe SC_OK
       assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("502"))
     }
 
@@ -894,7 +894,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.doFilter(mockServletRequest, mockServletResponse, filterChain)
       Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
 
-      assert(mockServletResponse.getStatus == SC_OK)
+      mockServletResponse.getStatus shouldBe SC_OK
       assert(captor.getValue.getHeader(HttpDelegationHeaderNames.Delegated).contains("502"))
     }
   }
@@ -1094,7 +1094,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
+        originalResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       }
 
       it(s"should remove mismatched values [charset: $charsetLabel]") {
@@ -1178,7 +1178,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
+        originalResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       }
 
       it(s"should remove no values for account admins with Bypass Account Admin enabled [charset: $charsetLabel]") {
@@ -1294,7 +1294,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
+        originalResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
 
       }
 
@@ -1323,7 +1323,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
+        originalResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       }
 
       it(s"should throw a 500 when the path for the collection is bad [charset: $charsetLabel]") {
@@ -1351,7 +1351,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
+        originalResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       }
 
       it(s"should throw a 500 when the path for the device id is bad [charset: $charsetLabel]") {
@@ -1379,7 +1379,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
+        originalResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       }
 
       it(s"should throw a 500 when the path for the count is bad [charset: $charsetLabel]") {
@@ -1407,7 +1407,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
+        originalResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       }
 
       it(s"should throw a 500 when the response contains bad json [charset: $charsetLabel]") {
@@ -1435,7 +1435,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        assert(originalResponse.getStatus == SC_INTERNAL_SERVER_ERROR)
+        originalResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       }
     }
 
@@ -1543,7 +1543,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val responseCaptor = ArgumentCaptor.forClass(classOf[HttpServletResponseWrapper])
       Mockito.verify(mockFilterChain).doFilter(Matchers.any(classOf[ServletRequest]), responseCaptor.capture())
-      assert(responseCaptor.getValue.getStatus == SC_OK)
+      responseCaptor.getValue.getStatus shouldBe SC_OK
     }
   }
 
