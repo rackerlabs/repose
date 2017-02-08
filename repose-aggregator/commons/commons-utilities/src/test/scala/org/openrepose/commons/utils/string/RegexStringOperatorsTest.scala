@@ -21,8 +21,11 @@ package org.openrepose.commons.utils.string
 
 import java.util.regex.Matcher
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class RegexStringOperatorsTest extends FunSpec with Matchers {
 
   describe("RegexString") {

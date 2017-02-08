@@ -27,18 +27,21 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.message.BasicHttpResponse
 import org.apache.http.params.HttpParams
+import org.junit.runner.RunWith
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{Matchers => MockitoMatchers}
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.core.service.httpclient.config.{HttpConnectionPoolConfig, PoolType}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSpec}
 
 import scala.collection.JavaConversions._
 
 // TODO: Remove this once the cache TTL (and other necessary fields) can be set by other means
+@RunWith(classOf[JUnitRunner])
 class AkkaServiceClientImplReflectionTest extends FunSpec with BeforeAndAfterAll with BeforeAndAfterEach with MockitoSugar {
   final val HashKey = "hashKey"
   final val ConnectionPoolId = "connectionPoolId"

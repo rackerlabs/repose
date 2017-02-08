@@ -23,6 +23,7 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
@@ -34,10 +35,12 @@ import org.openrepose.core.services.healthcheck.{HealthCheckService, HealthCheck
 import org.openrepose.core.services.reporting.metrics.{MeterByCategory, MetricsService}
 import org.openrepose.core.systemmodel._
 import org.openrepose.filters.versioning.config.{MediaType, MediaTypeList, ServiceVersionMapping, ServiceVersionMappingList}
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
+@RunWith(classOf[JUnitRunner])
 class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach with MockitoSugar {
 
   val systemModel = new SystemModel()

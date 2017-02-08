@@ -21,6 +21,10 @@ package com.rackspace.httpdelegation
 
 import java.text.ParseException
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
+@RunWith(classOf[JUnitRunner])
 class JavaDelegationManagerProxyTest extends FunSuite with Matchers {
 
   test("buildDelegationHeaders should return a header Java map with the appropriate values") {

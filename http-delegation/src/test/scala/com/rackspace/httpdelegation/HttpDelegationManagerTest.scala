@@ -19,6 +19,10 @@
  */
 package com.rackspace.httpdelegation
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
+@RunWith(classOf[JUnitRunner])
 class HttpDelegationManagerTest extends FunSuite with Matchers with HttpDelegationManager {
 
   test("buildDelegationHeaders should return a header map with the appropriate values") {

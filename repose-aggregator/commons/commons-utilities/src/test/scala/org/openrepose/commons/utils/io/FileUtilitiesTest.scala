@@ -19,8 +19,11 @@
  */
 package org.openrepose.commons.utils.io
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class FileUtilitiesTest extends FunSpec with Matchers {
 
   describe("guardedAbsoluteFile") {
