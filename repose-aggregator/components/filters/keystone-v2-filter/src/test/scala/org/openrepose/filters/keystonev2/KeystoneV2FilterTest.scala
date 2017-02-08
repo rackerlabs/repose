@@ -23,7 +23,7 @@ import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{Servlet, ServletRequest, ServletResponse}
+import javax.servlet.{FilterConfig, Servlet, ServletRequest, ServletResponse}
 import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
@@ -51,7 +51,7 @@ import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec}
-import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -77,7 +77,7 @@ with HttpDelegationManager {
   private val mockTracingHeader = mock[TracingHeaderConfig]
   when(mockSystemModel.getTracingHeader).thenReturn(mockTracingHeader)
   when(mockTracingHeader.isEnabled).thenReturn(true, Nil: _*)
-  private val mockFilterConfig = new MockFilterConfig
+  private val mockFilterConfig = mock[FilterConfig]
 
   override def beforeEach(): Unit = {
     reset(mockDatastore)
@@ -1591,12 +1591,11 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("not-tenant")), Nil: _*)
 
-      val responseSpy = spy(new MockHttpServletResponse)
+      val responseSpy = mock[HttpServletResponse]
       val filterChain = new MockFilterChain()
       filter.doFilter(request, responseSpy, filterChain)
 
-      verify(responseSpy).sendError(anyInt(), anyString())
-      responseSpy.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      verify(responseSpy).sendError(mockitoEq(HttpServletResponse.SC_UNAUTHORIZED), anyString())
     }
 
     it("sends all tenant IDs when configured to") {
