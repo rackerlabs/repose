@@ -21,7 +21,8 @@ package org.openrepose.filters.bodyextractortoheader
 
 import java.net.URL
 import java.nio.charset.StandardCharsets
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.FilterConfig
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.runner.RunWith
@@ -30,16 +31,17 @@ import org.mockito.Mockito._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodyextractortoheader.config.{BodyExtractorToHeaderConfig, Extractor}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
-import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
+import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest}
 
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
+class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
-  val mockConfigurationService = mock(classOf[ConfigurationService])
-  val mockFilterConfig = new MockFilterConfig
+  val mockConfigurationService = mock[ConfigurationService]
+  val mockFilterConfig = mock[FilterConfig]
   val defaultValue = "no-value"
   val nullValue = "null-value"
   val matchValue = "red"
@@ -103,7 +105,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wi
   var config: BodyExtractorToHeaderConfig = _
   var filter: BodyExtractorToHeaderFilter = _
   var servletRequest: MockHttpServletRequest = _
-  var servletResponse: MockHttpServletResponse = _
+  var servletResponse: HttpServletResponse = _
   var filterChain: MockFilterChain = _
 
   override def beforeEach() = {
@@ -111,7 +113,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wi
     config = new BodyExtractorToHeaderConfig
     filter = new BodyExtractorToHeaderFilter(mockConfigurationService)
     servletRequest = new MockHttpServletRequest
-    servletResponse = new MockHttpServletResponse
+    servletResponse = mock[HttpServletResponse]
     filterChain = new MockFilterChain
     servletRequest.setContentType("application/json")
     servletRequest.setContent(contentBody)

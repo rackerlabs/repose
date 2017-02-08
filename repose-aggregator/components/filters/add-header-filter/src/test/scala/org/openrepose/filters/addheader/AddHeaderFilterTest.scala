@@ -31,11 +31,12 @@ import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.filters.addheader.config.{AddHeadersConfig, Header, HttpMessage}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
-class AddHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
+class AddHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   import AddHeaderFilterTest._
 
@@ -47,7 +48,7 @@ class AddHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers 
   override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
-    filterChain = mock(classOf[FilterChain])
+    filterChain = mock[FilterChain]
 
     filter = new AddHeaderFilter(null)
   }
