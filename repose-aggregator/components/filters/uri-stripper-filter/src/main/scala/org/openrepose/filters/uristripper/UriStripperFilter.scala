@@ -356,26 +356,22 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
       Try(responseJson.transform(linkTransform)).recover { case _: PathRewriteException => JsError() }.get match {
         case JsSuccess(transformedJson, _) =>
-          logger.debug("Successfully transformed the link at: \"" + linkPath.getValue + "\"")
+          logger.debug(s"""Successfully transformed the link at: "${linkPath.getValue}"""")
           transformedJson
         case JsError(_) if linkPath.getLinkMismatchAction == CONTINUE =>
-          logger.debug("Failed to transform link at: \"" + linkPath.getValue +
-            "\", configured to CONTINUE -- returning the response as-is")
+          logger.debug(s"""Failed to transform link at: "${linkPath.getValue}", configured to CONTINUE -- returning the response as-is""")
           responseJson
         case JsError(_) if linkPath.getLinkMismatchAction == REMOVE =>
           responseJson.transform(jsonPath.prune) match {
             case JsSuccess(jsObject, _) =>
-              logger.debug("Failed to transform link at: \"" + linkPath.getValue +
-                "\", configured to REMOVE -- removing the link")
+              logger.debug(s"""Failed to transform link at: "${linkPath.getValue}", configured to REMOVE -- removing the link""")
               jsObject
             case _ =>
-              logger.debug("Failed to transform link at: \"" + linkPath.getValue +
-                "\", configured to REMOVE, but could not locate the link -- returning the response as-is")
+              logger.debug(s"""Failed to transform link at: "${linkPath.getValue}", configured to REMOVE, but could not locate the link -- returning the response as-is""")
               responseJson
           }
         case _ =>
-          logger.debug("Failed to transform link at: \"" + linkPath.getValue +
-            "\", configured to FAIL -- returning a failure response")
+          logger.debug(s"""Failed to transform link at: "${linkPath.getValue}", configured to FAIL -- returning a failure response""")
           throw LinkTransformException("Failed to transform link at: " + linkPath.getValue)
       }
     }

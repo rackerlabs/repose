@@ -1115,7 +1115,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         setMockResponseCharset(originalResponse)
         Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
           override def answer(invocation: InvocationOnMock): Unit =
-            writeJsonResponse(invocation.getArguments()(1).asInstanceOf[HttpServletResponse], replaceUriValueWith(createOriginServiceResponse("98765", "98765"), "\"foo.com/1234\""))
+            writeJsonResponse(invocation.getArguments()(1).asInstanceOf[HttpServletResponse], replaceUriValueWith(createOriginServiceResponse("98765", "98765"), """"foo.com/1234""""))
         })
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
@@ -1144,7 +1144,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         setMockResponseCharset(originalResponse)
         Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
           override def answer(invocation: InvocationOnMock): Unit =
-            writeJsonResponse(invocation.getArguments()(1).asInstanceOf[HttpServletResponse], replaceUriValueWith(createOriginServiceResponse("98765", "98765"), "\"foo.com/1234\""))
+            writeJsonResponse(invocation.getArguments()(1).asInstanceOf[HttpServletResponse], replaceUriValueWith(createOriginServiceResponse("98765", "98765"), """"foo.com/1234""""))
         })
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
@@ -1173,7 +1173,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         setMockResponseCharset(originalResponse)
         Mockito.when(mockFilterChain.doFilter(Matchers.any(classOf[ServletRequest]), Matchers.any(classOf[ServletResponse]))).thenAnswer(new Answer[Unit] {
           override def answer(invocation: InvocationOnMock): Unit =
-            writeJsonResponse(invocation.getArguments()(1).asInstanceOf[HttpServletResponse], replaceUriValueWith(createOriginServiceResponse("98765", "98765"), "\"foo.com/1234\""))
+            writeJsonResponse(invocation.getArguments()(1).asInstanceOf[HttpServletResponse], replaceUriValueWith(createOriginServiceResponse("98765", "98765"), """"foo.com/1234""""))
         })
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
@@ -1711,7 +1711,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
          "account_number":862323,
          "contact_id": 818029,
          "id": 0,
-         ${if (deviceId != "") "\"item_id\": " + deviceId + "," else ""}
+         ${if (deviceId != "") s""""item_id": $deviceId,""" else ""}
          "item_type_id" : 1,
          "item_type_name" : "devices",
          "permission_name" : "$permissionName",
@@ -1769,7 +1769,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         |            "os": "Penguin Power",
         |            "account_number": 11,
         |            "primary_ipv4_netmask": "",
-        |            ${if (deviceIdOne != "") "\"id\": " + deviceIdOne + "," else ""}
+        |            ${if (deviceIdOne != "") s""""id": $deviceIdOne,""" else ""}
         |            "ipv6_server_allocation_block": "",
         |            "permissions": [
         |                "racker"
@@ -1790,7 +1790,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         |            "os": "Penguin Power",
         |            "account_number": 11,
         |            "primary_ipv4_netmask": "",
-        |            ${if (deviceIdTwo != "") "\"id\": " + deviceIdTwo + "," else ""}
+        |            ${if (deviceIdTwo != "") s""""id": $deviceIdTwo,""" else ""}
         |            "ipv6_server_allocation_block": "",
         |            "permissions": [
         |                "racker"
@@ -1844,6 +1844,6 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
   }
 
   def replaceUriValueWith(jsonString: String, replacement: String): String = {
-    jsonString.replaceAll( s"""\"uri\"\\s*:\\s*.+,""", s"""\"uri\": $replacement,""")
+    jsonString.replaceAll( s""""uri"\\s*:\\s*.+,""", s""""uri": $replacement,""")
   }
 }

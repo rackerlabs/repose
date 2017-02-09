@@ -482,7 +482,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       // Escape all the JSON to make it RegEx Compatible.
       val expectedBuilder = new StringBuilder(expectedMessage.replaceAll("\\{", "\\\\{").replaceAll("\\}", "\\\\}").replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]"))
-      val idx = expectedBuilder.indexOf("foo-service")+"foo-service\",".length
+      val idx = expectedBuilder.indexOf("foo-service")+"""foo-service",""".length
       // Insert the Date/Time/Version RegEx.
       expectedBuilder.insert(idx, """"createdAt":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z","createdAtMillis":[0-9]{13},"jreVersion":".*","jvmName":".*",""")
 

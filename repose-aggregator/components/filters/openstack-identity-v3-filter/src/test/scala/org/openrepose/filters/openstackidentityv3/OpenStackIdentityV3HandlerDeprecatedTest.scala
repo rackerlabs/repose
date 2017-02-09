@@ -585,7 +585,7 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
     val base64Encode = PrivateMethod[String]('base64Encode)
 
     it("should return a base64 encoded string") {
-      identityV3Handler invokePrivate base64Encode("{\"endpoints\":[\"endpoint\":{\"id\":\"test-id\",\"url\":\"http://test-url.com/test\"}]}") should fullyMatch regex "eyJlbmRwb2ludHMiOlsiZW5kcG9pbnQiOnsiaWQiOiJ0ZXN0LWlkIiwidXJsIjoiaHR0cDovL3Rlc3QtdXJsLmNvbS90ZXN0In1dfQ=="
+      identityV3Handler invokePrivate base64Encode("""{"endpoints":["endpoint":{"id":"test-id","url":"http://test-url.com/test"}]}""") should fullyMatch regex "eyJlbmRwb2ludHMiOlsiZW5kcG9pbnQiOnsiaWQiOiJ0ZXN0LWlkIiwidXJsIjoiaHR0cDovL3Rlc3QtdXJsLmNvbS90ZXN0In1dfQ=="
     }
   }
 

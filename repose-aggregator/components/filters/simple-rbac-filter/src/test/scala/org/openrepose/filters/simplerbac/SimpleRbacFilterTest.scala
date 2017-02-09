@@ -54,7 +54,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
     filterChain = new MockFilterChain
     mockConfigService = mock[ConfigurationService]
     mockFilterConfig = new MockFilterConfig("SimpleRbacFilter")
-    filter = new SimpleRbacFilter(mockConfigService, new File("./repose-aggregator/extensions/simple-rbac/target").getAbsolutePath)
+    filter = new SimpleRbacFilter(mockConfigService, new File("./build").getAbsolutePath)
     config = new SimpleRbacConfig
     config.setWadlOutput("simple-rbac.wadl")
     config.setDotOutput("simple-rbac.dot")
@@ -279,7 +279,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
 
           Then(s"the API Checker path ${enableShould(isEnabled)} be logged.")
           val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
-          events.count(_.contains("{\"steps\":[\"S0\",\"")) shouldBe total
+          events.count(_.contains("""{"steps":["S0","""")) shouldBe total
         }
       }
     }

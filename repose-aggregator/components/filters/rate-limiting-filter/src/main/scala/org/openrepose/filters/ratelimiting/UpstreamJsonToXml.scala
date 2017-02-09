@@ -51,7 +51,7 @@ object UpstreamJsonToXml {
       }
     }
 
-    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>" +
+    """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>""" +
     <limits xmlns="http://docs.openstack.org/common/api/v1.0">
       <absolute>
         {xmlLimitsList}

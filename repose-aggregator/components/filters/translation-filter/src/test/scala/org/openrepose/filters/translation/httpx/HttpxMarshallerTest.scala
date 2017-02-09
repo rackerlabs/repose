@@ -68,8 +68,8 @@ class HttpxMarshallerTest extends FunSpec with Matchers {
       requestInfo.setUri("foo")
       requestInfo.setUrl("bar")
       stringify(httpxMarshaller.marshall(requestInfo)) shouldBe
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-          "<request-information xmlns=\"http://docs.openrepose.org/repose/httpx/v1.0\">" +
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>""" +
+          """<request-information xmlns="http://docs.openrepose.org/repose/httpx/v1.0">""" +
           "<uri>foo</uri>" +
           "<url>bar</url>" +
           "</request-information>"
@@ -85,9 +85,9 @@ class HttpxMarshallerTest extends FunSpec with Matchers {
       headerList.getHeader.add(pair)
       headers.setRequest(headerList)
       stringify(httpxMarshaller.marshall(headers)) shouldBe
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-          "<headers xmlns=\"http://docs.openrepose.org/repose/httpx/v1.0\">" +
-          "<request><header quality=\"0.25\" name=\"header1\" value=\"value1\"/></request>" +
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>""" +
+          """<headers xmlns="http://docs.openrepose.org/repose/httpx/v1.0">""" +
+          """<request><header quality="0.25" name="header1" value="value1"/></request>""" +
           "</headers>"
     }
     it("should turn QueryParameters into an input stream") {
@@ -98,9 +98,9 @@ class HttpxMarshallerTest extends FunSpec with Matchers {
       pair.setValue("paramValue")
       queryParameters.getParameter.add(pair)
       stringify(httpxMarshaller.marshall(queryParameters)) shouldBe
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-          "<parameters xmlns=\"http://docs.openrepose.org/repose/httpx/v1.0\">" +
-          "<parameter name=\"name1\" value=\"paramValue\"/>" +
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>""" +
+          """<parameters xmlns="http://docs.openrepose.org/repose/httpx/v1.0">""" +
+          """<parameter name="name1" value="paramValue"/>""" +
           "</parameters>"
     }
     it("should throw an exception when it cant marshall the object") {

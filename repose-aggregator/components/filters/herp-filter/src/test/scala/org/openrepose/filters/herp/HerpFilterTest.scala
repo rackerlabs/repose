@@ -369,7 +369,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserName\" : \"bar\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""UserName" : "bar"""")
     }
     List(
       ("", "responseBar", "responseBar"),
