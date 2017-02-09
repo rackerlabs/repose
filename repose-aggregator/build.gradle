@@ -22,13 +22,13 @@ task copyXsds(type: Copy) {
 
 asciidoctor {
     requires 'asciidoctor-diagram'
+    options template_dirs: ["${project.projectDir}/src/docs/asciidoc/_backends/haml"]
     attributes 'source-highlighter': 'coderay',
                'stylesdir': "${project.projectDir}/src/docs/asciidoc/_stylesheets",
                'stylesheet': 'repose.css',
                'toc': 'left',
                'icons': 'font',
-               'docinfo': 'shared',
-               'last-update-label': 'Version: ' + project.version + '<br>Last Updated:'
+               'docinfo': 'shared'
 
     resources {
         from 'src/docs/resources'
