@@ -1,7 +1,8 @@
 {
-  "name": "service-mocks",
-  "version": "1.0.0",
-  "description": "Simple services that mock the behavior of more complex services like OpenStack Identity.",
+  "name": "ReposeFakeKeystonev2",
+  "version": "0.2.0",
+  "description": "A simple service that mocks the behavior of Keystone v2.",
+  "readme": "README.md",
   "author": "Open Repose Team <ReposeCore@Rackspace.com> (http://www.openrepose.org/)",
   "engines": {
     "node": ">= 4.3.2",
@@ -16,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rackerlabs/repose-perf-infrastructure"
+    "url": "https://github.com/rackerlabs/repose"
   },
   "license": "Apache-2.0"
 }
