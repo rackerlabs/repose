@@ -43,14 +43,9 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
     for (headerMode <- ResponseMode.values(); bodyMode <- ResponseMode.values()) yield (headerMode, bodyMode)
 
   val modePermutationsMutable: Seq[(ResponseMode, ResponseMode)] =
-  {{ for (headerMode <- Seq(ResponseMode.MUTABLE);
-         bodyMode <- ResponseMode.values())
+  for (headerMode <- ResponseMode.values(); bodyMode <- ResponseMode.values()
+    if headerMode == ResponseMode.MUTABLE || bodyMode == ResponseMode.MUTABLE)
       yield (headerMode, bodyMode)
-  } ++ {
-    for (headerMode <- ResponseMode.values();
-         bodyMode <- Seq(ResponseMode.MUTABLE))
-      yield (headerMode, bodyMode)
-  }}.distinct
 
   var originalResponse: MockHttpServletResponse = _
 
