@@ -28,7 +28,7 @@ asciidoctor {
                'toc': 'left',
                'icons': 'font',
                'docinfo': 'shared',
-               'revnumber': project.version
+               'last-update-label': 'Version: ' + project.version + '<br>Last Updated:'
 
     resources {
         from 'src/docs/resources'
