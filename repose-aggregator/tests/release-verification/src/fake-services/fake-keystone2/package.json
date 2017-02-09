@@ -2,7 +2,7 @@
   "name": "service-mocks",
   "version": "1.0.0",
   "description": "Simple services that mock the behavior of more complex services like OpenStack Identity.",
-  "author": "Damien Johnson <damien.johnson@rackspace.com>",
+  "author": "Open Repose Team <ReposeCore@Rackspace.com> (http://www.openrepose.org/)",
   "engines": {
     "node": ">= 4.3.2",
     "npm": ">= 4.1.2"
