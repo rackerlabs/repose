@@ -27,7 +27,8 @@ asciidoctor {
                'stylesheet': 'repose.css',
                'toc': 'left',
                'icons': 'font',
-               'docinfo1': ''
+               'docinfo': 'shared',
+               'revnumber': project.version
 
     resources {
         from 'src/docs/resources'
