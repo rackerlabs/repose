@@ -4,8 +4,6 @@ import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 import com.bmuschko.gradle.docker.tasks.image.DockerTagImage
 import groovy.json.JsonSlurper
 
-import java.net.URL
-
 apply plugin: 'com.bmuschko.docker-remote-api'
 
 // This forces the usage of a more recent unix-socket-factory which makes Mac OS X happy
@@ -74,44 +72,16 @@ task removeImage(type: DockerRemoveImage) {
     force = true
 }
 
-static int compareVersions(String v1, String v2) {
-    List<String> v1Parts = v1.tokenize('.')
-    List<String> v2Parts = v2.tokenize('.')
-
-    int minLen = Math.min(v1Parts.size(), v2Parts.size())
-
-    // Compare each number from the versions until either the numbers do not match,
-    // or the end of a version string is hit.
-    for (int i = 0; i < minLen; ++i) {
-        int n1 = v1Parts[i] as int
-        int n2 = v2Parts[i] as int
-
-        if (n1 != n2) {
-            return n1 <=> n2
-        }
-    }
-
-    // If we got this far, then one version is a substring of the other.
-    // Therefore, whichever version is longer is the greater version.
-    return v1Parts.size() <=> v2Parts.size()
-}
-
-static boolean isLatestVersion(String v) {
+boolean isLatestDockerHubVersion(String version) {
     boolean isLatest = true
 
     String nextPage = 'https://hub.docker.com/v2/repositories/rackerlabs/repose/tags/'
-    while (nextPage) {
+    while (nextPage && isLatest) {
         Map jsonObject = new JsonSlurper().parse(new URL(nextPage)) as Map
-        for (Map result : jsonObject.results) {
-            String tagName = result.name
-            if (tagName.length() > 0 && tagName.charAt(0).isDigit() && compareVersions(v, tagName) < 0) {
-                isLatest = false
-                break
-            }
-        }
+        List<String> otherVersions = jsonObject.results.collect { it.name }
 
-        if (!isLatest) {
-            break
+        if (!isLatestVersion(version, otherVersions)) {
+            isLatest = false
         }
 
         nextPage = jsonObject.next
@@ -120,6 +90,6 @@ static boolean isLatestVersion(String v) {
     return isLatest
 }
 
-pushImageLatest.onlyIf { isLatestVersion(reposeVersion) }
+pushImageLatest.onlyIf { isLatestDockerHubVersion(reposeVersion) }
 
 //project.tasks.getByPath(':release').dependsOn pushImageVersion, pushImageLatest
