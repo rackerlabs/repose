@@ -228,8 +228,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should throw an exception if the stream is not able to be parsed") {
       val exception = the [SamlPolicyException] thrownBy filter.readToDom(new BufferedServletInputStream(new ByteArrayInputStream("Invalid SAML Response".getBytes(UTF_8))))
 
-      exception.statusCode should be (SC_BAD_REQUEST)
-      exception.message should be ("SAMLResponse was not able to be parsed")
+      exception.statusCode shouldBe SC_BAD_REQUEST
+      exception.message shouldBe "SAMLResponse was not able to be parsed"
     }
   }
 
@@ -238,14 +238,14 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val config = buildConfig(issuers = Seq("http://test.rackspace.com"))
       filter.configurationUpdated(config)
 
-      filter.determineVersion(samlResponseDoc) should be (1)
+      filter.determineVersion(samlResponseDoc) shouldBe 1
     }
 
     it("should return 2 when the issuer is not in the configured list") {
       val config = buildConfig(issuers = Seq("http://foo.bar"))
       filter.configurationUpdated(config)
 
-      filter.determineVersion(samlResponseDoc) should be (2)
+      filter.determineVersion(samlResponseDoc) shouldBe 2
     }
 
     it("should throw an exception when it can't find the issuer in the document") {
@@ -257,8 +257,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       val exception = the [SamlPolicyException] thrownBy filter.determineVersion(badDocument)
 
-      exception.statusCode should be (SC_BAD_REQUEST)
-      exception.message should be ("No issuer present in SAML Response")
+      exception.statusCode shouldBe SC_BAD_REQUEST
+      exception.message shouldBe "No issuer present in SAML Response"
     }
   }
 

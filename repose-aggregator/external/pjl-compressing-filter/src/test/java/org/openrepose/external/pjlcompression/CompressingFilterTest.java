@@ -19,13 +19,13 @@
  */
 package org.openrepose.external.pjlcompression;
 
-import com.mockrunner.mock.web.MockFilterConfig;
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpServletResponse;
-import com.mockrunner.mock.web.MockServletContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletContext;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
@@ -42,14 +42,13 @@ public final class CompressingFilterTest {
     private static final String ACCEPT_ENCODING = "Accept-Encoding";
     private static final String CONTENT_ENCODING = "Content-Encoding";
 
-    private CompressingFilter compressingFilter = new CompressingFilter();
+    private CompressingFilter compressingFilter;
 
     @Before
     public void setup() throws Exception {
         MockFilterConfig filterConfig = new MockFilterConfig();
 
-        filterConfig.setupServletContext(new MockServletContext());
-
+        compressingFilter = new CompressingFilter();
         compressingFilter.init(filterConfig);
         compressingFilter.setForRepose();
     }

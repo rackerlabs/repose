@@ -19,9 +19,9 @@
  */
 package org.openrepose.filters.keystonev2basicauth
 
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.{FilterChain, FilterConfig}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.mockrunner.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
@@ -39,6 +39,7 @@ import org.openrepose.filters.keystonev2basicauth.config.KeystoneV2BasicAuthConf
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConversions._
 
@@ -46,7 +47,7 @@ import scala.collection.JavaConversions._
 class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with LazyLogging {
 
   var listAppender: ListAppender = _
-  var filterChain: MockFilterChain = _
+  var filterChain: FilterChain = _
   var mockDatastore: Datastore = _
   var mockDatastoreService: DatastoreService = _
   var mockAkkaServiceClient: AkkaServiceClient = _
@@ -58,7 +59,7 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
   override def beforeEach() = {
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
-    filterChain = new MockFilterChain
+    filterChain = mock[FilterChain]
     mockDatastore = mock[Datastore]
     mockDatastoreService = mock[DatastoreService]
     mockAkkaServiceClient = mock[AkkaServiceClient]
@@ -75,7 +76,7 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
   describe("the init method") {
     it("should be loud") {
       //val mockServletContext = new MockServletContext()
-      val mockFilterConfig = new MockFilterConfig()
+      val mockFilterConfig = mock[FilterConfig]
 
       // when:
       filter.init(mockFilterConfig)
@@ -119,8 +120,8 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
   ignore("the doFilter method") {
     it("should be empty if field data is not present") {
       // given: "a mock'd ServletRequest and ServletResponse"
-      val mockServletRequest = new MockHttpServletRequest
-      val mockServletResponse = new MockHttpServletResponse
+      val mockServletRequest = mock[HttpServletRequest]
+      val mockServletResponse = mock[HttpServletResponse]
       //when(mockServletResponse.getHeaderNames).thenReturn(new java.util.ArrayList[String])
       //when(mockServletResponse.extractHeaderValues).thenReturn(new util.ArrayList[String])//util.HashMap[HeaderName, List[HeaderValue]])
 
@@ -138,7 +139,7 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
     it("should simply pass if there is not an HTTP Basic authentication header") {
       // given: "a mock'd ServletRequest and ServletResponse"
       val mockServletRequest = new MockHttpServletRequest
-      val mockServletResponse = new MockHttpServletResponse
+      val mockServletResponse = mock[HttpServletResponse]
 
       // when: "the filter's handleRequest() is called without an HTTP Basic authentication header"
       val filterAction = filter.handleRequest(new HttpServletRequestWrapper(mockServletRequest), mockServletResponse)
@@ -153,8 +154,8 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
   ignore("handleResponse") {
     it("should pass filter") {
       // given: "a mock'd ServletRequest and ServletResponse"
-      val mockServletRequest = new MockHttpServletRequest
-      val mockServletResponse = new MockHttpServletResponse
+      val mockServletRequest = mock[HttpServletRequest]
+      val mockServletResponse = mock[HttpServletResponse]
       //when(mockServletResponse.getStatus).thenReturn(HttpServletResponse.SC_OK)
 
       // when: "the filter's/handler's handleResponse() is called"
@@ -162,7 +163,7 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
 
       // then: "the filter's response status code should be No Content (204)"
       filterAction should not be FilterAction.NOT_SET
-      mockServletResponse.getStatus should be(HttpServletResponse.SC_NO_CONTENT)
+      mockServletResponse.getStatus shouldBe HttpServletResponse.SC_NO_CONTENT
     }
   }
 

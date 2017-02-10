@@ -22,7 +22,6 @@ package org.openrepose.filters.keystonev2
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-import com.mockrunner.mock.web.MockFilterConfig
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers.{any => mockitoAny, eq => mockitoEq, _}
@@ -38,6 +37,7 @@ import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.mock.web.MockFilterConfig
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterCacheInvalidationTest extends FunSpec

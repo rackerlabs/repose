@@ -21,7 +21,7 @@ dependencies {
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.mockito:mockito-all"
-    testCompile "com.mockrunner:mockrunner-servlet"
+    testCompile "org.springframework:spring-test"
     testCompile "commons-io:commons-io"
     testCompile "xmlunit:xmlunit"
     testCompile "org.spockframework:spock-core"

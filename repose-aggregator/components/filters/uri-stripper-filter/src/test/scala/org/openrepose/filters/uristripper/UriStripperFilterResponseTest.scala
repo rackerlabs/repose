@@ -543,8 +543,8 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
         filter.doFilter(request, response, filterChain)
 
         val jsonBody = Json.parse(response.getContentAsString)
-        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual "\"http://example.com/v1/12345/foo\""
-        (jsonBody \ "linktwo").asInstanceOf[JsDefined].value.toString() shouldEqual "\"http://example.com/v1/12345/foo\""
+        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual """"http://example.com/v1/12345/foo""""
+        (jsonBody \ "linktwo").asInstanceOf[JsDefined].value.toString() shouldEqual """"http://example.com/v1/12345/foo""""
       }
 
       it("should update multiple links given multiple JSON paths with independent failure behaviors (continue, remove)") {
@@ -575,7 +575,7 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
         filter.doFilter(request, response, filterChain)
 
         val jsonBody = Json.parse(response.getContentAsString)
-        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual "\"http://example.com/v1/12345/foo\""
+        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual """"http://example.com/v1/12345/foo""""
         (jsonBody \ "linknumerodos").isInstanceOf[JsUndefined] shouldEqual true
       }
     }
@@ -944,7 +944,7 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(request, response, filterChain)
 
-        response.getContentAsString shouldEqual "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        response.getContentAsString shouldEqual """<?xml version="1.0" encoding="UTF-8"?>"""
       }
 
       it("should remove the field if the stripped path segment cannot be re-inserted in the link (remove)") {
@@ -972,7 +972,7 @@ class UriStripperFilterResponseTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(request, response, filterChain)
 
-        response.getContentAsString shouldEqual "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        response.getContentAsString shouldEqual """<?xml version="1.0" encoding="UTF-8"?>"""
       }
 
       it("should fail if the link cannot be located (fail)") {

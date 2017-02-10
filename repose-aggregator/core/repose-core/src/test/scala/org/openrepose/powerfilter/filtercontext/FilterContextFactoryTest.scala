@@ -84,7 +84,7 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
     filterContexts shouldNot be(null)
     filterContexts shouldNot be(empty)
 
-    filterContexts.size() should be(1)
+    filterContexts.size() shouldBe 1
 
     val thingy = clms.getLoadedApplications.asScala.head.getClassLoader
     val clazz = thingy.loadClass("org.openrepose.filters.core.test.TestFilter")
@@ -105,7 +105,7 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
     filterContexts shouldNot be(null)
     filterContexts shouldNot be(empty)
 
-    filterContexts.size() should be(1)
+    filterContexts.size() shouldBe 1
 
     val thingy = clms.getLoadedApplications.asScala.head.getClassLoader
     val clazz = thingy.loadClass("org.openrepose.filters.core.unannotated.UnannotatedFilter")
@@ -215,18 +215,18 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
 
     it("the filter is not of the required type (javax.servlet.Filter)") {
       failureTest("annotated-not-filter") { (className, exception) =>
-        exception.getMessage should be(s"Requested filter, ${className} is not of type javax.servlet.Filter")
+        exception.getMessage shouldBe s"Requested filter, ${className} is not of type javax.servlet.Filter"
       }
     }
 
     it("the requested filter does not even exist") {
       failureTest("nonexistent-filter") { (className, exception) =>
-        exception.getMessage should be(s"Requested filter, ${className} does not exist in any loaded artifacts")
+        exception.getMessage shouldBe s"Requested filter, ${className} does not exist in any loaded artifacts"
       }
     }
     it("the requested filter fails to initialize") {
       failureTest("broken-filter") { (className, exception) =>
-        exception.getMessage should be("Failed to initialize filter org.openrepose.filters.core.brokenfilter.BrokenFilter")
+        exception.getMessage shouldBe "Failed to initialize filter org.openrepose.filters.core.brokenfilter.BrokenFilter"
       }
     }
     it("when there is no artifact to satisfy the filter request") {
@@ -240,7 +240,7 @@ class FilterContextFactoryTest extends FunSpec with Matchers with MockitoSugar w
       val exception = intercept[FilterInitializationException] {
         fcm.buildFilterContexts(mockServletContext, List(jaxbFilterConfig).asJava)
       }
-      exception.getMessage should be("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named nopenopenope")
+      exception.getMessage shouldBe "Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named nopenopenope"
     }
   }
 }

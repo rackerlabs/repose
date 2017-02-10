@@ -22,14 +22,17 @@ package org.openrepose.commons.utils.servlet.http
 import java.io.ByteArrayInputStream
 import javax.servlet.ServletOutputStream
 
+import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers.{eq => mEq}
 import org.mockito.Mockito._
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.io.Source
 
+@RunWith(classOf[JUnitRunner])
 class ReadOnlyServletOutputStreamTest extends FunSpec with Matchers with MockitoSugar {
 
   describe("write") {

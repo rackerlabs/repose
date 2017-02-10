@@ -144,7 +144,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
         case TokenCreationInfo(SC_UNAUTHORIZED, _, userName, _, _) =>
           delegateOrElse(SC_UNAUTHORIZED, s"Failed to authenticate user: $userName") {
             httpServletResponse.setStatus(SC_UNAUTHORIZED) // (401)
-            httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+            httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, """Basic realm="RAX-KEY"""")
             datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
           }
         case TokenCreationInfo((SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS), _, userName, Some(retry), _) => // (413 | 429)
@@ -158,7 +158,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
           }
           delegateOrElse(SC_UNAUTHORIZED, s"Bad Request received from identity service for $userName") {
             httpServletResponse.setStatus(SC_UNAUTHORIZED)
-            httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+            httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, """Basic realm="RAX-KEY"""")
             datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
           }
         case TokenCreationInfo(SC_FORBIDDEN, _, userName, _, _) =>
@@ -171,7 +171,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
 
           delegateOrElse(SC_UNAUTHORIZED, s"Failed to authenticate user: $userName") {
             httpServletResponse.setStatus(SC_UNAUTHORIZED) // (401)
-            httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+            httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, """Basic realm="RAX-KEY"""")
             datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
           }
         case (_) =>
@@ -287,7 +287,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
     logger.debug("Handling HTTP Response. Incoming status code: " + responseStatus)
     if (responseStatus == HttpServletResponse.SC_UNAUTHORIZED ||
       responseStatus == HttpServletResponse.SC_FORBIDDEN) {
-      httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+      httpServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, """Basic realm="RAX-KEY"""")
       withEncodedCredentials(httpServletRequest) { encodedCredentials =>
         datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
       }

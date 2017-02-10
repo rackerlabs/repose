@@ -31,13 +31,14 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
 import org.openrepose.filters.headernormalization.config._
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
+class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   import HeaderNormalizationFilterTest._
 
@@ -51,16 +52,16 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
   override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
-    servletResponse = mock(classOf[ServletResponse])
-    filterChain = mock(classOf[FilterChain])
-    filterConfig = mock(classOf[FilterConfig])
-    metricsService = mock(classOf[MetricsService])
-    metricsMeters = mock(classOf[MeterByCategorySum])
+    servletResponse = mock[ServletResponse]
+    filterChain = mock[FilterChain]
+    filterConfig = mock[FilterConfig]
+    metricsService = mock[MetricsService]
+    metricsMeters = mock[MeterByCategorySum]
 
     when(filterConfig.getInitParameterNames).thenReturn(List.empty[String].toIterator.asJavaEnumeration)
     when(metricsService.newMeterByCategorySum(any(), any(), any(), any())).thenReturn(metricsMeters)
 
-    filter = new HeaderNormalizationFilter(mock(classOf[ConfigurationService]), metricsService)
+    filter = new HeaderNormalizationFilter(mock[ConfigurationService], metricsService)
     filter.init(filterConfig)
   }
 

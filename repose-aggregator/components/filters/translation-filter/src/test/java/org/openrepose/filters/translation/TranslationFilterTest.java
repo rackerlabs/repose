@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.translation;
 
-import com.mockrunner.mock.web.MockFilterConfig;
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
@@ -34,6 +33,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.ResponseMode;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.filters.translation.config.*;
+import org.springframework.mock.web.MockFilterConfig;
 import org.xml.sax.SAXException;
 
 import javax.servlet.ServletInputStream;
@@ -69,8 +69,7 @@ public class TranslationFilterTest {
             configurationRoot = "";
             filter = new TranslationFilter(configurationService, configurationRoot);
 
-            MockFilterConfig mockFilterConfig = new MockFilterConfig();
-            mockFilterConfig.setFilterName("TranslationFilter");
+            MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
             filter.init(mockFilterConfig);
 
             TranslationConfig config = new TranslationConfig();
@@ -239,8 +238,7 @@ public class TranslationFilterTest {
             configurationRoot = "";
             filter = new TranslationFilter(configurationService, configurationRoot);
 
-            MockFilterConfig mockFilterConfig = new MockFilterConfig();
-            mockFilterConfig.setFilterName("TranslationFilter");
+            MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
             filter.init(mockFilterConfig);
 
             TranslationConfig config = new TranslationConfig();
@@ -368,8 +366,7 @@ public class TranslationFilterTest {
             configurationRoot = "";
             filter = new TranslationFilter(configurationService, configurationRoot);
 
-            MockFilterConfig mockFilterConfig = new MockFilterConfig();
-            mockFilterConfig.setFilterName("TranslationFilter");
+            MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
             filter.init(mockFilterConfig);
         }
 

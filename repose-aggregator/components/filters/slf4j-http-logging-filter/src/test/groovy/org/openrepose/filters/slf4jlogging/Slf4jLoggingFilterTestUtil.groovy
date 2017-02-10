@@ -19,13 +19,13 @@
  */
 package org.openrepose.filters.slf4jlogging
 
-import com.mockrunner.mock.web.MockFilterConfig
 import groovy.xml.StreamingMarkupBuilder
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.filters.slf4jlogging.config.FormatElement
 import org.openrepose.filters.slf4jlogging.config.Slf4JHttpLog
+import org.springframework.mock.web.MockFilterConfig
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when

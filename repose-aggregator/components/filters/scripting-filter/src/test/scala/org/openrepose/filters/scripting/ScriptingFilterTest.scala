@@ -84,7 +84,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val request = new MockHttpServletRequest()
 
     filter.doFilter(request, new MockHttpServletResponse(), filterChain)
-    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") shouldEqual "butts"
   }
 
   it("can parse some javascript to add a response header with static value") {
@@ -128,7 +128,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val request = new MockHttpServletRequest()
 
     filter.doFilter(request, new MockHttpServletResponse(), filterChain)
-    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") shouldEqual "butts"
   }
 
   it("can parse some jruby to add a request header with static value") {
@@ -149,7 +149,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     val request = new MockHttpServletRequest()
 
     filter.doFilter(request, new MockHttpServletResponse(), filterChain)
-    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") shouldEqual "butts"
   }
 
   it("can parse some jython to add a request header with static value") {
@@ -168,7 +168,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     filter.configurationUpdated(scriptingConfig)
 
     filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain)
-    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") shouldEqual "butts"
   }
 
   it("can parse some lua to add a request header with static value") {
@@ -187,7 +187,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     filter.configurationUpdated(scriptingConfig)
 
     filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain)
-    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") shouldEqual "butts"
   }
 
   ignore("can parse some scala to add a request header with static value") {
@@ -206,7 +206,7 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     filter.configurationUpdated(scriptingConfig)
 
     filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain)
-    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") should equal("butts")
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") shouldEqual "butts"
   }
 
   it("should return a 500 if the script throws an exception") {

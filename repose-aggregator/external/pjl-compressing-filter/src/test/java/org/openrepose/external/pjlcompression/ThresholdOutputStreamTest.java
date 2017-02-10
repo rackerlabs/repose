@@ -35,9 +35,10 @@
 
 package org.openrepose.external.pjlcompression;
 
-import com.mockrunner.mock.web.WebMockObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.mock.web.MockServletContext;
 
 import javax.servlet.FilterConfig;
 import java.io.ByteArrayOutputStream;
@@ -60,10 +61,9 @@ public final class ThresholdOutputStreamTest {
     public void setUp() throws Exception {
         baos = new ByteArrayOutputStream();
         callback = new Callback();
-        WebMockObjectFactory factory = new WebMockObjectFactory();
-        FilterConfig filterConfig = factory.getMockFilterConfig();
+        FilterConfig filterConfig = new MockFilterConfig();
         CompressingFilterContext context = new CompressingFilterContext(filterConfig);
-        CompressingFilterLogger logger = new CompressingFilterLoggerImpl(factory.getMockServletContext(), true, null, false);
+        CompressingFilterLogger logger = new CompressingFilterLoggerImpl(new MockServletContext(), true, null, false);
         tos = new ThresholdOutputStream(baos,
                 CompressingStreamFactory.getFactoryForContentEncoding("gzip"),
                 context,
@@ -159,5 +159,4 @@ public final class ThresholdOutputStreamTest {
             compressingStreamCommitted = true;
         }
     }
-
 }

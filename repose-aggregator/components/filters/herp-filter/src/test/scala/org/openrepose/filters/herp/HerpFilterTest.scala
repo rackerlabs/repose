@@ -369,7 +369,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include("\"UserName\" : \"bar\"")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""UserName" : "bar"""")
     }
     List(
       ("", "responseBar", "responseBar"),
@@ -884,7 +884,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
     timeZones.foreach { timeZone =>
       it(s"should convert as expected in ${timeZone._1.getDisplayName} (${timeZone._1.getID})") {
         TimeZone.setDefault(timeZone._1)
-        timestampFormater(0, null) should equal(timeZone._2)
+        timestampFormater(0, null) shouldEqual timeZone._2
       }
     }
   }
@@ -903,7 +903,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
     )
     methods.foreach { method =>
       it(s"should translate ${method._1} into ${method._2}") {
-        methodFormatter(method._1, null) should equal(method._2)
+        methodFormatter(method._1, null) shouldEqual method._2
       }
     }
   }
@@ -925,7 +925,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
     )
     outcomes.foreach { outcome =>
       it(s"should translate status ${outcome._1} into ${outcome._2}") {
-        outcomeFormatter(outcome._1, null) should equal(outcome._2)
+        outcomeFormatter(outcome._1, null) shouldEqual outcome._2
       }
     }
   }

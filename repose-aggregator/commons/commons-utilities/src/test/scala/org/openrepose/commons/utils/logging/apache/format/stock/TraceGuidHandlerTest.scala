@@ -23,10 +23,13 @@ package org.openrepose.commons.utils.logging.apache.format.stock
 import java.util.StringTokenizer
 import javax.servlet.http.HttpServletRequest
 
+import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class TraceGuidHandlerTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
   import org.mockito.Mockito.when
 

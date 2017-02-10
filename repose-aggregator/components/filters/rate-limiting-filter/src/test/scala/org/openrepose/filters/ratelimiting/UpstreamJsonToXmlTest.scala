@@ -22,10 +22,13 @@ package org.openrepose.filters.ratelimiting
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.xml.{Elem, XML}
 
+@RunWith(classOf[JUnitRunner])
 class UpstreamJsonToXmlTest extends FunSpec with Matchers {
   val upstreamJson =
     """{
@@ -65,7 +68,7 @@ class UpstreamJsonToXmlTest extends FunSpec with Matchers {
       namedLimit <- limits if (limits \ "@name").text == "maxServerMeta"
       value <- namedLimit \ "@value"
     } yield {
-      value.text.toInt should equal(40)
+      value.text.toInt shouldEqual 40
     }
   }
 }

@@ -29,11 +29,12 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.filters.urlextractortoheader.config.{Extractor, UrlExtractorToHeaderConfig}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
-class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
+class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
@@ -42,7 +43,7 @@ class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wit
   override def beforeEach() = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
-    filterChain = mock(classOf[FilterChain])
+    filterChain = mock[FilterChain]
   }
 
   describe("doFilter") {

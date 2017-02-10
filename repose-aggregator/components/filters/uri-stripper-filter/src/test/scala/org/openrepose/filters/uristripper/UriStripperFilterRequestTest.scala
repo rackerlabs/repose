@@ -450,8 +450,8 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
         filter.doFilter(request, response, filterChain)
 
         val jsonBody = Json.parse(getPostFilterRequestBody)
-        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual "\"http://example.com/v1/foo\""
-        (jsonBody \ "linktwo").asInstanceOf[JsDefined].value.toString() shouldEqual "\"http://example.com/v1/foo\""
+        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual """"http://example.com/v1/foo""""
+        (jsonBody \ "linktwo").asInstanceOf[JsDefined].value.toString() shouldEqual """"http://example.com/v1/foo""""
       }
 
       it("should update multiple links given multiple JSON paths with independent failure behaviors (continue, remove)") {
@@ -483,7 +483,7 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
         filter.doFilter(request, response, filterChain)
 
         val jsonBody = Json.parse(getPostFilterRequestBody)
-        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual "\"http://example.com/v1/foo\""
+        (jsonBody \ "link").asInstanceOf[JsDefined].value.toString() shouldEqual """"http://example.com/v1/foo""""
         (jsonBody \ "linknumerodos").isInstanceOf[JsUndefined] shouldEqual true
       }
     }
@@ -807,7 +807,7 @@ class UriStripperFilterRequestTest extends FunSpec with BeforeAndAfterEach with 
 
         filter.doFilter(request, response, filterChain)
 
-        getPostFilterRequestBody shouldEqual "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        getPostFilterRequestBody shouldEqual """<?xml version="1.0" encoding="UTF-8"?>"""
       }
 
       it("should fail if the link cannot be located (fail)") {

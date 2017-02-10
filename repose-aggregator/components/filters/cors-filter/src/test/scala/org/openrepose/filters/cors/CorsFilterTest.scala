@@ -32,6 +32,7 @@ import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, Htt
 import org.openrepose.filters.cors.config.Origins.Origin
 import org.openrepose.filters.cors.config._
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
@@ -39,7 +40,7 @@ import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
 @RunWith(classOf[JUnitRunner])
-class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
+class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   import CorsFilterTest._
 
@@ -53,7 +54,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
   override def beforeEach(): Unit = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
-    filterChain = mock(classOf[FilterChain])
+    filterChain = mock[FilterChain]
 
     // unless we're specifically testing the same-origin logic, assume Host should not match the Origin
     servletRequest.setScheme("http")

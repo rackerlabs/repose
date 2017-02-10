@@ -232,7 +232,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                         |  <resources base="http://localhost">""".stripMargin
         val resources = values.map { value =>
           def toParams(resource: Resource) =
-            "\\{[^\\}]*\\}".r.findAllIn(resource.path).map { param =>
+            """\{[^\}]*\}""".r.findAllIn(resource.path).map { param =>
               val name = param.substring(1, param.length-1)
               s"""      <param  name="$name" style="template"/>\n"""
             }.mkString
@@ -259,7 +259,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
           val uuid = UUID.randomUUID
           val params = toParams(value)
           val methods = toMethods(value, uuid)
-          s"""    <resource id="_$uuid" path=\"$path">
+          s"""    <resource id="_$uuid" path="$path">
              |$params$methods
              |    </resource>""".stripMargin
         }.mkString("\n")

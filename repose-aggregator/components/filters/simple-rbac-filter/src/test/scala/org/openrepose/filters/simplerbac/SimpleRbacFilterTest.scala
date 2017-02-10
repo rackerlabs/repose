@@ -23,7 +23,6 @@ import java.io.File
 import java.net.URL
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED, SC_NOT_FOUND, SC_OK}
 
-import com.mockrunner.mock.web.MockFilterConfig
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -35,7 +34,7 @@ import org.openrepose.filters.simplerbac.config.{DelegatingType, ResourcesType, 
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
+import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConversions._
 
@@ -49,13 +48,13 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
   var mockConfigService: ConfigurationService = _
   var mockFilterConfig: MockFilterConfig = _
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
     mockConfigService = mock[ConfigurationService]
-    mockFilterConfig = new MockFilterConfig
-    filter = new SimpleRbacFilter(mockConfigService, new File("./repose-aggregator/extensions/simple-rbac/target").getAbsolutePath)
+    mockFilterConfig = new MockFilterConfig("SimpleRbacFilter")
+    filter = new SimpleRbacFilter(mockConfigService, new File("./build").getAbsolutePath)
     config = new SimpleRbacConfig
     config.setWadlOutput("simple-rbac.wadl")
     config.setDotOutput("simple-rbac.dot")
@@ -72,7 +71,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
     config.setResources(resources)
   }
 
-  override def afterEach() = {
+  override def afterEach(): Unit = {
     if (filter.isInitialized) filter.destroy()
   }
 
@@ -156,7 +155,6 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
       Given("an un-initialized filter and a mock'd Filter Config")
       filter.configuration shouldBe null
       !filter.isInitialized
-      mockFilterConfig.setFilterName("SimpleRbacFilter")
       val resourceCaptor = ArgumentCaptor.forClass(classOf[URL])
 
       When("the filter is initialized")
@@ -176,7 +174,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
       Given("an un-initialized filter and a mock'd Filter Config")
       filter.configuration shouldBe null
       !filter.isInitialized
-      mockFilterConfig.setInitParameter("filter-config", "another-name.cfg.xml")
+      mockFilterConfig.addInitParameter("filter-config", "another-name.cfg.xml")
 
       When("the filter is initialized")
       filter.init(mockFilterConfig)
@@ -196,7 +194,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
       Given("an un-initialized filter and a mock'd Filter Config")
       filter.configuration shouldBe null
       !filter.isInitialized
-      mockFilterConfig.setInitParameter("filter-config", "another-name.cfg.xml")
+      mockFilterConfig.addInitParameter("filter-config", "another-name.cfg.xml")
 
       When("the filter is initialized and destroyed")
       filter.init(mockFilterConfig)
@@ -281,7 +279,7 @@ class SimpleRbacFilterTest extends FunSpec with BeforeAndAfterEach with GivenWhe
 
           Then(s"the API Checker path ${enableShould(isEnabled)} be logged.")
           val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
-          events.count(_.contains("{\"steps\":[\"S0\",\"")) shouldBe total
+          events.count(_.contains("""{"steps":["S0","""")) shouldBe total
         }
       }
     }

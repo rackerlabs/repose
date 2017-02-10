@@ -23,12 +23,15 @@ import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 import javax.servlet.ServletOutputStream
 
+import org.junit.runner.RunWith
 import org.mockito.Mockito._
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.io.Source
 
+@RunWith(classOf[JUnitRunner])
 class MutableServletOutputStreamTest extends FunSpec with Matchers with MockitoSugar {
 
   describe("write") {
@@ -80,7 +83,7 @@ class MutableServletOutputStreamTest extends FunSpec with Matchers with MockitoS
   }
 
   describe("setOutput") {
-    val testBody = "{ \"test\": \"nbsp\u00A0\" }"
+    val testBody = """{ "test": "nbsp\u00A0" }"""
 
     it("should set the contents of this wrapper to the contents of the provided InputStream") {
       val outputStream = new ByteArrayServletOutputStream()
@@ -93,12 +96,11 @@ class MutableServletOutputStreamTest extends FunSpec with Matchers with MockitoS
     }
 
     Set(
-      StandardCharsets.US_ASCII,
       StandardCharsets.ISO_8859_1,
       StandardCharsets.UTF_8,
       StandardCharsets.UTF_16
     ) foreach { charset =>
-      it("should be charset agnostic") {
+      it(s"should be charset agnostic $charset") {
         val outputStream = new ByteArrayServletOutputStream()
         val mutableOutputStream = new MutableServletOutputStream(outputStream)
 
@@ -107,6 +109,17 @@ class MutableServletOutputStreamTest extends FunSpec with Matchers with MockitoS
 
         new String(outputStream.toByteArray, charset) shouldEqual testBody
       }
+    }
+
+    // The US_ASCII Charset replaces the non-printable NBSP character with the literal Question Mark ('?').
+    it(s"should be charset agnostic ${StandardCharsets.US_ASCII}") {
+      val outputStream = new ByteArrayServletOutputStream()
+      val mutableOutputStream = new MutableServletOutputStream(outputStream)
+
+      mutableOutputStream.setOutput(new ByteArrayInputStream(testBody.getBytes(StandardCharsets.US_ASCII)))
+      mutableOutputStream.commit()
+
+      new String(outputStream.toByteArray, StandardCharsets.US_ASCII) shouldEqual """{ "test": "nbsp?" }"""
     }
   }
 

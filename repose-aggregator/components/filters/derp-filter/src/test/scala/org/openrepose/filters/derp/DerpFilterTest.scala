@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.derp
 
-import java.io.PrintWriter
 import java.util
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
@@ -32,17 +31,18 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.FunSpec
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 
 import scala.collection.JavaConverters.asJavaEnumerationConverter
 
 @RunWith(classOf[JUnitRunner])
-class DerpFilterTest extends FunSpec {
+class DerpFilterTest extends FunSpec with MockitoSugar {
 
   describe("doFilter") {
     it("should pass the request if no delegation header is present") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map())
-      val fc = mock(classOf[FilterChain])
+      val fc = mock[FilterChain]
 
       derpFilter.doFilter(req, null, fc)
 
@@ -52,7 +52,7 @@ class DerpFilterTest extends FunSpec {
     it("should send an error response populated with the data from the delegation header if present") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found;q=1.0")))
-      val resp = mock(classOf[HttpServletResponse])
+      val resp = mock[HttpServletResponse]
 
       derpFilter.doFilter(req, resp, null)
 
@@ -62,7 +62,7 @@ class DerpFilterTest extends FunSpec {
     it("should send an error response corresponding to the delegation value with the highest quality") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found;q=0.8", "status_code=500`component=foo`message=bar;q=0.9")))
-      val resp = mock(classOf[HttpServletResponse])
+      val resp = mock[HttpServletResponse]
 
       derpFilter.doFilter(req, resp, null)
 
@@ -72,7 +72,7 @@ class DerpFilterTest extends FunSpec {
     it("should send an error response corresponding to the delegation value with the highest quality, reverse order") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=500`component=foo`message=bar;q=0.9", "status_code=404`component=foo`message=not found;q=0.8")))
-      val resp = mock(classOf[HttpServletResponse])
+      val resp = mock[HttpServletResponse]
 
       derpFilter.doFilter(req, resp, null)
 
@@ -82,8 +82,8 @@ class DerpFilterTest extends FunSpec {
     it("should reject the request if no delegation value could be parsed") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=4a4`component=foo`message=not found`q=1.0")))
-      val resp = mock(classOf[HttpServletResponse])
-      val fc = mock(classOf[FilterChain])
+      val resp = mock[HttpServletResponse]
+      val fc = mock[FilterChain]
 
       derpFilter.doFilter(req, resp, fc)
 
@@ -94,7 +94,7 @@ class DerpFilterTest extends FunSpec {
     it("should treat a delegation value without an explicit quality as having a quality of 1") {
       val derpFilter = new DerpFilter()
       val req = mockRequest(Map("X-Delegated" -> Seq("status_code=404`component=foo`message=not found;q=0.8", "status_code=500`component=foo`message=bar")))
-      val resp = mock(classOf[HttpServletResponse])
+      val resp = mock[HttpServletResponse]
 
       derpFilter.doFilter(req, resp, null)
 
@@ -127,7 +127,7 @@ class DerpFilterTest extends FunSpec {
   }
 
   def mockRequest(headers: Map[String, Iterable[String]]) = {
-    val req = mock(classOf[HttpServletRequest])
+    val req = mock[HttpServletRequest]
 
     when(req.getHeader(anyString())).thenAnswer(new Answer[String] {
       override def answer(invocation: InvocationOnMock): String = {
