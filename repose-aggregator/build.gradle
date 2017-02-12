@@ -52,18 +52,16 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
     def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.html")
     def latestLinkFile = project.file("${project.buildDir}/gh-pages/versions/latest")
     def versionLines = versionsFile.readLines()
-    def firstVersionIndex = 1
-    def lastVersionIndex = versionLines.size() - 1
-    def newVersionIndex = lastVersionIndex
     // Always skip the first and last lines, which are the latest version line and old wiki line
-    for (int i = firstVersionIndex; i < lastVersionIndex; ++i) {
-        String existingVersion = (new XmlSlurper().parseText(versionLines[i]).a.@href =~ /\.\/versions\/(\d\.\d\.\d\.\d)\/index.html/)[0][1]
-        if (compareVersions(String.valueOf(version), existingVersion) > 0) {
-            newVersionIndex = i
-            break
-        }
+    def numHeaderLines = 1
+    def numFooterLines = 1
+    def xmlSlurper = new XmlSlurper()
+    def newVersionIndex = versionLines.drop(numHeaderLines).dropRight(numFooterLines).findIndexOf {
+        String existingVersion = (xmlSlurper.parseText(it).a.@href =~ /\.\/versions\/(\d\.\d\.\d\.\d)\/index.html/)[0][1]
+        compareVersions(String.valueOf(version), existingVersion) > 0
     }
-    if (newVersionIndex == firstVersionIndex) {
+    newVersionIndex = newVersionIndex == -1 ? versionLines.size() - numFooterLines : newVersionIndex + numHeaderLines
+    if (newVersionIndex == numHeaderLines) {
         ['ln', '-s', '-f', String.valueOf(version), latestLinkFile.absolutePath].execute().waitFor()
     }
     def date = new SimpleDateFormat('yyyy-MM-dd').format(new Date())
