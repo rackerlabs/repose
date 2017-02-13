@@ -19,27 +19,21 @@
  */
 package org.openrepose.commons.utils.logging.apache.format.converters;
 
-public enum DateConversionFormat {
+public class DateConversionFormat {
 
-    RFC_1123("E, dd MMM yyyy HH:mm:ss z"),
-    ISO_8601("yyyy-MM-dd'T'HH:mm:ssX");
-    private String pattern;
+    public static final String RFC_1123 = "RFC_1123";
+    public static final String RFC_1123_PATTERN = "E, dd MMM yyyy HH:mm:ss z";
+    public static final String ISO_8601 = "ISO_8601";
+    public static final String ISO_8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ssX";
 
-    DateConversionFormat(String pattern) {
-        this.pattern = pattern;
+    private DateConversionFormat() {
+        // This class should not be instantiated.
     }
 
     public static String getPattern(String name) {
-        for (DateConversionFormat format : DateConversionFormat.values()) {
-            if (format.name().equals(name)) {
-                return format.pattern;
-            }
+        if (ISO_8601.equalsIgnoreCase(name)) {
+            return ISO_8601_PATTERN;
         }
-
-        return RFC_1123.pattern;
-    }
-
-    public String getPattern() {
-        return this.pattern;
+        return RFC_1123_PATTERN;
     }
 }
