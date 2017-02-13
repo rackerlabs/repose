@@ -67,9 +67,11 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
 
     // Write the versions includes file
     def includesWriter = new PrintWriter(project.file("${project.buildDir}/gh-pages/_includes/versions.html"))
+    includesWriter.println("""<li><a href="./versions/latest/index.html">Latest</a></li>""")
     modifiedVersions.forEach { Version v ->
         includesWriter.println("""<li><a href="./versions/${v.id}/index.html">v${v.id} - ${v.released}</a></li>""")
     }
+    includesWriter.println("""<li><a href="http://wiki.openrepose.org">Legacy Wiki Docs</a></li>""")
     includesWriter.close()
 
     // Update the latest link, if applicable
