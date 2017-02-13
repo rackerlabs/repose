@@ -27,7 +27,7 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.filters.cors.config.Origins.Origin
 import org.openrepose.filters.cors.config._
@@ -287,8 +287,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
             // Access-Control-Expose-Headers should have all of the response headers in it except for itself and the Vary header
             servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).toLowerCase.split(",") should contain theSameElementsAs
               servletResponse.getHeaderNames.asScala.filter { headerName =>
-                headerName != CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString &&
-                  headerName != CommonHttpHeader.VARY.toString}.map(_.toLowerCase)
+                headerName != CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS &&
+                  headerName != CommonHttpHeader.VARY}.map(_.toLowerCase)
             servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) should have size 1
           }
         }
@@ -992,8 +992,6 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 }
 
 object CorsFilterTest {
-  implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
-
   implicit def autoRequestWrapper(request: MockHttpServletRequest): HttpServletRequestWrapper =
     new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest])
 }

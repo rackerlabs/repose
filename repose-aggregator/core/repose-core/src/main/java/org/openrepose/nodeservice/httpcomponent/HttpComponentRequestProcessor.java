@@ -93,7 +93,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
         // In case the proxy host is running multiple virtual servers,
         // rewrite the Host header to ensure that we get content from
         // the correct virtual server
-        if (rewriteHostHeader && headerName.equalsIgnoreCase(CommonHttpHeader.HOST.toString())) {
+        if (rewriteHostHeader && headerName.equalsIgnoreCase(CommonHttpHeader.HOST)) {
             result = targetHost.getHost() + ":" + targetHost.getPort();
         }
 

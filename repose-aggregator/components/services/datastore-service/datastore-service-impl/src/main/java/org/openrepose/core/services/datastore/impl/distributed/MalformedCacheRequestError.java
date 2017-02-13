@@ -25,7 +25,7 @@ public enum MalformedCacheRequestError {
 
     MALFORMED_CACHE_REQUEST_ERROR("Malformed Cache Request Error"),
     NO_DD_HOST_KEY("No host key specified in header "
-            + DatastoreHeader.HOST_KEY.toString()
+            + DatastoreHeader.HOST_KEY
             + " - this is a required header for this operation"),
     CACHE_KEY_INVALID("Cache key specified is invalid"),
     UNEXPECTED_REMOTE_BEHAVIOR("X-PP-Datastore-Behavior header is not an expected value"),

@@ -79,7 +79,7 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
       }
 
       //Always set the user header name to the current IP address
-      val clientIpAddress = request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_FOR.toString)
+      val clientIpAddress = request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_FOR)
         .headOption.getOrElse(servletRequest.getRemoteAddr)
       request.addHeader(userHeaderName, clientIpAddress, userHeaderQuality)
 

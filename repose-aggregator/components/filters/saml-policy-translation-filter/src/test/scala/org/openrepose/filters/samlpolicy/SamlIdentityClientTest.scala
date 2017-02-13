@@ -489,7 +489,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token)),
+        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN, token)),
         MM.anyBoolean()
       )
     }
@@ -796,7 +796,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token)),
+        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN, token)),
         MM.anyBoolean()
       )
     }

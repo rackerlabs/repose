@@ -46,10 +46,10 @@ public class LimitLogger {
     public String getSanitizedUserIdentification() {
         String userIdentification = user;
 
-        final String xAuthToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
+        final String xAuthToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN);
 
         if (StringUtilities.nullSafeEqualsIgnoreCase(xAuthToken, userIdentification)) {
-            final String xForwardedFor = request.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString());
+            final String xForwardedFor = request.getHeader(CommonHttpHeader.X_FORWARDED_FOR);
 
             userIdentification = xForwardedFor != null ? xForwardedFor : request.getRemoteHost();
         }

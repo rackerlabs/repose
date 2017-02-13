@@ -155,7 +155,7 @@ public class VersionedRequestTest {
             final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
             when(request.getRequestURI()).thenReturn("/a/requested/resource");
             when(request.getScheme()).thenReturn("http");
-            when(request.getHeader(CommonHttpHeader.HOST.toString())).thenReturn("localhost");
+            when(request.getHeader(CommonHttpHeader.HOST)).thenReturn("localhost");
 
             final String expected = "http://localhost/a/requested/resource";
 

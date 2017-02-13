@@ -33,7 +33,7 @@ public class ResponseBytesHandler implements FormatterLogic {
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
         String contentLength = "-1";
-        String contentLengthHeader = response.getHeader(CommonHttpHeader.CONTENT_LENGTH.toString());
+        String contentLengthHeader = response.getHeader(CommonHttpHeader.CONTENT_LENGTH);
 
         if (StringUtils.isNotBlank(contentLengthHeader)) {
             try {

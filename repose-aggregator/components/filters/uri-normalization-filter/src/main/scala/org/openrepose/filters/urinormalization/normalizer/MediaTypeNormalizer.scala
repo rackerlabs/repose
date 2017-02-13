@@ -43,7 +43,7 @@ class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogg
 
   def normalizeContentMediaType(request: HttpServletRequestWrapper): Unit = {
     configuredPreferredMediaType foreach { mediaType =>
-      val acceptHeader = Option(request.getHeader(CommonHttpHeader.ACCEPT.toString))
+      val acceptHeader = Option(request.getHeader(CommonHttpHeader.ACCEPT))
 
       getMediaTypeForVariant(request) orElse {
         if (acceptHeader.isEmpty || (MimeType.getMatchingMimeType(acceptHeader.get) == MimeType.WILDCARD)) {
@@ -52,7 +52,7 @@ class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogg
           None
         }
       } foreach { mt =>
-        request.replaceHeader(CommonHttpHeader.ACCEPT.toString, mt.getName)
+        request.replaceHeader(CommonHttpHeader.ACCEPT, mt.getName)
       }
     }
   }

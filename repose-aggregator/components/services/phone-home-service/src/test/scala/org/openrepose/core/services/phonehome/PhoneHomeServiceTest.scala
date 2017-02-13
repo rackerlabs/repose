@@ -354,7 +354,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       verify(mockAkkaServiceClient).post(
         anyString(),
         mockitoEq(collectionUri),
-        argThat(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID.toString).asInstanceOf[Matcher[java.util.Map[String, String]]]),
+        argThat(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID).asInstanceOf[Matcher[java.util.Map[String, String]]]),
         anyString(),
         any[MediaType]())
     }
@@ -405,7 +405,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       verify(mockAkkaServiceClient).post(
         anyString(),
         mockitoEq(collectionUri),
-        argThat(HMatchers.not(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID.toString)).asInstanceOf[Matcher[java.util.Map[String, String]]]),
+        argThat(HMatchers.not(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID)).asInstanceOf[Matcher[java.util.Map[String, String]]]),
         anyString(),
         any[MediaType]())
     }

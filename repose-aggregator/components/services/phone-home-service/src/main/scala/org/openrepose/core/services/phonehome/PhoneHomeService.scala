@@ -164,7 +164,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
 
       try {
         val updateHeaders = if (Option(staticSystemModel.getTracingHeader).isEmpty || staticSystemModel.getTracingHeader.isEnabled) {
-          Map(CommonHttpHeader.TRACE_GUID.toString -> UUID.randomUUID().toString).asJava
+          Map(CommonHttpHeader.TRACE_GUID -> UUID.randomUUID().toString).asJava
         } else {
           Map.empty[String, String].asJava
         }

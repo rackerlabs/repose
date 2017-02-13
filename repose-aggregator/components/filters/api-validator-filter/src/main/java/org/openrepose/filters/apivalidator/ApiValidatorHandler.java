@@ -126,7 +126,7 @@ public class ApiValidatorHandler {
 
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
         HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request);
-        List<String> roles = wrappedRequest.getPreferredSplittableHeaders(OpenStackServiceHeader.ROLES.toString());
+        List<String> roles = wrappedRequest.getPreferredSplittableHeaders(OpenStackServiceHeader.ROLES);
         if (roles.isEmpty()) {
             roles = Collections.singletonList("");
         }

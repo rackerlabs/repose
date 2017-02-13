@@ -210,13 +210,13 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           roles = List(Role("admin")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
-      mockRequest.addHeader(OpenStackServiceHeader.ROLES.toString, "foo")
+      mockRequest.addHeader(OpenStackServiceHeader.ROLES, "foo")
       identityConfig.setForwardGroups(false)
       identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
 
       identityV3Handler.handleRequest(mockRequest, new MockHttpServletResponse())
-      mockRequest.getHeadersScala(OpenStackServiceHeader.ROLES.toString) should contain only("foo", "admin")
+      mockRequest.getHeadersScala(OpenStackServiceHeader.ROLES) should contain only("foo", "admin")
     }
 
     it("should set the x-project-id header to the uri project id value if it is set and send all project ids is not set/false") {
@@ -393,7 +393,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       ) foreach { parameterMap =>
         mockServletResponse.setStatus(parameterMap(responseStatus).asInstanceOf[Integer])
         if (parameterMap.get(responseWwwAuthenticate).isDefined) {
-          mockServletResponse.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, parameterMap(responseWwwAuthenticate).asInstanceOf[String])
+          mockServletResponse.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, parameterMap(responseWwwAuthenticate).asInstanceOf[String])
         }
 
         val filterAction = identityV3Handler.handleResponse(mockServletResponse)
@@ -401,7 +401,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
         filterAction should not be FilterAction.NOT_SET
         mockServletResponse.getStatus shouldBe parameterMap(resultStatus)
         if (parameterMap.get(resultWwwAuthenticate).isDefined) {
-          mockServletResponse.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString) should contain(parameterMap(resultWwwAuthenticate))
+          mockServletResponse.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE) should contain(parameterMap(resultWwwAuthenticate))
         }
       }
     }

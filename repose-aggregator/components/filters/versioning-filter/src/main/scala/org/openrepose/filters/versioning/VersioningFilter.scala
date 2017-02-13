@@ -183,7 +183,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
   private def getPreferredMediaRange(request: HttpServletRequestWrapper): MediaType = {
     RequestMediaRangeInterrogator.interrogate(
       request.getRequestURI,
-      request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString)).get(0)
+      request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT)).get(0)
   }
 
   private def transformResponse(response: HttpServletResponse, elementToMarshal: JAXBElement[_], preferredMediaType: MediaType): Unit = {

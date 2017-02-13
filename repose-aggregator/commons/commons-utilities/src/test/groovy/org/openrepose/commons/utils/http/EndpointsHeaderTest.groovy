@@ -21,38 +21,13 @@ package org.openrepose.commons.utils.http
 
 import org.junit.Test
 
-/**
- * Some groovy tests as an experiment.
- */
+import static org.hamcrest.CoreMatchers.is
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase
 
 class EndpointsHeaderTest {
-
     @Test
-    void matchesShouldReturnTrueWhenComparing2StringsAndShouldIgnoreCase() {
-
-        def eph = EndpointsHeader.X_CATALOG
-
-        def headers = ["x-CaTaLoG", "x-CATALOG", "X-catalog"]
-
-        for (String h : headers) {
-            def matches = eph.matches(h)
-
-            assert matches == true
-        }
-
-    }
-
-    @Test
-    void matchesShouldReturnFalseWhenStringDoesNotMatch() {
-
-        def eph = EndpointsHeader.X_CATALOG
-        def headers = ["asdf", "x-CTALOG", "X-catalogd", "xx-catalog"]
-
-        for (String h : headers) {
-            def matches = eph.matches(h)
-
-            assert matches == false
-        }
-
+    void shouldReturnExpectedKey() {
+        assertThat(EndpointsHeader.X_CATALOG, is(equalToIgnoringCase("x-CaTaLoG")))
     }
 }

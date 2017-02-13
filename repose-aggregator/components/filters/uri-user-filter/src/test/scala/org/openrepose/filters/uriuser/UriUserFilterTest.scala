@@ -201,7 +201,7 @@ class UriUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers wi
 }
 
 object UriUserFilterTest {
-  private final val User = PowerApiHeader.USER.toString
-  private final val Groups = PowerApiHeader.GROUPS.toString
+  private final val User = PowerApiHeader.USER
+  private final val Groups = PowerApiHeader.GROUPS
   private final val DefaultQuality = ";q=0.5"
 }

@@ -67,16 +67,16 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(SessionIdHeader))
       authUserGroup foreach { rackspaceAuthUserGroup =>
         rackspaceAuthUserGroup.domain.foreach { domainVal =>
-          wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
+          wrappedRequest.addHeader(PowerApiHeader.DOMAIN, domainVal)
         }
-        wrappedRequest.addHeader(PowerApiHeader.USER.toString, rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.quality)
-        wrappedRequest.addHeader(OpenStackServiceHeader.USER_NAME.toString, rackspaceAuthUserGroup.user)
-        wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
+        wrappedRequest.addHeader(PowerApiHeader.USER, rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.quality)
+        wrappedRequest.addHeader(OpenStackServiceHeader.USER_NAME, rackspaceAuthUserGroup.user)
+        wrappedRequest.addHeader(PowerApiHeader.GROUPS, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
       }
 
       filterChain.doFilter(wrappedRequest, wrappedResponse)
 
-      wrappedResponse.getHeadersList(CommonHttpHeader.WWW_AUTHENTICATE.toString).asScala.filter(_.startsWith("OS-MF")) foreach { header =>
+      wrappedResponse.getHeadersList(CommonHttpHeader.WWW_AUTHENTICATE).asScala.filter(_.startsWith("OS-MF")) foreach { header =>
         Option(StringUtils.substringBetween(header, "sessionId='", "'")) match {
           case Some(sessionId) => datastore.put(s"$DdKey:$sessionId", authUserGroup, 5, TimeUnit.MINUTES)
           case None => logger.debug("Failed to parse the session id out of '{}'", header)

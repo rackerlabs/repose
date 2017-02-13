@@ -50,9 +50,9 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
     def "should not pass the externally provided tracing header (#tracingHeaderInput) through the filter chain"() {
         when:
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput, via: 'some_via'])
+                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID): tracingHeaderInput, via: 'some_via'])
 
-        def tracingHeader = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
+        def tracingHeader = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID)
         def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
 
         then:
@@ -68,7 +68,7 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [via: 'some_via'])
 
-        def tracingHeader = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
+        def tracingHeader = mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID)
         def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
 
         then:
@@ -80,9 +80,9 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
     def "should not return the externally provided tracing header (#tracingHeaderInput) if one was provided"() {
         when:
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeaderInput, via: 'some_via'])
+                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID): tracingHeaderInput, via: 'some_via'])
 
-        def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
+        def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID)
         def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
         println(tracingHeader)
 
@@ -99,7 +99,7 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [via: 'some_via'])
 
-        def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
+        def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID)
         def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
 
         then:
@@ -115,9 +115,9 @@ class RewriteTracingHeaderTest extends ReposeValveTest {
 
         when:
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID.toString()): tracingid, via: 'some_via'])
+                url: reposeEndpoint, headers: [(CommonHttpHeader.TRACE_GUID): tracingid, via: 'some_via'])
 
-        def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString())
+        def tracingHeader = mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.TRACE_GUID)
         //doesn't come with json form and base64encoded
         //def tracingValues = new JsonSlurper().parseText(new String(Base64.decodeBase64(tracingHeader)))
 

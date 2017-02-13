@@ -97,11 +97,11 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       it(s"properly updates Location header $originalLocation to $newLocation for URI $resourcePath with index $index") {
         filter.configurationUpdated(createConfig(index = index, rewriteLocationHeader = true))
         request.setRequestURI(resourcePath)
-        addResponseHeaders(List(SimpleHeader(CommonHttpHeader.LOCATION.toString, originalLocation)))
+        addResponseHeaders(List(SimpleHeader(CommonHttpHeader.LOCATION, originalLocation)))
 
         filter.doFilter(request, response, filterChain)
 
-        response.getHeader(CommonHttpHeader.LOCATION.toString) shouldBe newLocation
+        response.getHeader(CommonHttpHeader.LOCATION) shouldBe newLocation
       }
     }
 
@@ -109,11 +109,11 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       val invalidLocation = "http://example.com/v1/some(\\/resource"
       filter.configurationUpdated(createConfig(index = 1, rewriteLocationHeader = true))
       request.setRequestURI("/v1/12345/some/resource")
-      addResponseHeaders(List(SimpleHeader(CommonHttpHeader.LOCATION.toString, invalidLocation)))
+      addResponseHeaders(List(SimpleHeader(CommonHttpHeader.LOCATION, invalidLocation)))
 
       filter.doFilter(request, response, filterChain)
 
-      response.getHeader(CommonHttpHeader.LOCATION.toString) shouldBe invalidLocation
+      response.getHeader(CommonHttpHeader.LOCATION) shouldBe invalidLocation
     }
   }
 

@@ -130,7 +130,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/")
-      request.addHeader(CommonHttpHeader.ACCEPT.toString, MimeType.APPLICATION_XML.toString)
+      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -143,7 +143,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/v1")
-      request.addHeader(CommonHttpHeader.ACCEPT.toString, MimeType.APPLICATION_XML.toString)
+      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -156,7 +156,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/nothingwerecognize")
-      request.addHeader(CommonHttpHeader.ACCEPT.toString, MimeType.APPLICATION_XML.toString)
+      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -169,7 +169,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/v1/somethingelse")
-      request.addHeader(CommonHttpHeader.ACCEPT.toString, MimeType.APPLICATION_XML.toString)
+      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -181,7 +181,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/v3/somethingelse")
-      request.addHeader(CommonHttpHeader.ACCEPT.toString, MimeType.APPLICATION_XML.toString)
+      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -194,11 +194,11 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/somethingthere")
-      request.addHeader(CommonHttpHeader.ACCEPT.toString, "application/vnd.vendor.service-v1+xml")
+      request.addHeader(CommonHttpHeader.ACCEPT, "application/vnd.vendor.service-v1+xml")
 
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(CommonHttpHeader.ACCEPT.toString) shouldBe MimeType.APPLICATION_XML.toString
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(CommonHttpHeader.ACCEPT) shouldBe MimeType.APPLICATION_XML.toString
     }
   }
 

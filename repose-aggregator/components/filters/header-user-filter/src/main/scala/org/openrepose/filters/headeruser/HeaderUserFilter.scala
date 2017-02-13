@@ -73,8 +73,8 @@ class HeaderUserFilter @Inject()(configurationService: ConfigurationService)
         .filterNot(_.isEmpty)
         .map(RequestHeader(configuredHeader.name, _, configuredHeader.quality))
     } foreach { header =>
-      wrappedRequest.addHeader(PowerApiHeader.USER.toString, header.value, header.quality)
-      wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, header.name, header.quality)
+      wrappedRequest.addHeader(PowerApiHeader.USER, header.value, header.quality)
+      wrappedRequest.addHeader(PowerApiHeader.GROUPS, header.name, header.quality)
     }
 
     filterChain.doFilter(wrappedRequest, servletResponse)

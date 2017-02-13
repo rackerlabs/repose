@@ -99,9 +99,9 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         Success(adminToken)
       case _ =>
         val requestTracingHeader = tracingHeader
-          .map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
+          .map(headerValue => Map(CommonHttpHeader.TRACE_GUID -> headerValue))
           .getOrElse(Map())
-        val headerMap = Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON) ++ requestTracingHeader
+        val headerMap = Map(CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON) ++ requestTracingHeader
         val authTokenResponse = Option(akkaServiceClient.post(
           AdminTokenKey,
           identityServiceUri + TOKEN_ENDPOINT,
@@ -153,7 +153,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         getAdminToken(tracingHeader, checkCache) match {
           case Success(adminToken) =>
             val requestTracingHeader = tracingHeader
-              .map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
+              .map(headerValue => Map(CommonHttpHeader.TRACE_GUID -> headerValue))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
@@ -239,7 +239,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         getAdminToken(tracingHeader, checkCache) match {
           case Success(adminToken) =>
             val requestTracingHeader = tracingHeader
-              .map(headerValue => Map(CommonHttpHeader.TRACE_GUID.toString -> headerValue))
+              .map(headerValue => Map(CommonHttpHeader.TRACE_GUID -> headerValue))
               .getOrElse(Map())
             val headerMap = Map(
               OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,

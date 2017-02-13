@@ -48,7 +48,7 @@ public class LocationHeaderBuilder {
         final String translatedLocationUrl = translateLocationUrl(locationUrl, proxiedHostUrl, requestedHostUrl, requestedContext, rootPath);
 
         if (translatedLocationUrl != null) {
-            servletResponse.setHeader(CommonHttpHeader.LOCATION.name(), translatedLocationUrl);
+            servletResponse.setHeader(CommonHttpHeader.LOCATION, translatedLocationUrl);
         }
     }
 
@@ -79,7 +79,7 @@ public class LocationHeaderBuilder {
     }
 
     private URL getLocationUrl(HttpServletResponse servletResponse) throws MalformedURLException {
-        String locationHeader = servletResponse.getHeader(CommonHttpHeader.LOCATION.name());
+        String locationHeader = servletResponse.getHeader(CommonHttpHeader.LOCATION);
         if (StringUtilities.isNotBlank(locationHeader)) {
             return new URL(locationHeader);
         }

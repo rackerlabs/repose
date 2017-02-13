@@ -55,8 +55,8 @@ class AbstractRemoteCommandTest {
         MDC.put(TracingKey.TRACING_KEY, "tracingKey")
         Map<String, String> headers = arc.getHeaders(RemoteBehavior.ALLOW_FORWARDING)
 
-        assert (headers.get(DatastoreHeader.HOST_KEY.toString()).equals("hostKey"));
-        assert (TracingHeaderHelper.getTraceGuid(headers.get(CommonHttpHeader.TRACE_GUID.toString())).equals("tracingKey"));
-        assert (headers.get(DatastoreHeader.REMOTE_BEHAVIOR.toString()).equals("ALLOW_FORWARDING"));
+        assert (headers.get(DatastoreHeader.HOST_KEY).equals("hostKey"));
+        assert (TracingHeaderHelper.getTraceGuid(headers.get(CommonHttpHeader.TRACE_GUID)).equals("tracingKey"));
+        assert (headers.get(DatastoreHeader.REMOTE_BEHAVIOR).equals("ALLOW_FORWARDING"));
     }
 }

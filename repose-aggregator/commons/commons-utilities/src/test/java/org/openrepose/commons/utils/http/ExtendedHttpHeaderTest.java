@@ -21,19 +21,13 @@ package org.openrepose.commons.utils.http;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 public class ExtendedHttpHeaderTest {
-
-    public ExtendedHttpHeaderTest() {
-    }
-
     @Test
-    public void shouldMakeManagementHappy() {
-        ExtendedHttpHeader header = ExtendedHttpHeader.X_TTL;
-        assertNotNull(header);
-        assertEquals("x-ttl", header.toString());
-        assertTrue(header.matches("x-ttl"));
+    public void shouldReturnExpectedKey() {
+        assertThat(ExtendedHttpHeader.X_TTL, is(equalToIgnoringCase("x-ttl")));
     }
-
 }

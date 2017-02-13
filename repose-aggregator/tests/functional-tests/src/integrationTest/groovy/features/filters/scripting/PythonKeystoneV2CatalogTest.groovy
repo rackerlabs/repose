@@ -75,7 +75,7 @@ class PythonKeystoneV2CatalogTest extends ReposeValveTest {
         mc.handlings.size() == 1
 
         and: "the Keystone v2 filter adds the X-Catalog header to the request"
-        mc.handlings[0].request.headers.findAll(PowerApiHeader.X_CATALOG.toString()).size() == 1
+        mc.handlings[0].request.headers.findAll(PowerApiHeader.X_CATALOG).size() == 1
 
         and: "the Scripting filter adds the X-Endpoint-Name header to the request and response with the expected values"
         mc.handlings[0].request.headers.findAll("X-Endpoint-Name") == ["cloudMonitoring, cloudServersOpenStack"]

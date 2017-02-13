@@ -74,12 +74,12 @@ public class ConfigurationData {
         // If version info not in URI look in accept header
         if (targetOriginService == null) {
             final MediaType range = RequestMediaRangeInterrogator.interrogate(request.getRequestURI(),
-                    request.getPreferredSplittableHeadersWithParameters(CommonHttpHeader.ACCEPT.toString())).get(0);
+                    request.getPreferredSplittableHeadersWithParameters(CommonHttpHeader.ACCEPT)).get(0);
             final VersionedMapType currentServiceVersion = getServiceVersionForMediaRange(range);
 
             if (currentServiceVersion != null) {
                 final Destination destination = getHostForVersionMapping(currentServiceVersion.getServiceVersionMapping());
-                request.replaceHeader(CommonHttpHeader.ACCEPT.toString(), currentServiceVersion.getMediaType().getBase());
+                request.replaceHeader(CommonHttpHeader.ACCEPT, currentServiceVersion.getMediaType().getBase());
                 targetOriginService = new VersionedOriginService(currentServiceVersion.getServiceVersionMapping(), destination);
             }
         }

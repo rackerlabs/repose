@@ -97,7 +97,7 @@ public class HttpLogFormatterTest {
             Vector<String> reqGuidValues = new Vector<>();
             reqGuidValues.add("test-guid");
 
-            when(request.getHeaders(CommonHttpHeader.TRACE_GUID.toString()))
+            when(request.getHeaders(CommonHttpHeader.TRACE_GUID))
                     .thenReturn(reqGuidValues.elements());
 
             assertEquals(expected, formatter.format(request, response));

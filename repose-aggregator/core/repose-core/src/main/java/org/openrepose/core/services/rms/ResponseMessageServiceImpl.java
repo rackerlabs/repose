@@ -182,7 +182,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     private void overwriteResponseBody(HttpServletResponse response, final String formattedOutput, String contentType) throws IOException {
         response.resetBuffer();
-        response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), contentType);
+        response.setHeader(CommonHttpHeader.CONTENT_TYPE, contentType);
         response.setContentLength(formattedOutput.length());
 
         // TODO:Enhancement - Update formatter logic for streaming

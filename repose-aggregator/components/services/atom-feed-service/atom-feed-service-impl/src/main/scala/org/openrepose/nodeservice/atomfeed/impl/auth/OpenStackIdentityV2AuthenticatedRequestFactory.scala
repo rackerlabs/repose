@@ -70,7 +70,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomF
     tryToken match {
       case Success(tkn) =>
         logger.debug(s"Adding x-auth-token header with value: $tkn")
-        feedReadRequest.getHeaders.put(CommonHttpHeader.AUTH_TOKEN.toString, util.Arrays.asList(tkn))
+        feedReadRequest.getHeaders.put(CommonHttpHeader.AUTH_TOKEN, util.Arrays.asList(tkn))
         feedReadRequest
       case Failure(ex) =>
         throw new AuthenticationRequestException("Failed to authenticate the request.", ex)
@@ -83,8 +83,8 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomF
     val akkaResponse = Try(akkaServiceClient.post(
       AKKA_HASH_KEY,
       s"$serviceUri$TOKENS_ENDPOINT",
-      Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON,
-        CommonHttpHeader.TRACE_GUID.toString -> tracingHeader).asJava,
+      Map(CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON,
+        CommonHttpHeader.TRACE_GUID -> tracingHeader).asJava,
       Json.stringify(Json.obj(
         "auth" -> Json.obj(
           "passwordCredentials" -> Json.obj(

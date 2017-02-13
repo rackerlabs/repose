@@ -99,7 +99,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       var failureInValidation = false
 
       // Extract the tracing GUID from the request
-      val tracingHeader = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString))
+      val tracingHeader = Option(request.getHeader(CommonHttpHeader.TRACE_GUID))
 
       // Extract the subject token from the request
       val subjectToken = Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN))
@@ -191,7 +191,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         request.replaceHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
         token.get.userName foreach { user =>
           request.addHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, user)
-          request.addHeader(PowerApiHeader.USER.toString, user, 1.0)
+          request.addHeader(PowerApiHeader.USER, user, 1.0)
         }
         Option(token.get.roles.map(_.name) mkString ",").filter(_.nonEmpty) foreach { rolesString =>
           request.addHeader(OpenStackIdentityV3Headers.X_ROLES, rolesString)
@@ -222,10 +222,10 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         token.get.impersonatorName.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
         if (forwardCatalog) {
           token.get.catalogJson.foreach(catalog =>
-            request.replaceHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog)))
+            request.replaceHeader(PowerApiHeader.X_CATALOG, base64Encode(catalog)))
         }
         if (forwardGroups) {
-          userGroups.foreach(group => request.addHeader(PowerApiHeader.GROUPS.toString, group, 1.0))
+          userGroups.foreach(group => request.addHeader(PowerApiHeader.GROUPS, group, 1.0))
         }
       }
 
@@ -367,7 +367,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
     /// The WWW Authenticate header can be used to communicate to the client
     // (since we are a proxy) how to correctly authenticate itself
-    val wwwAuthenticateHeader = Option(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString))
+    val wwwAuthenticateHeader = Option(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE))
 
     responseStatus match {
       // NOTE: We should only mutate the WWW-Authenticate header on a
@@ -376,14 +376,14 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         // If in the case that the origin service supports delegated authentication
         // we should then communicate to the client how to authenticate with us
         if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.toLowerCase.contains(OpenStackIdentityV3Headers.X_DELEGATED.toLowerCase)) {
-          val responseAuthHeaderValues = response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString).asScala.toList
+          val responseAuthHeaderValues = response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE).asScala.toList
           val valuesWithoutDelegated = responseAuthHeaderValues.filterNot(_.equalsIgnoreCase(OpenStackIdentityV3Headers.X_DELEGATED))
           val valuesWithKeystone = ("Keystone uri=" + identityServiceUri) :: valuesWithoutDelegated
 
           valuesWithKeystone.headOption foreach { headValue =>
-            response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, headValue)
+            response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE, headValue)
             valuesWithKeystone.tail foreach { remainingValue =>
-              response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, remainingValue)
+              response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, remainingValue)
             }
           }
         } else {

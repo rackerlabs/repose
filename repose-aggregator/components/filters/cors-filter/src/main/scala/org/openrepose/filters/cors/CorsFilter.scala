@@ -31,7 +31,7 @@ import com.google.common.net.InetAddresses
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.client.utils.URIBuilder
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -39,8 +39,8 @@ import org.openrepose.filters.cors.config.CorsConfig
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
-import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
+import scala.util.{Failure, Success, Try}
 
 @Named
 class CorsFilter @Inject()(configurationService: ConfigurationService)
@@ -252,9 +252,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 object CorsFilter {
   private final val DefaultConfig = "cors.cfg.xml"
   private final val SchemaFilename = "/META-INF/schema/config/cors-configuration.xsd"
-  private final val DefaultExposeHeaders = List(CommonHttpHeader.CONTENT_LENGTH.toString)
-
-  implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
+  private final val DefaultExposeHeaders = List(CommonHttpHeader.CONTENT_LENGTH)
 
   sealed trait RequestType
   object NonCorsRequest extends RequestType

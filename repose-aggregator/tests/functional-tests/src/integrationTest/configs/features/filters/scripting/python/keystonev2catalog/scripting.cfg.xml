@@ -14,7 +14,7 @@ import base64
 # create a logger with an arbitrary name
 logger = LoggerFactory.getLogger("script.python.endpoint_validator")
 
-endpoints_decoded = base64.b64decode(request.getHeader(PowerApiHeader.X_CATALOG.toString()))
+endpoints_decoded = base64.b64decode(request.getHeader(PowerApiHeader.X_CATALOG))
 logger.debug("Base64 decoded header: {}", endpoints_decoded)
 
 endpoints_json = json.loads(endpoints_decoded)

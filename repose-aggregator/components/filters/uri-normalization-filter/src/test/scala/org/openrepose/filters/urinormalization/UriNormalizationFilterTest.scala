@@ -160,7 +160,7 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Ma
       val wrappedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
 
       wrappedRequest.getRequestURI shouldBe noExtensionUri
-      wrappedRequest.getHeader(CommonHttpHeader.ACCEPT.toString) shouldBe "application/xml"
+      wrappedRequest.getHeader(CommonHttpHeader.ACCEPT) shouldBe "application/xml"
     }
 
     it("should normalize preferred content media type") {
@@ -176,7 +176,7 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Ma
 
       val wrappedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
 
-      wrappedRequest.getHeader(CommonHttpHeader.ACCEPT.toString) shouldBe "application/xml"
+      wrappedRequest.getHeader(CommonHttpHeader.ACCEPT) shouldBe "application/xml"
     }
   }
 

@@ -45,7 +45,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
             CommonHttpHeader.SERVER,
             CommonHttpHeader.TRACE_GUID,
             CommonHttpHeader.VARY,
-            CommonHttpHeader.VIA]*.toString()*.toLowerCase()
+            CommonHttpHeader.VIA]*.toLowerCase()
 
     def setupSpec() {
         reposeLogSearch.cleanLog()
@@ -62,7 +62,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     @Unroll
     def "Non-CORS request with method OPTIONS, 'Access-Control-Request-Method' header of #method, and path #path should make it to origin service"() {
         given: "the request has no 'Origin' header making this a non-CORS request"
-        def headers = [(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+        def headers = [(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): method]
 
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -74,10 +74,10 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "none of the CORS headers are added to the response"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -90,7 +90,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Actual request with method OPTIONS is not treated like a Preflight request if it does not have an 'Access-Control-Request-Method' header"() {
         given: "the request has an 'Origin' header making this an actual CORS request"
         def origin = 'http://test.repose.site:80'
-        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + '/testoptions', method: 'OPTIONS', headers: headers)
@@ -102,12 +102,12 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "the CORS headers for an actual request are added"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the CORS headers for a preflight request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -118,8 +118,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Preflight request with 'Access-Control-Request-Method' header of #method, path #path, and origin #origin should return a 200"() {
         given: "the request has both an 'Origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
         def headers = [
-                (CorsHttpHeader.ORIGIN.toString())                       : origin,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN)                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): method]
 
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -131,16 +131,16 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).tokenize(',').contains(method)
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).tokenize(',').contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the 'Access-Control-Allow-Headers' header is not set since none were requested"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the CORS headers for an actual request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -153,8 +153,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Preflight request from an unauthorized origin results in a 403 for an 'Access-Control-Request-Method' header of #method, path #path, and origin #origin"() {
         given: "the request has both an 'Origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
         def headers = [
-                (CorsHttpHeader.ORIGIN.toString())                       : origin,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN)                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): method]
 
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -166,7 +166,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the 'Access-Control-Allow-Origin' header is not set to indicate the 'Origin' was not allowed"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -182,7 +182,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     @Unroll
     def "Actual request from an unauthorized origin results in a 403 for an 'Access-Control-Request-Method' header of #method, path #path, and origin #origin"() {
         given: "the request has an 'Origin' header making this an actual CORS request"
-        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
@@ -194,7 +194,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the 'Access-Control-Allow-Origin' header is not set to indicate the 'Origin' was not allowed"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -211,8 +211,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Preflight request for a path matching '/status.*' resource in config will return a 200 with 'Access-Control-Request-Method' header of #method and origin #origin"() {
         given: "the request has both an 'Origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
         def headers = [
-                (CorsHttpHeader.ORIGIN.toString())                       : origin,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN)                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): method]
         def path = "/status"
 
         when: "the request is made using a path that will match a specific resource in config"
@@ -225,16 +225,16 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).tokenize(',').contains(method)
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).tokenize(',').contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the 'Access-Control-Allow-Headers' header is not set since none were requested"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the CORS headers for an actual request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -249,8 +249,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Preflight request for a path matching '/testupdate.*' resource in config will return a 200 with 'Access-Control-Request-Method' header of #method and origin #origin"() {
         given: "the request has both an 'Origin' and 'Access-Control-Request-Method' header making it a preflight CORS request"
         def headers = [
-                (CorsHttpHeader.ORIGIN.toString())                       : origin,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN)                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): method]
         def path = "/testupdate"
 
         when: "the request is made using a path that will match a specific resource in config"
@@ -263,16 +263,16 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).tokenize(',').contains(method)
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).tokenize(',').contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the 'Access-Control-Allow-Headers' header is not set since none were requested"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the CORS headers for an actual request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -288,7 +288,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         given: "an actual request"
         def path = "/testupdate"
         def origin = 'http://test.repose.site:80'
-        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         and: "the origin service will return special response headers"
         def handler = { request -> new Response(200, 'OK', (responseHeaders as List<String>).collectEntries{[(it): 'value']})}
@@ -303,19 +303,19 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "the CORS headers for an actual request are added"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the CORS headers for a preflight request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "all of the special headers from the origin service are added to the list of values in the 'Access-Control-Expose-Headers' header"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).tokenize(',').containsAll(responseHeaders)
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).tokenize(',').containsAll(responseHeaders)
 
         and: "all of the response headers are in the 'Access-Control-Expose-Headers' header with a few exceptions"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).toLowerCase().tokenize(',').sort() ==
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).toLowerCase().tokenize(',').sort() ==
                 mc.receivedResponse.headers.names.toList()*.toLowerCase().sort().unique() - UNNECESSARY_HEADERS
 
         and: "the 'Vary' header is set"
@@ -331,7 +331,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Actual request for a path matching '/testupdate.*' resource in config will return a 200 with origin #origin"() {
         given: "the request has an 'Origin' header making this an actual CORS request"
         def path = "/testupdate"
-        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         when: "the request is made using a path that will match a specific resource in config"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
@@ -343,12 +343,12 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "the CORS headers for an actual request are added"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the CORS headers for a preflight request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -364,8 +364,8 @@ class CorsFilterBasicTest extends ReposeValveTest {
         given: "a preflight request with an allowed origin"
         def origin = "http://test.repose.site:80"
         def headers = [
-                (CorsHttpHeader.ORIGIN.toString())                       : origin,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): method]
+                (CorsHttpHeader.ORIGIN)                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): method]
 
         when: "the request is made using a path that does not match the resource that would have allowed the requested method"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -377,11 +377,11 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the 'Access-Control-Allow-Origin' header is set correctly since the origin was valid"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).size() == 1
 
         and: "the 'Access-Control-Allow-Methods' header does not exist"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -401,7 +401,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
     def "Actual request with a path #path that does not match the resource needed for method #method to be allowed results in a 403"() {
         given: "an actual request with an allowed origin"
         def origin = "http://test.repose.site:80"
-        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         when: "the request is made using a path that does not match the resource that would have allowed the requested method"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
@@ -413,11 +413,11 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the 'Access-Control-Allow-Origin' header is set correctly since the origin was valid"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).size() == 1
 
         and: "the 'Access-Control-Allow-Methods' header does not exist"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for a non-OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -440,9 +440,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         def origin = 'http://openrepose.com:80'
         def path = '/testupdate'
         def headers = [
-                (CorsHttpHeader.ORIGIN.toString())                        : origin,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()) : method,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString()): requestHeaders
+                (CorsHttpHeader.ORIGIN)                        : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD) : method,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS): requestHeaders
         ]
 
         when: "the request is made"
@@ -455,17 +455,17 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).tokenize(',').contains(method)
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).tokenize(',').contains(method)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the 'Access-Control-Allow-Headers' header is set to the values that were in the 'Access-Control-Request-Headers' header"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) == requestHeaders
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS) == requestHeaders
 
         and: "the CORS headers for an actual request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
@@ -484,9 +484,9 @@ class CorsFilterBasicTest extends ReposeValveTest {
         def path = '/testupdate'
         def method = "GET"
         def headers = [
-                new Header(CorsHttpHeader.ORIGIN.toString(), origin),
-                new Header(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString(), method)
-        ] + requestHeaders.collect { new Header(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS.toString(), it) }
+                new Header(CorsHttpHeader.ORIGIN, origin),
+                new Header(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, method)
+        ] + requestHeaders.collect { new Header(CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, it) }
 
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
@@ -498,19 +498,19 @@ class CorsFilterBasicTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).contains(method)
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).contains(method)
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the 'Access-Control-Allow-Headers' header is set to the values that were in the 'Access-Control-Request-Headers' header without being split"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).tokenize(',').containsAll(allowHeaders)
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).tokenize(',').containsAll(allowHeaders)
 
         and: "the CORS headers for an actual request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")

@@ -105,7 +105,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (isRequestValid(request, response)) {
-            String traceGUID = TracingHeaderHelper.getTraceGuid(request.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
+            String traceGUID = TracingHeaderHelper.getTraceGuid(request.getHeader(CommonHttpHeader.TRACE_GUID));
             MDC.put(TracingKey.TRACING_KEY, traceGUID);
             LOG.trace("SERVICING DISTDATASTORE REQUEST");
 

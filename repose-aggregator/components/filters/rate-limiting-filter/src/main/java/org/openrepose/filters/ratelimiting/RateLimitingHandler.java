@@ -74,7 +74,7 @@ public class RateLimitingHandler {
     public FilterAction handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         FilterAction filterAction;
 
-        List<String> headerValues = request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString());
+        List<String> headerValues = request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT);
         List<MimeType> mimeTypes = MediaRangeProcessor.getMimeTypesFromHeaderValues(headerValues);
         if (mimeTypes.isEmpty()) {
             mimeTypes.add(DEFAULT_MIME_TYPE);
@@ -94,7 +94,7 @@ public class RateLimitingHandler {
                 filterAction = FilterAction.PASS;
             }
         } else {
-            LOG.warn("Expected header: {} was not supplied in the request. Rate limiting requires this header to operate.", PowerApiHeader.USER.toString());
+            LOG.warn("Expected header: {} was not supplied in the request. Rate limiting requires this header to operate.", PowerApiHeader.USER);
 
             // Auto return a 401 if the request does not meet expectations
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -105,7 +105,7 @@ public class RateLimitingHandler {
     }
 
     private boolean requestHasExpectedHeaders(HttpServletRequest request) {
-        return request.getHeader(PowerApiHeader.USER.toString()) != null;
+        return request.getHeader(PowerApiHeader.USER) != null;
     }
 
     private FilterAction describeLimitsForRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
@@ -117,7 +117,7 @@ public class RateLimitingHandler {
             // (absolute and active) limits when processing the response
             // TODO: A way to query global rate limits
             if (includeAbsoluteLimits) {
-                request.replaceHeader(CommonHttpHeader.ACCEPT.toString(), MimeType.APPLICATION_XML.toString());
+                request.replaceHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString());
                 return FilterAction.PROCESS_RESPONSE;
             } else {
                 return noUpstreamResponse(request, response);
@@ -161,7 +161,7 @@ public class RateLimitingHandler {
                 response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
             }
 
-            response.addHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
+            response.addHeader(CommonHttpHeader.RETRY_AFTER, nextAvailableTime.toRFC1123());
             eventService.newEvent(RateLimitFilterEvent.OVER_LIMIT, new OverLimitData(e, datastoreWarnLimit, request, response.getStatus()));
         } catch (CacheException e) {
             LOG.error("Failure when tracking limits.", e);

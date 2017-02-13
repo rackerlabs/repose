@@ -42,7 +42,7 @@ public abstract class HttpServletRequestMockFactory {
         temp.append(requestUrl);
         when(httpServletRequest.getRequestURL()).thenReturn(temp);
 
-        when(httpServletRequest.getHeader(CommonHttpHeader.ACCEPT.toString())).thenReturn(acceptHeader);
+        when(httpServletRequest.getHeader(CommonHttpHeader.ACCEPT)).thenReturn(acceptHeader);
 
         return httpServletRequest;
     }

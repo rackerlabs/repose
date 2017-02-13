@@ -86,13 +86,13 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
             mockedRequest.setMethod("GET");
 
-            mockedRequest.addHeader(PowerApiHeader.GROUPS.toString(), "group-1");
-            mockedRequest.addHeader(PowerApiHeader.GROUPS.toString(), "group-4");
-            mockedRequest.addHeader(PowerApiHeader.GROUPS.toString(), "group-2");
-            mockedRequest.addHeader(PowerApiHeader.GROUPS.toString(), "group-3");
+            mockedRequest.addHeader(PowerApiHeader.GROUPS, "group-1");
+            mockedRequest.addHeader(PowerApiHeader.GROUPS, "group-4");
+            mockedRequest.addHeader(PowerApiHeader.GROUPS, "group-2");
+            mockedRequest.addHeader(PowerApiHeader.GROUPS, "group-3");
 
-            mockedRequest.addHeader(PowerApiHeader.USER.toString(), "127.0.0.1;q=0.1");
-            mockedRequest.addHeader(PowerApiHeader.USER.toString(), "that other user;q=0.5");
+            mockedRequest.addHeader(PowerApiHeader.USER, "127.0.0.1;q=0.1");
+            mockedRequest.addHeader(PowerApiHeader.USER, "that other user;q=0.5");
         }
 
         @Test

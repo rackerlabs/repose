@@ -60,12 +60,12 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "";
             final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://myhost.com:8080/mocks/test");
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION))).thenReturn("http://myhost.com:8080/mocks/test");
 
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com:8080/test";
-            verify(response).setHeader(eq(CommonHttpHeader.LOCATION.name()), eq(expected));
+            verify(response).setHeader(eq(CommonHttpHeader.LOCATION), eq(expected));
 
         }
 
@@ -81,12 +81,12 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "";
             final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://otherhost.com/mocks/test");
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION))).thenReturn("http://otherhost.com/mocks/test");
 
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com:8080/test";
-            verify(response).setHeader(eq(CommonHttpHeader.LOCATION.name()), eq(expected));
+            verify(response).setHeader(eq(CommonHttpHeader.LOCATION), eq(expected));
 
         }
 
@@ -102,12 +102,12 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "v1";
             final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://otherhost.com/mocks/test");
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION))).thenReturn("http://otherhost.com/mocks/test");
 
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com:8080/v1/test";
-            verify(response).setHeader(eq(CommonHttpHeader.LOCATION.name()), eq(expected));
+            verify(response).setHeader(eq(CommonHttpHeader.LOCATION), eq(expected));
 
         }
 
@@ -123,12 +123,12 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "";
             final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://myhost.com/mocks/test");
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION))).thenReturn("http://myhost.com/mocks/test");
 
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com/test";
-            verify(response).setHeader(eq(CommonHttpHeader.LOCATION.name()), eq(expected));
+            verify(response).setHeader(eq(CommonHttpHeader.LOCATION), eq(expected));
 
         }
 
@@ -144,12 +144,12 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "";
             final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://otherhost.com/mocks/test");
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION))).thenReturn("http://otherhost.com/mocks/test");
 
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com/test";
-            verify(response).setHeader(eq(CommonHttpHeader.LOCATION.name()), eq(expected));
+            verify(response).setHeader(eq(CommonHttpHeader.LOCATION), eq(expected));
 
         }
 
@@ -165,12 +165,12 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "";
             final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://otherhost.com/mocks/test?param=value");
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION))).thenReturn("http://otherhost.com/mocks/test?param=value");
 
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com/test?param=value";
-            verify(response).setHeader(eq(CommonHttpHeader.LOCATION.name()), eq(expected));
+            verify(response).setHeader(eq(CommonHttpHeader.LOCATION), eq(expected));
 
         }
 

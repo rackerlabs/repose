@@ -226,8 +226,8 @@ class ResponseWrapperTest extends ReposeValveTest {
         messageChain.receivedResponse.body as String == expectedBody
 
         and: "if we were expecting a body, the content-type should be set"
-        !expectedBody || messageChain.receivedResponse.headers.contains(CommonHttpHeader.CONTENT_TYPE.toString())
-        !expectedBody || messageChain.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        !expectedBody || messageChain.receivedResponse.headers.contains(CommonHttpHeader.CONTENT_TYPE)
+        !expectedBody || messageChain.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE) == MediaType.TEXT_PLAIN
 
         where:
         responseCode | expectedBody
@@ -299,8 +299,8 @@ class ResponseWrapperTest extends ReposeValveTest {
 
         and: "the response received by the user should contain the message in the body with the correct content type"
         messageChain.receivedResponse.body as String == REASON_MESSAGE
-        messageChain.receivedResponse.headers.contains(CommonHttpHeader.CONTENT_TYPE.toString())
-        messageChain.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        messageChain.receivedResponse.headers.contains(CommonHttpHeader.CONTENT_TYPE)
+        messageChain.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE) == MediaType.TEXT_PLAIN
 
         where:
         [wrapperHeaderMode, wrapperBodyMode] <<
@@ -326,8 +326,8 @@ class ResponseWrapperTest extends ReposeValveTest {
 
         and: "the response received by the user should contain the message in the body with the correct content type"
         messageChain.receivedResponse.body as String == REASON_MESSAGE
-        messageChain.receivedResponse.headers.contains(CommonHttpHeader.CONTENT_TYPE.toString())
-        messageChain.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        messageChain.receivedResponse.headers.contains(CommonHttpHeader.CONTENT_TYPE)
+        messageChain.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE) == MediaType.TEXT_PLAIN
 
         where:
         firstFilterTestCase                  | secondFilterTestCase              | responseCode | testDescription

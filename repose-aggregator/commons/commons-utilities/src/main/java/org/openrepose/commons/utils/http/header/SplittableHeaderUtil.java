@@ -20,12 +20,7 @@
 package org.openrepose.commons.utils.http.header;
 
 
-import org.openrepose.commons.utils.http.HeaderConstant;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class SplittableHeaderUtil {
 
@@ -41,21 +36,17 @@ public class SplittableHeaderUtil {
         setDefaultSplittable();
     }
 
-    public SplittableHeaderUtil(HeaderConstant... constant) {
+    public SplittableHeaderUtil(String... constant) {
         setDefaultSplittable();
 
-        for (HeaderConstant ct : constant) {
-            splittableHeaders.add(ct.toString());
-        }
+        Collections.addAll(splittableHeaders, constant);
     }
 
-    public SplittableHeaderUtil(HeaderConstant[]... constant) {
+    public SplittableHeaderUtil(String[]... constant) {
         setDefaultSplittable();
 
-        for (HeaderConstant[] cts : constant) {
-            for (HeaderConstant ct : cts) {
-                splittableHeaders.add(ct.toString());
-            }
+        for (String[] cts : constant) {
+            Collections.addAll(splittableHeaders, cts);
         }
     }
 
@@ -69,4 +60,3 @@ public class SplittableHeaderUtil {
         return splittableHeaders.contains(st.toLowerCase());
     }
 }
-

@@ -68,8 +68,8 @@ class UriUserFilter @Inject()(configurationService: ConfigurationService)
         .map(_.matcher(wrappedRequest.getRequestURI))
         .find(m => m.find() && m.groupCount > 0)
         .map(_.group(1)) foreach { user =>
-          wrappedRequest.addHeader(PowerApiHeader.USER.toString, user, config.quality)
-          wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, config.group, config.quality)
+          wrappedRequest.addHeader(PowerApiHeader.USER, user, config.quality)
+          wrappedRequest.addHeader(PowerApiHeader.GROUPS, config.group, config.quality)
       }
 
       filterChain.doFilter(wrappedRequest, servletResponse)

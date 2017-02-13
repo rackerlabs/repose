@@ -101,8 +101,8 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     val akkaResponse = Try(tokenServiceClient.akkaServiceClient.post(
       TokenRequestKey,
       s"$tokenUri$TokenPath",
-      (Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava,
+      (Map(CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON)
+        ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
       Json.stringify(authenticationPayload),
       MediaType.APPLICATION_JSON_TYPE
     ))
@@ -148,9 +148,9 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
       IdpRequestKey(issuer),
       s"$policyUri${IdpPath(issuer)}",
       (Map(
-        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON,
-        CommonHttpHeader.AUTH_TOKEN.toString -> token
-      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava,
+        CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON,
+        CommonHttpHeader.AUTH_TOKEN -> token
+      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
       checkCache
     ))
 
@@ -200,9 +200,9 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
       PolicyRequestKey(idpId),
       s"$policyUri${PolicyPath(idpId)}",
       (Map(
-        CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON,
-        CommonHttpHeader.AUTH_TOKEN.toString -> token
-      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.toString.->)).asJava,
+        CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON,
+        CommonHttpHeader.AUTH_TOKEN -> token
+      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
       checkCache
     ))
 

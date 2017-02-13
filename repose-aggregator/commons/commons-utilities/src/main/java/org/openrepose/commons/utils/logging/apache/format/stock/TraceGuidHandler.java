@@ -31,7 +31,7 @@ import java.util.Collections;
 public class TraceGuidHandler extends HeaderHandler implements FormatterLogic {
 
     public TraceGuidHandler() {
-        super(CommonHttpHeader.TRACE_GUID.toString(), Collections.<String>emptyList());
+        super(CommonHttpHeader.TRACE_GUID, Collections.<String>emptyList());
     }
 
     @Override

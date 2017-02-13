@@ -75,11 +75,11 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     @Override
     public void setVia(HttpServletRequest request, HttpServletResponse response) {
-        final String existingVia = response.getHeader(CommonHttpHeader.VIA.toString());
+        final String existingVia = response.getHeader(CommonHttpHeader.VIA);
         final String myVia = viaHeaderBuilder.buildVia(request);
         final String via = StringUtilities.isBlank(existingVia) ? myVia : existingVia + ", " + myVia;
 
-        response.setHeader(CommonHttpHeader.VIA.name(), via);
+        response.setHeader(CommonHttpHeader.VIA, via);
     }
 
     @Override

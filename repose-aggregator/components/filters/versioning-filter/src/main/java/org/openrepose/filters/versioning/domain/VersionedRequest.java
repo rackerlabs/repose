@@ -38,7 +38,7 @@ public class VersionedRequest {
     public VersionedRequest(HttpServletRequestWrapper request, ServiceVersionMapping mapping) {
         this.request = request;
         this.mapping = mapping;
-        this.clientAddressedHost = request.getHeader(CommonHttpHeader.HOST.toString());
+        this.clientAddressedHost = request.getHeader(CommonHttpHeader.HOST);
     }
 
     public ServiceVersionMapping getMapping() {

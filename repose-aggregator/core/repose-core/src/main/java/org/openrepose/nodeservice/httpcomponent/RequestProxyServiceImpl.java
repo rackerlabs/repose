@@ -199,8 +199,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         //Tack on the tracing ID for requests via the dist datastore
         String traceGUID = MDC.get(TracingKey.TRACING_KEY);
         if (!StringUtils.isEmpty(traceGUID)) {
-            Header viaHeader = base.getFirstHeader(CommonHttpHeader.VIA.toString());
-            base.addHeader(CommonHttpHeader.TRACE_GUID.toString(),
+            Header viaHeader = base.getFirstHeader(CommonHttpHeader.VIA);
+            base.addHeader(CommonHttpHeader.TRACE_GUID,
                     TracingHeaderHelper.createTracingHeader(traceGUID, viaHeader != null ? viaHeader.getValue() : null)
             );
         }

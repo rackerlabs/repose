@@ -59,7 +59,7 @@ public class OverLimitData {
         this.nextAvailableTime = exception.getNextAvailableTime();
         this.currentLimitAmount = exception.getCurrentLimitAmount();
         this.configuredLimit = exception.getConfiguredLimit();
-        this.groups = request.getHeader(PowerApiHeader.GROUPS.toString());
+        this.groups = request.getHeader(PowerApiHeader.GROUPS);
         this.request = request;
         this.responseCode = responseCode;
         this.dataStoreWarnLimit = dataStoreWarnLimit;

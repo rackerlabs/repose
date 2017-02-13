@@ -132,11 +132,11 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
       wrappedResponse.uncommit()
 
-      val originalLocation = wrappedResponse.getHeader(CommonHttpHeader.LOCATION.toString)
+      val originalLocation = wrappedResponse.getHeader(CommonHttpHeader.LOCATION)
       // todo: What if the path is "/<tenant-id>"? The location header wouldn't be modified. Is that the correct behavior?
       if (config.isRewriteLocation && token.isDefined && !Option(originalLocation).forall(_.trim.isEmpty)) {
         Try(wrappedResponse.replaceHeader(
-          CommonHttpHeader.LOCATION.toString,
+          CommonHttpHeader.LOCATION,
           replaceIntoPath(originalLocation, token.get, previousToken, nextToken, None))) match {
           case Success(_) => //don't care
           case Failure(e: PathRewriteException) => logger.warn("Failed while trying to rewrite the location header", e)
