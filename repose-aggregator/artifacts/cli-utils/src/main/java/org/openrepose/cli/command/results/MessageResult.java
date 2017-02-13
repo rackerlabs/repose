@@ -37,6 +37,6 @@ public class MessageResult implements CommandResult {
 
     @Override
     public int getStatusCode() {
-        return StatusCodes.OK.getStatusCode();
+        return StatusCodes.OK;
     }
 }

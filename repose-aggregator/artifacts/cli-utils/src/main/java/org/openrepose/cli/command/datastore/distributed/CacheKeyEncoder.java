@@ -59,7 +59,7 @@ public class CacheKeyEncoder extends AbstractCommand {
             return new MessageResult(encodedCacheKey);
         } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
             LOG.trace("JRE doesn't support MD5", noSuchAlgorithmException);
-            return new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE.getStatusCode(),
+            return new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE,
                     "Your instance of the Java Runtime Environment does not support the MD5 hash algorithm.");
         }
     }

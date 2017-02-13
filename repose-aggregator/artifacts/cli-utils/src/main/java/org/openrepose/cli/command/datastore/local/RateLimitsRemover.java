@@ -53,12 +53,12 @@ public class RateLimitsRemover extends AbstractCommand {
             if (reposeLocalCacheMBeanProxy.removeLimits(arguments[1])) {
                 result = new MessageResult("Removed rate limits for user " + arguments[1]);
             } else {
-                result = new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE.getStatusCode(),
+                result = new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE,
                         "Failure to remove rate limits for user " + arguments[1]);
             }
         } catch (Exception e) {
             LOG.trace("Unable to connect to Repose MBean Server", e);
-            result = new CommandFailure(StatusCodes.NOTHING_TO_DO.getStatusCode(),
+            result = new CommandFailure(StatusCodes.NOTHING_TO_DO,
                     "Unable to connect to Repose MBean Server: " + e.getMessage());
         }
 
