@@ -75,10 +75,10 @@ class BasicAuthCacheTimeoutTest extends ReposeValveTest {
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get the token from the cache"
-        mc0.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc0.receivedResponse.code == HttpServletResponse.SC_OK
         mc0.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc0.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc1.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc1.receivedResponse.code == HttpServletResponse.SC_OK
         mc1.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc1.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         mc1.orphanedHandlings.size() == 0
@@ -96,10 +96,10 @@ class BasicAuthCacheTimeoutTest extends ReposeValveTest {
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get the token from the Identity (Keystone) service"
-        mc0.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc0.receivedResponse.code == HttpServletResponse.SC_OK
         mc0.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc0.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc1.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc1.receivedResponse.code == HttpServletResponse.SC_OK
         mc1.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc1.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         mc1.orphanedHandlings.size() == 1

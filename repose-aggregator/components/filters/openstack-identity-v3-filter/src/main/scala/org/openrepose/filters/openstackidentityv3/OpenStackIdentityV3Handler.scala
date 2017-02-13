@@ -188,22 +188,22 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
         // Set the appropriate headers
         request.replaceHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expiresAt)
-        request.replaceHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
+        request.replaceHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
         token.get.userName foreach { user =>
-          request.addHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, user)
+          request.addHeader(OpenStackIdentityV3Headers.X_USER_NAME, user)
           request.addHeader(PowerApiHeader.USER, user, 1.0)
         }
         Option(token.get.roles.map(_.name) mkString ",").filter(_.nonEmpty) foreach { rolesString =>
           request.addHeader(OpenStackIdentityV3Headers.X_ROLES, rolesString)
         }
         token.get.userId foreach { id =>
-          request.replaceHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_USER_ID, id)
         }
         token.get.defaultRegion foreach { defaultRegion =>
-          request.replaceHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, defaultRegion)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION, defaultRegion)
         }
         token.get.projectName foreach { projectName =>
-          request.replaceHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, projectName)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME, projectName)
         }
 
         val sendQuality: Boolean = Option(identityConfig.getSendProjectIdQuality).isDefined
@@ -218,8 +218,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
             writeProjectHeader(defaultProjectId, token.get.roles, None, identityConfig.isSendAllProjectIds,
               sendQuality, request)
         }
-        token.get.impersonatorId.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString, _))
-        token.get.impersonatorName.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString, _))
+        token.get.impersonatorId.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID, _))
+        token.get.impersonatorName.foreach(request.replaceHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME, _))
         if (forwardCatalog) {
           token.get.catalogJson.foreach(catalog =>
             request.replaceHeader(PowerApiHeader.X_CATALOG, base64Encode(catalog)))

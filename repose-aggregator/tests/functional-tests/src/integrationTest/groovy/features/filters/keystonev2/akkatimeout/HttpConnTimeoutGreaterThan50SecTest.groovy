@@ -112,7 +112,7 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         )
 
         then: "Request should not be passed from repose"
-        mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
+        mc.receivedResponse.code == HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
         reposeLogSearch.searchByString("Error acquiring value from akka .GET. or the cache. Reason: Futures timed out after .61000 milliseconds.").size() > 0
