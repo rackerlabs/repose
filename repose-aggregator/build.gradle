@@ -1,4 +1,7 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.ajoberstar.grgit.Grgit
+
 import java.text.SimpleDateFormat
 
 apply plugin: 'org.asciidoctor.convert'
@@ -48,29 +51,32 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
             dir: workingDir,
     )
 
-    //add to versions list
-    def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.html")
-    def latestLinkFile = project.file("${project.buildDir}/gh-pages/versions/latest")
-    def versionLines = versionsFile.readLines()
-    // Always skip the first and last lines, which are the latest version line and old wiki line
-    def numHeaderLines = 1
-    def numFooterLines = 1
-    def xmlSlurper = new XmlSlurper()
-    def newVersionIndex = versionLines.drop(numHeaderLines).dropRight(numFooterLines).findIndexOf {
-        String existingVersion = (xmlSlurper.parseText(it).a.@href =~ /\.\/versions\/(\d\.\d\.\d\.\d)\/index.html/)[0][1]
-        compareVersions(String.valueOf(version), existingVersion) > 0
+    // Amend the versions list
+    def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.json")
+    def versionsJson = new JsonSlurper().parse(versionsFile)
+    def modifiedVersions = versionsJson.versions.collect { new Version(id: it.id, released: it.released) }
+    def newVersionIndex = modifiedVersions.findIndexOf { compareVersions(String.valueOf(version), it.id) > 0 }
+    def date = new SimpleDateFormat('yyyy-MM-dd').format(new Date())
+    newVersionIndex = newVersionIndex == -1 ? modifiedVersions.size() : newVersionIndex
+    modifiedVersions.add(newVersionIndex, new Version(id: String.valueOf(version), released: date))
+
+    // Write the versions list as JSON
+    def jsonWriter = new PrintWriter(versionsFile.newWriter())
+    jsonWriter.println(JsonOutput.prettyPrint(JsonOutput.toJson(versions: modifiedVersions)))
+    jsonWriter.close()
+
+    // Write the versions includes file
+    def includesWriter = new PrintWriter(project.file("${project.buildDir}/gh-pages/_includes/versions.html"))
+    modifiedVersions.forEach { Version v ->
+        includesWriter.println("""<li><a href="./versions/${v.id}/index.html">v${v.id} - ${v.released}</a></li>""")
     }
-    newVersionIndex = newVersionIndex == -1 ? versionLines.size() - numFooterLines : newVersionIndex + numHeaderLines
-    if (newVersionIndex == numHeaderLines) {
+    includesWriter.close()
+
+    // Update the latest link, if applicable
+    def latestLinkFile = project.file("${project.buildDir}/gh-pages/versions/latest")
+    if (newVersionIndex == 0) {
         ['ln', '-s', '-f', String.valueOf(version), latestLinkFile.absolutePath].execute().waitFor()
     }
-    def date = new SimpleDateFormat('yyyy-MM-dd').format(new Date())
-    versionLines.add(newVersionIndex, """<li><a href="./versions/$version/index.html">v$version - $date</a></li>""")
-    def writer = new PrintWriter(versionsFile.newWriter())
-    versionLines.each {
-        writer.println(it)
-    }
-    writer.close()
 
     copy {
         from "${asciidoctor.outputDir}/html5"
@@ -118,4 +124,9 @@ boolean isLatestVersion(String version, List<String> otherVersions) {
     return !otherVersions.any {
         it.length() > 0 && it.charAt(0).isDigit() && compareVersions(version, it) < 0
     }
+}
+
+class Version {
+    String id
+    String released
 }
