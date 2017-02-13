@@ -31,7 +31,7 @@ import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
  */
 public class CommonHttpHeaderTest {
     @Test
-    public void shouldReturnExpectedKey() {
+    public void shouldEqualIgnoringCase() {
         assertThat(CommonHttpHeader.RETRY_AFTER, is(equalToIgnoringCase("retry-after")));
     }
 }

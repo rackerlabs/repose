@@ -27,7 +27,7 @@ import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 public class ExtendedHttpHeaderTest {
     @Test
-    public void shouldReturnExpectedKey() {
+    public void shouldEqualIgnoringCase() {
         assertThat(ExtendedHttpHeader.X_TTL, is(equalToIgnoringCase("x-ttl")));
     }
 }

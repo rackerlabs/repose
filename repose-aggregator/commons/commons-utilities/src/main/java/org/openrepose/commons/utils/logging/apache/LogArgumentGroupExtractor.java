@@ -63,7 +63,7 @@ public class LogArgumentGroupExtractor {
     }
 
     public static LogArgumentGroupExtractor stringEntity(String variable) {
-        return new LogArgumentGroupExtractor("", "", variable, "", "", LogFormatArgument.STRING.name());
+        return new LogArgumentGroupExtractor("", "", variable, "", "", LogFormatArgument.STRING);
     }
 
     private List<String> parseArguments(String arguments) {

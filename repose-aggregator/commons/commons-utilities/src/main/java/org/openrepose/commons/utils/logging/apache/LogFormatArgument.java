@@ -22,57 +22,31 @@ package org.openrepose.commons.utils.logging.apache;
 import java.util.Map;
 import java.util.TreeMap;
 
-public enum LogFormatArgument {
+public class LogFormatArgument {
+    public static final String PERCENT = "%";
+    public static final String REMOTE_ADDRESS = "a";
+    public static final String LOCAL_ADDRESS = "A";
+    public static final String RESPONSE_CLF_BYTES = "b";
+    public static final String RESPONSE_BYTES = "B";
+    public static final String REMOTE_HOST = "h";
+    public static final String REQUEST_METHOD = "m";
+    public static final String CANONICAL_PORT = "p";
+    public static final String QUERY_STRING = "q";
+    public static final String TIME_RECEIVED = "t";
+    public static final String STATUS_CODE = "s";
+    public static final String REMOTE_USER = "u";
+    public static final String URL_REQUESTED = "U";
+    public static final String TRACE_GUID = "g";
+    public static final String REQUEST_HEADER = "i";
+    public static final String REQUEST_LINE = "r";
+    public static final String REQUEST_PROTOCOL = "H";
+    public static final String RESPONSE_HEADER = "o";
+    public static final String STRING = "STRING";
+    public static final String RESPONSE_REASON = "M";
+    public static final String RESPONSE_TIME_MICROSECONDS = "D";
+    public static final String RESPONSE_TIME_SECONDS = "T";
 
-    PERCENT("%"),
-    REMOTE_ADDRESS("a"),
-    LOCAL_ADDRESS("A"),
-    RESPONSE_CLF_BYTES("b"),
-    RESPONSE_BYTES("B"),
-    REMOTE_HOST("h"),
-    REQUEST_METHOD("m"),
-    CANONICAL_PORT("p"),
-    QUERY_STRING("q"),
-    TIME_RECEIVED("t"),
-    STATUS_CODE("s"),
-    REMOTE_USER("u"),
-    URL_REQUESTED("U"),
-    TRACE_GUID("g"),
-    REQUEST_HEADER("i"),
-    REQUEST_LINE("r"),
-    REQUEST_PROTOCOL("H"),
-    RESPONSE_HEADER("o"),
-    STRING("STRING"),
-    RESPONSE_REASON("M"),
-    RESPONSE_TIME_MICROSECONDS("D"),
-    RESPONSE_TIME_SECONDS("T");
-
-    private final String argument;
-
-    LogFormatArgument(String argument) {
-        this.argument = argument;
-
-        ReverseLookup.addLookup(argument, this);
-    }
-
-    public static LogFormatArgument fromString(String st) {
-        return ReverseLookup.LOOKUP_MAP.get(st);
-    }
-
-    @Override
-    public String toString() {
-        return argument;
-    }
-
-    private static final class ReverseLookup {
-
-        protected static final Map<String, LogFormatArgument> LOOKUP_MAP = new TreeMap<>();
-
-        private ReverseLookup() {
-        }
-
-        protected static void addLookup(String st, LogFormatArgument arg) {
-            LOOKUP_MAP.put(st, arg);
-        }
+    private LogFormatArgument() {
+        // This class should not be instantiated.
     }
 }

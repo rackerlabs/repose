@@ -27,7 +27,7 @@ import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase
 
 class EndpointsHeaderTest {
     @Test
-    void shouldReturnExpectedKey() {
+    void shouldEqualIgnoringCase() {
         assertThat(EndpointsHeader.X_CATALOG, is(equalToIgnoringCase("x-CaTaLoG")))
     }
 }
