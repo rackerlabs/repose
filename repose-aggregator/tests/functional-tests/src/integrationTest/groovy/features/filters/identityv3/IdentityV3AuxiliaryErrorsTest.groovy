@@ -128,7 +128,7 @@ class IdentityV3AuxiliaryErrorsTest extends ReposeValveTest {
         )
 
         then: "request body sent from repose to the origin service should contain HTTP 503"
-        mc.receivedResponse.code == SC_SERVICE_UNAVAILABLE.toString()
+        mc.receivedResponse.code as Integer == SC_SERVICE_UNAVAILABLE
         mc.receivedResponse.getHeaders().getFirstValue(HttpHeaders.RETRY_AFTER).equals(retryString)
         reposeLogSearch.searchByString("Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
 

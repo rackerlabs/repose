@@ -77,7 +77,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token for it"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -110,7 +110,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method)
 
         then: "simply pass it on down the filter chain and this configuration will forward to origin service a SC_UNAUTHORIZED (401)"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         !mc.handlings[0].request.headers.contains("x-delegated")
 
@@ -134,7 +134,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, headers: headers)
 
         then: "simply pass it on down the filter chain and this configuration will forward to origin service a SC_UNAUTHORIZED (401)"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
         mc.handlings[0].request.headers.findAll("x-delegated")[0].contains(delegatedMsg)
@@ -175,7 +175,7 @@ class BasicAuthDelegatingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
 
         then: "request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains("x-delegated")
         mc.handlings[0].request.headers.findAll("x-delegated")[0].contains(delegatedMsg)

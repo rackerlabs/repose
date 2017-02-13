@@ -85,7 +85,7 @@ class ValdiatorAbsoluteWadlPathTest extends ReposeValveTest {
 
         then: "request returns a 404 and and no error wadl error is thrown"
         wadlError.size() == 0
-        resp.getReceivedResponse().code == 404.toString()
+        resp.getReceivedResponse().code as Integer == 404.toString()
     }
 
     def "when loading validators on startup, it will fail when it cannot find a wadl when given an absolute path"() {

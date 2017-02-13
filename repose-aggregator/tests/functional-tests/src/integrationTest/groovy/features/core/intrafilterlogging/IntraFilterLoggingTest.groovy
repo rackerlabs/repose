@@ -61,7 +61,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/test", method: 'GET', headers: headers)
 
         then: "simply pass it on down the filter chain"
-        //mc.receivedResponse.code == SC_OK.toString()
+        //mc.receivedResponse.code as Integer == SC_OK
         //mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         reposeLogSearch.searchByString("\"currentFilter\":\"keystone-v2-basic-auth\"").size() > 0

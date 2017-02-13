@@ -62,7 +62,7 @@ class AuthenticatedByTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.getReceivedResponse().getCode() == SC_UNAUTHORIZED.toString()
+        messageChain.getReceivedResponse().getCode() as Integer == SC_UNAUTHORIZED
 
         where:
         [method, headers] << [
@@ -81,7 +81,7 @@ class AuthenticatedByTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.getReceivedResponse().getCode() == SC_OK.toString()
+        messageChain.getReceivedResponse().getCode() as Integer == SC_OK
 
         where:
         method << HTTP_METHODS
@@ -97,7 +97,7 @@ class AuthenticatedByTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.getReceivedResponse().getCode() == SC_OK.toString()
+        messageChain.getReceivedResponse().getCode() as Integer == SC_OK
 
         where:
         method << HTTP_METHODS
@@ -113,7 +113,7 @@ class AuthenticatedByTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.getReceivedResponse().getCode() == SC_OK.toString()
+        messageChain.getReceivedResponse().getCode() as Integer == SC_OK
 
         where:
         [target, method, headers] << [
@@ -133,7 +133,7 @@ class AuthenticatedByTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.getReceivedResponse().getCode() == SC_OK.toString()
+        messageChain.getReceivedResponse().getCode() as Integer == SC_OK
 
         where:
         [method, headers] << [
@@ -203,7 +203,7 @@ class AuthenticatedByTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.getReceivedResponse().getCode() == SC_METHOD_NOT_ALLOWED.toString()
+        messageChain.getReceivedResponse().getCode() as Integer == SC_METHOD_NOT_ALLOWED
 
         where:
         [method, headers] << [

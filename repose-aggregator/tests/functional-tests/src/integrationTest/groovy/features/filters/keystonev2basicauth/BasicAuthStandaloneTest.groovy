@@ -76,7 +76,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "simply pass it on down the filter chain"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
     }
@@ -93,7 +93,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "simply pass it on down the filter chain NOT processing the HTTP Basic authentication"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         !mc.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -110,7 +110,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "Request reject if invalid apikey or username"
-        mc.receivedResponse.code == SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
 
@@ -136,7 +136,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "Request reject if invalid apikey or username"
-        mc.receivedResponse.code == SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
@@ -152,7 +152,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "Request reject if invalid apikey or username"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         //mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
 
@@ -178,7 +178,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "then get a token for it"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -195,7 +195,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "request should pass as no basic auth filter"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -219,7 +219,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "then get a token for it"
-        mc.receivedResponse.code == SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName(HttpHeaders.AUTHORIZATION) == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
@@ -238,7 +238,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
                 defaultHandler: { new Response(SC_UNAUTHORIZED, null, null, null) })
 
         then: "request should pass as no basic auth filter"
-        mc.receivedResponse.code == SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
@@ -267,7 +267,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
 
         then: "request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == filterStatusCode.toString()
+        mc.receivedResponse.code as Integer == filterStatusCode
         mc.handlings.size() == 0
 
         where:
@@ -304,7 +304,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
 
         then: "request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == SC_SERVICE_UNAVAILABLE.toString()
+        mc.receivedResponse.code as Integer == SC_SERVICE_UNAVAILABLE
         mc.receivedResponse.getHeaders().getFirstValue(HttpHeaders.RETRY_AFTER).equals(retryString)
         reposeLogSearch.searchByString("Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
 
