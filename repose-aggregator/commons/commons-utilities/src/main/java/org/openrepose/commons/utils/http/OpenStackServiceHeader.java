@@ -20,74 +20,85 @@
 package org.openrepose.commons.utils.http;
 
 /**
- * Enum for Headers added by the Client Authentication componenet
+ * Constants for Headers added by the Client Authentication component
  */
-public enum OpenStackServiceHeader implements HeaderConstant {
+public class OpenStackServiceHeader {
     /**
      * The client identity being passed in
      */
-    EXTENDED_AUTHORIZATION("X-Authorization"),
+    public static final String EXTENDED_AUTHORIZATION = "X-Authorization";
 
     /**
      * 'Confirmed' or 'Invalid'
      * The underlying service will only see a value of 'Invalid' if PAPI
      * is configured to run in 'delegable' mode
      */
-    IDENTITY_STATUS("X-Identity-Status"),
+    public static final String IDENTITY_STATUS = "X-Identity-Status";
 
     /**
      * Unique user identifier, string
      */
-    USER_NAME("X-User-Name"),
+    public static final String USER_NAME = "X-User-Name";
 
     /**
      * Identity-service managed unique identifier, string
      */
-    USER_ID("X-User-Id"),
+    public static final String USER_ID = "X-User-Id";
 
     /**
      * Unique tenant identifier, string
      */
-    TENANT_NAME("X-Tenant-Name"),
+    public static final String TENANT_NAME = "X-Tenant-Name";
 
     /**
      * Identity service managed unique identifier, string
      */
-    TENANT_ID("X-Tenant-Id"),
+    public static final String TENANT_ID = "X-Tenant-Id";
 
     /**
      * Comma delimited list of case-sensitive Roles
      */
-    ROLES("X-Roles"),
+    public static final String ROLES = "X-Roles";
 
     /**
      * Comma-delimited list of authentication methods used
      */
-    AUTHENTICATED_BY("X-Authenticated-By"),
+    public static final String AUTHENTICATED_BY = "X-Authenticated-By";
 
-    IMPERSONATOR_ID("X-Impersonator-Id"),
-    IMPERSONATOR_NAME("X-Impersonator-Name"),
-    IMPERSONATOR_ROLES("X-Impersonator-Roles"),
+    public static final String IMPERSONATOR_ID = "X-Impersonator-Id";
+    public static final String IMPERSONATOR_NAME = "X-Impersonator-Name";
+    public static final String IMPERSONATOR_ROLES = "X-Impersonator-Roles";
 
-    DEFAULT_REGION("X-Default-Region"),
+    public static final String DEFAULT_REGION = "X-Default-Region";
 
-    X_EXPIRATION("x-token-expires"),
-    CONTACT_ID("X-CONTACT-ID");
+    public static final String X_EXPIRATION = "x-token-expires";
+    public static final String CONTACT_ID = "X-CONTACT-ID";
 
-
-    private final String headerKey;
-
-    private OpenStackServiceHeader(String headerKey) {
-        this.headerKey = headerKey.toLowerCase();
+    private OpenStackServiceHeader() {
+        // This class should not be instantiated.
     }
 
-    @Override
-    public String toString() {
-        return headerKey;
-    }
-
-    @Override
-    public boolean matches(String st) {
-        return headerKey.equalsIgnoreCase(st);
+    /**
+     * This keeps it compatible with the old Enumeration way of doing business.
+     *
+     * @return an array of all the constants defined by this class
+     */
+    public static String[] values() {
+        return new String[]{
+                EXTENDED_AUTHORIZATION,
+                IDENTITY_STATUS,
+                USER_NAME,
+                USER_ID,
+                TENANT_NAME,
+                TENANT_ID,
+                ROLES,
+                AUTHENTICATED_BY,
+                IMPERSONATOR_ID,
+                IMPERSONATOR_NAME,
+                IMPERSONATOR_ROLES,
+                DEFAULT_REGION,
+                X_EXPIRATION,
+                CONTACT_ID
+        };
     }
 }

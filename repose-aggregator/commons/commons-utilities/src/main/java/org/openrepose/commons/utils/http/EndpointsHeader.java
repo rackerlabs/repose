@@ -20,26 +20,14 @@
 package org.openrepose.commons.utils.http;
 
 /**
- * This enum matches the pattern used by other special header addition enums.
+ * This constant matches the pattern used by other special header addition constants.
  */
 
-public enum EndpointsHeader implements HeaderConstant {
+public class EndpointsHeader {
     //header key
-    X_CATALOG("x-catalog");
+    public static final String X_CATALOG = "x-catalog";
 
-    private final String headerKey;
-
-    private EndpointsHeader(String headerKey) {
-        this.headerKey = headerKey.toLowerCase();
-    }
-
-    @Override
-    public String toString() {
-        return headerKey;
-    }
-
-    @Override
-    public boolean matches(String st) {
-        return headerKey.equalsIgnoreCase(st);
+    private EndpointsHeader() {
+        // This class should not be instantiated.
     }
 }

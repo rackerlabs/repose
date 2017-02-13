@@ -22,28 +22,30 @@ package org.openrepose.commons.utils.http;
 /**
  * @author jhopper
  */
-public enum PowerApiHeader implements HeaderConstant {
+public class PowerApiHeader {
 
-    NEXT_ROUTE("X-PP-Next-Route"),
-    USER("X-PP-User"),
-    GROUPS("X-PP-Groups"),
-    DOMAIN("X-Domain"),
-    X_CATALOG("x-catalog");
+    public static final String NEXT_ROUTE = "X-PP-Next-Route";
+    public static final String USER = "X-PP-User";
+    public static final String GROUPS = "X-PP-Groups";
+    public static final String DOMAIN = "X-Domain";
+    public static final String X_CATALOG = "x-catalog";
 
-
-    private final String headerKey;
-
-    private PowerApiHeader(String headerKey) {
-        this.headerKey = headerKey.toLowerCase();
+    private PowerApiHeader() {
+        // This class should not be instantiated.
     }
 
-    @Override
-    public String toString() {
-        return headerKey;
-    }
-
-    @Override
-    public boolean matches(String st) {
-        return headerKey.equalsIgnoreCase(st);
+    /**
+     * This keeps it compatible with the old Enumeration way of doing business.
+     *
+     * @return an array of all the constants defined by this class
+     */
+    public static String[] values() {
+        return new String[]{
+                NEXT_ROUTE,
+                USER,
+                GROUPS,
+                DOMAIN,
+                X_CATALOG
+        };
     }
 }

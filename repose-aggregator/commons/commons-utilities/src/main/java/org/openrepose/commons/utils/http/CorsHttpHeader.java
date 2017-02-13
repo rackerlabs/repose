@@ -20,29 +20,17 @@
 
 package org.openrepose.commons.utils.http;
 
-public enum CorsHttpHeader implements HeaderConstant {
-    ORIGIN("Origin"),
-    ACCESS_CONTROL_REQUEST_METHOD("Access-Control-Request-Method"),
-    ACCESS_CONTROL_REQUEST_HEADERS("Access-Control-Request-Headers"),
-    ACCESS_CONTROL_ALLOW_ORIGIN("Access-Control-Allow-Origin"),
-    ACCESS_CONTROL_ALLOW_CREDENTIALS("Access-Control-Allow-Credentials"),
-    ACCESS_CONTROL_EXPOSE_HEADERS("Access-Control-Expose-Headers"),
-    ACCESS_CONTROL_ALLOW_METHODS("Access-Control-Allow-Methods"),
-    ACCESS_CONTROL_ALLOW_HEADERS("Access-Control-Allow-Headers");
+public class CorsHttpHeader {
+    public static final String ORIGIN = "Origin";
+    public static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method";
+    public static final String ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers";
+    public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+    public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+    public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+    public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+    public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
 
-    private final String headerKey;
-
-    CorsHttpHeader(String headerKey) {
-        this.headerKey = headerKey.toLowerCase();
-    }
-
-    @Override
-    public String toString() {
-        return headerKey;
-    }
-
-    @Override
-    public boolean matches(String st) {
-        return headerKey.equalsIgnoreCase(st);
+    private CorsHttpHeader() {
+        // This class should not be instantiated.
     }
 }
