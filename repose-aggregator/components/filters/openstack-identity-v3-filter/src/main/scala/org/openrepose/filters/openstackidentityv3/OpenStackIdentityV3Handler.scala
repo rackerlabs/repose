@@ -232,10 +232,10 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
       if (delegatingWithQuality.isDefined) {
         if (!failureInValidation) {
-          request.replaceHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.CONFIRMED.toString)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.CONFIRMED)
         } else {
           logger.debug("Forwarding indeterminate request")
-          request.replaceHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.INDETERMINATE.toString)
+          request.replaceHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.INDETERMINATE)
           request.replaceHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
           filterAction = FilterAction.PROCESS_RESPONSE
         }

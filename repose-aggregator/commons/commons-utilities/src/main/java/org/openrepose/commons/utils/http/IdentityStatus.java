@@ -22,19 +22,12 @@ package org.openrepose.commons.utils.http;
 /**
  * @author fran
  */
-public enum IdentityStatus {
+public class IdentityStatus {
     // The possible values for the X-Identity-Status header
-    CONFIRMED("Confirmed"),
-    INDETERMINATE("Indeterminate");
+    public static final String CONFIRMED = "Confirmed";
+    public static final String INDETERMINATE = "Indeterminate";
 
-    private String value;
-
-    IdentityStatus(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return value;
+    private IdentityStatus() {
+        // This class should not be instantiated.
     }
 }
