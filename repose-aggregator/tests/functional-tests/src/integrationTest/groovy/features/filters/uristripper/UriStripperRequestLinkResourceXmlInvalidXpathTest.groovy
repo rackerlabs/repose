@@ -45,7 +45,7 @@ class UriStripperRequestLinkResourceXmlInvalidXpathTest extends ReposeValveTest 
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl)
 
         then:
-        mc.receivedResponse.code == HttpServletResponse.SC_SERVICE_UNAVAILABLE as String
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_SERVICE_UNAVAILABLE
         reposeLogSearch.searchByString("Configuration update error. Reason: Failed to compile stylesheet").size() > 0
         reposeLogSearch.searchByString("Filter has not yet initialized... Please check your configuration files and your artifacts directory").size() > 0
     }
