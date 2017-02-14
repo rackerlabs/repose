@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.ratelimiting;
 
+import org.apache.http.HttpHeaders;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
@@ -38,7 +39,6 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

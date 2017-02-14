@@ -23,6 +23,7 @@ import java.io.{ByteArrayInputStream, IOException, UnsupportedEncodingException}
 import java.nio.charset.UnsupportedCharsetException
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
+import javax.ws.rs.core.HttpHeaders
 
 import org.apache.http.client.utils.DateUtils
 import org.junit.runner.RunWith

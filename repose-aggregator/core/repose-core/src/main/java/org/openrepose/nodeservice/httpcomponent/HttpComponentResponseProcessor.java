@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.openrepose.commons.utils.http.HttpHeaders.CONTENT_LENGTH;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
 
 public class HttpComponentResponseProcessor {
     private static final String[] EXCLUDE_HEADERS = {"connection", "transfer-encoding", "server"};
