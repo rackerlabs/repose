@@ -25,7 +25,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.HttpMethod
-import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.google.common.net.InetAddresses
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -126,10 +126,10 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       }
 
       // always add the Vary header
-      httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ORIGIN)
+      httpServletResponse.addHeader(HttpHeaders.VARY, CorsHttpHeader.ORIGIN)
       if (httpServletRequest.getMethod == HttpMethod.OPTIONS) {
-        httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)
-        httpServletResponse.addHeader(CommonHttpHeader.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
+        httpServletResponse.addHeader(HttpHeaders.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS)
+        httpServletResponse.addHeader(HttpHeaders.VARY, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       }
 
       httpServletResponse.commitToResponse()
@@ -252,7 +252,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
 object CorsFilter {
   private final val DefaultConfig = "cors.cfg.xml"
   private final val SchemaFilename = "/META-INF/schema/config/cors-configuration.xsd"
-  private final val DefaultExposeHeaders = List(CommonHttpHeader.CONTENT_LENGTH)
+  private final val DefaultExposeHeaders = List(HttpHeaders.CONTENT_LENGTH)
 
   sealed trait RequestType
   object NonCorsRequest extends RequestType

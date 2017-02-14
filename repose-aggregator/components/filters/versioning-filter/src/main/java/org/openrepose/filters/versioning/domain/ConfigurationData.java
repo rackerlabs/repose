@@ -19,20 +19,20 @@
  */
 package org.openrepose.filters.versioning.domain;
 
+import org.apache.http.HttpHeaders;
 import org.ietf.atom.schema.Link;
 import org.ietf.atom.schema.Relation;
 import org.openrepose.commons.utils.StringUriUtilities;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueParser;
 import org.openrepose.commons.utils.http.media.MediaType;
-import org.openrepose.filters.versioning.util.RequestMediaRangeInterrogator;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.filters.versioning.config.MediaTypeList;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 import org.openrepose.filters.versioning.schema.VersionChoice;
 import org.openrepose.filters.versioning.schema.VersionChoiceList;
+import org.openrepose.filters.versioning.util.RequestMediaRangeInterrogator;
 import org.openrepose.filters.versioning.util.VersionChoiceFactory;
 
 import javax.servlet.http.HttpServletRequest;
@@ -74,12 +74,12 @@ public class ConfigurationData {
         // If version info not in URI look in accept header
         if (targetOriginService == null) {
             final MediaType range = RequestMediaRangeInterrogator.interrogate(request.getRequestURI(),
-                    request.getPreferredSplittableHeadersWithParameters(CommonHttpHeader.ACCEPT)).get(0);
+                    request.getPreferredSplittableHeadersWithParameters(HttpHeaders.ACCEPT)).get(0);
             final VersionedMapType currentServiceVersion = getServiceVersionForMediaRange(range);
 
             if (currentServiceVersion != null) {
                 final Destination destination = getHostForVersionMapping(currentServiceVersion.getServiceVersionMapping());
-                request.replaceHeader(CommonHttpHeader.ACCEPT, currentServiceVersion.getMediaType().getBase());
+                request.replaceHeader(HttpHeaders.ACCEPT, currentServiceVersion.getMediaType().getBase());
                 targetOriginService = new VersionedOriginService(currentServiceVersion.getServiceVersionMapping(), destination);
             }
         }

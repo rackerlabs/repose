@@ -28,10 +28,11 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequestWrapper, HttpServletResponse, HttpServletResponseWrapper}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
+import javax.ws.rs.core.HttpHeaders
 
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
+import org.apache.http.Header
 import org.apache.http.message.BasicHeader
-import org.apache.http.{Header, HttpHeaders}
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
@@ -913,12 +914,12 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val writeJsonResponse: (HttpServletResponse, String) => Unit = charset match {
         case Some(cs) =>
           (response: HttpServletResponse, content: String) => {
-            response.addHeader(CommonHttpHeader.CONTENT_TYPE, s"application/json; charset=$charsetLabel")
+            response.addHeader(HttpHeaders.CONTENT_TYPE, s"application/json; charset=$charsetLabel")
             response.getOutputStream.write(content.getBytes(cs))
           }
         case None =>
           (response: HttpServletResponse, content: String) => {
-            response.addHeader(CommonHttpHeader.CONTENT_TYPE, "application/json")
+            response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
             response.getOutputStream.print(content)
           }
       }

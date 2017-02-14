@@ -32,6 +32,6 @@ import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 public class CommonHttpHeaderTest {
     @Test
     public void shouldEqualIgnoringCase() {
-        assertThat(CommonHttpHeader.RETRY_AFTER, is(equalToIgnoringCase("retry-after")));
+        assertThat(CommonHttpHeader.X_FORWARDED_FOR, is(equalToIgnoringCase("x-forwarded-for")));
     }
 }

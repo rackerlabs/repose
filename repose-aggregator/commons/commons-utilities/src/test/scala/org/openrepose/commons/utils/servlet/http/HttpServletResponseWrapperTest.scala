@@ -28,7 +28,6 @@ import org.apache.http.client.utils.DateUtils
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mEq, _}
 import org.mockito.Mockito._
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -1634,7 +1633,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
     it("should throw an UnsupportedEncodingException if getCharacterEncoding returns an unsupported encoding") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
 
-      wrappedResponse.setHeader(CommonHttpHeader.CONTENT_TYPE, "foo; charset=bar")
+      wrappedResponse.setHeader(HttpHeaders.CONTENT_TYPE, "foo; charset=bar")
 
       an[UnsupportedEncodingException] should be thrownBy wrappedResponse.getWriter
     }
@@ -1684,7 +1683,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setContentLength(100)
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH) shouldEqual "100"
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_LENGTH) shouldEqual "100"
     }
 
     it("should make the content length header visible by getHeader(s) in READONLY mode") {
@@ -1692,7 +1691,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setContentLength(100)
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH) shouldEqual "100"
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_LENGTH) shouldEqual "100"
     }
 
     it("should make the content length header visible by getHeader(s) in MUTABLE mode") {
@@ -1700,7 +1699,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setContentLength(100)
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH) shouldEqual "100"
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_LENGTH) shouldEqual "100"
     }
 
     it("should not set the Content-Length header if the response has already been committed") {
@@ -1711,7 +1710,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setContentLength(100)
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH) shouldBe null
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_LENGTH) shouldBe null
     }
   }
 
@@ -1737,7 +1736,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setContentType("text/plain")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) shouldEqual "text/plain"
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) shouldEqual "text/plain"
     }
 
     it("should make the content type header visible by getHeader(s) in READONLY mode") {
@@ -1745,7 +1744,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setContentType("text/plain")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) shouldEqual "text/plain"
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) shouldEqual "text/plain"
     }
 
     it("should make the content type header visible by getHeader(s) in MUTABLE mode") {
@@ -1753,7 +1752,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setContentType("text/plain")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) shouldEqual "text/plain"
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) shouldEqual "text/plain"
     }
 
     it("should set the content type with a character encoding if one has been provided") {
@@ -1781,7 +1780,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setContentType("text/plain")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) shouldBe null
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) shouldBe null
     }
   }
 
@@ -1815,7 +1814,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.setContentType("text/plain")
       wrappedResponse.setCharacterEncoding("UTF-8")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) should include("charset=UTF-8")
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) should include("charset=UTF-8")
     }
 
     it("should make the character encoding visible in the Content-Type header in READONLY mode") {
@@ -1824,7 +1823,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.setContentType("text/plain")
       wrappedResponse.setCharacterEncoding("UTF-8")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) should include("charset=UTF-8")
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) should include("charset=UTF-8")
     }
 
     it("should make the character encoding visible in the Content-Type header in MUTABLE mode") {
@@ -1833,7 +1832,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.setContentType("text/plain")
       wrappedResponse.setCharacterEncoding("UTF-8")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) should include("charset=UTF-8")
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) should include("charset=UTF-8")
     }
 
     it("should override an existing character encoding") {
@@ -1843,7 +1842,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.setCharacterEncoding("UTF-16")
       wrappedResponse.setCharacterEncoding("UTF-8")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) should (include("charset=UTF-8") and not include "charset=UTF-16")
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) should (include("charset=UTF-8") and not include "charset=UTF-16")
     }
 
     it("should not modify the Content-Type header if it has not been set") {
@@ -1851,7 +1850,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setCharacterEncoding("UTF-8")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) shouldBe null
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) shouldBe null
     }
 
     it("should not set the character encoding after calling getWriter") {
@@ -1872,7 +1871,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.setCharacterEncoding("text/plain")
 
-      wrappedResponse.getHeader(CommonHttpHeader.CONTENT_TYPE) shouldBe null
+      wrappedResponse.getHeader(HttpHeaders.CONTENT_TYPE) shouldBe null
     }
   }
 
@@ -2058,7 +2057,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.commitToResponse()
 
-      originalResponse.getHeader(CommonHttpHeader.CONTENT_LENGTH) shouldEqual "3"
+      originalResponse.getHeader(HttpHeaders.CONTENT_LENGTH) shouldEqual "3"
     }
 
     it("should mark the wrapped response as committed") {

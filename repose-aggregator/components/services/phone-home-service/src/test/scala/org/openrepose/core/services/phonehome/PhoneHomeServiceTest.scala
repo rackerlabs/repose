@@ -27,13 +27,12 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.hamcrest.{Matcher, Matchers => HMatchers}
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => mockitoEq, _}
 import org.mockito.Mockito.{never, verify, verifyZeroInteractions, when}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar

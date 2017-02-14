@@ -27,6 +27,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.ws.rs.core.HttpHeaders.RETRY_AFTER
 import javax.ws.rs.core.MediaType
 
 import com.fasterxml.jackson.core.JsonParseException
@@ -35,7 +36,6 @@ import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import io.gatling.jsonpath.Parser
-import org.apache.http.HttpHeaders.RETRY_AFTER
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}

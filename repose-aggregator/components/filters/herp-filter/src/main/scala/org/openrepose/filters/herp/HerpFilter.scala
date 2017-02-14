@@ -31,6 +31,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.github.jknack.handlebars.{Handlebars, Helper, Options, Template}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
@@ -143,7 +144,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "defaultProjectId" -> stripHeaderParams(getPreferredHeader(projectIds)),
       "projectID" -> projectIds.map(stripHeaderParams).toArray,
       "roles" -> httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES).asScala.map(stripHeaderParams).toArray,
-      "userAgent" -> httpServletRequest.getHeader(CommonHttpHeader.USER_AGENT),
+      "userAgent" -> httpServletRequest.getHeader(HttpHeaders.USER_AGENT),
       "requestMethod" -> httpServletRequest.getMethod,
       "methodLabel" -> httpServletRequest.getHeader(X_METHOD_LABEL),
       "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,

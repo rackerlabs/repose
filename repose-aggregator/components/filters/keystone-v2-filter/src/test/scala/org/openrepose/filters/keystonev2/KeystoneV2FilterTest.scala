@@ -24,13 +24,13 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterConfig, Servlet, ServletRequest, ServletResponse}
-import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
 import org.apache.commons.codec.binary.Base64
+import org.apache.http.Header
 import org.apache.http.client.utils.DateUtils
 import org.apache.http.message.BasicHeader
-import org.apache.http.{Header, HttpHeaders}
 import org.hamcrest.Matchers.{both, greaterThanOrEqualTo, hasEntry, lessThanOrEqualTo}
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
@@ -346,7 +346,7 @@ with HttpDelegationManager {
       filterChain.getResponse shouldBe null
 
       response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
-      response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
+      response.getHeader(HttpHeaders.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
     }
 
     it("rejects with 403 if no x-auth-token is present") {
@@ -361,7 +361,7 @@ with HttpDelegationManager {
       filterChain.getResponse shouldBe null
 
       response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
-      response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
+      response.getHeader(HttpHeaders.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
     }
 
     it("retries authentication as the admin user if the admin token is not valid") {
@@ -1296,7 +1296,7 @@ with HttpDelegationManager {
       val mockServlet = mock[Servlet]
       doAnswer(new Answer[Unit] {
         override def answer(invocation: InvocationOnMock): Unit = {
-          response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE, "Delegated")
+          response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Delegated")
           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
         }
       }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
@@ -1312,7 +1312,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
-      response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE) should contain("Keystone uri=https://some.identity.com")
+      response.getHeaders(HttpHeaders.WWW_AUTHENTICATE) should contain("Keystone uri=https://some.identity.com")
     }
   }
 
@@ -2380,7 +2380,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
-      response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
+      response.getHeader(HttpHeaders.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null

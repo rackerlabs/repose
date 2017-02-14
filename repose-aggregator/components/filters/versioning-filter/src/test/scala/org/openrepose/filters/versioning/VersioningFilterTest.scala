@@ -23,12 +23,12 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import org.apache.http.HttpHeaders
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.{HealthCheckService, HealthCheckServiceProxy, Severity}
@@ -130,7 +130,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/")
-      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
+      request.addHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -143,7 +143,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/v1")
-      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
+      request.addHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -156,7 +156,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/nothingwerecognize")
-      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
+      request.addHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -169,7 +169,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/v1/somethingelse")
-      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
+      request.addHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -181,7 +181,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/v3/somethingelse")
-      request.addHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString)
+      request.addHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML.toString)
 
       filter.doFilter(request, response, filterChain)
 
@@ -194,11 +194,11 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       versioningListener.configurationUpdated(createDefaultVersioningConfig())
 
       request.setRequestURI("/somethingthere")
-      request.addHeader(CommonHttpHeader.ACCEPT, "application/vnd.vendor.service-v1+xml")
+      request.addHeader(HttpHeaders.ACCEPT, "application/vnd.vendor.service-v1+xml")
 
       filter.doFilter(request, response, filterChain)
 
-      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(CommonHttpHeader.ACCEPT) shouldBe MimeType.APPLICATION_XML.toString
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(HttpHeaders.ACCEPT) shouldBe MimeType.APPLICATION_XML.toString
     }
   }
 

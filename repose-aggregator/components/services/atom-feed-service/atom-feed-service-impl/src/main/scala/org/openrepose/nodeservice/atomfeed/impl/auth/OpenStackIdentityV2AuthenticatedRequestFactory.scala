@@ -23,7 +23,7 @@ import java.util
 import javax.annotation.PreDestroy
 import javax.inject.Inject
 import javax.servlet.http.HttpServletResponse._
-import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -83,7 +83,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomF
     val akkaResponse = Try(akkaServiceClient.post(
       AKKA_HASH_KEY,
       s"$serviceUri$TOKENS_ENDPOINT",
-      Map(CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON,
+      Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON,
         CommonHttpHeader.TRACE_GUID -> tracingHeader).asJava,
       Json.stringify(Json.obj(
         "auth" -> Json.obj(

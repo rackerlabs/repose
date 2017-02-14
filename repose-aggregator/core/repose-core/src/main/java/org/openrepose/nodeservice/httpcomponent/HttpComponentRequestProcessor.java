@@ -25,7 +25,6 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -93,7 +93,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
         // In case the proxy host is running multiple virtual servers,
         // rewrite the Host header to ensure that we get content from
         // the correct virtual server
-        if (rewriteHostHeader && headerName.equalsIgnoreCase(CommonHttpHeader.HOST)) {
+        if (rewriteHostHeader && headerName.equalsIgnoreCase(HttpHeaders.HOST)) {
             result = targetHost.getHost() + ":" + targetHost.getPort();
         }
 

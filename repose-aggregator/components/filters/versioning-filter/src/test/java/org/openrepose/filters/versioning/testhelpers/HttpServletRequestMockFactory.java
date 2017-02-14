@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.versioning.testhelpers;
 
-import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.apache.http.HttpHeaders;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,7 +42,7 @@ public abstract class HttpServletRequestMockFactory {
         temp.append(requestUrl);
         when(httpServletRequest.getRequestURL()).thenReturn(temp);
 
-        when(httpServletRequest.getHeader(CommonHttpHeader.ACCEPT)).thenReturn(acceptHeader);
+        when(httpServletRequest.getHeader(HttpHeaders.ACCEPT)).thenReturn(acceptHeader);
 
         return httpServletRequest;
     }

@@ -19,8 +19,9 @@
  */
 package org.openrepose.filters.urinormalization.normalizer
 
+import javax.ws.rs.core.HttpHeaders
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.urinormalization.config.MediaType
 import org.scalatest.junit.JUnitRunner
@@ -117,26 +118,26 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfterEach with Match
   describe("normalizeContentMediaType") {
     it("should set correct media type when wildcard is provided") {
       val request = new MockHttpServletRequest()
-      request.addHeader(CommonHttpHeader.ACCEPT, "*/*")
+      request.addHeader(HttpHeaders.ACCEPT, "*/*")
       request.setRequestURI("/a/request/uri")
 
       val wrappedRequest = new HttpServletRequestWrapper(request)
 
       val identifiedMediaType = mediaTypeNormalizer.normalizeContentMediaType(wrappedRequest)
 
-      wrappedRequest.getHeader(CommonHttpHeader.ACCEPT) shouldBe "application/xml"
+      wrappedRequest.getHeader(HttpHeaders.ACCEPT) shouldBe "application/xml"
     }
 
     it("should not set media type when accept is provided") {
       val request = new MockHttpServletRequest()
-      request.addHeader(CommonHttpHeader.ACCEPT, "application/json")
+      request.addHeader(HttpHeaders.ACCEPT, "application/json")
       request.setRequestURI("/a/request/uri")
 
       val wrappedRequest = new HttpServletRequestWrapper(request)
 
       val identifiedMediaType = mediaTypeNormalizer.normalizeContentMediaType(wrappedRequest)
 
-      wrappedRequest.getHeader(CommonHttpHeader.ACCEPT) shouldBe "application/json"
+      wrappedRequest.getHeader(HttpHeaders.ACCEPT) shouldBe "application/json"
     }
 
     it("should set proper media type from extension") {
@@ -147,7 +148,7 @@ class MediaTypeNormalizerTest extends FunSpec with BeforeAndAfterEach with Match
 
       val identifiedMediaType = mediaTypeNormalizer.normalizeContentMediaType(wrappedRequest)
 
-      wrappedRequest.getHeader(CommonHttpHeader.ACCEPT) shouldBe "application/xml"
+      wrappedRequest.getHeader(HttpHeaders.ACCEPT) shouldBe "application/xml"
     }
   }
 }

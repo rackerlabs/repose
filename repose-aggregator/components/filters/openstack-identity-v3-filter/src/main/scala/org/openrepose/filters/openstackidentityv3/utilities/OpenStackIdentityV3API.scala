@@ -101,7 +101,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         val requestTracingHeader = tracingHeader
           .map(headerValue => Map(CommonHttpHeader.TRACE_GUID -> headerValue))
           .getOrElse(Map())
-        val headerMap = Map(CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON) ++ requestTracingHeader
+        val headerMap = Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON) ++ requestTracingHeader
         val authTokenResponse = Option(akkaServiceClient.post(
           AdminTokenKey,
           identityServiceUri + TOKEN_ENDPOINT,

@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -112,11 +113,11 @@ public class ServiceClient {
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.putAll(headers);
         String localContentType = contentMediaType.getType() + "/" + contentMediaType.getSubtype();
-        requestHeaders.put(CommonHttpHeader.CONTENT_TYPE, localContentType);
+        requestHeaders.put(HttpHeaders.CONTENT_TYPE, localContentType);
 
         // TODO: Remove setting the accept type to XML by default
-        if (!requestHeaders.containsKey(CommonHttpHeader.ACCEPT)) {
-            requestHeaders.put(CommonHttpHeader.ACCEPT, MediaType.APPLICATION_XML);
+        if (!requestHeaders.containsKey(HttpHeaders.ACCEPT)) {
+            requestHeaders.put(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML);
         }
         setHeaders(post, requestHeaders);
         if (body != null && !body.isEmpty()) {

@@ -25,11 +25,11 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.ws.rs.core.HttpHeaders
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.codec.binary.Base64
-import org.apache.http.HttpHeaders
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
@@ -212,13 +212,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 logger.trace(s"Processing response with status code: $statusCode")
 
                 if (response.getStatus == SC_UNAUTHORIZED) {
-                  response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
+                  response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
                 }
               case None =>
                 logger.debug(s"Rejecting with status $statusCode")
 
                 if (statusCode == SC_UNAUTHORIZED) {
-                  response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
+                  response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
                 }
 
                 message match {

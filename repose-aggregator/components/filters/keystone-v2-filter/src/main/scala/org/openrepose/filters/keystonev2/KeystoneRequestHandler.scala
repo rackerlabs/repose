@@ -22,11 +22,10 @@ package org.openrepose.filters.keystonev2
 import java.io.InputStream
 import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.HttpServletResponse._
-import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.apache.http.HttpHeaders
 import org.apache.http.client.utils.DateUtils
 import org.joda.time.format.ISODateTimeFormat
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
@@ -72,7 +71,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
 
     val akkaResponse = Try(akkaServiceClient.post(ADMIN_TOKEN_KEY,
       s"$identityServiceUri$TOKEN_ENDPOINT",
-      (Map(CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON)
+      (Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
       Json.stringify(authenticationPayload),
       MediaType.APPLICATION_JSON_TYPE,
@@ -149,7 +148,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       s"$TOKEN_KEY_PREFIX$validatableToken",
       s"$identityServiceUri$TOKEN_ENDPOINT/$validatableToken",
       (Map(CommonHttpHeader.AUTH_TOKEN -> validatingToken,
-        CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON)
+        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
       checkCache))
 
@@ -181,7 +180,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
     val akkaResponse = Try(akkaServiceClient.get(s"$ENDPOINTS_KEY_PREFIX$forToken",
       s"$identityServiceUri${ENDPOINTS_ENDPOINT(forToken)}",
       (Map(CommonHttpHeader.AUTH_TOKEN -> authenticatingToken,
-        CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON)
+        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
       checkCache))
 
@@ -201,7 +200,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
     val akkaResponse = Try(akkaServiceClient.get(s"$GROUPS_KEY_PREFIX$forToken",
       s"$identityServiceUri${GROUPS_ENDPOINT(forToken)}",
       (Map(CommonHttpHeader.AUTH_TOKEN -> authenticatingToken,
-        CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON)
+        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
       checkCache))
 

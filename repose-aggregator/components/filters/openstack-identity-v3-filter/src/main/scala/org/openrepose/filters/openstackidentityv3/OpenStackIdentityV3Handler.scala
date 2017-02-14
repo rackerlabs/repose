@@ -367,7 +367,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
     /// The WWW Authenticate header can be used to communicate to the client
     // (since we are a proxy) how to correctly authenticate itself
-    val wwwAuthenticateHeader = Option(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE))
+    val wwwAuthenticateHeader = Option(response.getHeader(HttpHeaders.WWW_AUTHENTICATE))
 
     responseStatus match {
       // NOTE: We should only mutate the WWW-Authenticate header on a
@@ -376,14 +376,14 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         // If in the case that the origin service supports delegated authentication
         // we should then communicate to the client how to authenticate with us
         if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.toLowerCase.contains(OpenStackIdentityV3Headers.X_DELEGATED.toLowerCase)) {
-          val responseAuthHeaderValues = response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE).asScala.toList
+          val responseAuthHeaderValues = response.getHeaders(HttpHeaders.WWW_AUTHENTICATE).asScala.toList
           val valuesWithoutDelegated = responseAuthHeaderValues.filterNot(_.equalsIgnoreCase(OpenStackIdentityV3Headers.X_DELEGATED))
           val valuesWithKeystone = ("Keystone uri=" + identityServiceUri) :: valuesWithoutDelegated
 
           valuesWithKeystone.headOption foreach { headValue =>
-            response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE, headValue)
+            response.setHeader(HttpHeaders.WWW_AUTHENTICATE, headValue)
             valuesWithKeystone.tail foreach { remainingValue =>
-              response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, remainingValue)
+              response.addHeader(HttpHeaders.WWW_AUTHENTICATE, remainingValue)
             }
           }
         } else {

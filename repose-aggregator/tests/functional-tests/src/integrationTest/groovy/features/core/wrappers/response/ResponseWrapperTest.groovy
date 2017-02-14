@@ -20,7 +20,6 @@
 package features.core.wrappers.response
 
 import framework.ReposeValveTest
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.servlet.http.ResponseMode
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -226,8 +225,8 @@ class ResponseWrapperTest extends ReposeValveTest {
         messageChain.receivedResponse.body as String == expectedBody
 
         and: "if we were expecting a body, the content-type should be set"
-        !expectedBody || messageChain.receivedResponse.headers.contains(CommonHttpHeader.CONTENT_TYPE)
-        !expectedBody || messageChain.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        !expectedBody || messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
+        !expectedBody || messageChain.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
 
         where:
         responseCode | expectedBody
@@ -299,8 +298,8 @@ class ResponseWrapperTest extends ReposeValveTest {
 
         and: "the response received by the user should contain the message in the body with the correct content type"
         messageChain.receivedResponse.body as String == REASON_MESSAGE
-        messageChain.receivedResponse.headers.contains(CommonHttpHeader.CONTENT_TYPE)
-        messageChain.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
+        messageChain.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
 
         where:
         [wrapperHeaderMode, wrapperBodyMode] <<
@@ -326,8 +325,8 @@ class ResponseWrapperTest extends ReposeValveTest {
 
         and: "the response received by the user should contain the message in the body with the correct content type"
         messageChain.receivedResponse.body as String == REASON_MESSAGE
-        messageChain.receivedResponse.headers.contains(CommonHttpHeader.CONTENT_TYPE)
-        messageChain.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
+        messageChain.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
 
         where:
         firstFilterTestCase                  | secondFilterTestCase              | responseCode | testDescription

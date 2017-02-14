@@ -20,11 +20,11 @@
 package org.openrepose.nodeservice.response;
 
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.proxy.TargetHostInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -48,7 +48,7 @@ public class LocationHeaderBuilder {
         final String translatedLocationUrl = translateLocationUrl(locationUrl, proxiedHostUrl, requestedHostUrl, requestedContext, rootPath);
 
         if (translatedLocationUrl != null) {
-            servletResponse.setHeader(CommonHttpHeader.LOCATION, translatedLocationUrl);
+            servletResponse.setHeader(HttpHeaders.LOCATION, translatedLocationUrl);
         }
     }
 
@@ -79,7 +79,7 @@ public class LocationHeaderBuilder {
     }
 
     private URL getLocationUrl(HttpServletResponse servletResponse) throws MalformedURLException {
-        String locationHeader = servletResponse.getHeader(CommonHttpHeader.LOCATION);
+        String locationHeader = servletResponse.getHeader(HttpHeaders.LOCATION);
         if (StringUtilities.isNotBlank(locationHeader)) {
             return new URL(locationHeader);
         }

@@ -25,9 +25,9 @@ import java.util
 import java.util.Date
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
+import javax.ws.rs.core.HttpHeaders
 
 import org.apache.http.client.utils.DateUtils
-import org.openrepose.commons.utils.http.CommonHttpHeader
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
@@ -310,13 +310,13 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def setContentLength(contentLength: Int): Unit = {
     if (!isCommitted) {
-      setIntHeader(CommonHttpHeader.CONTENT_LENGTH, contentLength)
+      setIntHeader(HttpHeaders.CONTENT_LENGTH, contentLength)
     }
   }
 
   override def setIntHeader(name: String, value: Int): Unit = setHeader(name, value.toString)
 
-  override def getContentType: String = getHeader(CommonHttpHeader.CONTENT_TYPE)
+  override def getContentType: String = getHeader(HttpHeaders.CONTENT_TYPE)
 
   override def setContentType(contentType: String): Unit = {
     if (!isCommitted) {
@@ -324,7 +324,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       val charEnc = charEncRegex.findFirstMatchIn(contentType).map(_.group(1))
       val modifiedContentType = contentType.replaceAll(""";\s*charset\s*=\s*[^;]+""", "")
 
-      setHeader(CommonHttpHeader.CONTENT_TYPE, modifiedContentType)
+      setHeader(HttpHeaders.CONTENT_TYPE, modifiedContentType)
       charEnc.foreach(setCharacterEncoding)
     }
   }
@@ -339,9 +339,9 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
         throw new UnsupportedEncodingException("setCharacterEncoding: " + charEncoding + " is not a supported encoding")
       } else {
         characterEncoding = charEncoding
-        Option(getHeader(CommonHttpHeader.CONTENT_TYPE))
+        Option(getHeader(HttpHeaders.CONTENT_TYPE))
           .map(_.replaceAll(""";\s*charset\s*=\s*[^;]+""", "")) // Strip out the current character encoding
-          .foreach(contentType => setHeader(CommonHttpHeader.CONTENT_TYPE, contentType + ";charset=" + charEncoding))
+          .foreach(contentType => setHeader(HttpHeaders.CONTENT_TYPE, contentType + ";charset=" + charEncoding))
       }
     }
   }
@@ -386,7 +386,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
   override def getCharacterEncoding: String = {
-    Option(getHeader(CommonHttpHeader.CONTENT_TYPE)) flatMap { contentType =>
+    Option(getHeader(HttpHeaders.CONTENT_TYPE)) flatMap { contentType =>
       val charEncRegex = """;\s*charset\s*=\s*([^;]+)""".r
       charEncRegex.findFirstMatchIn(contentType).map(_.group(1))
     } getOrElse characterEncoding

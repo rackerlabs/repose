@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.ratelimiting;
 
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
@@ -39,6 +38,7 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -74,7 +74,7 @@ public class RateLimitingHandler {
     public FilterAction handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         FilterAction filterAction;
 
-        List<String> headerValues = request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT);
+        List<String> headerValues = request.getPreferredSplittableHeaders(HttpHeaders.ACCEPT);
         List<MimeType> mimeTypes = MediaRangeProcessor.getMimeTypesFromHeaderValues(headerValues);
         if (mimeTypes.isEmpty()) {
             mimeTypes.add(DEFAULT_MIME_TYPE);
@@ -117,7 +117,7 @@ public class RateLimitingHandler {
             // (absolute and active) limits when processing the response
             // TODO: A way to query global rate limits
             if (includeAbsoluteLimits) {
-                request.replaceHeader(CommonHttpHeader.ACCEPT, MimeType.APPLICATION_XML.toString());
+                request.replaceHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML.toString());
                 return FilterAction.PROCESS_RESPONSE;
             } else {
                 return noUpstreamResponse(request, response);
@@ -161,7 +161,7 @@ public class RateLimitingHandler {
                 response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
             }
 
-            response.addHeader(CommonHttpHeader.RETRY_AFTER, nextAvailableTime.toRFC1123());
+            response.addHeader(HttpHeaders.RETRY_AFTER, nextAvailableTime.toRFC1123());
             eventService.newEvent(RateLimitFilterEvent.OVER_LIMIT, new OverLimitData(e, datastoreWarnLimit, request, response.getStatus()));
         } catch (CacheException e) {
             LOG.error("Failure when tracking limits.", e);

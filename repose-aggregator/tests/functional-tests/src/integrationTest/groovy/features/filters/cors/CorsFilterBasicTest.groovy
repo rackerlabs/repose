@@ -29,6 +29,7 @@ import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
+import javax.ws.rs.core.HttpHeaders
 
 class CorsFilterBasicTest extends ReposeValveTest {
 
@@ -44,7 +45,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
             CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS,
             CommonHttpHeader.SERVER,
             CommonHttpHeader.TRACE_GUID,
-            CommonHttpHeader.VARY,
+            HttpHeaders.VARY,
             CommonHttpHeader.VIA]*.toLowerCase()
 
     def setupSpec() {

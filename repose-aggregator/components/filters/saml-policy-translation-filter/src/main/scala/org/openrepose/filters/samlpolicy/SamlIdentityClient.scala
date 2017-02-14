@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
 import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletResponse.{SC_OK, SC_REQUEST_ENTITY_TOO_LARGE, SC_UNAUTHORIZED}
-import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
@@ -101,7 +101,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     val akkaResponse = Try(tokenServiceClient.akkaServiceClient.post(
       TokenRequestKey,
       s"$tokenUri$TokenPath",
-      (Map(CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON)
+      (Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
       Json.stringify(authenticationPayload),
       MediaType.APPLICATION_JSON_TYPE
@@ -113,7 +113,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
           case SC_OK =>
             Try {
               val responseEncoding = serviceClientResponse.getHeaders
-                .find(hdr => CommonHttpHeader.CONTENT_TYPE.matches(hdr.getName))
+                .find(hdr => HttpHeaders.CONTENT_TYPE.matches(hdr.getName))
                 .map(_.getElements.head.getParameterByName("charset"))
                 .flatMap(Option.apply)
                 .map(_.getValue)
@@ -148,7 +148,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
       IdpRequestKey(issuer),
       s"$policyUri${IdpPath(issuer)}",
       (Map(
-        CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON,
+        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON,
         CommonHttpHeader.AUTH_TOKEN -> token
       ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
       checkCache
@@ -160,7 +160,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
           case SC_OK =>
             Try {
               val responseEncoding = serviceClientResponse.getHeaders
-                .find(hdr => CommonHttpHeader.CONTENT_TYPE.matches(hdr.getName))
+                .find(hdr => HttpHeaders.CONTENT_TYPE.matches(hdr.getName))
                 .map(_.getElements.head.getParameterByName("charset"))
                 .flatMap(Option.apply)
                 .map(_.getValue)
@@ -200,7 +200,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
       PolicyRequestKey(idpId),
       s"$policyUri${PolicyPath(idpId)}",
       (Map(
-        CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON,
+        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON,
         CommonHttpHeader.AUTH_TOKEN -> token
       ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
       checkCache
@@ -212,7 +212,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
           case SC_OK =>
             Try {
               val responseEncoding = serviceClientResponse.getHeaders
-                .find(hdr => CommonHttpHeader.CONTENT_TYPE.matches(hdr.getName))
+                .find(hdr => HttpHeaders.CONTENT_TYPE.matches(hdr.getName))
                 .map(_.getElements.head.getParameterByName("charset"))
                 .flatMap(Option.apply)
                 .map(_.getValue)
@@ -249,7 +249,7 @@ object SamlIdentityClient {
 
   def buildRetryValue(response: ServiceClientResponse): String = {
     response.getHeaders
-      .find(hdr => CommonHttpHeader.RETRY_AFTER.matches(hdr.getName))
+      .find(hdr => HttpHeaders.RETRY_AFTER.matches(hdr.getName))
       .map(_.getValue)
       .getOrElse(DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneId.of("GMT")).plusSeconds(5)))
   }

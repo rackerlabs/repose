@@ -21,7 +21,6 @@ package org.openrepose.core.services.rms;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueParser;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
@@ -44,6 +43,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -182,7 +182,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     private void overwriteResponseBody(HttpServletResponse response, final String formattedOutput, String contentType) throws IOException {
         response.resetBuffer();
-        response.setHeader(CommonHttpHeader.CONTENT_TYPE, contentType);
+        response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
         response.setContentLength(formattedOutput.length());
 
         // TODO:Enhancement - Update formatter logic for streaming

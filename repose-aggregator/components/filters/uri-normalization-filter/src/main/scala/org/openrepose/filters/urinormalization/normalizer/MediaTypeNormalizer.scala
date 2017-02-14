@@ -20,9 +20,9 @@
 package org.openrepose.filters.urinormalization.normalizer
 
 import java.util.regex.Pattern
+import javax.ws.rs.core.HttpHeaders
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.urinormalization.config.MediaType
@@ -43,7 +43,7 @@ class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogg
 
   def normalizeContentMediaType(request: HttpServletRequestWrapper): Unit = {
     configuredPreferredMediaType foreach { mediaType =>
-      val acceptHeader = Option(request.getHeader(CommonHttpHeader.ACCEPT))
+      val acceptHeader = Option(request.getHeader(HttpHeaders.ACCEPT))
 
       getMediaTypeForVariant(request) orElse {
         if (acceptHeader.isEmpty || (MimeType.getMatchingMimeType(acceptHeader.get) == MimeType.WILDCARD)) {
@@ -52,7 +52,7 @@ class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogg
           None
         }
       } foreach { mt =>
-        request.replaceHeader(CommonHttpHeader.ACCEPT, mt.getName)
+        request.replaceHeader(HttpHeaders.ACCEPT, mt.getName)
       }
     }
   }

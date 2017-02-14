@@ -20,12 +20,12 @@
 package org.openrepose.commons.utils.logging.apache.format.stock;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.logging.apache.format.FormatterLogic;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 
 public class ResponseBytesHandler implements FormatterLogic {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ResponseBytesHandler.class);
@@ -33,7 +33,7 @@ public class ResponseBytesHandler implements FormatterLogic {
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
         String contentLength = "-1";
-        String contentLengthHeader = response.getHeader(CommonHttpHeader.CONTENT_LENGTH);
+        String contentLengthHeader = response.getHeader(HttpHeaders.CONTENT_LENGTH);
 
         if (StringUtils.isNotBlank(contentLengthHeader)) {
             try {

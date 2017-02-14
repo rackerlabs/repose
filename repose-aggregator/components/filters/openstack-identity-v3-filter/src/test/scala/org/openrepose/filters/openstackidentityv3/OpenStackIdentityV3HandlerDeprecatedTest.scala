@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mockitoEq}
 import org.mockito.Mockito.{verify, when}
-import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, OpenStackServiceHeader}
+import org.openrepose.commons.utils.http.{HttpDate, OpenStackServiceHeader}
 import org.openrepose.commons.utils.servlet.filter.FilterAction
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config.SendProjectIdQuality
@@ -393,7 +393,7 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
       ) foreach { parameterMap =>
         mockServletResponse.setStatus(parameterMap(responseStatus).asInstanceOf[Integer])
         if (parameterMap.get(responseWwwAuthenticate).isDefined) {
-          mockServletResponse.addHeader(CommonHttpHeader.WWW_AUTHENTICATE, parameterMap(responseWwwAuthenticate).asInstanceOf[String])
+          mockServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, parameterMap(responseWwwAuthenticate).asInstanceOf[String])
         }
 
         val filterAction = identityV3Handler.handleResponse(mockServletResponse)
@@ -401,7 +401,7 @@ class OpenStackIdentityV3HandlerDeprecatedTest extends FunSpec with BeforeAndAft
         filterAction should not be FilterAction.NOT_SET
         mockServletResponse.getStatus shouldBe parameterMap(resultStatus)
         if (parameterMap.get(resultWwwAuthenticate).isDefined) {
-          mockServletResponse.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE) should contain(parameterMap(resultWwwAuthenticate))
+          mockServletResponse.getHeaders(HttpHeaders.WWW_AUTHENTICATE) should contain(parameterMap(resultWwwAuthenticate))
         }
       }
     }
