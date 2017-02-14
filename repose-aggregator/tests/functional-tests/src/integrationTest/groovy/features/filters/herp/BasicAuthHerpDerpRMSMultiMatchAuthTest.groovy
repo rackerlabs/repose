@@ -87,7 +87,7 @@ class BasicAuthHerpDerpRMSMultiMatchAuthTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token and validate it"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_UNAUTHORIZED
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }

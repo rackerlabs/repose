@@ -85,7 +85,7 @@ class BasicAuthAkkatimeoutUsingPoolNotExistTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "Request should be passed from repose"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
