@@ -25,6 +25,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
+import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.core.MediaType
 
 class ResponseWrapperTest extends ReposeValveTest {
