@@ -1,4 +1,7 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.ajoberstar.grgit.Grgit
+
 import java.text.SimpleDateFormat
 
 apply plugin: 'org.asciidoctor.convert'
@@ -48,16 +51,34 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
             dir: workingDir,
     )
 
-    //add to versions list
-    def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.html")
-    def versions = versionsFile.readLines()
+    // Amend the versions list
+    def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.json")
+    def versionsJson = new JsonSlurper().parse(versionsFile)
+    def modifiedVersions = versionsJson.versions.collect { new Version(id: it.id, released: it.released) }
+    def newVersionIndex = modifiedVersions.findIndexOf { compareVersions(String.valueOf(version), it.id) > 0 }
     def date = new SimpleDateFormat('yyyy-MM-dd').format(new Date())
-    versions.add(0, """<li><a href="./versions/$version/index.html">v$version - $date</a></li>""")
-    def writer = new PrintWriter(versionsFile.newWriter())
-    versions.each {
-        writer.println(it)
+    newVersionIndex = newVersionIndex == -1 ? modifiedVersions.size() : newVersionIndex
+    modifiedVersions.add(newVersionIndex, new Version(id: String.valueOf(version), released: date))
+
+    // Write the versions list as JSON
+    def jsonWriter = new PrintWriter(versionsFile.newWriter())
+    jsonWriter.println(JsonOutput.prettyPrint(JsonOutput.toJson(versions: modifiedVersions)))
+    jsonWriter.close()
+
+    // Write the versions includes file
+    def includesWriter = new PrintWriter(project.file("${project.buildDir}/gh-pages/_includes/versions.html"))
+    includesWriter.println("""<li><a href="./versions/latest/index.html">Latest</a></li>""")
+    modifiedVersions.forEach { Version v ->
+        includesWriter.println("""<li><a href="./versions/${v.id}/index.html">v${v.id} - ${v.released}</a></li>""")
     }
-    writer.close()
+    includesWriter.println("""<li><a href="http://wiki.openrepose.org">Legacy Wiki Docs</a></li>""")
+    includesWriter.close()
+
+    // Update the latest link, if applicable
+    def latestLinkFile = project.file("${project.buildDir}/gh-pages/versions/latest")
+    if (newVersionIndex == 0) {
+        ['ln', '-s', '-f', String.valueOf(version), latestLinkFile.absolutePath].execute().waitFor()
+    }
 
     copy {
         from "${asciidoctor.outputDir}/html5"
@@ -75,3 +96,39 @@ project.tasks.getByPath(':release').dependsOn publishDocs
 
 asciidoctor.dependsOn copyXsds
 build.dependsOn asciidoctor
+
+/**
+ * @return -1 if v1 is a lower version than v2, 0 if they are equal, and 1 if v1 is a greater version than v2
+ */
+int compareVersions(String v1, String v2) {
+    List<String> v1Parts = v1.tokenize('.')
+    List<String> v2Parts = v2.tokenize('.')
+
+    int minLen = Math.min(v1Parts.size(), v2Parts.size())
+
+    // Compare each number from the versions until either the numbers do not match,
+    // or the end of a version string is hit.
+    for (int i = 0; i < minLen; ++i) {
+        int n1 = v1Parts[i] as int
+        int n2 = v2Parts[i] as int
+
+        if (n1 != n2) {
+            return n1 <=> n2
+        }
+    }
+
+    // If we got this far, then one version is a substring of the other.
+    // Therefore, whichever version is longer is the greater version.
+    return v1Parts.size() <=> v2Parts.size()
+}
+
+boolean isLatestVersion(String version, List<String> otherVersions) {
+    return !otherVersions.any {
+        it.length() > 0 && it.charAt(0).isDigit() && compareVersions(version, it) < 0
+    }
+}
+
+class Version {
+    String id
+    String released
+}
