@@ -22,7 +22,7 @@ package org.openrepose.filters.openstackidentityv3.utilities
 import java.io.{InputStream, Serializable}
 import java.util.concurrent.TimeUnit
 import java.util.{Calendar, GregorianCalendar}
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.MediaType
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
@@ -113,7 +113,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         // Since we *might* get a null back from the akka service client, we have to map it, and then match
         // because we care to match on the status code of the response, if anything was set.
         authTokenResponse map (response => response.getStatus) match {
-          case Some(statusCode) if statusCode == HttpServletResponse.SC_CREATED =>
+          case Some(statusCode) if statusCode == SC_CREATED =>
             val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) =>
               header.getName.equalsIgnoreCase(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
 
@@ -132,7 +132,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 logger.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
                 Failure(new IdentityServiceException("OpenStack Identity service did not return headers with a successful response"))
             }
-          case Some(statusCode) if statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE || statusCode == SC_TOO_MANY_REQUESTS =>
+          case Some(statusCode) if statusCode == SC_REQUEST_ENTITY_TOO_LARGE || statusCode == SC_TOO_MANY_REQUESTS =>
             logger.error(s"Unable to get admin token. OpenStack Identity service returned an Over Limit response status code. Response Code: $statusCode")
             Failure(buildIdentityServiceOverLimitException(authTokenResponse.get))
           case Some(statusCode) =>
@@ -169,7 +169,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             // Since we *might* get a null back from the akka service client, we have to map it, and then match
             // because we care to match on the status code of the response, if anything was set.
             validateTokenResponse.map(response => response.getStatus) match {
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_OK =>
+              case Some(statusCode) if statusCode == SC_OK =>
                 val json = Json.parse(inputStreamToString(validateTokenResponse.get.getData))
 
                 val subjectTokenObject = ValidToken(
@@ -207,16 +207,16 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 datastore.put(getTokenKey(subjectToken), subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
                 Success(subjectTokenObject)
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_NOT_FOUND =>
+              case Some(statusCode) if statusCode == SC_NOT_FOUND =>
                 logger.error("Subject token validation failed. Response Code: 404")
                 Failure(new InvalidSubjectTokenException("Failed to validate subject token"))
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && checkCache =>
+              case Some(statusCode) if statusCode == SC_UNAUTHORIZED && checkCache =>
                 logger.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
                 validateToken(subjectToken, tracingHeader, checkCache = false)
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && !checkCache =>
+              case Some(statusCode) if statusCode == SC_UNAUTHORIZED && !checkCache =>
                 logger.error(s"Retry after fetching a new admin token failed. Aborting subject token validation for: '$subjectToken'")
                 Failure(new IdentityServiceException("Valid admin token could not be fetched"))
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE || statusCode == SC_TOO_MANY_REQUESTS =>
+              case Some(statusCode) if statusCode == SC_REQUEST_ENTITY_TOO_LARGE || statusCode == SC_TOO_MANY_REQUESTS =>
                 logger.error(s"OpenStack Identity service returned an Over Limit response status code. Response Code: $statusCode")
                 Failure(buildIdentityServiceOverLimitException(validateTokenResponse.get))
               case Some(statusCode) =>
@@ -254,7 +254,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             // Since we *might* get a null back from the akka service client, we have to map it, and then match
             // because we care to match on the status code of the response, if anything was set.
             groupsResponse.map(response => response.getStatus) match {
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_OK =>
+              case Some(statusCode) if statusCode == SC_OK =>
                 val json = Json.parse(inputStreamToString(groupsResponse.get.getData))
                 val groups = (json \ "groups" \\ "name").map(_.as[String]).toList
                 val offsetConfiguredTtl = offsetTtl(groupsCacheTtl, cacheOffset)
@@ -269,16 +269,16 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 datastore.put(getGroupsKey(subjectToken), groups.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
 
                 Success(groups)
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_NOT_FOUND =>
+              case Some(statusCode) if statusCode == SC_NOT_FOUND =>
                 logger.error("Groups for '" + userId + "' not found. Response Code: 404")
                 Failure(new InvalidUserForGroupsException("Failed to fetch groups"))
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && checkCache =>
+              case Some(statusCode) if statusCode == SC_UNAUTHORIZED && checkCache =>
                 logger.error("Request made with an expired admin token. Fetching a fresh admin token and retrying groups retrieval. Response Code: 401")
                 getGroups(userId, subjectToken, tracingHeader, checkCache = false)
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_UNAUTHORIZED && !checkCache =>
+              case Some(statusCode) if statusCode == SC_UNAUTHORIZED && !checkCache =>
                 logger.error(s"Retry after fetching a new admin token failed. Aborting groups retrieval for: '$userId'")
                 Failure(new IdentityServiceException("Valid admin token could not be fetched"))
-              case Some(statusCode) if statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE || statusCode == SC_TOO_MANY_REQUESTS =>
+              case Some(statusCode) if statusCode == SC_REQUEST_ENTITY_TOO_LARGE || statusCode == SC_TOO_MANY_REQUESTS =>
                 logger.error(s"OpenStack Identity service returned an Over Limit response status code. Response Code: $statusCode")
                 Failure(buildIdentityServiceOverLimitException(groupsResponse.get))
               case Some(statusCode) =>

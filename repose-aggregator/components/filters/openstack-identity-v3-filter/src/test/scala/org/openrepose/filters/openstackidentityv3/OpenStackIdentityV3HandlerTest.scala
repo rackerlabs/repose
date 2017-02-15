@@ -20,7 +20,7 @@
 package org.openrepose.filters.openstackidentityv3
 
 import java.util.{Calendar, GregorianCalendar}
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpServletResponse._
 
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mockitoEq}
@@ -106,7 +106,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       val mockResponse = new MockHttpServletResponse()
 
       identityV3Handler.handleRequest(new HttpServletRequestWrapper(mockRequest), mockResponse) shouldBe FilterAction.RETURN
-      mockResponse.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      mockResponse.getStatus shouldBe SC_UNAUTHORIZED
     }
 
     it("should add the X-Default-Region if rax_default_region is available for the user") {
@@ -328,9 +328,9 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       wrappedRequest.getHeadersScala("X-Project-Id") should contain only("ProjectIdFromProject", "ProjectIdFromRoles", "RaxExtensionProjectId")
     }
 
-    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, SC_TOO_MANY_REQUESTS)
+    val statusCodes = List(SC_REQUEST_ENTITY_TOO_LARGE, SC_TOO_MANY_REQUESTS)
     statusCodes.foreach { statusCode =>
-      it(s"should return a ${HttpServletResponse.SC_SERVICE_UNAVAILABLE} when receiving $statusCode from the OpenStack Identity service") {
+      it(s"should return a ${SC_SERVICE_UNAVAILABLE} when receiving $statusCode from the OpenStack Identity service") {
         val retryCalendar = new GregorianCalendar()
         retryCalendar.add(Calendar.SECOND, 5)
         val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
@@ -344,7 +344,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
         identityConfig.setValidateProjectIdInUri(null)
         identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
         identityV3Handler.handleRequest(wrappedRequest, mockResponse)
-        mockResponse.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        mockResponse.getStatus shouldBe SC_SERVICE_UNAVAILABLE
         mockResponse.getHeaders(HttpHeaders.RETRY_AFTER) should contain only retryString
       }
     }
@@ -362,33 +362,33 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
       List(
         Map(
-          responseStatus -> HttpServletResponse.SC_OK,
-          resultStatus -> HttpServletResponse.SC_OK
+          responseStatus -> SC_OK,
+          resultStatus -> SC_OK
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_FORBIDDEN,
+          responseStatus -> SC_FORBIDDEN,
           responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
-          resultStatus -> HttpServletResponse.SC_FORBIDDEN,
+          resultStatus -> SC_FORBIDDEN,
           resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_UNAUTHORIZED,
+          responseStatus -> SC_UNAUTHORIZED,
           responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
-          resultStatus -> HttpServletResponse.SC_FORBIDDEN,
+          resultStatus -> SC_FORBIDDEN,
           resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_UNAUTHORIZED,
-          resultStatus -> HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+          responseStatus -> SC_UNAUTHORIZED,
+          resultStatus -> SC_INTERNAL_SERVER_ERROR
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED,
+          responseStatus -> SC_NOT_IMPLEMENTED,
           responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
-          resultStatus -> HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+          resultStatus -> SC_INTERNAL_SERVER_ERROR
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED,
-          resultStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED
+          responseStatus -> SC_NOT_IMPLEMENTED,
+          resultStatus -> SC_NOT_IMPLEMENTED
         )
       ) foreach { parameterMap =>
         mockServletResponse.setStatus(parameterMap(responseStatus).asInstanceOf[Integer])

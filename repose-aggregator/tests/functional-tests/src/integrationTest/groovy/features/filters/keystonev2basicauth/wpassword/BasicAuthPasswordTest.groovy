@@ -27,8 +27,9 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
+
+import static javax.servlet.http.HttpServletResponse.*
 
 /**
  * Created by jennyvo on 1/15/16.
@@ -78,7 +79,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token for it"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -101,7 +102,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401) and add an HTTP Basic authentication header"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_UNAUTHORIZED
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
         mc.orphanedHandlings.size() == 0
@@ -115,7 +116,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "then get a token and validate it"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
         !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
@@ -132,7 +133,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token and validate it"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_UNAUTHORIZED
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
@@ -148,7 +149,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 400 bad request"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_UNAUTHORIZED
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
@@ -165,7 +166,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 401 Unauthorized"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_UNAUTHORIZED
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
@@ -181,7 +182,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 401 Unauthorized"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_UNAUTHORIZED
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
@@ -196,7 +197,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 403 Forbidden"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_FORBIDDEN
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
         mc.handlings.size() == 0
         !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
@@ -211,7 +212,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 401 Unauthorized"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_UNAUTHORIZED
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
@@ -239,16 +240,16 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        reqTenant | identityStatusCode                           | filterStatusCode
-        9400      | HttpServletResponse.SC_BAD_REQUEST           | HttpServletResponse.SC_UNAUTHORIZED
-        9401      | HttpServletResponse.SC_UNAUTHORIZED          | HttpServletResponse.SC_UNAUTHORIZED
-        9403      | HttpServletResponse.SC_FORBIDDEN             | HttpServletResponse.SC_FORBIDDEN
-        9404      | HttpServletResponse.SC_NOT_FOUND             | HttpServletResponse.SC_UNAUTHORIZED
-        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9502      | HttpServletResponse.SC_BAD_GATEWAY           | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE   | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        reqTenant | identityStatusCode       | filterStatusCode
+        9400      | SC_BAD_REQUEST           | SC_UNAUTHORIZED
+        9401      | SC_UNAUTHORIZED          | SC_UNAUTHORIZED
+        9403      | SC_FORBIDDEN             | SC_FORBIDDEN
+        9404      | SC_NOT_FOUND             | SC_UNAUTHORIZED
+        9500      | SC_INTERNAL_SERVER_ERROR | SC_INTERNAL_SERVER_ERROR
+        9501      | SC_NOT_IMPLEMENTED       | SC_INTERNAL_SERVER_ERROR
+        9502      | SC_BAD_GATEWAY           | SC_INTERNAL_SERVER_ERROR
+        9503      | SC_SERVICE_UNAVAILABLE   | SC_INTERNAL_SERVER_ERROR
+        9504      | SC_GATEWAY_TIMEOUT       | SC_INTERNAL_SERVER_ERROR
     }
 
     def "When the request does have an x-auth-token, then still work with client-auth"() {
@@ -259,7 +260,7 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token and validate it"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
         !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)

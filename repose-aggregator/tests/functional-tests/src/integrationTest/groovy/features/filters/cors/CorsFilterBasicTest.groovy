@@ -28,8 +28,10 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
+
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
+import static javax.servlet.http.HttpServletResponse.SC_OK
 
 class CorsFilterBasicTest extends ReposeValveTest {
 
@@ -69,7 +71,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then: "the response status is OK"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request makes it to the origin service"
         mc.getHandlings().size() == 1
@@ -97,7 +99,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + '/testoptions', method: 'OPTIONS', headers: headers)
 
         then: "the response status is OK"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request makes it to the origin service"
         mc.getHandlings().size() == 1
@@ -126,7 +128,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then: "the response status is OK"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().isEmpty()
@@ -161,7 +163,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then: "the response status is Forbidden"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_FORBIDDEN
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().isEmpty()
@@ -189,7 +191,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
 
         then: "the response status is Forbidden"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_FORBIDDEN
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().isEmpty()
@@ -220,7 +222,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then: "the response status is OK"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().isEmpty()
@@ -258,7 +260,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then: "the response status is OK"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().isEmpty()
@@ -298,7 +300,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers, defaultHandler: handler)
 
         then: "the response status is OK"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request makes it to the origin service"
         mc.getHandlings().size() == 1
@@ -338,7 +340,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
 
         then: "the response status is OK"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request makes it to the origin service"
         mc.getHandlings().size() == 1
@@ -372,7 +374,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then: "the response status is Forbidden"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_FORBIDDEN
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().isEmpty()
@@ -408,7 +410,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
 
         then: "the response status is Forbidden"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_FORBIDDEN
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().isEmpty()
@@ -450,7 +452,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then: "the response status is OK"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().isEmpty()
@@ -493,7 +495,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'OPTIONS', headers: headers)
 
         then: "the response status is OK"
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
+        mc.receivedResponse.code as Integer == SC_OK
 
         and: "the request does not make it to the origin service"
         mc.getHandlings().isEmpty()

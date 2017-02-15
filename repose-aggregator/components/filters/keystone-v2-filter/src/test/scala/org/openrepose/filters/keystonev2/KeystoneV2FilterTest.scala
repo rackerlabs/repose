@@ -22,6 +22,7 @@ package org.openrepose.filters.keystonev2
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URL
 import java.util.concurrent.TimeUnit
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterConfig, Servlet, ServletRequest, ServletResponse}
 import javax.ws.rs.core.{HttpHeaders, MediaType}
@@ -94,7 +95,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain
       filter.isInitialized shouldBe false
       filter.doFilter(request, response, filterChain)
-      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
     }
 
     it("should subscribe a listener to the configuration service on init") {
@@ -215,9 +216,9 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -244,7 +245,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaClient.get(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -264,9 +265,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -287,9 +288,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(expires = dateTime)))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse(expires = dateTime)))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -334,9 +335,9 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, "notValidToken")
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"${TOKEN_KEY_PREFIX}notValidToken"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, ""))
+        .thenReturn(new ServiceClientResponse(SC_NOT_FOUND, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -345,7 +346,7 @@ with HttpDelegationManager {
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
 
-      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe SC_UNAUTHORIZED
       response.getHeader(HttpHeaders.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
     }
 
@@ -360,7 +361,7 @@ with HttpDelegationManager {
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
 
-      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe SC_UNAUTHORIZED
       response.getHeader(HttpHeaders.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
     }
 
@@ -371,13 +372,13 @@ with HttpDelegationManager {
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
         .thenReturn(
-          new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()),
-          new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse(token = "morty"))
+          new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()),
+          new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse(token = "morty"))
         )
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""))
+        .thenReturn(new ServiceClientResponse(SC_UNAUTHORIZED, ""))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "morty")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -393,15 +394,15 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""))
+        .thenReturn(new ServiceClientResponse(SC_UNAUTHORIZED, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -413,15 +414,15 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, ""))
+        .thenReturn(new ServiceClientResponse(SC_FORBIDDEN, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -439,7 +440,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -451,7 +452,7 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
         .thenThrow(new AkkaServiceClientException("Unable to talk to identity!", null))
 
@@ -459,7 +460,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -472,13 +473,13 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
+        .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
       filterChain.getRequest shouldBe null
@@ -498,7 +499,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
       filterChain.getRequest shouldBe null
@@ -511,7 +512,7 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseAuthenticatedBy()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseAuthenticatedBy()))
 
       val response = new MockHttpServletResponse()
       val filterChain = new MockFilterChain()
@@ -528,7 +529,7 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods)))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods)))
 
       val response = new MockHttpServletResponse()
       val filterChain = new MockFilterChain()
@@ -545,7 +546,7 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods)))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods)))
 
       val response = new MockHttpServletResponse()
       val filterChain = new MockFilterChain()
@@ -591,9 +592,9 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, endpointsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -627,9 +628,9 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, endpointsResponse()))
 
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
@@ -653,7 +654,7 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NON_AUTHORITATIVE_INFORMATION, endpointsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_NON_AUTHORITATIVE_INFORMATION, endpointsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -676,7 +677,7 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(), Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, ""))
+        .thenReturn(new ServiceClientResponse(SC_FORBIDDEN, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -685,7 +686,7 @@ with HttpDelegationManager {
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
     }
 
     it("handles 401 response from endpoints call") {
@@ -701,14 +702,14 @@ with HttpDelegationManager {
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
         .thenReturn(
-          new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, endpointsResponse()),
-          new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""))
+          new ServiceClientResponse(SC_UNAUTHORIZED, endpointsResponse()),
+          new ServiceClientResponse(SC_UNAUTHORIZED, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
     }
 
     it("handles akka service client call failing") {
@@ -732,7 +733,7 @@ with HttpDelegationManager {
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
     }
 
     it("handles unexpected response from endpoints call") {
@@ -747,7 +748,7 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(), Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NOT_IMPLEMENTED, ""))
+        .thenReturn(new ServiceClientResponse(SC_NOT_IMPLEMENTED, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -756,7 +757,7 @@ with HttpDelegationManager {
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
 
-      response.getStatus shouldBe HttpServletResponse.SC_BAD_GATEWAY
+      response.getStatus shouldBe SC_BAD_GATEWAY
     }
 
     it("rejects with 403 if the user does not have the required endpoint") {
@@ -770,13 +771,13 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(TestValidToken(), Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, oneEndpointResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, oneEndpointResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_FORBIDDEN
+      response.getStatus shouldBe SC_FORBIDDEN
       //Continues with the chain
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -791,9 +792,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateRackerTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateRackerTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, oneEndpointResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, oneEndpointResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -820,14 +821,14 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(), Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, ""))
+        .thenReturn(new ServiceClientResponse(SC_NOT_FOUND, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
 
-      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe SC_UNAUTHORIZED
       //Continues with the chain
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -843,7 +844,7 @@ with HttpDelegationManager {
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-          .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+          .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
 
         val endpointsList = Vector(Endpoint(Some("DERP"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", endpointsList), Nil: _*)
@@ -852,7 +853,7 @@ with HttpDelegationManager {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        response.getStatus shouldBe HttpServletResponse.SC_FORBIDDEN
+        response.getStatus shouldBe SC_FORBIDDEN
         filterChain.getRequest shouldBe null
         filterChain.getResponse shouldBe null
       }
@@ -866,7 +867,7 @@ with HttpDelegationManager {
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-          .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+          .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
 
         val endpointsList = Vector(Endpoint(Some("Global"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", endpointsList), Nil: _*)
@@ -888,7 +889,7 @@ with HttpDelegationManager {
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-          .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateRackerTokenResponse()))
+          .thenReturn(new ServiceClientResponse(SC_OK, validateRackerTokenResponse()))
 
         val endpointsList = Vector(Endpoint(Some("DERP"), Some("LOLNOPE"), Some("compute"), "https://compute.north.public.com/v1"))
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", endpointsList), Nil: _*)
@@ -910,7 +911,7 @@ with HttpDelegationManager {
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-          .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
+          .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
 
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty), Nil: _*)
 
@@ -918,7 +919,7 @@ with HttpDelegationManager {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
         response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
         filterChain.getRequest shouldBe null
@@ -942,7 +943,7 @@ with HttpDelegationManager {
         val filterChain = new MockFilterChain()
         filter.doFilter(request, response, filterChain)
 
-        response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
         response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
         filterChain.getRequest shouldBe null
@@ -978,7 +979,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
 
       val groupsList = Vector("DERP")
       when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(groupsList, Nil: _*)
@@ -1010,7 +1011,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       filterChain.getRequest shouldBe null
     }
 
@@ -1027,14 +1028,14 @@ with HttpDelegationManager {
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
         .thenReturn(
-          new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
-          new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""))
+          new ServiceClientResponse(SC_UNAUTHORIZED, ""),
+          new ServiceClientResponse(SC_UNAUTHORIZED, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       filterChain.getRequest shouldBe null
     }
 
@@ -1050,13 +1051,13 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(userId = VALID_USER_ID), Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_FORBIDDEN, ""))
+        .thenReturn(new ServiceClientResponse(SC_FORBIDDEN, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       filterChain.getRequest shouldBe null
     }
 
@@ -1071,13 +1072,13 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(userId = VALID_USER_ID), Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Rate limited by identity!"))
+        .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, "Rate limited by identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
       filterChain.getRequest shouldBe null
     }
 
@@ -1098,7 +1099,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
       filterChain.getRequest shouldBe null
     }
 
@@ -1114,13 +1115,13 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(userId = VALID_USER_ID), Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NOT_IMPLEMENTED, ""))
+        .thenReturn(new ServiceClientResponse(SC_NOT_IMPLEMENTED, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_BAD_GATEWAY
+      response.getStatus shouldBe SC_BAD_GATEWAY
       filterChain.getRequest shouldBe null
     }
 
@@ -1136,7 +1137,7 @@ with HttpDelegationManager {
         .thenReturn(TestValidToken(userId = VALID_USER_ID, roles = Seq(Role("Racker"))), Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, ""))
+        .thenReturn(new ServiceClientResponse(SC_NOT_FOUND, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1177,7 +1178,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, ""))
+        .thenReturn(new ServiceClientResponse(SC_NOT_FOUND, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1185,7 +1186,7 @@ with HttpDelegationManager {
 
       val delegationHeader = parseDelegationHeader(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
-      delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      delegationHeader.get.statusCode shouldBe SC_UNAUTHORIZED
     }
 
     it("delegates if lacking the required service endpoint and all headers for data we have") {
@@ -1210,7 +1211,7 @@ with HttpDelegationManager {
       val lastRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
       val delegationHeader = parseDelegationHeader(lastRequest.getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
-      delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_FORBIDDEN
+      delegationHeader.get.statusCode shouldBe SC_FORBIDDEN
       lastRequest.getHeaderNames.asScala.toList should contain allOf(OpenStackServiceHeader.USER_ID,
         OpenStackServiceHeader.X_EXPIRATION,
         OpenStackServiceHeader.EXTENDED_AUTHORIZATION)
@@ -1225,7 +1226,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, "butts"))
+        .thenReturn(new ServiceClientResponse(SC_OK, "butts"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1233,7 +1234,7 @@ with HttpDelegationManager {
 
       val delegationHeader = parseDelegationHeader(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
-      delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_BAD_GATEWAY
+      delegationHeader.get.statusCode shouldBe SC_BAD_GATEWAY
     }
 
     it("delegates if the admin token is invalid") {
@@ -1245,9 +1246,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("invalid", null)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "invalid")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""))
+        .thenReturn(new ServiceClientResponse(SC_UNAUTHORIZED, ""))
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, ""))
+        .thenReturn(new ServiceClientResponse(SC_NOT_FOUND, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1255,7 +1256,7 @@ with HttpDelegationManager {
 
       val delegationHeader = parseDelegationHeader(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(HttpDelegationHeaderNames.Delegated))
       delegationHeader shouldBe a[Success[_]]
-      delegationHeader.get.statusCode shouldBe HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      delegationHeader.get.statusCode shouldBe SC_INTERNAL_SERVER_ERROR
     }
 
     it("forwards the identity status as Confirmed in the x-identity-status header when delegating success") {
@@ -1282,7 +1283,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, ""))
+        .thenReturn(new ServiceClientResponse(SC_NOT_FOUND, ""))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1297,7 +1298,7 @@ with HttpDelegationManager {
       doAnswer(new Answer[Unit] {
         override def answer(invocation: InvocationOnMock): Unit = {
           response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Delegated")
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
+          response.setStatus(SC_UNAUTHORIZED)
         }
       }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
       val filterChain = new MockFilterChain(mockServlet)
@@ -1307,11 +1308,11 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"${TOKEN_KEY_PREFIX}notValidToken"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_NOT_FOUND, ""))
+        .thenReturn(new ServiceClientResponse(SC_NOT_FOUND, ""))
 
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe SC_UNAUTHORIZED
       response.getHeaders(HttpHeaders.WWW_AUTHENTICATE) should contain("Keystone uri=https://some.identity.com")
     }
   }
@@ -1390,13 +1391,13 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(userId = userId)))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse(userId = userId)))
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, endpointsResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$userId"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1422,13 +1423,13 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(userId = userId)))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse(userId = userId)))
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, endpointsResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$userId"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1466,13 +1467,13 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(userId = userId)))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse(userId = userId)))
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, endpointsResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$userId"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1595,7 +1596,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      verify(response).sendError(mockitoEq(HttpServletResponse.SC_UNAUTHORIZED), anyString())
+      verify(response).sendError(mockitoEq(SC_UNAUTHORIZED), anyString())
     }
 
     it("sends all tenant IDs when configured to") {
@@ -1736,7 +1737,7 @@ with HttpDelegationManager {
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      verify(response).sendError(mockitoEq(HttpServletResponse.SC_UNAUTHORIZED), anyString())
+      verify(response).sendError(mockitoEq(SC_UNAUTHORIZED), anyString())
     }
 
     it("should send the X-Authorization header with the tenant in the uri") {
@@ -1825,9 +1826,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1846,9 +1847,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1866,9 +1867,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1885,9 +1886,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateImpersonatedTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateImpersonatedTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1907,9 +1908,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1926,9 +1927,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(expires = dateTime)))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse(expires = dateTime)))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1947,9 +1948,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1966,9 +1967,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse(expires = dateTime)))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse(expires = dateTime)))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1988,9 +1989,9 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2040,7 +2041,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseTenantedRoles()))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
@@ -2085,7 +2086,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseTenantedRoles()))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
@@ -2130,7 +2131,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseTenantedRoles()))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
@@ -2177,7 +2178,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseTenantedRoles()))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
@@ -2225,7 +2226,7 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponseTenantedRoles()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseTenantedRoles()))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
 
@@ -2276,13 +2277,13 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, endpointsResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2312,13 +2313,13 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, adminAuthenticationTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, endpointsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, endpointsResponse()))
       when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2358,7 +2359,7 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2373,13 +2374,13 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, Array.empty[Header], "Unauthorized from Identity!"))
+        .thenReturn(new ServiceClientResponse(SC_UNAUTHORIZED, Array.empty[Header], "Unauthorized from Identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      response.getStatus shouldBe SC_UNAUTHORIZED
       response.getHeader(HttpHeaders.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
 
       filterChain.getRequest shouldBe null
@@ -2393,13 +2394,13 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
+        .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      response.getStatus shouldBe HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+      response.getStatus shouldBe SC_REQUEST_ENTITY_TOO_LARGE
       response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
 
       filterChain.getRequest shouldBe null
@@ -2456,8 +2457,8 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
         .thenReturn(
-          new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
-          new ServiceClientResponse(HttpServletResponse.SC_OK, validateTokenResponse()))
+          new ServiceClientResponse(SC_UNAUTHORIZED, ""),
+          new ServiceClientResponse(SC_OK, validateTokenResponse()))
       when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty[Endpoint]), Nil: _*)
       when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector("group"), Nil: _*)
 
@@ -2477,8 +2478,8 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(), Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
         .thenReturn(
-          new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
-          new ServiceClientResponse(HttpServletResponse.SC_OK, oneEndpointResponse()))
+          new ServiceClientResponse(SC_UNAUTHORIZED, ""),
+          new ServiceClientResponse(SC_OK, oneEndpointResponse()))
       when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector("group"), Nil: _*)
 
       filter.doFilter(request, response, filterChain)
@@ -2498,8 +2499,8 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty[Endpoint]), Nil: _*)
       when(mockAkkaServiceClient.get(mockitoEq(s"${GROUPS_KEY_PREFIX}userId"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
         .thenReturn(
-          new ServiceClientResponse(HttpServletResponse.SC_UNAUTHORIZED, ""),
-          new ServiceClientResponse(HttpServletResponse.SC_OK, groupsResponse()))
+          new ServiceClientResponse(SC_UNAUTHORIZED, ""),
+          new ServiceClientResponse(SC_OK, groupsResponse()))
 
       filter.doFilter(request, response, filterChain)
 
