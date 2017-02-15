@@ -28,9 +28,9 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-import javax.ws.rs.core.HttpHeaders
-
 import static javax.servlet.http.HttpServletResponse.*
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION
+import static javax.ws.rs.core.HttpHeaders.WWW_AUTHENTICATE
 
 class BasicAuthTest extends ReposeValveTest {
     def static originEndpoint
@@ -66,7 +66,7 @@ class BasicAuthTest extends ReposeValveTest {
     def "Retrieve a token for an HTTP Basic authentication header with UserName/ApiKey"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -77,8 +77,8 @@ class BasicAuthTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
-        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        mc.handlings[0].request.headers.getFirstValue(AUTHORIZATION)
+        !mc.receivedResponse.headers.getFirstValue(WWW_AUTHENTICATE)
         //**This test tracing header Repose handling request, and the request to identity as part of REP-1704**
         mc.orphanedHandlings.each {
             e ->
@@ -98,7 +98,7 @@ class BasicAuthTest extends ReposeValveTest {
         then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401) and add an HTTP Basic authentication header"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
         mc.orphanedHandlings.size() == 0
     }
 
@@ -112,15 +112,15 @@ class BasicAuthTest extends ReposeValveTest {
         then: "then get a token and validate it"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
-        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
-        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        !mc.handlings[0].request.headers.getFirstValue(AUTHORIZATION)
+        !mc.receivedResponse.headers.getFirstValue(WWW_AUTHENTICATE)
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token")
     }
 
     def "When the request send with invalid key or username, then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
@@ -129,14 +129,14 @@ class BasicAuthTest extends ReposeValveTest {
         then: "get a token and validate it"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "When the request send with invalid 0 < key < 100 , then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def key = RandomStringUtils.random(99, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + key).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + key).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
@@ -145,7 +145,7 @@ class BasicAuthTest extends ReposeValveTest {
         then: "response with 400 bad request"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     // identity currently return 400 bad request for api-key > 100 characters
@@ -153,7 +153,7 @@ class BasicAuthTest extends ReposeValveTest {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def key = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + key).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + key).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
@@ -162,14 +162,14 @@ class BasicAuthTest extends ReposeValveTest {
         then: "response with 401 Unauthorized"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "When the request send with username > 100 , then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def username = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((username + ":" + "randomAPIKey").bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((username + ":" + "randomAPIKey").bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
@@ -178,13 +178,13 @@ class BasicAuthTest extends ReposeValveTest {
         then: "response with 401 Unauthorized"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "When identity returns a 403 Forbidden, repose will also return a 403 Forbidden"() {
         given: "the HTTP Basic authentication header containing the User Name and forbidden API key"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.forbidden_apikey_or_pwd).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.forbidden_apikey_or_pwd).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
@@ -193,13 +193,13 @@ class BasicAuthTest extends ReposeValveTest {
         then: "response with 403 Forbidden"
         mc.receivedResponse.code as Integer == SC_FORBIDDEN
         mc.handlings.size() == 0
-        !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        !mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "When identity returns a 404 Not Found, repose will return a 401 Unauthorized"() {
         given: "the HTTP Basic authentication header containing the User Name and not found apikey"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.not_found_apikey_or_pwd).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.not_found_apikey_or_pwd).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
@@ -208,7 +208,7 @@ class BasicAuthTest extends ReposeValveTest {
         then: "response with 401 Unauthorized"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
     // REP-2880 - should fix this (removed @Ignore)
     // This test was removed due to a current limitation of the MockIdentityService to not differentiate between the two services calling it.
@@ -222,8 +222,8 @@ class BasicAuthTest extends ReposeValveTest {
             }
         }
         def headers = [
-                'content-type'             : 'application/json',
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+                'content-type' : 'application/json',
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
 
         when: "user passes a request through repose"
@@ -256,8 +256,8 @@ class BasicAuthTest extends ReposeValveTest {
         then: "get a token and validate it"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
-        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
-        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        !mc.handlings[0].request.headers.getFirstValue(AUTHORIZATION)
+        !mc.receivedResponse.headers.getFirstValue(WWW_AUTHENTICATE)
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token")
         //**This test tracing header Repose handling request, and the request to identity as part of REP-1704**
         mc.orphanedHandlings.each {

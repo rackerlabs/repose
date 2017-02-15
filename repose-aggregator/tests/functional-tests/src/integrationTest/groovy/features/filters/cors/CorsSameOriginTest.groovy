@@ -20,7 +20,6 @@
 package features.filters.cors
 
 import framework.ReposeValveTest
-import org.apache.http.HttpHeaders
 import org.apache.http.HttpResponse
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
@@ -38,11 +37,13 @@ import spock.lang.Unroll
 import javax.ws.rs.core.MediaType
 
 import static javax.servlet.http.HttpServletResponse.*
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
+import static javax.ws.rs.core.HttpHeaders.HOST
 
 class CorsSameOriginTest extends ReposeValveTest {
 
     private static final String RESPONSE_BODY = "The fish flies at night."
-    private static final def RESPONSE_HEADERS = [(HttpHeaders.CONTENT_TYPE): MediaType.TEXT_PLAIN]
+    private static final def RESPONSE_HEADERS = [(CONTENT_TYPE): MediaType.TEXT_PLAIN]
 
     @Shared
     int reposeSslPort
@@ -108,7 +109,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
 
         and: "the headers are set for Host and maybe X-Forwarded-Host but not Origin"
-        def headers = [(HttpHeaders.HOST): host]
+        def headers = [(HOST): host]
         if (forwardedHost) {
             headers += [(CommonHttpHeader.X_FORWARDED_HOST): forwardedHost]
         }
@@ -133,7 +134,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service unless it was a HEAD request"
-        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         method == "HEAD" || mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -153,7 +154,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         and: "the headers are set for Host and Origin to match explicitly but X-Forwarded-Host to some other value"
         def headers = [
                 (CommonHttpHeader.X_FORWARDED_HOST): "will.not.match:3030",
-                (HttpHeaders.HOST)                 : host,
+                (HOST)                             : host,
                 (CorsHttpHeader.ORIGIN)            : origin]
 
         when:
@@ -177,7 +178,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service unless it was a HEAD request"
-        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         method == "HEAD" || mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -200,7 +201,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         and: "the headers are set for Host and Origin to match explicitly but X-Forwarded-Host to some other value"
         def headers = [
                 (CommonHttpHeader.X_FORWARDED_HOST)           : "will.not.match:3030",
-                (HttpHeaders.HOST)                            : host,
+                (HOST)                                        : host,
                 (CorsHttpHeader.ORIGIN)                       : origin,
                 (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): requestedMethod]
 
@@ -245,7 +246,7 @@ class CorsSameOriginTest extends ReposeValveTest {
     def "Only the first X-Forwarded-Host '#forwardedHost' will be used when determining if a request is a same-origin request"() {
         given: "the headers are set for the Host never to match the Origin and for the X-Forwarded-Host to vary depending on the test"
         def headers = [
-                new Header(HttpHeaders.HOST, "will.never.match:9999"),
+                new Header(HOST, "will.never.match:9999"),
                 new Header(CorsHttpHeader.ORIGIN, "http://not.cors.allowed:7777")
         ] + forwardedHost.collect { new Header(CommonHttpHeader.X_FORWARDED_HOST, it) }
 
@@ -292,7 +293,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         def headers = [
                 (CommonHttpHeader.X_FORWARDED_HOST): forwardedHost,
                 (CorsHttpHeader.ORIGIN)            : origin,
-                (HttpHeaders.HOST)                 : "origin.service:9090"]
+                (HOST)                             : "origin.service:9090"]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: method, headers: headers)
@@ -314,7 +315,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -339,7 +340,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         def headers = [
                 (CommonHttpHeader.X_FORWARDED_HOST): forwardedHost,
                 (CorsHttpHeader.ORIGIN)            : "$scheme://will.match:80",
-                (HttpHeaders.HOST)                 : "will.match:80"]
+                (HOST)                             : "will.match:80"]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers)
@@ -361,7 +362,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -377,7 +378,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
 
         and: "the Host header is malformed"
-        def headers = [(HttpHeaders.HOST): host]
+        def headers = [(HOST): host]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers)
@@ -424,7 +425,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the client receives an error message about the malformed Origin header"
-        mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == "Bad Origin header"
 
         and: "the 'Vary' header is set"
@@ -444,7 +445,7 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the Origin header is malformed with the 'Access-Control-Request-Method' header set indicating a Preflight request"
         def headers = [
-                (HttpHeaders.HOST)                       : "does.not.matter:3030",
+                (HOST)                                        : "does.not.matter:3030",
                 (CorsHttpHeader.ORIGIN)                       : origin,
                 (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): "PATCH"]
 
@@ -483,7 +484,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         when: "we make a request with the Host header set to the same value as the Origin header"
-        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(HttpHeaders.HOST): host])
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(HOST): host])
 
         then: "the response status is OK"
         mc.receivedResponse.code as Integer == SC_OK
@@ -502,7 +503,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         when: "we make a request with the X-Forwarded-Host header set to the same value as the Origin header"
@@ -525,7 +526,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -705,7 +706,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         when: "we make a request with the Host header set to a different value than the Origin header"
-        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(HttpHeaders.HOST): host])
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(HOST): host])
 
         then: "the response status is OK"
         mc.receivedResponse.code as Integer == SC_OK
@@ -725,7 +726,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         when: "we make a request with the X-Forwarded-Host header set to a different value than the Origin header"
@@ -749,32 +750,32 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
-        scheme  | host                                             | origin
+        scheme  | host                            | origin
         // different subdomains are considered different origins
-        "http"  | "www.openrepose.com:8080"                        | "http://openrepose.com:8080"
-        "http"  | "subdomain.openrepose.com:8080"                  | "http://openrepose.com:8080"
-        "http"  | "test.repose.site:8080"                          | "http://dev.repose.site:8080"
-        "https" | "www.openrepose.com:8080"                        | "https://openrepose.com:8080"
-        "https" | "subdomain.openrepose.com:8080"                  | "https://openrepose.com:8080"
-        "https" | "test.repose.site:8443"                          | "https://dev.repose.site:8443"
+        "http"  | "www.openrepose.com:8080"       | "http://openrepose.com:8080"
+        "http"  | "subdomain.openrepose.com:8080" | "http://openrepose.com:8080"
+        "http"  | "test.repose.site:8080"         | "http://dev.repose.site:8080"
+        "https" | "www.openrepose.com:8080"       | "https://openrepose.com:8080"
+        "https" | "subdomain.openrepose.com:8080" | "https://openrepose.com:8080"
+        "https" | "test.repose.site:8443"         | "https://dev.repose.site:8443"
         // different ports are considered different origins
-        "http"  | "openrepose.com:1111"                            | "http://openrepose.com:2222"
-        "http"  | "openrepose.com"                                 | "http://openrepose.com:3333"
-        "http"  | "openrepose.com"                                 | "http://openrepose.com:443"
-        "https" | "openrepose.com:1111"                            | "https://openrepose.com:2222"
-        "https" | "openrepose.com"                                 | "https://openrepose.com:3333"
-        "https" | "openrepose.com"                                 | "https://openrepose.com:80"
+        "http"  | "openrepose.com:1111"           | "http://openrepose.com:2222"
+        "http"  | "openrepose.com"                | "http://openrepose.com:3333"
+        "http"  | "openrepose.com"                | "http://openrepose.com:443"
+        "https" | "openrepose.com:1111"           | "https://openrepose.com:2222"
+        "https" | "openrepose.com"                | "https://openrepose.com:3333"
+        "https" | "openrepose.com"                | "https://openrepose.com:80"
         // different host names and TLDs are considered different origins
-        "http"  | "rackspace.com:8080"                             | "http://openrepose.com:8080"
-        "http"  | "openrepose.org:8080"                            | "http://openrepose.com:8080"
-        "https" | "rackspace.com:8080"                             | "https://openrepose.com:8080"
-        "https" | "openrepose.org:8080"                            | "https://openrepose.com:8080"
+        "http"  | "rackspace.com:8080"            | "http://openrepose.com:8080"
+        "http"  | "openrepose.org:8080"           | "http://openrepose.com:8080"
+        "https" | "rackspace.com:8080"            | "https://openrepose.com:8080"
+        "https" | "openrepose.org:8080"           | "https://openrepose.com:8080"
         // different schemes are considered different origins
-        "http"  | "openrepose.com:8080"                            | "https://openrepose.com:8080"
-        "https" | "openrepose.com:8080"                            | "http://openrepose.com:8080"
+        "http"  | "openrepose.com:8080"           | "https://openrepose.com:8080"
+        "https" | "openrepose.com:8080"           | "http://openrepose.com:8080"
     }
 }

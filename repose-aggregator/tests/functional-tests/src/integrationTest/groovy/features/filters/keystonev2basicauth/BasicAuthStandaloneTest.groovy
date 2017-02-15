@@ -27,11 +27,11 @@ import org.openrepose.commons.utils.http.HttpDate
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import org.springframework.http.HttpHeaders
 import spock.lang.Ignore
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
+import static javax.ws.rs.core.HttpHeaders.*
 import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 
 /**
@@ -86,7 +86,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         given: "header containing the User Token and an HTTP Basic authentication header (username/apikey)"
         def headers = [
                 "X-Auth-Token"             : fakeIdentityService.client_token,
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
 
         when: "the request already has credentials"
@@ -96,14 +96,14 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
-        !mc.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        !mc.receivedResponse.headers.findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     @Unroll("Sending request with invalid UserName #userName and API Key #apiKey pair.")
     def "Fail to retrieve a token for an HTTP Basic authentication header with an invalid UserName/ApiKey pair"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((userName + ":" + apiKey).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((userName + ":" + apiKey).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -112,7 +112,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         then: "Request reject if invalid apikey or username"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
 
         where:
         userName                            | apiKey
@@ -129,7 +129,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
     def "Fail to retrieve a token for an HTTP Basic authentication wiht only header and 'Basic' keyword"() {
         given: "the Authorization with 'Basic' keyword"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic '
+                (AUTHORIZATION): 'Basic '
         ]
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -138,14 +138,14 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         then: "Request reject if invalid apikey or username"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     @Unroll("Case: #authorizationvalue")
     def "Test additional cases passing through with basic auth filter"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): authorizationvalue
+                (AUTHORIZATION): authorizationvalue
         ]
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -154,7 +154,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         then: "Request reject if invalid apikey or username"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
-        //mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        //mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
 
         where:
         authorizationvalue <<
@@ -169,9 +169,9 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
     def "Stop trying to retrieve a token for an HTTP Basic authentication header after a token has been obtained."() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + "BAD-API-KEY").bytes),
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes),
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString(("BAD-USER-NAME" + ":" + fakeIdentityService.client_apikey).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + "BAD-API-KEY").bytes),
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes),
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString(("BAD-USER-NAME" + ":" + fakeIdentityService.client_apikey).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -198,7 +198,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
-        !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        !mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     @Ignore
@@ -212,7 +212,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
         }
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((username + ":" + password).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((username + ":" + password).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -221,11 +221,11 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         then: "then get a token for it"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getCountByName(HttpHeaders.AUTHORIZATION) == 1
+        mc.handlings[0].request.headers.getCountByName(AUTHORIZATION) == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         mc.orphanedHandlings.size() == 1 // This is the call to the Mock Identity service through deproxy.
-        !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        !mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
 
         where:
         username                            | password
@@ -241,7 +241,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "Log a very loud WARNING stating the OpenStack Basic Auth filter cannot be used alone."() {
@@ -260,7 +260,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         }
         def headers = [
                 'content-type'             : 'application/json',
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
 
         when: "user passes a request through repose"
@@ -292,12 +292,12 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         fakeIdentityService.with {
             generateTokenHandler = {
                 request, xml ->
-                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString], xml)
+                    new Response(identityStatusCode, null, [(RETRY_AFTER): retryString], xml)
             }
         }
         def headers = [
                 'content-type'             : 'application/json',
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+                (AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
 
         when: "user passes a request through repose"
@@ -305,8 +305,8 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         then: "request body sent from repose to the origin service should contain"
         mc.receivedResponse.code as Integer == SC_SERVICE_UNAVAILABLE
-        mc.receivedResponse.getHeaders().getFirstValue(HttpHeaders.RETRY_AFTER).equals(retryString)
-        reposeLogSearch.searchByString("Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
+        mc.receivedResponse.getHeaders().getFirstValue(RETRY_AFTER).equals(retryString)
+        reposeLogSearch.searchByString("Missing ${RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
 
         where:
         reqTenant | identityStatusCode

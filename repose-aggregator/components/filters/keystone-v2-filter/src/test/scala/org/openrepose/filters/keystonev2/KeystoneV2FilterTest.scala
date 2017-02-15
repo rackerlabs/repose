@@ -25,7 +25,8 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterConfig, Servlet, ServletRequest, ServletResponse}
-import javax.ws.rs.core.{HttpHeaders, MediaType}
+import javax.ws.rs.core.HttpHeaders._
+import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
 import org.apache.commons.codec.binary.Base64
@@ -347,7 +348,7 @@ with HttpDelegationManager {
       filterChain.getResponse shouldBe null
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getHeader(HttpHeaders.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
+      response.getHeader(WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
     }
 
     it("rejects with 403 if no x-auth-token is present") {
@@ -362,7 +363,7 @@ with HttpDelegationManager {
       filterChain.getResponse shouldBe null
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getHeader(HttpHeaders.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
+      response.getHeader(WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
     }
 
     it("retries authentication as the admin user if the admin token is not valid") {
@@ -473,14 +474,14 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
+        .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, Array(RETRY_AFTER -> retryValue), "Rate limited by identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
-      response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+      response.getHeader(RETRY_AFTER) shouldBe retryValue
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -493,14 +494,14 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
-        .thenReturn(new ServiceClientResponse(SC_TOO_MANY_REQUESTS, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
+        .thenReturn(new ServiceClientResponse(SC_TOO_MANY_REQUESTS, Array(RETRY_AFTER -> retryValue), "Rate limited by identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
-      response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+      response.getHeader(RETRY_AFTER) shouldBe retryValue
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -911,7 +912,7 @@ with HttpDelegationManager {
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-          .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
+          .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, Array(RETRY_AFTER -> retryValue), "Rate limited by identity!"))
 
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty), Nil: _*)
 
@@ -920,7 +921,7 @@ with HttpDelegationManager {
         filter.doFilter(request, response, filterChain)
 
         response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
-        response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+        response.getHeader(RETRY_AFTER) shouldBe retryValue
 
         filterChain.getRequest shouldBe null
         filterChain.getResponse shouldBe null
@@ -935,7 +936,7 @@ with HttpDelegationManager {
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
         when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
-          .thenReturn(new ServiceClientResponse(SC_TOO_MANY_REQUESTS, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
+          .thenReturn(new ServiceClientResponse(SC_TOO_MANY_REQUESTS, Array(RETRY_AFTER -> retryValue), "Rate limited by identity!"))
 
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty), Nil: _*)
 
@@ -944,7 +945,7 @@ with HttpDelegationManager {
         filter.doFilter(request, response, filterChain)
 
         response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
-        response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+        response.getHeader(RETRY_AFTER) shouldBe retryValue
 
         filterChain.getRequest shouldBe null
         filterChain.getResponse shouldBe null
@@ -1297,7 +1298,7 @@ with HttpDelegationManager {
       val mockServlet = mock[Servlet]
       doAnswer(new Answer[Unit] {
         override def answer(invocation: InvocationOnMock): Unit = {
-          response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Delegated")
+          response.setHeader(WWW_AUTHENTICATE, "Delegated")
           response.setStatus(SC_UNAUTHORIZED)
         }
       }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
@@ -1313,7 +1314,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getHeaders(HttpHeaders.WWW_AUTHENTICATE) should contain("Keystone uri=https://some.identity.com")
+      response.getHeaders(WWW_AUTHENTICATE) should contain("Keystone uri=https://some.identity.com")
     }
   }
 
@@ -2381,7 +2382,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getHeader(HttpHeaders.WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
+      response.getHeader(WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -2394,14 +2395,14 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
+        .thenReturn(new ServiceClientResponse(SC_REQUEST_ENTITY_TOO_LARGE, Array(RETRY_AFTER -> retryValue), "Rate limited by identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_REQUEST_ENTITY_TOO_LARGE
-      response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+      response.getHeader(RETRY_AFTER) shouldBe retryValue
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
@@ -2414,14 +2415,14 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)), anyBoolean()))
-        .thenReturn(new ServiceClientResponse(SC_TOO_MANY_REQUESTS, Array(HttpHeaders.RETRY_AFTER -> retryValue), "Rate limited by identity!"))
+        .thenReturn(new ServiceClientResponse(SC_TOO_MANY_REQUESTS, Array(RETRY_AFTER -> retryValue), "Rate limited by identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_TOO_MANY_REQUESTS
-      response.getHeader(HttpHeaders.RETRY_AFTER) shouldBe retryValue
+      response.getHeader(RETRY_AFTER) shouldBe retryValue
 
       filterChain.getRequest shouldBe null
       filterChain.getResponse shouldBe null
