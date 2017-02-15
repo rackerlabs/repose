@@ -82,7 +82,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
-        mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
+        mc.receivedResponse.headers.findAll("Vary")*.toLowerCase()*.toLowerCase() == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
         where:
         [method, path] << [['GET', 'HEAD'], ['/', '/status']].combinations()
@@ -112,7 +112,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
-        mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
+        mc.receivedResponse.headers.findAll("Vary")*.toLowerCase() == ['origin', 'access-control-request-headers', 'access-control-request-method']
     }
 
     @Unroll
@@ -386,7 +386,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
-        mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
+        mc.receivedResponse.headers.findAll("Vary")*.toLowerCase() == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
         where:
         method   | path
@@ -422,7 +422,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         and: "the 'Vary' header is set with the correct values for a non-OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
-        mc.receivedResponse.headers.findAll("Vary") == ['origin']
+        mc.receivedResponse.headers.findAll("Vary")*.toLowerCase() == ['origin']
 
         where:
         method   | path
@@ -470,7 +470,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
-        mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
+        mc.receivedResponse.headers.findAll("Vary")*.toLowerCase() == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
         where:
         [method, requestHeaders] <<
@@ -515,7 +515,7 @@ class CorsFilterBasicTest extends ReposeValveTest {
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
-        mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
+        mc.receivedResponse.headers.findAll("Vary")*.toLowerCase() == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
         where:
         requestHeaders                        | allowHeaders

@@ -227,7 +227,7 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
-        mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
+        mc.receivedResponse.headers.findAll("Vary")*.toLowerCase() == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
         where:
         scheme  | requestedMethod | host                       | origin
