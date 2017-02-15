@@ -45,6 +45,8 @@ import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.openrepose.core.services.datastore.impl.distributed.MalformedCacheRequestError.*;
+
 /**
  * Holds most of the work for running a distributed datastore.
  * Exposes the ClusterView and the ACL for update.
@@ -147,13 +149,13 @@ public class DistributedDatastoreServlet extends HttpServlet {
         } catch (MalformedCacheRequestException e) {
 
             LOG.error("Malformed cache request during GET", e);
-            switch (e.getError()) {
+            switch (e.getMessage()) {
                 case NO_DD_HOST_KEY:
-                    resp.getWriter().write(e.getError().message());
+                    resp.getWriter().write(e.getMessage());
                     resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     break;
                 case CACHE_KEY_INVALID:
-                    resp.getWriter().write(e.getError().message());
+                    resp.getWriter().write(e.getMessage());
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     break;
                 case OBJECT_TOO_LARGE:
@@ -209,9 +211,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } catch (MalformedCacheRequestException e) {
                 LOG.trace("Malformed cache request on Delete", e);
-                switch (e.getError()) {
+                switch (e.getMessage()) {
                     case NO_DD_HOST_KEY:
-                        resp.getWriter().write(e.getError().message());
+                        resp.getWriter().write(e.getMessage());
                         resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         break;
                     case UNEXPECTED_REMOTE_BEHAVIOR:
@@ -300,19 +302,19 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private void handleputMalformedCacheRequestException(MalformedCacheRequestException mcre, HttpServletResponse response) throws IOException {
 
         LOG.error("Handling Malformed Cache Request", mcre);
-        switch (mcre.getError()) {
+        switch (mcre.getMessage()) {
             case NO_DD_HOST_KEY:
-                response.getWriter().write(mcre.getError().message());
+                response.getWriter().write(mcre.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 break;
             case OBJECT_TOO_LARGE:
-                response.getWriter().write(mcre.getError().message());
+                response.getWriter().write(mcre.getMessage());
                 response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
                 break;
             case CACHE_KEY_INVALID:
             case TTL_HEADER_NOT_POSITIVE:
             case UNEXPECTED_REMOTE_BEHAVIOR:
-                response.getWriter().write(mcre.getError().message());
+                response.getWriter().write(mcre.getMessage());
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 break;
             default:
