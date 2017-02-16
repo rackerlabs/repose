@@ -7,8 +7,8 @@ MAINTAINER The Repose Team <reposecore@rackspace.com>
 # This build-arg is used to pass the Repose version number which will be set up in this image.
 ARG REPOSE_VERSION
 
-# Install Repose from the Debian package repository.
-RUN apt-get update -qq && apt-get install -qq -y wget
+# Install Repose (and Java) from the Debian package repository.
+RUN apt-get update -qq && apt-get install -qq -y wget openjdk-8-jre-headless
 RUN wget --quiet -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add - && echo 'deb http://repo.openrepose.org/debian stable main' > /etc/apt/sources.list.d/openrepose.list
 RUN apt-get update -qq && apt-get install -y repose-valve=$REPOSE_VERSION repose-filter-bundle=$REPOSE_VERSION repose-extensions-filter-bundle=$REPOSE_VERSION repose-experimental-filter-bundle=$REPOSE_VERSION
 
