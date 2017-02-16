@@ -30,6 +30,6 @@ public class InvalidArguments extends MessageResult {
 
     @Override
     public int getStatusCode() {
-        return StatusCodes.INVALID_ARGUMENTS.getStatusCode();
+        return StatusCodes.INVALID_ARGUMENTS;
     }
 }

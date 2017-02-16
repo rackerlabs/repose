@@ -124,7 +124,7 @@ class AkkatimeoutUsingConnPoolTest extends ReposeValveTest {
         )
 
         then: "check response"
-        mc.receivedResponse.code == "502"//HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
+        mc.receivedResponse.code == "502"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
         reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .21000 milliseconds.").size() > 0

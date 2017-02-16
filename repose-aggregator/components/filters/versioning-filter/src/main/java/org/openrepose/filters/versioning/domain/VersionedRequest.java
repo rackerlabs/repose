@@ -19,9 +19,9 @@
  */
 package org.openrepose.filters.versioning.domain;
 
+import org.apache.http.HttpHeaders;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
 
@@ -38,7 +38,7 @@ public class VersionedRequest {
     public VersionedRequest(HttpServletRequestWrapper request, ServiceVersionMapping mapping) {
         this.request = request;
         this.mapping = mapping;
-        this.clientAddressedHost = request.getHeader(CommonHttpHeader.HOST.toString());
+        this.clientAddressedHost = request.getHeader(HttpHeaders.HOST);
     }
 
     public ServiceVersionMapping getMapping() {

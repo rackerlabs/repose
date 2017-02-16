@@ -54,7 +54,7 @@ public class RequestHeaderServiceImplTest {
             when(request.getRemoteAddr()).thenReturn(remote);
             instance.setXForwardedFor(request);
 
-            verify(request).addHeader(CommonHttpHeader.X_FORWARDED_FOR.toString(), remote);
+            verify(request).addHeader(CommonHttpHeader.X_FORWARDED_FOR, remote);
 
         }
 
@@ -65,7 +65,7 @@ public class RequestHeaderServiceImplTest {
             when(viaBuilder.buildVia(request)).thenReturn(via);
             instance.updateConfig(viaBuilder);
             instance.setVia(request);
-            verify(request).addHeader(CommonHttpHeader.VIA.toString(), via);
+            verify(request).addHeader(CommonHttpHeader.VIA, via);
         }
     }
 }

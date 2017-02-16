@@ -27,6 +27,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.ws.rs.core.HttpHeaders.RETRY_AFTER
 import javax.ws.rs.core.MediaType
 
 import com.fasterxml.jackson.core.JsonParseException
@@ -35,7 +36,6 @@ import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import io.gatling.jsonpath.Parser
-import org.apache.http.HttpHeaders.RETRY_AFTER
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}
@@ -101,10 +101,10 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
       def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(!"".equals(_))
 
-      val requestedTenantId = nullOrWhitespace(Option(httpRequest.getHeader(OpenStackServiceHeader.TENANT_ID.toString)))
+      val requestedTenantId = nullOrWhitespace(Option(httpRequest.getHeader(OpenStackServiceHeader.TENANT_ID)))
       val requestedDeviceId = nullOrWhitespace(Option(httpRequest.getHeader("X-Device-Id")))
       val requestedContactId = nullOrWhitespace(Option(httpRequest.getHeader("X-Contact-Id")))
-      val tracingHeader = nullOrWhitespace(Option(httpRequest.getHeader(CommonHttpHeader.TRACE_GUID.toString)))
+      val tracingHeader = nullOrWhitespace(Option(httpRequest.getHeader(CommonHttpHeader.TRACE_GUID)))
       val urlPath: String = new URL(httpRequest.getRequestURL.toString).getPath
       val matchingResources: Seq[Resource] = Option(configuration.getCollectionResources)
         .map(_.getResource.asScala.filter(resource => {
@@ -275,7 +275,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       val preAuthRoles = Option(configuration.getPreAuthorizedRoles)
         .map(_.getRole.asScala)
         .getOrElse(List.empty)
-      val reqAuthRoles = httpRequest.getHeaders(OpenStackServiceHeader.ROLES.toString).asScala.toSeq
+      val reqAuthRoles = httpRequest.getHeaders(OpenStackServiceHeader.ROLES).asScala.toSeq
         .foldLeft(List.empty[String])((list: List[String], value: String) => list ++ value.split(","))
 
       if (preAuthRoles.intersect(reqAuthRoles).nonEmpty) {
@@ -323,7 +323,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                      tracingHeader: Option[String] = None): ValkyrieResult = {
     def tryValkyrieCall(): Try[ServiceClientResponse] = {
       import collection.JavaConversions._
-      val requestTracingHeader = tracingHeader.map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
+      val requestTracingHeader = tracingHeader.map(guid => Map(CommonHttpHeader.TRACE_GUID -> guid)).getOrElse(Map())
       val uri = if (callType.equals(ACCOUNT_ADMIN)) {
         s"/account/$transformedTenant/inventory"
       } else {

@@ -26,6 +26,8 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+import javax.servlet.http.HttpServletResponse
+
 @Category (Slow.class)
 class ValidatorConfiguratorTest extends ReposeValveTest {
     def static params = [:]
@@ -65,7 +67,7 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
 
         then: "request returns a 404 and and no error wadl error is thrown"
         wadlError.size() == 0
-        resp.getReceivedResponse().code == 404.toString()
+        resp.getReceivedResponse().code as Integer == HttpServletResponse.SC_NOT_FOUND
     }
 
     def "when loading validators on startup, should fail bad local uri path"() {

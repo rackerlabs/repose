@@ -19,12 +19,12 @@
  */
 package org.openrepose.filters.versioning.domain;
 
+import org.apache.http.HttpHeaders;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
@@ -155,7 +155,7 @@ public class VersionedRequestTest {
             final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
             when(request.getRequestURI()).thenReturn("/a/requested/resource");
             when(request.getScheme()).thenReturn("http");
-            when(request.getHeader(CommonHttpHeader.HOST.toString())).thenReturn("localhost");
+            when(request.getHeader(HttpHeaders.HOST)).thenReturn("localhost");
 
             final String expected = "http://localhost/a/requested/resource";
 

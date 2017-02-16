@@ -211,8 +211,8 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
         TokenCreationInfo(HttpServletResponse.SC_UNAUTHORIZED, None, userName)
       } else {
         // Request a User Token based on the extracted username/secret
-        val requestTracingHeader = Option(httpServletRequestWrapper.getHeader(CommonHttpHeader.TRACE_GUID.toString))
-          .map(guid => Map(CommonHttpHeader.TRACE_GUID.toString -> guid)).getOrElse(Map())
+        val requestTracingHeader = Option(httpServletRequestWrapper.getHeader(CommonHttpHeader.TRACE_GUID))
+          .map(guid => Map(CommonHttpHeader.TRACE_GUID -> guid)).getOrElse(Map())
         val authTokenResponse = Option(akkaServiceClient.post(authValue,
           identityServiceUri + TOKEN_ENDPOINT,
           requestTracingHeader.asJava,

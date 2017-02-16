@@ -25,11 +25,11 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.ws.rs.core.HttpHeaders
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.codec.binary.Base64
-import org.apache.http.HttpHeaders
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
@@ -112,7 +112,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       // Not using the mutable wrapper because it doesn't work properly at the moment, and
       // we don't need to modify the response from further down the chain
       lazy val response = servletResponse.asInstanceOf[HttpServletResponse]
-      lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID.toString)).filter(_ => sendTraceHeader)
+      lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID)).filter(_ => sendTraceHeader)
       lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
       lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
         Option(config.getIdentityService.getPassword).isEmpty
@@ -212,13 +212,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 logger.trace(s"Processing response with status code: $statusCode")
 
                 if (response.getStatus == SC_UNAUTHORIZED) {
-                  response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
+                  response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
                 }
               case None =>
                 logger.debug(s"Rejecting with status $statusCode")
 
                 if (statusCode == SC_UNAUTHORIZED) {
-                  response.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, keystoneAuthenticateHeader)
+                  response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
                 }
 
                 message match {
@@ -489,50 +489,50 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       def addTokenHeaders(token: ValidToken, matchedUriTenant: Option[String]): Unit = {
         // Add standard headers
-        request.addHeader(OpenStackServiceHeader.USER_ID.toString, token.userId)
-        request.addHeader(OpenStackServiceHeader.X_EXPIRATION.toString, token.expirationDate)
-        token.username.foreach(request.addHeader(PowerApiHeader.USER.toString, _))
-        token.username.foreach(request.addHeader(OpenStackServiceHeader.USER_NAME.toString, _))
-        token.tenantName.foreach(request.addHeader(OpenStackServiceHeader.TENANT_NAME.toString, _))
-        token.defaultRegion.foreach(request.addHeader(OpenStackServiceHeader.DEFAULT_REGION.toString, _))
-        token.contactId.foreach(request.addHeader(OpenStackServiceHeader.CONTACT_ID.toString, _))
-        token.impersonatorId.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ID.toString, _))
-        token.impersonatorName.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_NAME.toString, _))
+        request.addHeader(OpenStackServiceHeader.USER_ID, token.userId)
+        request.addHeader(OpenStackServiceHeader.X_EXPIRATION, token.expirationDate)
+        token.username.foreach(request.addHeader(PowerApiHeader.USER, _))
+        token.username.foreach(request.addHeader(OpenStackServiceHeader.USER_NAME, _))
+        token.tenantName.foreach(request.addHeader(OpenStackServiceHeader.TENANT_NAME, _))
+        token.defaultRegion.foreach(request.addHeader(OpenStackServiceHeader.DEFAULT_REGION, _))
+        token.contactId.foreach(request.addHeader(OpenStackServiceHeader.CONTACT_ID, _))
+        token.impersonatorId.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ID, _))
+        token.impersonatorName.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_NAME, _))
 
         // Construct and add impersonator roles, if available
         val impersonatorRoles = token.impersonatorRoles
         if (impersonatorRoles.nonEmpty) {
-          request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES.toString, impersonatorRoles.mkString(","))
+          request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES, impersonatorRoles.mkString(","))
         }
 
         // Construct and add the tenant id header
         val tenantsToPass = buildTenantHeader(token.defaultTenantId, token.tenantIds, matchedUriTenant)
         if (tenantsToPass.nonEmpty) {
-          request.addHeader(OpenStackServiceHeader.TENANT_ID.toString, tenantsToPass.mkString(","))
+          request.addHeader(OpenStackServiceHeader.TENANT_ID, tenantsToPass.mkString(","))
         }
 
         // If configured, add roles header
         if (config.getIdentityService.isSetRolesInHeader && token.roles.nonEmpty) {
-          request.addHeader(OpenStackServiceHeader.ROLES.toString, token.roles.map(_.name).mkString(","))
+          request.addHeader(OpenStackServiceHeader.ROLES, token.roles.map(_.name).mkString(","))
         }
 
         // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
         matchedUriTenant match {
           case Some(uriTenant) =>
-            request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $uriTenant")
+            request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$X_AUTH_PROXY $uriTenant")
           case None =>
             token.defaultTenantId match {
               case Some(tenant) =>
-                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, s"$X_AUTH_PROXY $tenant")
+                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$X_AUTH_PROXY $tenant")
               case None =>
-                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString, X_AUTH_PROXY)
+                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, X_AUTH_PROXY)
             }
         }
 
         // Construct and add authenticatedBy, if available
         token.authenticatedBy foreach {
           _ foreach {
-            request.addHeader(OpenStackServiceHeader.AUTHENTICATED_BY.toString, _)
+            request.addHeader(OpenStackServiceHeader.AUTHENTICATED_BY, _)
           }
         }
       }
@@ -540,7 +540,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
         if (config.getIdentityService.isSetCatalogInHeader) {
           maybeEndpoints map { endpoints =>
-            request.addHeader(PowerApiHeader.X_CATALOG.toString, Base64.encodeBase64String(endpoints.json.getBytes))
+            request.addHeader(PowerApiHeader.X_CATALOG, Base64.encodeBase64String(endpoints.json.getBytes))
             Unit
           }
         } else {
@@ -563,8 +563,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       def addIdentityStatusHeader(confirmed: Boolean): Unit = {
         if (Option(config.getDelegating).isDefined) {
-          if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.CONFIRMED.toString)
-          else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.INDETERMINATE.toString)
+          if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.CONFIRMED)
+          else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.INDETERMINATE)
         }
       }
     }
@@ -751,8 +751,6 @@ object KeystoneV2Filter {
   private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
   private final val X_AUTH_PROXY = "Proxy"
   private final val DELEGATED = "Delegated"
-
-  implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
 
   implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
 

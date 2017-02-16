@@ -23,6 +23,8 @@ import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
+import javax.servlet.http.HttpServletResponse
+
 /**
  * Created by jennyvo on 2/17/15.
  */
@@ -84,6 +86,6 @@ class ApiValidatorWadlAbsPathTest extends ReposeValveTest {
 
         then: "request returns a 404 and and no error wadl error is thrown"
         wadlError.size() == 0
-        resp.getReceivedResponse().code == 404.toString()
+        resp.getReceivedResponse().code as Integer == HttpServletResponse.SC_NOT_FOUND
     }
 }

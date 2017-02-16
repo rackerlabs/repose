@@ -240,11 +240,6 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
         return inputs;
     }
 
-    private enum TranslationType {
-        REQUEST,
-        RESPONSE
-    }
-
     public HandleRequestResult handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         FilterAction filterAction = RETURN;
         HttpServletRequestWrapper rtnRequest = request;

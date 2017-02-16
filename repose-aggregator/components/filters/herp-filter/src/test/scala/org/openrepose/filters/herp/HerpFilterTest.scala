@@ -154,7 +154,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
     it("should log a guid given a tracing header") {
       // given:
       val traceId = UUID.randomUUID.toString
-      servletRequest.addHeader(CommonHttpHeader.TRACE_GUID.toString, traceId)
+      servletRequest.addHeader(CommonHttpHeader.TRACE_GUID, traceId)
 
       // when:
       herpFilter.configurationUpdated(herpConfig)

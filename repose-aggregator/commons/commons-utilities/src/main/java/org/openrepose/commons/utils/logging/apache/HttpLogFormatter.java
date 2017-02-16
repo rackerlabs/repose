@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 
 import static org.openrepose.commons.utils.StringUtilities.isBlank;
 import static org.openrepose.commons.utils.StringUtilities.isEmpty;
+import static org.openrepose.commons.utils.logging.apache.LogFormatArgument.*;
 
 public class HttpLogFormatter {
 
@@ -47,6 +48,7 @@ public class HttpLogFormatter {
     public HttpLogFormatter(String formatTemplate) {
         this(formatTemplate, HttpLogFormatterState.PLAIN);
     }
+
     public HttpLogFormatter(String formatTemplate, HttpLogFormatterState httpLogFormatterState) {
         this.formatTemplate = handleTabsAndNewlines(formatTemplate);
         this.httpLogFormatterState = httpLogFormatterState;
@@ -57,10 +59,11 @@ public class HttpLogFormatter {
 
     @SuppressWarnings("PMD.NcssMethodCount")
     public void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
-        if (LogFormatArgument.fromString(extractor.getEntity()) == null) {
-            throw new IllegalArgumentException("Unsupported log format entity: " + extractor.getEntity());
+        final String extractorEntity = extractor.getEntity();
+        if (extractorEntity == null) {
+            throw new IllegalArgumentException("Unsupported log format entity: NULL");
         }
-        switch (LogFormatArgument.fromString(extractor.getEntity())) {
+        switch (extractorEntity) {
             case RESPONSE_TIME_MICROSECONDS:
                 formatter.setLogic(new ResponseTimeHandler(RESPONSE_TIME_MULTIPLIER_MICROSEC));
                 break;
@@ -116,7 +119,7 @@ public class HttpLogFormatter {
                 formatter.setLogic(new UrlRequestedHandler());
                 break;
             case PERCENT:
-                formatter.setLogic(new StringHandler(LogFormatArgument.PERCENT.toString()));
+                formatter.setLogic(new StringHandler(LogFormatArgument.PERCENT));
                 break;
             case STRING:
                 formatter.setLogic(new StringHandler(extractor.getVariable()));
@@ -127,6 +130,8 @@ public class HttpLogFormatter {
             case TRACE_GUID:
                 formatter.setLogic(new TraceGuidHandler());
                 break;
+            default:
+                throw new IllegalArgumentException("Unsupported log format entity: " + extractorEntity);
         }
     }
 

@@ -296,7 +296,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response code is 500"
-        mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     def "when configured to fail on mismatch, Repose returns a 500 if the xpath to the attribute does not resolve"() {
@@ -309,7 +309,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response code is 500"
-        mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     def "when configured to fail on mismatch, Repose returns a 500 if the xpath to the link does not resolve"() {
@@ -333,7 +333,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response code is 500"
-        mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     def "when configured to fail on mismatch, Repose returns a 500 if the token index is too high for the link"() {
@@ -346,7 +346,7 @@ class UriStripperLinkResourceXmlTest extends ReposeValveTest {
         def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl, defaultHandler: responseHandler)
 
         then: "the response code is 500"
-        mc.receivedResponse.code == HttpServletResponse.SC_INTERNAL_SERVER_ERROR as String
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     @Unroll

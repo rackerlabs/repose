@@ -85,7 +85,7 @@ class BasicAuthAkkatimeoutUsingConnPoolTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "Request should be passed from repose"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -109,7 +109,7 @@ class BasicAuthAkkatimeoutUsingConnPoolTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "Request should not be passed from repose"
-        mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT.toString()
+        mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
         reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .21000 milliseconds.").size() > 0

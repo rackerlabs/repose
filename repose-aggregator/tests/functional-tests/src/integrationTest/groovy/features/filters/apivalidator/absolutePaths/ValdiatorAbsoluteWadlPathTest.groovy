@@ -24,6 +24,7 @@ import framework.ReposeValveTest
 import org.apache.commons.io.FileUtils
 import org.rackspace.deproxy.Deproxy
 
+import javax.servlet.http.HttpServletResponse
 import java.nio.file.Files
 
 class ValdiatorAbsoluteWadlPathTest extends ReposeValveTest {
@@ -85,7 +86,7 @@ class ValdiatorAbsoluteWadlPathTest extends ReposeValveTest {
 
         then: "request returns a 404 and and no error wadl error is thrown"
         wadlError.size() == 0
-        resp.getReceivedResponse().code == 404.toString()
+        resp.getReceivedResponse().code as Integer == HttpServletResponse.SC_NOT_FOUND
     }
 
     def "when loading validators on startup, it will fail when it cannot find a wadl when given an absolute path"() {

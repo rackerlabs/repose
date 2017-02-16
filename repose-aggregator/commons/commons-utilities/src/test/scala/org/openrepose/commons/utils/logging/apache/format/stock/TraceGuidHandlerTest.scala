@@ -48,7 +48,7 @@ class TraceGuidHandlerTest extends FunSpec with BeforeAndAfterEach with Matchers
       ("eyJyZXF1ZXN0SWQiOiI1Zjg1NDE4OC02OGEyLTQ2N2YtODc0ZS02ZTA4OTM1OTI4MTgifQ==", "5f854188-68a2-467f-874e-6e0893592818")
     ).foreach { case (tracingHeader, expectedMessage) =>
         it(s"should convert header $tracingHeader to $expectedMessage") {
-          when(mockRequest.getHeaders(CommonHttpHeader.TRACE_GUID.toString))
+          when(mockRequest.getHeaders(CommonHttpHeader.TRACE_GUID))
             .thenReturn(new StringTokenizer(tracingHeader).asInstanceOf[java.util.Enumeration[String]])
 
           val actualMessage = traceGuidHandler.handle(mockRequest, null)

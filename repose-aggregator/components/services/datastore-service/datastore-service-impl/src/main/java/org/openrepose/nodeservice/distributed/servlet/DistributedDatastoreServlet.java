@@ -45,6 +45,9 @@ import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static javax.servlet.http.HttpServletResponse.*;
+import static org.openrepose.core.services.datastore.impl.distributed.MalformedCacheRequestError.*;
+
 /**
  * Holds most of the work for running a distributed datastore.
  * Exposes the ClusterView and the ACL for update.
@@ -105,7 +108,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (isRequestValid(request, response)) {
-            String traceGUID = TracingHeaderHelper.getTraceGuid(request.getHeader(CommonHttpHeader.TRACE_GUID.toString()));
+            String traceGUID = TracingHeaderHelper.getTraceGuid(request.getHeader(CommonHttpHeader.TRACE_GUID));
             MDC.put(TracingKey.TRACING_KEY, traceGUID);
             LOG.trace("SERVICING DISTDATASTORE REQUEST");
 
@@ -124,7 +127,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
         // This servlet is only allowed to communicate with configured Repose instances,
         // so there is no chance of exposing sensitive information.
         // So it is safe to suppress warning squid:S1989
-        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        resp.sendError(SC_METHOD_NOT_ALLOWED);
     }
 
     @SuppressWarnings("squid:S1989")
@@ -139,35 +142,35 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
             if (value != null) {
                 resp.getOutputStream().write(objectSerializer.writeObject(value));
-                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.setStatus(SC_OK);
 
             } else {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.setStatus(SC_NOT_FOUND);
             }
         } catch (MalformedCacheRequestException e) {
 
             LOG.error("Malformed cache request during GET", e);
-            switch (e.getError()) {
+            switch (e.getMessage()) {
                 case NO_DD_HOST_KEY:
-                    resp.getWriter().write(e.getError().message());
-                    resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    resp.getWriter().write(e.getMessage());
+                    resp.setStatus(SC_UNAUTHORIZED);
                     break;
                 case CACHE_KEY_INVALID:
-                    resp.getWriter().write(e.getError().message());
-                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    resp.getWriter().write(e.getMessage());
+                    resp.setStatus(SC_NOT_FOUND);
                     break;
                 case OBJECT_TOO_LARGE:
                 case TTL_HEADER_NOT_POSITIVE:
                 case UNEXPECTED_REMOTE_BEHAVIOR:
-                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    resp.setStatus(SC_BAD_REQUEST);
                     break;
                 default:
-                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.sendError(SC_INTERNAL_SERVER_ERROR);
                     break;
             }
         } catch (IOException ioe) {
             LOG.error(ioe.getMessage(), ioe);
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.sendError(SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -181,7 +184,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
             try {
                 final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(req);
                 localDatastore.put(cachePut.getCacheKey(), objectSerializer.readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
-                resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+                resp.setStatus(SC_ACCEPTED);
             } catch (IOException ioe) {
                 LOG.error(ioe.getMessage(), ioe);
                 throw new DatastoreOperationException("Failed to write payload.", ioe);
@@ -192,7 +195,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 handleputMalformedCacheRequestException(mcre, resp);
             }
         } else {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.setStatus(SC_NOT_FOUND);
         }
     }
 
@@ -206,24 +209,24 @@ public class DistributedDatastoreServlet extends HttpServlet {
             try {
                 final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
                 localDatastore.remove(cacheDelete.getCacheKey());
-                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                resp.setStatus(SC_NO_CONTENT);
             } catch (MalformedCacheRequestException e) {
                 LOG.trace("Malformed cache request on Delete", e);
-                switch (e.getError()) {
+                switch (e.getMessage()) {
                     case NO_DD_HOST_KEY:
-                        resp.getWriter().write(e.getError().message());
-                        resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        resp.getWriter().write(e.getMessage());
+                        resp.setStatus(SC_UNAUTHORIZED);
                         break;
                     case UNEXPECTED_REMOTE_BEHAVIOR:
-                        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        resp.setStatus(SC_BAD_REQUEST);
                         break;
                     default:
-                        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                        resp.setStatus(SC_NO_CONTENT);
                         break;
                 }
             }
         } else {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.setStatus(SC_NOT_FOUND);
         }
     }
 
@@ -237,7 +240,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(request);
                 Serializable value = localDatastore.patch(cachePatch.getCacheKey(), (Patch) objectSerializer.readObject(cachePatch.getPayload()), cachePatch.getTtlInSeconds(), TimeUnit.SECONDS);
                 response.getOutputStream().write(objectSerializer.writeObject(value));
-                response.setStatus(HttpServletResponse.SC_OK);
+                response.setStatus(SC_OK);
             } catch (IOException ioe) {
                 LOG.error(ioe.getMessage(), ioe);
                 throw new DatastoreOperationException("Failed to write payload.", ioe);
@@ -249,14 +252,14 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 handleputMalformedCacheRequestException(mcre, response);
             } catch (ClassCastException e) {
                 LOG.trace("Sending ERROR response", e);
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+                response.sendError(SC_BAD_REQUEST, e.getMessage());
             }
         } else {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.setStatus(SC_NOT_FOUND);
         }
     }
 
-    public boolean isAllowed(HttpServletRequest request) {
+    private boolean isAllowed(HttpServletRequest request) {
         boolean allowed = hostAcl.get().shouldAllowAll();
 
         if (!allowed) {
@@ -280,9 +283,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private boolean isRequestValid(HttpServletRequest req, HttpServletResponse resp) {
         boolean valid = false;
         if (!isAllowed(req)) {
-            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.setStatus(SC_UNAUTHORIZED);
         } else if (!CacheRequest.isCacheRequestValid(req)) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.setStatus(SC_NOT_FOUND);
         } else {
             valid = true;
         }
@@ -300,23 +303,23 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private void handleputMalformedCacheRequestException(MalformedCacheRequestException mcre, HttpServletResponse response) throws IOException {
 
         LOG.error("Handling Malformed Cache Request", mcre);
-        switch (mcre.getError()) {
+        switch (mcre.getMessage()) {
             case NO_DD_HOST_KEY:
-                response.getWriter().write(mcre.getError().message());
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write(mcre.getMessage());
+                response.setStatus(SC_UNAUTHORIZED);
                 break;
             case OBJECT_TOO_LARGE:
-                response.getWriter().write(mcre.getError().message());
-                response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+                response.getWriter().write(mcre.getMessage());
+                response.setStatus(SC_REQUEST_ENTITY_TOO_LARGE);
                 break;
             case CACHE_KEY_INVALID:
             case TTL_HEADER_NOT_POSITIVE:
             case UNEXPECTED_REMOTE_BEHAVIOR:
-                response.getWriter().write(mcre.getError().message());
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write(mcre.getMessage());
+                response.setStatus(SC_BAD_REQUEST);
                 break;
             default:
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.sendError(SC_INTERNAL_SERVER_ERROR);
                 break;
         }
 

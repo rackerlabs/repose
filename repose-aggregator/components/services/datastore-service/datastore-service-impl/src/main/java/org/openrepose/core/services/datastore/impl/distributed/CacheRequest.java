@@ -22,7 +22,6 @@ package org.openrepose.core.services.datastore.impl.distributed;
 import org.openrepose.commons.utils.ArrayUtilities;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
-import org.openrepose.commons.utils.http.HeaderConstant;
 import org.openrepose.commons.utils.io.BufferCapacityException;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
@@ -37,8 +36,6 @@ public class CacheRequest {
     public static final int TWO_MEGABYTES_IN_BYTES = 2097152;
     public static final int EXPECTED_UUID_STRING_LENGTH = 36;
     public static final int DEFAULT_TTL_IN_SECONDS = 60;
-    public static final HeaderConstant TTL_HEADER = ExtendedHttpHeader.X_TTL;
-    public static final String TEMP_HOST_KEY = "temp-host-key";
     private final RemoteBehavior requestedRemoteBehavior;
     private final String cacheKey;
     private final String hostKey;
@@ -69,7 +66,7 @@ public class CacheRequest {
     }
 
     private static String getHostKey(HttpServletRequest request) {
-        final String hostKeyHeader = request.getHeader(DatastoreHeader.HOST_KEY.toString());
+        final String hostKeyHeader = request.getHeader(DatastoreHeader.HOST_KEY);
 
         if (StringUtilities.isBlank(hostKeyHeader)) {
             throw new MalformedCacheRequestException(MalformedCacheRequestError.NO_DD_HOST_KEY);
@@ -99,7 +96,7 @@ public class CacheRequest {
     }
 
     public static RemoteBehavior getRequestedRemoteBehavior(HttpServletRequest request) {
-        final String remoteBehaviorHeader = request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString());
+        final String remoteBehaviorHeader = request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR);
         RemoteBehavior remoteBehavior = RemoteBehavior.ALLOW_FORWARDING;
 
         if (StringUtilities.isNotBlank(remoteBehaviorHeader)) {
@@ -126,7 +123,7 @@ public class CacheRequest {
         final String hostKey = getHostKey(request);
 
         try {
-            final String ttlHeader = request.getHeader(TTL_HEADER.toString());
+            final String ttlHeader = request.getHeader(ExtendedHttpHeader.X_TTL);
             final int ttlInSeconds = StringUtilities.isBlank(ttlHeader) ? DEFAULT_TTL_IN_SECONDS : Integer.parseInt(ttlHeader);
 
             if (ttlInSeconds <= 0) {

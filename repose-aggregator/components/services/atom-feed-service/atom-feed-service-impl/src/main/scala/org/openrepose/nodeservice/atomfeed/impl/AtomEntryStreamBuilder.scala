@@ -88,7 +88,7 @@ object AtomEntryStreamBuilder {
     authenticatedRequest match {
       case Some(readRequest) =>
         val tracingHeader = TracingHeaderHelper.createTracingHeader(context.getRequestId, "1.1 Repose (Repose/" + context.getReposeVersion + ")", None)
-        feedReadRequest.getHeaders.put(CommonHttpHeader.TRACE_GUID.toString, util.Arrays.asList(tracingHeader))
+        feedReadRequest.getHeaders.put(CommonHttpHeader.TRACE_GUID, util.Arrays.asList(tracingHeader))
 
         val httpGet = new HttpGet(feedReadRequest.getURI)
         feedReadRequest.getHeaders foreach { case (key, values) =>

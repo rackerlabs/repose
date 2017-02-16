@@ -141,7 +141,7 @@ class IdentityAdminTokenTest extends ReposeValveTest {
         fakeIdentityV2Service.generateTokenCount == 1
         fakeIdentityV2Service.validateTokenCount == 2
         fakeIdentityV2Service.getGroupsCount == 1
-        mc.receivedResponse.code == Integer.toString(SC_OK)
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         // The second admin token request will hit the Akka cache so it isn't 5.
         mc.orphanedHandlings.size() == 4

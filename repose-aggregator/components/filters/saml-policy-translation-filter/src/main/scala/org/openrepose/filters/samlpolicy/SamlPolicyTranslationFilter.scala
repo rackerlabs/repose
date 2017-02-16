@@ -120,7 +120,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       var response = servletResponse.asInstanceOf[HttpServletResponse]
       val samlResponse = decodeSamlResponse(request)
       val rawDocument = readToDom(samlResponse)
-      val traceId = Option(request.getHeader(TRACE_GUID.toString)).filter(_ => sendTraceHeader)
+      val traceId = Option(request.getHeader(TRACE_GUID)).filter(_ => sendTraceHeader)
 
       val version = determineVersion(rawDocument)
       val finalDocument = version match {

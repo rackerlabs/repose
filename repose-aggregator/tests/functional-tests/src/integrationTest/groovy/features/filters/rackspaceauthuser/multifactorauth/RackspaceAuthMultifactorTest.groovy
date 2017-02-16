@@ -158,8 +158,8 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
         then: 'the request received by the origin service should contain a username header'
         messageChain.receivedResponse.code.toInteger() == 401
-        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
-        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME.toString()) == USERNAME
+        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME)
+        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME) == USERNAME
     }
 
     def "the username header should be set on the request for the additional mfa request"() {
@@ -185,8 +185,8 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
         then: 'the request received by the origin service should contain a username header'
         messageChain.receivedResponse.code.toInteger() == 200
-        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
-        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME.toString()) == USERNAME
+        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME)
+        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME) == USERNAME
     }
 
     def "the username header should be set on the request for the additional mfa request when there are multiple session IDs"() {
@@ -212,8 +212,8 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
         then: 'the request received by the origin service should contain a username header'
         messageChain.receivedResponse.code.toInteger() == 200
-        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
-        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME.toString()) == USERNAME
+        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME)
+        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME) == USERNAME
     }
 
     def "the distributed datastore is used to cache the username"() {
@@ -239,8 +239,8 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
         then: 'the request received by the origin service should contain a username header'
         messageChain.receivedResponse.code.toInteger() == 200
-        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
-        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME.toString()) == USERNAME
+        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME)
+        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME) == USERNAME
     }
 
     def "the cached session ID is re-usable"() {
@@ -277,8 +277,8 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
         then: 'the request received by the origin service should contain a username header'
         messageChain.receivedResponse.code.toInteger() == 200
-        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
-        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME.toString()) == USERNAME
+        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME)
+        messageChain.handlings[0].request.headers.getFirstValue(OpenStackServiceHeader.USER_NAME) == USERNAME
     }
 
     @Ignore("a message is not currently logged for this scenario")
@@ -296,8 +296,8 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
 
         then: 'the request received by the origin service should not contain a username header'
         messageChain.receivedResponse.code.toInteger() == 200
-        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
-        !messageChain.handlings[0].request.headers.contains(OpenStackServiceHeader.USER_NAME.toString())
+        !messageChain.sentRequest.headers.contains(OpenStackServiceHeader.USER_NAME)
+        !messageChain.handlings[0].request.headers.contains(OpenStackServiceHeader.USER_NAME)
         reposeLogSearch.searchByString('The provided session ID has not been seen before. ' +
                 'The username header will not be set, but processing will continue.')
     }

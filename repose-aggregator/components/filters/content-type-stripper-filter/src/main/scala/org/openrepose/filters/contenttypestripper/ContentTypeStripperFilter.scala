@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
 class ContentTypeStripperFilter extends Filter {

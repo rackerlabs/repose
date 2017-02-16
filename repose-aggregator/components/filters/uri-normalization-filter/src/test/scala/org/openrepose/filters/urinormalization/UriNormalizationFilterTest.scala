@@ -21,11 +21,11 @@ package org.openrepose.filters.urinormalization
 
 import java.net.URL
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.ws.rs.core.HttpHeaders
 
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, same}
 import org.mockito.Mockito.{verify, when}
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
 import org.openrepose.filters.urinormalization.config._
@@ -160,7 +160,7 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Ma
       val wrappedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
 
       wrappedRequest.getRequestURI shouldBe noExtensionUri
-      wrappedRequest.getHeader(CommonHttpHeader.ACCEPT.toString) shouldBe "application/xml"
+      wrappedRequest.getHeader(HttpHeaders.ACCEPT) shouldBe "application/xml"
     }
 
     it("should normalize preferred content media type") {
@@ -176,7 +176,7 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Ma
 
       val wrappedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
 
-      wrappedRequest.getHeader(CommonHttpHeader.ACCEPT.toString) shouldBe "application/xml"
+      wrappedRequest.getHeader(HttpHeaders.ACCEPT) shouldBe "application/xml"
     }
   }
 

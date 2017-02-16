@@ -63,9 +63,9 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
 
     protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {
         Map<String, String> headers = new HashMap<>();
-        headers.put(DatastoreHeader.HOST_KEY.toString(), hostKey);
-        headers.put(CommonHttpHeader.TRACE_GUID.toString(), tracingHeader);
-        headers.put(DatastoreHeader.REMOTE_BEHAVIOR.toString(), remoteBehavior.name());
+        headers.put(DatastoreHeader.HOST_KEY, hostKey);
+        headers.put(CommonHttpHeader.TRACE_GUID, tracingHeader);
+        headers.put(DatastoreHeader.REMOTE_BEHAVIOR, remoteBehavior.name());
 
         return headers;
     }

@@ -48,7 +48,7 @@ class SimpleRBACwParametersTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: ["X-Roles": roles])
 
         then:
-        mc.receivedResponse.code == respcode.toString()
+        mc.receivedResponse.code as Integer == respcode
 
         where:
         path                 | method   | roles       | respcode
@@ -101,7 +101,7 @@ class SimpleRBACwParametersTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method)
 
         then:
-        mc.receivedResponse.code == respcode.toString()
+        mc.receivedResponse.code as Integer == respcode
 
         where:
         path                 | method   | respcode
@@ -117,7 +117,7 @@ class SimpleRBACwParametersTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: ["X-Roles": roles])
 
         then:
-        mc.receivedResponse.code == respcode.toString()
+        mc.receivedResponse.code as Integer == respcode
 
         where:
         path                 | method   | roles              | respcode

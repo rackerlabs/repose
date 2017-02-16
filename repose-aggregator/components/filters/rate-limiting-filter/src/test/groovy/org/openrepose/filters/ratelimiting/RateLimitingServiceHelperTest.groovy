@@ -64,7 +64,7 @@ public class RateLimitingServiceHelperTest extends Specification {
         headerValues.add("that other user;q=0.5")
         headerValues.add("127.0.0.1;q=0.1")
 
-        when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenReturn(Collections.enumeration(headerValues))
+        when(mockedRequest.getHeaders(PowerApiHeader.USER)).thenReturn(Collections.enumeration(headerValues))
 
         when:
         String user = helper.getPreferredUser(mockedRequest)
@@ -76,14 +76,14 @@ public class RateLimitingServiceHelperTest extends Specification {
     def "when getting preferred user, should return first user in list for users without quality factors present"() {
         given:
         when(mockedRequest.getHeaderNames())
-                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.USER.toString())))
+                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.USER)))
 
         List<String> headerValues = new LinkedList<String>()
         headerValues.add(MOST_QUALIFIED_USER)
         headerValues.add("that other user")
         headerValues.add("127.0.0.1")
 
-        when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenReturn(Collections.enumeration(headerValues))
+        when(mockedRequest.getHeaders(PowerApiHeader.USER)).thenReturn(Collections.enumeration(headerValues))
 
         when:
         String user = helper.getPreferredUser(mockedRequest)
@@ -95,7 +95,7 @@ public class RateLimitingServiceHelperTest extends Specification {
     def "when getting preferred group, should return most qualified groups"() {
         given:
         when(mockedRequest.getHeaderNames())
-                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.GROUPS.toString())))
+                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.GROUPS)))
 
         List<String> headerValues = new LinkedList<String>()
         headerValues.add("group-4;q=0.1")
@@ -103,7 +103,7 @@ public class RateLimitingServiceHelperTest extends Specification {
         headerValues.add("group-1;q=0.1")
         headerValues.add("group-3;q=0.002")
 
-        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues))
+        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS)).thenReturn(Collections.enumeration(headerValues))
 
         List<String> expected = new LinkedList<String>()
         expected.add("group-4")
@@ -120,14 +120,14 @@ public class RateLimitingServiceHelperTest extends Specification {
     def "when getting preferred group, should handle multiple values on a single line"() {
         given:
         when(mockedRequest.getHeaderNames())
-                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.GROUPS.toString())))
+                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.GROUPS)))
 
         List<String> headerValues = new LinkedList<String>()
         headerValues.add("group-1;q=0.1,group-2;q=0.1")
         headerValues.add("group-4;q=0.1,group-5;q=0.1")
         headerValues.add("group-3;q=0.002")
 
-        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues))
+        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS)).thenReturn(Collections.enumeration(headerValues))
 
         List<String> expected = new LinkedList<String>()
         expected.add("group-1")
@@ -144,7 +144,7 @@ public class RateLimitingServiceHelperTest extends Specification {
 
     def "when getting preferred group, should return empty group list when no groups header is present"() {
         given:
-        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.emptyEnumeration())
+        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS)).thenReturn(Collections.emptyEnumeration())
 
         when:
         List<String> groups = helper.getPreferredGroups(mockedRequest)
@@ -156,7 +156,7 @@ public class RateLimitingServiceHelperTest extends Specification {
     def "when getting preferred group, should return all groups when quality factor is not present"() {
         given:
         when(mockedRequest.getHeaderNames())
-                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.GROUPS.toString())))
+                .thenReturn(Collections.enumeration(Collections.singletonList(PowerApiHeader.GROUPS)))
 
         List<String> headerValues = new LinkedList<String>()
         headerValues.add(MOST_QUALIFIED_GROUP)
@@ -165,7 +165,7 @@ public class RateLimitingServiceHelperTest extends Specification {
         headerValues.add("group-1")
         headerValues.add("group-3")
 
-        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues))
+        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS)).thenReturn(Collections.enumeration(headerValues))
 
         List<String> expected = new LinkedList<String>()
         expected.add(MOST_QUALIFIED_GROUP)
@@ -186,7 +186,7 @@ public class RateLimitingServiceHelperTest extends Specification {
         given:
         def mockRlService = mock(RateLimitingService.class)
         def rateLimitingServiceHelper = new RateLimitingServiceHelper(mockRlService, null, null)
-        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.emptyEnumeration())
+        when(mockedRequest.getHeaders(PowerApiHeader.GROUPS)).thenReturn(Collections.emptyEnumeration())
 
         MockHttpServletRequest request = new MockHttpServletRequest()
         request.setRequestURI(requestURI)

@@ -21,13 +21,14 @@ package org.openrepose.filters.cors
 
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
+import javax.ws.rs.core.HttpHeaders
 
 import org.junit.runner.RunWith
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader, HeaderConstant}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.filters.cors.config.Origins.Origin
 import org.openrepose.filters.cors.config._
@@ -108,7 +109,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](CorsHttpHeader.ORIGIN)
+          servletResponse.getHeaders(HttpHeaders.VARY) should contain theSameElementsAs List[String](CorsHttpHeader.ORIGIN)
         }
       }
 
@@ -118,7 +119,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](
+        servletResponse.getHeaders(HttpHeaders.VARY) should contain theSameElementsAs List[String](
           CorsHttpHeader.ORIGIN, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       }
     }
@@ -228,7 +229,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](
+          servletResponse.getHeaders(HttpHeaders.VARY) should contain theSameElementsAs List[String](
             CorsHttpHeader.ORIGIN, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
         }
       }
@@ -287,8 +288,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
             // Access-Control-Expose-Headers should have all of the response headers in it except for itself and the Vary header
             servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).toLowerCase.split(",") should contain theSameElementsAs
               servletResponse.getHeaderNames.asScala.filter { headerName =>
-                headerName != CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString &&
-                  headerName != CommonHttpHeader.VARY.toString}.map(_.toLowerCase)
+                headerName != CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS &&
+                  headerName != HttpHeaders.VARY}.map(_.toLowerCase)
             servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) should have size 1
           }
         }
@@ -321,7 +322,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](CorsHttpHeader.ORIGIN)
+          servletResponse.getHeaders(HttpHeaders.VARY) should contain theSameElementsAs List[String](CorsHttpHeader.ORIGIN)
         }
       }
 
@@ -331,7 +332,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getHeaders(CommonHttpHeader.VARY) should contain theSameElementsAs List[String](
+        servletResponse.getHeaders(HttpHeaders.VARY) should contain theSameElementsAs List[String](
           CorsHttpHeader.ORIGIN, CorsHttpHeader.ACCESS_CONTROL_REQUEST_HEADERS, CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD)
       }
     }
@@ -992,8 +993,6 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 }
 
 object CorsFilterTest {
-  implicit def autoHeaderToString(hc: HeaderConstant): String = hc.toString
-
   implicit def autoRequestWrapper(request: MockHttpServletRequest): HttpServletRequestWrapper =
     new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest])
 }

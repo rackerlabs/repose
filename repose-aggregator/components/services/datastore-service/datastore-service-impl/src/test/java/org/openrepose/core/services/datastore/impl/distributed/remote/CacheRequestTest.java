@@ -65,8 +65,8 @@ public class CacheRequestTest {
             when(mockedRequest.getLocalAddr()).thenReturn("localhost");
             when(mockedRequest.getLocalPort()).thenReturn(2101);
             when(mockedRequest.getRemoteHost()).thenReturn(remoteHost);
-            when(mockedRequest.getHeader(DatastoreHeader.HOST_KEY.toString())).thenReturn("temp");
-            when(mockedRequest.getHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString())).thenReturn("ALLOW_FORWARDING");
+            when(mockedRequest.getHeader(DatastoreHeader.HOST_KEY)).thenReturn("temp");
+            when(mockedRequest.getHeader(DatastoreHeader.REMOTE_BEHAVIOR)).thenReturn("ALLOW_FORWARDING");
 
             return mockedRequest;
         }
@@ -136,7 +136,7 @@ public class CacheRequestTest {
         @Test(expected = MalformedCacheRequestException.class)
         public void shouldRejectRequestsThatHaveNoHostKey() {
             final HttpServletRequest request = mockRequestWithMethod("GET", "localhost");
-            when(request.getHeader(DatastoreHeader.HOST_KEY.toString())).thenReturn(null);
+            when(request.getHeader(DatastoreHeader.HOST_KEY)).thenReturn(null);
 
             CacheRequest.marshallCacheRequest(request);
         }
@@ -147,7 +147,7 @@ public class CacheRequestTest {
         @Test
         public void shouldUseDefaultRemoteBehaviorDirectiveWhenOneIsNotSetInTheRequest() {
             final HttpServletRequest request = mockRequestWithMethod("GET", "localhost");
-            when(request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString())).thenReturn(null);
+            when(request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR)).thenReturn(null);
 
             final CacheRequest cacheRequest = CacheRequest.marshallCacheRequest(request);
 
@@ -157,7 +157,7 @@ public class CacheRequestTest {
         @Test
         public void shouldIgnoreCaseForRemoteBehaviorDirective() {
             final HttpServletRequest request = mockRequestWithMethod("GET", "localhost");
-            when(request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString())).thenReturn("diSallOw_forwaRding");
+            when(request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR)).thenReturn("diSallOw_forwaRding");
 
             final CacheRequest cacheRequest = CacheRequest.marshallCacheRequest(request);
 
@@ -167,7 +167,7 @@ public class CacheRequestTest {
         @Test(expected = MalformedCacheRequestException.class)
         public void shouldRejectBadRemoteBehaviorDirectives() {
             final HttpServletRequest request = mockRequestWithMethod("GET", "localhost");
-            when(request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString())).thenReturn("FAIL");
+            when(request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR)).thenReturn("FAIL");
 
             CacheRequest.marshallCacheRequest(request);
         }
@@ -202,7 +202,7 @@ public class CacheRequestTest {
         @Test(expected = MalformedCacheRequestException.class)
         public void shouldRejectBadTTL() throws IOException {
             final HttpServletRequest request = mockRequestWithMethod("PUT", "localhost");
-            when(request.getHeader(ExtendedHttpHeader.X_TTL.toString())).thenReturn("nan");
+            when(request.getHeader(ExtendedHttpHeader.X_TTL)).thenReturn("nan");
 
             CacheRequest.marshallCacheRequestWithPayload(request);
         }
@@ -210,7 +210,7 @@ public class CacheRequestTest {
         @Test(expected = MalformedCacheRequestException.class)
         public void shouldRejectNegativeTTL() throws IOException {
             final HttpServletRequest request = mockRequestWithMethod("PUT", "localhost");
-            when(request.getHeader(ExtendedHttpHeader.X_TTL.toString())).thenReturn("-1");
+            when(request.getHeader(ExtendedHttpHeader.X_TTL)).thenReturn("-1");
 
             CacheRequest.marshallCacheRequestWithPayload(request);
         }
@@ -236,7 +236,7 @@ public class CacheRequestTest {
         @Test
         public void shouldMarshallRequest() throws IOException {
             final HttpServletRequest request = mockRequestWithMethod("PUT", "localhost");
-            when(request.getHeader(ExtendedHttpHeader.X_TTL.toString())).thenReturn("5");
+            when(request.getHeader(ExtendedHttpHeader.X_TTL)).thenReturn("5");
             when(request.getInputStream()).thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{1})));
 
             final CacheRequest cacheRequest = CacheRequest.marshallCacheRequestWithPayload(request);

@@ -20,7 +20,7 @@
 package org.openrepose.core.services.phonehome
 
 import java.text.SimpleDateFormat
-import java.util.{TimeZone, Date, UUID}
+import java.util.{Date, TimeZone, UUID}
 import javax.annotation.PostConstruct
 import javax.inject.{Inject, Named}
 import javax.ws.rs.core.MediaType
@@ -29,7 +29,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.{FilterList, PhoneHomeServiceConfig, ServicesList, SystemModel}
 import org.slf4j.LoggerFactory
@@ -164,7 +164,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
 
       try {
         val updateHeaders = if (Option(staticSystemModel.getTracingHeader).isEmpty || staticSystemModel.getTracingHeader.isEnabled) {
-          Map(CommonHttpHeader.TRACE_GUID.toString -> UUID.randomUUID().toString).asJava
+          Map(CommonHttpHeader.TRACE_GUID -> UUID.randomUUID().toString).asJava
         } else {
           Map.empty[String, String].asJava
         }

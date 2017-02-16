@@ -162,8 +162,8 @@ class HeaderUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers
 }
 
 object HeaderUserFilterTest {
-  private final val User = PowerApiHeader.USER.toString
-  private final val Groups = PowerApiHeader.GROUPS.toString
+  private final val User = PowerApiHeader.USER
+  private final val Groups = PowerApiHeader.GROUPS
   private final val DefaultQualty = ";q=0.1"
 
   case class ConfigHeader(name: String, quality: Option[Double])

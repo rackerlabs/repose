@@ -22,13 +22,13 @@ package org.openrepose.filters.uristripper
 
 import javax.servlet.FilterChain
 
+import org.apache.http.HttpHeaders
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.filters.uristripper.config.UriStripperConfig
 import org.scalatest.junit.JUnitRunner
@@ -97,11 +97,11 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       it(s"properly updates Location header $originalLocation to $newLocation for URI $resourcePath with index $index") {
         filter.configurationUpdated(createConfig(index = index, rewriteLocationHeader = true))
         request.setRequestURI(resourcePath)
-        addResponseHeaders(List(SimpleHeader(CommonHttpHeader.LOCATION.toString, originalLocation)))
+        addResponseHeaders(List(SimpleHeader(HttpHeaders.LOCATION, originalLocation)))
 
         filter.doFilter(request, response, filterChain)
 
-        response.getHeader(CommonHttpHeader.LOCATION.toString) shouldBe newLocation
+        response.getHeader(HttpHeaders.LOCATION) shouldBe newLocation
       }
     }
 
@@ -109,11 +109,11 @@ class UriStripperFilterTest extends FunSpec with BeforeAndAfterEach with Matcher
       val invalidLocation = "http://example.com/v1/some(\\/resource"
       filter.configurationUpdated(createConfig(index = 1, rewriteLocationHeader = true))
       request.setRequestURI("/v1/12345/some/resource")
-      addResponseHeaders(List(SimpleHeader(CommonHttpHeader.LOCATION.toString, invalidLocation)))
+      addResponseHeaders(List(SimpleHeader(HttpHeaders.LOCATION, invalidLocation)))
 
       filter.doFilter(request, response, filterChain)
 
-      response.getHeader(CommonHttpHeader.LOCATION.toString) shouldBe invalidLocation
+      response.getHeader(HttpHeaders.LOCATION) shouldBe invalidLocation
     }
   }
 

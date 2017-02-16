@@ -132,10 +132,10 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       filter.doWork(servletRequest, servletResponse, filterChain)
 
       val request = captureRequestSentToNextFilter()
-      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
-      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
-      request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
-      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
+      request.getHeader(PowerApiHeader.DOMAIN) shouldBe "Rackspace"
+      request.getHeader(OpenStackServiceHeader.USER_NAME) shouldBe "Racker:jqsmith"
+      request.getHeader(PowerApiHeader.USER) shouldBe "Racker:jqsmith;q=0.6"
+      request.getHeader(PowerApiHeader.GROUPS) shouldBe "GROUP;q=0.6"
     }
 
     it("will write the headers when the user is present in the datastore") {
@@ -156,10 +156,10 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       filter.doWork(servletRequest, servletResponse, filterChain)
 
       val request = captureRequestSentToNextFilter()
-      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
-      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
-      request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
-      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
+      request.getHeader(PowerApiHeader.DOMAIN) shouldBe "Rackspace"
+      request.getHeader(OpenStackServiceHeader.USER_NAME) shouldBe "Racker:jqsmith"
+      request.getHeader(PowerApiHeader.USER) shouldBe "Racker:jqsmith;q=0.6"
+      request.getHeader(PowerApiHeader.GROUPS) shouldBe "GROUP;q=0.6"
     }
 
     it("will only search the datastore till it finds the session") {
@@ -180,10 +180,10 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       filter.doWork(servletRequest, servletResponse, filterChain)
 
       val request = captureRequestSentToNextFilter()
-      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
-      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
-      request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
-      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
+      request.getHeader(PowerApiHeader.DOMAIN) shouldBe "Rackspace"
+      request.getHeader(OpenStackServiceHeader.USER_NAME) shouldBe "Racker:jqsmith"
+      request.getHeader(PowerApiHeader.USER) shouldBe "Racker:jqsmith;q=0.6"
+      request.getHeader(PowerApiHeader.GROUPS) shouldBe "GROUP;q=0.6"
 
       verify(datastore, times(0)).get(s"${RackspaceAuthUserFilter.DdKey}:banana")
     }
@@ -206,10 +206,10 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       filter.doWork(servletRequest, servletResponse, filterChain)
 
       val request = captureRequestSentToNextFilter()
-      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe "Rackspace"
-      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "Racker:jqsmith"
-      request.getHeader(PowerApiHeader.USER.toString) shouldBe "Racker:jqsmith;q=0.6"
-      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe "GROUP;q=0.6"
+      request.getHeader(PowerApiHeader.DOMAIN) shouldBe "Rackspace"
+      request.getHeader(OpenStackServiceHeader.USER_NAME) shouldBe "Racker:jqsmith"
+      request.getHeader(PowerApiHeader.USER) shouldBe "Racker:jqsmith;q=0.6"
+      request.getHeader(PowerApiHeader.GROUPS) shouldBe "GROUP;q=0.6"
 
       verify(datastore).get(s"${RackspaceAuthUserFilter.DdKey}:banana")
     }
@@ -230,7 +230,7 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
         filter.doWork(servletRequest, servletResponse, filterChain)
 
         val request = captureRequestSentToNextFilter()
-        request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe "vkapoor"
+        request.getHeader(OpenStackServiceHeader.USER_NAME) shouldBe "vkapoor"
       }
 
       it(s"will not parse an Auth request if the URL matches $uri") {
@@ -254,10 +254,10 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
         filter.doWork(servletRequest, servletResponse, filterChain)
 
         val request = captureRequestSentToNextFilter()
-        request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe null
-        request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe null
-        request.getHeader(PowerApiHeader.USER.toString) shouldBe null
-        request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+        request.getHeader(PowerApiHeader.DOMAIN) shouldBe null
+        request.getHeader(OpenStackServiceHeader.USER_NAME) shouldBe null
+        request.getHeader(PowerApiHeader.USER) shouldBe null
+        request.getHeader(PowerApiHeader.GROUPS) shouldBe null
       }
     }
 
@@ -276,10 +276,10 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       filter.doWork(servletRequest, servletResponse, filterChain)
 
       val request = captureRequestSentToNextFilter()
-      request.getHeader(PowerApiHeader.DOMAIN.toString) shouldBe null
-      request.getHeader(OpenStackServiceHeader.USER_NAME.toString) shouldBe null
-      request.getHeader(PowerApiHeader.USER.toString) shouldBe null
-      request.getHeader(PowerApiHeader.GROUPS.toString) shouldBe null
+      request.getHeader(PowerApiHeader.DOMAIN) shouldBe null
+      request.getHeader(OpenStackServiceHeader.USER_NAME) shouldBe null
+      request.getHeader(PowerApiHeader.USER) shouldBe null
+      request.getHeader(PowerApiHeader.GROUPS) shouldBe null
     }
   }
 

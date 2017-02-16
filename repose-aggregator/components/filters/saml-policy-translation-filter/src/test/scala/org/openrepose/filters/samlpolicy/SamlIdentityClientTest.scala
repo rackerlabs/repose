@@ -22,6 +22,7 @@ package org.openrepose.filters.samlpolicy
 import java.io.ByteArrayInputStream
 import java.nio.charset.{Charset, StandardCharsets}
 import javax.servlet.http.HttpServletResponse._
+import javax.ws.rs.core.HttpHeaders._
 import javax.ws.rs.core.MediaType
 
 import org.apache.http.message.BasicHeader
@@ -29,7 +30,7 @@ import org.hamcrest.{Matchers => HM}
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{never, verify, when}
 import org.mockito.{Matchers => MM}
-import org.openrepose.commons.utils.http.CommonHttpHeader.{CONTENT_TYPE, TRACE_GUID}
+import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, SC_TOO_MANY_REQUESTS}
@@ -204,7 +205,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(tokenServiceClient).post(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
+        MM.argThat(HM.hasEntry(TRACE_GUID, "trace-id")),
         MM.anyString(),
         MM.any[MediaType]
       )
@@ -226,7 +227,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(tokenServiceClient).post(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.not(HM.hasKey(TRACE_GUID.toString))),
+        MM.argThat(HM.not(HM.hasKey(TRACE_GUID))),
         MM.anyString(),
         MM.any[MediaType]
       )
@@ -242,7 +243,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(
@@ -292,7 +293,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(sampleToken.getBytes)
@@ -356,7 +357,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         )).thenReturn(new ServiceClientResponse(
           SC_OK,
           Array(new BasicHeader(
-            CONTENT_TYPE.toString,
+            CONTENT_TYPE,
             MediaType.APPLICATION_JSON + "; charset=" + charset.name()
           )),
           new ByteArrayInputStream(sampleToken.getBytes(charset))
@@ -381,7 +382,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(sampleToken.getBytes)
@@ -447,7 +448,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
+        MM.argThat(HM.hasEntry(TRACE_GUID, "trace-id")),
         MM.anyBoolean()
       )
     }
@@ -467,7 +468,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.not(HM.hasKey(TRACE_GUID.toString))),
+        MM.argThat(HM.not(HM.hasKey(TRACE_GUID))),
         MM.anyBoolean()
       )
     }
@@ -489,7 +490,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token)),
+        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN, token)),
         MM.anyBoolean()
       )
     }
@@ -503,7 +504,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(
@@ -551,7 +552,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(sampleIdp.getBytes)
@@ -613,7 +614,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         )).thenReturn(new ServiceClientResponse(
           SC_OK,
           Array(new BasicHeader(
-            CONTENT_TYPE.toString,
+            CONTENT_TYPE,
             MediaType.APPLICATION_JSON + "; charset=" + charset.name
           )),
           new ByteArrayInputStream(sampleIdp.getBytes(charset))
@@ -637,7 +638,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(sampleIdp.getBytes)
@@ -664,7 +665,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(sampleIdp.getBytes)
@@ -754,7 +755,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(TRACE_GUID.toString, "trace-id")),
+        MM.argThat(HM.hasEntry(TRACE_GUID, "trace-id")),
         MM.anyBoolean()
       )
     }
@@ -796,7 +797,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       verify(policyServiceClient).get(
         MM.anyString(),
         MM.anyString(),
-        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN.toString, token)),
+        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN, token)),
         MM.anyBoolean()
       )
     }
@@ -831,7 +832,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(samplePolicy.getBytes)
@@ -893,7 +894,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         )).thenReturn(new ServiceClientResponse(
           SC_OK,
           Array(new BasicHeader(
-            CONTENT_TYPE.toString,
+            CONTENT_TYPE,
             MediaType.APPLICATION_JSON + "; charset=" + charset.name
           )),
           new ByteArrayInputStream(samplePolicy.getBytes(charset))
@@ -917,7 +918,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(samplePolicy.getBytes)
@@ -944,7 +945,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       )).thenReturn(new ServiceClientResponse(
         SC_OK,
         Array(new BasicHeader(
-          CONTENT_TYPE.toString,
+          CONTENT_TYPE,
           MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
         )),
         new ByteArrayInputStream(samplePolicy.getBytes)

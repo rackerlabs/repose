@@ -91,13 +91,13 @@ public class HttpLogFormatterTest {
 
         @Test
         public void shouldReplaceTokenWithRequestGuid() {
-            final HttpLogFormatter formatter = new HttpLogFormatter("%" + LogFormatArgument.TRACE_GUID.toString());
+            final HttpLogFormatter formatter = new HttpLogFormatter("%" + LogFormatArgument.TRACE_GUID);
             final String expected = "test-guid";
 
             Vector<String> reqGuidValues = new Vector<>();
             reqGuidValues.add("test-guid");
 
-            when(request.getHeaders(CommonHttpHeader.TRACE_GUID.toString()))
+            when(request.getHeaders(CommonHttpHeader.TRACE_GUID))
                     .thenReturn(reqGuidValues.elements());
 
             assertEquals(expected, formatter.format(request, response));
@@ -177,7 +177,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void ResponseTimeHandlerMicroseconds() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_TIME_MICROSECONDS.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_TIME_MICROSECONDS);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -186,7 +186,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void ResponseTimeHandlerSeconds() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_TIME_SECONDS.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_TIME_SECONDS);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -195,7 +195,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void RequestHeaderHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_HEADER.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_HEADER);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -204,7 +204,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void RequestLineHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_LINE.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_LINE);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -213,7 +213,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void RequestProtocolHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_PROTOCOL.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_PROTOCOL);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -222,7 +222,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void ResponseHeaderHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_HEADER.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_HEADER);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -231,7 +231,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void CanonicalPortHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.CANONICAL_PORT.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.CANONICAL_PORT);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -240,7 +240,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void LocalAddressHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.LOCAL_ADDRESS.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.LOCAL_ADDRESS);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -249,7 +249,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void StatusCodeHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.STATUS_CODE.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.STATUS_CODE);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -258,7 +258,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void QueryStringHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.QUERY_STRING.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.QUERY_STRING);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -267,7 +267,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void RemoteAddressHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REMOTE_ADDRESS.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REMOTE_ADDRESS);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -276,7 +276,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void RemoteHostHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REMOTE_HOST.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REMOTE_HOST);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -285,7 +285,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void RemoteUserHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REMOTE_USER.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REMOTE_USER);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -294,7 +294,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void RequestMethodHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_METHOD.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_METHOD);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -303,7 +303,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void ResponseBytesClfHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_CLF_BYTES.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_CLF_BYTES);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -312,7 +312,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void ResponseBytesHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_BYTES.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_BYTES);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -321,7 +321,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void TimeReceivedHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.TIME_RECEIVED.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.TIME_RECEIVED);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -330,7 +330,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void UrlRequestedHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.URL_REQUESTED.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.URL_REQUESTED);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -339,7 +339,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void PercentHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.PERCENT.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.PERCENT);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -348,7 +348,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void StringHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.STRING.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.STRING);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -357,7 +357,7 @@ public class HttpLogFormatterTest {
 
         @Test
         public void ResponseMessageHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_REASON.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_REASON);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
@@ -366,11 +366,25 @@ public class HttpLogFormatterTest {
 
         @Test
         public void RequestGuidHandler() {
-            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.TRACE_GUID.toString());
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.TRACE_GUID);
 
             httpLogFormatter.setLogic(extractor, formatter);
 
             assertTrue(formatter.getLogic() instanceof TraceGuidHandler);
+        }
+
+        @Test(expected = IllegalArgumentException.class)
+        public void BadHandler() {
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", "BadArgument");
+
+            httpLogFormatter.setLogic(extractor, formatter);
+        }
+
+        @Test(expected = IllegalArgumentException.class)
+        public void NullHandler() {
+            final LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", null);
+
+            httpLogFormatter.setLogic(extractor, formatter);
         }
     }
 

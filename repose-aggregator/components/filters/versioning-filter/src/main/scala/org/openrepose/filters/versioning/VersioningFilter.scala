@@ -27,9 +27,10 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.bind.JAXBElement
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.http.media.MediaType
-import org.openrepose.commons.utils.http.{CommonHttpHeader, CommonRequestAttributes}
 import org.openrepose.commons.utils.io.RawInputStreamReader
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, RouteDestination}
 import org.openrepose.core.filter.{FilterConfigHelper, SystemModelInterrogator}
@@ -39,7 +40,7 @@ import org.openrepose.core.services.healthcheck.{HealthCheckService, Severity}
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.{Destination, SystemModel}
-import org.openrepose.filters.versioning.config.{JsonFormat, ServiceVersionMapping, ServiceVersionMappingList}
+import org.openrepose.filters.versioning.config.{ServiceVersionMapping, ServiceVersionMappingList}
 import org.openrepose.filters.versioning.domain.{ConfigurationData, VersionedHostNotFoundException, VersionedRequest}
 import org.openrepose.filters.versioning.schema.ObjectFactory
 import org.openrepose.filters.versioning.util.{ContentTransformer, RequestMediaRangeInterrogator, VersionChoiceFactory}
@@ -183,7 +184,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
   private def getPreferredMediaRange(request: HttpServletRequestWrapper): MediaType = {
     RequestMediaRangeInterrogator.interrogate(
       request.getRequestURI,
-      request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString)).get(0)
+      request.getPreferredSplittableHeaders(HttpHeaders.ACCEPT)).get(0)
   }
 
   private def transformResponse(response: HttpServletResponse, elementToMarshal: JAXBElement[_], preferredMediaType: MediaType): Unit = {

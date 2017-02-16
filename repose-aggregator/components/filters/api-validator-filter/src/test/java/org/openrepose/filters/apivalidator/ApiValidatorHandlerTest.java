@@ -105,7 +105,7 @@ public class ApiValidatorHandlerTest {
 
         @Test
         public void shouldCallValidatorForRole() {
-            request.addHeader(OpenStackServiceHeader.ROLES.toString(), "junk;q=0.8,role1;q=0.9,bbq;q=0.9,stuff;q=0.7");
+            request.addHeader(OpenStackServiceHeader.ROLES, "junk;q=0.8,role1;q=0.9,bbq;q=0.9,stuff;q=0.7");
 
             instance.doFilter(request, response, chain);
             verify(role1Validator).validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain));
@@ -113,7 +113,7 @@ public class ApiValidatorHandlerTest {
 
         @Test
         public void shouldHandleNullValidators() {
-            request.addHeader(OpenStackServiceHeader.ROLES.toString(), "nullValidator");
+            request.addHeader(OpenStackServiceHeader.ROLES, "nullValidator");
 
             instance.doFilter(request, response, chain);
             verify(nullValidatorInfo).getValidator();
@@ -122,7 +122,7 @@ public class ApiValidatorHandlerTest {
 
         @Test
         public void shouldHandleExceptionsInValidators() {
-            request.addHeader(OpenStackServiceHeader.ROLES.toString(), "blowupValidator");
+            request.addHeader(OpenStackServiceHeader.ROLES, "blowupValidator");
 
             instance.doFilter(request, response, chain);
             verify(blowupValidator).validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain));

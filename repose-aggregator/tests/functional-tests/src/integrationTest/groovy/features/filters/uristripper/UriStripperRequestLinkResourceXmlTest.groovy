@@ -256,7 +256,7 @@ class UriStripperRequestLinkResourceXmlTest extends ReposeValveTest {
                 requestBody: stringWriter.toString())
 
         then: "the request code is 500"
-        mc.receivedResponse.code == HttpServletResponse.SC_BAD_REQUEST as String
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_BAD_REQUEST
     }
 
     def "when configured to fail on mismatch, Repose returns a 500 if the xpath to the link does not resolve"() {
@@ -282,7 +282,7 @@ class UriStripperRequestLinkResourceXmlTest extends ReposeValveTest {
                 requestBody: stringWriter.toString())
 
         then: "the request code is 500"
-        mc.receivedResponse.code == HttpServletResponse.SC_BAD_REQUEST as String
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_BAD_REQUEST
     }
 
     def "when configured to fail on mismatch, Repose returns a 500 if the token index is too high for the link"() {
@@ -297,7 +297,7 @@ class UriStripperRequestLinkResourceXmlTest extends ReposeValveTest {
                 requestBody: simpleXmlWithLink(requestBodyLink))
 
         then: "the request code is 500"
-        mc.receivedResponse.code == HttpServletResponse.SC_BAD_REQUEST as String
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_BAD_REQUEST
     }
 
     @Unroll

@@ -27,7 +27,8 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.lang3.StringUtils
-import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, PowerApiHeader}
+import org.apache.http.HttpHeaders
+import org.openrepose.commons.utils.http.{OpenStackServiceHeader, PowerApiHeader}
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
 import org.openrepose.commons.utils.servlet.http.{HeaderValue, HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
@@ -36,9 +37,9 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
-import scala.xml.XML
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
+import scala.xml.XML
 
 @Named
 class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationService, datastoreService: DatastoreService)
@@ -67,16 +68,16 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(SessionIdHeader))
       authUserGroup foreach { rackspaceAuthUserGroup =>
         rackspaceAuthUserGroup.domain.foreach { domainVal =>
-          wrappedRequest.addHeader(PowerApiHeader.DOMAIN.toString, domainVal)
+          wrappedRequest.addHeader(PowerApiHeader.DOMAIN, domainVal)
         }
-        wrappedRequest.addHeader(PowerApiHeader.USER.toString, rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.quality)
-        wrappedRequest.addHeader(OpenStackServiceHeader.USER_NAME.toString, rackspaceAuthUserGroup.user)
-        wrappedRequest.addHeader(PowerApiHeader.GROUPS.toString, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
+        wrappedRequest.addHeader(PowerApiHeader.USER, rackspaceAuthUserGroup.user, rackspaceAuthUserGroup.quality)
+        wrappedRequest.addHeader(OpenStackServiceHeader.USER_NAME, rackspaceAuthUserGroup.user)
+        wrappedRequest.addHeader(PowerApiHeader.GROUPS, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
       }
 
       filterChain.doFilter(wrappedRequest, wrappedResponse)
 
-      wrappedResponse.getHeadersList(CommonHttpHeader.WWW_AUTHENTICATE.toString).asScala.filter(_.startsWith("OS-MF")) foreach { header =>
+      wrappedResponse.getHeadersList(HttpHeaders.WWW_AUTHENTICATE).asScala.filter(_.startsWith("OS-MF")) foreach { header =>
         Option(StringUtils.substringBetween(header, "sessionId='", "'")) match {
           case Some(sessionId) => datastore.put(s"$DdKey:$sessionId", authUserGroup, 5, TimeUnit.MINUTES)
           case None => logger.debug("Failed to parse the session id out of '{}'", header)

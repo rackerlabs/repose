@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.ratelimiting;
 
-import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.apache.http.HttpHeaders;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
@@ -38,7 +38,6 @@ import org.openrepose.filters.ratelimiting.log.LimitLogger;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -46,6 +45,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+
+import static javax.servlet.http.HttpServletResponse.*;
 
 /* Responsible for handling requests and responses to rate limiting, also tracks and provides limits */
 public class RateLimitingHandler {
@@ -74,7 +75,7 @@ public class RateLimitingHandler {
     public FilterAction handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         FilterAction filterAction;
 
-        List<String> headerValues = request.getPreferredSplittableHeaders(CommonHttpHeader.ACCEPT.toString());
+        List<String> headerValues = request.getPreferredSplittableHeaders(HttpHeaders.ACCEPT);
         List<MimeType> mimeTypes = MediaRangeProcessor.getMimeTypesFromHeaderValues(headerValues);
         if (mimeTypes.isEmpty()) {
             mimeTypes.add(DEFAULT_MIME_TYPE);
@@ -94,10 +95,10 @@ public class RateLimitingHandler {
                 filterAction = FilterAction.PASS;
             }
         } else {
-            LOG.warn("Expected header: {} was not supplied in the request. Rate limiting requires this header to operate.", PowerApiHeader.USER.toString());
+            LOG.warn("Expected header: {} was not supplied in the request. Rate limiting requires this header to operate.", PowerApiHeader.USER);
 
             // Auto return a 401 if the request does not meet expectations
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(SC_UNAUTHORIZED);
             filterAction = FilterAction.RETURN;
         }
 
@@ -105,19 +106,19 @@ public class RateLimitingHandler {
     }
 
     private boolean requestHasExpectedHeaders(HttpServletRequest request) {
-        return request.getHeader(PowerApiHeader.USER.toString()) != null;
+        return request.getHeader(PowerApiHeader.USER) != null;
     }
 
     private FilterAction describeLimitsForRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         if (originalPreferredAccept == MimeType.UNKNOWN) {
-            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+            response.setStatus(SC_NOT_ACCEPTABLE);
             return FilterAction.RETURN;
         } else {
             // If include absolute limits let request pass thru but prepare the combined
             // (absolute and active) limits when processing the response
             // TODO: A way to query global rate limits
             if (includeAbsoluteLimits) {
-                request.replaceHeader(CommonHttpHeader.ACCEPT.toString(), MimeType.APPLICATION_XML.toString());
+                request.replaceHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML.toString());
                 return FilterAction.PROCESS_RESPONSE;
             } else {
                 return noUpstreamResponse(request, response);
@@ -131,10 +132,10 @@ public class RateLimitingHandler {
             final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, originalPreferredAccept, outputStream);
             response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
             response.setContentType(mimeType.toString());
-            response.setStatus(HttpServletResponse.SC_OK);
+            response.setStatus(SC_OK);
         } catch (Exception e) {
             LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(SC_INTERNAL_SERVER_ERROR);
         }
 
         return FilterAction.RETURN;
@@ -154,21 +155,21 @@ public class RateLimitingHandler {
             // We use a 413 "Request Entity Too Large" to communicate that the user
             // in question has hit their rate limit for this requested URI
             if (e.getUser().equals(RateLimitingServiceImpl.GLOBAL_LIMIT_USER)) {
-                response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                response.setStatus(SC_SERVICE_UNAVAILABLE);
             } else if (overLimit429ResponseCode) {
                 response.setStatus(SC_TOO_MANY_REQUESTS);
             } else {
-                response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+                response.setStatus(SC_REQUEST_ENTITY_TOO_LARGE);
             }
 
-            response.addHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
+            response.addHeader(HttpHeaders.RETRY_AFTER, nextAvailableTime.toRFC1123());
             eventService.newEvent(RateLimitFilterEvent.OVER_LIMIT, new OverLimitData(e, datastoreWarnLimit, request, response.getStatus()));
         } catch (CacheException e) {
             LOG.error("Failure when tracking limits.", e);
-            response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
+            response.setStatus(SC_BAD_GATEWAY);
         } catch (DatastoreOperationException doe) {
             LOG.error("Unable to communicate with dist-datastore.", doe);
-            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            response.setStatus(SC_SERVICE_UNAVAILABLE);
         }
 
         return success;
@@ -210,10 +211,10 @@ public class RateLimitingHandler {
         } catch (UpstreamException ue) {
             //I want a 502 returned when upstream didn't respond appropriately
             LOG.error("Failure when querying limits. Reason: " + ue.getMessage(), ue);
-            response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
+            response.setStatus(SC_BAD_GATEWAY);
         } catch (Exception e) {
             LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(SC_INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -69,7 +69,7 @@ public class Patch extends AbstractRemoteCommand {
     @Override
     protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {
         Map<String, String> headers = super.getHeaders(remoteBehavior);
-        headers.put(ExtendedHttpHeader.X_TTL.toString(), String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
+        headers.put(ExtendedHttpHeader.X_TTL, String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
         return headers;
     }
 

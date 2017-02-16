@@ -27,8 +27,9 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-import javax.servlet.http.HttpServletResponse
-import javax.ws.rs.core.HttpHeaders
+import static javax.servlet.http.HttpServletResponse.*
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION
+import static javax.ws.rs.core.HttpHeaders.WWW_AUTHENTICATE
 
 /**
  * Created by jennyvo on 1/15/16.
@@ -71,19 +72,19 @@ class BasicAuthPasswordTest extends ReposeValveTest {
     def "Retrieve a token for an HTTP Basic authentication header with UserName/password"() {
         given: "the HTTP Basic authentication header containing the User Name and password"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_password).bytes)
+                (AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_password).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header with UserName/password"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token for it"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
-        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        mc.handlings[0].request.headers.getFirstValue(AUTHORIZATION)
+        !mc.receivedResponse.headers.getFirstValue(WWW_AUTHENTICATE)
         //**This test tracing header Repose handling request, and the request to identity as part of REP-1704**
         mc.orphanedHandlings.each {
             e ->
@@ -101,9 +102,9 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401) and add an HTTP Basic authentication header"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
         mc.orphanedHandlings.size() == 0
     }
 
@@ -115,42 +116,42 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "then get a token and validate it"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
-        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
-        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        !mc.handlings[0].request.headers.getFirstValue(AUTHORIZATION)
+        !mc.receivedResponse.headers.getFirstValue(WWW_AUTHENTICATE)
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token")
     }
 
     def "When the request send with invalid password or username, then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid password"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
+                (AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token and validate it"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "When the request send with invalid 0 < password < 100 , then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid password"
         def password = RandomStringUtils.random(99, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + password).bytes)
+                (AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + password).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 400 bad request"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     // identity currently return 400 bad request for api-key > 100 characters
@@ -158,62 +159,62 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         given: "the HTTP Basic authentication header containing the User Name and invalid password"
         def password = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + password).bytes)
+                (AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + password).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 401 Unauthorized"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "When the request send with username > 100 , then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid password"
         def username = RandomStringUtils.random(120, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((username + ":" + "randompassword").bytes)
+                (AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((username + ":" + "randompassword").bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 401 Unauthorized"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "When identity returns a 403 Forbidden, repose will also return a 403 Forbidden"() {
         given: "the HTTP Basic authentication header containing the User Name and forbidden API key"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.forbidden_apikey_or_pwd).bytes)
+                (AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.forbidden_apikey_or_pwd).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 403 Forbidden"
-        mc.receivedResponse.code == HttpServletResponse.SC_FORBIDDEN.toString()
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
         mc.handlings.size() == 0
-        !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        !mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "When identity returns a 404 Not Found, repose will return a 401 Unauthorized"() {
         given: "the HTTP Basic authentication header containing the User Name and not found apikey"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.not_found_apikey_or_pwd).bytes)
+                (AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.not_found_apikey_or_pwd).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "response with 401 Unauthorized"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
         mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
     // REP-2880 - should fix this (removed @Ignore)
     // This test was removed due to a current limitation of the MockIdentityService to not differentiate between the two services calling it.
@@ -227,28 +228,28 @@ class BasicAuthPasswordTest extends ReposeValveTest {
             }
         }
         def headers = [
-                'content-type'             : 'application/json',
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_password).bytes)
+                'content-type' : 'application/json',
+                (AUTHORIZATION): 'Basic ' + org.apache.commons.codec.binary.Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_password).bytes)
         ]
 
         when: "user passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
 
         then: "request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == filterStatusCode.toString()
+        mc.receivedResponse.code as Integer == filterStatusCode
         mc.handlings.size() == 0
 
         where:
-        reqTenant | identityStatusCode                           | filterStatusCode
-        9400      | HttpServletResponse.SC_BAD_REQUEST           | HttpServletResponse.SC_UNAUTHORIZED
-        9401      | HttpServletResponse.SC_UNAUTHORIZED          | HttpServletResponse.SC_UNAUTHORIZED
-        9403      | HttpServletResponse.SC_FORBIDDEN             | HttpServletResponse.SC_FORBIDDEN
-        9404      | HttpServletResponse.SC_NOT_FOUND             | HttpServletResponse.SC_UNAUTHORIZED
-        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9502      | HttpServletResponse.SC_BAD_GATEWAY           | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE   | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        reqTenant | identityStatusCode       | filterStatusCode
+        9400      | SC_BAD_REQUEST           | SC_UNAUTHORIZED
+        9401      | SC_UNAUTHORIZED          | SC_UNAUTHORIZED
+        9403      | SC_FORBIDDEN             | SC_FORBIDDEN
+        9404      | SC_NOT_FOUND             | SC_UNAUTHORIZED
+        9500      | SC_INTERNAL_SERVER_ERROR | SC_INTERNAL_SERVER_ERROR
+        9501      | SC_NOT_IMPLEMENTED       | SC_INTERNAL_SERVER_ERROR
+        9502      | SC_BAD_GATEWAY           | SC_INTERNAL_SERVER_ERROR
+        9503      | SC_SERVICE_UNAVAILABLE   | SC_INTERNAL_SERVER_ERROR
+        9504      | SC_GATEWAY_TIMEOUT       | SC_INTERNAL_SERVER_ERROR
     }
 
     def "When the request does have an x-auth-token, then still work with client-auth"() {
@@ -259,10 +260,10 @@ class BasicAuthPasswordTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token and validate it"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
-        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
-        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        !mc.handlings[0].request.headers.getFirstValue(AUTHORIZATION)
+        !mc.receivedResponse.headers.getFirstValue(WWW_AUTHENTICATE)
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token")
         //**This test tracing header Repose handling request, and the request to identity as part of REP-1704**
         mc.orphanedHandlings.each {

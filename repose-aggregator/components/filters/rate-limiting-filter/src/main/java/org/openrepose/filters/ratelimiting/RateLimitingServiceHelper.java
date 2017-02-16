@@ -81,7 +81,7 @@ public class RateLimitingServiceHelper {
 
     public String getPreferredUser(HttpServletRequest request) {
         final HttpServletRequestWrapper mutableRequest = new HttpServletRequestWrapper(request);
-        final List<String> preferredUsers = mutableRequest.getPreferredSplittableHeaders(PowerApiHeader.USER.toString());
+        final List<String> preferredUsers = mutableRequest.getPreferredSplittableHeaders(PowerApiHeader.USER);
 
         String preferredUser = null;
         if (!preferredUsers.isEmpty()) {
@@ -94,7 +94,7 @@ public class RateLimitingServiceHelper {
     public List<String> getPreferredGroups(HttpServletRequest request) {
         final HttpServletRequestWrapper mutableRequest = new HttpServletRequestWrapper(request);
 
-        return mutableRequest.getPreferredSplittableHeaders(PowerApiHeader.GROUPS.toString());
+        return mutableRequest.getPreferredSplittableHeaders(PowerApiHeader.GROUPS);
     }
 
     private String decodeURI(String uri) {

@@ -19,26 +19,12 @@
  */
 package org.openrepose.core.services.datastore.impl.distributed;
 
-import org.openrepose.commons.utils.http.HeaderConstant;
+public class DatastoreHeader {
 
-public enum DatastoreHeader implements HeaderConstant {
+    public static final String HOST_KEY = "X-PP-Host-Key";
+    public static final String REMOTE_BEHAVIOR = "X-PP-Datastore-Behavior";
 
-    HOST_KEY("X-PP-Host-Key"),
-    REMOTE_BEHAVIOR("X-PP-Datastore-Behavior");
-
-    private final String headerKey;
-
-    private DatastoreHeader(String headerKey) {
-        this.headerKey = headerKey;
-    }
-
-    @Override
-    public String toString() {
-        return headerKey;
-    }
-
-    @Override
-    public boolean matches(String st) {
-        return headerKey.equalsIgnoreCase(st);
+    private DatastoreHeader() {
+        // This class should not be instantiated.
     }
 }

@@ -22,24 +22,23 @@ package org.openrepose.commons.utils.http;
 /**
  * @author zinic
  */
-public enum ExtendedHttpHeader implements HeaderConstant {
+public class ExtendedHttpHeader {
 
     //Caching specific
-    X_TTL("X-TTL");
+    public static final String X_TTL = "X-TTL";
 
-    private final String headerKey;
-
-    private ExtendedHttpHeader(String headerKey) {
-        this.headerKey = headerKey.toLowerCase();
+    private ExtendedHttpHeader() {
+        // This class should not be instantiated.
     }
 
-    @Override
-    public String toString() {
-        return headerKey;
-    }
-
-    @Override
-    public boolean matches(String st) {
-        return headerKey.equalsIgnoreCase(st);
+    /**
+     * This keeps it compatible with the old Enumeration way of doing business.
+     *
+     * @return an array of all the constants defined by this class
+     */
+    public static String[] values() {
+        return new String[]{
+                X_TTL
+        };
     }
 }

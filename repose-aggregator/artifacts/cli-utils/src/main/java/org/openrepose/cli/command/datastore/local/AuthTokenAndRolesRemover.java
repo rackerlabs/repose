@@ -55,12 +55,12 @@ public class AuthTokenAndRolesRemover extends AbstractCommand {
             if (reposeLocalCacheMBeanProxy.removeTokenAndRoles(arguments[1], arguments[2])) {
                 result = new MessageResult("Removed auth token and roles for user " + arguments[1]);
             } else {
-                result = new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE.getStatusCode(),
+                result = new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE,
                         "Failure to remove auth token and roles for user " + arguments[1]);
             }
         } catch (Exception e) {
             LOG.trace("Unable to connect to repose MBean Server", e);
-            result = new CommandFailure(StatusCodes.NOTHING_TO_DO.getStatusCode(),
+            result = new CommandFailure(StatusCodes.NOTHING_TO_DO,
                     "Unable to connect to Repose MBean Server: " + e.getMessage());
         }
 

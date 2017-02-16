@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.openrepose.commons.utils.http.CommonHttpHeader.CONTENT_LENGTH;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
 
 public class HttpComponentResponseProcessor {
     private static final String[] EXCLUDE_HEADERS = {"connection", "transfer-encoding", "server"};
@@ -58,7 +58,7 @@ public class HttpComponentResponseProcessor {
 
         if (responseCode == HttpServletResponse.SC_NOT_MODIFIED) {
             // http://www.ics.uci.edu/pub/ietf/http/rfc1945.html#Code304
-            response.setIntHeader(CONTENT_LENGTH.toString(), 0);
+            response.setIntHeader(CONTENT_LENGTH, 0);
         } else {
             setResponseHeaders();
             setResponseBody();

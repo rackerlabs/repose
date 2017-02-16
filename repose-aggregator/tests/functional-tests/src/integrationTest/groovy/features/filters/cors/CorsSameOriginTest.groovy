@@ -30,28 +30,20 @@ import org.apache.http.ssl.SSLContexts
 import org.apache.http.util.EntityUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CorsHttpHeader
-import org.rackspace.deproxy.ClientConnector
-import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.DeproxyHttpRequest
-import org.rackspace.deproxy.Header
-import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
-import org.rackspace.deproxy.Request
-import org.rackspace.deproxy.RequestParams
-import org.rackspace.deproxy.Response
+import org.rackspace.deproxy.*
 import spock.lang.Shared
 import spock.lang.Unroll
 
 import javax.ws.rs.core.MediaType
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
-import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.servlet.http.HttpServletResponse.*
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
+import static javax.ws.rs.core.HttpHeaders.HOST
 
 class CorsSameOriginTest extends ReposeValveTest {
 
     private static final String RESPONSE_BODY = "The fish flies at night."
-    private static final def RESPONSE_HEADERS = [(CommonHttpHeader.CONTENT_TYPE.toString()): MediaType.TEXT_PLAIN]
+    private static final def RESPONSE_HEADERS = [(CONTENT_TYPE): MediaType.TEXT_PLAIN]
 
     @Shared
     int reposeSslPort
@@ -117,9 +109,9 @@ class CorsSameOriginTest extends ReposeValveTest {
         def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
 
         and: "the headers are set for Host and maybe X-Forwarded-Host but not Origin"
-        def headers = [(CommonHttpHeader.HOST.toString()): host]
+        def headers = [(HOST): host]
         if (forwardedHost) {
-            headers += [(CommonHttpHeader.X_FORWARDED_HOST.toString()): forwardedHost]
+            headers += [(CommonHttpHeader.X_FORWARDED_HOST): forwardedHost]
         }
 
         when:
@@ -132,17 +124,17 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "none of the CORS headers are added to the response"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service unless it was a HEAD request"
-        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         method == "HEAD" || mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -161,9 +153,9 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the headers are set for Host and Origin to match explicitly but X-Forwarded-Host to some other value"
         def headers = [
-                (CommonHttpHeader.X_FORWARDED_HOST.toString()): "will.not.match:3030",
-                (CommonHttpHeader.HOST.toString())            : host,
-                (CorsHttpHeader.ORIGIN.toString())            : origin]
+                (CommonHttpHeader.X_FORWARDED_HOST): "will.not.match:3030",
+                (HOST)                             : host,
+                (CorsHttpHeader.ORIGIN)            : origin]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: method, headers: headers)
@@ -175,18 +167,18 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "the CORS headers for an actual request are added"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the CORS headers for a preflight request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service unless it was a HEAD request"
-        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        method == "HEAD" || mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         method == "HEAD" || mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -208,10 +200,10 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the headers are set for Host and Origin to match explicitly but X-Forwarded-Host to some other value"
         def headers = [
-                (CommonHttpHeader.X_FORWARDED_HOST.toString())           : "will.not.match:3030",
-                (CommonHttpHeader.HOST.toString())                       : host,
-                (CorsHttpHeader.ORIGIN.toString())                       : origin,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): requestedMethod]
+                (CommonHttpHeader.X_FORWARDED_HOST)           : "will.not.match:3030",
+                (HOST)                                        : host,
+                (CorsHttpHeader.ORIGIN)                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): requestedMethod]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: "OPTIONS", headers: headers)
@@ -223,20 +215,20 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "the CORS headers for a preflight request are added"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).size() == 1
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).tokenize(',').contains(requestedMethod)
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).size() == 1
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).tokenize(',').contains(requestedMethod)
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the 'Access-Control-Allow-Headers' header is not set since none were requested"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the CORS headers for an actual request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set with the correct values for an OPTIONS request"
         mc.receivedResponse.headers.contains("Vary")
-        mc.receivedResponse.headers.findAll("Vary") == ['origin', 'access-control-request-headers', 'access-control-request-method']
+        mc.receivedResponse.headers.findAll("Vary")*.toLowerCase() == ['origin', 'access-control-request-headers', 'access-control-request-method']
 
         where:
         scheme  | requestedMethod | host                       | origin
@@ -254,9 +246,9 @@ class CorsSameOriginTest extends ReposeValveTest {
     def "Only the first X-Forwarded-Host '#forwardedHost' will be used when determining if a request is a same-origin request"() {
         given: "the headers are set for the Host never to match the Origin and for the X-Forwarded-Host to vary depending on the test"
         def headers = [
-                new Header(CommonHttpHeader.HOST.toString(), "will.never.match:9999"),
-                new Header(CorsHttpHeader.ORIGIN.toString(), "http://not.cors.allowed:7777")
-        ] + forwardedHost.collect { new Header(CommonHttpHeader.X_FORWARDED_HOST.toString(), it) }
+                new Header(HOST, "will.never.match:9999"),
+                new Header(CorsHttpHeader.ORIGIN, "http://not.cors.allowed:7777")
+        ] + forwardedHost.collect { new Header(CommonHttpHeader.X_FORWARDED_HOST, it) }
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers)
@@ -268,11 +260,11 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().size() == ((responseCode == SC_OK) ? 1 : 0)
 
         and: "none of the CORS headers are added to the response"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -299,9 +291,9 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the headers are set for X-Forwarded-Host and Origin to match explicitly and Host to some other value"
         def headers = [
-                (CommonHttpHeader.X_FORWARDED_HOST.toString()): forwardedHost,
-                (CorsHttpHeader.ORIGIN.toString())            : origin,
-                (CommonHttpHeader.HOST.toString())            : "origin.service:9090"]
+                (CommonHttpHeader.X_FORWARDED_HOST): forwardedHost,
+                (CorsHttpHeader.ORIGIN)            : origin,
+                (HOST)                             : "origin.service:9090"]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: method, headers: headers)
@@ -313,17 +305,17 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "none of the CORS headers are added to the response"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -346,9 +338,9 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the X-Forwarded-Host header is malformed with the Host and Origin headers matching making it a same-origin request"
         def headers = [
-                (CommonHttpHeader.X_FORWARDED_HOST.toString()): forwardedHost,
-                (CorsHttpHeader.ORIGIN.toString())            : "$scheme://will.match:80",
-                (CommonHttpHeader.HOST.toString())            : "will.match:80"]
+                (CommonHttpHeader.X_FORWARDED_HOST): forwardedHost,
+                (CorsHttpHeader.ORIGIN)            : "$scheme://will.match:80",
+                (HOST)                             : "will.match:80"]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers)
@@ -360,17 +352,17 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "none of the CORS headers are added to the response"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -386,7 +378,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
 
         and: "the Host header is malformed"
-        def headers = [(CommonHttpHeader.HOST.toString()): host]
+        def headers = [(HOST): host]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers)
@@ -398,11 +390,11 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "none of the CORS headers are added to the response"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         where:
         [scheme, host] << [["http", "https"], ["openrepose.org:not.an.int", "ends.with.colon:"]].combinations()
@@ -414,7 +406,7 @@ class CorsSameOriginTest extends ReposeValveTest {
         def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
 
         and: "the Origin header is malformed"
-        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers)
@@ -426,14 +418,14 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "none of the CORS headers are added to the response"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the client receives an error message about the malformed Origin header"
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == "Bad Origin header"
 
         and: "the 'Vary' header is set"
@@ -453,9 +445,9 @@ class CorsSameOriginTest extends ReposeValveTest {
 
         and: "the Origin header is malformed with the 'Access-Control-Request-Method' header set indicating a Preflight request"
         def headers = [
-                (CommonHttpHeader.HOST.toString())                       : "does.not.matter:3030",
-                (CorsHttpHeader.ORIGIN.toString())                       : origin,
-                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD.toString()): "PATCH"]
+                (HOST)                                        : "does.not.matter:3030",
+                (CorsHttpHeader.ORIGIN)                       : origin,
+                (CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD): "PATCH"]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: endpoint, method: "OPTIONS", headers: headers)
@@ -467,11 +459,11 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().isEmpty()
 
         and: "none of the CORS headers are added to the response"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the 'Vary' header is set"
         mc.receivedResponse.headers.contains("Vary")
@@ -489,10 +481,10 @@ class CorsSameOriginTest extends ReposeValveTest {
         def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
 
         and: "the Origin header is set to one that is not allowed to make a CORS request"
-        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         when: "we make a request with the Host header set to the same value as the Origin header"
-        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.HOST.toString()): host])
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(HOST): host])
 
         then: "the response status is OK"
         mc.receivedResponse.code as Integer == SC_OK
@@ -501,21 +493,21 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "none of the CORS headers are added to the response, proving the Host and Origin matched"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         when: "we make a request with the X-Forwarded-Host header set to the same value as the Origin header"
-        mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.X_FORWARDED_HOST.toString()): host])
+        mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.X_FORWARDED_HOST): host])
 
         then: "the response status is OK"
         mc.receivedResponse.code as Integer == SC_OK
@@ -524,17 +516,17 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "none of the CORS headers are added to the response, proving the X-Forwarded-Host and Origin matched"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).isEmpty()
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
@@ -711,10 +703,10 @@ class CorsSameOriginTest extends ReposeValveTest {
         def endpoint = (scheme == "https") ? reposeSslEndpoint : reposeEndpoint
 
         and: "the Origin header is set to one that is allowed to make a CORS request"
-        def headers = [(CorsHttpHeader.ORIGIN.toString()): origin]
+        def headers = [(CorsHttpHeader.ORIGIN): origin]
 
         when: "we make a request with the Host header set to a different value than the Origin header"
-        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.HOST.toString()): host])
+        MessageChain mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(HOST): host])
 
         then: "the response status is OK"
         mc.receivedResponse.code as Integer == SC_OK
@@ -723,22 +715,22 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "the CORS headers for an actual request are added, proving the Host and Origin did not match"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the CORS headers for a preflight request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         when: "we make a request with the X-Forwarded-Host header set to a different value than the Origin header"
-        mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.X_FORWARDED_HOST.toString()): host])
+        mc = deproxy.makeRequest(url: endpoint, method: "GET", headers: headers + [(CommonHttpHeader.X_FORWARDED_HOST): host])
 
         then: "the response status is OK"
         mc.receivedResponse.code as Integer == SC_OK
@@ -747,43 +739,43 @@ class CorsSameOriginTest extends ReposeValveTest {
         mc.getHandlings().size() == 1
 
         and: "the CORS headers for an actual request are added, proving the X-Forwarded-Host and Origin did not match"
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) == origin
-        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) == 'true'
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) == origin
+        mc.receivedResponse.headers.getFirstValue(CorsHttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS) == 'true'
 
         and: "the CORS headers for a preflight request are not added"
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()).isEmpty()
-        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).isEmpty()
+        mc.receivedResponse.headers.findAll(CorsHttpHeader.ACCESS_CONTROL_ALLOW_HEADERS).isEmpty()
 
         and: "the Vary header is set"
         mc.receivedResponse.headers.contains("Vary")
 
         and: "the client receives the original response from the origin service"
-        mc.receivedResponse.headers.getFirstValue(CommonHttpHeader.CONTENT_TYPE.toString()) == MediaType.TEXT_PLAIN
+        mc.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == MediaType.TEXT_PLAIN
         mc.receivedResponse.body as String == RESPONSE_BODY
 
         where:
-        scheme  | host                                             | origin
+        scheme  | host                            | origin
         // different subdomains are considered different origins
-        "http"  | "www.openrepose.com:8080"                        | "http://openrepose.com:8080"
-        "http"  | "subdomain.openrepose.com:8080"                  | "http://openrepose.com:8080"
-        "http"  | "test.repose.site:8080"                          | "http://dev.repose.site:8080"
-        "https" | "www.openrepose.com:8080"                        | "https://openrepose.com:8080"
-        "https" | "subdomain.openrepose.com:8080"                  | "https://openrepose.com:8080"
-        "https" | "test.repose.site:8443"                          | "https://dev.repose.site:8443"
+        "http"  | "www.openrepose.com:8080"       | "http://openrepose.com:8080"
+        "http"  | "subdomain.openrepose.com:8080" | "http://openrepose.com:8080"
+        "http"  | "test.repose.site:8080"         | "http://dev.repose.site:8080"
+        "https" | "www.openrepose.com:8080"       | "https://openrepose.com:8080"
+        "https" | "subdomain.openrepose.com:8080" | "https://openrepose.com:8080"
+        "https" | "test.repose.site:8443"         | "https://dev.repose.site:8443"
         // different ports are considered different origins
-        "http"  | "openrepose.com:1111"                            | "http://openrepose.com:2222"
-        "http"  | "openrepose.com"                                 | "http://openrepose.com:3333"
-        "http"  | "openrepose.com"                                 | "http://openrepose.com:443"
-        "https" | "openrepose.com:1111"                            | "https://openrepose.com:2222"
-        "https" | "openrepose.com"                                 | "https://openrepose.com:3333"
-        "https" | "openrepose.com"                                 | "https://openrepose.com:80"
+        "http"  | "openrepose.com:1111"           | "http://openrepose.com:2222"
+        "http"  | "openrepose.com"                | "http://openrepose.com:3333"
+        "http"  | "openrepose.com"                | "http://openrepose.com:443"
+        "https" | "openrepose.com:1111"           | "https://openrepose.com:2222"
+        "https" | "openrepose.com"                | "https://openrepose.com:3333"
+        "https" | "openrepose.com"                | "https://openrepose.com:80"
         // different host names and TLDs are considered different origins
-        "http"  | "rackspace.com:8080"                             | "http://openrepose.com:8080"
-        "http"  | "openrepose.org:8080"                            | "http://openrepose.com:8080"
-        "https" | "rackspace.com:8080"                             | "https://openrepose.com:8080"
-        "https" | "openrepose.org:8080"                            | "https://openrepose.com:8080"
+        "http"  | "rackspace.com:8080"            | "http://openrepose.com:8080"
+        "http"  | "openrepose.org:8080"           | "http://openrepose.com:8080"
+        "https" | "rackspace.com:8080"            | "https://openrepose.com:8080"
+        "https" | "openrepose.org:8080"           | "https://openrepose.com:8080"
         // different schemes are considered different origins
-        "http"  | "openrepose.com:8080"                            | "https://openrepose.com:8080"
-        "https" | "openrepose.com:8080"                            | "http://openrepose.com:8080"
+        "http"  | "openrepose.com:8080"           | "https://openrepose.com:8080"
+        "https" | "openrepose.com:8080"           | "http://openrepose.com:8080"
     }
 }

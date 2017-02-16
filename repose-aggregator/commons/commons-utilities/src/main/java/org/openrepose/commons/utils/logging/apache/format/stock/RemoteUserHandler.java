@@ -29,6 +29,6 @@ public class RemoteUserHandler implements FormatterLogic {
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
-        return request.getHeader(PowerApiHeader.USER.toString());
+        return request.getHeader(PowerApiHeader.USER);
     }
 }

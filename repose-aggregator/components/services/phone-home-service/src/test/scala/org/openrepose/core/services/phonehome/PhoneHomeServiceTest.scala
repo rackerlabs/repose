@@ -27,13 +27,12 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.hamcrest.{Matcher, Matchers => HMatchers}
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => mockitoEq, _}
 import org.mockito.Mockito.{never, verify, verifyZeroInteractions, when}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClientFactory, AkkaServiceClient}
+import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -354,7 +353,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       verify(mockAkkaServiceClient).post(
         anyString(),
         mockitoEq(collectionUri),
-        argThat(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID.toString).asInstanceOf[Matcher[java.util.Map[String, String]]]),
+        argThat(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID).asInstanceOf[Matcher[java.util.Map[String, String]]]),
         anyString(),
         any[MediaType]())
     }
@@ -405,7 +404,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       verify(mockAkkaServiceClient).post(
         anyString(),
         mockitoEq(collectionUri),
-        argThat(HMatchers.not(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID.toString)).asInstanceOf[Matcher[java.util.Map[String, String]]]),
+        argThat(HMatchers.not(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID)).asInstanceOf[Matcher[java.util.Map[String, String]]]),
         anyString(),
         any[MediaType]())
     }

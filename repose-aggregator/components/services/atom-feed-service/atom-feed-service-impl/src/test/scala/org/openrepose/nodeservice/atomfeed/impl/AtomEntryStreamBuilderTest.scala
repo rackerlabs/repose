@@ -116,7 +116,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
 
     AtomEntryStreamBuilder.build(new URI(mockAtomFeedService.getUrl + "/feed"), httpClient, AuthenticationRequestContextImpl("requestId", "1.0"), Some(mockAuthRequestFactory))
 
-    assert(!capturedfeedReadRequest.getValue.getHeaders.get(CommonHttpHeader.TRACE_GUID.toString).isEmpty)
+    assert(!capturedfeedReadRequest.getValue.getHeaders.get(CommonHttpHeader.TRACE_GUID).isEmpty)
   }
 
   test("should throw an AuthenticationException if the factory returns null") {

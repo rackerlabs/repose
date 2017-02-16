@@ -21,19 +21,11 @@ package org.openrepose.core.services.datastore.impl.distributed;
 
 public class MalformedCacheRequestException extends RuntimeException {
 
-    private final MalformedCacheRequestError error;
-
-    public MalformedCacheRequestException(MalformedCacheRequestError error) {
-        super(error.message());
-        this.error = error;
+    public MalformedCacheRequestException(String error) {
+        super(error);
     }
 
-    public MalformedCacheRequestException(MalformedCacheRequestError error, Throwable cause) {
-        super(error.message(), cause);
-        this.error = error;
-    }
-
-    public MalformedCacheRequestError getError() {
-        return error;
+    public MalformedCacheRequestException(String error, Throwable cause) {
+        super(error, cause);
     }
 }

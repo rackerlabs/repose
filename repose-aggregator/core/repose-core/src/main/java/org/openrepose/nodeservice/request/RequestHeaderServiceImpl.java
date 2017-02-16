@@ -101,13 +101,13 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
 
     @Override
     public void setXForwardedFor(HttpServletRequestWrapper request) {
-        request.addHeader(CommonHttpHeader.X_FORWARDED_FOR.toString(), request.getRemoteAddr());
+        request.addHeader(CommonHttpHeader.X_FORWARDED_FOR, request.getRemoteAddr());
     }
 
     @Override
     public void setVia(HttpServletRequestWrapper request) {
         final String via = viaHeaderBuilder.buildVia(request);
-        request.addHeader(CommonHttpHeader.VIA.toString(), via);
+        request.addHeader(CommonHttpHeader.VIA, via);
     }
 
     /**

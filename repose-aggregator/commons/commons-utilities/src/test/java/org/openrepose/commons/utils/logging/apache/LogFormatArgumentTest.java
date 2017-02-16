@@ -20,10 +20,10 @@
 package org.openrepose.commons.utils.logging.apache;
 
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 /**
  * Created by IntelliJ IDEA.
@@ -31,19 +31,9 @@ import static org.junit.Assert.assertEquals;
  * Date: 7/25/11
  * Time: 2:56 PM
  */
-@RunWith(Enclosed.class)
 public class LogFormatArgumentTest {
-    public static class WhenCallingToString {
-        @Test
-        public void shouldShowArgumentSymbol() {
-            assertEquals("%", LogFormatArgument.PERCENT.toString());
-        }
-    }
-
-    public static class WhenCallingFromString {
-        @Test
-        public void should() {
-            assertEquals(LogFormatArgument.PERCENT, LogFormatArgument.fromString("%"));
-        }
+    @Test
+    public void shouldEqualIgnoringCase() {
+        assertThat(LogFormatArgument.PERCENT, is(equalToIgnoringCase("%")));
     }
 }

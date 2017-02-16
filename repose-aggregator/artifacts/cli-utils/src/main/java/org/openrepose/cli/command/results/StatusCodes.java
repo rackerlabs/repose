@@ -22,21 +22,14 @@ package org.openrepose.cli.command.results;
 /**
  * @author zinic
  */
-public enum StatusCodes {
+public class StatusCodes {
 
-    OK(0),
-    INVALID_ARGUMENTS(1),
-    NOTHING_TO_DO(2),
-    SYSTEM_PRECONDITION_FAILURE(3);
+    public static final int OK = 0;
+    public static final int INVALID_ARGUMENTS = 1;
+    public static final int NOTHING_TO_DO = 2;
+    public static final int SYSTEM_PRECONDITION_FAILURE = 3;
 
-    //
-    private final int statusCode;
-
-    private StatusCodes(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
+    private StatusCodes() {
+        // This class should not be instantiated.
     }
 }

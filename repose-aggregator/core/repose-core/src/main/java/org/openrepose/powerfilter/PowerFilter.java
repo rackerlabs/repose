@@ -39,7 +39,6 @@ import org.openrepose.core.services.event.Event;
 import org.openrepose.core.services.event.EventListener;
 import org.openrepose.core.services.event.EventService;
 import org.openrepose.core.services.event.PowerFilterEvent;
-import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
@@ -52,6 +51,7 @@ import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.*;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory;
+import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
 import org.slf4j.Logger;
@@ -383,16 +383,16 @@ public class PowerFilter extends DelegatingFilterProxy {
         wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request, bufferedInputStream);
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
-            wrappedRequest.removeHeader(TRACE_GUID.toString());
+            wrappedRequest.removeHeader(TRACE_GUID);
         }
 
         //Grab the traceGUID from the request if there is one, else create one
         String traceGUID;
-        if (StringUtilities.isBlank(wrappedRequest.getHeader(TRACE_GUID.toString()))) {
+        if (StringUtilities.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
             traceGUID = UUID.randomUUID().toString();
         } else {
             traceGUID = TracingHeaderHelper.getTraceGuid(
-                    wrappedRequest.getHeader(TRACE_GUID.toString()));
+                    wrappedRequest.getHeader(TRACE_GUID));
         }
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
@@ -410,18 +410,18 @@ public class PowerFilter extends DelegatingFilterProxy {
             final PowerFilterChain requestFilterChain = getRequestFilterChain(wrappedResponse, chain);
             if (requestFilterChain != null) {
                 if (currentSystemModel.get().getTracingHeader() == null || currentSystemModel.get().getTracingHeader().isEnabled()) {
-                    if (StringUtilities.isBlank(wrappedRequest.getHeader(TRACE_GUID.toString()))) {
-                        wrappedRequest.addHeader(TRACE_GUID.toString(),
-                                TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA.toString())));
+                    if (StringUtilities.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
+                        wrappedRequest.addHeader(TRACE_GUID,
+                                TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)));
                     }
                     if ((currentSystemModel.get().getTracingHeader() != null) &&
                             currentSystemModel.get().getTracingHeader().isSecondaryPlainText()) {
                         LOG.trace("Adding plain text trans id to request: {}", traceGUID);
-                        wrappedRequest.replaceHeader(REQUEST_ID.toString(), traceGUID);
+                        wrappedRequest.replaceHeader(REQUEST_ID, traceGUID);
                     }
-                    String tracingHeader = wrappedRequest.getHeader(TRACE_GUID.toString());
+                    String tracingHeader = wrappedRequest.getHeader(TRACE_GUID);
                     LOG.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader));
-                    wrappedResponse.addHeader(TRACE_GUID.toString(), tracingHeader);
+                    wrappedResponse.addHeader(TRACE_GUID, tracingHeader);
                 }
 
                 requestFilterChain.startFilterChain(wrappedRequest, wrappedResponse);

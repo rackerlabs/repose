@@ -28,10 +28,11 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequestWrapper, HttpServletResponse, HttpServletResponseWrapper}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
+import javax.ws.rs.core.HttpHeaders
 
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
+import org.apache.http.Header
 import org.apache.http.message.BasicHeader
-import org.apache.http.{Header, HttpHeaders}
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
@@ -523,11 +524,11 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should send a request guid to valkyrie if present in incoming request") {
       val request = RequestProcessor("GET", Map("X-Tenant-Id" -> "hybrid:someTenant", "X-Device-Id" -> "123456",
-        "X-Contact-Id" -> "123456", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
+        "X-Contact-Id" -> "123456", CommonHttpHeader.TRACE_GUID -> "test-guid"))
       Mockito.when(akkaServiceClient.get(
         "VALKYRIE-FILTERanysomeTenant123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective",
-        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid")))
+        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID -> "test-guid")))
         .thenReturn(new ServiceClientResponse(SC_OK, new ByteArrayInputStream(createValkyrieResponse(devicePermissions("123456", "view_product")).getBytes)))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
@@ -545,7 +546,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       Mockito.verify(akkaServiceClient).get("VALKYRIE-FILTERanysomeTenant123456",
         "http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective",
-        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID.toString -> "test-guid"))
+        Map("X-Auth-User" -> "someUser", "X-Auth-Token" -> "somePassword", CommonHttpHeader.TRACE_GUID -> "test-guid"))
     }
   }
 
@@ -913,12 +914,12 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val writeJsonResponse: (HttpServletResponse, String) => Unit = charset match {
         case Some(cs) =>
           (response: HttpServletResponse, content: String) => {
-            response.addHeader(CommonHttpHeader.CONTENT_TYPE.toString, s"application/json; charset=$charsetLabel")
+            response.addHeader(HttpHeaders.CONTENT_TYPE, s"application/json; charset=$charsetLabel")
             response.getOutputStream.write(content.getBytes(cs))
           }
         case None =>
           (response: HttpServletResponse, content: String) => {
-            response.addHeader(CommonHttpHeader.CONTENT_TYPE.toString, "application/json")
+            response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
             response.getOutputStream.print(content)
           }
       }

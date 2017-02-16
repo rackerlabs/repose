@@ -40,7 +40,7 @@ public class LimitLoggerTest {
         @Test
         public void shouldReturnUsername() {
             final LimitLogger logger = new LimitLogger("some_username", mockedRequest);
-            when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(null);
+            when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN)).thenReturn(null);
 
             final String userId = logger.getSanitizedUserIdentification();
 
@@ -51,8 +51,8 @@ public class LimitLoggerTest {
         public void shouldReturnXForwardedFor() {
             final LimitLogger logger = new LimitLogger("some_username", mockedRequest);
 
-            when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("some_username");
-            when(mockedRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString())).thenReturn("x-forwarded-for-value");
+            when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN)).thenReturn("some_username");
+            when(mockedRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR)).thenReturn("x-forwarded-for-value");
 
             final String userId = logger.getSanitizedUserIdentification();
 
@@ -63,8 +63,8 @@ public class LimitLoggerTest {
         public void shouldReturnRequestRemoteHost() {
             final LimitLogger logger = new LimitLogger("some_username", mockedRequest);
 
-            when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("some_username");
-            when(mockedRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString())).thenReturn(null);
+            when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN)).thenReturn("some_username");
+            when(mockedRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR)).thenReturn(null);
             when(mockedRequest.getRemoteHost()).thenReturn("remote-host-value");
 
             final String userId = logger.getSanitizedUserIdentification();

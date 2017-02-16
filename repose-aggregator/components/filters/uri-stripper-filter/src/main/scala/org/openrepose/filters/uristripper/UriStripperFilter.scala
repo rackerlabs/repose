@@ -35,9 +35,9 @@ import _root_.io.gatling.jsonpath.Parser
 import com.rackspace.cloud.api.wadl.Converters._
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.{Controller, TransformerFactoryImpl}
+import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
-import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.commons.utils.string.RegexStringOperators
@@ -132,11 +132,11 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
 
       wrappedResponse.uncommit()
 
-      val originalLocation = wrappedResponse.getHeader(CommonHttpHeader.LOCATION.toString)
+      val originalLocation = wrappedResponse.getHeader(HttpHeaders.LOCATION)
       // todo: What if the path is "/<tenant-id>"? The location header wouldn't be modified. Is that the correct behavior?
       if (config.isRewriteLocation && token.isDefined && !Option(originalLocation).forall(_.trim.isEmpty)) {
         Try(wrappedResponse.replaceHeader(
-          CommonHttpHeader.LOCATION.toString,
+          HttpHeaders.LOCATION,
           replaceIntoPath(originalLocation, token.get, previousToken, nextToken, None))) match {
           case Success(_) => //don't care
           case Failure(e: PathRewriteException) => logger.warn("Failed while trying to rewrite the location header", e)

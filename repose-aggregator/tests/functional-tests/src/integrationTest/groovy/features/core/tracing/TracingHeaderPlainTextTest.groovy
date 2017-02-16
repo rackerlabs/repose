@@ -55,7 +55,7 @@ class TracingHeaderPlainTextTest extends ReposeValveTest {
         def sessionId = UUID.randomUUID().toString()
         def jsonTracingHeader = JsonOutput.toJson([sessionId: sessionId, requestId: tracingId, user: 'a', domain: 'b'])
         def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.getBytes(Charset.forName("UTF-8")))
-        def headers = [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeader]
+        def headers = [(CommonHttpHeader.TRACE_GUID): tracingHeader]
 
         when: 'User passes a request through repose'
         MessageChain mc = deproxy.makeRequest(
@@ -65,8 +65,8 @@ class TracingHeaderPlainTextTest extends ReposeValveTest {
 
         then: 'Make sure the request and response contain a new X-Trans-Id header'
         mc.receivedResponse.code == '200'
-        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
-        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.REQUEST_ID.toString()) == tracingId
+        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID) == tracingHeader
+        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.REQUEST_ID) == tracingId
     }
 
     def 'Parse externally provided X-Trans-Id header and overwrite the Request ID on the request'() {
@@ -75,8 +75,8 @@ class TracingHeaderPlainTextTest extends ReposeValveTest {
         def sessionId = UUID.randomUUID().toString()
         def jsonTracingHeader = JsonOutput.toJson([sessionId: sessionId, requestId: tracingId, user: 'a', domain: 'b'])
         def tracingHeader = Base64.encodeBase64String(jsonTracingHeader.getBytes(Charset.forName("UTF-8")))
-        def headers = [(CommonHttpHeader.TRACE_GUID.toString()): tracingHeader,
-                       (CommonHttpHeader.REQUEST_ID.toString()): "bob"]
+        def headers = [(CommonHttpHeader.TRACE_GUID): tracingHeader,
+                       (CommonHttpHeader.REQUEST_ID): "bob"]
 
         when: 'User passes a request through repose'
         MessageChain mc = deproxy.makeRequest(
@@ -86,7 +86,7 @@ class TracingHeaderPlainTextTest extends ReposeValveTest {
 
         then: 'Make sure the request and response contain a new X-Trans-Id header'
         mc.receivedResponse.code == '200'
-        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID.toString()) == tracingHeader
-        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.REQUEST_ID.toString()) == tracingId
+        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.TRACE_GUID) == tracingHeader
+        mc.handlings[0].request.headers.getFirstValue(CommonHttpHeader.REQUEST_ID) == tracingId
     }
 }

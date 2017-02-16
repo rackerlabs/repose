@@ -20,12 +20,12 @@
 package org.openrepose.filters.openstackidentityv3
 
 import java.util.{Calendar, GregorianCalendar}
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpServletResponse._
 
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mockitoEq}
 import org.mockito.Mockito.{verify, when}
-import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, OpenStackServiceHeader}
+import org.openrepose.commons.utils.http.{HttpDate, OpenStackServiceHeader}
 import org.openrepose.commons.utils.servlet.filter.FilterAction
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config.SendProjectIdQuality
@@ -106,7 +106,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       val mockResponse = new MockHttpServletResponse()
 
       identityV3Handler.handleRequest(new HttpServletRequestWrapper(mockRequest), mockResponse) shouldBe FilterAction.RETURN
-      mockResponse.getStatus shouldBe HttpServletResponse.SC_UNAUTHORIZED
+      mockResponse.getStatus shouldBe SC_UNAUTHORIZED
     }
 
     it("should add the X-Default-Region if rax_default_region is available for the user") {
@@ -210,13 +210,13 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
           roles = List(Role("admin")))))
       val mockRequest = new HttpServletRequestWrapper(new MockHttpServletRequest())
       mockRequest.replaceHeader("X-Subject-Token", "123456")
-      mockRequest.addHeader(OpenStackServiceHeader.ROLES.toString, "foo")
+      mockRequest.addHeader(OpenStackServiceHeader.ROLES, "foo")
       identityConfig.setForwardGroups(false)
       identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
 
       identityV3Handler.handleRequest(mockRequest, new MockHttpServletResponse())
-      mockRequest.getHeadersScala(OpenStackServiceHeader.ROLES.toString) should contain only("foo", "admin")
+      mockRequest.getHeadersScala(OpenStackServiceHeader.ROLES) should contain only("foo", "admin")
     }
 
     it("should set the x-project-id header to the uri project id value if it is set and send all project ids is not set/false") {
@@ -328,9 +328,9 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
       wrappedRequest.getHeadersScala("X-Project-Id") should contain only("ProjectIdFromProject", "ProjectIdFromRoles", "RaxExtensionProjectId")
     }
 
-    val statusCodes = List(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, SC_TOO_MANY_REQUESTS)
+    val statusCodes = List(SC_REQUEST_ENTITY_TOO_LARGE, SC_TOO_MANY_REQUESTS)
     statusCodes.foreach { statusCode =>
-      it(s"should return a ${HttpServletResponse.SC_SERVICE_UNAVAILABLE} when receiving $statusCode from the OpenStack Identity service") {
+      it(s"should return a ${SC_SERVICE_UNAVAILABLE} when receiving $statusCode from the OpenStack Identity service") {
         val retryCalendar = new GregorianCalendar()
         retryCalendar.add(Calendar.SECOND, 5)
         val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
@@ -344,7 +344,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
         identityConfig.setValidateProjectIdInUri(null)
         identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
         identityV3Handler.handleRequest(wrappedRequest, mockResponse)
-        mockResponse.getStatus shouldBe HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        mockResponse.getStatus shouldBe SC_SERVICE_UNAVAILABLE
         mockResponse.getHeaders(HttpHeaders.RETRY_AFTER) should contain only retryString
       }
     }
@@ -362,38 +362,38 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
 
       List(
         Map(
-          responseStatus -> HttpServletResponse.SC_OK,
-          resultStatus -> HttpServletResponse.SC_OK
+          responseStatus -> SC_OK,
+          resultStatus -> SC_OK
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_FORBIDDEN,
+          responseStatus -> SC_FORBIDDEN,
           responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
-          resultStatus -> HttpServletResponse.SC_FORBIDDEN,
+          resultStatus -> SC_FORBIDDEN,
           resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_UNAUTHORIZED,
+          responseStatus -> SC_UNAUTHORIZED,
           responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
-          resultStatus -> HttpServletResponse.SC_FORBIDDEN,
+          resultStatus -> SC_FORBIDDEN,
           resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_UNAUTHORIZED,
-          resultStatus -> HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+          responseStatus -> SC_UNAUTHORIZED,
+          resultStatus -> SC_INTERNAL_SERVER_ERROR
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED,
+          responseStatus -> SC_NOT_IMPLEMENTED,
           responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
-          resultStatus -> HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+          resultStatus -> SC_INTERNAL_SERVER_ERROR
         ),
         Map(
-          responseStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED,
-          resultStatus -> HttpServletResponse.SC_NOT_IMPLEMENTED
+          responseStatus -> SC_NOT_IMPLEMENTED,
+          resultStatus -> SC_NOT_IMPLEMENTED
         )
       ) foreach { parameterMap =>
         mockServletResponse.setStatus(parameterMap(responseStatus).asInstanceOf[Integer])
         if (parameterMap.get(responseWwwAuthenticate).isDefined) {
-          mockServletResponse.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, parameterMap(responseWwwAuthenticate).asInstanceOf[String])
+          mockServletResponse.addHeader(HttpHeaders.WWW_AUTHENTICATE, parameterMap(responseWwwAuthenticate).asInstanceOf[String])
         }
 
         val filterAction = identityV3Handler.handleResponse(mockServletResponse)
@@ -401,7 +401,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfterEach wit
         filterAction should not be FilterAction.NOT_SET
         mockServletResponse.getStatus shouldBe parameterMap(resultStatus)
         if (parameterMap.get(resultWwwAuthenticate).isDefined) {
-          mockServletResponse.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString) should contain(parameterMap(resultWwwAuthenticate))
+          mockServletResponse.getHeaders(HttpHeaders.WWW_AUTHENTICATE) should contain(parameterMap(resultWwwAuthenticate))
         }
       }
     }
