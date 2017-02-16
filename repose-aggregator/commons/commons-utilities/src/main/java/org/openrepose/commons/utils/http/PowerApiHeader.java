@@ -28,6 +28,7 @@ public class PowerApiHeader {
     public static final String USER = "X-PP-User";
     public static final String GROUPS = "X-PP-Groups";
     public static final String DOMAIN = "X-Domain";
+    public static final String X_CATALOG = "x-catalog";
 
     private PowerApiHeader() {
         // This class should not be instantiated.
@@ -43,7 +44,8 @@ public class PowerApiHeader {
                 NEXT_ROUTE,
                 USER,
                 GROUPS,
-                DOMAIN
+                DOMAIN,
+                X_CATALOG
         };
     }
 }
