@@ -64,6 +64,11 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 5. Remove the flush output filter
        *
        * 6. Extract common XML types (e.g., keystore configuration).
+       *
+       * 7. Update the Header Normalization filters deprecated items:
+       *    a. Remove the `header-filters` element.
+       *    b. Update the maxOccurs of the `whitelist` & `blacklist` elements from `unbounded` to `1`.
+       *    c. Remove the the `whitelist` & `blacklist` element's `id` attribute.
        */
     }
   }

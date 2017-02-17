@@ -41,11 +41,12 @@
         </xs:annotation>
 
         <xs:all>
+            <!-- TODO for v9.0.0.0: remove this deprecated element. -->
             <xs:element name="header-filters" type="hnorm:HeaderFilterList" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
-                            Deprecated: This attribute is deprecated. Use request-header-filters instead.
+                            Deprecated: This element is deprecated. Use request-header-filters instead.
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
@@ -85,6 +86,7 @@
         </xs:annotation>
 
         <xs:choice>
+            <!-- TODO for v9.0.0.0: make these maxOccurs="1" in version 9. -->
             <xs:element name="whitelist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="blacklist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
@@ -160,6 +162,7 @@
             <xs:element name="header" type="hnorm:HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
+        <!-- TODO for v9.0.0.0: This attribute is never used and should be removed. -->
         <xs:attribute name="id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
