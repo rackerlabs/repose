@@ -128,22 +128,25 @@
     </xs:complexType>
 
     <xs:complexType name="ResponseTarget">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>Defines a Response target with a list of allowed and/or disallowed HTTP Headers.</html:p>
-            </xs:documentation>
-        </xs:annotation>
-        <xs:extension base="Target"/>
-        <xs:attribute name="code-regex" type="xs:string" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Defines a regular expression that is applied to the Response status code to determine if this
-                        target is a match.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
+        <xs:complexContent>
+            <xs:extension base="hnorm:Target">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Defines a Response target with a list of allowed and/or disallowed HTTP Headers.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:attribute name="code-regex" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Defines a regular expression that is applied to the Response status code to determine if this
+                                target is a match.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="HttpHeaderList">
