@@ -20,11 +20,15 @@
   -->
 
 
-<xs:schema xmlns:hnorm="http://docs.openrepose.org/repose/header-normalization/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:hnorm="http://docs.openrepose.org/repose/header-normalization/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/header-normalization/v1.0"
            elementFormDefault="qualified"
-           attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/header-normalization/v1.0">
+           attributeFormDefault="unqualified">
 
     <!-- Header Normalization Configuration -->
     <xs:element name="header-normalization" type="hnorm:HeaderNormalizationConfig"/>
@@ -32,20 +36,39 @@
     <xs:complexType name="HeaderNormalizationConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>The root config type for the Header Normalization filter configuration file.</html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="header-filters" type="hnorm:HeaderFilterList" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="header-filters" type="hnorm:HeaderFilterList" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Deprecated: This attribute is deprecated. Use request-header-filters instead.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="request-header-filters" type="hnorm:HeaderFilterList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="response-header-filters" type="hnorm:ResponseHeaderFilterList" minOccurs="0" maxOccurs="1"/>
         </xs:all>
-    </xs:complexType>
 
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(header-filters and request-header-filters)"
+                   xerces:message="Cannot define the deprecated header-filters and request-header-filters"
+                   saxon:message="Cannot define the deprecated header-filters and request-header-filters"
+        />
+    </xs:complexType>
 
     <xs:complexType name="HeaderFilterList">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>
+                    Contains a list of targets that are processed in the order defined. The first target that matches is
+                    the only one that modifies the Request headers.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -57,7 +80,7 @@
     <xs:complexType name="Target">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Defines a Request target with a list of allowed and/or disallowed HTTP Headers.</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -69,7 +92,8 @@
         <xs:attribute name="uri-regex" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The uri regex to match against when determining whether or not to apply the filter
+                    <html:p>
+                        The uri regex to match against when determining whether or not to apply the filter
                         to the request. If this attribute is null then repose assumes the filtering is
                         performed on all requests with the specified http-methods. If uri-regex and
                         http-methods are both null then the specified header filter is performed on all
@@ -82,7 +106,41 @@
         <xs:attribute name="http-methods" type="hnorm:HttpMethodList" use="optional" default="ALL">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>List of HTTP Methods this filter will match on.</html:p>
+                    <html:p>List of HTTP Methods this target will match on.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ResponseHeaderFilterList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Contains a list of targets that are processed in the order defined. The first target that matches is
+                    the only one that modifies the Response headers.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="target" type="hnorm:ResponseTarget" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ResponseTarget">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a Response target with a list of allowed and/or disallowed HTTP Headers.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:extension base="Target"/>
+        <xs:attribute name="code-regex" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines a regular expression that is applied to the Response status code to determine if this
+                        target is a match.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -91,7 +149,7 @@
     <xs:complexType name="HttpHeaderList">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Defines a list of (dis)allowed HTTP Headers.</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -99,10 +157,12 @@
             <xs:element name="header" type="hnorm:HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:attribute name="id" type="xs:string" use="required">
+        <xs:attribute name="id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>
+                        Deprecated: This attribute is deprecated and will be removed in the next major release.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -111,14 +171,14 @@
     <xs:complexType name="HttpHeader">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Defines a (dis)allowed HTTP Header.</html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>The case-insensitive name of the header to match on.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -132,11 +192,8 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    The HttpMethod simple type defines a string
-                    enumeration of HTTP method verbs as outlined in
-                    <a
-                            href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616 section 9.
-                    </a>
+                    The HTTP Method defines a string enumeration of HTTP method verbs as outlined in
+                    <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616 section 9.</a>
                 </html:p>
             </xs:documentation>
         </xs:annotation>
@@ -151,7 +208,6 @@
             <xs:enumeration value="OPTIONS"/>
             <xs:enumeration value="CONNECT"/>
             <xs:enumeration value="TRACE"/>
-
             <xs:enumeration value="ALL"/>
         </xs:restriction>
     </xs:simpleType>
