@@ -23,6 +23,7 @@ import com.sun.jersey.server.impl.provider.RuntimeDelegateImpl;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper$;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
 import org.openrepose.core.services.ratelimit.config.RateLimitList;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
@@ -68,7 +69,7 @@ public class RateLimitingServiceHelper {
     }
 
     public void trackLimits(HttpServletRequest request, int datastoreWarnLimit) throws OverLimitException {
-        service.trackLimits(getPreferredUser(request), getPreferredGroups(request), decodeURI(request.getRequestURI()), request.getParameterMap(), request.getMethod(), datastoreWarnLimit);
+        service.trackLimits(getPreferredUser(request), getPreferredGroups(request), decodeURI(request.getRequestURI()), HttpServletRequestWrapper$.MODULE$.parseQueryString(request.getQueryString()), request.getMethod(), datastoreWarnLimit);
     }
 
     public MimeType getReposeMimeType(javax.ws.rs.core.MediaType mediaType) {

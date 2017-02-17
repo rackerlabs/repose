@@ -318,6 +318,10 @@ object HttpServletRequestWrapper {
     parsedParameterMap.toMap
   }
 
+  def parseQueryString(queryString: String): java.util.Map[String, Array[String]] = {
+    parseParameterString(Option(queryString).getOrElse("")).asJava
+  }
+
   private def insertParameters(insertMap: Map[String, Array[String]], intoMap: mutable.Map[String, Array[String]]) = {
     insertMap foreach { case (key, values) =>
       intoMap += (key -> (values ++ intoMap.getOrElse(key, Array.empty[String])))

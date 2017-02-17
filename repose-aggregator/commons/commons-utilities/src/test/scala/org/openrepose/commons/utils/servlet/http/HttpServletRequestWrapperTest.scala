@@ -1244,4 +1244,10 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
       wrappedRequest.getServerPort shouldBe 12345
     }
   }
+
+  describe("parseQueryString") {
+    it("should not throw an exception when given null") {
+      HttpServletRequestWrapper.parseQueryString(null)
+    }
+  }
 }
