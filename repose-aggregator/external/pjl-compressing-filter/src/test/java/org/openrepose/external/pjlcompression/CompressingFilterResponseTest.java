@@ -49,11 +49,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -368,13 +370,13 @@ public final class CompressingFilterResponseTest {
             byte[] outputBytes = output.getBytes(TEST_ENCODING);
             byte[] expectedBytes = getCompressedOutput(outputBytes);
             byte[] moduleOutput = response.getContentAsByteArray();
-            assertFalse(Arrays.equals(outputBytes, moduleOutput));
+            assertThat(outputBytes, not(equalTo(moduleOutput)));
             assertArrayEquals(expectedBytes, moduleOutput);
             assertEquals(Boolean.TRUE, request.getAttribute(CompressingFilter.COMPRESSED_KEY));
 
             assertTrue(response.containsHeader("Content-Encoding"));
             assertTrue(response.containsHeader("X-Compressed-By"));
-            assertTrue(!response.containsHeader("ETag") || response.getHeader("ETag").endsWith("-gzip"));
+            assertThat(response.getHeader("ETag"), anyOf(org.hamcrest.Matchers.nullValue(), org.hamcrest.Matchers.endsWith("-gzip")));
         } else {
             assertEquals(output, response.getContentAsString());
             assertNull(request.getAttribute(CompressingFilter.COMPRESSED_KEY));
