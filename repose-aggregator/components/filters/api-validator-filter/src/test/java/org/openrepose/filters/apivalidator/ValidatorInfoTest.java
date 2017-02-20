@@ -33,6 +33,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
@@ -76,12 +79,12 @@ public class ValidatorInfoTest {
             Validator validator1 = instance.getValidator();
             assertNotNull(validator1);
 
-            assertTrue("Should return exact same validator on each call to getValidator", validator1 == validator);
+            assertThat("Should return exact same validator on each call to getValidator", validator1, sameInstance(validator));
 
             instance.clearValidator();
             Validator validator2 = instance.getValidator();
             assertNotNull(validator2);
-            assertTrue("Validator2 should be a new instance after clearing", validator2 != validator);
+            assertThat("Validator2 should be a new instance after clearing", validator2, not(sameInstance(validator)));
         }
 
         @Test
@@ -105,14 +108,14 @@ public class ValidatorInfoTest {
             roles.add("role with spaces");
             roles.add("role\u00A0with\u00A0non-breaking\u00A0spaces");
             String goodName = instance.getNameFromRoles(roles);
-            assertFalse(goodName.contains("/"));
-            assertFalse(goodName.contains(","));
-            assertFalse(goodName.contains("="));
-            assertFalse(goodName.contains(":"));
-            assertFalse(goodName.contains("*"));
-            assertFalse(goodName.contains("?"));
-            assertFalse(goodName.contains(" "));
-            assertFalse(goodName.contains("\u00A0"));
+            assertThat(goodName, not(containsString("/")));
+            assertThat(goodName, not(containsString(",")));
+            assertThat(goodName, not(containsString("=")));
+            assertThat(goodName, not(containsString(":")));
+            assertThat(goodName, not(containsString("*")));
+            assertThat(goodName, not(containsString("?")));
+            assertThat(goodName, not(containsString(" ")));
+            assertThat(goodName, not(containsString("\u00A0")));
         }
     }
 }
