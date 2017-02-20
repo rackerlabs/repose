@@ -38,6 +38,7 @@ import java.util.UUID;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -231,6 +232,6 @@ public class EHCacheDatastoreTest {
         when(cache.putIfAbsent(any(Element.class))).thenReturn(returnedElement);
         EHCacheDatastore datastore = new EHCacheDatastore(cache);
         datastore.patch("key", new StringValue.Patch("some value"), 10, SECONDS);
-        assertTrue(returnedElement.getTimeToLive() >= 10);
+        assertThat(returnedElement.getTimeToLive(), greaterThanOrEqualTo(10));
     }
 }
