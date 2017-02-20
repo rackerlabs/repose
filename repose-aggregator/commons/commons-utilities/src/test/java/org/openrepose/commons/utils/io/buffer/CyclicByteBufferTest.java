@@ -28,6 +28,7 @@ import org.openrepose.commons.utils.arrays.ByteArrayComparator;
 import java.io.IOException;
 import java.util.Random;
 
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
@@ -306,7 +307,7 @@ public class CyclicByteBufferTest {
             sourceBuffer.put(fill(new byte[20]));
             sourceBuffer.clear();
             int actual = sourceBuffer.remaining();
-            assertTrue("Remaining should be entire buffer after clearing", actual > 0);
+            assertThat("Remaining should be entire buffer after clearing", actual, greaterThan(0));
         }
     }
 
