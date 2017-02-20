@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 
 /**
@@ -96,7 +97,7 @@ public class HeaderValueImplTest {
 
             final HeaderValueImpl headerValue = new HeaderValueImpl("value", parameters);
 
-            assertTrue("Header value must match expected output", -1 == headerValue.getQualityFactor());
+            assertThat("Header value must match expected output", headerValue.getQualityFactor(), equalTo(-1));
         }
 
         @Test
@@ -110,7 +111,7 @@ public class HeaderValueImplTest {
         public void shouldReturnNegativeOneWhenNoQualityFactorCanBeDetermined() {
             final HeaderValueImpl headerValue = new HeaderValueImpl("value", Collections.<String, String>emptyMap());
 
-            assertTrue("Header value must match expected output", 1 == headerValue.getQualityFactor());
+            assertThat("Header value must match expected output", headerValue.getQualityFactor(), equalTo(1.0));
         }
     }
 
