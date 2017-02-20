@@ -27,6 +27,7 @@ import org.junit.runner.RunWith;
 
 import java.lang.reflect.Constructor;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 /**
@@ -84,7 +85,7 @@ public class ReflectionToolsTest {
 
             simpleClassConstructor = ReflectionTools.getConstructor(SimpleClass.class, typeArray);
 
-            assertTrue(simpleClassConstructor.toString().contains("SimpleClass(java.lang.String,java.lang.Integer)"));
+            assertThat(simpleClassConstructor.toString(), containsString("SimpleClass(java.lang.String,java.lang.Integer)"));
         }
 
         @Test(expected = NoSuchMethodException.class)
@@ -100,7 +101,7 @@ public class ReflectionToolsTest {
 
             simpleClassConstructor = ReflectionTools.getConstructor(SimpleClass.class, typeArray);
 
-            assertTrue(simpleClassConstructor.toString().contains("SimpleClass()"));
+            assertThat(simpleClassConstructor.toString(), containsString("SimpleClass()"));
         }
     }
 
