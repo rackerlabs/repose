@@ -48,11 +48,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -130,7 +130,7 @@ public final class CompressingFilterRequestTest {
         verify(response, never()).sendError(anyInt());
         verify(response, never()).sendError(anyInt(), anyString());
 
-        assertTrue(Arrays.equals(BIG_DOCUMENT, baos.toByteArray()));
+        assertThat(baos.toByteArray(), equalTo(BIG_DOCUMENT));
 
         CompressingFilterStats stats = (CompressingFilterStats)
                 filterConfig.getServletContext().getAttribute(CompressingFilterStats.STATS_KEY);
