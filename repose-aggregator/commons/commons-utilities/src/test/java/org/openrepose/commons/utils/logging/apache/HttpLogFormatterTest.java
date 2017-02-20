@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,14 +61,14 @@ public class HttpLogFormatterTest {
         public void shouldCorrectlyDetectEscapeSequences() {
             final HttpLogFormatter formatter = new HttpLogFormatter("%h %% %u %U");
 
-            assertTrue("Should have parsed seven handlers. Only found: " + formatter.getHandlerList().size(), formatter.getHandlerList().size() == 7);
+            assertThat("Should have parsed seven handlers.", formatter.getHandlerList().size(), equalTo(7));
         }
 
         @Test
         public void shouldCorrectlyParseEmptySpace() {
             final HttpLogFormatter formatter = new HttpLogFormatter("%h%%%u%U");
 
-            assertTrue("Should have parsed four handlers. Only found: " + formatter.getHandlerList().size(), formatter.getHandlerList().size() == 4);
+            assertThat("Should have parsed four handlers.", formatter.getHandlerList().size(), equalTo(4));
         }
 
         @Test
@@ -181,7 +183,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof ResponseTimeHandler);
+            assertThat(formatter.getLogic(), instanceOf(ResponseTimeHandler.class));
         }
 
         @Test
@@ -190,7 +192,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof ResponseTimeHandler);
+            assertThat(formatter.getLogic(), instanceOf(ResponseTimeHandler.class));
         }
 
         @Test
@@ -199,7 +201,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof RequestHeaderHandler);
+            assertThat(formatter.getLogic(), instanceOf(RequestHeaderHandler.class));
         }
 
         @Test
@@ -208,7 +210,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof RequestLineHandler);
+            assertThat(formatter.getLogic(), instanceOf(RequestLineHandler.class));
         }
 
         @Test
@@ -217,7 +219,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof RequestProtocolHandler);
+            assertThat(formatter.getLogic(), instanceOf(RequestProtocolHandler.class));
         }
 
         @Test
@@ -226,7 +228,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof ResponseHeaderHandler);
+            assertThat(formatter.getLogic(), instanceOf(ResponseHeaderHandler.class));
         }
 
         @Test
@@ -235,7 +237,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof CanonicalPortHandler);
+            assertThat(formatter.getLogic(), instanceOf(CanonicalPortHandler.class));
         }
 
         @Test
@@ -244,7 +246,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof LocalAddressHandler);
+            assertThat(formatter.getLogic(), instanceOf(LocalAddressHandler.class));
         }
 
         @Test
@@ -253,7 +255,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof StatusCodeHandler);
+            assertThat(formatter.getLogic(), instanceOf(StatusCodeHandler.class));
         }
 
         @Test
@@ -262,7 +264,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof QueryStringHandler);
+            assertThat(formatter.getLogic(), instanceOf(QueryStringHandler.class));
         }
 
         @Test
@@ -271,7 +273,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof RemoteAddressHandler);
+            assertThat(formatter.getLogic(), instanceOf(RemoteAddressHandler.class));
         }
 
         @Test
@@ -280,7 +282,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof RemoteHostHandler);
+            assertThat(formatter.getLogic(), instanceOf(RemoteHostHandler.class));
         }
 
         @Test
@@ -289,7 +291,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof RemoteUserHandler);
+            assertThat(formatter.getLogic(), instanceOf(RemoteUserHandler.class));
         }
 
         @Test
@@ -298,7 +300,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof RequestMethodHandler);
+            assertThat(formatter.getLogic(), instanceOf(RequestMethodHandler.class));
         }
 
         @Test
@@ -307,7 +309,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof ResponseBytesClfHandler);
+            assertThat(formatter.getLogic(), instanceOf(ResponseBytesClfHandler.class));
         }
 
         @Test
@@ -316,7 +318,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof ResponseBytesHandler);
+            assertThat(formatter.getLogic(), instanceOf(ResponseBytesHandler.class));
         }
 
         @Test
@@ -325,7 +327,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof TimeReceivedHandler);
+            assertThat(formatter.getLogic(), instanceOf(TimeReceivedHandler.class));
         }
 
         @Test
@@ -334,7 +336,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof UrlRequestedHandler);
+            assertThat(formatter.getLogic(), instanceOf(UrlRequestedHandler.class));
         }
 
         @Test
@@ -343,7 +345,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof StringHandler);
+            assertThat(formatter.getLogic(), instanceOf(StringHandler.class));
         }
 
         @Test
@@ -352,7 +354,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof StringHandler);
+            assertThat(formatter.getLogic(), instanceOf(StringHandler.class));
         }
 
         @Test
@@ -361,7 +363,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof ResponseMessageHandler);
+            assertThat(formatter.getLogic(), instanceOf(ResponseMessageHandler.class));
         }
 
         @Test
@@ -370,7 +372,7 @@ public class HttpLogFormatterTest {
 
             httpLogFormatter.setLogic(extractor, formatter);
 
-            assertTrue(formatter.getLogic() instanceof TraceGuidHandler);
+            assertThat(formatter.getLogic(), instanceOf(TraceGuidHandler.class));
         }
 
         @Test(expected = IllegalArgumentException.class)
