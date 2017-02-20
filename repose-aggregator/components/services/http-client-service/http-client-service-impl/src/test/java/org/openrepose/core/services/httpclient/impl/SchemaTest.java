@@ -31,6 +31,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
@@ -168,7 +169,7 @@ public class SchemaTest {
             assertNotNull("Expected exception", caught);
             assertSame(SAXParseException.class, caught.getClass());
 
-            assertTrue(caught.getLocalizedMessage().contains(errorMessage));
+            assertThat(caught.getLocalizedMessage(), containsString(errorMessage));
         }
     }
 }

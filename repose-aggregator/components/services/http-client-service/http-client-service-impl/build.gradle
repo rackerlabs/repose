@@ -9,6 +9,7 @@ dependencies {
     provided "javax.inject:javax.inject"
 
     testCompile "junit:junit:4.12"
+    testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.eclipse.jetty:jetty-server"
     testCompile "org.mockito:mockito-all"
