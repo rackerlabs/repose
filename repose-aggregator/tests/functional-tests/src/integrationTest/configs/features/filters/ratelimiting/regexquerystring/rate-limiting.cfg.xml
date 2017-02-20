@@ -23,4 +23,9 @@
         <limit id="test4" uri="/info?queries=*" uri-regex="/info(.*)" query-param-names="time%20search other"
                http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
+
+    <limit-group id="domain-queries5" groups="body" default="false">
+        <limit id="test5" uri="/path?queries=*" uri-regex="/path(.*)" query-param-names="name"
+               http-methods="ALL" unit="MINUTE" value="0"/>
+    </limit-group>
 </rate-limiting>
