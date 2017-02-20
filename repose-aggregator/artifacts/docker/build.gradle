@@ -122,4 +122,4 @@ static boolean isLatestVersion(String v) {
 
 pushImageLatest.onlyIf { isLatestVersion(reposeVersion) }
 
-//project.tasks.getByPath(':release').dependsOn pushImageVersion, pushImageLatest
+project.tasks.getByPath(':release').dependsOn pushImageVersion, pushImageLatest
