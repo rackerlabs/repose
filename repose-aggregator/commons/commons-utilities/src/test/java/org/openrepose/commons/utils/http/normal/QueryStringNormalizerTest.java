@@ -25,8 +25,10 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author zinic
@@ -53,7 +55,7 @@ public class QueryStringNormalizerTest {
             final String query = "cache-busting=2395819035&a=1";
             final String actual = queryStringNormalizer.normalize(query);
 
-            assertFalse("URI normalizer must filter bad query parameters.", actual.contains("cache-busting"));
+            assertThat("URI normalizer must filter bad query parameters.", actual, not(containsString("cache-busting")));
         }
     }
 
