@@ -31,8 +31,9 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 @RunWith(Enclosed.class)
 public class AccessListDeterminatorTest {
@@ -106,7 +107,7 @@ public class AccessListDeterminatorTest {
 
             List<InetAddress> clusterMembers = AccessListDeterminator.getClusterMembers(sysConfig, "reposeCluster");
 
-            assertTrue("Should have two cluster members", clusterMembers.size() == 2);
+            assertThat("Should have two cluster members", clusterMembers.size(), equalTo(2));
         }
 
         @Test
