@@ -40,26 +40,25 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:all>
-            <!-- TODO for v9.0.0.0: remove this deprecated element. -->
+        <xs:sequence>
+            <!-- TODO for v10.0.0.0: remove the deprecated header-filters element. -->
             <xs:element name="header-filters" type="hnorm:HeaderFilterList" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
-                            Deprecated: This element is deprecated. Use request-header-filters instead.
+                            Deprecated: This element is deprecated. Simply remove it and bring the `target`'s up a level.
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="request-header-filters" type="hnorm:HeaderFilterList" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="response-header-filters" type="hnorm:ResponseHeaderFilterList" minOccurs="0" maxOccurs="1"/>
-        </xs:all>
-
+            <!-- TODO for v10.0.0.0: the target element's min needs to be One (1). -->
+            <xs:element name="target" type="hnorm:Target" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
         <xs:assert vc:minVersion="1.1"
                    xpathDefaultNamespace="##targetNamespace"
-                   test="not(header-filters and request-header-filters)"
-                   xerces:message="Cannot define the deprecated header-filters and request-header-filters"
-                   saxon:message="Cannot define the deprecated header-filters and request-header-filters"
+                   test="not(header-filters and target)"
+                   xerces:message="Cannot define the deprecated header-filters at this level along side a target"
+                   saxon:message="Cannot define the deprecated header-filters at this level along side a target"
         />
     </xs:complexType>
 
@@ -84,12 +83,15 @@
                 <html:p>Defines a Request target with a list of allowed and/or disallowed HTTP Headers.</html:p>
             </xs:documentation>
         </xs:annotation>
-
-        <xs:choice>
-            <!-- TODO for v9.0.0.0: make these maxOccurs="1" in version 9. -->
-            <xs:element name="whitelist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="blacklist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:choice>
+        <xs:sequence>
+            <xs:choice>
+                <!-- TODO for v10.0.0.0: remove these legacy whitelist and blacklist definitions. -->
+                <xs:element name="whitelist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="blacklist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:choice>
+            <xs:element name="request" type="hnorm:RequestResponse" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="response" type="hnorm:RequestResponse" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
 
         <xs:attribute name="uri-regex" type="xs:string" use="optional">
             <xs:annotation>
@@ -112,43 +114,37 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(whitelist and request)"
+                   xerces:message="Cannot define the deprecated whitelist at this level along side the new request"
+                   saxon:message="Cannot define the deprecated whitelist at this level along side the new request"
+        />
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(blacklist and request)"
+                   xerces:message="Cannot define the deprecated blacklist at this level along side the new request"
+                   saxon:message="Cannot define the deprecated blacklist at this level along side the new request"
+        />
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(whitelist and response)"
+                   xerces:message="Cannot define the deprecated whitelist at this level along side the new response"
+                   saxon:message="Cannot define the deprecated whitelist at this level along side the new response"
+        />
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(blacklist and response)"
+                   xerces:message="Cannot define the deprecated blacklist at this level along side the new response"
+                   saxon:message="Cannot define the deprecated blacklist at this level along side the new response"
+        />
     </xs:complexType>
 
-    <xs:complexType name="ResponseHeaderFilterList">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                    Contains a list of targets that are processed in the order defined. The first target that matches is
-                    the only one that modifies the Response headers.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:sequence>
-            <xs:element name="target" type="hnorm:ResponseTarget" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="ResponseTarget">
-        <xs:complexContent>
-            <xs:extension base="hnorm:Target">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Defines a Response target with a list of allowed and/or disallowed HTTP Headers.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-                <xs:attribute name="code-regex" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                                Defines a regular expression that is applied to the Response status code to determine if this
-                                target is a match.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:complexContent>
+    <xs:complexType name="RequestResponse">
+        <xs:choice>
+            <xs:element name="whitelist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="blacklist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="1"/>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="HttpHeaderList">
@@ -162,7 +158,7 @@
             <xs:element name="header" type="hnorm:HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <!-- TODO for v9.0.0.0: This attribute is never used and should be removed. -->
+        <!-- TODO for v10.0.0.0: The whitelist/blacklist element's id attribute should be removed. -->
         <xs:attribute name="id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
