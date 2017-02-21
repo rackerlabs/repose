@@ -3,51 +3,47 @@
 <header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'
                       xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                       xsi:schemaLocation='http://docs.openrepose.org/repose/header-normalization/v1.0 ../config/header-normalization-configuration.xsd'>
-    <!-- both request and response configs are optional, if neither are specified, then this filter is a no-op -->
-    <request-header-filters>
-        <!-- applies to all http methods (GET, POST, PUT, etc) that match the uri-regex -->
-        <target uri-regex="/servers/(.*)">
+    <!-- applies to all http methods (GET, POST, PUT, etc) that match the uri-regex -->
+    <target uri-regex="/servers/(.*)">
+        <!-- both request and response configs are optional, if neither are specified, then this filter is a no-op -->
+        <request>
             <!-- both whitelist and blacklist are optional, if neither are specified, then this target is a no-op -->
             <whitelist>
                 <header id="X-Auth-Key"/>
                 <header id="X-Auth-User"/>
             </whitelist>
-        </target>
-
-        <!-- applies only to POST and PUT requests for /resource/(.*) -->
-        <target uri-regex="/resource/(.*)" http-methods="POST PUT">
-            <whitelist>
-                <header id="X-Modify"/>
-            </whitelist>
-        </target>
-
-        <!-- this blacklist filter only applies if the request does not match one of the previous request target -->
-        <!-- since uri-regex and http-methods are not specified in this request target, the blacklist applies to all
-             http requests that don't match the previous two targets -->
-        <target>
-            <blacklist>
-                <header id="X-PP-User"/>
-                <header id="X-PP-Groups"/>
-            </blacklist>
-        </target>
-    </request-header-filters>
-
-    <response-header-filters>
-        <!-- applies only to responses from /resource/(.*) with status code 404 -->
-        <target uri-regex="/resource/(.*)" code-regex="4\d\d">
+        </request>
+        <response>
+            <!-- applies only to responses -->
             <blacklist>
                 <header id="X-User-Name"/>
                 <header id="X-Tenant-Id"/>
             </blacklist>
-        </target>
+        </response>
+    </target>
 
-        <!-- this blacklist filter only applies if the response does not match a previous response target -->
-        <!-- since uri-regex, http-methods, and http-status are not specified in this target the blacklist applies to
-             all http responses that don't match the previous target -->
-        <target>
+    <!-- applies only to POST and PUT requests for /resource/(.*) -->
+    <target uri-regex="/resource/(.*)" http-methods="POST PUT">
+        <request>
+            <whitelist>
+                <header id="X-Modify"/>
+            </whitelist>
+        </request>
+    </target>
+
+    <!-- since uri-regex and http-methods are not specified in this target,
+         these blacklist filters apply to all requests and responses that don't match one of the previous targets -->
+    <target>
+        <request>
+            <blacklist>
+                <header id="X-PP-User"/>
+                <header id="X-PP-Groups"/>
+            </blacklist>
+        </request>
+        <response>
             <blacklist>
                 <header id="X-Remove-Me"/>
             </blacklist>
-        </target>
-    </response-header-filters>
+        </response>
+    </target>
 </header-normalization>
