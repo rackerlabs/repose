@@ -19,21 +19,23 @@
  */
 package org.openrepose.commons.utils.http
 
+import org.apache.http.Header
 import org.apache.http.HttpResponse
 import org.apache.http.StatusLine
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpRequestBase
+import org.hamcrest.Description
+import org.hamcrest.Matcher
 import org.junit.Before
 import org.junit.Test
+import org.junit.internal.matchers.TypeSafeMatcher
 import org.mockito.ArgumentCaptor
 import org.openrepose.core.services.httpclient.HttpClientContainer
 import org.openrepose.core.services.httpclient.HttpClientService
 
 import javax.ws.rs.core.MediaType
 
-import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertThat
-import static org.junit.Assert.assertTrue
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.anyString
 import static org.mockito.Mockito.*
@@ -75,9 +77,26 @@ class ServiceClientTest {
         serviceClient.post("http://example.com", headers, "body", MediaType.TEXT_PLAIN_TYPE)
 
         verify(mockHttpClient).execute(any(HttpRequestBase))
-        assertTrue(requestCaptor.getValue().containsHeader("x-foo"))
-        assertTrue(requestCaptor.getValue().containsHeader("x-bar"))
-        assertThat(requestCaptor.getValue().getFirstHeader("x-foo").getValue(), equalTo("foo"))
-        assertThat(requestCaptor.getValue().getFirstHeader("x-bar").getValue(), equalTo("bar"))
+        assertThat(requestCaptor.getValue().getFirstHeader("x-foo"), hasValue("foo"))
+        assertThat(requestCaptor.getValue().getFirstHeader("x-bar"), hasValue("bar"))
+    }
+
+    Matcher<Header> hasValue(String value) {
+        return new TypeSafeMatcher<Header>() {
+
+            @Override
+            boolean matchesSafely(Header item) {
+                boolean result = false
+                if (item != null) {
+                    result = item.getValue() == value
+                }
+                return result
+            }
+
+            @Override
+            void describeTo(Description description) {
+                description.appendText("header should have a value of ").appendValue(value)
+            }
+        }
     }
 }
