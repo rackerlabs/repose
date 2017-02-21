@@ -35,14 +35,14 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
       validator.validateConfigFile("/META-INF/schema/examples/header-normalization.cfg.xml")
     }
 
-    Seq("request-header-filters", "response-header-filters").foreach { filterType =>
+    Seq("request", "response").foreach { filterType =>
       it(s"should successfully validate when the $filterType is used") {
         val config =
           s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-             |    <$filterType>
-             |        <target>
-             |        </target>
-             |    </$filterType>
+             |    <target>
+             |        <$filterType>
+             |        </$filterType>
+             |    </target>
              |</header-normalization>""".stripMargin
         validator.validateConfigString(config)
       }
@@ -51,31 +51,51 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
         it(s"should successfully validate when a $filterType target defines a $listType") {
           val config =
             s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-               |    <$filterType>
-               |        <target>
+               |    <target>
+               |        <$filterType>
                |            <$listType>
                |                <header id="X-Some-Header"/>
                |            </$listType>
-               |        </target>
-               |    </$filterType>
+               |        </$filterType>
+               |    </target>
                |</header-normalization>""".stripMargin
           validator.validateConfigString(config)
+        }
+
+        it(s"should fail to validate when a $filterType target defines two $listType's") {
+          val config =
+            s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+               |    <target>
+               |        <$filterType>
+               |            <$listType>
+               |                <header id="X-Some-Header"/>
+               |            </$listType>
+               |            <$listType>
+               |                <header id="X-Other-Header"/>
+               |            </$listType>
+               |        </$filterType>
+               |    </target>
+               |</header-normalization>""".stripMargin
+          val exception = intercept[SAXParseException] {
+            validator.validateConfigString(config)
+          }
+          exception.getLocalizedMessage should include("Invalid content")
         }
       }
 
       it(s"should fail to validate when a target defines both a $filterType whitelist and blacklist") {
         val config =
           s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-             |    <$filterType>
-             |        <target>
+             |    <target>
+             |        <$filterType>
              |            <whitelist>
              |                <header id="X-Some-Header"/>
              |            </whitelist>
              |            <blacklist>
              |                <header id="X-Some-Header"/>
              |            </blacklist>
-             |        </target>
-             |    </$filterType>
+             |      </$filterType>
+             |    </target>
              |</header-normalization>""".stripMargin
         val exception = intercept[SAXParseException] {
           validator.validateConfigString(config)
@@ -84,17 +104,15 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
       }
     }
 
-    it("should successfully validate when the new request-header-filters is used with the new response-header-filters") {
+    it("should successfully validate when the new request and response is used") {
       val config =
         """<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-          |    <request-header-filters>
-          |        <target>
-          |        </target>
-          |    </request-header-filters>
-          |    <response-header-filters>
-          |        <target>
-          |        </target>
-          |    </response-header-filters>
+          |    <target>
+          |        <request>
+          |        </request>
+          |        <response>
+          |        </response>
+          |    </target>
           |</header-normalization>""".stripMargin
       validator.validateConfigString(config)
     }
@@ -105,7 +123,7 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
   val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
     ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
 
-  if (reposeVersion != "9") {
+  if (reposeVersion != "10") {
     describe("deprecated schema validation") {
       it("should successfully validate when the deprecated header-filters is used") {
         val config =
@@ -118,78 +136,102 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
         validator.validateConfigString(config)
       }
 
-      it("should fail to validate when the deprecated header-filters is used with the new request-header-filters") {
+      it("should fail to validate when the deprecated header-filters is used with targets at the same level") {
         val config =
           """<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
             |    <header-filters>
             |        <target>
             |        </target>
             |    </header-filters>
-            |    <request-header-filters>
-            |        <target>
-            |        </target>
-            |    </request-header-filters>
+            |    <target>
+            |    </target>
             |</header-normalization>""".stripMargin
         val exception = intercept[SAXParseException] {
           validator.validateConfigString(config)
         }
-        exception.getLocalizedMessage should include("Cannot define the deprecated header-filters and request-header-filters.")
+        exception.getLocalizedMessage should include("Cannot define the deprecated header-filters at this level along side a target")
       }
 
-      it("should successfully validate when the deprecated header-filters is used with the new response-header-filters") {
-        val config =
-          """<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-            |    <header-filters>
-            |        <target>
-            |        </target>
-            |    </header-filters>
-            |    <response-header-filters>
-            |        <target>
-            |        </target>
-            |    </response-header-filters>
-            |</header-normalization>""".stripMargin
-        validator.validateConfigString(config)
-      }
+      Seq("whitelist", "blacklist").foreach { listType =>
+        it(s"should successfully validate when a deprecated header-filters' target defines two $listType") {
+          val config =
+            s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+               |    <header-filters>
+               |        <target>
+               |            <$listType>
+               |                <header id="X-Some-Header"/>
+               |            </$listType>
+               |            <$listType>
+               |                <header id="X-Other-Header"/>
+               |            </$listType>
+               |        </target>
+               |    </header-filters>
+               |</header-normalization>""".stripMargin
+          validator.validateConfigString(config)
+        }
 
+        it(s"should successfully validate when a deprecated header-filters' target defines $listType with an id attribute") {
+          val config =
+            s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+               |    <header-filters>
+               |        <target>
+               |            <$listType id="SomeList">
+               |                <header id="X-Some-Header"/>
+               |            </$listType>
+               |        </target>
+               |    </header-filters>
+               |</header-normalization>""".stripMargin
+          validator.validateConfigString(config)
+        }
 
-      Seq("header-filters", "request-header-filters", "response-header-filters").foreach { filterType =>
-        Seq("whitelist", "blacklist").foreach { listType =>
-          it(s"should successfully validate when a $filterType target defines two $listType") {
+        Seq("request", "response").foreach { filterType =>
+          it(s"should fail to validate when the deprecated higher-level $listType with the new $filterType") {
             val config =
               s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-                 |    <$filterType>
+                 |    <header-filters>
                  |        <target>
-                 |            <$listType>
+                 |            <$listType id="SomeList">
                  |                <header id="X-Some-Header"/>
                  |            </$listType>
-                 |            <$listType>
-                 |                <header id="X-Some-Header"/>
-                 |            </$listType>
+                 |            <$filterType>
+                 |                <$listType>
+                 |                    <header id="X-Other-Header"/>
+                 |                </$listType>
+                 |            </$filterType>
                  |        </target>
-                 |    </$filterType>
+                 |    </header-filters>
                  |</header-normalization>""".stripMargin
-            validator.validateConfigString(config)
-          }
-
-          it(s"should successfully validate when a $filterType target defines a $listType without an id") {
-            val config =
-              s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-                 |    <$filterType>
-                 |        <target>
-                 |            <$listType>
-                 |                <header id="X-Some-Header"/>
-                 |            </$listType>
-                 |        </target>
-                 |    </$filterType>
-                 |</header-normalization>""".stripMargin
-            validator.validateConfigString(config)
+            val exception = intercept[SAXParseException] {
+              validator.validateConfigString(config)
+            }
+            exception.getLocalizedMessage should include(s"Cannot define the deprecated $listType at this level along side the new $filterType")
           }
         }
+      }
+
+      it(s"should fail to validate when a deprecated header-filters' target defines both a whitelist and blacklist") {
+        val config =
+          s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+             |    <header-filters>
+             |        <target>
+             |            <whitelist>
+             |                <header id="X-Some-Header"/>
+             |            </whitelist>
+             |            <blacklist>
+             |                <header id="X-Some-Header"/>
+             |            </blacklist>
+             |        </target>
+             |    </header-filters>
+             |</header-normalization>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("Invalid content")
       }
     }
   } else {
     describe("new schema validation") {
-      it("should fail to validate when the deprecated header-filters") {
+      it("should fail to validate when the deprecated header-filters is defined") {
         val config =
           """<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
             |    <header-filters>
@@ -203,43 +245,23 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
         exception.getLocalizedMessage should include("Invalid content")
       }
 
-      Seq("request-header-filters", "response-header-filters").foreach { filterType =>
+      Seq("request", "response").foreach { filterType =>
         Seq("whitelist", "blacklist").foreach { listType =>
-          it(s"should fail to validate when a $filterType target defines two $listType") {
-            val config =
-              s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-                 |    <$filterType>
-                 |        <target>
-                 |            <$listType>
-                 |                <header id="X-Some-Header"/>
-                 |            </$listType>
-                 |            <$listType>
-                 |                <header id="X-Some-Header"/>
-                 |            </$listType>
-                 |        </target>
-                 |    </$filterType>
-                 |</header-normalization>""".stripMargin
-            val exception = intercept[SAXParseException] {
-                validator.validateConfigString(config)
-              }
-            exception.getLocalizedMessage should include("Invalid content")
-          }
-
           it(s"should fail to validate when a $filterType target defines $listType with an id") {
             val config =
               s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-                 |    <$filterType>
-                 |        <target>
+                 |    <target>
+                 |        <$filterType>
                  |            <$listType id="No-Longer-Exists">
                  |                <header id="X-Some-Header"/>
                  |            </$listType>
-                 |        </target>
-                 |    </$filterType>
+                 |        </$filterType>
+                 |    </target>
                  |</header-normalization>""".stripMargin
             val
             exception = intercept[SAXParseException] {
-                validator.validateConfigString(config)
-              }
+              validator.validateConfigString(config)
+            }
             exception.getLocalizedMessage should include("not allowed")
           }
         }
