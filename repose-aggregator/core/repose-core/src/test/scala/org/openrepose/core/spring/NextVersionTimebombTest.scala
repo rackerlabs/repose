@@ -64,11 +64,23 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 5. Remove the flush output filter
        *
        * 6. Extract common XML types (e.g., keystore configuration).
+       */
+    }
+
+    it("is not 10 (timebomb)") {
+      val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
+        ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
+
+      reposeVersion should not startWith "10"
+
+      /*
+       * Before moving to version 10, the following updates should be made:
        *
-       * 7. Update the Header Normalization filters deprecated items:
-       *    a. Remove the `header-filters` element.
-       *    b. Update the maxOccurs of the `whitelist` & `blacklist` elements from `unbounded` to `1`.
-       *    c. Remove the the `whitelist` & `blacklist` element's `id` attribute.
+       * 1. Update the Header Normalization filters deprecated items:
+       *    a. Remove the deprecated `header-filters` element.
+       *    b. Update the `target` element's min to be One (1).
+       *    c. Remove the deprecated top-level `whitelist` & `blacklist` elements.
+       *    d. Remove the `HttpHeaderList` (`whitelist` & `blacklist`) element's id attribute.
        */
     }
   }
