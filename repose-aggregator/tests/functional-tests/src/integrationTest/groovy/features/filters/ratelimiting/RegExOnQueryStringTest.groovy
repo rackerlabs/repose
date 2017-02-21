@@ -99,4 +99,22 @@ class RegExOnQueryStringTest extends ReposeValveTest {
         "/info?time%20search='06-30-2014%2012:00.00.000'&other='test'&search='test'" | "dbaas4" | "413"
         "/info?time='06-30-2014%2012:00.00.000'" | "dbaas4" | "200"
     }
+
+    def "Body parameters in requests should be ignored and the body should not be modified"() {
+        given:
+        def headers = ['X-PP-User': 'user1', 'X-PP-Groups': 'body', 'Content-Type': 'application/x-www-form-urlencoded']
+        String body = 'name=one'
+
+        when:
+        def mc = deproxy.makeRequest(
+                method: 'POST',
+                url: reposeEndpoint + '/path?foo=bar',
+                headers: headers,
+                requestBody: body)
+
+        then:
+        mc.receivedResponse.code.toInteger() == 200
+        mc.handlings.size() == 1
+        new String(mc.handlings[0].request.body) == body
+    }
 }

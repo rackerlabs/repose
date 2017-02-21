@@ -3,6 +3,7 @@
 include::_includes/in-progress.adoc[]
 
 == Future Release
+* https://repose.atlassian.net/browse/REP-5001[REP-5001] - <<filters/rate-limiting.adoc#, Rate Limiting Filter>> was mistakenly getting the full parameter map, and not just the query parameters.
 
 == 8.4.0.1
 
