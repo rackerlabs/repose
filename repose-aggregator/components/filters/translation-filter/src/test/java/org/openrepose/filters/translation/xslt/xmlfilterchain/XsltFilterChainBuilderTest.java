@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
@@ -100,7 +101,7 @@ public class XsltFilterChainBuilderTest {
 
             String outResult = output.toString();
 
-            assertTrue("Shoudl have main output", outResult.length() > 0);
+            assertThat("Should have main output", outResult.length(),  greaterThan(0));
         }
     }
 }
