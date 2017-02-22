@@ -27,8 +27,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 
-import static org.junit.Assert.assertTrue
-
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.junit.Assert.assertThat
 /**
  * Created by jennyvo on 7/30/14.
  */
@@ -112,8 +112,8 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
                         headers: headers1, defaultHandler: handler)
 
                 then: "the request is not rate-limited, and passes to the origin service"
-                assertTrue(messageChain.receivedResponse.code.equals("200"))
-                assertTrue(messageChain.handlings.size() == 1)
+                assertThat(messageChain.receivedResponse.code, equalTo("200"))
+                assertThat(messageChain.handlings.size(), equalTo(1))
         }
 
         (1..3).each {
@@ -123,8 +123,8 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
                         headers: headers2, defaultHandler: handler)
 
                 then: "the request is not rate-limited, and passes to the origin service"
-                assertTrue(messageChain.receivedResponse.code.equals("200"))
-                assertTrue(messageChain.handlings.size() == 1)
+                assertThat(messageChain.receivedResponse.code, equalTo("200"))
+                assertThat(messageChain.handlings.size(), equalTo(1))
         }
 
         when: "user1 hit the same resource, rate limitted"
