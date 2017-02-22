@@ -30,6 +30,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
 
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -59,10 +62,8 @@ public class OutputStreamUriParameterResolverTest {
             String href = resolver.getHref(name);
             assertNotNull("Should return the href for our output stream", href);
             StreamResult result = (StreamResult) resolver.resolve(href, "");
-            assertNotNull("Should return a StreamResult which wraps our output stream", result);
-            assertNotNull("Source stream should include a path", result.getSystemId());
-            assertFalse("Source stream path should not be empty", result.getSystemId().isEmpty());
-            assertTrue("Should return our output stream", output == result.getOutputStream());
+            assertThat("Source stream path should not be empty", result.getSystemId(), not(isEmptyString()));
+            assertThat("Should return our output stream", result.getOutputStream(), sameInstance(output));
         }
 
         @Test
