@@ -67,6 +67,10 @@ task pushImageLatest(type: DockerPushImage) {
     tag = 'latest'
 }
 
+task pushImage {
+    dependsOn 'pushImageVersion', 'pushImageLatest'
+}
+
 task removeImage(type: DockerRemoveImage) {
     dependsOn 'buildImage'
     mustRunAfter 'tagImageVersion', 'tagImageLatest', 'pushImageVersion', 'pushImageLatest'
