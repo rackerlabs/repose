@@ -23,11 +23,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.arrays.ByteArrayComparator;
 
 import java.io.IOException;
 import java.util.Random;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
@@ -256,11 +256,11 @@ public class CyclicByteBufferTest {
             buffer.get(actual, 16, 16);
             assertEquals(16, buffer.available());
 
-            assertTrue(new ByteArrayComparator(expected, actual).arraysAreEqual());
+            assertThat(actual, equalTo(expected));
         }
 
         @Test
-        public void shouldHandleLargeArrayys() throws IOException {
+        public void shouldHandleLargeArrays() throws IOException {
             buffer = new CyclicByteBuffer();
 
             final byte[] randomBytes = new byte[64];
@@ -280,7 +280,7 @@ public class CyclicByteBufferTest {
             final byte[] actual = new byte[expected.length];
             System.arraycopy(readBuffer, 0, actual, 0, actual.length);
 
-            assertTrue(new ByteArrayComparator(expected, actual).arraysAreEqual());
+            assertThat(actual, equalTo(expected));
         }
     }
 
