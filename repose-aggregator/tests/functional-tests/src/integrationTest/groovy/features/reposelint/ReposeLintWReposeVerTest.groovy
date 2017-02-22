@@ -27,9 +27,6 @@ import groovy.json.JsonSlurper
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
-
-import static org.junit.Assert.assertTrue
-
 /**
  * Created by jennyvo on 4/7/16.
  *  addition test for check repose version "7.1.4.0"
@@ -106,9 +103,7 @@ class ReposeLintWReposeVerTest extends Specification {
         jsonlog.clusters[checktype][0]["filters"][0][roleAsIgnoreTenant] == roleignore
         jsonlog.clusters[checktype][0]["filters"][0]["${configrole}Status"] == status
         jsonlog.clusters[checktype][0]["filters"][0]["${configrole}StatusDescription"] == desc
-        if (checktenantedmode == "yes") {
-            assertTrue(jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode)
-        }
+        (checktenantedmode == "no") || (jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode)
 
         where:
         configdir                                             | checktype         | filtername             | checktenantedmode | tenantmode | roleignore | status                        | desc
