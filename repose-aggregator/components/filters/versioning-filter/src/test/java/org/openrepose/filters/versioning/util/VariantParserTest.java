@@ -24,7 +24,9 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.media.MimeType;
 
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
+import static org.openrepose.commons.test.RegexMatcher.matchesPattern;
 
 /**
  * @author fran
@@ -39,42 +41,27 @@ public class VariantParserTest {
     public static class WhenCheckingVariantPattern {
         @Test
         public void shouldNotMatchBadURI() {
-            assertFalse(
-                    VariantParser.VARIANT_REGEX
-                            .matcher("tzs:/baduri|hehe")
-                            .matches());
+            assertThat("tzs:/baduri|hehe", not(matchesPattern(VariantParser.VARIANT_REGEX)));
         }
 
         @Test
         public void shouldMatchStandardURI() {
-            assertTrue(
-                    VariantParser.VARIANT_REGEX
-                            .matcher(STANDARD_URI)
-                            .matches());
+            assertThat(STANDARD_URI, matchesPattern(VariantParser.VARIANT_REGEX));
         }
 
         @Test
         public void shouldMatchVersionedURI() {
-            assertTrue(
-                    VariantParser.VARIANT_REGEX
-                            .matcher(VERSIONED_URI)
-                            .matches());
+            assertThat(VERSIONED_URI, matchesPattern(VariantParser.VARIANT_REGEX));
         }
 
         @Test
         public void shouldMatchMediaTypeURI() {
-            assertTrue(
-                    VariantParser.VARIANT_REGEX
-                            .matcher(MEDIA_TYPE_URI)
-                            .matches());
+            assertThat(MEDIA_TYPE_URI, matchesPattern(VariantParser.VARIANT_REGEX));
         }
 
         @Test
         public void shouldMatchVersionedMediaTypeURI() {
-            assertTrue(
-                    VariantParser.VARIANT_REGEX
-                            .matcher(VERSIONED_MEDIA_TYPE_URI)
-                            .matches());
+            assertThat(VERSIONED_MEDIA_TYPE_URI, matchesPattern(VariantParser.VARIANT_REGEX));
         }
     }
 
