@@ -3,8 +3,6 @@
 include::_includes/in-progress.adoc[]
 
 == Future Release
-* https://repose.atlassian.net/browse/REP-4465[REP-4465] - Internal clean up converting some enums to constants.
-* https://repose.atlassian.net/browse/REP-4970[REP-4970] - Internal clean up removing an unnecessary dependency.
 
 == 8.4.0.2
 
