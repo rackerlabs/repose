@@ -411,7 +411,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricsMeters).mark(".*_PATCH")
+        verify(metricsMeters).mark(s".*_PATCH_${reqres(target)}")
       }
 
       it(s"will update metrics when a request matches a config target when using a specified URL on the ${reqres(target, newStyle)}") {
@@ -427,7 +427,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricsMeters).mark("/v1/servers/[^/]+/status_GET")
+        verify(metricsMeters).mark(s"/v1/servers/[^/]+/status_GET_${reqres(target)}")
       }
 
       it(s"will NOT update metrics when a request does not match any config target on the ${reqres(target, newStyle)}") {
@@ -570,5 +570,10 @@ object HeaderNormalizationFilterTest {
   def reqres(targetType: TargetType, newStyle: Boolean): String = targetType match {
     case RequestTarget => s"${getStyle(newStyle)} request"
     case ResponseTarget => s"${getStyle(newStyle)} response"
+  }
+
+  def reqres(targetType: TargetType): String = targetType match {
+    case RequestTarget => s"request"
+    case ResponseTarget => s"response"
   }
 }
