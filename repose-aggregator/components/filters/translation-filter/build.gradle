@@ -23,7 +23,7 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.springframework:spring-test"
     testCompile "commons-io:commons-io"
-    testCompile "xmlunit:xmlunit"
+    testCompile "org.xmlunit:xmlunit-legacy"
     testCompile "org.spockframework:spock-core"
 }
 
