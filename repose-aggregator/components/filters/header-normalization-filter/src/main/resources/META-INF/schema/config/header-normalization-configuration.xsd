@@ -114,6 +114,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <!-- TODO for v10.0.0.0: remove these deprecated assertions. -->
         <xs:assert vc:minVersion="1.1"
                    xpathDefaultNamespace="##targetNamespace"
                    test="not(whitelist and request)"
@@ -138,10 +139,18 @@
                    xerces:message="Cannot define the deprecated blacklist at this level along side the new response"
                    saxon:message="Cannot define the deprecated blacklist at this level along side the new response"
         />
+        <!-- TODO for v10.0.0.0: add an assertion to ensure at least one of these is defined. -->
+        <!--xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count(*)>=1"
+                   xerces:message="Must define at lest a request or response"
+                   saxon:message="Must define at lest a request or response"
+        /-->
     </xs:complexType>
 
     <xs:complexType name="RequestResponse">
         <xs:choice>
+            <!-- TODO for v10.0.0.0: remove the min/maxOccurs to ensure at least one of these is present. -->
             <xs:element name="whitelist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="1"/>
             <xs:element name="blacklist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="1"/>
         </xs:choice>
