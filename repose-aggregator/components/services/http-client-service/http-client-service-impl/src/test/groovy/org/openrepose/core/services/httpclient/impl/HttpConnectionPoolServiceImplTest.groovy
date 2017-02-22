@@ -33,6 +33,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.core.services.httpclient.HttpClientContainer
 
+import static org.hamcrest.Matchers.hasKey
 import static org.junit.Assert.*
 import static org.mockito.Mockito.*
 
@@ -185,35 +186,35 @@ class HttpConnectionPoolServiceImplTest {
     void shouldRegisterUserWhenGettingNullClient() {
         HttpClientContainer clientResponse = srv.getClient(null)
         assertNotNull(clientResponse)
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertThat(srv.httpClientUserManager.registeredClientUsers, hasKey(clientResponse.clientInstanceId))
     }
 
     @Test
     void shouldRegisterUserWhenGettingEmptyClient() {
         HttpClientContainer clientResponse = srv.getClient("")
         assertNotNull(clientResponse)
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertThat(srv.httpClientUserManager.registeredClientUsers, hasKey(clientResponse.clientInstanceId))
     }
 
     @Test
     void shouldRegisterUserWhenGettingDefaultClient() {
         HttpClientContainer clientResponse = srv.getDefaultClient()
         assertNotNull(clientResponse)
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertThat(srv.httpClientUserManager.registeredClientUsers, hasKey(clientResponse.clientInstanceId))
     }
 
     @Test
     void shouldRegisterUserWhenGettingNonDefaultClient() {
         HttpClientContainer clientResponse = srv.getClient(POOLU_ID)
         assertNotNull(clientResponse)
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertThat(srv.httpClientUserManager.registeredClientUsers, hasKey(clientResponse.clientInstanceId))
     }
 
     @Test
     void shouldReleaseUserFromClientWhenBothAreValid() {
         HttpClientContainer clientResponse = srv.getClient(POOLU_ID)
 
-        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertThat(srv.httpClientUserManager.registeredClientUsers, hasKey(clientResponse.clientInstanceId))
         assertEquals(1, srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size())
 
         srv.releaseClient(clientResponse)
