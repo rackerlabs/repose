@@ -28,6 +28,8 @@ import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
 class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
+  val filterTypes = Seq("request", "response")
+  val listTypes = Seq("whitelist", "blacklist")
   val validator = ConfigValidator("/META-INF/schema/config/header-normalization-configuration.xsd")
 
   describe("schema validation") {
@@ -35,19 +37,8 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
       validator.validateConfigFile("/META-INF/schema/examples/header-normalization.cfg.xml")
     }
 
-    Seq("request", "response").foreach { filterType =>
-      it(s"should successfully validate when the $filterType is used") {
-        val config =
-          s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-             |    <target>
-             |        <$filterType>
-             |        </$filterType>
-             |    </target>
-             |</header-normalization>""".stripMargin
-        validator.validateConfigString(config)
-      }
-
-      Seq("whitelist", "blacklist").foreach { listType =>
+    filterTypes.foreach { filterType =>
+      listTypes.foreach { listType =>
         it(s"should successfully validate when a $filterType target defines a $listType") {
           val config =
             s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
@@ -103,24 +94,11 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
         exception.getLocalizedMessage should include("Invalid content")
       }
     }
-
-    it("should successfully validate when the new request and response is used") {
-      val config =
-        """<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
-          |    <target>
-          |        <request>
-          |        </request>
-          |        <response>
-          |        </response>
-          |    </target>
-          |</header-normalization>""".stripMargin
-      validator.validateConfigString(config)
-    }
   }
 
-  val coreSpringProvider = CoreSpringProvider.getInstance()
+  private val coreSpringProvider = CoreSpringProvider.getInstance()
   coreSpringProvider.initializeCoreContext("/etc/repose", false)
-  val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
+  private val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
     ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
 
   if (reposeVersion != "10") {
@@ -152,7 +130,7 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
         exception.getLocalizedMessage should include("Cannot define the deprecated header-filters at this level along side a target")
       }
 
-      Seq("whitelist", "blacklist").foreach { listType =>
+      listTypes.foreach { listType =>
         it(s"should successfully validate when a deprecated header-filters' target defines two $listType") {
           val config =
             s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
@@ -184,7 +162,7 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
           validator.validateConfigString(config)
         }
 
-        Seq("request", "response").foreach { filterType =>
+        filterTypes.foreach { filterType =>
           it(s"should fail to validate when the deprecated higher-level $listType with the new $filterType") {
             val config =
               s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
@@ -209,6 +187,19 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
         }
       }
 
+      filterTypes.foreach { filterType =>
+        it(s"should successfully validate when the $filterType is used") {
+          val config =
+            s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+               |    <target>
+               |        <$filterType>
+               |        </$filterType>
+               |    </target>
+               |</header-normalization>""".stripMargin
+          validator.validateConfigString(config)
+        }
+      }
+
       it(s"should fail to validate when a deprecated header-filters' target defines both a whitelist and blacklist") {
         val config =
           s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
@@ -228,6 +219,19 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
         }
         exception.getLocalizedMessage should include("Invalid content")
       }
+
+      it("should successfully validate when the new request and response is used") {
+        val config =
+          """<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+            |    <target>
+            |        <request>
+            |        </request>
+            |        <response>
+            |        </response>
+            |    </target>
+            |</header-normalization>""".stripMargin
+        validator.validateConfigString(config)
+      }
     }
   } else {
     describe("new schema validation") {
@@ -245,8 +249,8 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
         exception.getLocalizedMessage should include("Invalid content")
       }
 
-      Seq("request", "response").foreach { filterType =>
-        Seq("whitelist", "blacklist").foreach { listType =>
+      filterTypes.foreach { filterType =>
+        listTypes.foreach { listType =>
           it(s"should fail to validate when a $filterType target defines $listType with an id") {
             val config =
               s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
@@ -264,6 +268,21 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
             }
             exception.getLocalizedMessage should include("not allowed")
           }
+        }
+
+        it(s"should fail to validate when a $filterType target doesn't define a whitelist or blacklist") {
+          val config =
+            s"""<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+               |    <target>
+               |        <$filterType>
+               |        </$filterType>
+               |    </target>
+               |</header-normalization>""".stripMargin
+          val
+          exception = intercept[SAXParseException] {
+            validator.validateConfigString(config)
+          }
+          exception.getLocalizedMessage should include("is not complete")
         }
       }
     }
