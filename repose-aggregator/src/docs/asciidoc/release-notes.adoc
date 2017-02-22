@@ -3,6 +3,7 @@
 include::_includes/in-progress.adoc[]
 
 == Future Release
+* https://repose.atlassian.net/browse/REP-4024[REP-4024] - the <<filters/header-normalization.adoc#, Header Normalization filter>> updated to include removing headers on the Response.
 
 == 8.4.0.1
 
