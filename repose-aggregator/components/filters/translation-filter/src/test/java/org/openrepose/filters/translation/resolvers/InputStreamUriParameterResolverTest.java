@@ -30,6 +30,7 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -56,10 +57,8 @@ public class InputStreamUriParameterResolverTest {
 
             assertEquals("HREFs should be equal", href, actualHref);
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
-            assertNotNull("Should find source stream", source);
-            assertNotNull("Source stream should include a path", source.getSystemId());
-            assertFalse("Source stream path should not be empty", source.getSystemId().isEmpty());
-            assertTrue("Streams should be the same", input == source.getInputStream());
+            assertThat("Source stream path should not be empty", source.getSystemId(), not(isEmptyString()));
+            assertThat("Streams should be the same", source.getInputStream(), sameInstance(input));
         }
 
         @Test
@@ -70,10 +69,8 @@ public class InputStreamUriParameterResolverTest {
 
             assertEquals("HREFs should be equal", href, actualHref);
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
-            assertNotNull("Should find source stream", source);
-            assertNotNull("Source stream should include a path", source.getSystemId());
-            assertFalse("Source stream path should not be empty", source.getSystemId().isEmpty());
-            assertTrue("Streams should be the same", input == source.getInputStream());
+            assertThat("Source stream path should not be empty", source.getSystemId(), not(isEmptyString()));
+            assertThat("Streams should be the same", source.getInputStream(), sameInstance(input));
             resolver.removeStream(href);
             source = (StreamSource) resolver.resolve(href, "base");
 
@@ -86,10 +83,8 @@ public class InputStreamUriParameterResolverTest {
             String actualHref = resolver.addStream(input);
 
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
-            assertNotNull("Should find source stream", source);
-            assertNotNull("Source stream should include a path", source.getSystemId());
-            assertFalse("Source stream path should not be empty", source.getSystemId().isEmpty());
-            assertTrue("Streams should be the same", input == source.getInputStream());
+            assertThat("Source stream path should not be empty", source.getSystemId(), not(isEmptyString()));
+            assertThat("Streams should be the same", source.getInputStream(), sameInstance(input));
             resolver.removeStream(input);
             source = (StreamSource) resolver.resolve(href, "base");
 
@@ -126,7 +121,7 @@ public class InputStreamUriParameterResolverTest {
             resolver.addResolver(additional);
 
             Source actual = resolver.resolve(href, base);
-            assertTrue("Should return our additional source", actual == source);
+            assertThat("Should return our additional source", actual, sameInstance(source));
         }
     }
 }
