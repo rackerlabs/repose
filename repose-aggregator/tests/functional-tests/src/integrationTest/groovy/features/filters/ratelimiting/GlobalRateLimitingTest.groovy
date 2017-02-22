@@ -29,6 +29,7 @@ import spock.lang.Unroll
 
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
+
 /**
  * Created by jennyvo on 7/30/14.
  */

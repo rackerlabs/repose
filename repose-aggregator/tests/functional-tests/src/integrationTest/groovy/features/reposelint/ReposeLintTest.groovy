@@ -27,6 +27,7 @@ import groovy.json.JsonSlurper
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
+
 /**
  * Update on 01/28/15
  *  - replace client-auth with keystone-v2

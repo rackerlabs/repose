@@ -27,6 +27,7 @@ import groovy.json.JsonSlurper
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
+
 /**
  * Created by jennyvo on 4/7/16.
  *  Test verify repose lint allows config role name
