@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
+import static org.openrepose.commons.test.RegexMatcher.matchesPattern;
 
 /**
  * @author zinic
@@ -138,7 +139,7 @@ public class HeaderValueImplTest {
 
             final HeaderValueImpl headerValue = new HeaderValueImpl("value", parameters);
             for (Pattern expectedPattern : patterns) {
-                assertTrue("Header value: " + headerValue.toString() + " must match expected pattern", expectedPattern.matcher(headerValue.toString()).matches());
+                assertThat(headerValue.toString(), matchesPattern(expectedPattern));
             }
         }
 
