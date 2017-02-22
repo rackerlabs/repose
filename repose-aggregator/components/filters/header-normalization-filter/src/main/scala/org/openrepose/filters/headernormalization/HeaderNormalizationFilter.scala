@@ -39,6 +39,7 @@ import org.openrepose.filters.headernormalization.HeaderNormalizationFilter._
 import org.openrepose.filters.headernormalization.config.{HeaderNormalizationConfig, HttpHeaderList, HttpMethod, Target => ConfigTarget}
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.TreeSet
 
 @Named
 class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: MetricsService)
@@ -99,9 +100,12 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
     } foreach { target =>
       // figure out which headers to remove, and remove them
       (target.access match {
-        case WhiteList => wrappedResponse.get.getHeaderNames.asScala.toSet.diff(target.headers)
-        // written like this to maintain the case-insensitive string comparisons - do not swap
-        case BlackList => target.headers.intersect(wrappedResponse.get.getHeaderNames.asScala.toSet)
+        // These are written like this to maintain the case-insensitive string comparisons
+        // since the Response Wrappers don't support this the same way the Request Wrappers do at this time.
+        case WhiteList => (new TreeSet[String]()(caseInsensitiveOrdering) ++
+          wrappedResponse.get.getHeaderNames.asScala.toSet).diff(target.headers)
+        case BlackList => target.headers.intersect(
+          new TreeSet[String]()(caseInsensitiveOrdering) ++ wrappedResponse.get.getHeaderNames.asScala.toSet)
       }).foreach(wrappedResponse.get.removeHeader)
 
       metricsMeter.mark(s"${target.url}_${wrappedRequest.getMethod}_response")
@@ -173,6 +177,7 @@ object HeaderNormalizationFilter {
   private final val DEFAULT_CONFIG = "header-normalization.cfg.xml"
   private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/header-normalization-configuration.xsd"
 
+  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
   val AllHttpMethods: String = HttpMethod.ALL.toString
 
   sealed trait StyleType
