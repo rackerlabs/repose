@@ -26,6 +26,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.junit.Assert.assertThat
 import static org.junit.Assert.assertTrue
 
 /**
@@ -99,7 +101,7 @@ class UrlExtractorToHeaderWValkyrieTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
         if (responseCode.equals("200")) {
             assertTrue(mc.handlings.get(0).request.headers.contains("x-device-id"))
-            assertTrue(mc.handlings.get(0).request.headers.getFirstValue("x-device-id") == deviceID)
+            assertThat(mc.handlings.get(0).request.headers.getFirstValue("x-device-id"), equalTo(deviceID))
         }
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")
