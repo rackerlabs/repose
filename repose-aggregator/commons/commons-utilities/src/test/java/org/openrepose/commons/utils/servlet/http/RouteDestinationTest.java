@@ -22,7 +22,9 @@ package org.openrepose.commons.utils.servlet.http;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 
 /**
@@ -68,6 +70,6 @@ public class RouteDestinationTest {
     public void shouldHaveDifferentHashPerDestination() {
         Integer h1 = routeDst1.hashCode();
         Integer h2 = routeDst2.hashCode();
-        assertFalse(h1.equals(h2));
+        assertThat(h1, not(equalTo(h2)));
     }
 }
