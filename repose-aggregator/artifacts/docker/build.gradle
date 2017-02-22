@@ -67,6 +67,10 @@ task pushImageLatest(type: DockerPushImage) {
     tag = 'latest'
 }
 
+task pushImage {
+    dependsOn 'pushImageVersion', 'pushImageLatest'
+}
+
 task removeImage(type: DockerRemoveImage) {
     dependsOn 'buildImage'
     mustRunAfter 'tagImageVersion', 'tagImageLatest', 'pushImageVersion', 'pushImageLatest'
@@ -121,5 +125,3 @@ static boolean isLatestVersion(String v) {
 }
 
 pushImageLatest.onlyIf { isLatestVersion(reposeVersion) }
-
-project.tasks.getByPath(':release').dependsOn pushImageVersion, pushImageLatest
