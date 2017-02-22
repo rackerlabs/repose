@@ -27,9 +27,6 @@ import groovy.json.JsonSlurper
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
-
-import static org.junit.Assert.assertTrue
-
 /**
  * Created by jennyvo on 4/7/16.
  *  Test verify repose lint allows config role name
@@ -132,17 +129,15 @@ class ReposeLintWRoleConfigTest extends Specification {
         jsonlog.clusters[checktype][0]["filters"][0][roleAsIgnoreTenant] == roleignore
         jsonlog.clusters[checktype][0]["filters"][0]["${configrole}Status"] == status
         jsonlog.clusters[checktype][0]["filters"][0]["${configrole}StatusDescription"] == desc
-        if (checktenantedmode == "yes") {
-            assertTrue(jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode)
-        }
+        jsonlog.clusters[checktype][0]["filters"][0]["inTenantedMode"] == tenantmode
 
         where:
-        configdir                                             | checktype         | filtername    | checktenantedmode | tenantmode | roleignore | status                        | desc
-        "features/reposelint/keystonev2/tenanted"             | "keystoneV2Check" | "keystone-v2" | "yes"             | true       | false      | "NotAllowed"                  | notAllowedDesc
-        "features/reposelint/keystonev2/tenanted/wfoyerrole"  | "keystoneV2Check" | "keystone-v2" | "yes"             | true       | false      | "NotAllowed"                  | notAllowedDesc
-        "features/reposelint/keystonev2/tenanted/wconfigrole" | "keystoneV2Check" | "keystone-v2" | "yes"             | true       | true       | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
-        "features/reposelint/keystonev2/authz"                | "keystoneV2Check" | "keystone-v2" | "no"              | false      | false      | "AllowedWithAuthorization"    | allowedWithAuthorizationDesc
-        "features/reposelint/keystonev2/authzwconfigrole"     | "keystoneV2Check" | "keystone-v2" | "no"              | false      | true       | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
-        "features/reposelint/keystonev2/authzwfoyerrole"      | "keystoneV2Check" | "keystone-v2" | "no"              | false      | false      | "AllowedWithAuthorization"    | allowedWithAuthorizationDesc
+        configdir                                             | checktype         | filtername    | tenantmode | roleignore | status                        | desc
+        "features/reposelint/keystonev2/tenanted"             | "keystoneV2Check" | "keystone-v2" | true       | false      | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/keystonev2/tenanted/wfoyerrole"  | "keystoneV2Check" | "keystone-v2" | true       | false      | "NotAllowed"                  | notAllowedDesc
+        "features/reposelint/keystonev2/tenanted/wconfigrole" | "keystoneV2Check" | "keystone-v2" | true       | true       | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
+        "features/reposelint/keystonev2/authz"                | "keystoneV2Check" | "keystone-v2" | false      | false      | "AllowedWithAuthorization"    | allowedWithAuthorizationDesc
+        "features/reposelint/keystonev2/authzwconfigrole"     | "keystoneV2Check" | "keystone-v2" | false      | true       | "AllowedWithoutAuthorization" | allowedWithoutAuthorizationDesc
+        "features/reposelint/keystonev2/authzwfoyerrole"      | "keystoneV2Check" | "keystone-v2" | false      | false      | "AllowedWithAuthorization"    | allowedWithAuthorizationDesc
     }
 }
