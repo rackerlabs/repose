@@ -34,13 +34,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Vector;
-import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.openrepose.commons.test.RegexMatcher.matchesPattern;
 
 @RunWith(Enclosed.class)
 public class HttpLogFormatterTest {
@@ -112,7 +112,7 @@ public class HttpLogFormatterTest {
             final HttpLogFormatter formatter = new HttpLogFormatter("%t");
 
             assertEquals(1, formatter.getHandlerList().size());
-            assertTrue(Pattern.matches(defaultDateFormatRegex, formatter.format(request, response)));
+            assertThat(formatter.format(request, response), matchesPattern(defaultDateFormatRegex));
         }
     }
 
@@ -156,7 +156,7 @@ public class HttpLogFormatterTest {
             final HttpLogFormatter httpLogFormatter = new HttpLogFormatter("%{yyyy-MM-dd HH:mm:ss}t");
 
             assertEquals(1, httpLogFormatter.getHandlerList().size());
-            assertTrue(Pattern.matches(customDateFormatRegex, httpLogFormatter.format(request, response)));
+            assertThat(httpLogFormatter.format(request, response), matchesPattern(customDateFormatRegex));
         }
     }
 
