@@ -26,8 +26,6 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 
-import static org.junit.Assert.assertTrue
-
 class DistDatastoreServicePutTest extends ReposeValveTest {
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
@@ -202,7 +200,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == "200"
-        assertTrue("Equals", largeBodyContent.size() == objectSerializer.readObject(mc.receivedResponse.body).size())
+        largeBodyContent.size() == objectSerializer.readObject(mc.receivedResponse.body).size()
     }
 
     //@Ignore
