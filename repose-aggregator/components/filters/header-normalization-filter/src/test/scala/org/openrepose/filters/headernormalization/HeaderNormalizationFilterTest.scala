@@ -70,7 +70,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
   // TODO for v10.0.0.0: Only the New Style config should be tested.
   Seq((RequestTarget, false), (RequestTarget, true), (ResponseTarget, true)) foreach { case (target, newStyle) =>
-  //Seq((RequestTarget.asInstanceOf[TargetType], false)) foreach { case (target, newStyle) =>
+    //Seq((RequestTarget.asInstanceOf[TargetType], false)) foreach { case (target, newStyle) =>
     describe("white list") {
       it(s"will keep white listed headers and remove non-white listed headers on the ${reqres(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("cool-header", "so-contents"))
@@ -449,67 +449,73 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
   }
 
   def createConfig(newStyle: Boolean, configuredTargets: List[ConfigTarget]): HeaderNormalizationConfig = {
+    if(newStyle) createConfig(configuredTargets)
+    else createOldConfig(configuredTargets)
+  }
+
+  def createConfig(configuredTargets: List[ConfigTarget]): HeaderNormalizationConfig = {
     val config = new HeaderNormalizationConfig
-    if (newStyle) {
-      // each "target" in config
-      config.getTarget.asScala ++= configuredTargets.map { configTarget =>
-        val target = new Target
+    // each "target" in config
+    config.getTarget.asScala ++= configuredTargets.map { configTarget =>
+      val target = new Target
 
-        // list will either be "blacklist" or "whitelist"
-        val httpHeaderList = new HttpHeaderList
-        httpHeaderList.getHeader.asScala ++= configTarget.headers.map { headerName =>
-          val httpHeader = new HttpHeader
-          httpHeader.setId(headerName)
-          httpHeader
-        }
-
-        // The RequestResponse the "blacklist" or "whitelist" belongs to
-        val requestResponse = new RequestResponse
-        configTarget.access match {
-          case WhiteList => requestResponse.setWhitelist(httpHeaderList)
-          case BlackList => requestResponse.setBlacklist(httpHeaderList)
-        }
-
-        configTarget.targetType match {
-          case RequestTarget => target.setRequest(requestResponse)
-          case ResponseTarget => target.setResponse(requestResponse)
-        }
-
-        configTarget.uri.foreach(target.setUriRegex)
-
-        configTarget.methods.foreach(target.getHttpMethods.asScala ++= _.map(HttpMethod.fromValue))
-
-        target
+      // list will either be "blacklist" or "whitelist"
+      val httpHeaderList = new HttpHeaderList
+      httpHeaderList.getHeader.asScala ++= configTarget.headers.map { headerName =>
+        val httpHeader = new HttpHeader
+        httpHeader.setId(headerName)
+        httpHeader
       }
-    } else {
-      val headerFilterList = new HeaderFilterList
-      config.setHeaderFilters(headerFilterList)
 
-      // each "target" in config
-      headerFilterList.getTarget.asScala ++= configuredTargets.map { configTarget =>
-        val target = new Target
-
-        // list will either be "blacklist" or "whitelist"
-        val httpHeaderList = new HttpHeaderList
-        httpHeaderList.getHeader.asScala ++= configTarget.headers.map { headerName =>
-          val httpHeader = new HttpHeader
-          httpHeader.setId(headerName)
-          httpHeader
-        }
-
-        configTarget.access match {
-          case WhiteList => target.getWhitelist.add(httpHeaderList)
-          case BlackList => target.getBlacklist.add(httpHeaderList)
-        }
-
-        configTarget.uri.foreach(target.setUriRegex)
-
-        configTarget.methods.foreach(target.getHttpMethods.asScala ++= _.map(HttpMethod.fromValue))
-
-        target
+      // The RequestResponse the "blacklist" or "whitelist" belongs to
+      val requestResponse = new RequestResponse
+      configTarget.access match {
+        case WhiteList => requestResponse.setWhitelist(httpHeaderList)
+        case BlackList => requestResponse.setBlacklist(httpHeaderList)
       }
+
+      configTarget.targetType match {
+        case RequestTarget => target.setRequest(requestResponse)
+        case ResponseTarget => target.setResponse(requestResponse)
+      }
+
+      configTarget.uri.foreach(target.setUriRegex)
+
+      configTarget.methods.foreach(target.getHttpMethods.asScala ++= _.map(HttpMethod.fromValue))
+
+      target
     }
+    config
+  }
 
+  def createOldConfig(configuredTargets: List[ConfigTarget]): HeaderNormalizationConfig = {
+    val config = new HeaderNormalizationConfig
+    val headerFilterList = new HeaderFilterList
+    config.setHeaderFilters(headerFilterList)
+
+    // each "target" in config
+    headerFilterList.getTarget.asScala ++= configuredTargets.map { configTarget =>
+      val target = new Target
+
+      // list will either be "blacklist" or "whitelist"
+      val httpHeaderList = new HttpHeaderList
+      httpHeaderList.getHeader.asScala ++= configTarget.headers.map { headerName =>
+        val httpHeader = new HttpHeader
+        httpHeader.setId(headerName)
+        httpHeader
+      }
+
+      configTarget.access match {
+        case WhiteList => target.getWhitelist.add(httpHeaderList)
+        case BlackList => target.getBlacklist.add(httpHeaderList)
+      }
+
+      configTarget.uri.foreach(target.setUriRegex)
+
+      configTarget.methods.foreach(target.getHttpMethods.asScala ++= _.map(HttpMethod.fromValue))
+
+      target
+    }
     config
   }
 
@@ -545,6 +551,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 }
 
 object HeaderNormalizationFilterTest {
+
   sealed trait TargetType
   object RequestTarget extends TargetType
   object ResponseTarget extends TargetType
