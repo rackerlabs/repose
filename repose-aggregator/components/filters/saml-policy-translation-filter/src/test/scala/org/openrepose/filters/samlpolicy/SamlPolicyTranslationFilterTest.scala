@@ -30,6 +30,7 @@ import java.util.{Base64, Date, TimeZone, UUID}
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, FilterConfig, ServletInputStream}
+import javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import javax.ws.rs.core.MediaType._
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.stream.StreamSource
@@ -223,6 +224,16 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       val decodedSaml = filter.decodeSamlResponse(request)
 
       Source.fromInputStream(decodedSaml).mkString shouldEqual samlResponse
+      verify(request, never()).getInputStream
+    }
+
+    it("should return the stream when the content type is application/xml") {
+      val request = mock[HttpServletRequest]
+      when(request.getHeader(CONTENT_TYPE)).thenReturn(APPLICATION_XML)
+
+      filter.decodeSamlResponse(request)
+
+      verify(request).getInputStream
     }
   }
 
