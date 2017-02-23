@@ -449,7 +449,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
   }
 
   def createConfig(newStyle: Boolean, configuredTargets: List[ConfigTarget]): HeaderNormalizationConfig = {
-    if(newStyle) createConfig(configuredTargets)
+    if (newStyle) createConfig(configuredTargets)
     else createOldConfig(configuredTargets)
   }
 
