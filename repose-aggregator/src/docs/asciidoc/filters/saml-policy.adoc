@@ -15,7 +15,7 @@ It'll attempt to locate a policy to use for the translation based on the asserti
 
 == Prerequisites & Postconditions
 === Required headers
-* `Content-Type` - Needs a value of `application/x-www-form-urlencoded`
+* `Content-Type` - Needs a value of `application/x-www-form-urlencoded` or `application/xml`
 
 === Required preceding filters
 None
@@ -27,7 +27,7 @@ None
 * `Identity-API-Version` - `1.0` if the assertion issuer is in the configured list and `2.0` otherwise.
 
 === Request body changes
-The request body will be decoded and replaced with an xml version.
+The request body will be decoded and replaced with an xml version if the content type is `application/x-www-form-urlencoded`.
 If issuer isn't in the configured bypass list indicating the use of the legacy v1.0 API, then the v2.0 API is assumed and a new assertion will be generated based on the matching issuer policy with `http://openrepose.org/filters/SAMLTranslation` as the issuer.
 Additionally the SAML Response will be signed with the configured credentials.
 
@@ -65,7 +65,7 @@ a| * If a policy that matches the assertion issuer can not be found.
 | If the request HTTP method is not `POST`.
 
 | `415`
-| If the request `Content-Type` header does not have a value of `application/x-www-form-urlencoded`.
+| If the request `Content-Type` header does not have a value of `application/x-www-form-urlencoded` or `application/xml`.
 
 | `500`
 | If there is any error in this filter that is not explicitly mapped to a status code.
