@@ -81,8 +81,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
       // figure out which headers to remove, and remove them
       (target.access match {
         case WhiteList => wrappedRequest.getHeaderNamesScala.diff(target.headers)
-        // written like this to maintain the case-insensitive string comparisons - do not swap
-        case BlackList => target.headers.intersect(wrappedRequest.getHeaderNamesScala)
+        case BlackList => target.headers
       }).foreach(wrappedRequest.removeHeader)
 
       metricsMeter.mark(s"${target.url}_${wrappedRequest.getMethod}_request")
@@ -100,12 +99,10 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
     } foreach { target =>
       // figure out which headers to remove, and remove them
       (target.access match {
-        // These are written like this to maintain the case-insensitive string comparisons
-        // since the Response Wrappers don't support this the same way the Request Wrappers do at this time.
+        // The Response Wrapper doesn't return a case-insensitive collection of Header Names at this time.
         case WhiteList => (new TreeSet[String]()(caseInsensitiveOrdering) ++
-          wrappedResponse.get.getHeaderNames.asScala.toSet).diff(target.headers)
-        case BlackList => target.headers.intersect(
-          new TreeSet[String]()(caseInsensitiveOrdering) ++ wrappedResponse.get.getHeaderNames.asScala.toSet)
+          wrappedResponse.get.getHeaderNames.asScala).diff(target.headers)
+        case BlackList => target.headers
       }).foreach(wrappedResponse.get.removeHeader)
 
       metricsMeter.mark(s"${target.url}_${wrappedRequest.getMethod}_response")
