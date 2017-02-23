@@ -26,7 +26,7 @@ Changes to request headers vary based on configuration.
 This filter does not modify the request body.
 
 === Recommended follow-on (succeeding) filters
-This filter is not it strictly required by any other filters.
+This filter is not strictly required by any other filters.
 
 === Response body changes
 This filter does not modify the response body.
