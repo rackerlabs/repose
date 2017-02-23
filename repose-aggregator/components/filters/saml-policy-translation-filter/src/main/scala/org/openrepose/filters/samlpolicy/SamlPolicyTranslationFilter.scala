@@ -173,7 +173,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     if (!"POST".equalsIgnoreCase(request.getMethod)) {
       throw SamlPolicyException(SC_METHOD_NOT_ALLOWED, "Unsupported method")
     }
-    if (!APPLICATION_FORM_URLENCODED.equalsIgnoreCase(request.getHeader(CONTENT_TYPE))) {
+    if (!(APPLICATION_FORM_URLENCODED.equalsIgnoreCase(request.getHeader(CONTENT_TYPE)) || APPLICATION_XML.equalsIgnoreCase(request.getHeader(CONTENT_TYPE)))) {
       throw SamlPolicyException(SC_UNSUPPORTED_MEDIA_TYPE, "Unsupported content")
     }
   }

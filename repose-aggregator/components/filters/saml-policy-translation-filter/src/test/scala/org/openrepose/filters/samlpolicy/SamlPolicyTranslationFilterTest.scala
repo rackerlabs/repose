@@ -162,6 +162,13 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.preValidateRequest(request)
     }
 
+    it("should accept requests that are POST with application/xml encoding content type") {
+      val request = new MockHttpServletRequest("POST", "http://foo.bar")
+      request.setContentType(APPLICATION_XML)
+
+      filter.preValidateRequest(request)
+    }
+
     List("GET", "PUT", "DELETE", "TRACE", "OPTIONS", "HEAD").foreach { method: String =>
       it(s"should fail for method $method") {
         val request = new MockHttpServletRequest(method, "http://foo.bar")
@@ -173,7 +180,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
     }
 
-    List(APPLICATION_JSON, APPLICATION_XML, APPLICATION_ATOM_XML, MULTIPART_FORM_DATA).foreach { contentType: String =>
+    List(APPLICATION_JSON, APPLICATION_ATOM_XML, MULTIPART_FORM_DATA).foreach { contentType: String =>
       it(s"should fail for content type $contentType") {
         val request = new MockHttpServletRequest("POST", "http://foo.bar")
         request.setContentType(contentType)
