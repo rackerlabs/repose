@@ -86,11 +86,7 @@ class ServiceClientTest {
 
             @Override
             boolean matchesSafely(Header item) {
-                boolean result = false
-                if (item != null) {
-                    result = item.getValue() == value
-                }
-                return result
+                return (item != null)  && (item.value == value)
             }
 
             @Override
