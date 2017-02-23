@@ -64,7 +64,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
                 headers: [(CONTENT_TYPE): APPLICATION_XML],
-                requestBody: SAML_ONE_ASSERTION_SIGNED_BASE64)
+                requestBody: SAML_ONE_ASSERTION_SIGNED)
 
         then: "the request is successfully processed"
         mc.receivedResponse.code as Integer == SC_OK
