@@ -88,8 +88,8 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
       metricsMeter.mark(s"${target.url}_${wrappedRequest.getMethod}_request")
     }
 
-    val wrappedResponse = if (configResponse.isEmpty) None
-      else Option(new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], MUTABLE, PASSTHROUGH))
+    val wrappedResponse = if (configResponse.isEmpty) None else Option(
+      new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], MUTABLE, PASSTHROUGH))
 
     filterChain.doFilter(wrappedRequest, wrappedResponse.getOrElse(servletResponse.asInstanceOf[HttpServletResponse]))
 
@@ -129,34 +129,41 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         headers.getHeader.asScala.map(_.getId).toSet))
     }
 
-    val targets = (Option(config.getHeaderFilters) map { hdrFilter => hdrFilter.getTarget })
-      .getOrElse(config.getTarget).asScala
+    val targets = (Option(config.getHeaderFilters) map { hdrFilter =>
+      logger.warn("Your Header Normalization configuration will not be compatible with v10.0.0.0.")
+      logger.warn("Please refer to the documentation to update your Header Normalization configuration accordingly.")
+      hdrFilter.getTarget
+    }).getOrElse(config.getTarget).asScala
 
     this.configRequest = targets flatMap { target =>
-      if(!target.getBlacklist.isEmpty) {
-        getTarget(target, BlackList, target.getBlacklist.get(0))
-      } else if(!target.getWhitelist.isEmpty) {
-        getTarget(target, WhiteList, target.getWhitelist.get(0))
-      } else if(Option(target.getRequest).isDefined) {
+      if (Option(target.getRequest).isDefined) {
         val targetRequest = target.getRequest
-        if(Option(targetRequest.getBlacklist).isDefined) {
+        if (Option(targetRequest.getBlacklist).isDefined) {
           getTarget(target, BlackList, targetRequest.getBlacklist)
-        } else if(Option(targetRequest.getWhitelist).isDefined) {
+        } else if (Option(targetRequest.getWhitelist).isDefined) {
           getTarget(target, WhiteList, targetRequest.getWhitelist)
         } else {
           None
         }
       } else {
-        None
+        logger.warn("Your Header Normalization configuration will not be compatible with v10.0.0.0.")
+        logger.warn("Please refer to the documentation to update your Header Normalization configuration accordingly.")
+        if (!target.getBlacklist.isEmpty) {
+          getTarget(target, BlackList, target.getBlacklist.get(0))
+        } else if (!target.getWhitelist.isEmpty) {
+          getTarget(target, WhiteList, target.getWhitelist.get(0))
+        } else {
+          None
+        }
       }
     }
 
     this.configResponse = targets flatMap { target =>
-      if(Option(target.getResponse).isDefined) {
+      if (Option(target.getResponse).isDefined) {
         val targetResponse = target.getResponse
-        if(Option(targetResponse.getBlacklist).isDefined) {
+        if (Option(targetResponse.getBlacklist).isDefined) {
           getTarget(target, BlackList, targetResponse.getBlacklist)
-        } else if(Option(targetResponse.getWhitelist).isDefined) {
+        } else if (Option(targetResponse.getWhitelist).isDefined) {
           getTarget(target, WhiteList, targetResponse.getWhitelist)
         } else {
           None
@@ -179,10 +186,6 @@ object HeaderNormalizationFilter {
 
   private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
   val AllHttpMethods: String = HttpMethod.ALL.toString
-
-  sealed trait StyleType
-  object NewStyle extends StyleType
-  object OldStyle extends StyleType
 
   sealed trait AccessList
   object WhiteList extends AccessList
