@@ -35,5 +35,5 @@ class RegexMatcher(pattern: Pattern) extends TypeSafeMatcher[String] {
 object RegexMatcher {
   def matchesPattern(pattern: Pattern): RegexMatcher = new RegexMatcher(pattern)
 
-  def matchesPattern(pattern: String): RegexMatcher = new RegexMatcher(pattern.r.pattern)
+  def matchesPattern(pattern: String): RegexMatcher = matchesPattern(pattern.r.pattern)
 }
