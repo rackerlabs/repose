@@ -21,8 +21,7 @@ package org.openrepose.filters.translation.xslt
 
 import org.junit.Test
 
-import static org.hamcrest.CoreMatchers.*
-import static org.hamcrest.beans.HasPropertyWithValue.hasProperty
+import static org.hamcrest.Matchers.*
 import static org.junit.Assert.assertThat
 
 public class StyleSheetInfoTest {

@@ -22,7 +22,7 @@ package org.openrepose.core.services.httpclient.impl
 import org.junit.Before
 import org.junit.Test
 
-import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.hasKey
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertThat

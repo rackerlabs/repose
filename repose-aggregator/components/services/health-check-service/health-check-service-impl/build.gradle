@@ -5,5 +5,6 @@ dependencies {
     provided "javax.inject:javax.inject"
 
     testCompile "junit:junit"
+    testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.codehaus.groovy:groovy-all"
 }

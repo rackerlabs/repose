@@ -45,9 +45,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 

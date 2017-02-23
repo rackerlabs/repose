@@ -27,7 +27,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 
-import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertThat
 
 /**

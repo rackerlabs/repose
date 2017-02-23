@@ -21,9 +21,9 @@ package org.openrepose.commons.utils.logging.apache;
 
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
+import static org.junit.Assert.assertThat;
 
 /**
  * Created by IntelliJ IDEA.

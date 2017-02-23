@@ -26,7 +26,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.core.services.healthcheck.Severity
 
-import static org.hamcrest.CoreMatchers.*
+import static org.hamcrest.Matchers.*
 import static org.junit.Assert.*
 
 class HealthCheckServiceImplTest {

@@ -30,8 +30,8 @@ import org.openrepose.core.services.ratelimit.config.HttpMethod
 
 import java.util.concurrent.TimeUnit
 
-import static org.hamcrest.CoreMatchers.sameInstance
-import static org.hamcrest.core.IsNot.not
+import static org.hamcrest.Matchers.sameInstance
+import static org.hamcrest.Matchers.not
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertThat
 

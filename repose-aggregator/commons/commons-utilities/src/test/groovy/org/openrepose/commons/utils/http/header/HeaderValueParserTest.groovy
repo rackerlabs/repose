@@ -21,9 +21,7 @@ package org.openrepose.commons.utils.http.header
 
 import org.junit.Test
 
-import static org.hamcrest.CoreMatchers.allOf
-import static org.hamcrest.CoreMatchers.equalTo
-import static org.hamcrest.beans.HasPropertyWithValue.hasProperty
+import static org.hamcrest.Matchers.*
 import static org.junit.Assert.assertThat
 
 /**

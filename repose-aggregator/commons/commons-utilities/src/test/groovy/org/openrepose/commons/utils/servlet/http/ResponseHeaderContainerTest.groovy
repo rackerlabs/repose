@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletResponse
 
 import static junit.framework.Assert.assertFalse
 import static junit.framework.Assert.assertTrue
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.junit.Assert.assertThat
 import static org.mockito.Matchers.argThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
