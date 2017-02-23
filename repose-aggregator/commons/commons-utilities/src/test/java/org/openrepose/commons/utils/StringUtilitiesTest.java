@@ -23,7 +23,9 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 
 /**
@@ -152,7 +154,7 @@ public class StringUtilitiesTest {
         public void shouldStripFromBeginningOfString() {
             final String actual = StringUtilities.trim(TEST_STRING, BEGINNING_TRIM);
 
-            assertFalse(actual.contains(BEGINNING_TRIM));
+            assertThat(actual, not(containsString(BEGINNING_TRIM)));
             assertThat(actual.length(),  equalTo(TEST_STRING.length() - BEGINNING_TRIM.length()));
         }
 
@@ -160,7 +162,7 @@ public class StringUtilitiesTest {
         public void shouldStripFromEndOfString() {
             final String actual = StringUtilities.trim(TEST_STRING, END_TRIM);
 
-            assertFalse(actual.contains(END_TRIM));
+            assertThat(actual, not(containsString(END_TRIM)));
             assertThat(actual.length(), equalTo(TEST_STRING.length() - END_TRIM.length()));
         }
 
