@@ -21,7 +21,7 @@ package org.openrepose.cli.command.results;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public final class CommandFailureTest {

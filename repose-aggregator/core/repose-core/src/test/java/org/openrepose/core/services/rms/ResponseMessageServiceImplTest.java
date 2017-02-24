@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.InputStreamUtilities;
-import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.ByteBufferInputStream;
 import org.openrepose.commons.utils.io.ByteBufferServletOutputStream;
 import org.openrepose.commons.utils.io.buffer.ByteBuffer;
@@ -41,13 +40,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.*;
 
-import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.I_AM_A_TEAPOT;
@@ -113,7 +112,7 @@ public class ResponseMessageServiceImplTest {
             rmsImpl.handle(mockedRequest, mockedResponse);
 
             String result = InputStreamUtilities.streamToString(new ByteBufferInputStream(internalBuffer));
-            assertTrue(StringUtilities.nullSafeEquals(MESSAGE, result));
+            assertThat(result, equalTo(MESSAGE));
         }
 
         @Test
@@ -129,7 +128,7 @@ public class ResponseMessageServiceImplTest {
             rmsImpl.handle(mockedRequest, mockedResponse);
 
             String result = InputStreamUtilities.streamToString(new ByteBufferInputStream(internalBuffer));
-            assertTrue(StringUtilities.nullSafeEquals("hello there", result));
+            assertThat(result, equalTo("hello there"));
         }
     }
 

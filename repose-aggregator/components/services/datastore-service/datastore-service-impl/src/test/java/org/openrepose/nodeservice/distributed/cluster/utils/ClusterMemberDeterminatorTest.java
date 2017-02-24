@@ -30,8 +30,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 @RunWith(Enclosed.class)
 public class ClusterMemberDeterminatorTest {
@@ -120,7 +121,7 @@ public class ClusterMemberDeterminatorTest {
 
             ReposeCluster getCluster = ClusterMemberDeterminator.getCurrentCluster(sysConfig.getReposeCluster(), "reposeCluster");
 
-            assertTrue("should retrieve cluster", getCluster.getId().equals("reposeCluster"));
+            assertThat("should retrieve cluster", getCluster.getId(), equalTo("reposeCluster"));
 
         }
 
@@ -138,8 +139,8 @@ public class ClusterMemberDeterminatorTest {
             int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, "reposeCluster", "node1");
             int ddPort2 = ClusterMemberDeterminator.getNodeDDPort(ddConfig, "reposeCluster", "node2");
 
-            assertTrue("Should determine proper dd port 1", ddPort == 9999);
-            assertTrue("Should determine proper dd port 2", ddPort2 == 3333);
+            assertThat("Should determine proper dd port 1", ddPort, equalTo(9999));
+            assertThat("Should determine proper dd port 2", ddPort2, equalTo(3333));
 
         }
 
@@ -148,7 +149,7 @@ public class ClusterMemberDeterminatorTest {
 
             List<InetSocketAddress> clusterView = ClusterMemberDeterminator.getClusterMembers(sysConfig, ddConfig, "reposeCluster");
 
-            assertTrue("Cluster has 2 repose nodes", clusterView.size() == 2);
+            assertThat("Cluster has 2 repose nodes", clusterView.size(), equalTo(2));
         }
     }
 }

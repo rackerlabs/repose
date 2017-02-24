@@ -22,8 +22,10 @@ package org.openrepose.core.services.httpclient.impl
 import org.junit.Before
 import org.junit.Test
 
+import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.hasKey
 import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertTrue
+import static org.junit.Assert.assertThat
 
 class HttpClientUserManagerTest {
 
@@ -39,8 +41,8 @@ class HttpClientUserManagerTest {
     void whenAddingAUserToRegisteredClientUsers() {
         String result = clientUserManager.addUser(clientId1)
 
-        assertTrue(clientUserManager.registeredClientUsers.containsKey(clientId1))
-        assertTrue(clientUserManager.registeredClientUsers.get(clientId1).size() == 1)
+        assertThat(clientUserManager.registeredClientUsers, hasKey(clientId1))
+        assertThat(clientUserManager.registeredClientUsers.get(clientId1).size(), equalTo(1))
         assertEquals(result, clientUserManager.registeredClientUsers.get(clientId1).get(0))
     }
 
@@ -49,7 +51,7 @@ class HttpClientUserManagerTest {
         String user1 = clientUserManager.addUser(clientId1)
         String user2 = clientUserManager.addUser(clientId1)
 
-        assertTrue(clientUserManager.registeredClientUsers.containsKey(clientId1))
+        assertThat(clientUserManager.registeredClientUsers, hasKey(clientId1))
         assertEquals(clientUserManager.registeredClientUsers.get(clientId1).size(), 2)
         assertEquals(user1, clientUserManager.registeredClientUsers.get(clientId1).get(0))
         assertEquals(user2, clientUserManager.registeredClientUsers.get(clientId1).get(1))
@@ -90,26 +92,26 @@ class HttpClientUserManagerTest {
     void whenRemovingAUserFromRegisteredClientUsers() {
         String result = clientUserManager.addUser(clientId1)
 
-        assertTrue(clientUserManager.registeredClientUsers.containsKey(clientId1))
-        assertTrue(clientUserManager.registeredClientUsers.get(clientId1).size() == 1)
+        assertThat(clientUserManager.registeredClientUsers, hasKey(clientId1))
+        assertThat(clientUserManager.registeredClientUsers.get(clientId1).size(), equalTo(1))
 
         clientUserManager.removeUser(clientId1, result)
 
-        assertTrue(clientUserManager.registeredClientUsers.containsKey(clientId1))
-        assertTrue(clientUserManager.registeredClientUsers.get(clientId1).size() == 0)
+        assertThat(clientUserManager.registeredClientUsers, hasKey(clientId1))
+        assertThat(clientUserManager.registeredClientUsers.get(clientId1).size(), equalTo(0))
     }
 
     @Test
     void whenRemovingAnUnregisteredUserFromRegisteredClientUsers() {
         String userId = clientUserManager.addUser(clientId1)
 
-        assertTrue(clientUserManager.registeredClientUsers.containsKey(clientId1))
-        assertTrue(clientUserManager.registeredClientUsers.get(clientId1).size() == 1)
+        assertThat(clientUserManager.registeredClientUsers, hasKey(clientId1))
+        assertThat(clientUserManager.registeredClientUsers.get(clientId1).size(), equalTo(1))
 
         clientUserManager.removeUser(clientId1, "notTheRegisteredUserId")
 
-        assertTrue(clientUserManager.registeredClientUsers.containsKey(clientId1))
-        assertTrue(clientUserManager.registeredClientUsers.get(clientId1).size() == 1)
+        assertThat(clientUserManager.registeredClientUsers, hasKey(clientId1))
+        assertThat(clientUserManager.registeredClientUsers.get(clientId1).size(), equalTo(1))
         assertEquals(clientUserManager.registeredClientUsers.get(clientId1).get(0), userId)
     }
 
@@ -117,13 +119,13 @@ class HttpClientUserManagerTest {
     void whenRemovingARegisteredUserFromAnIncorrectClientId() {
         String userId = clientUserManager.addUser(clientId1)
 
-        assertTrue(clientUserManager.registeredClientUsers.containsKey(clientId1))
-        assertTrue(clientUserManager.registeredClientUsers.get(clientId1).size() == 1)
+        assertThat(clientUserManager.registeredClientUsers, hasKey(clientId1))
+        assertThat(clientUserManager.registeredClientUsers.get(clientId1).size(), equalTo(1))
 
         clientUserManager.removeUser("invalid client id", userId)
 
-        assertTrue(clientUserManager.registeredClientUsers.containsKey(clientId1))
-        assertTrue(clientUserManager.registeredClientUsers.get(clientId1).size() == 1)
+        assertThat(clientUserManager.registeredClientUsers, hasKey(clientId1))
+        assertThat(clientUserManager.registeredClientUsers.get(clientId1).size(), equalTo(1))
         assertEquals(clientUserManager.registeredClientUsers.get(clientId1).get(0), userId)
     }
 }

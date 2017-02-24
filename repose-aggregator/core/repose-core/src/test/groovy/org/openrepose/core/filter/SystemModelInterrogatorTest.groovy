@@ -25,8 +25,8 @@ import org.junit.Test
 import org.openrepose.core.Marshaller
 import org.openrepose.core.systemmodel.*
 
-import static org.hamcrest.CoreMatchers.equalTo
-import static org.hamcrest.CoreMatchers.instanceOf
+import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.instanceOf
 import static org.junit.Assert.*
 
 public class SystemModelInterrogatorTest {

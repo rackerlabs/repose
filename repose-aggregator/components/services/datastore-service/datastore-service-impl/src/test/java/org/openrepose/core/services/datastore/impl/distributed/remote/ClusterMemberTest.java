@@ -52,11 +52,13 @@ public class ClusterMemberTest {
             final InetSocketAddress address = mock(InetSocketAddress.class);
             final ClusterMember clusterMember = new ClusterMember(address, 10);
 
-            assertTrue("A cluster member must start in an online state", !clusterMember.isOffline() && clusterMember.isOnline());
+            assertFalse("A cluster member must start in an online state", clusterMember.isOffline());
+            assertTrue("A cluster member must start in an online state", clusterMember.isOnline());
 
             clusterMember.setOffline();
 
-            assertTrue("A cluster member that's been marked as offline must communicate its offline state", clusterMember.isOffline() && !clusterMember.isOnline());
+            assertTrue("A cluster member that's been marked as offline must communicate its offline state", clusterMember.isOffline());
+            assertFalse("A cluster member that's been marked as offline must communicate its offline state", clusterMember.isOnline());
         }
 
         @Test
@@ -79,7 +81,8 @@ public class ClusterMemberTest {
             sleep(5);
 
             assertTrue("A cluster member that's been offline for the duration of its rest period should be eligible for retry", clusterMember.shouldRetry());
-            assertTrue("A cluster member that's eligible for retry should still be marked as offline when it has not finished all validation passes", clusterMember.isOffline() && !clusterMember.isOnline());
+            assertTrue("A cluster member that's eligible for retry should still be marked as offline when it has not finished all validation passes", clusterMember.isOffline());
+            assertFalse("A cluster member that's eligible for retry should still be marked as offline when it has not finished all validation passes", clusterMember.isOnline());
         }
 
         @Test
@@ -98,7 +101,8 @@ public class ClusterMemberTest {
             sleep(5);
 
             assertTrue("A cluster member that's been offline for the duration of its rest period should be eligible for retry", clusterMember.shouldRetry());
-            assertTrue("A cluster member that's eligible for retry should still be marked as offline when it has not finished all validation passes", clusterMember.isOffline() && !clusterMember.isOnline());
+            assertTrue("A cluster member that's eligible for retry should still be marked as offline when it has not finished all validation passes", clusterMember.isOffline());
+            assertFalse("A cluster member that's eligible for retry should still be marked as offline when it has not finished all validation passes", clusterMember.isOnline());
         }
 
         @Test
@@ -115,7 +119,8 @@ public class ClusterMemberTest {
             sleep(5);
 
             assertTrue("A cluster member that's been offline for the duration of its rest period should be eligible for retry", clusterMember.shouldRetry());
-            assertTrue("A cluster member that's eligible for retry and has completed all of its validation passes should still be marked as online", clusterMember.isOnline() && !clusterMember.isOffline());
+            assertTrue("A cluster member that's eligible for retry and has completed all of its validation passes should still be marked as online", clusterMember.isOnline());
+            assertFalse("A cluster member that's eligible for retry and has completed all of its validation passes should still be marked as online", clusterMember.isOffline());
         }
     }
 }

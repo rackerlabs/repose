@@ -42,8 +42,8 @@ import org.springframework.mock.web.MockServletContext;
 
 import javax.servlet.FilterConfig;
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 /**
@@ -104,7 +104,7 @@ public final class ThresholdOutputStreamTest {
         byte[] bytes = CompressingFilterResponseTest.SMALL_DOCUMENT.getBytes();
         tos.write(bytes);
         tos.close();
-        assertTrue(Arrays.equals(bytes, baos.toByteArray()));
+        assertThat(bytes, equalTo(baos.toByteArray()));
         assertTrue(callback.rawStreamCommitted);
         assertFalse(callback.compressingStreamCommitted);
     }
@@ -115,7 +115,7 @@ public final class ThresholdOutputStreamTest {
         tos.forceOutputStream1();
         tos.write(bytes);
         tos.close();
-        assertTrue(Arrays.equals(bytes, baos.toByteArray()));
+        assertThat(bytes, equalTo(baos.toByteArray()));
 
         assertTrue(callback.rawStreamCommitted);
         assertFalse(callback.compressingStreamCommitted);
@@ -126,8 +126,8 @@ public final class ThresholdOutputStreamTest {
         byte[] bytes = CompressingFilterResponseTest.BIG_DOCUMENT.getBytes();
         tos.write(bytes);
         tos.close();
-        assertTrue(baos.size() > 0);
-        assertTrue(baos.size() < bytes.length);
+        assertThat(baos.size(), greaterThan(0));
+        assertThat(baos.size(), lessThan(bytes.length));
         assertFalse(callback.rawStreamCommitted);
         assertTrue(callback.compressingStreamCommitted);
     }
@@ -140,8 +140,8 @@ public final class ThresholdOutputStreamTest {
             tos.write(bytes);
         }
         tos.close();
-        assertTrue(baos.size() > 0);
-        assertTrue(baos.size() < 10 * bytes.length);
+        assertThat(baos.size(), greaterThan(0));
+        assertThat(baos.size(), lessThan(10 * bytes.length));
         assertFalse(callback.rawStreamCommitted);
         assertTrue(callback.compressingStreamCommitted);
     }

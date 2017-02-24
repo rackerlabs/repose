@@ -22,7 +22,6 @@ package org.openrepose.filters.versioning.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.custommonkey.xmlunit.Diff;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrepose.commons.utils.http.media.MediaType;
@@ -36,19 +35,14 @@ import org.openrepose.filters.versioning.schema.VersionChoiceList;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 
 public class ContentTransformerTest {
 
@@ -135,9 +129,7 @@ public class ContentTransformerTest {
                 new MediaType(MimeType.APPLICATION_XML, -1),
                 new ContentTransformer(JsonFormat.COMPUTE));
 
-        assertThat("No expected string value found!", expected, not(nullValue()));
-        Diff diff = new Diff(expected, actual);
-        assertTrue("XML Should be equivalent: " + diff, diff.similar());
+        assertThat(actual, isSimilarTo(expected));
     }
 
     @Test
@@ -148,9 +140,7 @@ public class ContentTransformerTest {
                 new MediaType(MimeType.APPLICATION_XML, -1),
                 new ContentTransformer(JsonFormat.COMPUTE));
 
-        assertThat("No expected string value found!", expected, not(nullValue()));
-        Diff diff = new Diff(expected, actual);
-        assertTrue("XML Should be equivalent: " + diff, diff.similar());
+        assertThat(actual, isSimilarTo(expected));
     }
 
     @Test

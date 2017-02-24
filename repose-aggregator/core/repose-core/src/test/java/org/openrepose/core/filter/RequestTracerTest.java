@@ -24,8 +24,9 @@ import org.openrepose.powerfilter.RequestTracer;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -37,7 +38,7 @@ public class RequestTracerTest {
     HttpServletResponse response;
 
     @Test
-    public void shouldReturnTimeSinceInitialization() {
+    public void shouldReturnTimeSinceInitialization() throws Exception {
         boolean trace = true;
         boolean addHeader = true;
 
@@ -45,29 +46,23 @@ public class RequestTracerTest {
         RequestTracer rt;
 
         rt = new RequestTracer(trace, addHeader);
-        try {
-            Thread.sleep(1000L);
-        } catch (Exception e) {
-        }
+        Thread.sleep(1000L);
         time = rt.traceEnter();
 
-        assertFalse("The returned time should not be 0", time == 0);
+        assertThat("The returned time should not be 0", time, not(equalTo(0)));
 
         trace = true;
         addHeader = false;
 
         rt = new RequestTracer(trace, addHeader);
-        try {
-            Thread.sleep(1000L);
-        } catch (Exception e) {
-        }
+        Thread.sleep(1000L);
         time = rt.traceEnter();
 
-        assertFalse("The returned time should not be 0", time == 0);
+        assertThat("The returned time should not be 0", time, not(equalTo(0)));
     }
 
     @Test
-    public void shouldNotReturnTimeSinceInitialization() {
+    public void shouldNotReturnTimeSinceInitialization() throws Exception {
         boolean trace = false;
         boolean addHeader = true;
 
@@ -75,29 +70,23 @@ public class RequestTracerTest {
         RequestTracer rt;
 
         rt = new RequestTracer(trace, addHeader);
-        try {
-            Thread.sleep(1000L);
-        } catch (Exception e) {
-        }
+        Thread.sleep(1000L);
         time = rt.traceEnter();
 
-        assertTrue("The returned time should be 0", time == 0);
+        assertThat("The returned time should be 0", time, equalTo(0L));
 
         trace = false;
         addHeader = false;
 
         rt = new RequestTracer(trace, addHeader);
-        try {
-            Thread.sleep(1000L);
-        } catch (Exception e) {
-        }
+        Thread.sleep(1000L);
         time = rt.traceEnter();
 
-        assertTrue("The returned time should be 0", time == 0);
+        assertThat("The returned time should be 0", time, equalTo(0L));
     }
 
     @Test
-    public void shouldReturnTimeSinceEnterCallAndAddHeaderToResponse() {
+    public void shouldReturnTimeSinceEnterCallAndAddHeaderToResponse() throws Exception {
         boolean trace = true;
         boolean addHeader = true;
 
@@ -108,19 +97,16 @@ public class RequestTracerTest {
 
         rt = new RequestTracer(trace, addHeader);
         rt.traceEnter();
-        try {
-            Thread.sleep(1000L);
-        } catch (Exception e) {
-        }
+        Thread.sleep(1000L);
         time = rt.traceExit(response, "myFilter");
 
-        assertFalse("The returned time should not be 0", time == 0);
+        assertThat("The returned time should not be 0", time, not(equalTo(0)));
         // The x-trace-request header should have been added to the response
         verify(response, times(1)).addHeader(eq("X-myFilter-Time"), anyString());
     }
 
     @Test
-    public void shouldReturnTimeSinceEnterCallAndShouldNotAddHeaderToResponse() {
+    public void shouldReturnTimeSinceEnterCallAndShouldNotAddHeaderToResponse() throws Exception {
         boolean trace = true;
         boolean addHeader = false;
 
@@ -131,19 +117,16 @@ public class RequestTracerTest {
 
         rt = new RequestTracer(trace, addHeader);
         rt.traceEnter();
-        try {
-            Thread.sleep(1000L);
-        } catch (Exception e) {
-        }
+        Thread.sleep(1000L);
         time = rt.traceExit(response, "myFilter");
 
-        assertFalse("The returned time should not be 0", time == 0);
+        assertThat("The returned time should not be 0", time, not(equalTo(0)));
         // The x-trace-request header should not have been added to the response
         verify(response, never()).addHeader(eq("X-myFilter-Time"), anyString());
     }
 
     @Test
-    public void shouldNotReturnTimeSinceEnterCallAndShouldNotAddHeaderToResponse() {
+    public void shouldNotReturnTimeSinceEnterCallAndShouldNotAddHeaderToResponse() throws Exception{
         boolean trace = false;
         boolean addHeader = true;
 
@@ -154,13 +137,10 @@ public class RequestTracerTest {
 
         rt = new RequestTracer(trace, addHeader);
         rt.traceEnter();
-        try {
-            Thread.sleep(1000L);
-        } catch (Exception e) {
-        }
+        Thread.sleep(1000L);
         time = rt.traceExit(response, "myFilter");
 
-        assertTrue("The returned time should be 0", time == 0);
+        assertThat("The returned time should be 0", time, equalTo(0L));
         // The x-trace-request header should not have been added to the response
         verify(response, never()).addHeader(eq("X-myFilter-Time"), anyString());
 
@@ -171,13 +151,10 @@ public class RequestTracerTest {
 
         rt = new RequestTracer(trace, addHeader);
         rt.traceEnter();
-        try {
-            Thread.sleep(1000L);
-        } catch (Exception e) {
-        }
+        Thread.sleep(1000L);
         time = rt.traceExit(response, "myFilter");
 
-        assertTrue("The returned time should be 0", time == 0);
+        assertThat("The returned time should be 0", time, equalTo(0L));
         // The x-trace-request header should not have been added to the response
         verify(response, never()).addHeader(eq("X-myFilter-Time"), anyString());
     }

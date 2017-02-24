@@ -39,8 +39,9 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import java.io.InputStream;
 
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 /**
  * TODO: Write JSON validation tests, you dummy
@@ -83,8 +84,8 @@ public class SchemaTest {
         public void shouldValidateAgainstLiveLimitsExample() throws Exception {
             final StreamSource sampleSource = new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/limits.xml"));
 
-            assertTrue("Expected element should have child elements",
-                    jaxbUnmarshaller.unmarshal(sampleSource, Limits.class).getValue().getRates().getRate().size() > 0);
+            assertThat("Expected element should have child elements",
+                    jaxbUnmarshaller.unmarshal(sampleSource, Limits.class).getValue().getRates().getRate().size(), greaterThan(0));
         }
 
         @Test

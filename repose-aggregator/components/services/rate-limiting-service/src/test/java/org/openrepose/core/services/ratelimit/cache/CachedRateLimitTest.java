@@ -27,7 +27,8 @@ import org.openrepose.core.services.ratelimit.config.TimeUnit;
 
 import java.util.LinkedList;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +60,7 @@ public class CachedRateLimitTest {
         limit.logHit();
         limit.logHit();
 
-        assertTrue(limit.amount() == 3);
+        assertThat(limit.amount(), equalTo(3));
     }
 
     @Test
@@ -71,9 +72,11 @@ public class CachedRateLimitTest {
         final long soonestRequest = limit.getSoonestRequestTime();
         final long nextExpiration = limit.getNextExpirationTime();
 
-        assertTrue(soonestRequest <= nextExpiration);
-        assertTrue(soonestRequest >= System.currentTimeMillis());
-        assertTrue(nextExpiration >= System.currentTimeMillis());
+        long currentTime = System.currentTimeMillis();
+
+        assertThat(soonestRequest, lessThanOrEqualTo(nextExpiration));
+        assertThat(soonestRequest, greaterThanOrEqualTo(currentTime));
+        assertThat(nextExpiration, greaterThanOrEqualTo(currentTime));
     }
 
     @Test
@@ -89,7 +92,7 @@ public class CachedRateLimitTest {
         } catch (InterruptedException ie) {
         }
 
-        assertTrue(limit.amount() == 0);
+        assertThat(limit.amount(), equalTo(0));
     }
 
     @Test
@@ -107,14 +110,14 @@ public class CachedRateLimitTest {
 
         limit.logHit();
 
-        assertTrue(limit.amount() == 1);
+        assertThat(limit.amount(), equalTo(1));
     }
 
     @Test
     public void getConfigLimitKey_shouldCreateCorrectCLKey() {
         final CachedRateLimit limit = new CachedRateLimit(cfg);
 
-        assertTrue(limit.getConfigId().equals(cfg.getId()));
+        assertThat(limit.getConfigId(), equalTo(cfg.getId()));
     }
 
     @Test
@@ -123,32 +126,32 @@ public class CachedRateLimitTest {
         final CachedRateLimit limit = new CachedRateLimit(cfg);
         long after = System.currentTimeMillis();
 
-        assertTrue(limit.timestamp() >= before);
-        assertTrue(limit.timestamp() <= after);
+        assertThat(limit.timestamp(), greaterThanOrEqualTo(before));
+        assertThat(limit.timestamp(), lessThanOrEqualTo(after));
     }
 
     @Test
     public void amount_get() {
         final CachedRateLimit limit = new CachedRateLimit(cfg);
 
-        assertTrue(limit.amount() == 0);
+        assertThat(limit.amount(), equalTo(0));
 
         limit.logHit();
 
-        assertTrue(limit.amount() == 1);
+        assertThat(limit.amount(), equalTo(1));
     }
 
     @Test
     public void unit_get() {
         final CachedRateLimit limit = new CachedRateLimit(cfg);
 
-        assertTrue(limit.unit() == java.util.concurrent.TimeUnit.MINUTES.toMillis(1));
+        assertThat(limit.unit(), equalTo(java.util.concurrent.TimeUnit.MINUTES.toMillis(1)));
     }
 
     @Test
     public void maxAmount_get() {
         final CachedRateLimit limit = new CachedRateLimit(cfg);
 
-        assertTrue(limit.maxAmount() == 6);
+        assertThat(limit.maxAmount(), equalTo(6));
     }
 }

@@ -20,13 +20,13 @@
 package org.openrepose.commons.utils.encoding;
 
 import org.junit.Test;
-import org.openrepose.commons.utils.arrays.ByteArrayComparator;
 
 import java.security.MessageDigest;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 public class UUIDEncodingProviderTest {
 
@@ -49,6 +49,6 @@ public class UUIDEncodingProviderTest {
         final UUID uuid = UUID.fromString(UUIDEncodingProvider.getInstance().encode(expectedBytes));
         final byte[] actualBytes = UUIDEncodingProvider.getInstance().decode(uuid.toString());
 
-        assertTrue(new ByteArrayComparator(expectedBytes, actualBytes).arraysAreEqual());
+        assertThat(actualBytes, equalTo(expectedBytes));
     }
 }

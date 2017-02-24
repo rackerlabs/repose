@@ -27,6 +27,8 @@ import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +55,7 @@ public class NextAvailableResponseTest {
 
     @Test
     public void testGetResetTime() throws Exception {
-        assertTrue(nextAvailableResponse.getResetTime().getTime() == expirationTime);
+        assertThat(nextAvailableResponse.getResetTime().getTime(), equalTo(expirationTime));
     }
 
     @Test
@@ -63,11 +65,11 @@ public class NextAvailableResponseTest {
 
     @Test
     public void testGetCurrentLimitAmount() throws Exception {
-        assertTrue(nextAvailableResponse.getCurrentLimitAmount() == 5);
+        assertThat(nextAvailableResponse.getCurrentLimitAmount(), equalTo(5));
     }
 
     @Test
     public void testGetLimitPair() throws Exception {
-        assertTrue(nextAvailableResponse.getLimitPair() == limitPair);
+        assertThat(nextAvailableResponse.getLimitPair(), equalTo(limitPair));
     }
 }

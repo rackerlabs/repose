@@ -26,8 +26,6 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 
-import static org.junit.Assert.assertTrue
-
 class DistDatastoreServicePatchTest extends ReposeValveTest {
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
@@ -225,7 +223,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == "200"
-        assertTrue("Equals", largeBodyContent.size() == objectSerializer.readObject(mc.receivedResponse.body as byte[]).value.size())
+        largeBodyContent.size() == objectSerializer.readObject(mc.receivedResponse.body as byte[]).value.size()
     }
 
     def "PATCH with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {

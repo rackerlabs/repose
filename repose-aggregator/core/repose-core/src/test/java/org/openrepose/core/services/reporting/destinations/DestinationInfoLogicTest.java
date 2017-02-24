@@ -26,9 +26,9 @@ import org.junit.runner.RunWith;
 import org.openrepose.core.services.reporting.StatusCodeResponseStore;
 import org.openrepose.core.services.reporting.destinations.impl.DestinationInfoLogic;
 
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.*;
 
 
 @RunWith(Enclosed.class)
@@ -172,7 +172,7 @@ public class DestinationInfoLogicTest {
 
             DestinationInfo copy = destinationInfoLogic.copy();
 
-            assertTrue(copy.equals(destinationInfoLogic));
+            assertThat(copy, equalTo(destinationInfoLogic));
         }
 
         @Test
@@ -183,7 +183,7 @@ public class DestinationInfoLogicTest {
             DestinationInfo copy = destinationInfoLogic.copy();
             destinationInfoLogic.getStatusCodeCounts().put(500, new StatusCodeResponseStore(5l, 0));
 
-            assertTrue(copy.hashCode() != destinationInfoLogic.hashCode());
+            assertThat(copy.hashCode(), not(equalTo(destinationInfoLogic.hashCode())));
         }
     }
 }

@@ -8,6 +8,7 @@ configurations {
 
 dependencies {
     integrationTestCompile "junit:junit"
+    integrationTestCompile "org.hamcrest:hamcrest-all"
     integrationTestCompile "org.codehaus.groovy:groovy-all"
     integrationTestCompile "org.spockframework:spock-core"
     integrationTestCompile "org.rackspace:deproxy"
@@ -24,7 +25,7 @@ dependencies {
     integrationTestCompile "org.slf4j:jcl-over-slf4j"
     integrationTestCompile "org.opensaml:opensaml-core"
     integrationTestCompile "org.opensaml:opensaml-saml-impl"
-    integrationTestCompile "xmlunit:xmlunit"
+    integrationTestCompile "org.xmlunit:xmlunit-legacy"
 
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")

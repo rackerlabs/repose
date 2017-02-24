@@ -20,7 +20,6 @@
 package org.openrepose.filters.translation;
 
 import org.apache.commons.io.IOUtils;
-import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -46,10 +45,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 
 @RunWith(Enclosed.class)
 public class TranslationFilterTest {
@@ -139,9 +140,7 @@ public class TranslationFilterTest {
             String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
             final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root/></add-me>";
 
-            Diff diff1 = new Diff(expected, actual);
-
-            assertTrue(diff1.similar());
+            assertThat(actual, isSimilarTo(expected));
         }
 
         @Test
@@ -158,9 +157,7 @@ public class TranslationFilterTest {
             String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
             final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
 
-            Diff diff1 = new Diff(expected, actual);
-
-            assertTrue(diff1.similar());
+            assertThat(actual, isSimilarTo(expected));
         }
 
         @Test
@@ -175,7 +172,7 @@ public class TranslationFilterTest {
             filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
             String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
 
-            assertTrue(actual.isEmpty());
+            assertThat(actual, isEmptyString());
         }
 
         @Test
@@ -195,9 +192,7 @@ public class TranslationFilterTest {
             String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
             String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.xml")));
 
-            Diff diff1 = new Diff(expected, actual);
-
-            assertTrue(diff1.similar());
+            assertThat(actual, isSimilarTo(expected));
         }
 
         @Test
@@ -309,9 +304,7 @@ public class TranslationFilterTest {
             String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
             final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me><root/></add-me>";
 
-            Diff diff1 = new Diff(expected, actual);
-
-            assertTrue(diff1.similar());
+            assertThat(actual, isSimilarTo(expected));
         }
 
         @Test
@@ -327,9 +320,7 @@ public class TranslationFilterTest {
             String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
             final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
 
-            Diff diff1 = new Diff(expected, actual);
-
-            assertTrue(diff1.similar());
+            assertThat(actual, isSimilarTo(expected));
         }
 
         @Test
@@ -348,9 +339,7 @@ public class TranslationFilterTest {
             String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
             String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.xml")));
 
-            Diff diff1 = new Diff(expected, actual);
-
-            assertTrue(diff1.similar());
+            assertThat(actual, isSimilarTo(expected));
         }
     }
 

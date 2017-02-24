@@ -62,7 +62,7 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
         // x-test-param will not added to req since not match request body jsonpath and default not set
-        assertFalse(mc.handlings[0].request.headers.contains("x-test-param"))
+        !mc.handlings[0].request.headers.contains("x-test-param")
         if (matchedheaders == "") {
             // doesn't match still add header if default is specified
             assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
@@ -99,10 +99,10 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
-        assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
-        assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "12345")
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-server-id"), "reposeTest123")
+        mc.handlings[0].request.headers.contains("x-device-id")
+        mc.handlings[0].request.headers.contains("x-server-id")
+        mc.handlings[0].request.headers.getFirstValue("x-device-id") == "12345"
+        mc.handlings[0].request.headers.getFirstValue("x-server-id") == "reposeTest123"
     }
 
     def "Not override exist header if override=false"() {
@@ -115,12 +115,12 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
-        assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
-        assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "test")
-        assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("reposeTest123"))
+        mc.handlings[0].request.headers.contains("x-device-id")
+        mc.handlings[0].request.headers.contains("x-server-id")
+        mc.handlings[0].request.headers.getFirstValue("x-device-id") == "test"
+        mc.handlings[0].request.headers.findAll("x-server-id").contains("reposeTest123")
         // not override but add header extracted from body
-        assertTrue(mc.handlings[0].request.headers.findAll("x-server-id").contains("abc123"))
+        mc.handlings[0].request.headers.findAll("x-server-id").contains("abc123")
     }
 
     def "Replace JSON null value and add the defaults"() {
@@ -132,12 +132,12 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
-        assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
-        assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
-        assertTrue(mc.handlings[0].request.headers.contains("x-null-param"))
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "test")
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-server-id"), "test")
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-null-param"), "987zyx")
+        mc.handlings[0].request.headers.contains("x-device-id")
+        mc.handlings[0].request.headers.contains("x-server-id")
+        mc.handlings[0].request.headers.contains("x-null-param")
+        mc.handlings[0].request.headers.getFirstValue("x-device-id") == "test"
+        mc.handlings[0].request.headers.getFirstValue("x-server-id") == "test"
+        mc.handlings[0].request.headers.getFirstValue("x-null-param") == "987zyx"
     }
 
     def "Do NOT replace JSON value that is NOT null and add the defaults"() {
@@ -149,12 +149,12 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
-        assertTrue(mc.handlings[0].request.headers.contains("x-device-id"))
-        assertTrue(mc.handlings[0].request.headers.contains("x-server-id"))
-        assertTrue(mc.handlings[0].request.headers.contains("x-null-param"))
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-device-id"), "test")
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-server-id"), "test")
-        assertEquals(mc.handlings[0].request.headers.getFirstValue("x-null-param"), "rst987")
+        mc.handlings[0].request.headers.contains("x-device-id")
+        mc.handlings[0].request.headers.contains("x-server-id")
+        mc.handlings[0].request.headers.contains("x-null-param")
+        mc.handlings[0].request.headers.getFirstValue("x-device-id") == "test"
+        mc.handlings[0].request.headers.getFirstValue("x-server-id") == "test"
+        mc.handlings[0].request.headers.getFirstValue("x-null-param") == "rst987"
     }
 
     @Unroll
@@ -195,10 +195,10 @@ class BodyExtractorToHeaderTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
         // do nothing
-        assertFalse(mc.handlings[0].request.headers.contains("x-device-id"))
-        assertFalse(mc.handlings[0].request.headers.contains("x-server-id"))
-        assertFalse(mc.handlings[0].request.headers.contains("x-null-param"))
-        assertFalse(mc.handlings[0].request.headers.contains("x-test-param"))
+        !mc.handlings[0].request.headers.contains("x-device-id")
+        !mc.handlings[0].request.headers.contains("x-server-id")
+        !mc.handlings[0].request.headers.contains("x-null-param")
+        !mc.handlings[0].request.headers.contains("x-test-param")
 
         where:
         reqbody << [malformedJson, malformedJson2]

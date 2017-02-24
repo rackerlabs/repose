@@ -2,6 +2,7 @@ dependencies {
     compile "org.scala-lang:scala-library"
     compile "xerces:xerces-xsd11"
     compile "org.mockito:mockito-all"
+    compile "org.hamcrest:hamcrest-all"
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"

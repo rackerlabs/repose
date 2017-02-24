@@ -235,7 +235,7 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      assertFalse(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).hasMoreElements)
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.toTraversable shouldBe empty
     }
 
     it("should NOT add the header when the Body matches the configured JPath and a null value is NOT specified") {
@@ -275,9 +275,10 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.size shouldBe 2
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(headerValue))
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(matchValue))
+      val headers = filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.toTraversable
+      headers.size shouldBe 2
+      headers should contain(headerValue)
+      headers should contain(matchValue)
     }
 
     it("should NOT overwrite the header when the Body does NOT match the configured JPath and Overwrite is TRUE") {
@@ -288,8 +289,9 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.size shouldBe 1
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(headerValue))
+      val headers = filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.toTraversable
+      headers.size shouldBe 1
+      headers should contain(headerValue)
     }
 
     it("should overwrite the header when the Body matches the configured JPath and Overwrite is TRUE") {
@@ -300,9 +302,10 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.size shouldBe 1
-      assertFalse(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(headerValue))
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(matchValue))
+      val headers = filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.toTraversable
+      headers.size shouldBe 1
+      headers shouldNot contain(headerValue)
+      headers should contain(matchValue)
     }
 
     it("should append a quality to the header value when the Body matches and one is configured") {
@@ -313,8 +316,9 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.size shouldBe 1
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(s"$matchValue;q=0.5"))
+      val headers = filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.toTraversable
+      headers.size shouldBe 1
+      headers should contain(s"$matchValue;q=0.5")
     }
 
     it("should add multiple headers if multiple extractions are satisfied") {
@@ -327,11 +331,12 @@ class BodyExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       filter.doFilter(servletRequest, servletResponse, filterChain)
 
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(matchValue))
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(defaultValue))
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(stringValue))
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(numberValue))
-      assertTrue(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.contains(nullValue))
+      val headers = filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(extractedHeader).asScala.toTraversable
+      headers should contain(matchValue)
+      headers should contain(defaultValue)
+      headers should contain(stringValue)
+      headers should contain(numberValue)
+      headers should contain(nullValue)
     }
 
     ignore("The JSON Path library currently doesn't support applying a REGEX capture group expression to a value before returning it.") {

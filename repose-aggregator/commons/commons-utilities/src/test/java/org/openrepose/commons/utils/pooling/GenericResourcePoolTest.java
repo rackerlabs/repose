@@ -24,7 +24,9 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -55,7 +57,7 @@ public class GenericResourcePoolTest {
         @Test
         public void shouldPrimePoolWithMinimumSize() {
             resourcePool.setMinimumPoolSize(2);
-            assertTrue(resourcePool.size() == 2);
+            assertThat(resourcePool.size(), equalTo(2));
         }
 
         @Test
@@ -64,7 +66,7 @@ public class GenericResourcePoolTest {
             resourcePool.setMinimumPoolSize(1);
             resourcePool.setMaximumPoolSize(3);
 
-            assertTrue(resourcePool.size() == 3);
+            assertThat(resourcePool.size(),  equalTo(3));
         }
     }
 
@@ -103,7 +105,7 @@ public class GenericResourcePoolTest {
                 }
             });
 
-            assertTrue(1 == resourcePool.size());
+            assertThat(resourcePool.size(), equalTo(1));
         }
 
         @Test
@@ -158,7 +160,7 @@ public class GenericResourcePoolTest {
                 Thread.sleep(10);
             }
 
-            assertTrue("Resource pool should have a max size of 6. Was: " + resourcePool.size(), resourcePool.size() == 6);
+            assertThat("Resource pool should have a max size of 6.", resourcePool.size(), equalTo(6));
 
             go = true;
 

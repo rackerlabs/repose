@@ -33,9 +33,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -67,7 +67,7 @@ public class ManagedRateLimitCacheTest {
 
     @Test
     public void getUserRateLimits_shouldReturnEmptySetsWhenNoLimitKeysExist() {
-        assertTrue("Should have an empty map when no limits have been registered for an account", rateLimitCache.getUserRateLimits("key").isEmpty());
+        assertThat("Should have an empty map when no limits have been registered for an account", rateLimitCache.getUserRateLimits("key").entrySet(), empty());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ManagedRateLimitCacheTest {
 
         when(datastore.get(ACCOUNT)).thenReturn(new UserRateLimit(limitMap));
 
-        assertFalse("Should return a non-empty set", rateLimitCache.getUserRateLimits(ACCOUNT).isEmpty());
+        assertThat("Should return a non-empty set", rateLimitCache.getUserRateLimits(ACCOUNT).entrySet(), not(empty()));
     }
 
     @Test

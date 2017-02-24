@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,23 +17,23 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.translation.xslt
+package org.openrepose.commons.test
 
-import org.junit.Test
+import java.util.regex.Pattern
 
-import static org.hamcrest.Matchers.*
-import static org.junit.Assert.assertThat
+import org.hamcrest.{Description, TypeSafeMatcher}
 
-public class StyleSheetInfoTest {
+/**
+  * Created by adrian on 2/21/17.
+  */
+class RegexMatcher(pattern: Pattern) extends TypeSafeMatcher[String] {
+  override def matchesSafely(item: String): Boolean = pattern.matcher(item).matches()
 
-    @Test
-    public void testNodeProvidedConstructor() {
-        String id = "id";
-        String systemId = "sysID";
-        StyleSheetInfo sheet = new StyleSheetInfo("id", null, "sysID");
-
-        assertThat(sheet, allOf(hasProperty("id", equalTo(id)), hasProperty("uri", nullValue()), hasProperty("xsl", nullValue()),
-                hasProperty("systemId", equalTo(systemId))))
-    }
+  override def describeTo(description: Description): Unit = description.appendText("should match pattern ").appendText(pattern.toString)
 }
 
+object RegexMatcher {
+  def matchesPattern(pattern: Pattern): RegexMatcher = new RegexMatcher(pattern)
+
+  def matchesPattern(pattern: String): RegexMatcher = matchesPattern(pattern.r.pattern)
+}

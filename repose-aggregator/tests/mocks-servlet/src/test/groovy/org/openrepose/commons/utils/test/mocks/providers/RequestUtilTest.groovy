@@ -23,7 +23,7 @@ import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
 
-import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when

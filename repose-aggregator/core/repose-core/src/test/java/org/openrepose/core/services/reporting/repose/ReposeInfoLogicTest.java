@@ -175,7 +175,7 @@ public class ReposeInfoLogicTest {
 
             ReposeInfo copy = reposeInfoLogic.copy();
 
-            assertTrue(copy.equals(reposeInfoLogic));
+            assertThat(copy, equalTo(reposeInfoLogic));
         }
 
         @Test
@@ -185,7 +185,7 @@ public class ReposeInfoLogicTest {
             ReposeInfo copy = reposeInfoLogic.copy();
             reposeInfoLogic.getStatusCodeCounts().put(500, new StatusCodeResponseStore(5l, 0));
 
-            assertTrue(copy.hashCode() != reposeInfoLogic.hashCode());
+            assertThat(copy.hashCode(), not(equalTo(reposeInfoLogic.hashCode())));
         }
     }
     */

@@ -29,6 +29,8 @@ import org.openrepose.core.services.ratelimit.cache.RateLimitCache
 import org.openrepose.core.services.ratelimit.config.*
 import org.openrepose.core.services.ratelimit.exception.OverLimitException
 
+import static org.hamcrest.Matchers.containsString
+import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.*
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
@@ -167,8 +169,8 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
             rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", null, "GET", datastoreWarnLimit)
         } catch (OverLimitException e) {
             assertEquals("User should be returned", e.getUser(), "user")
-            assertTrue("Next available time should be returned", e.getNextAvailableTime().compareTo(nextAvail) == 0)
-            assertTrue("Configured limits should be returned", e.getConfiguredLimit().contains("value=20"))
+            assertThat("Next available time should be returned", e.getNextAvailableTime().compareTo(nextAvail), equalTo(0))
+            assertThat("Configured limits should be returned", e.getConfiguredLimit(), containsString("value=20"))
             assertEquals(0, e.getCurrentLimitAmount())
         }
     }
