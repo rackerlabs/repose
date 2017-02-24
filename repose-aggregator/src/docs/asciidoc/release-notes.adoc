@@ -4,6 +4,8 @@ include::_includes/in-progress.adoc[]
 
 == Future Release
 
+== 8.4.1.0
+
 * https://repose.atlassian.net/browse/REP-5101[REP-5101] - <<filters/saml-policy.adoc#, Saml Policy Filter>> now allows un-encoded `application/xml` requests in addition to the previous `application/x-www-form-urlencoded` requests.
 
 == 8.4.0.2
