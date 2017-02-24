@@ -11,6 +11,12 @@
                 <header id="x-auth-token"/>
             </whitelist>
         </request>
+        <response>
+            <whitelist id="creds">
+                <header id="X-First-Filter"/>
+                <header id="x-auth-token"/>
+            </whitelist>
+        </response>
     </target>
 
     <!-- applies to all http methods (GET, POST, PUT, etc) that match the uri-regex -->
@@ -21,6 +27,12 @@
                 <header id="x-auth-token"/>
             </whitelist>
         </request>
+        <response>
+            <whitelist id="creds">
+                <header id="X-SeCond-Filter"/>
+                <header id="x-auth-token"/>
+            </whitelist>
+        </response>
     </target>
 
     <!-- applies to all POST and PUT requests -->
@@ -31,6 +43,12 @@
                 <header id="x-auth-token"/>
             </whitelist>
         </request>
+        <response>
+            <whitelist id="modification">
+                <header id="X-THIRD-Filter"/>
+                <header id="x-auth-token"/>
+            </whitelist>
+        </response>
     </target>
 
     <!-- this blacklist filter only applies if the request does not match one of the previous targets -->
@@ -43,5 +61,11 @@
                 <header id="x-auth-token"/>
             </blacklist>
         </request>
+        <response>
+            <blacklist id="rate-limit-headers">
+                <header id="X-Last-Filter"/>
+                <header id="x-auth-token"/>
+            </blacklist>
+        </response>
     </target>
 </header-normalization>
