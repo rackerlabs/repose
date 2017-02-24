@@ -78,7 +78,7 @@ class SamlFlow10Test extends ReposeValveTest {
     }
 
     @Unroll
-    def "a saml:response with a(n) '#contentType' type body and an Issuer that #isIt in the configured policy-bypass-issuers list will get an 'Identity-API-Version' value of #headerValue in the request to the origin service"() {
+    def "a saml:response with an '#contentType' type body and an Issuer that #isIt in the configured policy-bypass-issuers list will get an 'Identity-API-Version' value of #headerValue in the request to the origin service"() {
         given:
         def body = contentTypeBodyTransformers[contentType](
                 samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true)))
@@ -108,11 +108,11 @@ class SamlFlow10Test extends ReposeValveTest {
         fakeIdentityV2Service.getIdpFromIssuerCount + fakeIdentityV2Service.getMappingPolicyForIdpCount == policyMappingQueries
 
         where:
-        contentType                 | isIt     | headerValue | samlIssuer                       | policyMappingQueries
-        APPLICATION_FORM_URLENCODED | "is"     | "1.0"       | "http://legacy.idp.external.com" | 0
-        APPLICATION_FORM_URLENCODED | "is not" | "2.0"       | generateUniqueIssuer()           | 2
-        APPLICATION_XML             | "is"     | "1.0"       | "http://legacy.idp.external.com" | 0
-        APPLICATION_XML             | "is not" | "2.0"       | generateUniqueIssuer()           | 2
+        contentType                 | isIt     | headerValue | samlIssuer             | policyMappingQueries
+        APPLICATION_FORM_URLENCODED | "is"     | "1.0"       | SAML_LEGACY_ISSUER     | 0
+        APPLICATION_FORM_URLENCODED | "is not" | "2.0"       | generateUniqueIssuer() | 2
+        APPLICATION_XML             | "is"     | "1.0"       | SAML_LEGACY_ISSUER     | 0
+        APPLICATION_XML             | "is not" | "2.0"       | generateUniqueIssuer() | 2
     }
 
     @Unroll
