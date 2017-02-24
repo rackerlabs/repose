@@ -35,15 +35,10 @@ import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
 import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
 import static framework.mocks.MockIdentityV2Service.createIdentityFaultXmlWithValues
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.HttpHeaders.ACCEPT
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON
-import static javax.ws.rs.core.MediaType.APPLICATION_XML
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN
+import static javax.ws.rs.core.MediaType.*
 
 /**
  * This functional test goes through the validation logic unique to Flow 1.0.
@@ -83,10 +78,10 @@ class SamlFlow10Test extends ReposeValveTest {
     }
 
     @Unroll
-    def "a saml:response with an Issuer that #isIt in the configured policy-bypass-issuers list will get an 'Identity-API-Version' value of #headerValue in the request to the origin service"() {
+    def "a saml:response with an '#contentType' type body and an Issuer that #isIt in the configured policy-bypass-issuers list will get an 'Identity-API-Version' value of #headerValue in the request to the origin service"() {
         given:
-        def body = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(
-                samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))))
+        def body = contentTypeBodyTransformers[contentType](
+                samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true)))
 
         and: "the Identity mocks are available for the Flow 2.0 call"
         fakeIdentityV2Service.resetHandlers()
@@ -95,7 +90,7 @@ class SamlFlow10Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
+                headers: [(CONTENT_TYPE): contentType],
                 requestBody: body)
 
         then: "the client gets back a good response"
@@ -113,19 +108,21 @@ class SamlFlow10Test extends ReposeValveTest {
         fakeIdentityV2Service.getIdpFromIssuerCount + fakeIdentityV2Service.getMappingPolicyForIdpCount == policyMappingQueries
 
         where:
-        isIt     | headerValue | samlIssuer                       | policyMappingQueries
-        "is"     | "1.0"       | "http://legacy.idp.external.com" | 0
-        "is not" | "2.0"       | generateUniqueIssuer()           | 2
+        contentType                 | isIt     | headerValue | samlIssuer             | policyMappingQueries
+        APPLICATION_FORM_URLENCODED | "is"     | "1.0"       | SAML_LEGACY_ISSUER     | 0
+        APPLICATION_FORM_URLENCODED | "is not" | "2.0"       | generateUniqueIssuer() | 2
+        APPLICATION_XML             | "is"     | "1.0"       | SAML_LEGACY_ISSUER     | 0
+        APPLICATION_XML             | "is not" | "2.0"       | generateUniqueIssuer() | 2
     }
 
     @Unroll
-    def "a saml:response with a Flow 1.0 Issuer will still be successfully processed despite having #flow20ValidationIssue"() {
+    def "a saml:response with a(n) '#contentType' type body and a Flow 1.0 Issuer will still be successfully processed despite having #flow20ValidationIssue"() {
         when:
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
-                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+                headers: [(CONTENT_TYPE): contentType],
+                requestBody: contentTypeBodyTransformers[contentType](saml))
 
         then: "the client gets back a good response"
         mc.receivedResponse.code as Integer == SC_OK
@@ -141,19 +138,21 @@ class SamlFlow10Test extends ReposeValveTest {
         fakeIdentityV2Service.getMappingPolicyForIdpCount == 0
 
         where:
-        saml                                     | flow20ValidationIssue
-        SAML_CRAZY_INVALID                       | "assertions with inconsistent Issuers, missing Issuers, missing signatures, and an invalid signature"
-        samlResponse(issuer(SAML_LEGACY_ISSUER)) | "no other fields in it other than the Issuer element"
+        contentType                 | saml                                     | flow20ValidationIssue
+        APPLICATION_FORM_URLENCODED | SAML_CRAZY_INVALID                       | "assertions with inconsistent Issuers, missing Issuers, missing signatures, and an invalid signature"
+        APPLICATION_FORM_URLENCODED | samlResponse(issuer(SAML_LEGACY_ISSUER)) | "no other fields in it other than the Issuer element"
+        APPLICATION_XML             | SAML_CRAZY_INVALID                       | "assertions with inconsistent Issuers, missing Issuers, missing signatures, and an invalid signature"
+        APPLICATION_XML             | samlResponse(issuer(SAML_LEGACY_ISSUER)) | "no other fields in it other than the Issuer element"
     }
 
     @Unroll
-    def "a saml:response that #signedState will not be altered and will maintain signature validity through Repose"() {
+    def "a saml:response with a(n) '#contentType' type body that #signedState will not be altered and will maintain signature validity through Repose"() {
         when: "a request containing a saml:response with a legacy Issuer is sent to Repose"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
-                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+                headers: [(CONTENT_TYPE): contentType],
+                requestBody: contentTypeBodyTransformers[contentType](saml))
 
         then: "the client gets back a good response"
         mc.receivedResponse.code as Integer == SC_OK
@@ -176,11 +175,15 @@ class SamlFlow10Test extends ReposeValveTest {
         !validateAssertion || samlUtilities.validateSignature(response.assertions[0].signature, "legacy.idp.external.com")
 
         where:
-        saml                                            | signedState                            | validateResponse | validateAssertion
-        SAML_LEGACY_ISSUER_UNSIGNED                     | "is not signed"                        | false            | false
-        SAML_LEGACY_ISSUER_SIGNED_ASSERTION             | "has a signed assertion"               | false            | true
-        SAML_LEGACY_ISSUER_SIGNED_MESSAGE               | "is signed"                            | true             | false
-        SAML_LEGACY_ISSUER_SIGNED_MESSAGE_AND_ASSERTION | "has a signed assertion and is signed" | true             | true
+        contentType                 | saml                                            | signedState                            | validateResponse | validateAssertion
+        APPLICATION_FORM_URLENCODED | SAML_LEGACY_ISSUER_UNSIGNED                     | "is not signed"                        | false            | false
+        APPLICATION_FORM_URLENCODED | SAML_LEGACY_ISSUER_SIGNED_ASSERTION             | "has a signed assertion"               | false            | true
+        APPLICATION_FORM_URLENCODED | SAML_LEGACY_ISSUER_SIGNED_MESSAGE               | "is signed"                            | true             | false
+        APPLICATION_FORM_URLENCODED | SAML_LEGACY_ISSUER_SIGNED_MESSAGE_AND_ASSERTION | "has a signed assertion and is signed" | true             | true
+        APPLICATION_XML             | SAML_LEGACY_ISSUER_UNSIGNED                     | "is not signed"                        | false            | false
+        APPLICATION_XML             | SAML_LEGACY_ISSUER_SIGNED_ASSERTION             | "has a signed assertion"               | false            | true
+        APPLICATION_XML             | SAML_LEGACY_ISSUER_SIGNED_MESSAGE               | "is signed"                            | true             | false
+        APPLICATION_XML             | SAML_LEGACY_ISSUER_SIGNED_MESSAGE_AND_ASSERTION | "has a signed assertion and is signed" | true             | true
     }
 
     def "the response to the client should not be translated by Repose when the saml:response has a Flow 1.0 Issuer"() {

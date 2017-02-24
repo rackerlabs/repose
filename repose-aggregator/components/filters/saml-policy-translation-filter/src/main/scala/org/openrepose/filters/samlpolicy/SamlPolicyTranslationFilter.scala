@@ -173,7 +173,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     if (!"POST".equalsIgnoreCase(request.getMethod)) {
       throw SamlPolicyException(SC_METHOD_NOT_ALLOWED, "Unsupported method")
     }
-    if (!APPLICATION_FORM_URLENCODED.equalsIgnoreCase(request.getHeader(CONTENT_TYPE))) {
+    if (!(APPLICATION_FORM_URLENCODED.equalsIgnoreCase(request.getHeader(CONTENT_TYPE)) || APPLICATION_XML.equalsIgnoreCase(request.getHeader(CONTENT_TYPE)))) {
       throw SamlPolicyException(SC_UNSUPPORTED_MEDIA_TYPE, "Unsupported content")
     }
   }
@@ -186,16 +186,20 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @throws SamlPolicyException if decoding fails
     */
   def decodeSamlResponse(request: HttpServletRequest): InputStream = {
-    try {
-      Option(request.getParameter("SAMLResponse"))
-        .map(Base64.getDecoder.decode)
-        .map(new ByteArrayInputStream(_))
-        .get
-    } catch {
-      case nse: NoSuchElementException =>
-        throw SamlPolicyException(SC_BAD_REQUEST, "No SAMLResponse value found", nse)
-      case iae: IllegalArgumentException =>
-        throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse is not in valid Base64 scheme", iae)
+    if (APPLICATION_XML.equalsIgnoreCase(request.getHeader(CONTENT_TYPE))) {
+      request.getInputStream
+    } else {
+      try {
+        Option(request.getParameter("SAMLResponse"))
+          .map(Base64.getDecoder.decode)
+          .map(new ByteArrayInputStream(_))
+          .get
+      } catch {
+        case nse: NoSuchElementException =>
+          throw SamlPolicyException(SC_BAD_REQUEST, "No SAMLResponse value found", nse)
+        case iae: IllegalArgumentException =>
+          throw SamlPolicyException(SC_BAD_REQUEST, "SAMLResponse is not in valid Base64 scheme", iae)
+      }
     }
   }
 

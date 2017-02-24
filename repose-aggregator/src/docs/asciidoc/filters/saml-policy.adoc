@@ -9,13 +9,13 @@ It'll attempt to locate a policy to use for the translation based on the asserti
 == General filter information
 * *Name:* saml-policy
 * *Default Configuration:* saml-policy.cfg.xml
-* *Released:* v8.?.?.0
+* *Released:* v8.4.0.1
 * *Bundle:* repose-extensions-filter-bundle
 * link:../schemas/saml-policy.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required headers
-* `Content-Type` - Needs a value of `application/x-www-form-urlencoded`
+* `Content-Type` - Needs a value of `application/x-www-form-urlencoded` or `application/xml`
 
 === Required preceding filters
 None
@@ -27,7 +27,7 @@ None
 * `Identity-API-Version` - `1.0` if the assertion issuer is in the configured list and `2.0` otherwise.
 
 === Request body changes
-The request body will be decoded and replaced with an xml version.
+The request body will be decoded and replaced with an xml version if the content type is `application/x-www-form-urlencoded`.
 If issuer isn't in the configured bypass list indicating the use of the legacy v1.0 API, then the v2.0 API is assumed and a new assertion will be generated based on the matching issuer policy with `http://openrepose.org/filters/SAMLTranslation` as the issuer.
 Additionally the SAML Response will be signed with the configured credentials.
 
@@ -59,13 +59,13 @@ a| * If the `SAMLResponse` parameter cannot be found.
 | `401`
 a| * If a policy that matches the assertion issuer can not be found.
    * If Identity returns a 404 when the policy is requested.
-   * If Identity returns does not return an IDP ID when requested.
+   * If Identity does not return an IDP ID when requested.
 
 | `405`
 | If the request HTTP method is not `POST`.
 
 | `415`
-| If the request `Content-Type` header does not have a value of `application/x-www-form-urlencoded`.
+| If the request `Content-Type` header does not have a value of `application/x-www-form-urlencoded` or `application/xml`.
 
 | `500`
 | If there is any error in this filter that is not explicitly mapped to a status code.
@@ -122,7 +122,7 @@ This configuration exercises all the capabilities of the filter.
 <6>  The endpoint to use for policy acquisition.
 <7>  The connection pool to use when acquiring the policy.
      It's optional and will use the default if unspecified.
-<8>  The time to live in the cache for policies.
+<8>  The time to live in the cache in seconds for policies.
 <9>  The atom feed id of an atom feed that contains policy events to be used for cache evictions.
      Policies will be evicted from the cache for all three event types (i.e. CREATE, UPDATE, DELETE).
      This is optional, if unused cache eviction will be purely off ttl.
@@ -133,3 +133,4 @@ This configuration exercises all the capabilities of the filter.
 
 == Additional Information
 The Keystone user account configured for use in this filter must possess a role of `identity:identity-provider-read-only`.
+It is recommended to use a `uri-regex` in your system model to filter traffic to this filter, because it will fail on non-SAML requests.
