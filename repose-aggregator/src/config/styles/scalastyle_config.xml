@@ -59,14 +59,14 @@
 
     <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
-            <parameter name="regex">class .*[^\s-]\{|def.*[^\s-]\{</parameter>
+            <parameter name="regex">class .*[^\s-]\{|def .*[^\s-]\{</parameter>
         </parameters>
         <customMessage>No space before class or method left brace</customMessage>
     </check>
 
     <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
-            <parameter name="regex">class .*\s\s+\{|def.*\s\s+\{</parameter>
+            <parameter name="regex">class .*\s\s+\{|def .*\s\s+\{</parameter>
         </parameters>
         <customMessage>Too many spaces before class or method left brace</customMessage>
     </check>
