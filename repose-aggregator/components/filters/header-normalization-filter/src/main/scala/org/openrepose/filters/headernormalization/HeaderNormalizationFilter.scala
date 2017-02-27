@@ -39,7 +39,6 @@ import org.openrepose.filters.headernormalization.HeaderNormalizationFilter._
 import org.openrepose.filters.headernormalization.config.{HeaderNormalizationConfig, HttpHeaderList, HttpMethod, Target => ConfigTarget}
 
 import scala.collection.JavaConverters._
-import scala.collection.immutable.TreeSet
 
 @Named
 class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: MetricsService)
@@ -92,6 +91,13 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
 
     filterChain.doFilter(wrappedRequest, wrappedResponse.getOrElse(servletResponse.asInstanceOf[HttpServletResponse]))
 
+    var responseHeaders: Option[Set[String]] = None
+
+    def getResponseHeaders: Set[String] = {
+      if (responseHeaders.isEmpty) responseHeaders = Option(wrappedResponse.get.getHeaderNames.asScala.map(_.toLowerCase).toSet)
+      responseHeaders.get
+    }
+
     configResponse find { target =>
       // find the first "target" config element that matches this request (if any)
       target.url.matcher(wrappedRequest.getRequestURI).matches &&
@@ -99,9 +105,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
     } foreach { target =>
       // figure out which headers to remove, and remove them
       (target.access match {
-        // The Response Wrapper doesn't return a case-insensitive collection of Header Names at this time.
-        case WhiteList => (new TreeSet[String]()(caseInsensitiveOrdering) ++
-          wrappedResponse.get.getHeaderNames.asScala).diff(target.headers)
+        case WhiteList => getResponseHeaders.diff(target.headers)
         case BlackList => target.headers
       }).foreach(wrappedResponse.get.removeHeader)
 
@@ -123,7 +127,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         Option(target.getUriRegex).getOrElse(".*").r.pattern, // if not configured, default is ".*"
         target.getHttpMethods.asScala.map(_.toString).padTo(1, AllHttpMethods).toSet, // default is "ALL"
         accessList,
-        headers.getHeader.asScala.map(_.getId).toSet))
+        headers.getHeader.asScala.map(_.getId.toLowerCase).toSet))
     }
 
     val targets = (Option(config.getHeaderFilters) map { hdrFilter =>
