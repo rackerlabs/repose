@@ -72,7 +72,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
   Seq((RequestTarget, false), (RequestTarget, true), (ResponseTarget, true)) foreach { case (target, newStyle) =>
     //Seq((RequestTarget.asInstanceOf[TargetType], false)) foreach { case (target, newStyle) =>
     describe("white list") {
-      it(s"will keep white listed headers and remove non-white listed headers on the ${reqres(target, newStyle)}") {
+      it(s"will keep white listed headers and remove non-white listed headers on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("cool-header", "so-contents"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -90,7 +90,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will remove non-white listed headers on the ${reqres(target, newStyle)}") {
+      it(s"will remove non-white listed headers on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("cool-header", "so-contents"), ("should-not-see-me", "wow"), ("me-neither", "wut"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -108,7 +108,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will NOT error out on configured headers that don't exist in the request on the ${reqres(target, newStyle)}") {
+      it(s"will NOT error out on configured headers that don't exist in the request on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("exists-header", "potato"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -126,7 +126,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will NOT remove a white listed header with different casing on the ${reqres(target, newStyle)}") {
+      it(s"will NOT remove a white listed header with different casing on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-HEADER", "such-value"), ("do-you-want", "fries"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -146,7 +146,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
     }
 
     describe("black list") {
-      it(s"will remove black listed headers on the ${reqres(target, newStyle)}") {
+      it(s"will remove black listed headers on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("dangerous-header", "all-the-permissions"), ("too-hip-for-you-header", "42"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -164,7 +164,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will keep non-black listed headers on the ${reqres(target, newStyle)}") {
+      it(s"will keep non-black listed headers on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("dangerous-header", "all-the-permissions"), ("not-so-bad-header", "lettuce"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -182,7 +182,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will not error out on configured headers that don't exist in the request on the ${reqres(target, newStyle)}") {
+      it(s"will not error out on configured headers that don't exist in the request on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("not-so-bad-header", "lettuce"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -200,7 +200,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will remove a black listed header with different casing on the ${reqres(target, newStyle)}") {
+      it(s"will remove a black listed header with different casing on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("DANGERous-header", "all-the-permissions"), ("TOO-hip-for-YOU-header", "42"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -220,7 +220,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
     }
 
     describe("url/method matching") {
-      it(s"will use the target matching a configured URL on the ${reqres(target, newStyle)}") {
+      it(s"will use the target matching a configured URL on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("nope-header", "nope nope"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -239,7 +239,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will use the target matching a configured URL regex on the ${reqres(target, newStyle)}") {
+      it(s"will use the target matching a configured URL regex on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("bad-header", "meh"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -258,7 +258,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will use the target matching without a configured URL regex on the ${reqres(target, newStyle)}") {
+      it(s"will use the target matching without a configured URL regex on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("bad-header", "meh"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -277,7 +277,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will use the target matching a single configured method on the ${reqres(target, newStyle)}") {
+      it(s"will use the target matching a single configured method on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("bad-header", "meh"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -296,7 +296,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will use the target matching one of a list of configured methods on the ${reqres(target, newStyle)}") {
+      it(s"will use the target matching one of a list of configured methods on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("bad-header", "meh"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -315,7 +315,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will use the target matching a configured method of ALL on the ${reqres(target, newStyle)}") {
+      it(s"will use the target matching a configured method of ALL on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("bad-header", "meh"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -334,7 +334,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will use the target matching without a configured method on the ${reqres(target, newStyle)}") {
+      it(s"will use the target matching without a configured method on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("bad-header", "meh"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -353,7 +353,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will use the target matching a configured URL and method after not matching a non-matching target on the ${reqres(target, newStyle)}") {
+      it(s"will use the target matching a configured URL and method after not matching a non-matching target on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("nope-header", "nope nope"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -375,7 +375,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
-      it(s"will use the target matching without a URL and method after not matching a non-match target on the ${reqres(target, newStyle)}") {
+      it(s"will use the target matching without a URL and method after not matching a non-match target on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("nope-header", "nope nope"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -399,7 +399,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
     }
 
     describe("metrics") {
-      it(s"will update metrics when a request matches a config target when using the default catch-all URL on the ${reqres(target, newStyle)}") {
+      it(s"will update metrics when a request matches a config target when using the default catch-all URL on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -411,10 +411,10 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricsMeters).mark(s".*_PATCH_${reqres(target)}")
+        verify(metricsMeters).mark(s".*_PATCH_${requestResponseTypeToString(target)}")
       }
 
-      it(s"will update metrics when a request matches a config target when using a specified URL on the ${reqres(target, newStyle)}") {
+      it(s"will update metrics when a request matches a config target when using a specified URL on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -427,10 +427,10 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricsMeters).mark(s"/v1/servers/[^/]+/status_GET_${reqres(target)}")
+        verify(metricsMeters).mark(s"/v1/servers/[^/]+/status_GET_${requestResponseTypeToString(target)}")
       }
 
-      it(s"will NOT update metrics when a request does not match any config target on the ${reqres(target, newStyle)}") {
+      it(s"will NOT update metrics when a request does not match any config target on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"))
         target match {
           case RequestTarget => addRequestHeaders(preHeaders)
@@ -567,12 +567,12 @@ object HeaderNormalizationFilterTest {
     else "old style"
   }
 
-  def reqres(targetType: TargetType, newStyle: Boolean): String = targetType match {
+  def requestResponseTypeWithStyleToString(targetType: TargetType, newStyle: Boolean): String = targetType match {
     case RequestTarget => s"${getStyle(newStyle)} request"
     case ResponseTarget => s"${getStyle(newStyle)} response"
   }
 
-  def reqres(targetType: TargetType): String = targetType match {
+  def requestResponseTypeToString(targetType: TargetType): String = targetType match {
     case RequestTarget => s"request"
     case ResponseTarget => s"response"
   }
