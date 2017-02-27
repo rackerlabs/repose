@@ -292,11 +292,12 @@ object HttpServletRequestWrapper {
     val Available, InputStream, Reader = Value
   }
 
-  private def parseParameterString(s: String): Map[String, Array[String]] = {
+  private def parseParameterString(parameterString: String): Map[String, Array[String]] = {
     val parsedParameterMap = mutable.Map.empty[String, Array[String]]
+    val nullSafeParameterString = Option(parameterString).getOrElse("")
 
-    if (s.nonEmpty) {
-      s.split(QueryPairDelimiter) foreach { queryPair =>
+    if (nullSafeParameterString.nonEmpty) {
+      nullSafeParameterString.split(QueryPairDelimiter) foreach { queryPair =>
         val keyValuePair = queryPair.split(QueryKeyValueDelimiter, 2)
 
         // TODO: UTF-8 is not always the correct encoding
@@ -317,6 +318,8 @@ object HttpServletRequestWrapper {
 
     parsedParameterMap.toMap
   }
+
+  def parseQueryString(queryString: String): java.util.Map[String, Array[String]] = parseParameterString(queryString).asJava
 
   private def insertParameters(insertMap: Map[String, Array[String]], intoMap: mutable.Map[String, Array[String]]) = {
     insertMap foreach { case (key, values) =>

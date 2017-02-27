@@ -528,7 +528,6 @@ class RateLimitingTest extends ReposeValveTest {
         rlmu.checkAbsoluteLimitJsonResponse(json, allsmalllimit)
     }
 
-
     final static List<Map> allsmalllimit = [
             ['unit': 'MINUTE', 'remaining': 3, 'verb': 'ALL', 'value': 3]
     ]

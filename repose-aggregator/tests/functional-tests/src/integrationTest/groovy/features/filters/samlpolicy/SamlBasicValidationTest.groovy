@@ -29,8 +29,7 @@ import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
 import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
-import static javax.ws.rs.core.MediaType.APPLICATION_XML
+import static javax.ws.rs.core.MediaType.*
 
 /**
  * This functional test goes through the shared validation logic between Flow 1.0 and 2.0 including the requirements
@@ -57,6 +56,26 @@ class SamlBasicValidationTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("Repose ready", 1, 30)
 
         fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
+    }
+
+    def "a valid request will make it to the origin service and back to the client successfully with a Content-Type of 'application/xml'"() {
+        when: "we make a POST request"
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): APPLICATION_XML],
+                requestBody: SAML_ONE_ASSERTION_SIGNED)
+
+        then: "the request is successfully processed"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "the origin service received the request as valid XML"
+        mc.handlings[0]
+        mc.handlings[0].request.headers.getCountByName(CONTENT_TYPE) == 1
+        mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_XML
+
+        and: "the request body received by the origin service can be parsed as XML"
+        xmlSlurper.parseText(mc.handlings[0].request.body as String)
     }
 
     @Unroll
@@ -87,13 +106,13 @@ class SamlBasicValidationTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "a request with Content-Type '#contentType' and a body with #bodySummary should be rejected"() {
+    def "a request with Content-Type '#contentType' should be rejected"() {
         when: "we make a POST request"
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
                 headers: [(CONTENT_TYPE): contentType],
-                requestBody: requestBody)
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): SAML_ONE_ASSERTION_SIGNED_BASE64))
 
         then: "the request is rejected"
         mc.receivedResponse.code as Integer == SC_UNSUPPORTED_MEDIA_TYPE
@@ -102,10 +121,7 @@ class SamlBasicValidationTest extends ReposeValveTest {
         mc.handlings.isEmpty()
 
         where:
-        contentType         | bodySummary       | requestBody
-        APPLICATION_XML     | "valid form data" | asUrlEncodedForm((PARAM_SAML_RESPONSE): SAML_ONE_ASSERTION_SIGNED_BASE64)
-        APPLICATION_XML     | "xml"             | SAML_ONE_ASSERTION_SIGNED
-        APPLICATION_INVALID | "xml"             | SAML_ONE_ASSERTION_SIGNED
+        contentType << [TEXT_XML, APPLICATION_ATOM_XML, TEXT_PLAIN, APPLICATION_JSON]
     }
 
     def "a request using the wrong form parameter name should be rejected"() {

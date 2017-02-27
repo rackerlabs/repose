@@ -31,11 +31,7 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport
 import org.opensaml.core.xml.io.UnmarshallerFactory
 import org.opensaml.saml.saml2.core.Response
 import org.opensaml.security.SecurityException
-import org.opensaml.security.x509.PKIXTrustEvaluator
-import org.opensaml.security.x509.PKIXValidationInformation
-import org.opensaml.security.x509.PKIXValidationOptions
-import org.opensaml.security.x509.X509Credential
-import org.opensaml.security.x509.X509Support
+import org.opensaml.security.x509.*
 import org.opensaml.security.x509.impl.BasicPKIXValidationInformation
 import org.opensaml.security.x509.impl.BasicX509CredentialNameEvaluator
 import org.opensaml.security.x509.impl.StaticPKIXValidationInformationResolver
@@ -52,12 +48,18 @@ import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
+import static javax.ws.rs.core.MediaType.APPLICATION_XML
 
 class SamlUtilities {
 
     private PKIXSignatureTrustEngine trustEngine
     private DocumentBuilder documentBuilder
     private UnmarshallerFactory unmarshallerFactory
+
+    static Map<String, Closure> contentTypeBodyTransformers = [
+            (APPLICATION_FORM_URLENCODED): SamlUtilities.&asUrlEncodedBody,
+            (APPLICATION_XML)            : Closure.IDENTITY]
 
     SamlUtilities() {
         // unmarshalling
@@ -76,6 +78,10 @@ class SamlUtilities {
                 new BasicProviderKeyInfoCredentialResolver([new InlineX509DataProvider()]),
                 new TrustAllTheCertsEvaluator(),
                 new BasicX509CredentialNameEvaluator())
+    }
+
+    static byte[] asUrlEncodedBody(String body) {
+        asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(body))
     }
 
     static byte[] asUrlEncodedForm(Map<String, String> stringParams) {

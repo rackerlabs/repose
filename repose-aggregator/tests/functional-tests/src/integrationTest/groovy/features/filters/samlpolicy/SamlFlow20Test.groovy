@@ -84,13 +84,13 @@ class SamlFlow20Test extends ReposeValveTest {
     }
 
     @Unroll
-    def "a saml:response that is #signatureStatus will still be successfully processed as long as its Assertion is signed"() {
+    def "a saml:response with a(n) '#contentType' type body that is #signatureStatus will still be successfully processed as long as its Assertion is signed"() {
         when:
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
-                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+                headers: [(CONTENT_TYPE): contentType],
+                requestBody: contentTypeBodyTransformers[contentType](saml))
 
         then: "the client gets back a good response"
         mc.receivedResponse.code as Integer == SC_OK
@@ -119,13 +119,17 @@ class SamlFlow20Test extends ReposeValveTest {
         samlUtilities.validateSignature(response.signature, getEntityIdForSignature(response.signature))
 
         where:
-        signatureStatus    | saml
-        "not signed"       | SAML_ONE_ASSERTION_SIGNED
-        "signed"           | SAML_ASSERTION_AND_MESSAGE_SIGNED
-        "signed (invalid)" | SAML_ASSERTION_AND_MESSAGE_SIGNED.replaceFirst("\n", "").replaceFirst("\n", "")
+        contentType                 | signatureStatus    | saml
+        APPLICATION_FORM_URLENCODED | "not signed"       | SAML_ONE_ASSERTION_SIGNED
+        APPLICATION_FORM_URLENCODED | "signed"           | SAML_ASSERTION_AND_MESSAGE_SIGNED
+        APPLICATION_FORM_URLENCODED | "signed (invalid)" | SAML_ASSERTION_AND_MESSAGE_SIGNED.replaceFirst("\n", "").replaceFirst("\n", "")
+        APPLICATION_XML             | "not signed"       | SAML_ONE_ASSERTION_SIGNED
+        APPLICATION_XML             | "signed"           | SAML_ASSERTION_AND_MESSAGE_SIGNED
+        APPLICATION_XML             | "signed (invalid)" | SAML_ASSERTION_AND_MESSAGE_SIGNED.replaceFirst("\n", "").replaceFirst("\n", "")
     }
 
-    def "a saml:response without an assertion should be rejected"() {
+    @Unroll
+    def "a saml:response with a(n) '#contentType' type body without an assertion should be rejected"() {
         given: "a saml:response without an assertion"
         def saml = samlResponse(issuer() >> status())
 
@@ -133,14 +137,18 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
-                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+                headers: [(CONTENT_TYPE): contentType],
+                requestBody: contentTypeBodyTransformers[contentType](saml))
 
         then: "the client gets back a Bad Request response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+
+        where:
+        contentType << [APPLICATION_FORM_URLENCODED, APPLICATION_XML]
     }
 
-    def "a saml:response with an unsigned assertion should be rejected"() {
+    @Unroll
+    def "a saml:response with a(n) '#contentType' type body and an unsigned assertion should be rejected"() {
         given: "a saml:response with an unsigned assertion"
         def saml = samlResponse(issuer() >> status() >> assertion(fakeSign: false))
 
@@ -148,8 +156,8 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
-                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+                headers: [(CONTENT_TYPE): contentType],
+                requestBody: contentTypeBodyTransformers[contentType](saml))
 
         then: "the client gets back a Bad Request response"
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
@@ -157,9 +165,13 @@ class SamlFlow20Test extends ReposeValveTest {
 
         and: "the request doesn't get to the origin service"
         mc.handlings.isEmpty()
+
+        where:
+        contentType << [APPLICATION_FORM_URLENCODED, APPLICATION_XML]
     }
 
-    def "a saml:response with an assertion that has an invalid signature will still be processed successfully"() {
+    @Unroll
+    def "a saml:response with a(n) '#contentType' type body and an assertion that has an invalid signature will still be processed successfully"() {
         given: "a saml:response with an assertion containing an invalid signature"
         def saml = samlResponse(issuer() >> status() >> assertion(ASSERTION_SIGNED.replace("    ", "")))
 
@@ -167,8 +179,8 @@ class SamlFlow20Test extends ReposeValveTest {
         def mc = deproxy.makeRequest(
                 url: reposeEndpoint + SAML_AUTH_URL,
                 method: HTTP_POST,
-                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
-                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+                headers: [(CONTENT_TYPE): contentType],
+                requestBody: contentTypeBodyTransformers[contentType](saml))
 
         then: "the client gets back a good response"
         mc.receivedResponse.code as Integer == SC_OK
@@ -178,6 +190,9 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue(CONTENT_TYPE) == APPLICATION_XML
         mc.handlings[0].request.headers.getFirstValue(IDENTITY_API_VERSION) == "2.0"
         fakeIdentityV2Service.getGenerateTokenFromSamlResponseCount() == 1
+
+        where:
+        contentType << [APPLICATION_FORM_URLENCODED, APPLICATION_XML]
     }
 
     @Unroll

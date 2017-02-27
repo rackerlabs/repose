@@ -68,7 +68,7 @@ public class RateLimitingServiceHelper {
     }
 
     public void trackLimits(HttpServletRequest request, int datastoreWarnLimit) throws OverLimitException {
-        service.trackLimits(getPreferredUser(request), getPreferredGroups(request), decodeURI(request.getRequestURI()), request.getParameterMap(), request.getMethod(), datastoreWarnLimit);
+        service.trackLimits(getPreferredUser(request), getPreferredGroups(request), decodeURI(request.getRequestURI()), HttpServletRequestWrapper.parseQueryString(request.getQueryString()), request.getMethod(), datastoreWarnLimit);
     }
 
     public MimeType getReposeMimeType(javax.ws.rs.core.MediaType mediaType) {
