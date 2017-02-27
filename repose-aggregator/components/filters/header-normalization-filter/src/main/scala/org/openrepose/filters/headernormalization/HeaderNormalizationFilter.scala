@@ -22,7 +22,6 @@ package org.openrepose.filters.headernormalization
 
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import java.util.regex.Pattern
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -31,6 +30,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
+import org.openrepose.commons.utils.string.RegexString
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filters.HeaderNormalization
 import org.openrepose.core.services.config.ConfigurationService
@@ -74,7 +74,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
 
     configRequest find { target =>
       // find the first "target" config element that matches this request (if any)
-      target.url.matcher(wrappedRequest.getRequestURI).matches &&
+      target.url =~ wrappedRequest.getRequestURI &&
         (target.methods.contains(wrappedRequest.getMethod) || target.methods.contains(AllHttpMethods))
     } foreach { target =>
       // figure out which headers to remove, and remove them
@@ -83,7 +83,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedRequest.removeHeader)
 
-      metricsMeter.mark(s"${target.url}_${wrappedRequest.getMethod}_request")
+      metricsMeter.mark(s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_request")
     }
 
     val wrappedResponse = if (configResponse.isEmpty) None else Option(
@@ -100,7 +100,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
 
     configResponse find { target =>
       // find the first "target" config element that matches this request (if any)
-      target.url.matcher(wrappedRequest.getRequestURI).matches &&
+      target.url =~ wrappedRequest.getRequestURI &&
         (target.methods.contains(wrappedRequest.getMethod) || target.methods.contains(AllHttpMethods))
     } foreach { target =>
       // figure out which headers to remove, and remove them
@@ -109,7 +109,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedResponse.get.removeHeader)
 
-      metricsMeter.mark(s"${target.url}_${wrappedRequest.getMethod}_response")
+      metricsMeter.mark(s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_response")
     }
 
     if (wrappedResponse.isDefined) wrappedResponse.get.commitToResponse()
@@ -124,7 +124,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
   override def configurationUpdated(config: HeaderNormalizationConfig): Unit = {
     def getTarget(target: ConfigTarget, accessList: AccessList, headers: HttpHeaderList): Option[Target] = {
       Option(Target(
-        Option(target.getUriRegex).getOrElse(".*").r.pattern, // if not configured, default is ".*"
+        new RegexString(Option(target.getUriRegex).getOrElse(".*")), // if not configured, default is ".*"
         target.getHttpMethods.asScala.map(_.toString).padTo(1, AllHttpMethods).toSet, // default is "ALL"
         accessList,
         headers.getHeader.asScala.map(_.getId.toLowerCase).toSet))
@@ -185,12 +185,11 @@ object HeaderNormalizationFilter {
   private final val DEFAULT_CONFIG = "header-normalization.cfg.xml"
   private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/header-normalization-configuration.xsd"
 
-  private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
   val AllHttpMethods: String = HttpMethod.ALL.toString
 
   sealed trait AccessList
   object WhiteList extends AccessList
   object BlackList extends AccessList
 
-  case class Target(url: Pattern, methods: Set[String], access: AccessList, headers: Set[String])
+  case class Target(url: RegexString, methods: Set[String], access: AccessList, headers: Set[String])
 }
