@@ -60,7 +60,7 @@ header-normalization.cfg.xml
     </target>
 </header-normalization>
 ----
-<1> Since neither the uri-regex or http-methods are specified, this target applies to all requests.
+<1> Since neither the uri-regex nor http-methods are specified, this target applies to all requests.
 <2> The following whitelist only applies to the request.
 <3> The whitelist feature enables you to specify the only HTTP headers that you want to be passed on.
     All others are removed.
@@ -84,7 +84,7 @@ header-normalization.cfg.xml
     </target>
 </header-normalization>
 ----
-<1> Since neither the uri-regex or http-methods are specified, this target applies to all responses.
+<1> Since neither the uri-regex nor http-methods are specified, this target applies to all responses.
 <2> The following blacklist only applies to the response.
 <3> The blacklist feature enables you to specify exactly which HTTP headers to discard.
     All others are left alone.
@@ -143,4 +143,4 @@ header-normalization.cfg.xml
 <8> A blacklist specifies exactly which headers to not allow to continue.
 <9> Since the uri-regex attribute is not specified, this target applies to all POST and PUT requests.
     Valid http-methods are: GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE, and ALL
-<10> Since neither the uri-regex and http-methods are specified, this target applies to all requests and responses that don't match one of the previous targets.
+<10> Since neither the uri-regex nor http-methods are specified, this target applies to all requests and responses that don't match one of the previous targets.
