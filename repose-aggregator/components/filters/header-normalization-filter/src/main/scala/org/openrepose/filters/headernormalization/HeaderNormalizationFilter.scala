@@ -94,7 +94,9 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
     var responseHeaders: Option[Set[String]] = None
 
     def getResponseHeaders: Set[String] = {
-      if (responseHeaders.isEmpty) responseHeaders = Option(wrappedResponse.get.getHeaderNames.asScala.map(_.toLowerCase).toSet)
+      if (responseHeaders.isEmpty) {
+        responseHeaders = Option(wrappedResponse.get.getHeaderNames.asScala.map(_.toLowerCase).toSet)
+      }
       responseHeaders.get
     }
 
