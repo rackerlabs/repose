@@ -22,9 +22,9 @@ package org.openrepose.filters.ratelimiting;
 import org.apache.http.HttpHeaders;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.filter.FilterAction;
+import org.openrepose.commons.utils.servlet.http.HeaderValue;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
@@ -42,9 +42,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.servlet.http.HttpServletResponse.*;
 
@@ -52,6 +53,11 @@ import static javax.servlet.http.HttpServletResponse.*;
 public class RateLimitingHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
+    private static final Set<MimeType> SUPPORTED_MIME_TYPES = Stream.of(
+            MimeType.APPLICATION_JSON,
+            MimeType.APPLICATION_XML
+            // TODO: Add support for MimeType.TEXT_XML
+    ).collect(Collectors.toSet());
     private static final MimeType DEFAULT_MIME_TYPE = MimeType.APPLICATION_JSON;
     private static final int SC_TOO_MANY_REQUESTS = 429;
 
@@ -75,21 +81,14 @@ public class RateLimitingHandler {
     public FilterAction handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         FilterAction filterAction;
 
-        List<String> headerValues = request.getPreferredSplittableHeaders(HttpHeaders.ACCEPT);
-        List<MimeType> mimeTypes = MediaRangeProcessor.getMimeTypesFromHeaderValues(headerValues);
-        if (mimeTypes.isEmpty()) {
-            mimeTypes.add(DEFAULT_MIME_TYPE);
-        }
-
         if (requestHasExpectedHeaders(request)) {
-            originalPreferredAccept = getPreferredMimeType(mimeTypes);
-
             // record limits
             if (!recordLimitedRequest(request, response)) {
                 // failure - either over the limit or some other exception related to the data store occurred
                 filterAction = FilterAction.RETURN;
             } else if (describeLimitsUriPattern.isPresent() && describeLimitsUriPattern.get().matcher(request.getRequestURI()).matches()) {
                 // request matches the configured getCurrentLimits API call endpoint
+                setRequestedMediaType(request.getSplittableHeaders(HttpHeaders.ACCEPT));
                 filterAction = describeLimitsForRequest(request, response);
             } else {
                 filterAction = FilterAction.PASS;
@@ -109,9 +108,30 @@ public class RateLimitingHandler {
         return request.getHeader(PowerApiHeader.USER) != null;
     }
 
+    private void setRequestedMediaType(List<String> acceptValues) {
+        if (acceptValues.isEmpty()) {
+            originalPreferredAccept = DEFAULT_MIME_TYPE;
+        } else {
+            originalPreferredAccept = acceptValues.stream()
+                    .map(HeaderValue::new)
+                    .filter(headerValue -> headerValue.quality() != 0.0)
+                    .sorted(Comparator.comparingDouble(HeaderValue::quality).reversed())
+                    .map(HeaderValue::value)
+                    .map(MimeType::getBestFitMimeType)
+                    .filter(mimeType -> SUPPORTED_MIME_TYPES.stream().anyMatch(mimeType::matches))
+                    .findFirst()
+                    .orElse(MimeType.UNKNOWN);
+        }
+    }
+
     private FilterAction describeLimitsForRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         if (originalPreferredAccept == MimeType.UNKNOWN) {
+            // If the accept header is set to a media type that the rate limiting filter cannot handle,
+            // the rate limiting filter should return a 406, or a body with some default media type
+            // (ignoring the accept header). HTTP/1.0 spec dictates that the former approach be taken,
+            // while HTTP/1.1 leaves it as an implementation decision. We chose to comply with the former.
             response.setStatus(SC_NOT_ACCEPTABLE);
+            // TODO: Set the supported accept types in the body? Provide a link to a supported types page?
             return FilterAction.RETURN;
         } else {
             // If include absolute limits let request pass thru but prepare the combined
@@ -216,16 +236,6 @@ public class RateLimitingHandler {
             LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
             response.setStatus(SC_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    public MimeType getPreferredMimeType(List<MimeType> mimeTypes) {
-        for (MimeType mimeType : mimeTypes) {
-            if (mimeType == MimeType.APPLICATION_XML || mimeType == MimeType.APPLICATION_JSON) {
-                return mimeType;
-            }
-        }
-
-        return mimeTypes.get(0);
     }
 
     /**

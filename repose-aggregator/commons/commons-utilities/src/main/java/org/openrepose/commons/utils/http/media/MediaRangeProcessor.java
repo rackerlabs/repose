@@ -52,18 +52,4 @@ public class MediaRangeProcessor {
 
         return new MediaType(mediaTypeWithParametersStripped, mediaType, headerValue.getParameters());
     }
-
-    public static List<MimeType> getMimeTypesFromHeaderValues(List<String> headerValues) {
-        List<MimeType> mimeTypes = new ArrayList<>();
-
-        for (String headerValue : headerValues) {
-            MimeType mimeType = MimeType.getMatchingMimeType(headerValue);
-            if (MimeType.UNKNOWN.equals(mimeType)) {
-                mimeType = MimeType.guessMediaTypeFromString(headerValue);
-            }
-            mimeTypes.add(mimeType);
-        }
-
-        return mimeTypes;
-    }
 }

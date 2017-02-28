@@ -68,21 +68,4 @@ class MediaRangeProcessorTest extends Specification {
         then:
         mediaTypeList.get(0).getMimeType() == MimeType.UNKNOWN
     }
-
-    @Unroll
-    def "should convert list of header values #input to list of MimeTypes #expectedOutput"() {
-        when:
-        List<MimeType> output = MediaRangeProcessor.getMimeTypesFromHeaderValues(input)
-
-        then:
-        output == expectedOutput
-
-        where:
-        input                                   | expectedOutput
-        []                                      | []
-        ['application/xml']                     | [MimeType.APPLICATION_XML]
-        ['application/xml', 'application/json'] | [MimeType.APPLICATION_XML, MimeType.APPLICATION_JSON]
-        ['application/pretty-json']             | [MimeType.APPLICATION_JSON]
-        ['potato+please']                       | [MimeType.UNKNOWN]
-    }
 }

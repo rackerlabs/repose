@@ -40,6 +40,7 @@ import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.cache.UserRateLimit;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
 import org.openrepose.core.services.ratelimit.config.HttpMethod;
+import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -132,33 +133,66 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         }
 
         @Test
-        public void shouldRejectDescribeLimitsCallwith406() {
+        public void shouldRejectDescribeLimitsCallAcceptingUnsupportedTypeWith406() {
             mockedRequest.setRequestURI("/v1.0/limits");
             mockedRequest.addHeader("Accept", "leqz");
 
             FilterAction filterAction = newHandler().handleRequest(new HttpServletRequestWrapper(mockedRequest), mockedResponse);
 
-            assertEquals("On rejected media type, filter must return a response", FilterAction.RETURN, filterAction);
+            assertEquals("On rejected accept type, filter must return a response", FilterAction.RETURN, filterAction);
             verify(mockedResponse).setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
         }
 
-        // If the accept header is set to a media type that the rate limiting filter cannot handle,
-        // the rate limiting filter should return a 406, or a body with some default media type
-        // (ignoring the accept header). This test assumes that the latter approach was taken, and
-        // that limits are retrieved from the origin service as xml, combined, and returned to the
-        // requestor. HTTP/1.0 spec dicatates that the former approach be taken, while HTTP/1.1
-        // leaves it as an implementation decision.
         @Test
-        public void shouldDescribeLimitsCallWithEmptyAcceptType() {
-            Assume.assumeTrue(new Date().getTime() > splodeDate.getTime().getTime());
+        public void shouldReturnJsonDescribeLimitsCallWithNoAcceptTypeNoUpstream() {
             mockedRequest.setRequestURI("/v1.0/limits");
-            mockedRequest.addHeader("Accept", "");
             HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(mockedRequest);
 
-            FilterAction filterAction = newHandler().handleRequest(wrappedRequest, null);
+            RateLimitingConfiguration rateLimitingConfiguration = defaultRateLimitingConfiguration();
+            rateLimitingConfiguration.getRequestEndpoint().setIncludeAbsoluteLimits(false);
+            RateLimitingHandler handler = RateLimitingTestSupport.createHandler(rateLimitingConfiguration, eventService, datastore);
 
-            assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, filterAction);
-            assertEquals("Request Accept header set to application/xml", MimeType.APPLICATION_XML.getName(), wrappedRequest.getHeader("accept"));
+            FilterAction filterAction = handler.handleRequest(wrappedRequest, mockedResponse);
+
+            assertEquals("On no accept type, filter should return", FilterAction.RETURN, filterAction);
+            verify(mockedResponse).setContentType(MimeType.APPLICATION_JSON.getName());
+        }
+
+        @Test
+        public void shouldRejectDescribeLimitsCallAcceptingAZeroQualitySupportedTypeWith406() {
+            mockedRequest.setRequestURI("/v1.0/limits");
+            mockedRequest.addHeader("Accept", "application/xml;q=0.0");
+
+            FilterAction filterAction = newHandler().handleRequest(new HttpServletRequestWrapper(mockedRequest), mockedResponse);
+
+            assertEquals("On rejected accept type, filter should return", FilterAction.RETURN, filterAction);
+            verify(mockedResponse).setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+        }
+
+        @Test
+        public void shouldRejectDescribeLimitsCallWithEmptyAcceptType() {
+            mockedRequest.setRequestURI("/v1.0/limits");
+            mockedRequest.addHeader("Accept", "");
+
+            FilterAction filterAction = newHandler().handleRequest(new HttpServletRequestWrapper(mockedRequest), mockedResponse);
+
+            assertEquals("On no accept type, filter must return", FilterAction.RETURN, filterAction);
+            verify(mockedResponse).setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+        }
+
+        @Test
+        public void shouldReturnJsonDescribeLimitsCallWhenHighestQualitySupportedTypeWith() {
+            mockedRequest.setRequestURI("/v1.0/limits");
+            mockedRequest.addHeader("Accept", "application/xml;q=0.5, application/json;q=0.8, text/xml");
+
+            RateLimitingConfiguration rateLimitingConfiguration = defaultRateLimitingConfiguration();
+            rateLimitingConfiguration.getRequestEndpoint().setIncludeAbsoluteLimits(false);
+            RateLimitingHandler handler = RateLimitingTestSupport.createHandler(rateLimitingConfiguration, eventService, datastore);
+
+            FilterAction filterAction = handler.handleRequest(new HttpServletRequestWrapper(mockedRequest), mockedResponse);
+
+            assertEquals("On multiple supported accept types, filter should process response must return", FilterAction.RETURN, filterAction);
+            verify(mockedResponse).setContentType(MimeType.APPLICATION_JSON.getName());
         }
 
         @Test

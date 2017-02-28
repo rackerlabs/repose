@@ -24,6 +24,8 @@ import org.openrepose.commons.utils.StringUtilities;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public enum MimeType {
 
+    // TODO: This list isn't even close to being exhaustive.
+    //       An enum is probably not the right structure for this data since it cannot represent unlisted MIME types.
     APPLICATION_ATOM_XML("application", "atom+xml"),
     APPLICATION_RDF_XML("application", "rdf+xml"),
     APPLICATION_RSS_XML("application", "rss+xml"),
@@ -73,15 +75,28 @@ public enum MimeType {
                     return ct;
                 }
             }
-
-            // this is unreachable code, and at this point I'm too afraid to fix it
-            for (MimeType ct : values()) {
-                if (mimeType.contains(ct.getSubTypeName())) {
-                    return ct;
-                }
-            }
         }
         return UNKNOWN;
+    }
+
+    public static MimeType getBestFitMimeType(String mimeType) {
+        MimeType bestMatch = getMatchingMimeType(mimeType);
+        if (bestMatch == UNKNOWN) {
+            bestMatch = guessMediaTypeFromString(mimeType);
+        }
+        return bestMatch;
+    }
+
+    public boolean matches(MimeType that) {
+        final String thisTopLevelType = this.getTopLevelTypeName();
+        final String thisSubType = this.getSubTypeName();
+        final String thatTopLevelType = that.getTopLevelTypeName();
+        final String thatSubType = that.getSubTypeName();
+        final String topLevelWildcard = WILDCARD.getTopLevelTypeName();
+        final String subTypeWildcard = WILDCARD.getSubTypeName();
+
+        return (thisTopLevelType.equals(topLevelWildcard) || thatTopLevelType.equals(topLevelWildcard) || thisTopLevelType.equals(thatTopLevelType)) &&
+                (thisSubType.equals(subTypeWildcard) || thatSubType.equals(subTypeWildcard) || thisSubType.equals(thatSubType));
     }
 
     @Override
