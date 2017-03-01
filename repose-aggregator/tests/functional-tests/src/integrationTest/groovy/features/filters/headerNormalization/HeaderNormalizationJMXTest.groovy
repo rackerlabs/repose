@@ -26,22 +26,13 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Unroll
 
 @Category(Slow.class)
 class HeaderNormalizationJMXTest extends ReposeValveTest {
 
     String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"HeaderNormalization\",scope=\"header-normalization\""
 
-    String HEADER_NORMALIZATION_ROOT_GET = "${PREFIX},name=\".\\*_GET\""
-    String HEADER_NORMALIZATION_ROOT_POST = "${PREFIX},name=\".\\*_POST\""
-    String HEADER_NORMALIZATION_ROOT_PUT = "${PREFIX},name=\".\\*_POST\""
-    String HEADER_NORMALIZATION_RESOURCE_POST = "${PREFIX},name=\"/resource/(.\\*)_POST\""
-    String HEADER_NORMALIZATION_RESOURCE_PUT = "${PREFIX},name=\"/resource/(.\\*)_POST\""
-    String HEADER_NORMALIZATION_SERVERS_GET = "${PREFIX},name=\"/servers/(.\\*)_GET\""
-    String HEADER_NORMALIZATION_SERVERS_POST = "${PREFIX},name=\"/servers/(.\\*)_POST\""
-    String HEADER_NORMALIZATION_SERVERS_PUT = "${PREFIX},name=\"/servers/(.\\*)_POST\""
-    String HEADER_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX},name=\"/secondary/path/(.\\*)_GET\""
-    String HEADER_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX},name=\"/tertiary/path/(.\\*)_GET\""
     String HEADER_NORMALIZATION_ACROSS_ALL = "${PREFIX},name=\"ACROSS ALL\""
 
     int reposePort
@@ -79,15 +70,23 @@ class HeaderNormalizationJMXTest extends ReposeValveTest {
 
         params = properties.getDefaultTemplateParams()
         reposeConfigProvider.applyConfigs("common", params)
-
+        reposeConfigProvider.applyConfigs("features/filters/headerNormalization", params)
     }
 
-    def "when a client makes requests, jmx should keep accurate count"() {
+    @Unroll
+    def "when a client makes requests, jmx should keep accurate #reqres counts"() {
 
         given:
-        reposeConfigProvider.applyConfigs("features/filters/headerNormalization/metrics/single", params)
+        String HEADER_NORMALIZATION_ROOT_GET = "${PREFIX},name=\".\\*_GET_${reqres}\""
+        String HEADER_NORMALIZATION_ROOT_POST = "${PREFIX},name=\".\\*_POST_${reqres}\""
+        String HEADER_NORMALIZATION_ROOT_PUT = "${PREFIX},name=\".\\*_POST_${reqres}\""
+        String HEADER_NORMALIZATION_RESOURCE_POST = "${PREFIX},name=\"/resource/(.\\*)_POST_${reqres}\""
+        String HEADER_NORMALIZATION_RESOURCE_PUT = "${PREFIX},name=\"/resource/(.\\*)_POST_${reqres}\""
+        String HEADER_NORMALIZATION_SERVERS_GET = "${PREFIX},name=\"/servers/(.\\*)_GET_${reqres}\""
+        String HEADER_NORMALIZATION_SERVERS_POST = "${PREFIX},name=\"/servers/(.\\*)_POST_${reqres}\""
+        String HEADER_NORMALIZATION_SERVERS_PUT = "${PREFIX},name=\"/servers/(.\\*)_POST_${reqres}\""
+        reposeConfigProvider.applyConfigs("features/filters/headerNormalization/metrics/${reqres}", params)
         repose.start()
-
 
         when:
         def mc = deproxy.makeRequest(url: urlBase, method: "GET")
@@ -145,11 +144,17 @@ class HeaderNormalizationJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(HEADER_NORMALIZATION_SERVERS_PUT, "Count") == 1
         repose.jmx.getMBeanAttribute(HEADER_NORMALIZATION_ACROSS_ALL, "Count") == 8
 
+        where:
+        reqres << ["request", "response"]
     }
 
     def "when multiple filter instances are configured, each should add to the count"() {
 
         given:
+        String reqres = "request"
+        String HEADER_NORMALIZATION_ROOT_GET = "${PREFIX},name=\".\\*_GET_${reqres}\""
+        String HEADER_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX},name=\"/secondary/path/(.\\*)_GET_${reqres}\""
+        String HEADER_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX},name=\"/tertiary/path/(.\\*)_GET_${reqres}\""
         reposeConfigProvider.applyConfigs("features/filters/headerNormalization/metrics/multiple", params)
         repose.start()
 

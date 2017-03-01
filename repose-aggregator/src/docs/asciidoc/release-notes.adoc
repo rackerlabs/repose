@@ -3,6 +3,7 @@
 include::_includes/in-progress.adoc[]
 
 == Future Release
+* https://repose.atlassian.net/browse/REP-4024[REP-4024] - the <<filters/header-normalization.adoc#, Header Normalization filter>> updated to include removing headers on the Response.
 
 * https://repose.atlassian.net/browse/REP-3901[REP-3901] - The Debian and RPM Repose Valve and WAR artifacts will now create the `repose` user and group even if the configuration files are already present.
 

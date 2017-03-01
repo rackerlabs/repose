@@ -2,51 +2,145 @@
 
 include::../_includes/in-progress.adoc[]
 
+The Header Normalization filter removes configured headers from a request and/or response.
+Normalization is the process of modifying or standardizing content to optimize the flow of information.
+The Header Normalization filter normalizes the headers of the request by performing two separate functions.
+The filter uses blacklisting to prevent specific headers and it uses whitelisting to allow only approved headers from continuing down the filter chain.
+The headers can be matched by URI regular expression (uri-regex) and/or HTTP method type (http-methods).
+
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* Header Normalization
+* *Default Configuration:* header-normalization.cfg.xml
+* *Released:* v2.0.0
 * *Bundle:* repose-filter-bundle
 * link:../schemas/header-normalization-configuration.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required headers
-???.
+None.
 
 === Required preceding filters
-???.
+This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
+However, due to the nature of this filter it is typically placed early in the filter chain.
 
 === Request headers created
-???.
+Changes to request headers vary based on configuration.
 
 === Request body changes
-???.
+This filter does not modify the request body.
 
 === Recommended follow-on (succeeding) filters
-???.
+This filter is not strictly required by any other filters.
 
 === Response body changes
-???.
+This filter does not modify the response body.
 
 === Response headers created
-???.
+Changes to response headers vary based on configuration.
 
 === Response Status Codes
-???.
+This filter does not modify the response code.
 
 == Examples
-=== Shows how to ???
-This configuration will ???.
+=== Remove all headers except authentication headers from incoming requests
+This configuration shows how to use the Whitelist feature of the Header Normalization filter.
+It will remove all other headers except those required to initiate an authentication sequence.
 
 [source,xml]
-.???.cfg.xml
+header-normalization.cfg.xml
 ----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
+<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+    <target> <!--1-->
+        <request> <!--2-->
+            <whitelist> <!--3-->
+                <header id="X-Auth-Key"/> <!--4-->
+                <header id="X-Auth-User"/>
+            </whitelist>
+        </request>
+    </target>
+</header-normalization>
 ----
-<1> Specifies ???.
+<1> Since neither the uri-regex nor http-methods are specified, this target applies to all requests.
+<2> The following whitelist only applies to the request.
+<3> The whitelist feature enables you to specify the only HTTP headers that you want to be passed on.
+    All others are removed.
+<4> Only the X-Auth-Key and X-Auth-User headers will be allowed to continue forward from the client.
 
-== Additional Information
-*Remove this section if not needed.*
+=== Remove headers from outgoing responses
+This configuration shows how to use the Blacklist feature of the Header Normalization filter.
+It will remove only the specified headers from all responses.
+
+[source,xml]
+header-normalization.cfg.xml
+----
+<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+    <target> <!--1-->
+        <response> <!--2-->
+            <blacklist> <!--3-->
+                <header id="X-User-Name"/> <!--4-->
+                <header id="X-Tenant-Id"/>
+            </blacklist>
+        </response>
+    </target>
+</header-normalization>
+----
+<1> Since neither the uri-regex nor http-methods are specified, this target applies to all responses.
+<2> The following blacklist only applies to the response.
+<3> The blacklist feature enables you to specify exactly which HTTP headers to discard.
+    All others are left alone.
+<4> Only the X-User-Name and X-Tenant-Id headers will be removed before continuing back to the client.
+
+=== This is a full example showing all the available options.
+This configuration is a more complex example.
+
+[source,xml]
+header-normalization.cfg.xml
+----
+<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+    <target uri-regex="/servers/(.*)" http-methods="ALL"> <!--1-->
+        <request> <!--2--><!--3-->
+            <whitelist> <!--4--><!--5-->
+                <header id="X-Auth-Key"/> <!--6-->
+                <header id="X-Auth-User"/>
+            </whitelist>
+        </request>
+        <response> <!--7-->
+            <blacklist> <!--8-->
+                <header id="X-User-Name"/>
+                <header id="X-Tenant-Id"/>
+            </blacklist>
+        </response>
+    </target>
+    <target http-methods="POST PUT"> <!--9-->
+        <request>
+            <whitelist>
+                <header id="X-Modify"/>
+            </whitelist>
+        </request>
+    </target>
+    <target> <!--10-->
+        <request>
+            <blacklist>
+                <header id="X-PP-User"/>
+                <header id="X-PP-Groups"/>
+            </blacklist>
+        </request>
+        <response>
+            <blacklist>
+                <header id="X-Remove-Me"/>
+            </blacklist>
+        </response>
+    </target>
+</header-normalization>
+----
+<1> Since the http-methods attribute is not specified, this target applies to all http methods (GET, POST, PUT, etc) that match the uri-regex.
+<2> Even though both request and response elements are optional, at least one must be specified and both can be.
+<3> The following whitelist only applies to the request.
+<4> Even though both whitelist and blacklist elements are optional, one and only one must be specified.
+<5> A whitelist specifies the only headers that are allowed to continue.
+<6> The header element consists of only the required id attribute which defines the case-insensitive name of the header to remove or allow to pass.
+<7> The following blacklist will only apply to the response.
+<8> A blacklist specifies exactly which headers to not allow to continue.
+<9> Since the uri-regex attribute is not specified, this target applies to all POST and PUT requests.
+    Valid http-methods are: GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE, and ALL
+<10> Since neither the uri-regex nor http-methods are specified, this target applies to all requests and responses that don't match one of the previous targets.
