@@ -34,7 +34,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 
-import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE
+import static javax.servlet.http.HttpServletResponse.*
 
 /**
  * Copied most of this from the RateLimitingTest
@@ -42,11 +42,10 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE
 class AbsoluteRateLimitTest extends ReposeValveTest {
     final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
     final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
-    final Map<String, String> acceptHeaderDefault = ["Accept": "application/xml"]
     final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
 
     final def xmlAbsoluteLimitResponse = {
-        return new Response("200",
+        return new Response(SC_OK,
                 "OK", ["Content-Type": "application/xml"],
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
                         "<limits xmlns=\"http://docs.openstack.org/common/api/v1.0\"><absolute>" +
@@ -55,7 +54,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
     }
 
     final def jsonAbsoluteLimitResponse = {
-        return new Response("200",
+        return new Response(SC_OK,
                 "OK", ["Content-Type": "application/json"],
                 """{
     "limits": {
@@ -85,7 +84,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
     }
 
     final def watResponse = {
-        return new Response("200", "OK", ["Content-Type": "application/wat"], "LOL")
+        return new Response(SC_OK, "OK", ["Content-Type": "application/wat"], "LOL")
     }
 
     def setupSpec() {
@@ -115,19 +114,22 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
-        messageChain.receivedResponse.body.length() > 0
+
+        def body = messageChain.receivedResponse.body as String
+
+        body.length() > 0
         if (expectedFormat.contains("xml")) {
-            assert parseRateCountFromXML(messageChain.receivedResponse.body) == 0
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 0) == 15
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 1) == 10
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 2) == 5
+            assert parseRateCountFromXML(body) == 0
+            assert parseAbsoluteFromXML(body, 0) == 15
+            assert parseAbsoluteFromXML(body, 1) == 10
+            assert parseAbsoluteFromXML(body, 2) == 5
         } else {
-            assert parseRateCountFromJSON(messageChain.receivedResponse.body) == 0
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Admin") == 15
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
+            assert parseRateCountFromJSON(body) == 0
+            assert parseAbsoluteFromJSON(body, "Admin") == 15
+            assert parseAbsoluteFromJSON(body, "Tech") == 10
+            assert parseAbsoluteFromJSON(body, "Demo") == 5
         }
 
         where:
@@ -148,7 +150,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.receivedResponse.code.equals("502")
+        messageChain.receivedResponse.code as Integer == SC_BAD_GATEWAY
         //With the application/wat it's just an array of characters, so
         messageChain.receivedResponse.body as ArrayList<Integer> == [76, 79, 76]  //LOL
 
@@ -170,23 +172,26 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         //Content-type will always be JSON when
         messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
-        messageChain.receivedResponse.body.length() > 0
+
+        def body = messageChain.receivedResponse.body as String
+
+        body.length() > 0
 
         if (expectedFormat.contains("xml")) {
-            assert parseRateCountFromXML(messageChain.receivedResponse.body) == 0
+            assert parseRateCountFromXML(body) == 0
 
             //The JSON upstream doesn't match the simple XML upstream
-            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
-            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
-            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
+            parseXpath(body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
+            parseXpath(body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
+            parseXpath(body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
         } else {
-            parseRateCountFromJSON(messageChain.receivedResponse.body) == 0
-            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
-            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
-            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
+            parseRateCountFromJSON(body) == 0
+            parseAbsoluteFromJSON(body, "maxServerMeta") == 40
+            parseAbsoluteFromJSON(body, "totalPrivateNetworksUsed") == 0
+            parseAbsoluteFromJSON(body, "maxSecurityGroups") == -1
         }
 
         where:
@@ -208,19 +213,22 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
-        messageChain.receivedResponse.body.length() > 0
+
+        def body = messageChain.receivedResponse.body as String
+
+        body.length() > 0
         if (expectedFormat.contains("xml")) {
-            assert parseRateCountFromXML(messageChain.receivedResponse.body) == 0
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 0, true) == 15
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 1, true) == 10
-            assert parseAbsoluteFromXML(messageChain.receivedResponse.body, 2, true) == 5
+            assert parseRateCountFromXML(body) == 0
+            assert parseAbsoluteFromXML(body, 0, true) == 15
+            assert parseAbsoluteFromXML(body, 1, true) == 10
+            assert parseAbsoluteFromXML(body, 2, true) == 5
         } else {
-            assert parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Admin") == 15
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
-            assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
+            assert parseRateCountFromJSON(body) > 0
+            assert parseAbsoluteFromJSON(body, "Admin") == 15
+            assert parseAbsoluteFromJSON(body, "Tech") == 10
+            assert parseAbsoluteFromJSON(body, "Demo") == 5
         }
 
         where:
@@ -241,22 +249,25 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
-        messageChain.receivedResponse.body.length() > 0
+
+        def body = messageChain.receivedResponse.body as String
+
+        body.length() > 0
 
         if (expectedFormat.contains("xml")) {
             //The JSON upstream doesn't match the simple XML upstream
-            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
-            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
-            parseXpath(messageChain.receivedResponse.body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
+            parseXpath(body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
+            parseXpath(body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
+            parseXpath(body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
 
-            parseRateCountFromXML(messageChain.receivedResponse.body) > 0
+            parseRateCountFromXML(body) > 0
         } else {
-            parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
-            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
-            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
-            parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
+            parseRateCountFromJSON(body) > 0
+            parseAbsoluteFromJSON(body, "maxServerMeta") == 40
+            parseAbsoluteFromJSON(body, "totalPrivateNetworksUsed") == 0
+            parseAbsoluteFromJSON(body, "maxSecurityGroups") == -1
         }
 
         where:
@@ -291,23 +302,27 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
     @Unroll("XML UPSTREAM: When requesting rate limits for group with special characters with #acceptHeader")
     def "When requesting rate limits as json for group with special characters and upstream responds with XML"() {
         when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: "GET",
+        MessageChain messageChain = deproxy.makeRequest(
+                url: reposeEndpoint + path,
+                method: "GET",
                 headers: ["X-PP-Groups": "unique;q=1.0", "X-PP-User": "user"] + acceptHeader,
-                defaultHandler: xmlAbsoluteLimitResponse
-        )
+                defaultHandler: xmlAbsoluteLimitResponse)
 
         then:
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
-        messageChain.receivedResponse.body.length() > 0
-        assert parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
-        assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Admin") == 15
-        assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Tech") == 10
-        assert parseAbsoluteFromJSON(messageChain.receivedResponse.body, "Demo") == 5
-        assert messageChain.receivedResponse.body.contains("service/\\\\w*")
-        assert messageChain.receivedResponse.body.contains("service/\\\\s*")
-        assert messageChain.receivedResponse.body.contains("service/(\\\".+\\")
-        assert messageChain.receivedResponse.body.contains("service/\\\\d*")
+
+        def body = messageChain.receivedResponse.body as String
+
+        body.length() > 0
+        parseRateCountFromJSON(body) > 0
+        parseAbsoluteFromJSON(body, "Admin") == 15
+        parseAbsoluteFromJSON(body, "Tech") == 10
+        parseAbsoluteFromJSON(body, "Demo") == 5
+        body.contains("service/\\\\w*")
+        body.contains("service/\\\\s*")
+        body.contains("service/(\\\".+\\")
+        body.contains("service/\\\\d*")
 
         where:
         path               | acceptHeader                   | expectedFormat
@@ -326,20 +341,23 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         )
 
         then:
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.receivedResponse.headers.findAll("Content-Type").contains(expectedFormat)
-        messageChain.receivedResponse.body.length() > 0
+
+        def body = messageChain.receivedResponse.body as String
+
+        body.length() > 0
 
         //This is mutable, and depends on prior test state...
-        parseRateCountFromJSON(messageChain.receivedResponse.body) > 0
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxServerMeta") == 40
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "totalPrivateNetworksUsed") == 0
-        parseAbsoluteFromJSON(messageChain.receivedResponse.body, "maxSecurityGroups") == -1
+        parseRateCountFromJSON(body) > 0
+        parseAbsoluteFromJSON(body, "maxServerMeta") == 40
+        parseAbsoluteFromJSON(body, "totalPrivateNetworksUsed") == 0
+        parseAbsoluteFromJSON(body, "maxSecurityGroups") == -1
 
-        messageChain.receivedResponse.body.contains("service/\\\\w*")
-        messageChain.receivedResponse.body.contains("service/\\\\s*")
-        messageChain.receivedResponse.body.contains("service/(\\\".+\\")
-        messageChain.receivedResponse.body.contains("service/\\\\d*")
+        body.contains("service/\\\\w*")
+        body.contains("service/\\\\s*")
+        body.contains("service/(\\\".+\\")
+        body.contains("service/\\\\d*")
 
         where:
         path               | acceptHeader                   | expectedFormat
@@ -358,8 +376,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
      * @param xpathString
      * @return
      */
-    private int parseXpath(String xml, String xpathString) {
-
+    private static int parseXpath(String xml, String xpathString) {
         println("body is:\n$xml")
 
         def builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
@@ -371,7 +388,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
     }
 
     // TODO: So much of this is copy pasta from the other rate limiting test
-    private int parseAbsoluteFromXML(String s, int limit) {
+    private static int parseAbsoluteFromXML(String s, int limit) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance()
         factory.setNamespaceAware(true)
         DocumentBuilder documentBuilder = factory.newDocumentBuilder()
@@ -382,7 +399,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         return Integer.parseInt(document.getElementsByTagName("limit").item(limit).getAttributes().getNamedItem("value").getNodeValue())
     }
 
-    private int parseAbsoluteFromXML(String s, int limit, boolean useSlurper) {
+    private static int parseAbsoluteFromXML(String s, int limit, boolean useSlurper) {
         if (!useSlurper)
             return parseAbsoluteFromXML(s, limit)
         else {
@@ -391,29 +408,29 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         }
     }
 
-    private int parseAbsoluteFromJSON(String body, String limit) {
+    private static int parseAbsoluteFromJSON(String body, String limit) {
         def json = JsonSlurper.newInstance().parseText(body)
         return json.limits.absolute[limit].value
     }
 
-    private int parseAbsoluteLimitFromJSON(String body, int limit) {
+    private static int parseAbsoluteLimitFromJSON(String body, int limit) {
         def json = JsonSlurper.newInstance().parseText(body)
         return json.limits.rate[limit].limit[0].value
     }
 
     //using this for now
-    private int parseRemainingFromJSON(String body, int limit) {
+    private static int parseRemainingFromJSON(String body, int limit) {
         def json = JsonSlurper.newInstance().parseText(body)
         return json.limits.rate[limit].limit[0].remaining
     }
 
-    private int parseRateCountFromXML(String body) {
+    private static int parseRateCountFromXML(String body) {
         def xml = XmlSlurper.newInstance().parseText(body)
         return xml.limits.rates.size()
     }
 
 
-    private int parseRateCountFromJSON(String body) {
+    private static int parseRateCountFromJSON(String body) {
         def json = JsonSlurper.newInstance().parseText(body)
         return json.limits.rate.size()
     }
@@ -421,7 +438,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
     private String getDefaultLimits(Map group = null) {
         def groupHeader = (group != null) ? group : groupHeaderDefault
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: userHeaderDefault + groupHeader + acceptHeaderJson);
+                headers: userHeaderDefault + groupHeader + acceptHeaderJson)
 
         return messageChain.receivedResponse.body
     }
