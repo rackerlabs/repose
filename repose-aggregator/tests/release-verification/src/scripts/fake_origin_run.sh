@@ -3,7 +3,7 @@ echo "Starting Fake Origin"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 cd /opt/fake-origin
-node app.js 2>&1 >> /release-verification/fake-origin.log &
+/usr/local/bin/node app.js 2>&1 >> /release-verification/fake-origin.log &
 sleep 2
 
 echo "-------------------------------------------------------------------------------------------------------------------"
