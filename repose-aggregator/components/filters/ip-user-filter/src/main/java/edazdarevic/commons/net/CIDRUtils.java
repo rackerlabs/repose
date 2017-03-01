@@ -151,6 +151,6 @@ public class CIDRUtils {
         int st = start.compareTo(target);
         int te = target.compareTo(end);
 
-        return (st == -1 || st == 0) && (te == -1 || te == 0);
+        return (st < 1) && (te < 1);
     }
 }
