@@ -170,6 +170,7 @@ abstract class CompressingStreamFactory {
      * @param contentEncoding content encoding (e.g. "gzip")
      * @return instance for content encoding
      */
+    @SuppressWarnings("squid:S3346") //False positive, the assert doesn't have a side effect
     static CompressingStreamFactory getFactoryForContentEncoding(String contentEncoding) {
         assert FACTORY_MAP.containsKey(contentEncoding);
         return FACTORY_MAP.get(contentEncoding);
@@ -335,6 +336,7 @@ abstract class CompressingStreamFactory {
         private final String contentEncoding;
         private final double q;
 
+        @SuppressWarnings("squid:S3346") //False positive, the assert doesn't have a side effect
         private ContentEncodingQ(String contentEncoding, double q) {
             assert contentEncoding != null && contentEncoding.length() > 0;
             this.contentEncoding = contentEncoding;
