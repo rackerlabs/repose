@@ -34,6 +34,8 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 
+import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE
+
 /**
  * Copied most of this from the RateLimitingTest
  */
@@ -267,12 +269,23 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
     }
 
     def "When requesting rate limits with an invalid Accept header, Should receive 406 response when invalid Accept header"() {
-        when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: ["X-PP-Groups": "customer;q=1.0", "X-PP-User": "user", "Accept": "application/unknown"])
+        given: "an invalid Accept value will be sent"
+        def headers = [
+                "X-PP-Groups": "customer;q=1.0",
+                "X-PP-User": "user",
+                "Accept": "application/unknown"]
 
-        then:
-        messageChain.receivedResponse.code.equals("406")
+        when:
+        MessageChain messageChain = deproxy.makeRequest(
+                url: reposeEndpoint + "/service2/limits",
+                method: "GET",
+                headers: headers)
+
+        then: "a 406 is returned"
+        messageChain.receivedResponse.code as Integer == SC_NOT_ACCEPTABLE
+
+        and: "the origin service does not receive the request"
+        messageChain.handlings.isEmpty()
     }
 
     @Unroll("XML UPSTREAM: When requesting rate limits for group with special characters with #acceptHeader")
