@@ -190,6 +190,31 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         messageChain.receivedResponse.code == "200"
     }
 
+    @Unroll("Does not affect requests with a(n) #contentType body")
+    def "Does not affect requests without an XML or JSON body"() {
+        when: "Request Content-Type is #contentType"
+        def messageChain = deproxy.makeRequest(
+                method: "POST",
+                url: reposeEndpoint,
+                headers: ["Content-Type": contentType],
+                requestBody: body
+        )
+        def sentRequest = messageChain.getHandlings()[0]
+
+        then: "Repose will not add any headers"
+        sentRequest.request.getHeaders().findAll("x-pp-user").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-user-name").isEmpty()
+        sentRequest.request.getHeaders().findAll("x-pp-groups").isEmpty()
+
+        and: "The result will be passed through"
+        messageChain.receivedResponse.code == "200"
+
+        where:
+        contentType                         | body
+        "text/plain"                        | "Username: AzureDiamond, Password: hunter2"
+        "application/x-www-form-urlencoded" | "username=AzureDiamond&password=hunter2"
+    }
+
     @Unroll("Will parse Forgot Password request for username with Content-Type #contentType and URL #url")
     def "Will parse a Forgot Password request if the URL is /v2.0/users/RAX-AUTH/forgot-pwd with optional trailing slash"() {
         given: "The correct request body is sent based on the content-type the test is going to use"
