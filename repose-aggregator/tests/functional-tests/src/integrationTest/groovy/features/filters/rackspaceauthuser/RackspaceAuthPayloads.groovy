@@ -22,6 +22,7 @@ package features.filters.rackspaceauthuser
 import groovy.transform.Canonical
 
 class RackspaceAuthPayloads {
+    public static Map contentTextXml = ["content-type": "text/xml"]
     public static Map contentXml = ["content-type": "application/xml"]
     public static Map contentJson = ["content-type": "application/json"]
     public static String invalidData = "Invalid data"

@@ -59,15 +59,19 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         sentRequest.request.getHeaders().getFirstValue("x-pp-groups") == "2_0 Group;q=0.8"
 
         where:
-        requestBody              | contentType | expectedUser | testName
-        userPasswordXmlV20       | contentXml  | "demoAuthor" | "userPasswordXmlV20"
-        userPasswordJsonV20      | contentJson | "demoAuthor" | "userPasswordJsonV20"
-        userApiKeyXmlV20         | contentXml  | "demoAuthor" | "userApiKeyXmlV20"
-        userApiKeyJsonV20        | contentJson | "demoAuthor" | "userApiKeyJsonV20"
-        userPasswordXmlEmptyV20  | contentXml  | "demoAuthor" | "userPasswordXmlEmptyV20"
-        userPasswordJsonEmptyV20 | contentJson | "demoAuthor" | "userPasswordJsonEmptyV20"
-        userMfaSetupXmlV20       | contentXml  | "demoAuthor" | "userMfaSetupXmlV20"
-        userMfaSetupJsonV20      | contentJson | "demoAuthor" | "userMfaSetupJsonV20"
+        requestBody              | contentType    | expectedUser | testName
+        userPasswordXmlV20       | contentXml     | "demoAuthor" | "userPasswordXmlV20"
+        userPasswordXmlV20       | contentTextXml | "demoAuthor" | "userPasswordTextXmlV20"
+        userPasswordJsonV20      | contentJson    | "demoAuthor" | "userPasswordJsonV20"
+        userApiKeyXmlV20         | contentXml     | "demoAuthor" | "userApiKeyXmlV20"
+        userApiKeyXmlV20         | contentTextXml | "demoAuthor" | "userApiKeyTextXmlV20"
+        userApiKeyJsonV20        | contentJson    | "demoAuthor" | "userApiKeyJsonV20"
+        userPasswordXmlEmptyV20  | contentXml     | "demoAuthor" | "userPasswordXmlEmptyV20"
+        userPasswordXmlEmptyV20  | contentTextXml | "demoAuthor" | "userPasswordTextXmlEmptyV20"
+        userPasswordJsonEmptyV20 | contentJson    | "demoAuthor" | "userPasswordJsonEmptyV20"
+        userMfaSetupXmlV20       | contentXml     | "demoAuthor" | "userMfaSetupXmlV20"
+        userMfaSetupXmlV20       | contentTextXml | "demoAuthor" | "userMfaSetupTextXmlV20"
+        userMfaSetupJsonV20      | contentJson    | "demoAuthor" | "userMfaSetupJsonV20"
     }
 
     @Unroll("When request contains Identity 2.0 in Domain'd content #testName Expected user is #expectedUser")
@@ -97,13 +101,16 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         sentRequest.request.getHeaders().getFirstValue("x-pp-groups") == "2_0 Group;q=0.8"
 
         where:
-        requestBody              | contentType | expectedDomain | expectedUser     | testName
-        rackerPasswordXmlV20     | contentXml  | "Rackspace"    | "Racker:jqsmith" | "rackerPasswordXmlV20"
-        rackerPasswordJsonV20    | contentJson | "Rackspace"    | "Racker:jqsmith" | "rackerPasswordJsonV20"
-        rackerTokenKeyXmlV20     | contentXml  | "Rackspace"    | "Racker:jqsmith" | "rackerTokenKeyXmlV20"
-        rackerTokenKeyJsonV20    | contentJson | "Rackspace"    | "Racker:jqsmith" | "rackerTokenKeyJsonV20"
-        federatedPasswordXmlV20  | contentXml  | "Federated"    | "jqsmith"        | "federatedTokenKeyXmlV20"
-        federatedPasswordJsonV20 | contentJson | "Federated"    | "jqsmith"        | "federatedTokenKeyJsonV20"
+        requestBody              | contentType    | expectedDomain | expectedUser     | testName
+        rackerPasswordXmlV20     | contentXml     | "Rackspace"    | "Racker:jqsmith" | "rackerPasswordXmlV20"
+        rackerPasswordXmlV20     | contentTextXml | "Rackspace"    | "Racker:jqsmith" | "rackerPasswordTextXmlV20"
+        rackerPasswordJsonV20    | contentJson    | "Rackspace"    | "Racker:jqsmith" | "rackerPasswordJsonV20"
+        rackerTokenKeyXmlV20     | contentXml     | "Rackspace"    | "Racker:jqsmith" | "rackerTokenKeyXmlV20"
+        rackerTokenKeyXmlV20     | contentTextXml | "Rackspace"    | "Racker:jqsmith" | "rackerTokenKeyTextXmlV20"
+        rackerTokenKeyJsonV20    | contentJson    | "Rackspace"    | "Racker:jqsmith" | "rackerTokenKeyJsonV20"
+        federatedPasswordXmlV20  | contentXml     | "Federated"    | "jqsmith"        | "federatedTokenKeyXmlV20"
+        federatedPasswordXmlV20  | contentTextXml | "Federated"    | "jqsmith"        | "federatedTokenKeyTextXmlV20"
+        federatedPasswordJsonV20 | contentJson    | "Federated"    | "jqsmith"        | "federatedTokenKeyJsonV20"
     }
 
     @Unroll("When bad requests pass through repose #testName")
@@ -121,10 +128,12 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         sentRequest.request.getHeaders().findAll("x-pp-groups").isEmpty()
 
         where:
-        requestBody            | contentType | testName
-        invalidData            | contentXml  | "invalidData XML"
-        invalidData            | contentJson | "invalidData JSON"
-        userPasswordXmlOverV20 | contentXml  | "userPasswordXmlOverV20"
+        requestBody            | contentType    | testName
+        invalidData            | contentXml     | "invalidData XML"
+        invalidData            | contentTextXml | "invalidData text/xml"
+        invalidData            | contentJson    | "invalidData JSON"
+        userPasswordXmlOverV20 | contentXml     | "userPasswordXmlOverV20"
+        userPasswordXmlOverV20 | contentTextXml | "userPasswordTextXmlOverV20"
         // TODO: We evidently don't care about the length in JSON
         //userPasswordJsonOverV20 | contentJson | "userPasswordJsonOverV20"
     }
@@ -151,11 +160,13 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         sentRequest.request.getHeaders().getFirstValue("x-pp-groups") == "1_1 Group;q=0.75"
 
         where:
-        requestBody         | contentType | expectedUser | testName
-        userKeyXmlV11       | contentXml  | "test-user"  | "userKeyXmlV11"
-        userKeyJsonV11      | contentJson | "test-user"  | "userKeyJsonV11"
-        userKeyXmlEmptyV11  | contentXml  | "test-user"  | "userKeyXmlEmptyV11"
-        userKeyJsonEmptyV11 | contentJson | "test-user"  | "userKeyJsonEmptyV11"
+        requestBody         | contentType    | expectedUser | testName
+        userKeyXmlV11       | contentXml     | "test-user"  | "userKeyXmlV11"
+        userKeyXmlV11       | contentTextXml | "test-user"  | "userKeyTextXmlV11"
+        userKeyJsonV11      | contentJson    | "test-user"  | "userKeyJsonV11"
+        userKeyXmlEmptyV11  | contentXml     | "test-user"  | "userKeyXmlEmptyV11"
+        userKeyXmlEmptyV11  | contentTextXml | "test-user"  | "userKeyTextXmlEmptyV11"
+        userKeyJsonEmptyV11 | contentJson    | "test-user"  | "userKeyJsonEmptyV11"
     }
 
     @Unroll("Does not affect #method requests")
@@ -254,9 +265,10 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         sentRequest.request.getHeaders().findAll("x-domain").isEmpty()
 
         where:
-        requestBody       | contentType | testName
-        userForgotXmlV20  | contentXml  | "userForgotXmlV20"
-        userForgotJsonV20 | contentJson | "userForgotJsonV20"
+        requestBody       | contentType    | testName
+        userForgotXmlV20  | contentXml     | "userForgotXmlV20"
+        userForgotXmlV20  | contentTextXml | "userForgotTextXmlV20"
+        userForgotJsonV20 | contentJson    | "userForgotJsonV20"
     }
 
     @Unroll("Will not parse an Auth request if the URL matches /v2.0/users/RAX-AUTH/forgot-pwd (#testName)" )
@@ -272,18 +284,24 @@ class RackspaceAuthUserTest extends ReposeValveTest {
         sentRequest.request.getHeaders().findAll("x-domain").isEmpty()
 
         where:
-        requestBody              | contentType | testName
-        userKeyXmlV11            | contentXml  | "userKeyXmlV11"
-        userKeyJsonV11           | contentJson | "userKeyJsonV11"
-        userKeyXmlEmptyV11       | contentXml  | "userKeyXmlEmptyV11"
-        userKeyJsonEmptyV11      | contentJson | "userKeyJsonEmptyV11"
-        userPasswordXmlV20       | contentXml  | "userPasswordXmlV20"
-        userPasswordJsonV20      | contentJson | "userPasswordJsonV20"
-        userApiKeyXmlV20         | contentXml  | "userApiKeyXmlV20"
-        userApiKeyJsonV20        | contentJson | "userApiKeyJsonV20"
-        userPasswordXmlEmptyV20  | contentXml  | "userPasswordXmlEmptyV20"
-        userPasswordJsonEmptyV20 | contentJson | "userPasswordJsonEmptyV20"
-        userMfaSetupXmlV20       | contentXml  | "userMfaSetupXmlV20"
-        userMfaSetupJsonV20      | contentJson | "userMfaSetupJsonV20"
+        requestBody              | contentType    | testName
+        userKeyXmlV11            | contentXml     | "userKeyXmlV11"
+        userKeyXmlV11            | contentTextXml | "userKeyTextXmlV11"
+        userKeyJsonV11           | contentJson    | "userKeyJsonV11"
+        userKeyXmlEmptyV11       | contentXml     | "userKeyXmlEmptyV11"
+        userKeyXmlEmptyV11       | contentTextXml | "userKeyTextXmlEmptyV11"
+        userKeyJsonEmptyV11      | contentJson    | "userKeyJsonEmptyV11"
+        userPasswordXmlV20       | contentXml     | "userPasswordXmlV20"
+        userPasswordXmlV20       | contentTextXml | "userPasswordTextXmlV20"
+        userPasswordJsonV20      | contentJson    | "userPasswordJsonV20"
+        userApiKeyXmlV20         | contentXml     | "userApiKeyXmlV20"
+        userApiKeyXmlV20         | contentTextXml | "userApiKeyTextXmlV20"
+        userApiKeyJsonV20        | contentJson    | "userApiKeyJsonV20"
+        userPasswordXmlEmptyV20  | contentXml     | "userPasswordXmlEmptyV20"
+        userPasswordXmlEmptyV20  | contentTextXml | "userPasswordTextXmlEmptyV20"
+        userPasswordJsonEmptyV20 | contentJson    | "userPasswordJsonEmptyV20"
+        userMfaSetupXmlV20       | contentXml     | "userMfaSetupXmlV20"
+        userMfaSetupXmlV20       | contentTextXml | "userMfaSetupTextXmlV20"
+        userMfaSetupJsonV20      | contentJson    | "userMfaSetupJsonV20"
     }
 }
