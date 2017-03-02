@@ -220,7 +220,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
 
         body.length() > 0
         if (expectedFormat.contains("xml")) {
-            assert parseRateCountFromXML(body) == 0
+            assert parseRateCountFromXML(body) > 0
             assert parseAbsoluteFromXML(body, 0, true) == 15
             assert parseAbsoluteFromXML(body, 1, true) == 10
             assert parseAbsoluteFromXML(body, 2, true) == 5
@@ -425,8 +425,8 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
     }
 
     private static int parseRateCountFromXML(String body) {
-        def xml = XmlSlurper.newInstance().parseText(body)
-        return xml.limits.rates.size()
+        def limits = XmlSlurper.newInstance().parseText(body)
+        return limits.rates.rate.toList().size()
     }
 
 
