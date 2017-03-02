@@ -216,9 +216,18 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
     val limitedInputStream = new LimitedReadInputStream(limit, inputStream)
     limitedInputStream.mark(limit.toInt)
     try {
-      val (domainOpt, userOpt) = if (contentType.contains("xml")) xml(limitedInputStream) else json(limitedInputStream)
+      val (domainOpt, userOpt) = if (contentType.contains("xml")) {
+          xml(limitedInputStream)
+        } else if (contentType.contains("json")) {
+          json(limitedInputStream)
+        } else {
+          throw UnexpectedContentTypeException(s"Content type was neither xml or json: $contentType")
+        }
       userOpt.map(RackspaceAuthUserGroup(domainOpt, _, config.getGroup, config.quality.toDouble))
     } catch {
+      case e: UnexpectedContentTypeException =>
+        logger.debug("Unexpected content type: {}", contentType)
+        None
       case e: Exception =>
         val identityRequestVersion = if (config.isInstanceOf[IdentityV11]) "v 1.1" else "v 2.0"
         logger.warn(s"Unable to parse username from identity $identityRequestVersion request", e)
@@ -236,4 +245,6 @@ object RackspaceAuthUserFilter {
 
   // function should return the tuple: (domain, username)
   type UsernameParsingFunction = InputStream => (Option[String], Option[String])
+
+  case class UnexpectedContentTypeException(message: String) extends Exception(message)
 }

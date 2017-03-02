@@ -7,6 +7,8 @@ include::_includes/in-progress.adoc[]
 
 * https://repose.atlassian.net/browse/REP-3901[REP-3901] - The Debian and RPM Repose Valve and WAR artifacts will now create the `repose` user and group even if the configuration files are already present.
 
+* https://repose.atlassian.net/browse/REP-5130[REP-5130] - <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>> now gives a more specific and quieter log message when it runs into a non-xml or non-json content type.
+
 == 8.4.1.0
 
 * https://repose.atlassian.net/browse/REP-5101[REP-5101] - <<filters/saml-policy.adoc#, Saml Policy Filter>> now allows un-encoded `application/xml` requests in addition to the previous `application/x-www-form-urlencoded` requests.

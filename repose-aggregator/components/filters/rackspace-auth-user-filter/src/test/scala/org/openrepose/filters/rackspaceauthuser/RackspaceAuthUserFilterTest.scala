@@ -24,7 +24,11 @@ import java.io.ByteArrayInputStream
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
+import javax.ws.rs.core.MediaType
 
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
@@ -40,6 +44,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
+
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with MockitoAnswers {
@@ -280,6 +286,19 @@ class RackspaceAuthUserFilterTest extends FunSpec with BeforeAndAfterEach with M
       request.getHeader(OpenStackServiceHeader.USER_NAME) shouldBe null
       request.getHeader(PowerApiHeader.USER) shouldBe null
       request.getHeader(PowerApiHeader.GROUPS) shouldBe null
+    }
+
+    it("should just let form encoded bodies through") {
+      val listAppender = LogManager.getContext(false).asInstanceOf[LoggerContext].getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear()
+
+      filter.configurationUpdated(auth2_0Config())
+      servletRequest.setMethod("POST")
+      servletRequest.setContentType(MediaType.APPLICATION_FORM_URLENCODED)
+      servletRequest.setContent("foo=bar".getBytes)
+
+      filter.doWork(servletRequest, servletResponse, filterChain)
+
+      exactly(1, listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)) should include("application/x-www-form-urlencoded")
     }
   }
 
