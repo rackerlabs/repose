@@ -30,6 +30,7 @@ import spock.lang.Shared
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 
 /**
  * Rate limiting tests ported over from python and JMeter
@@ -38,8 +39,6 @@ import static javax.servlet.http.HttpServletResponse.*
  */
 class RateLimitingTest extends ReposeValveTest {
     final handler = { return new Response(SC_OK, "OK") }
-
-    static final int SC_TOO_MANY_REQUESTS = 429
 
     static final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
     static final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
