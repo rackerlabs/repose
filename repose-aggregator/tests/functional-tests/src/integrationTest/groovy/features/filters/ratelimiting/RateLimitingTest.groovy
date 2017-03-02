@@ -170,15 +170,13 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When rate limiting requests with multiple X-PP-Group values, should allow requests with new group with higher priority"() {
         given: "the limit has been reached for a user in a certain group"
-        MessageChain messageChain = null;
-
         for (x in 0..3) {
             deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
                     headers: userHeaderDefault + ["X-PP-Groups": "customer"])
 
         }
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
                 headers: userHeaderDefault + ["X-PP-Groups": "customer"])
 
         then:
@@ -246,7 +244,7 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When making request against a limit with DAY units after a request against a limit with SECOND units, limits don't get overwritten on expire"() {
         when: "make a request with DAY units"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/makeput", method: "PUT",
+        deproxy.makeRequest(url: reposeEndpoint + "/service2/makeput", method: "PUT",
                 headers: ["X-PP-Groups": "reset-limits", "X-PP-User": "123"])
         def slurper = new JsonSlurper()
         def result = slurper.parseText(rlmu.getSpecificUserLimits(
@@ -265,7 +263,7 @@ class RateLimitingTest extends ReposeValveTest {
         }
 
         when: "make a request with SECOND units"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/doget", method: "GET",
+        deproxy.makeRequest(url: reposeEndpoint + "/service2/doget", method: "GET",
                 headers: ["X-PP-Groups": "reset-limits", "X-PP-User": "123"])
         slurper = new JsonSlurper()
         result = slurper.parseText(rlmu.getSpecificUserLimits(
@@ -291,7 +289,7 @@ class RateLimitingTest extends ReposeValveTest {
 
         when: "wait and make a request with SECOND units again"
         sleep(3000)
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/doget", method: "GET",
+        deproxy.makeRequest(url: reposeEndpoint + "/service2/doget", method: "GET",
                 headers: ["X-PP-Groups": "reset-limits", "X-PP-User": "123"])
         slurper = new JsonSlurper()
         result = slurper.parseText(rlmu.getSpecificUserLimits(
@@ -522,8 +520,6 @@ class RateLimitingTest extends ReposeValveTest {
         def jsonbody = messageChain.receivedResponse.body
         println jsonbody
         def json = JsonSlurper.newInstance().parseText(jsonbody)
-        def listnode = json.limits.rate["limit"]
-        List limitlist = []
 
         then: "the response code does not change"
         messageChain.receivedResponse.code as Integer == SC_OK
