@@ -29,13 +29,17 @@ import org.rackspace.deproxy.Response
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.*
+
 /**
  * Rate limiting tests ported over from python and JMeter
  *  update test to get limits response in json to parse response and calculate
  *  since often get inconsistent xml response fro limits cause Rate Limiting Tests flaky.
  */
 class RateLimitingTest extends ReposeValveTest {
-    final handler = { return new Response(200, "OK") }
+    final handler = { return new Response(SC_OK, "OK") }
+
+    static final int SC_TOO_MANY_REQUESTS = 429
 
     static final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
     static final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
@@ -71,7 +75,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
         then: "the request is not rate-limited, and passes to the origin service"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.handlings.size() == 1
 
         when: "the user sends their request and the rate-limit has not been reached"
@@ -79,7 +83,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
         then: "the request is not rate-limited, and passes to the origin service"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.handlings.size() == 1
 
         when: "the user sends their request and the rate-limit has not been reached"
@@ -87,7 +91,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
         then: "the request is not rate-limited, and passes to the origin service"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.handlings.size() == 1
 
         when: "the user sends their request and the rate-limit has not been reached"
@@ -95,9 +99,8 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
         then: "the request is not rate-limited, and passes to the origin service"
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
         messageChain.handlings.size() == 0
-
     }
 
 
@@ -110,7 +113,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: ["X-PP-User": "tester"] + groupHeaderDefault, defaultHandler: handler)
 
         then: "the request is not rate-limited, and passes to the origin service"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.handlings.size() == 1
 
         where:
@@ -126,7 +129,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
         then: "the request is rate-limited"
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
         messageChain.handlings.size() == 0
     }
 
@@ -140,7 +143,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
         then: "the request is rate-limited"
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
         messageChain.handlings.size() == 0
 
         when: "a minute passes, and another request is sent"
@@ -149,7 +152,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
         then: "rate limit should have reset, and request should succeed"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.handlings.size() == 1
     }
 
@@ -162,7 +165,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: ["X-PP-User": "that_other_user;q=1.0"] + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
         then: "the request should not be rate limited"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
     }
 
     def "When rate limiting requests with multiple X-PP-Group values, should allow requests with new group with higher priority"() {
@@ -179,21 +182,21 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ["X-PP-Groups": "customer"])
 
         then:
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
 
         when: "a request is made using a new group with a higher quality"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
                 headers: userHeaderDefault + ["X-PP-Groups": "customer;q=0.5,higher;q=0.75"])
 
         then: "the request should not be rate limited"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         when: "a request is made using a new group with a higher and lower quality"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
                 headers: userHeaderDefault + ["X-PP-Groups": "customer;q=0.5,high;q=0.75,lower;q=0.0,higher;q=0.9,other;q=0.6,none"])
 
         then: "the request should be rate limited"
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
     }
 
     def "When requesting rate limits with an invalid Accept header, Should receive 406 response when invalid Accept header"() {
@@ -202,7 +205,7 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: ["X-PP-Groups": "customer;q=1.0", "X-PP-User": "user", "Accept": "application/unknown"])
 
         then:
-        messageChain.receivedResponse.code.equals("406")
+        messageChain.receivedResponse.code as Integer == SC_NOT_ACCEPTABLE
     }
 
     def "When rate limiting against multiple regexes, Should not limit requests against a different regex"() {
@@ -214,14 +217,14 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: ["X-PP-Groups": "multiregex", "X-PP-User": "user"])
 
         then:
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/endpoint2", method: "GET",
                 headers: ["X-PP-Groups": "multiregex", "X-PP-User": "user"])
 
         then:
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
     }
 
     def "When rate limiting against ALL HTTP methods, should"() {
@@ -230,14 +233,14 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: ["X-PP-Groups": "all-limits", "X-PP-User": "123ALL"])
 
         then:
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "DELETE",
                 headers: ["X-PP-Groups": "all-limits", "X-PP-User": "user"])
 
         then:
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
     }
 
@@ -318,14 +321,14 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: ["X-PP-Groups": "multi-limits", "X-PP-User": "user"])
 
         then: "should not be rate limited"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         when: "no requests remain"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "POST",
                 headers: ["X-PP-Groups": "multi-limits", "X-PP-User": "user"])
 
         then: "should be rate limited"
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
     }
 
     def "When rate limiting with 429 response code set"() {
@@ -334,14 +337,14 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: ["X-PP-Groups": "multi2-limits", "X-PP-User": "user"])
 
         then: "should not be rate limited"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         when: "no requests remain"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/rate2/service/all", method: "POST",
                 headers: ["X-PP-Groups": "multi2-limits", "X-PP-User": "user"])
 
         then: "should be rate limited"
-        messageChain.receivedResponse.code.equals("429")
+        messageChain.receivedResponse.code as Integer == SC_TOO_MANY_REQUESTS
     }
 
     def "When rate limiting with 429 response code set with capture groups false"() {
@@ -350,28 +353,28 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"] + acceptHeaderJson)
 
         then: "should not be rate limited"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         when: "requests remain"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/rate3/service/all1", method: "GET",
                 headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"] + acceptHeaderJson)
 
         then: "should not be rate limited"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         when: "requests remain"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/rate3/service/all2", method: "GET",
                 headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"] + acceptHeaderJson)
 
         then: "should not be rate limited"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         when: "no requests remain"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/rate3/service/all", method: "POST",
                 headers: ["X-PP-Groups": "multi3-limits", "X-PP-User": "429User"])
 
         then: "should be rate limited"
-        messageChain.receivedResponse.code.equals("429")
+        messageChain.receivedResponse.code as Integer == SC_TOO_MANY_REQUESTS
     }
 
     def "When rate limiting /limits"() {
@@ -380,14 +383,14 @@ class RateLimitingTest extends ReposeValveTest {
                 headers: ["X-PP-Groups": "query-limits", "X-PP-User": "123limits"] + acceptHeaderJson)
 
         then: "should not be rate limited"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         when: "requests remain"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: ["X-PP-Groups": "query-limits", "X-PP-User": "123limits"] + acceptHeaderJson)
 
         then: "should be rate limited"
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
     }
 
     def "Should split request headers according to rfc by default"() {
@@ -416,7 +419,7 @@ class RateLimitingTest extends ReposeValveTest {
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
-        def handler = { request -> return new Response(201, "Created", respHeaders, "") }
+        def handler = { request -> return new Response(SC_CREATED, "Created", respHeaders, "") }
         Map<String, String> headers = ["x-pp-user"   : "usertest1, usertest2, usertest3", "X-PP-Groups": "unlimited",
                                        "Content-Type": "application/xml"]
 
@@ -425,7 +428,7 @@ class RateLimitingTest extends ReposeValveTest {
                 defaultHandler: handler)
 
         then:
-        mc.receivedResponse.code == "201"
+        mc.receivedResponse.code as Integer == SC_CREATED
         mc.handlings.size() == 1
         mc.receivedResponse.headers.findAll("location").size() == 1
         mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
@@ -478,7 +481,7 @@ class RateLimitingTest extends ReposeValveTest {
         respHeaders[headerName.toString()] = headerValue.toString()
 
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint,
-                method: 'GET', headers: headers, defaultHandler: { new Response(201, "Created", respHeaders, "") })
+                method: 'GET', headers: headers, defaultHandler: { new Response(SC_CREATED, "Created", respHeaders, "") })
 
         then: "the response should keep headerName and headerValue case"
         mc.handlings.size() == 1
@@ -502,10 +505,10 @@ class RateLimitingTest extends ReposeValveTest {
         when: "the user send their request"
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'],
-                defaultHandler: { return new Response(302, "Redirect") })
+                defaultHandler: { return new Response(SC_MOVED_TEMPORARILY, "Redirect") })
 
         then: "the response code does not change"
-        messageChain.receivedResponse.code.equals("302")
+        messageChain.receivedResponse.code as Integer == SC_MOVED_TEMPORARILY
         messageChain.handlings.size() == 1
     }
 
@@ -523,7 +526,7 @@ class RateLimitingTest extends ReposeValveTest {
         List limitlist = []
 
         then: "the response code does not change"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         messageChain.handlings.size() == 1
         rlmu.checkAbsoluteLimitJsonResponse(json, allsmalllimit)
     }
