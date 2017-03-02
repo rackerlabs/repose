@@ -184,14 +184,14 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
             assert parseRateCountFromXML(body) == 0
 
             //The JSON upstream doesn't match the simple XML upstream
-            parseXpath(body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
-            parseXpath(body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
-            parseXpath(body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
+            assert parseXpath(body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
+            assert parseXpath(body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
+            assert parseXpath(body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
         } else {
-            parseRateCountFromJSON(body) == 0
-            parseAbsoluteFromJSON(body, "maxServerMeta") == 40
-            parseAbsoluteFromJSON(body, "totalPrivateNetworksUsed") == 0
-            parseAbsoluteFromJSON(body, "maxSecurityGroups") == -1
+            assert parseRateCountFromJSON(body) == 0
+            assert parseAbsoluteFromJSON(body, "maxServerMeta") == 40
+            assert parseAbsoluteFromJSON(body, "totalPrivateNetworksUsed") == 0
+            assert parseAbsoluteFromJSON(body, "maxSecurityGroups") == -1
         }
 
         where:
@@ -258,16 +258,16 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
 
         if (expectedFormat.contains("xml")) {
             //The JSON upstream doesn't match the simple XML upstream
-            parseXpath(body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
-            parseXpath(body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
-            parseXpath(body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
+            assert parseXpath(body, "//absolute/limit[@name='maxServerMeta']/@value") == 40
+            assert parseXpath(body, "//absolute/limit[@name='totalPrivateNetworksUsed']/@value") == 0
+            assert parseXpath(body, "//absolute/limit[@name='maxSecurityGroups']/@value") == -1
 
-            parseRateCountFromXML(body) > 0
+            assert parseRateCountFromXML(body) > 0
         } else {
-            parseRateCountFromJSON(body) > 0
-            parseAbsoluteFromJSON(body, "maxServerMeta") == 40
-            parseAbsoluteFromJSON(body, "totalPrivateNetworksUsed") == 0
-            parseAbsoluteFromJSON(body, "maxSecurityGroups") == -1
+            assert parseRateCountFromJSON(body) > 0
+            assert parseAbsoluteFromJSON(body, "maxServerMeta") == 40
+            assert parseAbsoluteFromJSON(body, "totalPrivateNetworksUsed") == 0
+            assert parseAbsoluteFromJSON(body, "maxSecurityGroups") == -1
         }
 
         where:
