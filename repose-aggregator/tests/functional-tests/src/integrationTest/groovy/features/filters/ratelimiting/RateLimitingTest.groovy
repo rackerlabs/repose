@@ -205,7 +205,7 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When requesting rate limits with an invalid Accept header, Should receive 406 response when invalid Accept header"() {
         when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + LIMITS_URL, method: "GET",
                 headers: ["X-PP-Groups": "customer;q=1.0", "X-PP-User": "user", "Accept": "application/unknown"])
 
         then:
@@ -486,14 +486,14 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When rate limiting /limits"() {
         when: "requests remain"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + LIMITS_URL, method: "GET",
                 headers: ["X-PP-Groups": "query-limits", "X-PP-User": "123limits"] + acceptHeaderJson)
 
         then: "should not be rate limited"
         messageChain.receivedResponse.code as Integer == SC_OK
 
         when: "requests remain"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + LIMITS_URL, method: "GET",
                 headers: ["X-PP-Groups": "query-limits", "X-PP-User": "123limits"] + acceptHeaderJson)
 
         then: "should be rate limited"
@@ -624,7 +624,7 @@ class RateLimitingTest extends ReposeValveTest {
         rlmu.waitForLimitReset(["X-PP-Groups": "all-limits-small"])
 
         when: "the user send their request"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + LIMITS_URL, method: "GET",
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'] + acceptHeaderJson)
         def jsonbody = messageChain.receivedResponse.body
         println jsonbody
