@@ -24,12 +24,18 @@ import framework.category.Slow
 import groovy.json.JsonSlurper
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Shared
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
+import static javax.ws.rs.core.HttpHeaders.ACCEPT
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON
+import static javax.ws.rs.core.MediaType.APPLICATION_XML
+import static javax.ws.rs.core.MediaType.TEXT_XML
 import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 
 /**
@@ -43,6 +49,7 @@ class RateLimitingTest extends ReposeValveTest {
     static final Map<String, String> userHeaderDefault = ["X-PP-User": "user"]
     static final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
     static final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
+    static final String LIMITS_URL = "/service2/limits"
 
     @Shared
     private RateLimitMeasurementUtilities rlmu
@@ -203,6 +210,109 @@ class RateLimitingTest extends ReposeValveTest {
 
         then:
         messageChain.receivedResponse.code as Integer == SC_NOT_ACCEPTABLE
+    }
+
+    @Unroll
+    def "When requesting rate limits with the Accept header values '#acceptHeaderValues', the response Content-Type should be '#expectedContentType'"() {
+        given:
+        def headers = [
+                new Header("X-PP-Groups", "customer;q=1.0"),
+                new Header("X-PP-User", "user")
+        ] + acceptHeaderValues.collect { new Header(ACCEPT, it) }
+
+        when:
+        def messageChain = deproxy.makeRequest(
+                url: reposeEndpoint + LIMITS_URL,
+                method: "GET",
+                headers: headers)
+
+        then:
+        messageChain.receivedResponse.headers.getFirstValue(CONTENT_TYPE) == expectedContentType
+
+        where:
+        expectedContentType | acceptHeaderValues
+        // no Accept header - defaults to JSON
+        APPLICATION_JSON    | []
+        // uses specified Accept header
+        APPLICATION_JSON    | [APPLICATION_JSON]
+        APPLICATION_XML     | [APPLICATION_XML]
+        // is okay with having a quality value
+        APPLICATION_JSON    | ["$APPLICATION_JSON;q0.6"]
+        APPLICATION_XML     | ["$APPLICATION_XML;q0.5"]
+        // uses the quality value (single string of header values)
+        APPLICATION_JSON    | ["$APPLICATION_JSON;q0.9,$APPLICATION_XML;q=0.8"]
+        APPLICATION_XML     | ["$APPLICATION_XML;q0.7,$APPLICATION_JSON;q=0.6"]
+        // uses the quality value (multiple strings of header values)
+        APPLICATION_JSON    | ["$APPLICATION_JSON;q0.9", "$APPLICATION_XML;q=0.8"]
+        APPLICATION_XML     | ["$APPLICATION_XML;q0.7", "$APPLICATION_JSON;q=0.6"]
+        // correctly defaults no quality value to 1.0
+        APPLICATION_JSON    | ["$APPLICATION_JSON,$APPLICATION_XML;q=0.8"]
+        APPLICATION_JSON    | [APPLICATION_JSON, "$APPLICATION_XML;q=0.8"]
+        APPLICATION_XML     | ["$APPLICATION_XML,$APPLICATION_JSON;q=0.6"]
+        APPLICATION_XML     | [APPLICATION_XML, "$APPLICATION_JSON;q=0.6"]
+        // ignores unsupported value when a supported value is available, okay with 0.001 value
+        APPLICATION_JSON    | ["$TEXT_XML,$APPLICATION_JSON;q=0.001"]
+        APPLICATION_JSON    | [TEXT_XML, "$APPLICATION_JSON;q=0.001"]
+        APPLICATION_XML     | ["stone/hieroglyphs,$APPLICATION_XML;q=0.001"]
+        APPLICATION_XML     | ["stone/hieroglyphs", "$APPLICATION_XML;q=0.001"]
+        // same as previous but with swapped order
+        APPLICATION_JSON    | ["$APPLICATION_JSON;q=0.001,$TEXT_XML"]
+        APPLICATION_JSON    | ["$APPLICATION_JSON;q=0.001", TEXT_XML]
+        APPLICATION_XML     | ["$APPLICATION_XML;q=0.001,stone/hieroglyphs"]
+        APPLICATION_XML     | ["$APPLICATION_XML;q=0.001", "stone/hieroglyphs"]
+        // is okay with lots of values
+        APPLICATION_JSON    | ["a/b,c/d,e/f,$APPLICATION_JSON,$TEXT_XML,stone/hieroglyphs,parrot/caw,image/gif"]
+        APPLICATION_XML     | ["a/b,c/d,e/f,$APPLICATION_XML,$TEXT_XML,stone/hieroglyphs,parrot/caw,image/gif"]
+    }
+
+    @Unroll
+    def "When requesting rate limits with Accept values that aren't supported '#acceptHeaderValues', a 406 is returned"() {
+        given:
+        def headers = [
+                new Header("X-PP-Groups", "customer;q=1.0"),
+                new Header("X-PP-User", "user")
+        ] + acceptHeaderValues.collect { new Header(ACCEPT, it) }
+
+        when:
+        def messageChain = deproxy.makeRequest(
+                url: reposeEndpoint + LIMITS_URL,
+                method: "GET",
+                headers: headers)
+
+        then: "a 406 is returned"
+        messageChain.receivedResponse.code as Integer == SC_NOT_ACCEPTABLE
+
+        and: "the origin service does not receive the request"
+        messageChain.handlings.isEmpty()
+
+        where:
+        acceptHeaderValues << [
+                // unsupported value
+                [TEXT_XML],
+                ["stone/hieroglyphs"],
+                // empty value
+                [""],
+                // JSON is unacceptable by the client
+                ["$APPLICATION_JSON;q=0"],
+                ["$APPLICATION_JSON;q=0.0"],
+                ["$APPLICATION_JSON;q=0.00"],
+                ["$APPLICATION_JSON;q=0.000"],
+                // XML is unacceptable by the client
+                // the filter intentionally does not default to JSON since an Accept header was specified
+                ["$APPLICATION_XML;q=0"],
+                ["$APPLICATION_XML;q=0.0"],
+                ["$APPLICATION_XML;q=0.00"],
+                ["$APPLICATION_XML;q=0.000"],
+                // supported value is unacceptable by the client and acceptable value is unsupported
+                ["$APPLICATION_JSON;q=0.0,potato/salad"],
+                ["$APPLICATION_JSON;q=0.0", "potato/salad"],
+                ["$APPLICATION_XML;q=0.0,potato/salad"],
+                ["$APPLICATION_XML;q=0.0", "potato/salad"],
+                // same as previous but with swapped order
+                ["potato/salad,$APPLICATION_JSON;q=0.0"],
+                ["potato/salad", "$APPLICATION_JSON;q=0.0"],
+                ["potato/salad,$APPLICATION_XML;q=0.0"],
+                ["potato/salad", "$APPLICATION_XML;q=0.0"]]
     }
 
     def "When rate limiting against multiple regexes, Should not limit requests against a different regex"() {
