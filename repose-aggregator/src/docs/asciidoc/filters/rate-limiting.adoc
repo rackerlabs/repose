@@ -316,6 +316,11 @@ If no `request-endpoint` is defined, then querying limits is not possible.
 As always, requests must include the `X-PP-User` header, and may include the `X-PP-Groups` header.
 The limit details returned from the `request-endpoint` will be for the limits in the limit group that matches a provided group as they apply to the provided user.
 
+The limit details themselves will be presented in either XML or JSON format.
+If no `Accept` header is present on the request, or if the `Accept` header has no value, the JSON format will be returned as the default.
+Otherwise, the returned format will be determined based on the `Accept` header specification defined in link:https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html[Section 14 of RFC 2616].
+If the limit query request does not accept at least one of the supported media types, a 406 response will be returned.
+
 Take a look at the <<Querying Limits Example>> to see this feature in action!
 
 ==== Absolute Limits
