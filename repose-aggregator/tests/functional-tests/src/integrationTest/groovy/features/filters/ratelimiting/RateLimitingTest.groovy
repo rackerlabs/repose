@@ -33,9 +33,7 @@ import spock.lang.Unroll
 import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.HttpHeaders.ACCEPT
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON
-import static javax.ws.rs.core.MediaType.APPLICATION_XML
-import static javax.ws.rs.core.MediaType.TEXT_XML
+import static javax.ws.rs.core.MediaType.*
 import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 
 /**
@@ -50,6 +48,8 @@ class RateLimitingTest extends ReposeValveTest {
     static final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
     static final Map<String, String> acceptHeaderJson = ["Accept": "application/json"]
     static final String LIMITS_URL = "/service2/limits"
+    static final String APPLICATION_WILDCARD = "application/$MEDIA_TYPE_WILDCARD"
+    static final String AUDIO_WILDCARD = "audio/$MEDIA_TYPE_WILDCARD"
 
     @Shared
     private RateLimitMeasurementUtilities rlmu
@@ -231,8 +231,9 @@ class RateLimitingTest extends ReposeValveTest {
 
         where:
         expectedContentType | acceptHeaderValues
-        // no Accept header - defaults to JSON
+        // no/empty Accept header - defaults to JSON
         APPLICATION_JSON    | []
+        APPLICATION_JSON    | [""]
         // uses specified Accept header
         APPLICATION_JSON    | [APPLICATION_JSON]
         APPLICATION_XML     | [APPLICATION_XML]
@@ -246,11 +247,31 @@ class RateLimitingTest extends ReposeValveTest {
         APPLICATION_JSON    | ["$APPLICATION_JSON;q0.9", "$APPLICATION_XML;q=0.8"]
         APPLICATION_XML     | ["$APPLICATION_XML;q0.7", "$APPLICATION_JSON;q=0.6"]
         // correctly defaults no quality value to 1.0
-        APPLICATION_JSON    | ["$APPLICATION_JSON,$APPLICATION_XML;q=0.8"]
-        APPLICATION_JSON    | [APPLICATION_JSON, "$APPLICATION_XML;q=0.8"]
-        APPLICATION_XML     | ["$APPLICATION_XML,$APPLICATION_JSON;q=0.6"]
-        APPLICATION_XML     | [APPLICATION_XML, "$APPLICATION_JSON;q=0.6"]
-        // ignores unsupported value when a supported value is available, okay with 0.001 value
+        APPLICATION_JSON    | ["$APPLICATION_XML;q=0.8,$APPLICATION_JSON"]
+        APPLICATION_JSON    | ["$APPLICATION_XML;q=0.8", APPLICATION_JSON]
+        APPLICATION_XML     | ["$APPLICATION_JSON;q=0.6,$APPLICATION_XML"]
+        APPLICATION_XML     | ["$APPLICATION_JSON;q=0.6", APPLICATION_XML]
+        // uses the order when the quality values are the same (default quality)
+        APPLICATION_JSON    | ["$APPLICATION_JSON,$APPLICATION_XML"]
+        APPLICATION_JSON    | [APPLICATION_JSON, APPLICATION_XML]
+        APPLICATION_XML     | ["$APPLICATION_XML,$APPLICATION_JSON"]
+        APPLICATION_XML     | [APPLICATION_XML, APPLICATION_JSON]
+        // uses the order when the quality values are the same (specified quality)
+        APPLICATION_JSON    | ["$APPLICATION_JSON;q0.7,$APPLICATION_XML;q0.7"]
+        APPLICATION_JSON    | ["$APPLICATION_JSON;q0.4", "$APPLICATION_XML;q0.4"]
+        APPLICATION_XML     | ["$APPLICATION_XML;q0.3,$APPLICATION_JSON;q0.3"]
+        APPLICATION_XML     | ["$APPLICATION_XML;q0.02", "$APPLICATION_JSON;q0.02"]
+        // ignores unsupported value when a supported value is available (same quality)
+        APPLICATION_JSON    | ["$TEXT_XML,$APPLICATION_JSON"]
+        APPLICATION_JSON    | [TEXT_XML, APPLICATION_JSON]
+        APPLICATION_XML     | ["stone/hieroglyphs,$APPLICATION_XML"]
+        APPLICATION_XML     | ["stone/hieroglyphs", APPLICATION_XML]
+        // same as previous but with swapped order
+        APPLICATION_JSON    | ["$APPLICATION_JSON,$TEXT_XML"]
+        APPLICATION_JSON    | [APPLICATION_JSON,TEXT_XML]
+        APPLICATION_XML     | ["$APPLICATION_XML,stone/hieroglyphs"]
+        APPLICATION_XML     | [APPLICATION_XML, "stone/hieroglyphs"]
+        // ignores unsupported value when a supported value is available (lower quality), also okay with 0.001 value
         APPLICATION_JSON    | ["$TEXT_XML,$APPLICATION_JSON;q=0.001"]
         APPLICATION_JSON    | [TEXT_XML, "$APPLICATION_JSON;q=0.001"]
         APPLICATION_XML     | ["stone/hieroglyphs,$APPLICATION_XML;q=0.001"]
@@ -263,6 +284,65 @@ class RateLimitingTest extends ReposeValveTest {
         // is okay with lots of values
         APPLICATION_JSON    | ["a/b,c/d,e/f,$APPLICATION_JSON,$TEXT_XML,stone/hieroglyphs,parrot/caw,image/gif"]
         APPLICATION_XML     | ["a/b,c/d,e/f,$APPLICATION_XML,$TEXT_XML,stone/hieroglyphs,parrot/caw,image/gif"]
+        // wildcards
+        APPLICATION_JSON    | [WILDCARD]
+        APPLICATION_JSON    | [APPLICATION_WILDCARD]
+        // list of wildcards
+        APPLICATION_JSON    | ["$APPLICATION_WILDCARD,$WILDCARD"]
+        APPLICATION_JSON    | [APPLICATION_WILDCARD, WILDCARD]
+        APPLICATION_JSON    | ["$WILDCARD,$APPLICATION_WILDCARD"]
+        APPLICATION_JSON    | [WILDCARD, APPLICATION_WILDCARD]
+        // media range should be overridden by more specified media type (two layers)
+        APPLICATION_JSON    | ["$APPLICATION_WILDCARD,$APPLICATION_JSON"]
+        APPLICATION_JSON    | [APPLICATION_WILDCARD, APPLICATION_JSON]
+        APPLICATION_XML     | ["$APPLICATION_WILDCARD,$APPLICATION_XML"]
+        APPLICATION_XML     | [APPLICATION_WILDCARD, APPLICATION_XML]
+        // same as previous but with swapped order
+        APPLICATION_JSON    | ["$APPLICATION_JSON,$APPLICATION_WILDCARD"]
+        APPLICATION_JSON    | [APPLICATION_JSON, APPLICATION_WILDCARD]
+        APPLICATION_XML     | ["$APPLICATION_XML,$APPLICATION_WILDCARD"]
+        APPLICATION_XML     | [APPLICATION_XML, APPLICATION_WILDCARD]
+        // media range should be overridden by more specified media type (three layers)
+        APPLICATION_JSON    | ["$WILDCARD,$APPLICATION_WILDCARD,$APPLICATION_JSON"]
+        APPLICATION_JSON    | [WILDCARD, APPLICATION_WILDCARD, APPLICATION_JSON]
+        APPLICATION_XML     | ["$WILDCARD,$APPLICATION_WILDCARD,$APPLICATION_XML"]
+        APPLICATION_XML     | [WILDCARD, APPLICATION_WILDCARD, APPLICATION_XML]
+        // same as previous but with most specific media type in the middle
+        APPLICATION_JSON    | ["$WILDCARD,$APPLICATION_JSON,$APPLICATION_WILDCARD"]
+        APPLICATION_JSON    | [WILDCARD, APPLICATION_JSON, APPLICATION_WILDCARD]
+        APPLICATION_XML     | ["$WILDCARD,$APPLICATION_XML,$APPLICATION_WILDCARD"]
+        APPLICATION_XML     | [WILDCARD, APPLICATION_XML, APPLICATION_WILDCARD]
+        // same as previous but with most specific media type in the beginning
+        APPLICATION_JSON    | ["$APPLICATION_JSON,$WILDCARD,$APPLICATION_WILDCARD"]
+        APPLICATION_JSON    | [APPLICATION_JSON, WILDCARD, APPLICATION_WILDCARD]
+        APPLICATION_XML     | ["$APPLICATION_XML,$WILDCARD,$APPLICATION_WILDCARD"]
+        APPLICATION_XML     | [APPLICATION_XML, WILDCARD, APPLICATION_WILDCARD]
+        // quality should be considered before media type specificity
+        APPLICATION_JSON    | ["$APPLICATION_XML;q=0.4,$APPLICATION_WILDCARD;q=0.7"]
+        APPLICATION_JSON    | ["$APPLICATION_XML;q=0.4", "$APPLICATION_WILDCARD;q=0.7"]
+        // same as previous but with swapped order
+        APPLICATION_JSON    | ["$APPLICATION_WILDCARD;q=0.7,$APPLICATION_XML;q=0.4"]
+        APPLICATION_JSON    | ["$APPLICATION_WILDCARD;q=0.7", "$APPLICATION_XML;q=0.4"]
+        // wildcards for unsupported media range with a supported media type
+        APPLICATION_JSON    | ["$AUDIO_WILDCARD,$APPLICATION_JSON"]
+        APPLICATION_JSON    | [AUDIO_WILDCARD, APPLICATION_JSON]
+        APPLICATION_XML     | ["$AUDIO_WILDCARD,$APPLICATION_XML"]
+        APPLICATION_XML     | [AUDIO_WILDCARD, APPLICATION_XML]
+        // same as previous but with swapped order
+        APPLICATION_JSON    | ["$APPLICATION_JSON,$AUDIO_WILDCARD"]
+        APPLICATION_JSON    | [APPLICATION_JSON, AUDIO_WILDCARD]
+        APPLICATION_XML     | ["$APPLICATION_XML,$AUDIO_WILDCARD"]
+        APPLICATION_XML     | [APPLICATION_XML, AUDIO_WILDCARD]
+        // wildcards for unsupported media range with a supported media type at a lower quality
+        APPLICATION_JSON    | ["$AUDIO_WILDCARD,$APPLICATION_JSON;q=0.8"]
+        APPLICATION_JSON    | [AUDIO_WILDCARD, "$APPLICATION_JSON;q=0.8"]
+        APPLICATION_XML     | ["$AUDIO_WILDCARD,$APPLICATION_XML;q=0.2"]
+        APPLICATION_XML     | [AUDIO_WILDCARD, "$APPLICATION_XML;q=0.2"]
+        // same as previous but with swapped order
+        APPLICATION_JSON    | ["$APPLICATION_JSON;q=0.8,$AUDIO_WILDCARD"]
+        APPLICATION_JSON    | ["$APPLICATION_JSON;q=0.8", AUDIO_WILDCARD]
+        APPLICATION_XML     | ["$APPLICATION_XML;q=0.2,$AUDIO_WILDCARD"]
+        APPLICATION_XML     | ["$APPLICATION_XML;q=0.2", AUDIO_WILDCARD]
     }
 
     @Unroll
@@ -290,8 +370,11 @@ class RateLimitingTest extends ReposeValveTest {
                 // unsupported value
                 [TEXT_XML],
                 ["stone/hieroglyphs"],
-                // empty value
-                [""],
+                // wildcards with zero quality
+                ["$WILDCARD;q=0"],
+                ["application/*;q=0"],
+                // unsupported wildcard media range
+                [AUDIO_WILDCARD],
                 // JSON is unacceptable by the client
                 ["$APPLICATION_JSON;q=0"],
                 ["$APPLICATION_JSON;q=0.0"],
@@ -312,7 +395,13 @@ class RateLimitingTest extends ReposeValveTest {
                 ["potato/salad,$APPLICATION_JSON;q=0.0"],
                 ["potato/salad", "$APPLICATION_JSON;q=0.0"],
                 ["potato/salad,$APPLICATION_XML;q=0.0"],
-                ["potato/salad", "$APPLICATION_XML;q=0.0"]]
+                ["potato/salad", "$APPLICATION_XML;q=0.0"],
+                // supported value is unacceptable by the client and wildcard value is unsupported
+                ["potato/salad,$WILDCARD;q=0.0"],
+                ["potato/salad", "$WILDCARD;q=0.0"],
+                // same as previous but with swapped order
+                ["$WILDCARD;q=0.0,potato/salad"],
+                ["$WILDCARD;q=0.0", "potato/salad"]]
     }
 
     def "When rate limiting against multiple regexes, Should not limit requests against a different regex"() {
