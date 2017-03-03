@@ -70,52 +70,44 @@ See the <<Response status codes>> section for more details.
 See https://tools.ietf.org/html/rfc7231#section-7.1.3[the official HTTP specification] for more information about this header.
 
 === Response status codes
-[cols="2*,a", options="header,autowidth"]
+[cols="2,a", options="header,autowidth"]
 |===
-|Response Code |Response Body |Reason
+|Response Code |Reason
 
 |401
-|None
 |
 * `X-Contact-Id` or `X-Tenant-Id` are missing or blank
 * The Valkyrie service returns a 401
 
 |403
-|None
 |
 * The user is a non-dedicated user (unless `pass-non-dedicated-tenant` is enabled)
 * The user does not have permission to take the requested action on the requested device
 * The Valkyrie service returns a 403
 
 |404
-|None
 |
 * When 403 masking is enabled and a 403 would be returned
 
 |413
-|None
 |
 * The Valkyrie service returns a 413
 
 |429
-|None
 |
 * The Valkyrie service returns a 429
 
 |500
-|None
 |
 * The Valkyrie service returns a 400
 * `device-id-mismatch-action` is configured to fail, and a device ID cannot be parsed
 
 |502
-|None
 |
 * The Valkyrie service returns a 500
 * There is a problem communicating with the Valkyrie service
 
 |503
-|None
 |
 * The Valkyrie service returns a 503
 |===
