@@ -64,26 +64,21 @@ class TestProperties {
     int phonehomePort
     String targetHostname
 
-    TestProperties() {
-        this("test.properties")
-    }
-
-    TestProperties(String resourceName) {
-        this(ClassLoader.getSystemResource(resourceName).openStream())
-    }
-
-    TestProperties(InputStream propertiesStream) {
+    TestProperties(String testRunDirectory = null) {
+        InputStream propertiesStream = ClassLoader.getSystemResource("test.properties").openStream()
 
         try {
             Properties properties = new Properties()
             properties.load(propertiesStream)
 
+            String runDirectory = testRunDirectory ? properties.getProperty("project.build.directory") + "/test-homes/" + testRunDirectory : properties.getProperty("repose.home")
+
             projectBuildDirectory = properties.getProperty("project.build.directory")
-            configDirectory = properties.getProperty("repose.config.directory")
+            configDirectory = runDirectory + properties.getProperty("repose.config.directory")
             configTemplates = properties.getProperty("repose.config.templates")
-            logFile = properties.getProperty("repose.log.name")
-            reposeLintLogFile = properties.getProperty("repose.lint.log.name")
-            logFilePattern = properties.getProperty("repose.log.pattern")
+            logFile = runDirectory + properties.getProperty("repose.log.name")
+            reposeLintLogFile = runDirectory + properties.getProperty("repose.lint.log.name")
+            logFilePattern = runDirectory + properties.getProperty("repose.log.pattern")
 
             connFramework = "jersey"
             def value = properties.getProperty("repose.container")
