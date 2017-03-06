@@ -1,0 +1,32 @@
+# EditorConfig: http://EditorConfig.org
+
+# Sets this as the root .editorconfig file so that
+# parent directories will not be searched
+root = true
+
+# General settings
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Scala settings
+[*.scala]
+indent_style = space
+indent_size = 2
+
+# Java, Groovy, and Gradle settings
+[*.{java,groovy,gradle}]
+indent_style = space
+indent_size = 4
+
+# XML settings
+[*.{xml,xsd,xsl}]
+indent_style = space
+indent_size = 4
+
+# Shell script settings
+[*.sh]
+indent_style = space
+indent_size = 2
