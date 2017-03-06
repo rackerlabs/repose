@@ -56,7 +56,8 @@ abstract class ReposeValveTest extends Specification {
 
     def setupSpec() {
 
-        properties = new TestProperties()
+        String className = this.getClass().canonicalName
+        properties = new TestProperties(className.replace('.', '/'))
 
         switch (properties.getReposeContainer().toLowerCase()) {
             case "valve":

@@ -34,17 +34,17 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 
 class ReposeValveLauncher extends ReposeLauncher {
 
-    def boolean debugEnabled
-    def boolean doSuspend
-    def String reposeJar
-    def String configDir
+    boolean debugEnabled
+    boolean doSuspend
+    String reposeJar
+    String configDir
 
     def clock = new SystemClock()
 
     def reposeEndpoint
-    def int reposePort
+    int reposePort
 
-    def JmxClient jmx
+    JmxClient jmx
     def jmxPort = null
     def debugPort = null
     def classPaths = []
@@ -52,7 +52,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     Process process
 
-    def ReposeConfigurationProvider configurationProvider
+    ReposeConfigurationProvider configurationProvider
 
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         TestProperties properties) {

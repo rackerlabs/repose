@@ -33,9 +33,9 @@ class ReposeConfigurationProvider {
 
     private static final List<String> FILE_EXTENSIONS_SKIP_TEMPLATING = [".jks"]
 
-    def File reposeConfigDir
-    def File configTemplatesDir
-    def File commonTemplatesDir
+    File reposeConfigDir
+    File configTemplatesDir
+    File commonTemplatesDir
     def clock = new SystemClock()
 
     ReposeConfigurationProvider(TestProperties properties) {
@@ -99,7 +99,7 @@ class ReposeConfigurationProvider {
         }
     }
 
-    public void cleanConfigDirectory() {
+    void cleanConfigDirectory() {
         if (reposeConfigDir.exists()) {
             FileUtils.cleanDirectory(reposeConfigDir)
         } else {
@@ -107,7 +107,7 @@ class ReposeConfigurationProvider {
         }
     }
 
-    public File getSystemModel() {
+    File getSystemModel() {
         new File(reposeConfigDir, "system-model.cfg.xml")
     }
 
