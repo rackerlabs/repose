@@ -24,8 +24,8 @@ import org.openrepose.core.services.ratelimit.config.RateLimitList;
 import org.openrepose.filters.ratelimiting.exception.RateLimitingSerializationException;
 import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
 import org.slf4j.Logger;
+import org.springframework.http.MediaType;
 
-import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 

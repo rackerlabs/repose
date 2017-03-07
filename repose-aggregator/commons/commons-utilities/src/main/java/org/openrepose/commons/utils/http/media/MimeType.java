@@ -21,6 +21,7 @@ package org.openrepose.commons.utils.http.media;
 
 import org.openrepose.commons.utils.StringUtilities;
 
+// TODO: Remove this class and use org.springframework.http.MediaType instead.
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public enum MimeType {
 

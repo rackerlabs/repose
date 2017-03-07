@@ -22,9 +22,7 @@ package org.openrepose.filters.ratelimiting;
 import org.apache.http.HttpHeaders;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.filter.FilterAction;
-import org.openrepose.commons.utils.servlet.http.HeaderValue;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
@@ -36,13 +34,17 @@ import org.openrepose.core.services.ratelimit.exception.CacheException;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
 import org.openrepose.filters.ratelimiting.log.LimitLogger;
 import org.slf4j.Logger;
+import org.springframework.http.MediaType;
+import org.springframework.util.comparator.CompoundComparator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,18 +55,18 @@ import static javax.servlet.http.HttpServletResponse.*;
 public class RateLimitingHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
-    private static final Set<MimeType> SUPPORTED_MIME_TYPES = Stream.of(
-            MimeType.APPLICATION_JSON,
-            MimeType.APPLICATION_XML
-            // TODO: Add support for MimeType.TEXT_XML
+    private static final Set<MediaType> SUPPORTED_MEDIA_TYPES = Stream.of(
+            MediaType.APPLICATION_JSON,
+            MediaType.APPLICATION_XML
+            // TODO: Add support for MediaType.TEXT_XML
     ).collect(Collectors.toSet());
-    private static final MimeType DEFAULT_MIME_TYPE = MimeType.APPLICATION_JSON;
+    private static final MediaType DEFAULT_MEDIA_TYPE = MediaType.APPLICATION_JSON;
     private static final int SC_TOO_MANY_REQUESTS = 429;
 
     private final boolean includeAbsoluteLimits;
     private final Optional<Pattern> describeLimitsUriPattern;
     private final RateLimitingServiceHelper rateLimitingServiceHelper;
-    private MimeType originalPreferredAccept;
+    private MediaType originalPreferredAccept;
     private boolean overLimit429ResponseCode;
     private int datastoreWarnLimit;
     private final EventService eventService;
@@ -88,8 +90,18 @@ public class RateLimitingHandler {
                 filterAction = FilterAction.RETURN;
             } else if (describeLimitsUriPattern.isPresent() && describeLimitsUriPattern.get().matcher(request.getRequestURI()).matches()) {
                 // request matches the configured getCurrentLimits API call endpoint
-                setRequestedMediaType(request.getSplittableHeaders(HttpHeaders.ACCEPT));
-                filterAction = describeLimitsForRequest(request, response);
+                Optional<MediaType> preferredMediaType = getPreferredMediaType(request.getSplittableHeaders(HttpHeaders.ACCEPT));
+                if (!preferredMediaType.isPresent()) {
+                    // If no supported media types are acceptable, return a 406.
+                    // This is in according to HTTP/1.0 specification, even though HTTP/1.1 specifies that either a 406
+                    // response or a response with a default media type may be returned.
+                    response.setStatus(SC_NOT_ACCEPTABLE);
+                    // TODO: Set the supported accept types in the body? Provide a link to a supported types page?
+                    filterAction = FilterAction.RETURN;
+                } else {
+                    originalPreferredAccept = preferredMediaType.get();
+                    filterAction = describeLimitsForRequest(request, response);
+                }
             } else {
                 filterAction = FilterAction.PASS;
             }
@@ -108,50 +120,49 @@ public class RateLimitingHandler {
         return request.getHeader(PowerApiHeader.USER) != null;
     }
 
-    private void setRequestedMediaType(List<String> acceptValues) {
-        if (acceptValues.isEmpty()) {
-            originalPreferredAccept = DEFAULT_MIME_TYPE;
-        } else {
-            originalPreferredAccept = acceptValues.stream()
-                    .map(HeaderValue::new)
-                    .filter(headerValue -> headerValue.quality() != 0.0)
-                    .sorted(Comparator.comparingDouble(HeaderValue::quality).reversed())
-                    .map(HeaderValue::value)
-                    .map(MimeType::getBestFitMimeType)
-                    .filter(mimeType -> SUPPORTED_MIME_TYPES.stream().anyMatch(mimeType::matches))
-                    .findFirst()
-                    .orElse(MimeType.UNKNOWN);
+    private static Optional<MediaType> parseMediaType(String type) {
+        Optional<MediaType> parsedType = Optional.empty();
+        try {
+            parsedType = Optional.of(MediaType.parseMediaType(type));
+        } catch (IllegalArgumentException iae) {
+            LOG.warn("Media type could not be parsed: {}", type, iae);
         }
+        return parsedType;
+    }
+
+    private Optional<MediaType> getPreferredMediaType(List<String> acceptValues) {
+        Optional<MediaType> preferredMediaType = Optional.of(DEFAULT_MEDIA_TYPE);
+        if (!acceptValues.isEmpty()) {
+            preferredMediaType = acceptValues.stream()
+                    .map(RateLimitingHandler::parseMediaType)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .sorted(new CompoundComparator<>(MediaType.SPECIFICITY_COMPARATOR, MediaType.QUALITY_VALUE_COMPARATOR))
+                    .filter(mediaType -> mediaType.getQualityValue() != 0.0)
+                    .filter(mediaType -> SUPPORTED_MEDIA_TYPES.stream().anyMatch(mediaType::isCompatibleWith))
+                    .findFirst();
+        }
+        return preferredMediaType;
     }
 
     private FilterAction describeLimitsForRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
-        if (originalPreferredAccept == MimeType.UNKNOWN) {
-            // If the accept header is set to a media type that the rate limiting filter cannot handle,
-            // the rate limiting filter should return a 406, or a body with some default media type
-            // (ignoring the accept header). HTTP/1.0 spec dictates that the former approach be taken,
-            // while HTTP/1.1 leaves it as an implementation decision. We chose to comply with the former.
-            response.setStatus(SC_NOT_ACCEPTABLE);
-            // TODO: Set the supported accept types in the body? Provide a link to a supported types page?
-            return FilterAction.RETURN;
+        // If include absolute limits let request pass through but prepare the combined
+        // (absolute and active) limits when processing the response
+        // TODO: A way to query global rate limits
+        if (includeAbsoluteLimits) {
+            request.replaceHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE);
+            return FilterAction.PROCESS_RESPONSE;
         } else {
-            // If include absolute limits let request pass thru but prepare the combined
-            // (absolute and active) limits when processing the response
-            // TODO: A way to query global rate limits
-            if (includeAbsoluteLimits) {
-                request.replaceHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML.toString());
-                return FilterAction.PROCESS_RESPONSE;
-            } else {
-                return noUpstreamResponse(request, response);
-            }
+            return noUpstreamResponse(request, response);
         }
     }
 
     private FilterAction noUpstreamResponse(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, originalPreferredAccept, outputStream);
+            final MediaType mediaType = rateLimitingServiceHelper.queryActiveLimits(request, originalPreferredAccept, outputStream);
             response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
-            response.setContentType(mimeType.toString());
+            response.setContentType(mediaType.toString());
             response.setStatus(SC_OK);
         } catch (Exception e) {
             LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
@@ -203,13 +214,13 @@ public class RateLimitingHandler {
 
                 // I have to use mutable state, and that makes me sad, because If's aren't expressions
                 InputStream absoluteInputStream;
-                if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
+                if (response.getContentType().equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
                     //New set up! Grab the upstream json, make it look like XML
                     String newXml = UpstreamJsonToXml.convert(response.getOutputStreamAsInputStream());
 
                     //Now we use the new XML we converted from the JSON as the input to the processing stream
                     absoluteInputStream = new ByteArrayInputStream(newXml.getBytes(StandardCharsets.UTF_8));
-                } else if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_XML.toString())) {
+                } else if (response.getContentType().equalsIgnoreCase(MediaType.APPLICATION_XML_VALUE)) {
                     //If we got XML from upstream, just read the stream directly
                     absoluteInputStream = response.getOutputStreamAsInputStream();
                 } else {
@@ -220,9 +231,9 @@ public class RateLimitingHandler {
 
                 //We'll get here if we were able to properly parse JSON, or if we had XML from upstream!
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, outputStream);
+                final MediaType mediaType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, outputStream);
                 response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
-                response.setContentType(mimeType.toString());
+                response.setContentType(mediaType.toString());
             } else {
                 LOG.warn("NO DATA RECEIVED FROM UPSTREAM limits, only sending regular rate limits!");
                 //No data from upstream, so we send the regular stuff no matter what

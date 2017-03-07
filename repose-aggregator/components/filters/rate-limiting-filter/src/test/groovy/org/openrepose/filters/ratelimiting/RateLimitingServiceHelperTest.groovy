@@ -20,7 +20,6 @@
 package org.openrepose.filters.ratelimiting
 
 import org.openrepose.commons.utils.http.PowerApiHeader
-import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.core.services.ratelimit.RateLimitingService
 import org.springframework.mock.web.MockHttpServletRequest
 import spock.lang.Shared
@@ -28,11 +27,10 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletRequest
-import javax.ws.rs.core.MediaType
 
 import static org.mockito.Mockito.*
 
-public class RateLimitingServiceHelperTest extends Specification {
+class RateLimitingServiceHelperTest extends Specification {
     private static final String MOST_QUALIFIED_USER = "the best user of them all"
     private static final String MOST_QUALIFIED_GROUP = "the best group of them all"
 
@@ -44,17 +42,6 @@ public class RateLimitingServiceHelperTest extends Specification {
 
     def setupSpec() {
         mockedRequest = mock(HttpServletRequest.class)
-    }
-
-    def "when getting preferred MediaType, should get Java MediaType from Repose MimeType"() {
-        given:
-        MimeType reposeMimeType = MimeType.APPLICATION_XML
-
-        when:
-        MediaType javaMediaType = helper.getJavaMediaType(reposeMimeType)
-
-        then:
-        javaMediaType.toString() == MediaType.APPLICATION_XML
     }
 
     def "when getting preferred user, should return most qualified user header"() {

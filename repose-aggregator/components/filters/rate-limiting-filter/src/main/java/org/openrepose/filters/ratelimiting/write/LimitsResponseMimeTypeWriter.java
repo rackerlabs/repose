@@ -20,8 +20,8 @@
 package org.openrepose.filters.ratelimiting.write;
 
 import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
+import org.springframework.http.MediaType;
 
-import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,13 +35,13 @@ public class LimitsResponseMimeTypeWriter {
     }
 
     public MediaType writeLimitsResponse(byte[] readableContents, MediaType mediaType, OutputStream outputStream) throws IOException {
-        if (MediaType.APPLICATION_XML_TYPE.equals(mediaType)) {
+        if (MediaType.APPLICATION_XML.isCompatibleWith(mediaType)) {
             outputStream.write(readableContents);
-            return MediaType.APPLICATION_XML_TYPE;
+            return MediaType.APPLICATION_XML;
         } else {
             // default to json for now
             responseTransformer.streamAsJson(new ByteArrayInputStream(readableContents), outputStream);
-            return MediaType.APPLICATION_JSON_TYPE;
+            return MediaType.APPLICATION_JSON;
         }
     }
 }

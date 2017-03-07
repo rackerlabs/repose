@@ -268,7 +268,7 @@ class RateLimitingTest extends ReposeValveTest {
         APPLICATION_XML     | ["stone/hieroglyphs", APPLICATION_XML]
         // same as previous but with swapped order
         APPLICATION_JSON    | ["$APPLICATION_JSON,$TEXT_XML"]
-        APPLICATION_JSON    | [APPLICATION_JSON,TEXT_XML]
+        APPLICATION_JSON    | [APPLICATION_JSON, TEXT_XML]
         APPLICATION_XML     | ["$APPLICATION_XML,stone/hieroglyphs"]
         APPLICATION_XML     | [APPLICATION_XML, "stone/hieroglyphs"]
         // ignores unsupported value when a supported value is available (lower quality), also okay with 0.001 value

@@ -23,8 +23,8 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
+import org.springframework.http.MediaType;
 
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,14 +52,14 @@ public class LimitsResponseMimeTypeWriterTest {
 
         @Test
         public void shouldChooseXmlPath() throws IOException {
-            writer.writeLimitsResponse(readableContents, MediaType.APPLICATION_XML_TYPE, out);
+            writer.writeLimitsResponse(readableContents, MediaType.APPLICATION_XML, out);
 
             verify(out, times(1)).write(readableContents);
         }
 
         @Test
         public void shouldChooseJsonPath() throws IOException {
-            writer.writeLimitsResponse(readableContents, MediaType.APPLICATION_JSON_TYPE, out);
+            writer.writeLimitsResponse(readableContents, MediaType.APPLICATION_JSON, out);
 
             verify(transformer, times(1)).streamAsJson(any(InputStream.class), any(OutputStream.class));
         }

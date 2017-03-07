@@ -9,10 +9,9 @@ dependencies {
     compile "org.scala-lang:scala-library"
     compile "org.scala-lang.modules:scala-xml_2.11"
     compile "xalan:xalan"
-    compile "com.sun.jersey:jersey-server" //todo: figure out some way to not use this , because really bringing this in for the stupid media type conversion
+    compile "org.springframework:spring-web"
 
     provided "javax.servlet:javax.servlet-api"
-    provided "javax.ws.rs:javax.ws.rs-api"
     provided "javax.inject:javax.inject"
 
     testCompile "junit:junit"
