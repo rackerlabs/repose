@@ -80,26 +80,6 @@ public enum MimeType {
         return UNKNOWN;
     }
 
-    public static MimeType getBestFitMimeType(String mimeType) {
-        MimeType bestMatch = getMatchingMimeType(mimeType);
-        if (bestMatch == UNKNOWN) {
-            bestMatch = guessMediaTypeFromString(mimeType);
-        }
-        return bestMatch;
-    }
-
-    public boolean matches(MimeType that) {
-        final String thisTopLevelType = this.getTopLevelTypeName();
-        final String thisSubType = this.getSubTypeName();
-        final String thatTopLevelType = that.getTopLevelTypeName();
-        final String thatSubType = that.getSubTypeName();
-        final String topLevelWildcard = WILDCARD.getTopLevelTypeName();
-        final String subTypeWildcard = WILDCARD.getSubTypeName();
-
-        return (thisTopLevelType.equals(topLevelWildcard) || thatTopLevelType.equals(topLevelWildcard) || thisTopLevelType.equals(thatTopLevelType)) &&
-                (thisSubType.equals(subTypeWildcard) || thatSubType.equals(subTypeWildcard) || thisSubType.equals(thatSubType));
-    }
-
     @Override
     public String toString() {
         return name;
