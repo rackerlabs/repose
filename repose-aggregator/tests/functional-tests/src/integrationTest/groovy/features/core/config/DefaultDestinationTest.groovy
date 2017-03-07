@@ -19,11 +19,11 @@
  */
 package features.core.config
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Unroll
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
@@ -43,7 +43,7 @@ class DefaultDestinationTest extends ReposeValveTest {
 
     def setup() {
 
-        int dataStorePort = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort = PortFinder.instance.getNextOpenPort()
         params = properties.getDefaultTemplateParams()
 
         params += [

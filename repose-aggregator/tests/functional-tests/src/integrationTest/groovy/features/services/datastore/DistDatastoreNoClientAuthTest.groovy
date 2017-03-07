@@ -19,13 +19,13 @@
  */
 package features.services.datastore
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.ApacheClientConnector
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Shared
 
 import javax.net.ssl.SSLHandshakeException
@@ -44,7 +44,7 @@ class DistDatastoreNoClientAuthTest extends ReposeValveTest {
     def File singleFile
 
     def setupSpec() {
-        int dataStorePort = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort = PortFinder.instance.getNextOpenPort()
 
         distDatastoreEndpoint = "https://localhost:${dataStorePort}"
 

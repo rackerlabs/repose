@@ -19,12 +19,8 @@
  */
 package features.core.configloadingandreloading
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeLogSearch
-import framework.ReposeValveLauncher
-import framework.TestProperties
+import framework.*
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 /**
@@ -51,7 +47,7 @@ class CheckRemoveDeprecatedWarningTest extends Specification {
 
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
 
-        int dataStorePort = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort = PortFinder.instance.getNextOpenPort()
         params = properties.getDefaultTemplateParams()
 
         params += [

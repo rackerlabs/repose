@@ -25,7 +25,6 @@ import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.systemmodel.SystemModel
-import org.rackspace.deproxy.PortFinder
 
 import javax.management.ObjectName
 import java.util.concurrent.TimeoutException
@@ -129,7 +128,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         if (debugEnabled) {
             if (!debugPort) {
-                debugPort = PortFinder.Singleton.getNextOpenPort()
+                debugPort = PortFinder.instance.getNextOpenPort()
             }
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
             if (doSuspend) {
@@ -141,7 +140,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         if (!jmxPort) {
-            jmxPort = PortFinder.Singleton.getNextOpenPort()
+            jmxPort = PortFinder.instance.getNextOpenPort()
         }
         jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 

@@ -19,12 +19,12 @@
  */
 package features.filters.ratelimiting
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 
 import static org.hamcrest.Matchers.equalTo
@@ -63,9 +63,9 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        reposePort2 = PortFinder.Singleton.getNextOpenPort()
-        distDatastorePort = PortFinder.Singleton.getNextOpenPort()
-        distDatastorePort2 = PortFinder.Singleton.getNextOpenPort()
+        reposePort2 = PortFinder.instance.getNextOpenPort()
+        distDatastorePort = PortFinder.instance.getNextOpenPort()
+        distDatastorePort2 = PortFinder.instance.getNextOpenPort()
 
         def params = properties.getDefaultTemplateParams()
         params += [

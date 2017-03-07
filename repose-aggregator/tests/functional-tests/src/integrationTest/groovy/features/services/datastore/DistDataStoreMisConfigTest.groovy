@@ -19,11 +19,11 @@
  */
 package features.services.datastore
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Unroll
 
 import static framework.TestUtils.timedSearch
@@ -42,7 +42,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest {
         def searchError = "Configuration update error. Reason: "
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        int dataStorePort = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort = PortFinder.instance.getNextOpenPort()
         reposeLogSearch.cleanLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
@@ -83,7 +83,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest {
         def searchError = "Unable to determine Distributed Datastore port for" //clusterId:nodeId
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        int dataStorePort = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort = PortFinder.instance.getNextOpenPort()
         reposeLogSearch.cleanLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"

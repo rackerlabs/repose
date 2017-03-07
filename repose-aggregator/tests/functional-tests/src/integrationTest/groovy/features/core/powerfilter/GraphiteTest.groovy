@@ -19,11 +19,11 @@
  */
 package features.core.powerfilter
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.mocks.MockGraphite
 import groovy.util.logging.Log4j
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 
 @Log4j
 class GraphiteTest extends ReposeValveTest {
@@ -37,7 +37,7 @@ class GraphiteTest extends ReposeValveTest {
 
     def setup() {
 
-        graphitePort = PortFinder.Singleton.getNextOpenPort()
+        graphitePort = PortFinder.instance.getNextOpenPort()
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
