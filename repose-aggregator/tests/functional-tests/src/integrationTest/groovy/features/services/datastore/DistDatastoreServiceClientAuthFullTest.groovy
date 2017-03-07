@@ -22,7 +22,6 @@ package features.services.datastore
 import framework.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
 
@@ -42,9 +41,9 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
         def reposeLogSearch = new ReposeLogSearch(properties.logFile)
 
         def reposePort1 = properties.reposePort
-        def reposePort2 = PortFinder.Singleton.getNextOpenPort()
-        def dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
-        def dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+        def reposePort2 = PortFinder.instance.getNextOpenPort()
+        def dataStorePort1 = PortFinder.instance.getNextOpenPort()
+        def dataStorePort2 = PortFinder.instance.getNextOpenPort()
 
         reposeEndpoint1 = "http://localhost:${reposePort1}"
         reposeEndpoint2 = "http://localhost:${reposePort2}"

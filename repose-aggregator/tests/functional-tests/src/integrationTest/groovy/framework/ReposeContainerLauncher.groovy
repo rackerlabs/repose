@@ -20,7 +20,6 @@
 package framework
 
 import org.linkedin.util.clock.SystemClock
-import org.rackspace.deproxy.PortFinder
 
 import java.util.concurrent.TimeoutException
 
@@ -68,7 +67,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
 
         if (debugEnabled) {
             if (!debugPort) {
-                debugPort = PortFinder.Singleton.getNextOpenPort()
+                debugPort = PortFinder.instance.getNextOpenPort()
             }
             webXmlOverrides += " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
             if (doSuspend) {

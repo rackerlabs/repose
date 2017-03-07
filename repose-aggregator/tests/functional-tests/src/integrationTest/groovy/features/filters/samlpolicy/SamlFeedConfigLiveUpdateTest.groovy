@@ -21,11 +21,11 @@
 package features.filters.samlpolicy
 
 import features.filters.keystonev2.AtomFeedResponseSimulator
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
-import org.rackspace.deproxy.PortFinder
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
@@ -515,10 +515,10 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
     }
 
     def acquireFreshNewPorts() {
-        properties.reposePort = PortFinder.Singleton.getNextOpenPort()
-        properties.atomPort = PortFinder.Singleton.getNextOpenPort()
-        properties.atomPort2 = PortFinder.Singleton.getNextOpenPort()
-        properties.targetPort = PortFinder.Singleton.getNextOpenPort()
-        properties.identityPort = PortFinder.Singleton.getNextOpenPort()
+        properties.reposePort = PortFinder.instance.getNextOpenPort()
+        properties.atomPort = PortFinder.instance.getNextOpenPort()
+        properties.atomPort2 = PortFinder.instance.getNextOpenPort()
+        properties.targetPort = PortFinder.instance.getNextOpenPort()
+        properties.identityPort = PortFinder.instance.getNextOpenPort()
     }
 }

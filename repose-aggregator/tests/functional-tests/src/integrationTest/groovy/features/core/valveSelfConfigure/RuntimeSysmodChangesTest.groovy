@@ -26,7 +26,7 @@ import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
-import org.rackspace.deproxy.PortFinder
+import framework.PortFinder
 import spock.lang.Specification
 
 @Category(Slow.class)
@@ -56,8 +56,8 @@ class RuntimeSysmodChangesTest extends Specification {
         endpoint = deproxy.addEndpoint(targetPort)
 
         port1 = properties.reposePort
-        port2 = PortFinder.Singleton.getNextOpenPort()
-        port3 = PortFinder.Singleton.getNextOpenPort()
+        port2 = PortFinder.instance.getNextOpenPort()
+        port3 = PortFinder.instance.getNextOpenPort()
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 

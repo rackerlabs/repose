@@ -19,10 +19,10 @@
  */
 package features.core.powerfilter
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.mocks.MockGraphite
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 
 class GraphiteTest extends ReposeValveTest {
 
@@ -36,7 +36,7 @@ class GraphiteTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        def graphitePort = PortFinder.Singleton.getNextOpenPort()
+        def graphitePort = PortFinder.instance.getNextOpenPort()
         def lineProc = { line ->
             def m = (line =~ /${METRIC_PREFIX}\.${jmxHostname}\.${METRIC_NAME}\s+(\d+)/)
             if (m) {

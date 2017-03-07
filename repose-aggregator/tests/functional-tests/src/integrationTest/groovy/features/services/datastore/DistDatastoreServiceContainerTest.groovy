@@ -24,7 +24,6 @@ import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
@@ -65,9 +64,9 @@ class DistDatastoreServiceContainerTest extends Specification {
         reposeLogSearch = new ReposeLogSearch(logFile)
 
         reposePort1 = properties.reposePort
-        reposePort2 = PortFinder.Singleton.getNextOpenPort()
-        dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
-        dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+        reposePort2 = PortFinder.instance.getNextOpenPort()
+        dataStorePort1 = PortFinder.instance.getNextOpenPort()
+        dataStorePort2 = PortFinder.instance.getNextOpenPort()
 
         reposeEndpoint1 = "http://localhost:${reposePort1}"
         reposeEndpoint2 = "http://localhost:${reposePort2}"

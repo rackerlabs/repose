@@ -19,12 +19,12 @@
  */
 package features.filters.rackspaceauthuser.multifactorauth
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import org.apache.commons.lang3.RandomStringUtils
 import org.openrepose.commons.utils.http.OpenStackServiceHeader
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import spock.lang.Ignore
 
@@ -124,9 +124,9 @@ class RackspaceAuthMultifactorTest extends ReposeValveTest {
     }
 
     def setupSpec() {
-        int ddPort1 = PortFinder.Singleton.getNextOpenPort()
-        int ddPort2 = PortFinder.Singleton.getNextOpenPort()
-        reposePort2 = PortFinder.Singleton.getNextOpenPort()
+        int ddPort1 = PortFinder.instance.getNextOpenPort()
+        int ddPort2 = PortFinder.instance.getNextOpenPort()
+        reposePort2 = PortFinder.instance.getNextOpenPort()
         reposeEndpoint2 = "http://localhost:${reposePort2}".toString()
 
         def params = properties.defaultTemplateParams
