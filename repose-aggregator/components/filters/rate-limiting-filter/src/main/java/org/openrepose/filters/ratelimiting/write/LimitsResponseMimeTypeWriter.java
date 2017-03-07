@@ -25,8 +25,17 @@ import org.springframework.http.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LimitsResponseMimeTypeWriter {
+
+    public static final Set<MediaType> SUPPORTED_MEDIA_TYPES = Stream.of(
+            MediaType.APPLICATION_JSON,
+            MediaType.APPLICATION_XML
+            // TODO: Add support for MediaType.TEXT_XML
+    ).collect(Collectors.toSet());
 
     private final LimitsEntityStreamTransformer responseTransformer;
 
@@ -35,7 +44,14 @@ public class LimitsResponseMimeTypeWriter {
     }
 
     public MediaType writeLimitsResponse(byte[] readableContents, MediaType mediaType, OutputStream outputStream) throws IOException {
-        if (MediaType.APPLICATION_XML.isCompatibleWith(mediaType)) {
+        /*
+         Check for JSON first since it is the preferred media type.
+         This is done explicitly even though JSON is also the default.
+          */
+        if (MediaType.APPLICATION_JSON.isCompatibleWith(mediaType)) {
+            responseTransformer.streamAsJson(new ByteArrayInputStream(readableContents), outputStream);
+            return MediaType.APPLICATION_JSON;
+        } else if (MediaType.APPLICATION_XML.isCompatibleWith(mediaType)) {
             outputStream.write(readableContents);
             return MediaType.APPLICATION_XML;
         } else {

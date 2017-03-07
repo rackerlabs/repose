@@ -22,6 +22,7 @@ package org.openrepose.filters.ratelimiting;
 import org.apache.http.HttpHeaders;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
+import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes;
 import org.openrepose.commons.utils.servlet.filter.FilterAction;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
@@ -44,24 +45,18 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static javax.servlet.http.HttpServletResponse.*;
+import static org.openrepose.filters.ratelimiting.write.LimitsResponseMimeTypeWriter.SUPPORTED_MEDIA_TYPES;
 
 /* Responsible for handling requests and responses to rate limiting, also tracks and provides limits */
 public class RateLimitingHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
-    private static final Set<MediaType> SUPPORTED_MEDIA_TYPES = Stream.of(
-            MediaType.APPLICATION_JSON,
-            MediaType.APPLICATION_XML
-            // TODO: Add support for MediaType.TEXT_XML
-    ).collect(Collectors.toSet());
     private static final MediaType DEFAULT_MEDIA_TYPE = MediaType.APPLICATION_JSON;
-    private static final int SC_TOO_MANY_REQUESTS = 429;
 
     private final boolean includeAbsoluteLimits;
     private final Optional<Pattern> describeLimitsUriPattern;
@@ -133,13 +128,40 @@ public class RateLimitingHandler {
     private Optional<MediaType> getPreferredMediaType(List<String> acceptValues) {
         Optional<MediaType> preferredMediaType = Optional.of(DEFAULT_MEDIA_TYPE);
         if (!acceptValues.isEmpty()) {
-            preferredMediaType = acceptValues.stream()
+            /*
+            Parses media types from the "Accept" header (dropping any that cannot be parsed),
+            removes any media types that are not supported by this filter (since they will not be returned anyway),
+            then sorts the remaining media types by specificity (primarily) and quality (secondarily).
+              */
+            List<MediaType> sortedRelevantAcceptTypes = acceptValues.stream()
                     .map(RateLimitingHandler::parseMediaType)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .sorted(new CompoundComparator<>(MediaType.SPECIFICITY_COMPARATOR, MediaType.QUALITY_VALUE_COMPARATOR))
-                    .filter(mediaType -> mediaType.getQualityValue() != 0.0)
                     .filter(mediaType -> SUPPORTED_MEDIA_TYPES.stream().anyMatch(mediaType::isCompatibleWith))
+                    .sorted(new CompoundComparator<>(MediaType.SPECIFICITY_COMPARATOR, MediaType.QUALITY_VALUE_COMPARATOR))
+                    .collect(Collectors.toList());
+
+            /*
+            Determines which supported media types are acceptable to the user.
+            A media type is deemed acceptable if it was present in the "Accept" header and has a non-zero quality.
+            Since we have a sorted stream of media types from the request, we only check the quality of the first
+            compatible media type. The reasoning is that the first compatible media type will be the most specific
+            media type that matches a supported media type. The most specific media type should be considered above
+            any other media types.
+             */
+            Stream<MediaType> acceptableMediaTypes = SUPPORTED_MEDIA_TYPES.stream()
+                    .filter(mediaType -> sortedRelevantAcceptTypes.stream()
+                            .filter(mediaType::isCompatibleWith)
+                            .findFirst()
+                            .map(MediaType::getQualityValue)
+                            .map(quality -> quality != 0.0)
+                            .orElse(false));
+
+            /*
+            Sets the first most specific, highest quality acceptable media type as the preferred media type.
+             */
+            preferredMediaType = sortedRelevantAcceptTypes.stream()
+                    .filter(mediaType -> acceptableMediaTypes.anyMatch(mediaType::isCompatibleWith))
                     .findFirst();
         }
         return preferredMediaType;
@@ -188,7 +210,7 @@ public class RateLimitingHandler {
             if (e.getUser().equals(RateLimitingServiceImpl.GLOBAL_LIMIT_USER)) {
                 response.setStatus(SC_SERVICE_UNAVAILABLE);
             } else if (overLimit429ResponseCode) {
-                response.setStatus(SC_TOO_MANY_REQUESTS);
+                response.setStatus(ExtendedStatusCodes.SC_TOO_MANY_REQUESTS);
             } else {
                 response.setStatus(SC_REQUEST_ENTITY_TOO_LARGE);
             }
