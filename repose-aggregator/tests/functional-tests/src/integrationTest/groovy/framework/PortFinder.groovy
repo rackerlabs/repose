@@ -31,13 +31,20 @@ class PortFinder {
 
     int maxPort = SocketUtils.PORT_RANGE_MAX
     int sleepTime = DEFAULT_WAIT_TIME_MS
-    int currentPort = DEFAULT_START_PORT
+    int startPort = DEFAULT_START_PORT
+
+    private int currentPort = startPort
 
     synchronized int getNextOpenPort() {
         // todo: consider using new ServerSocket(0).getLocalPort() instead of all of this, but then you would be getting
         // todo: ports in the range where ports are frequently handed out for such things.  It may not be safe enough to
         // todo: count on them still being available between the time we confirm they're good in this method and the
         // todo: time Repose actually uses it.  ¯\_(ツ)_/¯
+        if (currentPort < startPort) {
+            // startPort must have changed, update the currentPort
+            currentPort = startPort
+        }
+
         while (currentPort <= maxPort) {
             try {
                 log.debug "Checking if port $currentPort is available..."

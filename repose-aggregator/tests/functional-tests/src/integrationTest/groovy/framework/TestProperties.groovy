@@ -95,7 +95,7 @@ class TestProperties {
             def workerIdPropertyName = properties.getProperty("port.finder.property.name.worker.id")
             int workerId = System.getProperty(workerIdPropertyName, '1') as int
             int portRange = properties.getProperty("port.finder.port.range") as int
-            portFinder.currentPort = portStart + (workerId * portRange)
+            portFinder.startPort = portStart + (workerId * portRange)
             portFinder.maxPort = portMax
 
             reposePort = portFinder.getNextOpenPort()
