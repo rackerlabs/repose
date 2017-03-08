@@ -251,16 +251,6 @@ class RateLimitingTest extends ReposeValveTest {
         APPLICATION_JSON    | ["$APPLICATION_XML;q=0.8", APPLICATION_JSON]
         APPLICATION_XML     | ["$APPLICATION_JSON;q=0.6,$APPLICATION_XML"]
         APPLICATION_XML     | ["$APPLICATION_JSON;q=0.6", APPLICATION_XML]
-        // uses the order when the quality values are the same (default quality)
-        APPLICATION_JSON    | ["$APPLICATION_JSON,$APPLICATION_XML"]
-        APPLICATION_JSON    | [APPLICATION_JSON, APPLICATION_XML]
-        APPLICATION_XML     | ["$APPLICATION_XML,$APPLICATION_JSON"]
-        APPLICATION_XML     | [APPLICATION_XML, APPLICATION_JSON]
-        // uses the order when the quality values are the same (specified quality)
-        APPLICATION_JSON    | ["$APPLICATION_JSON;q0.7,$APPLICATION_XML;q0.7"]
-        APPLICATION_JSON    | ["$APPLICATION_JSON;q0.4", "$APPLICATION_XML;q0.4"]
-        APPLICATION_XML     | ["$APPLICATION_XML;q0.3,$APPLICATION_JSON;q0.3"]
-        APPLICATION_XML     | ["$APPLICATION_XML;q0.02", "$APPLICATION_JSON;q0.02"]
         // ignores unsupported value when a supported value is available (same quality)
         APPLICATION_JSON    | ["$TEXT_XML,$APPLICATION_JSON"]
         APPLICATION_JSON    | [TEXT_XML, APPLICATION_JSON]
@@ -343,6 +333,35 @@ class RateLimitingTest extends ReposeValveTest {
         APPLICATION_JSON    | ["$APPLICATION_JSON;q=0.8", AUDIO_WILDCARD]
         APPLICATION_XML     | ["$APPLICATION_XML;q=0.2,$AUDIO_WILDCARD"]
         APPLICATION_XML     | ["$APPLICATION_XML;q=0.2", AUDIO_WILDCARD]
+    }
+
+    @Unroll
+    def "When requesting rate limits with the Accept header values '#acceptHeaderValues', the response Content-Type should be application/json or application/xml"() {
+        given:
+        def headers = [
+                new Header("X-PP-Groups", "customer;q=1.0"),
+                new Header("X-PP-User", "user")
+        ] + acceptHeaderValues.collect { new Header(ACCEPT, it) }
+
+        when:
+        def messageChain = deproxy.makeRequest(
+                url: reposeEndpoint + LIMITS_URL,
+                method: "GET",
+                headers: headers)
+
+        then: "the response Content-Type is either JSON or XML"
+        messageChain.receivedResponse.headers.getFirstValue(CONTENT_TYPE) in [APPLICATION_JSON, APPLICATION_XML]
+
+        where:
+        acceptHeaderValues << [
+                ["$APPLICATION_JSON,$APPLICATION_XML"],
+                [APPLICATION_JSON, APPLICATION_XML],
+                ["$APPLICATION_XML,$APPLICATION_JSON"],
+                [APPLICATION_XML, APPLICATION_JSON],
+                ["$APPLICATION_JSON;q0.7,$APPLICATION_XML;q0.7"],
+                ["$APPLICATION_JSON;q0.4", "$APPLICATION_XML;q0.4"],
+                ["$APPLICATION_XML;q0.3,$APPLICATION_JSON;q0.3"],
+                ["$APPLICATION_XML;q0.02", "$APPLICATION_JSON;q0.02"]]
     }
 
     @Unroll
