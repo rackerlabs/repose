@@ -19,9 +19,6 @@
  */
 package org.openrepose.commons.utils.logging.apache;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 public class LogFormatArgument {
     public static final String PERCENT = "%";
     public static final String REMOTE_ADDRESS = "a";
