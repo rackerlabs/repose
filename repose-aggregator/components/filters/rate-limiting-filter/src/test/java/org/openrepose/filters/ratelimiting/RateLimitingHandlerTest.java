@@ -44,7 +44,9 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -206,7 +208,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         }
 
         @Test
-        public void shouldReturnJsonDescribeLimitsCallWhenMostSpecificSupportedButNotHighestQualityType() {
+        public void shouldReturnXmlDescribeLimitsCallWhenJsonIsMostSpecificSupportedButNotHighestQualityType() {
             mockedRequest.setRequestURI("/v1.0/limits");
             mockedRequest.addHeader("Accept", "application/*;q=0.8, application/json;q=0.5");
 
@@ -217,7 +219,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             FilterAction filterAction = handler.handleRequest(new HttpServletRequestWrapper(mockedRequest), mockedResponse);
 
             assertEquals("On multiple supported accept types, filter should process response must return", FilterAction.RETURN, filterAction);
-            verify(mockedResponse).setContentType(MediaType.APPLICATION_JSON_VALUE);
+            verify(mockedResponse).setContentType(MediaType.APPLICATION_XML_VALUE);
         }
 
         @Test

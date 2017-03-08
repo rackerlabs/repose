@@ -36,18 +36,18 @@ import org.openrepose.core.services.ratelimit.exception.OverLimitException;
 import org.openrepose.filters.ratelimiting.log.LimitLogger;
 import org.slf4j.Logger;
 import org.springframework.http.MediaType;
-import org.springframework.util.comparator.CompoundComparator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.openrepose.filters.ratelimiting.write.LimitsResponseMimeTypeWriter.SUPPORTED_MEDIA_TYPES;
@@ -129,39 +129,36 @@ public class RateLimitingHandler {
         Optional<MediaType> preferredMediaType = Optional.of(DEFAULT_MEDIA_TYPE);
         if (!acceptValues.isEmpty()) {
             /*
-            Parses media types from the "Accept" header (dropping any that cannot be parsed),
-            removes any media types that are not supported by this filter (since they will not be returned anyway),
-            then sorts the remaining media types by specificity (primarily) and quality (secondarily).
+             Parses and sorts (by specificity) media types from the "Accept" header (dropping any that cannot be parsed).
+             This has intentionally been left separate from the stream processing below to avoid re-parsing
+             and re-sorting accept media types for every supported media type.
               */
-            List<MediaType> sortedRelevantAcceptTypes = acceptValues.stream()
+            List<MediaType> parsedAcceptMediaTypes = acceptValues.stream()
                     .map(RateLimitingHandler::parseMediaType)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .filter(mediaType -> SUPPORTED_MEDIA_TYPES.stream().anyMatch(mediaType::isCompatibleWith))
-                    .sorted(new CompoundComparator<>(MediaType.SPECIFICITY_COMPARATOR, MediaType.QUALITY_VALUE_COMPARATOR))
+                    .sorted(MediaType.SPECIFICITY_COMPARATOR)
                     .collect(Collectors.toList());
 
             /*
-            Determines which supported media types are acceptable to the user.
-            A media type is deemed acceptable if it was present in the "Accept" header and has a non-zero quality.
-            Since we have a sorted stream of media types from the request, we only check the quality of the first
-            compatible media type. The reasoning is that the first compatible media type will be the most specific
-            media type that matches a supported media type. The most specific media type should be considered above
-            any other media types.
-             */
-            Stream<MediaType> acceptableMediaTypes = SUPPORTED_MEDIA_TYPES.stream()
-                    .filter(mediaType -> sortedRelevantAcceptTypes.stream()
-                            .filter(mediaType::isCompatibleWith)
-                            .findFirst()
-                            .map(MediaType::getQualityValue)
-                            .map(quality -> quality != 0.0)
-                            .orElse(false));
+             For each supported media type, the most specific acceptable media type that is compatible is found.
+             If no compatible acceptable media type if found, the supported media type will not be used.
+             If the quality factor of the most specific acceptable media type compatible with a supported media type is
+             set to 0, the supported media type will not be used.
 
-            /*
-            Sets the first most specific, highest quality acceptable media type as the preferred media type.
+             After discerning which supported media types are acceptable, sorts the acceptable media types by quality.
+             The highest quality acceptable media type is then set as the preferred media type.
              */
-            preferredMediaType = sortedRelevantAcceptTypes.stream()
-                    .filter(mediaType -> acceptableMediaTypes.anyMatch(mediaType::isCompatibleWith))
+            preferredMediaType = SUPPORTED_MEDIA_TYPES.stream()
+                    .map(supportedMediaType -> parsedAcceptMediaTypes.stream()
+                            .filter(supportedMediaType::isCompatibleWith)
+                            .findFirst()
+                            .filter(acceptMediaType -> acceptMediaType.getQualityValue() != 0.0)
+                            .map(acceptMediaType -> (Map.Entry<MediaType, MediaType>) new AbstractMap.SimpleEntry(supportedMediaType, acceptMediaType)))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .sorted(Map.Entry.comparingByValue(MediaType.QUALITY_VALUE_COMPARATOR))
+                    .map(Map.Entry::getKey)
                     .findFirst();
         }
         return preferredMediaType;
