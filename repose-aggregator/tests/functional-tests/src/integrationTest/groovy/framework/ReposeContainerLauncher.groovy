@@ -42,7 +42,6 @@ class ReposeContainerLauncher extends ReposeLauncher {
     def boolean doSuspend
 
     def clock = new SystemClock()
-    def Process process
 
     def ReposeConfigurationProvider configurationProvider
 
@@ -158,7 +157,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
     }
 
     @Override
-    boolean isUp() {
+    boolean areAnyUp() {
         return TestUtils.getJvmProcesses().contains("ROOT.war")
     }
 
