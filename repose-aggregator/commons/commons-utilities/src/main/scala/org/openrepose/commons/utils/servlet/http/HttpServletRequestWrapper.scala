@@ -242,7 +242,15 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, val inputSt
 
   /** Returns the parameter map containing all form and query parameters for this request. Note that form parameters
     * are only modifiable "manually" by manipulating the body of this request. Changes to form parameters in the body
-    * of this request will no be reflected in this parameter map.
+    * of this request will not be reflected in this parameter map.
+    *
+    * Note that, for application/x-www-form-urlencoded requests, super.getParameterMap is not called. As a result,
+    * if the wrapped request stores parameters as internal state (e.g., reading form encoded parameters into a map),
+    * this wrapper will not be able to retrieve or return those parameters. This wrapper only retrieves parameters
+    * from the query string and the request body. While unfortunate, there does not seem to be a way around this
+    * behavior while remaining strictly servlet specification compliant. The reason is that getParameterMap and
+    * getInputStream cannot both be called when parameters exist in the body -- once one is called, the other will
+    * not be able to access the unread body stream, and so will not be able to return correct and complete data.
     *
     * @return the parameter map for this request
     */
