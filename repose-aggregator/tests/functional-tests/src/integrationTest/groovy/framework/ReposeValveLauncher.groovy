@@ -115,10 +115,10 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         if (killOthersBeforeStarting) {
-            waitForCondition(clock, '5s', '1s', {
+            waitForCondition(clock, '5s', '1s') {
                 killIfUp()
                 !isUp()
-            })
+            }
         }
 
         def jmxprops = ""
@@ -156,7 +156,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         //Prepended the JUL logging manager from log4j2 so I can capture JUL logs, which are things in the JVM (like JMX)
         def cmd = "java -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
-        println("Starting repose: ${cmd}")
+        println("Starting repose: $cmd")
 
         def th = new Thread({
             //Construct a new environment, including all from the previous, and then overriding with our new one
@@ -169,7 +169,7 @@ class ReposeValveLauncher extends ReposeLauncher {
             def envList = newEnv.collect { k, v -> "$k=$v" }
             this.process = cmd.execute(envList, null)
             this.process.consumeProcessOutput(System.out, System.err)
-        });
+        })
 
         th.run()
         th.join()
@@ -186,9 +186,9 @@ class ReposeValveLauncher extends ReposeLauncher {
                 print("Waiting for repose auto-guessed node to start: ")
             }
 
-            waitForCondition(clock, '60s', '1s', {
+            waitForCondition(clock, '60s', '1s') {
                 isReposeNodeUp(clusterId, nodeId)
-            })
+            }
         }
     }
 
@@ -200,7 +200,6 @@ class ReposeValveLauncher extends ReposeLauncher {
             return false
         }
     }
-
 
     @Override
     void stop() {
@@ -224,17 +223,17 @@ class ReposeValveLauncher extends ReposeLauncher {
             this.process?.destroy()
 
             print("Waiting for Repose to shutdown")
-            waitForCondition(clock, "${timeout}", '1s', {
+            waitForCondition(clock, "${timeout}", '1s') {
                 print(".")
                 !isUp()
-            })
+            }
 
             println()
         } catch (IOException ioex) {
             this.process.waitForOrKill(5000)
             killIfUp()
             if (throwExceptionOnKill) {
-                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
+                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: ${ioex.getMessage()}", ioex)
             }
         } finally {
             configurationProvider.cleanConfigDirectory()
