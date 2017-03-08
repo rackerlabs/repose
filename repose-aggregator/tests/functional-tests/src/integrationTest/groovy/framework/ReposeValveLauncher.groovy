@@ -49,8 +49,6 @@ class ReposeValveLauncher extends ReposeLauncher {
     def classPaths = []
     def additionalEnvironment = [:]
 
-    Process process
-
     ReposeConfigurationProvider configurationProvider
 
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
@@ -315,7 +313,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     @Override
-    public boolean isUp() {
+    boolean areAnyUp() {
         println TestUtils.getJvmProcesses()
         return TestUtils.getJvmProcesses().contains("repose-valve.jar")
     }
