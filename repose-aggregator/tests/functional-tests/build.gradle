@@ -134,7 +134,7 @@ integrationTest {
         }
     }
 
-    maxParallelForks = project.findProperty('integrationTestMaxParallelForks') ?: '1' as int
+    maxParallelForks = (project.findProperty('integrationTestMaxParallelForks') ?: '1') as int
 
     if (project.hasProperty('showLog')) {
         testLogging {
