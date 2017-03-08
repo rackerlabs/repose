@@ -234,7 +234,7 @@ This configuration provides per-user limits, global limits, and an endpoint to q
 <7> Specifies the regular expression used (i.e., matched against the URI) to determine whether or not a request is a limit data query request.
 <8> Specifies <<Global Limits>>, which are applied irrespective of user.
 <9> Specifies a unique ID which identifies this limit.
-No two limits may have the same ID within a limit group, including the global limit group.
+No two limits may have the same ID, even if those limits are in different limit groups (including the global limit group).
 <10> Describes the request URIs for which this limit will be applied.
 <11> Specifies the regular expression used (i.e., matched against the URI) to determine whether or not the limit should be applied to a request.
 <12> Specifies the HTTP methods for which this limit will be applied.
