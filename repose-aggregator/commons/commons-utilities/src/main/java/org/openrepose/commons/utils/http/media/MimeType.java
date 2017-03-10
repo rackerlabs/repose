@@ -21,9 +21,12 @@ package org.openrepose.commons.utils.http.media;
 
 import org.openrepose.commons.utils.StringUtilities;
 
+// TODO: Remove this class and use org.springframework.http.MediaType instead.
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public enum MimeType {
 
+    // TODO: This list isn't even close to being exhaustive.
+    //       An enum is probably not the right structure for this data since it cannot represent unlisted MIME types.
     APPLICATION_ATOM_XML("application", "atom+xml"),
     APPLICATION_RDF_XML("application", "rdf+xml"),
     APPLICATION_RSS_XML("application", "rss+xml"),
@@ -70,13 +73,6 @@ public enum MimeType {
             for (MimeType ct : values()) {
                 // worst case scenario this will match on UNKNOWN because everything contains "" (an empty string)
                 if (mimeType.contains(ct.getTopLevelTypeName()) && mimeType.contains(ct.getSubTypeName())) {
-                    return ct;
-                }
-            }
-
-            // this is unreachable code, and at this point I'm too afraid to fix it
-            for (MimeType ct : values()) {
-                if (mimeType.contains(ct.getSubTypeName())) {
                     return ct;
                 }
             }

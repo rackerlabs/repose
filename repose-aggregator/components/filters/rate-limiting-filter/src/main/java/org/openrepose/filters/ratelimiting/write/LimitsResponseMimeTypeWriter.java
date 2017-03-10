@@ -20,13 +20,26 @@
 package org.openrepose.filters.ratelimiting.write;
 
 import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
+import org.springframework.http.MediaType;
 
-import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 public class LimitsResponseMimeTypeWriter {
+
+    /*
+     LinkedHashSet was chosen to demonstrate that duplicate values are not allowed, and that ordering matters.
+     The order of the LinkedHashSet represents our preference; we would rather return media types that appear
+     earlier in the list than those that appear later.
+     */
+    public static final LinkedHashSet<MediaType> SUPPORTED_MEDIA_TYPES = new LinkedHashSet<>(Arrays.asList(
+            MediaType.APPLICATION_JSON,
+            MediaType.APPLICATION_XML
+            // TODO: Add support for MediaType.TEXT_XML
+    ));
 
     private final LimitsEntityStreamTransformer responseTransformer;
 
@@ -35,13 +48,13 @@ public class LimitsResponseMimeTypeWriter {
     }
 
     public MediaType writeLimitsResponse(byte[] readableContents, MediaType mediaType, OutputStream outputStream) throws IOException {
-        if (MediaType.APPLICATION_XML_TYPE.equals(mediaType)) {
+        if (MediaType.APPLICATION_XML_VALUE.equalsIgnoreCase(mediaType.toString())) {
             outputStream.write(readableContents);
-            return MediaType.APPLICATION_XML_TYPE;
+            return MediaType.APPLICATION_XML;
         } else {
-            // default to json for now
+            // Default to JSON
             responseTransformer.streamAsJson(new ByteArrayInputStream(readableContents), outputStream);
-            return MediaType.APPLICATION_JSON_TYPE;
+            return MediaType.APPLICATION_JSON;
         }
     }
 }

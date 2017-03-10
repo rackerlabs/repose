@@ -20,34 +20,26 @@
 package org.openrepose.commons.utils.http.media;
 
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-/**
- * @author fran
- */
-@RunWith(Enclosed.class)
 public class MimeTypeTest {
-    public static class WhenUsingGettingMediaTypeFromMediaTypeString {
-        @Test
-        public void shouldReturnUnknownMediaType() {
-            String mediaTypeString = "application/what'sUpDoc";
+    @Test
+    public void shouldReturnUnknownMediaType() {
+        String mediaTypeString = "application/what'sUpDoc";
 
-            MimeType returnedMediaType = MimeType.getMatchingMimeType(mediaTypeString);
+        MimeType returnedMediaType = MimeType.getMatchingMimeType(mediaTypeString);
 
-            assertEquals(MimeType.UNKNOWN, returnedMediaType);
-        }
+        assertEquals(MimeType.UNKNOWN, returnedMediaType);
+    }
 
-        @Test
-        public void shouldReturnGuessedMediaType() {
+    @Test
+    public void shouldReturnGuessedMediaType() {
 
-            String mediaTypeString = "text/xml";
+        String mediaTypeString = "text/xml";
 
-            MimeType returnedMediaType = MimeType.guessMediaTypeFromString(mediaTypeString);
+        MimeType returnedMediaType = MimeType.guessMediaTypeFromString(mediaTypeString);
 
-            assertEquals(returnedMediaType.getName(), mediaTypeString);
-        }
+        assertEquals(returnedMediaType.getName(), mediaTypeString);
     }
 }

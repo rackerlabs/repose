@@ -19,18 +19,16 @@
  */
 package org.openrepose.filters.ratelimiting;
 
-import com.sun.jersey.server.impl.provider.RuntimeDelegateImpl;
 import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
 import org.openrepose.core.services.ratelimit.config.RateLimitList;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
 import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
 import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
+import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.ext.RuntimeDelegate;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -38,7 +36,6 @@ import java.util.List;
 
 public class RateLimitingServiceHelper {
 
-    private static final RuntimeDelegateImpl runtimeDelegateImpl = new RuntimeDelegateImpl();
     private final RateLimitingService service;
     private final ActiveLimitsWriter activeLimitsWriter;
     private final CombinedLimitsWriter combinedLimitsWriter;
@@ -47,36 +44,22 @@ public class RateLimitingServiceHelper {
         this.service = service;
         this.activeLimitsWriter = activeLimitsWriter;
         this.combinedLimitsWriter = combinedLimitsWriter;
-        // This fixes the ClassNotFoundException: org.glassfish.jersey.internal.RuntimeDelegateImpl
-        // and requires the Maven dependency: com.sun.jersey:jersey-server:jar:1.16:compile
-        // http://www.programcreek.com/java-api-examples/index.php?api=javax.ws.rs.ext.RuntimeDelegate
-        RuntimeDelegate.setInstance(runtimeDelegateImpl);
     }
 
-    public MimeType queryActiveLimits(HttpServletRequest request, MimeType preferredMediaType, OutputStream outputStream) {
+    public MediaType queryActiveLimits(HttpServletRequest request, MediaType preferredMediaType, OutputStream outputStream) {
         RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
-        javax.ws.rs.core.MediaType mediaType = activeLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType), outputStream);
 
-        return getReposeMimeType(mediaType);
+        return activeLimitsWriter.write(rateLimits, preferredMediaType, outputStream);
     }
 
-    public MimeType queryCombinedLimits(HttpServletRequest request, MimeType preferredMediaType, InputStream absoluteLimits, OutputStream outputStream) {
+    public MediaType queryCombinedLimits(HttpServletRequest request, MediaType preferredMediaType, InputStream absoluteLimits, OutputStream outputStream) {
         RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
-        javax.ws.rs.core.MediaType mediaType = combinedLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType), absoluteLimits, outputStream);
 
-        return getReposeMimeType(mediaType);
+        return combinedLimitsWriter.write(rateLimits, preferredMediaType, absoluteLimits, outputStream);
     }
 
     public void trackLimits(HttpServletRequest request, int datastoreWarnLimit) throws OverLimitException {
         service.trackLimits(getPreferredUser(request), getPreferredGroups(request), decodeURI(request.getRequestURI()), HttpServletRequestWrapper.parseQueryString(request.getQueryString()), request.getMethod(), datastoreWarnLimit);
-    }
-
-    public MimeType getReposeMimeType(javax.ws.rs.core.MediaType mediaType) {
-        return MimeType.guessMediaTypeFromString(mediaType.toString());
-    }
-
-    public javax.ws.rs.core.MediaType getJavaMediaType(MimeType reposeMimeType) {
-        return new javax.ws.rs.core.MediaType(reposeMimeType.getTopLevelTypeName(), reposeMimeType.getSubTypeName());
     }
 
     public String getPreferredUser(HttpServletRequest request) {

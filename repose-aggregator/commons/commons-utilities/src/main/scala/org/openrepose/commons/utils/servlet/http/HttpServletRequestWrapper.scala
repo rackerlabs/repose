@@ -133,7 +133,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, val inputSt
 
   def getHeadersScala(headerName: String): List[String] = {
     if (removedHeaders.contains(headerName)) {
-      List[String]()
+      List.empty[String]
     } else {
       headerMap.getOrElse(headerName, super.getHeaders(headerName).asScala.toList)
     }

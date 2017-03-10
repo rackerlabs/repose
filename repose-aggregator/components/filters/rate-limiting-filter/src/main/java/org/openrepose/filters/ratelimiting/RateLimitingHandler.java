@@ -22,8 +22,7 @@ package org.openrepose.filters.ratelimiting;
 import org.apache.http.HttpHeaders;
 import org.openrepose.commons.utils.http.HttpDate;
 import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.media.MediaRangeProcessor;
-import org.openrepose.commons.utils.http.media.MimeType;
+import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes;
 import org.openrepose.commons.utils.servlet.filter.FilterAction;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
@@ -36,29 +35,33 @@ import org.openrepose.core.services.ratelimit.exception.CacheException;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
 import org.openrepose.filters.ratelimiting.log.LimitLogger;
 import org.slf4j.Logger;
+import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static javax.servlet.http.HttpServletResponse.*;
+import static org.openrepose.filters.ratelimiting.write.LimitsResponseMimeTypeWriter.SUPPORTED_MEDIA_TYPES;
 
 /* Responsible for handling requests and responses to rate limiting, also tracks and provides limits */
 public class RateLimitingHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
-    private static final MimeType DEFAULT_MIME_TYPE = MimeType.APPLICATION_JSON;
-    private static final int SC_TOO_MANY_REQUESTS = 429;
+    private static final MediaType DEFAULT_MEDIA_TYPE = MediaType.APPLICATION_JSON;
 
     private final boolean includeAbsoluteLimits;
     private final Optional<Pattern> describeLimitsUriPattern;
     private final RateLimitingServiceHelper rateLimitingServiceHelper;
-    private MimeType originalPreferredAccept;
+    private MediaType originalPreferredAccept;
     private boolean overLimit429ResponseCode;
     private int datastoreWarnLimit;
     private final EventService eventService;
@@ -75,22 +78,25 @@ public class RateLimitingHandler {
     public FilterAction handleRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         FilterAction filterAction;
 
-        List<String> headerValues = request.getPreferredSplittableHeaders(HttpHeaders.ACCEPT);
-        List<MimeType> mimeTypes = MediaRangeProcessor.getMimeTypesFromHeaderValues(headerValues);
-        if (mimeTypes.isEmpty()) {
-            mimeTypes.add(DEFAULT_MIME_TYPE);
-        }
-
         if (requestHasExpectedHeaders(request)) {
-            originalPreferredAccept = getPreferredMimeType(mimeTypes);
-
             // record limits
             if (!recordLimitedRequest(request, response)) {
                 // failure - either over the limit or some other exception related to the data store occurred
                 filterAction = FilterAction.RETURN;
             } else if (describeLimitsUriPattern.isPresent() && describeLimitsUriPattern.get().matcher(request.getRequestURI()).matches()) {
                 // request matches the configured getCurrentLimits API call endpoint
-                filterAction = describeLimitsForRequest(request, response);
+                Optional<MediaType> preferredMediaType = getPreferredMediaType(request.getSplittableHeaders(HttpHeaders.ACCEPT));
+                if (!preferredMediaType.isPresent()) {
+                    // If no supported media types are acceptable, return a 406.
+                    // This is in according to HTTP/1.0 specification, even though HTTP/1.1 specifies that either a 406
+                    // response or a response with a default media type may be returned.
+                    response.setStatus(SC_NOT_ACCEPTABLE);
+                    // TODO: Set the supported accept types in the body? Provide a link to a supported types page?
+                    filterAction = FilterAction.RETURN;
+                } else {
+                    originalPreferredAccept = preferredMediaType.get();
+                    filterAction = describeLimitsForRequest(request, response);
+                }
             } else {
                 filterAction = FilterAction.PASS;
             }
@@ -109,29 +115,73 @@ public class RateLimitingHandler {
         return request.getHeader(PowerApiHeader.USER) != null;
     }
 
+    private static Optional<MediaType> parseMediaType(String type) {
+        Optional<MediaType> parsedType = Optional.empty();
+        try {
+            parsedType = Optional.of(MediaType.parseMediaType(type));
+        } catch (IllegalArgumentException iae) {
+            LOG.warn("Media type could not be parsed: {}", type, iae);
+        }
+        return parsedType;
+    }
+
+    private Optional<MediaType> getPreferredMediaType(List<String> acceptValues) {
+        Optional<MediaType> preferredMediaType = Optional.of(DEFAULT_MEDIA_TYPE);
+        if (!acceptValues.isEmpty()) {
+            /*
+             Parses and sorts (by specificity) media types from the "Accept" header (dropping any that cannot be parsed).
+             This has intentionally been left separate from the stream processing below to avoid re-parsing
+             and re-sorting accept media types for every supported media type.
+              */
+            List<MediaType> parsedAcceptMediaTypes = acceptValues.stream()
+                    .map(RateLimitingHandler::parseMediaType)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .sorted(MediaType.SPECIFICITY_COMPARATOR)
+                    .collect(Collectors.toList());
+
+            /*
+             For each supported media type, the most specific acceptable media type that is compatible is found.
+             If no compatible acceptable media type if found, the supported media type will not be used.
+             If the quality factor of the most specific acceptable media type compatible with a supported media type is
+             set to 0, the supported media type will not be used.
+
+             After discerning which supported media types are acceptable, sorts the acceptable media types by quality.
+             The highest quality acceptable media type is then set as the preferred media type.
+             */
+            preferredMediaType = SUPPORTED_MEDIA_TYPES.stream()
+                    .map(supportedMediaType -> parsedAcceptMediaTypes.stream()
+                            .filter(supportedMediaType::isCompatibleWith)
+                            .findFirst()
+                            .filter(acceptMediaType -> acceptMediaType.getQualityValue() != 0.0)
+                            .map(acceptMediaType -> (Map.Entry<MediaType, MediaType>) new AbstractMap.SimpleEntry(supportedMediaType, acceptMediaType)))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .sorted(Map.Entry.comparingByValue(MediaType.QUALITY_VALUE_COMPARATOR))
+                    .map(Map.Entry::getKey)
+                    .findFirst();
+        }
+        return preferredMediaType;
+    }
+
     private FilterAction describeLimitsForRequest(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
-        if (originalPreferredAccept == MimeType.UNKNOWN) {
-            response.setStatus(SC_NOT_ACCEPTABLE);
-            return FilterAction.RETURN;
+        // If include absolute limits let request pass through but prepare the combined
+        // (absolute and active) limits when processing the response
+        // TODO: A way to query global rate limits
+        if (includeAbsoluteLimits) {
+            request.replaceHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE);
+            return FilterAction.PROCESS_RESPONSE;
         } else {
-            // If include absolute limits let request pass thru but prepare the combined
-            // (absolute and active) limits when processing the response
-            // TODO: A way to query global rate limits
-            if (includeAbsoluteLimits) {
-                request.replaceHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML.toString());
-                return FilterAction.PROCESS_RESPONSE;
-            } else {
-                return noUpstreamResponse(request, response);
-            }
+            return noUpstreamResponse(request, response);
         }
     }
 
     private FilterAction noUpstreamResponse(HttpServletRequestWrapper request, HttpServletResponseWrapper response) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, originalPreferredAccept, outputStream);
+            final MediaType mediaType = rateLimitingServiceHelper.queryActiveLimits(request, originalPreferredAccept, outputStream);
             response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
-            response.setContentType(mimeType.toString());
+            response.setContentType(mediaType.toString());
             response.setStatus(SC_OK);
         } catch (Exception e) {
             LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
@@ -157,7 +207,7 @@ public class RateLimitingHandler {
             if (e.getUser().equals(RateLimitingServiceImpl.GLOBAL_LIMIT_USER)) {
                 response.setStatus(SC_SERVICE_UNAVAILABLE);
             } else if (overLimit429ResponseCode) {
-                response.setStatus(SC_TOO_MANY_REQUESTS);
+                response.setStatus(ExtendedStatusCodes.SC_TOO_MANY_REQUESTS);
             } else {
                 response.setStatus(SC_REQUEST_ENTITY_TOO_LARGE);
             }
@@ -183,13 +233,13 @@ public class RateLimitingHandler {
 
                 // I have to use mutable state, and that makes me sad, because If's aren't expressions
                 InputStream absoluteInputStream;
-                if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
+                if (response.getContentType().equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
                     //New set up! Grab the upstream json, make it look like XML
                     String newXml = UpstreamJsonToXml.convert(response.getOutputStreamAsInputStream());
 
                     //Now we use the new XML we converted from the JSON as the input to the processing stream
                     absoluteInputStream = new ByteArrayInputStream(newXml.getBytes(StandardCharsets.UTF_8));
-                } else if (response.getContentType().equalsIgnoreCase(MimeType.APPLICATION_XML.toString())) {
+                } else if (response.getContentType().equalsIgnoreCase(MediaType.APPLICATION_XML_VALUE)) {
                     //If we got XML from upstream, just read the stream directly
                     absoluteInputStream = response.getOutputStreamAsInputStream();
                 } else {
@@ -200,9 +250,9 @@ public class RateLimitingHandler {
 
                 //We'll get here if we were able to properly parse JSON, or if we had XML from upstream!
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, outputStream);
+                final MediaType mediaType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, absoluteInputStream, outputStream);
                 response.setOutput(new ByteArrayInputStream(outputStream.toByteArray()));
-                response.setContentType(mimeType.toString());
+                response.setContentType(mediaType.toString());
             } else {
                 LOG.warn("NO DATA RECEIVED FROM UPSTREAM limits, only sending regular rate limits!");
                 //No data from upstream, so we send the regular stuff no matter what
@@ -216,16 +266,6 @@ public class RateLimitingHandler {
             LOG.error("Failure when querying limits. Reason: " + e.getMessage(), e);
             response.setStatus(SC_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    public MimeType getPreferredMimeType(List<MimeType> mimeTypes) {
-        for (MimeType mimeType : mimeTypes) {
-            if (mimeType == MimeType.APPLICATION_XML || mimeType == MimeType.APPLICATION_JSON) {
-                return mimeType;
-            }
-        }
-
-        return mimeTypes.get(0);
     }
 
     /**
