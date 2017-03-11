@@ -23,11 +23,12 @@ import java.net.URL
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
+import com.codahale.metrics.{Meter, MetricRegistry}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, same}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.filters.urinormalization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -39,18 +40,25 @@ import scala.collection.JavaConversions._
 @RunWith(classOf[JUnitRunner])
 class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
-  val meterByCategorySum = mock[MeterByCategorySum]
-  val metricsService = mock[MetricsService]
-  val configurationService = mock[ConfigurationService]
+  private val metricsService = mock[MetricsService]
+  private val metricRegistry = mock[MetricRegistry]
+  private val meter = mock[Meter]
+  private val configurationService = mock[ConfigurationService]
 
   var filter: UriNormalizationFilter = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
 
-  when(metricsService.newMeterByCategorySum(any(), anyString(), anyString(), any())).thenReturn(meterByCategorySum)
+  override def beforeEach(): Unit = {
+    reset(metricsService)
+    reset(metricRegistry)
+    reset(meter)
+    reset(configurationService)
 
-  override def beforeEach() = {
+    when(metricsService.getRegistry).thenReturn(metricRegistry)
+    when(metricRegistry.meter(anyString())).thenReturn(meter)
+
     servletRequest = new MockHttpServletRequest("GET", "/a/really/nifty/uri")
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain

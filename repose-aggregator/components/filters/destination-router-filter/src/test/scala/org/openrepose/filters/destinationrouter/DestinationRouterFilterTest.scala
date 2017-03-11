@@ -20,15 +20,15 @@
 package org.openrepose.filters.destinationrouter
 
 import java.net.URL
-import java.util.concurrent.TimeUnit
 
+import com.codahale.metrics.{Meter, MetricRegistry}
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyString, isA, same}
+import org.mockito.Matchers.{any, anyString, same}
 import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.filters.routing.servlet.config.{DestinationRouterConfiguration, Target}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -38,13 +38,19 @@ import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttp
 @RunWith(classOf[JUnitRunner])
 class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAfterEach with MockitoSugar {
 
-  val configurationService = mock[ConfigurationService]
-  val meterByCategorySum = mock[MeterByCategorySum]
-  val metricsService = mock[MetricsService]
+  private val configurationService = mock[ConfigurationService]
+  private val metricsService = mock[MetricsService]
+  private val metricRegistry = mock[MetricRegistry]
+  private val meter = mock[Meter]
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     reset(configurationService)
     reset(metricsService)
+    reset(metricRegistry)
+    reset(meter)
+
+    when(metricsService.getRegistry).thenReturn(metricRegistry)
+    when(metricRegistry.meter(anyString())).thenReturn(meter)
   }
 
   describe("init") {
@@ -89,7 +95,6 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
       val request = new MockHttpServletRequest()
       val response = new MockHttpServletResponse()
       val chain = new MockFilterChain()
-      when(metricsService.newMeterByCategorySum(any[Class[DestinationRouterConfiguration]], anyString(), anyString(), any(classOf[TimeUnit]))).thenReturn(meterByCategorySum)
       val filter = new DestinationRouterFilter(configurationService, metricsService)
 
       val config = new DestinationRouterConfiguration()
@@ -109,7 +114,6 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
       val request = new MockHttpServletRequest()
       val response = new MockHttpServletResponse()
       val chain = new MockFilterChain()
-      when(metricsService.newMeterByCategorySum(any[Class[DestinationRouterConfiguration]], anyString(), anyString(), any(classOf[TimeUnit]))).thenReturn(meterByCategorySum)
       val filter = new DestinationRouterFilter(configurationService, metricsService)
 
       val config = new DestinationRouterConfiguration()

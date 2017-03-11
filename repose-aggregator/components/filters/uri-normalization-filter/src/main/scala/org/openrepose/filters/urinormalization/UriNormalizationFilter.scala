@@ -20,7 +20,6 @@
 package org.openrepose.filters.urinormalization
 
 import java.net.URL
-import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -30,9 +29,8 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.normal.QueryStringNormalizer
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
-import org.openrepose.core.filters.UriNormalization
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.filters.urinormalization.config.{HttpMethod, UriNormalizationConfig}
 import org.openrepose.filters.urinormalization.normalizer.{MediaTypeNormalizer, MultiInstanceWhiteListFactory}
 
@@ -44,12 +42,7 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
   extends Filter with UpdateListener[UriNormalizationConfig] with LazyLogging {
 
   private final val DefaultConfig: String = "uri-normalization.cfg.xml"
-
-  private val mbcsUriNormalizations: MeterByCategorySum = metricsService.newMeterByCategorySum(
-    classOf[UriNormalization],
-    "uri-normalization",
-    "Normalization",
-    TimeUnit.SECONDS)
+  private val metricsServiceOption = Option(metricsService)
 
   private var initialized: Boolean = false
   private var configFilename: String = _
@@ -66,7 +59,14 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
       mediaTypeNormalizer.normalizeContentMediaType(request)
       if (request.getParameterMap.nonEmpty) {
         queryStringNormalizers.find(_.normalize(request))
-          .foreach(queryStringNormalizer => mbcsUriNormalizations.mark(queryStringNormalizer.getLastMatch.toString + "_" + request.getMethod))
+          .foreach(queryStringNormalizer =>
+            metricsServiceOption.foreach(metricService =>
+              metricService.getRegistry.meter(metricService.name(
+                "org.openrepose.core.filters.UriNormalization",
+                "uri-normalization",
+                "Normalization",
+                queryStringNormalizer.getLastMatch.toString + "_" + request.getMethod))
+                .mark()))
       }
 
       filterChain.doFilter(request, servletResponse)
