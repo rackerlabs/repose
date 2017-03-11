@@ -17,11 +17,9 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-
 package org.openrepose.filters.headernormalization
 
 import java.net.URL
-import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -32,9 +30,8 @@ import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHRO
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.commons.utils.string.RegexString
 import org.openrepose.core.filter.FilterConfigHelper
-import org.openrepose.core.filters.HeaderNormalization
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.filters.headernormalization.HeaderNormalizationFilter._
 import org.openrepose.filters.headernormalization.config.{HeaderNormalizationConfig, HttpHeaderList, HttpMethod, Target => ConfigTarget}
 
@@ -48,7 +45,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
   private var initialized = false
   private var configRequest: Seq[Target] = _
   private var configResponse: Seq[Target] = _
-  private var metricsMeter: MeterByCategorySum = _
+  private val metricsServiceOption = Option(metricsService)
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Header Normalization filter initializing...")
@@ -57,8 +54,6 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
     logger.info(s"Initializing Header Normalization filter using config $configurationFile")
     val xsdUrl: URL = getClass.getResource(SCHEMA_FILE_NAME)
     configurationService.subscribeTo(filterConfig.getFilterName, configurationFile, xsdUrl, this, classOf[HeaderNormalizationConfig])
-
-    metricsMeter = metricsService.newMeterByCategorySum(classOf[HeaderNormalization], "header-normalization", "Normalization", TimeUnit.SECONDS)
 
     logger.trace("Header Normalization filter initialized.")
   }
@@ -83,7 +78,13 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedRequest.removeHeader)
 
-      metricsMeter.mark(s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_request")
+      metricsServiceOption.foreach(metricsService =>
+        metricsService.getRegistry.meter(metricsService.name(
+          "org.openrepose.core.filters.HeaderNormalization",
+          "header-normalization",
+          "Normalization",
+          s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_request"))
+          .mark())
     }
 
     val wrappedResponse = if (configResponse.isEmpty) None else Option(
@@ -111,7 +112,14 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedResponse.get.removeHeader)
 
-      metricsMeter.mark(s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_response")
+      metricsServiceOption.foreach(metricsService =>
+        metricsService.getRegistry.meter(
+          metricsService.name(
+            "org.openrepose.core.filters.HeaderNormalization",
+            "header-normalization",
+            "Normalization",
+            s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_response"))
+          .mark())
     }
 
     if (wrappedResponse.isDefined) wrappedResponse.get.commitToResponse()
@@ -190,8 +198,11 @@ object HeaderNormalizationFilter {
   val AllHttpMethods: String = HttpMethod.ALL.toString
 
   sealed trait AccessList
+
   object WhiteList extends AccessList
+
   object BlackList extends AccessList
 
   case class Target(url: RegexString, methods: Set[String], access: AccessList, headers: Set[String])
+
 }
