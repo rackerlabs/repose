@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.apivalidator;
 
+import com.codahale.metrics.MetricRegistry;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.ValidatorException;
 import com.rackspace.com.papi.components.checker.step.results.ErrorResult;
@@ -26,9 +27,7 @@ import com.rackspace.com.papi.components.checker.step.results.Result;
 import com.rackspace.com.papi.components.checker.wadl.WADLException;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
-import org.openrepose.core.filters.ApiValidator;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.MeterByCategorySum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class ApiValidatorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandler.class);
@@ -46,7 +44,7 @@ public class ApiValidatorHandler {
     private Set<String> matchedRoles;
     private boolean multiRoleMatch = false;
     private boolean delegatingMode;
-    private MeterByCategorySum mbcsInvalidRequests;
+    private final MetricsService metricsService;
 
     public ApiValidatorHandler(
             ValidatorInfo defaultValidator,
@@ -60,12 +58,7 @@ public class ApiValidatorHandler {
         this.multiRoleMatch = multiRoleMatch;
         this.defaultValidator = defaultValidator;
         this.delegatingMode = delegatingMode;
-
-        // TODO replace "api-validator" with filter-id or name-number in sys-model
-        if (metricsService != null) {
-            mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class,
-                    "api-validator", "InvalidRequest", TimeUnit.SECONDS);
-        }
+        this.metricsService = metricsService;
     }
 
     private boolean appendDefaultValidator(List<ValidatorInfo> validatorList) {
@@ -153,9 +146,16 @@ public class ApiValidatorHandler {
                 }
 
                 if (!isValid) {
-                    if (mbcsInvalidRequests != null) {
+                    if (Optional.ofNullable(metricsService).isPresent()) {
+                        MetricRegistry metricRegistry = metricsService.getRegistry();
                         for (String s : matchedRoles) {
-                            mbcsInvalidRequests.mark(s);
+                            metricRegistry.meter(
+                                    metricsService.name(
+                                            "org.openrepose.core.filters.ApiValidator",
+                                            "api-validator", // TODO replace "api-validator" with filter-id or name-number in sys-model
+                                            "InvalidRequest",
+                                            s))
+                                    .mark();
                         }
                     }
                     if (multiRoleMatch) {

@@ -26,9 +26,11 @@ import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.core.services.datastore.impl.distributed.HashRingDatastoreManager;
 import org.openrepose.core.services.datastore.impl.ehcache.EHCacheDatastoreManager;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,8 +43,9 @@ public class DatastoreServiceImpl implements DatastoreService {
     private final DatastoreManager localDatastoreManager;
     private final Map<String, DatastoreManager> distributedManagers;
 
-    public DatastoreServiceImpl() {
-        localDatastoreManager = new EHCacheDatastoreManager();
+    @Inject
+    public DatastoreServiceImpl(MetricsService metricsService) {
+        localDatastoreManager = new EHCacheDatastoreManager(metricsService);
         distributedManagers = new HashMap<>();
     }
 
