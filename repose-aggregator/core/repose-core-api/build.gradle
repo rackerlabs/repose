@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
-    compile "com.yammer.metrics:metrics-core"
+    compile "io.dropwizard.metrics:metrics-core"
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
