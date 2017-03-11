@@ -28,7 +28,6 @@ import org.openrepose.commons.utils.logging.TracingKey;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.ResponseMode;
-import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.proxy.ServletContextWrapper;
 import org.openrepose.core.services.RequestProxyService;
@@ -44,7 +43,6 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.jmx.ConfigurationInformation;
 import org.openrepose.core.services.reporting.ReportingService;
-import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
 import org.openrepose.core.spring.ReposeSpringProperties;
@@ -74,7 +72,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.openrepose.commons.utils.http.CommonHttpHeader.*;
@@ -116,7 +113,6 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final ArtifactManager artifactManager;
     private ReportingService reportingService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
-    private MeterByCategory mbcResponseCodes;
     private ResponseHeaderService responseHeaderService;
 
     /**
@@ -126,13 +122,13 @@ public class PowerFilter extends DelegatingFilterProxy {
      * @param clusterId                     this PowerFilter's cluster ID
      * @param nodeId                        this PowerFilter's node ID
      * @param powerFilterRouterFactory      Builds a powerfilter router for this power filter
-     * @param reportingService
-     * @param healthCheckService
-     * @param responseHeaderService
+     * @param reportingService              the reporting service
+     * @param healthCheckService            the health check service
+     * @param responseHeaderService         the response header service
      * @param configurationService          For monitoring config files
-     * @param eventService
-     * @param metricsService
-     * @param containerConfigurationService
+     * @param eventService                  the event service
+     * @param metricsService                the metrics service
+     * @param containerConfigurationService the container configuration service
      * @param responseMessageService        the response message service
      * @param filterContextFactory          A factory that builds filter contexts
      * @param configurationInformation      allows JMX to see when this powerfilter is ready
@@ -180,26 +176,26 @@ public class PowerFilter extends DelegatingFilterProxy {
         this.healthCheckService = healthCheckService;
 
         healthCheckServiceProxy = healthCheckService.register();
-        mbcResponseCodes = metricsService.newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
     }
 
-    public static void markResponseCodeHelper(MeterByCategory mbc, int responseCode, Logger log, String logPrefix) {
-        if (mbc == null) {
-            return;
-        }
-
-        int code = responseCode / 100;
-
-        if (code == 2) {
-            mbc.mark("2XX");
-        } else if (code == 3) {
-            mbc.mark("3XX");
-        } else if (code == 4) {
-            mbc.mark("4XX");
-        } else if (code == 5) {
-            mbc.mark("5XX");
-        } else {
-            log.error((logPrefix != null ? logPrefix + ":  " : "") + "Encountered invalid response code: " + responseCode);
+    public static void markResponseCodeHelper(MetricsService metricsService, int responseCode, Logger log, String logPrefix) {
+        if (Optional.ofNullable(metricsService).isPresent()) {
+            int code = responseCode / 100;
+            String meterId = null;
+            if (1 < code && code < 6) {
+                meterId = String.format("%dXX", code);
+            }
+            if (meterId != null) {
+                metricsService.getRegistry().meter(
+                        metricsService.name(
+                                "org.openrepose.core.ResponseCode",
+                                "Repose",
+                                "Response Code",
+                                meterId))
+                        .mark();
+            } else {
+                log.error((logPrefix != null ? logPrefix + ":  " : "") + "Encountered invalid response code: " + responseCode);
+            }
         }
     }
 
@@ -282,7 +278,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     public void initFilterBean() {
         LOG.info("{}:{} -- Initializing PowerFilter bean", clusterId, nodeId);
 
-        /**
+        /*
          * http://docs.spring.io/spring-framework/docs/3.1.4.RELEASE/javadoc-api/org/springframework/web/filter/GenericFilterBean.html#setServletContext%28javax.servlet.ServletContext%29
          * Configure the servlet Context wrapper insanity to get to the Request Dispatcher I think...
          * NOTE: this thing alone provides the dispatcher for forwarding requests. It's really kind of gross.
@@ -452,7 +448,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
             final long stopTime = System.currentTimeMillis();
 
-            markResponseCodeHelper(mbcResponseCodes, ((HttpServletResponse) response).getStatus(), LOG, null);
+            markResponseCodeHelper(metricsService, ((HttpServletResponse) response).getStatus(), LOG, null);
 
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
         }
