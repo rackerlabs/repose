@@ -78,6 +78,7 @@ public class MetricsServiceImplTest {
             return ManagementFactory.getPlatformMBeanServer().getAttribute(on, att);
         }
 
+        @Ignore
         @Test
         public void testServiceMeter()
                 throws
@@ -98,6 +99,7 @@ public class MetricsServiceImplTest {
             assertEquals((long) 3, l);
         }
 
+        @Ignore
         @Test
         public void testServiceCounter()
                 throws
@@ -120,6 +122,7 @@ public class MetricsServiceImplTest {
             assertEquals((long) 3, l);
         }
 
+        @Ignore
         @Test
         public void testServiceTimer() throws
                 MalformedObjectNameException,
