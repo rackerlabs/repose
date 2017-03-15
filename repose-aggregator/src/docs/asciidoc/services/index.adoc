@@ -12,7 +12,7 @@ include::../_includes/in-progress.adoc[]
 *IN PROGRESS*
 
 == <<http-connection-pool.adoc#,HTTP Connection Pool service>>
-*IN PROGRESS*
+The HTTP Connection Pool service is used for all outbound communication, and allows you to specify a number of things about those connections.
 
 == <<phone-home.adoc#,Phone Home Service>>
 *IN PROGRESS*
