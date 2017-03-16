@@ -28,14 +28,9 @@ import org.rackspace.deproxy.MessageChain
  */
 class HttpsClientAuthNonAuthedOriginTest extends ReposeValveTest {
 
-    def setup() {
+    def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-    }
-
-    def cleanup() {
-        if (deproxy)
-            deproxy.shutdown()
     }
 
     def "repose should have no problems with a non authed origin, while connection pool has auth configured"() {
@@ -47,7 +42,7 @@ class HttpsClientAuthNonAuthedOriginTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
 
         when:
-        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/cluster", headers: ['x-trace-request': 'true']])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/cluster")
 
         then:
         mc.receivedResponse.code == '200'
