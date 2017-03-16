@@ -1,7 +1,14 @@
 = SSL/TLS Client Authentication
 
+This recipe explains how to utilize SSL/TLS Client Authentication in Repose.
+
+SSL/TLS provides an encrypted link between the client and the server, and is the standard for sending private data over the internet.
+You may want to enable SSL/TLS Client Authentication if part of your infrastructure is in a different datacenter to ensure only cross service traffic can reach your service.
+
+== Background
+
 SSL/TLS Client Authentication is being used more and more for communications between different enclaves.
-This addition to the SSL/TLS handshake involves the Client presenting credentials to the Server in the same manner as the Server does to the Client.
+This addition to the server based SSL/TLS handshake involves the Client presenting credentials to the Server in the same manner as the Server does to the Client.
 If the credentials presented by the Client are not trusted, then the Server will sever the connection just as the Client would have if the situation was reversed.
 Since a Client initiates contact with the Server, the Server's credentials are simply to validate it is who the Client was trying to contact.
 This is accomplished through Certificate Authorities (CA) and the Trust Hierarchies built into the Public Key Infrastructure (PKI).
@@ -9,10 +16,9 @@ Even though you can optionally add a particular Server's credentials directly in
 
 == Generate and Install the Certificate
 
-Regardless of which end of *Repose* you are setting up SSl/LS Client Authentication on you'll need to follow these steps.
-For the purposes of these steps the _client_ will refer to the requesting service for requests inbound to *Repose* if you are setting up for client authentication on the inbound side of *Repose*, and *Repose* itself if you are setting it up for the outbound to origin service side.
-The _server_ will refer to *Repose* if you are setting up for client authentication on the inbound side of *Repose*, and the origin service if you are setting it up for the outbound to origin service side.
-
+In the following steps, the _client_ will refer to the entity sending the request, and the _server_ will refer to the entity receiving the request.
+If you are setting up client authentication for requests inbound to Repose, then the entity sending the request is the _client_ and Repose is the _server_.
+If you are setting up client authentication for requests outbound from Repose to the origin service, then Repose is the _client_ and the origin service is the _server_.
 [[create-client-certificate]]
 === Generate the _client_ key and certificate
 
@@ -65,7 +71,7 @@ If you are using the *WAR* deployment and not *Valve*, you will have to consult 
 
 == *Repose* to Origin Service
 
-To turn on authenticated communication to your origin service, you'll need to tweak the default pool in your http client po0l config.
+To turn on authenticated communication to your origin service, you'll need to tweak the default pool in your http client pool config.
 There is nothing stopping you from similarly tweaking any of your other pools if you have a need to use client authentication in other outbound communication.
 
 [source, xml]

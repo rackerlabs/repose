@@ -127,11 +127,13 @@ Add or update the `chunked-encoding` attribute for your default pool to false.
 </pool>
 ----
 <1> Be sure it's the default pool being updated.
-<2> Here's the rest of the pool attributes.
+<2> Here are the rest of the pool attributes.
 <3> Add `chunked-encoding` if not already present and set it to false.
 
 [NOTE]
+====
 This can be done for any other pool as well, if it's known that it will be used to communicate to a service that doesn't support chunked encoding.
+====
 
 === Need higher concurrency
 
@@ -157,7 +159,7 @@ The size of the pools can be increased by raising `http.conn-manager.max-total` 
 
 === Requested endpoint requires a static header
 
-Some services require a static header be present just for the purposes of identification, this can easily be done by adding the `headers` element to the pool configuration.
+Some services require a static header be present just for the purposes of identification; this can easily be done by adding the `headers` element to the pool configuration.
 
 [source,xml]
 .http-connection-pool.cfg.xml
