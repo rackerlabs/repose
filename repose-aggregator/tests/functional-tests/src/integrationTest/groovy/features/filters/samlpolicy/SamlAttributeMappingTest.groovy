@@ -29,7 +29,6 @@ import org.opensaml.saml.saml2.core.Response as SamlResponse
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
 
 import static features.filters.samlpolicy.util.SamlPayloads.*
 import static features.filters.samlpolicy.util.SamlUtilities.*
@@ -372,7 +371,6 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         !json.access.'RAX-AUTH:extendedAttributes'
     }
 
-    @Ignore("for the time being we've accepted this behavior, whether or not we want this to be the behavior long term is still in discussion")
     def "when the specified path for an extended attribute is not present in the saml:response, it is not added to the request/response"() {
         given: "a mapping policy with a literal value and a path-based value (that won't be in the saml:response)"
         def extAttribLiteral = "Captain"
