@@ -31,6 +31,8 @@ import javax.inject.Named;
 @Named
 public class MetricRegistryAspect {
 
+    private final static String REPOSE_PACKAGE = "org.openrepose";
+
     private final ReposeJmxNamingStrategy reposeJmxNamingStrategy;
 
     @Inject
@@ -41,7 +43,7 @@ public class MetricRegistryAspect {
     @Around("execution(* com.codahale.metrics.MetricRegistry.*(java.lang.String,..)) && args(name,..)")
     private Object prefixMetricName(ProceedingJoinPoint pjp, String name) throws Throwable {
         Object[] methodArguments = pjp.getArgs();
-        if (name.startsWith("org.openrepose")) {
+        if (name.startsWith(REPOSE_PACKAGE)) {
             methodArguments[0] = String.join("", reposeJmxNamingStrategy.getJmxPrefix(), name);
         }
         return pjp.proceed(methodArguments);
