@@ -87,4 +87,15 @@ public class MetricRegistryAspectTest {
 
         verify(target).meter(reposeJmxNamingStrategy.getJmxPrefix() + meterName);
     }
+
+    @Test
+    public void proxyMeterNameStartingWithOpenReposePackageShouldBeRemoved() {
+        String meterName = "org.openrepose.meter.name";
+
+        proxy.meter(meterName);
+        proxy.remove(meterName);
+
+        verify(target).meter(reposeJmxNamingStrategy.getJmxPrefix() + meterName);
+        verify(target).remove(reposeJmxNamingStrategy.getJmxPrefix() + meterName);
+    }
 }
