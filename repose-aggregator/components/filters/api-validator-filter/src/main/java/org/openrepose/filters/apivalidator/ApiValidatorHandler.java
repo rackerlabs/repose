@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,21 +44,21 @@ public class ApiValidatorHandler {
     private Set<String> matchedRoles;
     private boolean multiRoleMatch = false;
     private boolean delegatingMode;
-    private final MetricsService metricsService;
+    private final Optional<MetricRegistry> metricRegistryOpt;
 
     public ApiValidatorHandler(
             ValidatorInfo defaultValidator,
             List<ValidatorInfo> validators,
             boolean multiRoleMatch,
             boolean delegatingMode,
-            MetricsService metricsService) {
+            Optional<MetricsService> metricsService) {
         this.validators = new ArrayList<>(validators.size());
         this.matchedRoles = new HashSet<>();
         this.validators.addAll(validators);
         this.multiRoleMatch = multiRoleMatch;
         this.defaultValidator = defaultValidator;
         this.delegatingMode = delegatingMode;
-        this.metricsService = metricsService;
+        this.metricRegistryOpt = metricsService.map(MetricsService::getRegistry);
     }
 
     private boolean appendDefaultValidator(List<ValidatorInfo> validatorList) {
@@ -146,18 +146,12 @@ public class ApiValidatorHandler {
                 }
 
                 if (!isValid) {
-                    if (Optional.ofNullable(metricsService).isPresent()) {
-                        MetricRegistry metricRegistry = metricsService.getRegistry();
-                        for (String s : matchedRoles) {
-                            metricRegistry.meter(
-                                    metricsService.name(
-                                            "org.openrepose.core.filters.ApiValidator",
-                                            "api-validator", // TODO replace "api-validator" with filter-id or name-number in sys-model
-                                            "InvalidRequest",
-                                            s))
-                                    .mark();
-                        }
-                    }
+                    metricRegistryOpt.ifPresent(metricRegistry ->
+                        matchedRoles.forEach(role ->
+                            metricRegistry.meter("org.openrepose.core.filters.ApiValidator.api-validator.InvalidRequest" + role)
+                                .mark()
+                        )
+                    );
                     if (multiRoleMatch) {
                         sendMultiMatchErrorResponse(lastValidatorResult, response);
                     }
