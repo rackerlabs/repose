@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -94,6 +94,7 @@ public class MetricsServiceImpl implements MetricsService {
     @Inject
     public MetricsServiceImpl(
             ConfigurationService configurationService,
+            MetricRegistry metricRegistry,
             HealthCheckService healthCheckService,
             ReposeJmxNamingStrategy reposeStrat
     ) {
@@ -101,7 +102,7 @@ public class MetricsServiceImpl implements MetricsService {
         this.reposeStrat = reposeStrat;
         this.healthCheckServiceProxy = healthCheckService.register();
 
-        this.metricRegistry = new MetricRegistry();
+        this.metricRegistry = metricRegistry;
         //There are tests that don't start the JMX if the metrics service isn't enabled...
         this.jmxReporter = JmxReporter
                 .forRegistry(metricRegistry)

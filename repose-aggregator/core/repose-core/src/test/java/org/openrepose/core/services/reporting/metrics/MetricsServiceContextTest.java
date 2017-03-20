@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.reporting.metrics;
 
+import com.codahale.metrics.MetricRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -59,7 +60,7 @@ public class MetricsServiceContextTest {
             when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
             jmxNamingStrategy = mock(ReposeJmxNamingStrategy.class);
             when(jmxNamingStrategy.getJmxPrefix()).thenReturn("MockJMX-");
-            metricsService = new MetricsServiceImpl(configurationService, healthCheckService, jmxNamingStrategy);
+            metricsService = new MetricsServiceImpl(configurationService, new MetricRegistry(), healthCheckService, jmxNamingStrategy);
             sce = mock(ServletContextEvent.class);
         }
 
