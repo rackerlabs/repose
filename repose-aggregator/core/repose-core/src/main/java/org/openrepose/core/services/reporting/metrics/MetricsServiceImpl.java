@@ -170,11 +170,6 @@ public class MetricsServiceImpl implements MetricsService {
         return metricRegistry;
     }
 
-    @Override
-    public String name(String className, String... names) {
-        return MetricRegistry.name(reposeStrat.getJmxPrefix() + className, names);
-    }
-
     @PreDestroy
     @Override
     public void destroy() {

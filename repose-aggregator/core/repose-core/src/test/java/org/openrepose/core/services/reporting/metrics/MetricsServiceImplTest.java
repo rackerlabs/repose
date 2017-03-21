@@ -88,7 +88,7 @@ public class MetricsServiceImplTest {
                 ReflectionException,
                 InstanceNotFoundException {
 
-            Meter m = metricsService.getRegistry().meter(metricsService.name(this.getClass().getName(), "meter1", "scope1", "hits"));
+            Meter m = metricsService.getRegistry().meter(this.getClass().getName() + ".meter1.scope1.hits");
 
             m.mark();
             m.mark();
@@ -108,7 +108,7 @@ public class MetricsServiceImplTest {
                 ReflectionException,
                 InstanceNotFoundException {
 
-            Counter c = metricsService.getRegistry().counter(metricsService.name(this.getClass().getName(), "counter1", "scope1"));
+            Counter c = metricsService.getRegistry().counter(this.getClass().getName() + ".counter1.scope1");
 
             c.inc();
             c.inc();
@@ -129,7 +129,7 @@ public class MetricsServiceImplTest {
                 ReflectionException,
                 InstanceNotFoundException {
 
-            Timer t = metricsService.getRegistry().timer(metricsService.name(this.getClass().getName(), "name1", "scope1"));
+            Timer t = metricsService.getRegistry().timer(this.getClass().getName() + ".name1.scope1");
 
             Timer.Context tc = t.time();
             try {
