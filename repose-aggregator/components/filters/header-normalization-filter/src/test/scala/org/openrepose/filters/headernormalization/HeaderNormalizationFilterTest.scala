@@ -20,6 +20,7 @@
 
 package org.openrepose.filters.headernormalization
 
+import java.util.Optional
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{FilterChain, FilterConfig, ServletRequest, ServletResponse}
 
@@ -51,12 +52,12 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
   var servletResponse: MockHttpServletResponse = _
   private val filterChain = mock[FilterChain]
   private val filterConfig = mock[FilterConfig]
-  private val JMX_PREFIX = "MOCK-PREFIX-"
   private val METRIC_CLASS = "org.openrepose.core.filters.HeaderNormalization"
   private val TYPE = "header-normalization"
   private val SCOPE = "Normalization"
-  private val METRIC_PREFIX = s"$JMX_PREFIX$METRIC_CLASS.$TYPE.$SCOPE."
-  var metricsService: MetricsService = _
+  private val METRIC_PREFIX = s"$METRIC_CLASS.$TYPE.$SCOPE."
+  private val metricsService = mock[MetricsService]
+  private val metricsServiceOpt = Optional.of(metricsService)
   private val metricRegistry = mock[MetricRegistry]
   private val meter = mock[Meter]
 
@@ -66,21 +67,15 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
     reset(filterChain)
     reset(filterConfig)
+    reset(metricsService)
     reset(metricRegistry)
     reset(meter)
 
     when(filterConfig.getInitParameterNames).thenReturn(List.empty[String].toIterator.asJavaEnumeration)
+    when(metricsService.getRegistry).thenReturn(metricRegistry)
     when(metricRegistry.meter(anyString())).thenReturn(meter)
 
-    metricsService = new MetricsService {
-      override def getRegistry: MetricRegistry = metricRegistry
-
-      override def name(className: String, names: String*): String = MetricRegistry.name(JMX_PREFIX + className, names:_*)
-
-      override def destroy(): Unit = {}
-    }
-
-    filter = new HeaderNormalizationFilter(mock[ConfigurationService], metricsService)
+    filter = new HeaderNormalizationFilter(mock[ConfigurationService], metricsServiceOpt)
     filter.init(filterConfig)
   }
 

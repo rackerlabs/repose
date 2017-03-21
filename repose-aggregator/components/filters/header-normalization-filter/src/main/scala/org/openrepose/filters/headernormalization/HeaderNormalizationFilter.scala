@@ -20,6 +20,7 @@
 package org.openrepose.filters.headernormalization
 
 import java.net.URL
+import java.util.Optional
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -38,14 +39,14 @@ import org.openrepose.filters.headernormalization.config.{HeaderNormalizationCon
 import scala.collection.JavaConverters._
 
 @Named
-class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: MetricsService)
+class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: Optional[MetricsService])
   extends Filter with UpdateListener[HeaderNormalizationConfig] with LazyLogging {
 
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized = false
   private var configRequest: Seq[Target] = _
   private var configResponse: Seq[Target] = _
-  private val metricsServiceOption = Option(metricsService)
+  private val metricsServiceOption = Option(metricsService.orElse(null))
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Header Normalization filter initializing...")
@@ -79,11 +80,8 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
       }).foreach(wrappedRequest.removeHeader)
 
       metricsServiceOption.foreach(metricsService =>
-        metricsService.getRegistry.meter(metricsService.name(
-          "org.openrepose.core.filters.HeaderNormalization",
-          "header-normalization",
-          "Normalization",
-          s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_request"))
+        metricsService.getRegistry.meter(
+          s"org.openrepose.core.filters.HeaderNormalization.header-normalization.Normalization.${target.url.pattern.toString}_${wrappedRequest.getMethod}_request")
           .mark())
     }
 
@@ -114,11 +112,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
 
       metricsServiceOption.foreach(metricsService =>
         metricsService.getRegistry.meter(
-          metricsService.name(
-            "org.openrepose.core.filters.HeaderNormalization",
-            "header-normalization",
-            "Normalization",
-            s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_response"))
+          s"org.openrepose.core.filters.HeaderNormalization.header-normalization.Normalization.${target.url.pattern.toString}_${wrappedRequest.getMethod}_response")
           .mark())
     }
 
