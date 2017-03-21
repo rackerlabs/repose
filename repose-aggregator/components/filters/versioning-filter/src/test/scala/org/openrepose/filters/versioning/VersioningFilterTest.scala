@@ -20,6 +20,7 @@
 package org.openrepose.filters.versioning
 
 import java.net.URL
+import java.util.Optional
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.codahale.metrics.{Meter, MetricRegistry}
@@ -94,7 +95,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
     doNothing().when(configurationService).subscribeTo(anyString(), anyString(), any[URL], versioningListenerCaptor.capture(), any[Class[ServiceVersionMappingList]])
     doNothing().when(configurationService).subscribeTo(anyString(), systemModelListenerCaptor.capture(), any[Class[SystemModel]])
 
-    filter = new VersioningFilter("cluster", "node", configurationService, healthCheckService, metricsService)
+    filter = new VersioningFilter("cluster", "node", configurationService, healthCheckService, Optional.of(metricsService))
     filter.init(new MockFilterConfig())
 
     systemModelListener = systemModelListenerCaptor.getValue

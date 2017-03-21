@@ -20,6 +20,7 @@
 package org.openrepose.filters.versioning
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.util.Optional
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -51,7 +52,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
                                  @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
                                  configurationService: ConfigurationService,
                                  healthCheckService: HealthCheckService,
-                                 metricsService: MetricsService)
+                                 metricsService: Optional[MetricsService])
   extends Filter with LazyLogging {
 
   private final val SystemModelConfigFileName = "system-model.cfg.xml"
@@ -62,7 +63,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
   private val versioningObjectFactory = new ObjectFactory()
   private val healthCheckServiceProxy = healthCheckService.register
-  private val metricsServiceOption = Option(metricsService)
+  private val metricsServiceOption = Option(metricsService.orElse(null))
 
   private var configurationFileName: String = _
   private var serviceVersionMappings: Map[String, ServiceVersionMapping] = _
@@ -110,11 +111,9 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
       try {
         def markMeter(name: String): Unit = {
           metricsServiceOption.foreach(metricService =>
-            metricService.getRegistry.meter(metricService.name(
-              "org.openrepose.core.filters.Versioning",
-              "versioning", // todo: replace "versioning" with filter-id or name-number in sys-model
-              "VersionedRequest",
-              name))
+            // todo: replace "versioning" with filter-id or name-number in sys-model
+            metricService.getRegistry
+              .meter("org.openrepose.core.filters.Versioning.versioning.VersionedRequest" + name)
               .mark())
         }
 
