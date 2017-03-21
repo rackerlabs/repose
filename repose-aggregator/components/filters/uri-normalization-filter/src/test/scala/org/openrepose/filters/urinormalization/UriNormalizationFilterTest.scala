@@ -20,6 +20,7 @@
 package org.openrepose.filters.urinormalization
 
 import java.net.URL
+import java.util.Optional
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
@@ -41,6 +42,7 @@ import scala.collection.JavaConversions._
 class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   private val metricsService = mock[MetricsService]
+  private val metricsServiceOpt = Optional.of(metricsService)
   private val metricRegistry = mock[MetricRegistry]
   private val meter = mock[Meter]
   private val configurationService = mock[ConfigurationService]
@@ -69,7 +71,7 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Ma
     servletRequest.setParameter("c", "3")
     servletRequest.setParameter("d", "4")
 
-    filter = new UriNormalizationFilter(configurationService, metricsService)
+    filter = new UriNormalizationFilter(configurationService, metricsServiceOpt)
   }
 
   describe("init") {

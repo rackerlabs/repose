@@ -20,6 +20,7 @@
 package org.openrepose.filters.urinormalization
 
 import java.net.URL
+import java.util.Optional
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -38,11 +39,11 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 @Named
-class UriNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: MetricsService)
+class UriNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: Optional[MetricsService])
   extends Filter with UpdateListener[UriNormalizationConfig] with LazyLogging {
 
   private final val DefaultConfig: String = "uri-normalization.cfg.xml"
-  private val metricsServiceOption = Option(metricsService)
+  private val metricsServiceOption = Option(metricsService.orElse(null))
 
   private var initialized: Boolean = false
   private var configFilename: String = _
@@ -61,11 +62,11 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
         queryStringNormalizers.find(_.normalize(request))
           .foreach(queryStringNormalizer =>
             metricsServiceOption.foreach(metricService =>
-              metricService.getRegistry.meter(metricService.name(
-                "org.openrepose.core.filters.UriNormalization",
-                "uri-normalization",
-                "Normalization",
-                queryStringNormalizer.getLastMatch.toString + "_" + request.getMethod))
+              metricService.getRegistry
+                .meter("org.openrepose.core.filters.UriNormalization.uri-normalization.Normalization" +
+                  queryStringNormalizer.getLastMatch.toString +
+                  "_" +
+                  request.getMethod)
                 .mark()))
       }
 
