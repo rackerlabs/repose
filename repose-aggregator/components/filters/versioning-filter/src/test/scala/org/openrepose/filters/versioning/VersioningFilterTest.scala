@@ -65,6 +65,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
   private val healthCheckService = mock[HealthCheckService]
   private val healthCheckServiceProxy = mock[HealthCheckServiceProxy]
   private val metricsService = mock[MetricsService]
+  private val metricsServiceOpt = Optional.of(metricsService)
   private val metricRegistry = mock[MetricRegistry]
   private val meter = mock[Meter]
   var request: MockHttpServletRequest = _
@@ -95,7 +96,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
     doNothing().when(configurationService).subscribeTo(anyString(), anyString(), any[URL], versioningListenerCaptor.capture(), any[Class[ServiceVersionMappingList]])
     doNothing().when(configurationService).subscribeTo(anyString(), systemModelListenerCaptor.capture(), any[Class[SystemModel]])
 
-    filter = new VersioningFilter("cluster", "node", configurationService, healthCheckService, Optional.of(metricsService))
+    filter = new VersioningFilter("cluster", "node", configurationService, healthCheckService, metricsServiceOpt)
     filter.init(new MockFilterConfig())
 
     systemModelListener = systemModelListenerCaptor.getValue
