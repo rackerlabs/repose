@@ -20,6 +20,7 @@
 package org.openrepose.filters.destinationrouter
 
 import java.net.URL
+import java.util.Optional
 
 import com.codahale.metrics.{Meter, MetricRegistry}
 import org.junit.runner.RunWith
@@ -40,6 +41,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
 
   private val configurationService = mock[ConfigurationService]
   private val metricsService = mock[MetricsService]
+  private val metricsServiceOpt = Optional.of(metricsService)
   private val metricRegistry = mock[MetricRegistry]
   private val meter = mock[Meter]
 
@@ -55,7 +57,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
 
   describe("init") {
     it("should register with the configuration service") {
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       filter.init(new MockFilterConfig())
 
@@ -65,7 +67,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
 
   describe("destroy") {
     it("should un-register with the configuration service") {
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       filter.destroy()
 
@@ -78,7 +80,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
       val request = new MockHttpServletRequest()
       val response = new MockHttpServletResponse()
       val chain = new MockFilterChain()
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       val config = new DestinationRouterConfiguration()
       val target = new Target()
@@ -95,7 +97,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
       val request = new MockHttpServletRequest()
       val response = new MockHttpServletResponse()
       val chain = new MockFilterChain()
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       val config = new DestinationRouterConfiguration()
       val target = new Target()
@@ -114,7 +116,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
       val request = new MockHttpServletRequest()
       val response = new MockHttpServletResponse()
       val chain = new MockFilterChain()
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       val config = new DestinationRouterConfiguration()
       val target = new Target()
