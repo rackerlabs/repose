@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -107,7 +107,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final String clusterId;
     private final PowerFilterRouterFactory powerFilterRouterFactory;
     private final ConfigurationService configurationService;
-    private final MetricsService metricsService;
+    private final Optional<MetricsService> metricsService;
     private final ConfigurationInformation configurationInformation;
     private final RequestProxyService requestProxyService;
     private final ArtifactManager artifactManager;
@@ -137,21 +137,21 @@ public class PowerFilter extends DelegatingFilterProxy {
      */
     @Inject
     public PowerFilter(
-            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
-            @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
-            PowerFilterRouterFactory powerFilterRouterFactory,
-            ReportingService reportingService,
-            HealthCheckService healthCheckService,
-            ResponseHeaderService responseHeaderService,
-            ConfigurationService configurationService,
-            EventService eventService,
-            MetricsService metricsService,
-            ContainerConfigurationService containerConfigurationService,
-            ResponseMessageService responseMessageService,
-            FilterContextFactory filterContextFactory,
-            ConfigurationInformation configurationInformation,
-            RequestProxyService requestProxyService,
-            ArtifactManager artifactManager
+        @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+        @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
+        PowerFilterRouterFactory powerFilterRouterFactory,
+        ReportingService reportingService,
+        HealthCheckService healthCheckService,
+        ResponseHeaderService responseHeaderService,
+        ConfigurationService configurationService,
+        EventService eventService,
+        ContainerConfigurationService containerConfigurationService,
+        ResponseMessageService responseMessageService,
+        FilterContextFactory filterContextFactory,
+        ConfigurationInformation configurationInformation,
+        RequestProxyService requestProxyService,
+        ArtifactManager artifactManager,
+        Optional<MetricsService> metricsService
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
@@ -179,23 +179,17 @@ public class PowerFilter extends DelegatingFilterProxy {
     }
 
     public static void markResponseCodeHelper(MetricsService metricsService, int responseCode, Logger log, String logPrefix) {
-        if (Optional.ofNullable(metricsService).isPresent()) {
-            int code = responseCode / 100;
-            String meterId = null;
-            if (1 < code && code < 6) {
-                meterId = String.format("%dXX", code);
-            }
-            if (meterId != null) {
-                metricsService.getRegistry().meter(
-                        metricsService.name(
-                                "org.openrepose.core.ResponseCode",
-                                "Repose",
-                                "Response Code",
-                                meterId))
-                        .mark();
-            } else {
-                log.error((logPrefix != null ? logPrefix + ":  " : "") + "Encountered invalid response code: " + responseCode);
-            }
+        int code = responseCode / 100;
+        String meterId = null;
+        if (1 < code && code < 6) {
+            meterId = String.format("%dXX", code);
+        }
+        if (meterId != null) {
+            metricsService.getRegistry()
+                .meter("org.openrepose.core.ResponseCode.Repose.Response Code." + meterId)
+                .mark();
+        } else {
+            log.error((logPrefix != null ? logPrefix + ":  " : "") + "Encountered invalid response code: " + responseCode);
         }
     }
 
@@ -448,7 +442,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
             final long stopTime = System.currentTimeMillis();
 
-            markResponseCodeHelper(metricsService, ((HttpServletResponse) response).getStatus(), LOG, null);
+            metricsService.ifPresent(ms -> markResponseCodeHelper(ms, ((HttpServletResponse) response).getStatus(), LOG, null));
 
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
         }

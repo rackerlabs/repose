@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -62,7 +62,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private final ServletContext servletContext;
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
-    private final MetricsService metricsService;
+    private final Optional<MetricsService> metricsService;
     private final ReportingService reportingService;
 
     public PowerFilterRouterImpl(DestinationLocationBuilder locationBuilder,
@@ -72,10 +72,9 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                                  ServletContext servletContext,
                                  RequestHeaderService requestHeaderService,
                                  ResponseHeaderService responseHeaderService,
-                                 MetricsService metricsService,
-                                 ReportingService reportingService
+                                 ReportingService reportingService,
+                                 Optional<MetricsService> metricsService
     ) {
-
         this.locationBuilder = locationBuilder;
         this.destinations = destinations;
         this.domain = domain;
@@ -153,7 +152,9 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         // track response code for endpoint & across all endpoints
                         String endpoint = getEndpoint(configDestinationElement, location);
 
-                        PowerFilter.markResponseCodeHelper(metricsService, servletResponse.getStatus(), LOG, endpoint);
+                        metricsService.ifPresent(ms ->
+                            PowerFilter.markResponseCodeHelper(ms, servletResponse.getStatus(), LOG, endpoint)
+                        );
                         markRequestTimeoutHelper(servletResponse.getStatus(), endpoint);
 
                         final long stopTime = System.currentTimeMillis();
@@ -192,14 +193,11 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     private void markRequestTimeoutHelper(int responseCode, String endpoint) {
-        if (responseCode == HTTP_CLIENT_TIMEOUT && Optional.ofNullable(metricsService).isPresent()) {
-            metricsService.getRegistry().meter(
-                    metricsService.name(
-                            "org.openrepose.core.RequestTimeout",
-                            "TimeoutToOrigin",
-                            "Request Timeout",
-                            endpoint))
-                    .mark();
-        }
+        metricsService.filter(__ -> responseCode == HTTP_CLIENT_TIMEOUT)
+            .ifPresent(ms ->
+                ms.getRegistry()
+                    .meter("org.openrepose.core.RequestTimeout.TimeoutToOrigin.Request Timeout" + endpoint)
+                    .mark()
+            );
     }
 }

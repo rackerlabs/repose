@@ -46,7 +46,7 @@ class PowerFilterChainTest extends Specification {
     def "startFilterChain correctly handles header #headerName"() {
         given:
         HttpServletRequest resultRequest = null
-        def powerFilterChain = new PowerFilterChain([], null, null, null, Optional.ofNullable(null)) {
+        def powerFilterChain = new PowerFilterChain([], null, null, Optional.empty(), Optional.empty()) {
             @Override
             void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
                 resultRequest = (HttpServletRequest) servletRequest
@@ -115,7 +115,7 @@ class PowerFilterChainTest extends Specification {
                 }
             }
         }
-        def powerFilterChain = new PowerFilterChain([], mock(FilterChain), router, null, Optional.ofNullable(null))
+        def powerFilterChain = new PowerFilterChain([], mock(FilterChain), router, Optional.empty(), Optional.empty())
         def mockRequest = new MockHttpServletRequest()
         //NOTE: The PowerFilterChain only works if the initial response it is given is one of our
         // MutableHttpServletResponses, because it never writes changes down into the response

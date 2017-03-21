@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,16 +37,13 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.ServletContext;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Named
 public class PowerFilterRouterFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterFactory.class);
-    private final MetricsService metricsService;
+    private final Optional<MetricsService> metricsService;
     private final ReportingService reportingService;
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
@@ -56,13 +53,14 @@ public class PowerFilterRouterFactory {
 
     @Inject
     public PowerFilterRouterFactory(
-            MetricsService metricsService,
-            ReportingService reportingService,
-            RequestHeaderService requestHeaderService,
-            ResponseHeaderService responseHeaderService,
-            RoutingService routingService,
-            @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
-            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId) {
+        @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
+        @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+        ReportingService reportingService,
+        RequestHeaderService requestHeaderService,
+        ResponseHeaderService responseHeaderService,
+        RoutingService routingService,
+        Optional<MetricsService> metricsService
+    ) {
         LOG.info("Creating Repose Router Factory!");
         this.metricsService = metricsService;
         this.reportingService = reportingService;
@@ -106,14 +104,14 @@ public class PowerFilterRouterFactory {
         }
 
         return new PowerFilterRouterImpl(locationBuilder,
-                destinations,
-                domain,
-                defaultDestination,
-                servletContext,
-                requestHeaderService,
-                responseHeaderService,
-                metricsService,
-                reportingService);
+            destinations,
+            domain,
+            defaultDestination,
+            servletContext,
+            requestHeaderService,
+            responseHeaderService,
+            reportingService,
+            metricsService);
     }
 
     private void addDestinations(List<? extends Destination> destList, Map<String, Destination> targetList) {

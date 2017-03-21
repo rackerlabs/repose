@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,7 +71,7 @@ public class PowerFilterChain implements FilterChain {
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
     private final PowerFilterRouter router;
-    private final MetricsService metricsService;
+    private final Optional<MetricsService> metricsService;
     private final SplittableHeaderUtil splittabelHeaderUtil;
     private List<FilterContext> currentFilters;
     private int position;
@@ -82,7 +82,7 @@ public class PowerFilterChain implements FilterChain {
     public PowerFilterChain(List<FilterContext> filterChainCopy,
                             FilterChain containerFilterChain,
                             PowerFilterRouter router,
-                            MetricsService metricsService,
+                            Optional<MetricsService> metricsService,
                             Optional<String> bypassUrl)
             throws PowerFilterChainException {
 
@@ -99,7 +99,7 @@ public class PowerFilterChain implements FilterChain {
             throws IOException, ServletException {
 
         boolean addTraceHeader = traceRequest(wrappedRequest);
-        boolean useTrace = addTraceHeader || Optional.ofNullable(metricsService).isPresent();
+        boolean useTrace = addTraceHeader || metricsService.isPresent();
 
         tracer = new RequestTracer(useTrace, addTraceHeader);
         currentFilters = getFilterChainForRequest(wrappedRequest.getRequestURI());
@@ -332,13 +332,10 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private void updateTimer(String name, long durationMillis) {
-        if (Optional.ofNullable(metricsService).isPresent()) {
-            metricsService.getRegistry().timer(
-                    metricsService.name(
-                            "org.openrepose.core.FilterProcessingTime",
-                            "Delay",
-                            name))
-                    .update(durationMillis, TimeUnit.MILLISECONDS);
-        }
+        metricsService.ifPresent(ms ->
+            ms.getRegistry()
+                .timer("org.openrepose.core.FilterProcessingTime.Delay" + name)
+                .update(durationMillis, TimeUnit.MILLISECONDS)
+        );
     }
 }
