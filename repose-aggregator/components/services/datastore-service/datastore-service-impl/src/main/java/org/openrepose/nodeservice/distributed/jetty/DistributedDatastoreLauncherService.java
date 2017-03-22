@@ -101,7 +101,7 @@ public class DistributedDatastoreLauncherService {
 
         //Start listening to the dd config, so we can update our service with more stuff
         ddConfigListener = new DistributedDatastoreConfigurationListener();
-        URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
+        URL xsdURL = getClass().getResource("/META-INF/schema/dist-datastore/dist-datastore.xsd");
         this.configurationService.subscribeTo("", "dist-datastore.cfg.xml",
                 xsdURL,
                 ddConfigListener,
