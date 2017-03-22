@@ -60,7 +60,7 @@ public class MetricsServiceContextTest {
             when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
             jmxNamingStrategy = mock(ReposeJmxNamingStrategy.class);
             when(jmxNamingStrategy.getJmxPrefix()).thenReturn("MockJMX-");
-            metricsService = new MetricsServiceImpl(configurationService, new MetricRegistry(), healthCheckService, jmxNamingStrategy);
+            metricsService = new MetricsServiceImpl(configurationService, healthCheckService, jmxNamingStrategy);
             sce = mock(ServletContextEvent.class);
         }
 

@@ -55,7 +55,7 @@ public class MetricsServiceImplTest {
         public void setUp() {
             jmxNamingStrategy = mock(ReposeJmxNamingStrategy.class);
             when(jmxNamingStrategy.getJmxPrefix()).thenReturn(JMX_PREFIX);
-            metricsService = new MetricsServiceImpl(mock(ConfigurationService.class), new MetricRegistry(), mock(HealthCheckService.class), jmxNamingStrategy);
+            metricsService = new MetricsServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), jmxNamingStrategy);
         }
 
         protected Object getAttribute(Class klass, String name, String scope, String att)

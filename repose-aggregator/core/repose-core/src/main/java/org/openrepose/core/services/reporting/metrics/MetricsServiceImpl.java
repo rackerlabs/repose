@@ -94,7 +94,6 @@ public class MetricsServiceImpl implements MetricsService {
     @Inject
     public MetricsServiceImpl(
             ConfigurationService configurationService,
-            MetricRegistry metricRegistry,
             HealthCheckService healthCheckService,
             ReposeJmxNamingStrategy reposeStrat
     ) {
@@ -102,7 +101,7 @@ public class MetricsServiceImpl implements MetricsService {
         this.reposeStrat = reposeStrat;
         this.healthCheckServiceProxy = healthCheckService.register();
 
-        this.metricRegistry = metricRegistry;
+        this.metricRegistry = new MetricRegistry();
         //There are tests that don't start the JMX if the metrics service isn't enabled...
         this.jmxReporter = JmxReporter
                 .forRegistry(metricRegistry)
