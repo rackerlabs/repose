@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<remote-datastore xmlns="http://docs.openrepose.org/repose/remote-datastore/v1.0">
+    <cluster id="repose"
+             host="localhost"
+             port="${datastorePort1}"
+             useSSL="true"
+             connection-pool-id="remote-datastore-pool"/>
+</remote-datastore>
