@@ -305,7 +305,7 @@
     <xs:complexType name="Service">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a filter that can be used to process and route requests</html:p>
+                <html:p>Defines a service that can be used to assist filters</html:p>
             </xs:documentation>
         </xs:annotation>
 
