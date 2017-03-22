@@ -20,7 +20,6 @@
 package org.openrepose.core.services.reporting.metrics;
 
 import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
@@ -81,6 +80,7 @@ public class MetricsServiceImpl implements MetricsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MetricsServiceImpl.class);
     private static final String METRICS_SERVICE_CONFIG_REPORT = "MetricsServiceReport";
+    private static final String HOSTNAME = ReposeJmxNamingStrategy.bestGuessHostname();
 
     private final ConfigurationService configurationService;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
@@ -105,9 +105,8 @@ public class MetricsServiceImpl implements MetricsService {
         //There are tests that don't start the JMX if the metrics service isn't enabled...
         this.jmxReporter = JmxReporter
                 .forRegistry(metricRegistry)
-                .inDomain("org.openrepose")
-                // TODO: This may need to be used much like API-Checker's JmxObjectNameFactory.
-                //.createsObjectNamesWith(new CustomObjectNameFactory())
+                .inDomain(HOSTNAME)
+                .createsObjectNamesWith(new MetricsJmxObjectNameFactory())
                 .build();
         this.jmxReporter.start(); //But it needs to be started if there's no configs
         this.enabled = true;
