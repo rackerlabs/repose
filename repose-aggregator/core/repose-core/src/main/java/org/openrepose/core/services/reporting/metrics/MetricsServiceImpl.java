@@ -138,9 +138,6 @@ public class MetricsServiceImpl implements MetricsService {
         final Graphite graphite = new Graphite(new InetSocketAddress(host, port));
         final GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry)
                 .prefixedWith(prefix)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .filter(MetricFilter.ALL)
                 .build(graphite);
         reporter.start(period, TimeUnit.MINUTES);
 
