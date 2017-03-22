@@ -25,6 +25,9 @@ package org.openrepose.core.services.datastore;
 @SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
 public interface DatastoreManager {
 
+    String HOST_KEY = "temp-host-key";
+    String TRACING_HEADER = "temp-tracing-header";
+
     /**
      * Get the datastore that is being managed.
      *
