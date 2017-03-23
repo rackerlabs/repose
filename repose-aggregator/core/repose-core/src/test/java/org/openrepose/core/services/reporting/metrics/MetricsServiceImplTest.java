@@ -21,7 +21,6 @@ package org.openrepose.core.services.reporting.metrics;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,20 +37,28 @@ import static com.codahale.metrics.MetricRegistry.name;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.openrepose.core.services.reporting.metrics.MetricsServiceImpl.METRIC_DOMAIN;
 
 public class MetricsServiceImplTest {
 
+    private final String JMX_PREFIX = "mock.prefix.";
+
     private MetricsServiceImpl metricsService;
+    private ReposeJmxNamingStrategy jmxNamingStrategy;
 
     @Before
     public void setUp() {
+        jmxNamingStrategy = mock(ReposeJmxNamingStrategy.class);
+        when(jmxNamingStrategy.getJmxPrefix()).thenReturn(JMX_PREFIX);
+
         metricsService = new MetricsServiceImpl(
             mock(ConfigurationService.class),
             mock(HealthCheckService.class),
-            mock(ReposeJmxNamingStrategy.class));
+            jmxNamingStrategy);
     }
 
-    private Object getAttribute(String name, String scope, String att)
+    private Object getAttribute(String name, String type, String att)
         throws
         MalformedObjectNameException,
         AttributeNotFoundException,
@@ -60,14 +67,13 @@ public class MetricsServiceImplTest {
         InstanceNotFoundException {
 
         Hashtable<String, String> hash = new Hashtable<>();
-        hash.put("name", "\"" + name + "\"");
-        hash.put("scope", scope);
-        hash.put("type", MetricsJmxObjectNameFactory.TYPE_VALUE);
+        hash.put("name", ObjectName.quote(name));
+        hash.put("type", type);
 
         // Lets you see all registered MBean ObjectNames
         //Set<ObjectName> set = ManagementFactory.getPlatformMBeanServer().queryNames(null, null);
 
-        ObjectName on = new ObjectName(ReposeJmxNamingStrategy.bestGuessHostname(), hash);
+        ObjectName on = new ObjectName(jmxNamingStrategy.getJmxPrefix() + METRIC_DOMAIN, hash);
 
         return ManagementFactory.getPlatformMBeanServer().getAttribute(on, att);
     }

@@ -32,9 +32,7 @@ import java.util.Hashtable;
 public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
 
     public static final String TYPE_KEY = "type";
-    public static final String SCOPE_KEY = "scope";
     public static final String NAME_KEY = "name";
-    public static final String TYPE_VALUE = "metrics";
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MetricsJmxObjectNameFactory.class);
 
@@ -48,8 +46,7 @@ public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
              not need to be quoted.
               */
             Hashtable<String, String> objectNameProperties = new Hashtable<>();
-            objectNameProperties.put(TYPE_KEY, TYPE_VALUE);
-            objectNameProperties.put(SCOPE_KEY, type);
+            objectNameProperties.put(TYPE_KEY, type);
             objectNameProperties.put(NAME_KEY, ObjectName.quote(name));
 
             /*
@@ -57,8 +54,7 @@ public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
              */
             ObjectName objectName = new ObjectName(domain, objectNameProperties);
             if (objectName.isPattern()) {
-                objectNameProperties.put(TYPE_KEY, TYPE_VALUE);
-                objectNameProperties.put(SCOPE_KEY, ObjectName.quote(type));
+                objectNameProperties.put(TYPE_KEY, type);
                 objectNameProperties.put(NAME_KEY, ObjectName.quote(name));
                 objectName = new ObjectName(ObjectName.quote(domain), objectNameProperties);
             }

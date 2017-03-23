@@ -49,17 +49,10 @@ public class MetricsJmxObjectNameFactoryTest {
     }
 
     @Test
-    public void objectNameTypeShouldBeMetrics() throws Exception {
+    public void objectNameTypeShouldBeTheType() throws Exception {
         ObjectName objectName = objectNameFactory.createName(DEFAULT_TYPE, DEFAULT_DOMAIN, DEFAULT_NAME);
 
-        assertThat(objectName.getKeyProperty(TYPE_KEY), equalTo(TYPE_VALUE));
-    }
-
-    @Test
-    public void objectNameScopeShouldBeTheType() throws Exception {
-        ObjectName objectName = objectNameFactory.createName(DEFAULT_TYPE, DEFAULT_DOMAIN, DEFAULT_NAME);
-
-        assertThat(objectName.getKeyProperty(SCOPE_KEY), equalTo(DEFAULT_TYPE));
+        assertThat(objectName.getKeyProperty(TYPE_KEY), equalTo(DEFAULT_TYPE));
     }
 
     @Test
@@ -76,18 +69,9 @@ public class MetricsJmxObjectNameFactoryTest {
         // The constructed ObjectName with properties lexically sorted.
         String expectedCanonicalName = DEFAULT_DOMAIN + ":" +
             NAME_KEY + "=" + ObjectName.quote(DEFAULT_NAME) + "," +
-            SCOPE_KEY + "=" + DEFAULT_TYPE + "," +
-            TYPE_KEY + "=" + TYPE_VALUE;
+            TYPE_KEY + "=" + DEFAULT_TYPE;
 
         assertThat(objectName.getCanonicalName(), equalTo(expectedCanonicalName));
-    }
-
-    @Test
-    public void patternScopeShouldBeQuoted() throws Exception {
-        String defaultTypePattern = DEFAULT_TYPE + "?";
-        ObjectName objectName = objectNameFactory.createName(defaultTypePattern, DEFAULT_DOMAIN, DEFAULT_NAME);
-
-        assertThat(objectName.getKeyProperty(SCOPE_KEY), equalTo(ObjectName.quote(defaultTypePattern)));
     }
 
     @Test

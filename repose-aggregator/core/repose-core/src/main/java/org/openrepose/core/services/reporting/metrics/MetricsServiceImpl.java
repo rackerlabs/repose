@@ -77,10 +77,10 @@ import java.util.concurrent.TimeUnit;
 @Named
 public class MetricsServiceImpl implements MetricsService {
     public static final String DEFAULT_CONFIG_NAME = "metrics.cfg.xml";
+    public static final String METRIC_DOMAIN = "metrics";
 
     private static final Logger LOG = LoggerFactory.getLogger(MetricsServiceImpl.class);
     private static final String METRICS_SERVICE_CONFIG_REPORT = "MetricsServiceReport";
-    private static final String HOSTNAME = ReposeJmxNamingStrategy.bestGuessHostname();
 
     private final ConfigurationService configurationService;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
@@ -88,7 +88,6 @@ public class MetricsServiceImpl implements MetricsService {
     private MetricRegistry metricRegistry;
     private JmxReporter jmxReporter;
     private final List<GraphiteReporter> listGraphite = new ArrayList<>();
-    private ReposeJmxNamingStrategy reposeStrat;
     private boolean enabled;
 
     @Inject
@@ -98,14 +97,13 @@ public class MetricsServiceImpl implements MetricsService {
             ReposeJmxNamingStrategy reposeStrat
     ) {
         this.configurationService = configurationService;
-        this.reposeStrat = reposeStrat;
         this.healthCheckServiceProxy = healthCheckService.register();
 
         this.metricRegistry = new MetricRegistry();
         //There are tests that don't start the JMX if the metrics service isn't enabled...
         this.jmxReporter = JmxReporter
                 .forRegistry(metricRegistry)
-                .inDomain(HOSTNAME)
+                .inDomain(reposeStrat.getJmxPrefix() + METRIC_DOMAIN)
                 .createsObjectNamesWith(new MetricsJmxObjectNameFactory())
                 .build();
         this.jmxReporter.start(); //But it needs to be started if there's no configs
