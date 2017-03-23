@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,17 +30,16 @@ import org.rackspace.deproxy.Deproxy
 @Category(Slow.class)
 class UriNormalizationJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"UriNormalization\",scope=\"uri-normalization\""
+    String PREFIX = "${jmxHostname}-metrics:type=meters,name=\"org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization"
 
-    String URI_NORMALIZATION_ROOT_GET = "${PREFIX},name=\".\\*_GET\""
-    String URI_NORMALIZATION_ROOT_POST = "${PREFIX},name=\".\\*_POST\""
-    String URI_NORMALIZATION_RESOURCE_GET = "${PREFIX},name=\"/resource/.\\*_GET\""
-    String URI_NORMALIZATION_RESOURCE_POST = "${PREFIX},name=\"/resource/.\\*_POST\""
-    String URI_NORMALIZATION_SERVERS_GET = "${PREFIX},name=\"/servers/.\\*_GET\""
-    String URI_NORMALIZATION_SERVERS_POST = "${PREFIX},name=\"/servers/.\\*_POST\""
-    String URI_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX},name=\"/secondary/path/.\\*_GET\""
-    String URI_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX},name=\"/tertiary/path/.\\*_GET\""
-    String URI_NORMALIZATION_ACROSS_ALL = "${PREFIX},name=\"ACROSS ALL\""
+    String URI_NORMALIZATION_ROOT_GET = "${PREFIX}.GET..\\*\""
+    String URI_NORMALIZATION_ROOT_POST = "${PREFIX}.POST..\\*\""
+    String URI_NORMALIZATION_RESOURCE_GET = "${PREFIX}.GET./resource/.\\*\""
+    String URI_NORMALIZATION_RESOURCE_POST = "${PREFIX}.POST./resource/.\\*\""
+    String URI_NORMALIZATION_SERVERS_GET = "${PREFIX}.GET./servers/.\\*\""
+    String URI_NORMALIZATION_SERVERS_POST = "${PREFIX}.POST./servers/.\\*\""
+    String URI_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX}.GET./secondary/path/.\\*\""
+    String URI_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX}.GET./tertiary/path/.\\*\""
 
     Map params
     ReposeConfigurationProvider reposeConfigProvider
@@ -79,56 +78,41 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         repose.start()
         sleep(30000)
 
-
-
         when:
         def mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}?a=1", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 1
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 1
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}?a=1", method: "POST")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_POST, "Count") == 1
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 2
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/resource/1243?a=1", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_RESOURCE_GET, "Count") == 1
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 3
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/resource/1243?a=1", method: "POST")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_RESOURCE_POST, "Count") == 1
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 4
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/servers/1243?a=1", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SERVERS_GET, "Count") == 1
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 5
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/servers/1243?a=1", method: "POST")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SERVERS_POST, "Count") == 1
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 6
-
-        when:
-        mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/servers/1243?a=1", method: "PUT")
-
-        then:
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 7
-
     }
 
     def "when multiple filter instances are configured, each should add to the count"() {
@@ -138,8 +122,6 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         repose.start()
         sleep(30000)
 
-
-
         when: "client makes a request that matches one filter's uri-regex attribute"
         def mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}?a=1")
 
@@ -148,7 +130,6 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 1
         (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") ?: 0) == 0
         (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 1
 
 
         when: "client makes a request that matches two filters' uri-regex attributes (1 & 2)"
@@ -159,7 +140,6 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 2
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") == 1
         (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 3
 
 
         when: "client makes a request that matches two filters' uri-regex attributes (1 & 3)"
@@ -170,8 +150,6 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 2
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") == 1
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") == 2
-        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 5
-
     }
 
     def cleanup() {
@@ -183,5 +161,4 @@ class UriNormalizationJMXTest extends ReposeValveTest {
             deproxy.shutdown()
         }
     }
-
 }
