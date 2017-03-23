@@ -25,6 +25,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
@@ -80,8 +81,13 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
       }).foreach(wrappedRequest.removeHeader)
 
       metricsServiceOption.foreach(metricsService =>
-        metricsService.getRegistry.meter(
-          s"org.openrepose.core.filters.HeaderNormalization.header-normalization.Normalization.${target.url.pattern.toString}_${wrappedRequest.getMethod}_request")
+        metricsService.getRegistry
+          .meter(MetricRegistry.name(
+            classOf[HeaderNormalizationFilter],
+            "Normalization",
+            "request",
+            wrappedRequest.getMethod,
+            target.url.pattern.toString))
           .mark())
     }
 
@@ -111,8 +117,13 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
       }).foreach(wrappedResponse.get.removeHeader)
 
       metricsServiceOption.foreach(metricsService =>
-        metricsService.getRegistry.meter(
-          s"org.openrepose.core.filters.HeaderNormalization.header-normalization.Normalization.${target.url.pattern.toString}_${wrappedRequest.getMethod}_response")
+        metricsService.getRegistry
+          .meter(MetricRegistry.name(
+            classOf[HeaderNormalizationFilter],
+            "Normalization",
+            "response",
+            wrappedRequest.getMethod,
+            target.url.pattern.toString))
           .mark())
     }
 

@@ -19,6 +19,7 @@
  */
 package org.openrepose.powerfilter;
 
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -334,7 +335,7 @@ public class PowerFilterChain implements FilterChain {
     private void updateTimer(String name, long durationMillis) {
         metricsService.ifPresent(ms ->
             ms.getRegistry()
-                .timer("org.openrepose.core.FilterProcessingTime.Delay" + name)
+                .timer(MetricRegistry.name("org.openrepose.core.FilterProcessingTime.Delay", name))
                 .update(durationMillis, TimeUnit.MILLISECONDS)
         );
     }

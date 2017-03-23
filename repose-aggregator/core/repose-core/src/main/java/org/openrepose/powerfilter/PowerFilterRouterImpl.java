@@ -19,6 +19,7 @@
  */
 package org.openrepose.powerfilter;
 
+import com.codahale.metrics.MetricRegistry;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonRequestAttributes;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
@@ -196,7 +197,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         metricsService.filter(__ -> responseCode == HTTP_CLIENT_TIMEOUT)
             .ifPresent(ms ->
                 ms.getRegistry()
-                    .meter("org.openrepose.core.RequestTimeout.TimeoutToOrigin.Request Timeout" + endpoint)
+                    .meter(MetricRegistry.name("org.openrepose.core.RequestTimeout.TimeoutToOrigin", endpoint))
                     .mark()
             );
     }

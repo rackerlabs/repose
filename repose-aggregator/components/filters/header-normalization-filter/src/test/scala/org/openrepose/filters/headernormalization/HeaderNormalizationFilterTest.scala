@@ -52,10 +52,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
   var servletResponse: MockHttpServletResponse = _
   private val filterChain = mock[FilterChain]
   private val filterConfig = mock[FilterConfig]
-  private val METRIC_CLASS = "org.openrepose.core.filters.HeaderNormalization"
-  private val TYPE = "header-normalization"
-  private val SCOPE = "Normalization"
-  private val METRIC_PREFIX = s"$METRIC_CLASS.$TYPE.$SCOPE."
+  private val METRIC_PREFIX = "org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization"
   private val metricsService = mock[MetricsService]
   private val metricsServiceOpt = Optional.of(metricsService)
   private val metricRegistry = mock[MetricRegistry]
@@ -422,7 +419,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricRegistry).meter(s"$METRIC_PREFIX.*_PATCH_${requestResponseTypeToString(target)}")
+        verify(metricRegistry).meter(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}.PATCH..*")
       }
 
       it(s"will update metrics when a request matches a config target when using a specified URL on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
@@ -438,7 +435,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricRegistry).meter(s"$METRIC_PREFIX/v1/servers/[^/]+/status_GET_${requestResponseTypeToString(target)}")
+        verify(metricRegistry).meter(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}.GET./v1/servers/[^/]+/status")
       }
 
       it(s"will NOT update metrics when a request does not match any config target on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {

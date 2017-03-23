@@ -25,6 +25,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
@@ -92,7 +93,10 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
 
         metricsServiceOption.foreach(metricsService =>
           metricsService.getRegistry
-            .meter("org.openrepose.core.filters.DestinationRouter.destination-router.Routed Response" + target.getId)
+            .meter(MetricRegistry.name(
+              classOf[DestinationRouterFilter],
+              "Routed Response",
+              target.getId))
             .mark())
       }
 

@@ -148,7 +148,11 @@ public class ApiValidatorHandler {
                 if (!isValid) {
                     metricRegistryOpt.ifPresent(metricRegistry ->
                         matchedRoles.forEach(role ->
-                            metricRegistry.meter("org.openrepose.core.filters.ApiValidator.api-validator.InvalidRequest" + role)
+                            metricRegistry
+                                .meter(MetricRegistry.name(
+                                    ApiValidatorHandler.class,
+                                    "invalid-request",
+                                    role))
                                 .mark()
                         )
                     );

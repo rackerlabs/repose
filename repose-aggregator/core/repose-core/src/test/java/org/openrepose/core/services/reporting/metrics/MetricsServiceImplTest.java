@@ -21,6 +21,7 @@ package org.openrepose.core.services.reporting.metrics;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import java.lang.management.ManagementFactory;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -78,13 +80,13 @@ public class MetricsServiceImplTest {
         MBeanException,
         ReflectionException,
         InstanceNotFoundException {
-        Meter m = metricsService.getRegistry().meter(this.getClass().getName() + ".meter1.scope1.hits");
+        Meter m = metricsService.getRegistry().meter(name(this.getClass(), "meter1", "hits"));
 
         m.mark();
         m.mark();
         m.mark();
 
-        long l = (Long) getAttribute(this.getClass().getName() + ".meter1.scope1.hits", "meters", "Count");
+        long l = (Long) getAttribute(name(this.getClass(), "meter1", "hits"), "meters", "Count");
 
         assertEquals((long) 3, l);
     }
@@ -98,7 +100,7 @@ public class MetricsServiceImplTest {
         ReflectionException,
         InstanceNotFoundException {
 
-        Counter c = metricsService.getRegistry().counter(this.getClass().getName() + ".counter1.scope1");
+        Counter c = metricsService.getRegistry().counter(name(this.getClass(), "counter1"));
 
         c.inc();
         c.inc();
@@ -106,7 +108,7 @@ public class MetricsServiceImplTest {
         c.inc();
         c.dec();
 
-        long l = (Long) getAttribute(this.getClass().getName() + ".counter1.scope1", "counters", "Count");
+        long l = (Long) getAttribute(name(this.getClass(), "counter1"), "counters", "Count");
 
         assertEquals((long) 3, l);
     }
@@ -119,7 +121,7 @@ public class MetricsServiceImplTest {
         ReflectionException,
         InstanceNotFoundException {
 
-        Timer t = metricsService.getRegistry().timer(this.getClass().getName() + ".name1.scope1");
+        Timer t = metricsService.getRegistry().timer(name(this.getClass(), "name1"));
 
         Timer.Context tc = t.time();
         try {
@@ -129,13 +131,13 @@ public class MetricsServiceImplTest {
         }
         tc.stop();
 
-        assertEquals(1L, ((Long) getAttribute(this.getClass().getName() + ".name1.scope1", "timers", "Count")).longValue());
-        assertThat((Double) getAttribute(this.getClass().getName() + ".name1.scope1", "timers", "Mean"), greaterThan(0.0));
+        assertEquals(1L, ((Long) getAttribute(name(this.getClass(), "name1"), "timers", "Count")).longValue());
+        assertThat((Double) getAttribute(name(this.getClass(), "name1"), "timers", "Mean"), greaterThan(0.0));
 
         t.update(1000L, TimeUnit.MILLISECONDS);
 
-        assertEquals(2L, ((Long) getAttribute(this.getClass().getName() + ".name1.scope1", "timers", "Count")).longValue());
-        assertThat((Double) getAttribute(this.getClass().getName() + ".name1.scope1", "timers", "Mean"), greaterThan(0.0));
+        assertEquals(2L, ((Long) getAttribute(name(this.getClass(), "name1"), "timers", "Count")).longValue());
+        assertThat((Double) getAttribute(name(this.getClass(), "name1"), "timers", "Mean"), greaterThan(0.0));
     }
 
     @Test

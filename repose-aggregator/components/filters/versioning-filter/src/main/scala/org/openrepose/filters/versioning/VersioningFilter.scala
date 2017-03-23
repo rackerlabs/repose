@@ -26,6 +26,7 @@ import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.bind.JAXBElement
 
+import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
@@ -113,7 +114,10 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
           metricsServiceOption.foreach(metricService =>
             // todo: replace "versioning" with filter-id or name-number in sys-model
             metricService.getRegistry
-              .meter("org.openrepose.core.filters.Versioning.versioning.VersionedRequest" + name)
+              .meter(MetricRegistry.name(
+                classOf[VersioningFilter],
+                "VersionedRequest",
+                name))
               .mark())
         }
 

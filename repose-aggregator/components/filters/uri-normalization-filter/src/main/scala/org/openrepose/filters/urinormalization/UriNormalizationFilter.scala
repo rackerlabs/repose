@@ -25,6 +25,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.normal.QueryStringNormalizer
@@ -63,10 +64,11 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
           .foreach(queryStringNormalizer =>
             metricsServiceOption.foreach(metricService =>
               metricService.getRegistry
-                .meter("org.openrepose.core.filters.UriNormalization.uri-normalization.Normalization" +
-                  queryStringNormalizer.getLastMatch.toString +
-                  "_" +
-                  request.getMethod)
+                .meter(MetricRegistry.name(
+                  classOf[UriNormalizationFilter],
+                  "Normalization",
+                  request.getMethod,
+                  queryStringNormalizer.getLastMatch.toString))
                 .mark()))
       }
 

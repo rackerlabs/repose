@@ -19,6 +19,7 @@
  */
 package org.openrepose.powerfilter;
 
+import com.codahale.metrics.MetricRegistry;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
@@ -186,7 +187,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
         if (meterId != null) {
             metricsService.getRegistry()
-                .meter("org.openrepose.core.ResponseCode.Repose.Response Code." + meterId)
+                .meter(MetricRegistry.name("org.openrepose.core.ResponseCode", meterId))
                 .mark();
         } else {
             log.error((logPrefix != null ? logPrefix + ":  " : "") + "Encountered invalid response code: " + responseCode);
