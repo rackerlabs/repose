@@ -87,7 +87,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
             "Normalization",
             "request",
             wrappedRequest.getMethod,
-            target.url.pattern.toString))
+            target.url.pattern.toString.replace('.', '_')))
           .mark())
     }
 
@@ -123,7 +123,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
             "Normalization",
             "response",
             wrappedRequest.getMethod,
-            target.url.pattern.toString))
+            target.url.pattern.toString.replace('.', '_')))
           .mark())
     }
 

@@ -31,7 +31,7 @@ import spock.lang.Unroll
 @Category(Slow.class)
 class HeaderNormalizationJMXTest extends ReposeValveTest {
 
-    String PREFIX = "${jmxHostname}-metrics:type=meters,name=\"org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization"
+    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"filters\",004=\"headernormalization\",005=\"HeaderNormalizationFilter\",006=\"Normalization\""
 
     int reposePort
     int originServicePort
@@ -75,14 +75,14 @@ class HeaderNormalizationJMXTest extends ReposeValveTest {
     def "when a client makes requests, jmx should keep accurate #reqres counts"() {
 
         given:
-        String HEADER_NORMALIZATION_ROOT_GET = "${PREFIX}.${reqres}.GET..\\*\""
-        String HEADER_NORMALIZATION_ROOT_POST = "${PREFIX}.${reqres}.POST..\\*\""
-        String HEADER_NORMALIZATION_ROOT_PUT = "${PREFIX}.${reqres}.POST..\\*\""
-        String HEADER_NORMALIZATION_RESOURCE_POST = "${PREFIX}.${reqres}.POST./resource/(.\\*)\""
-        String HEADER_NORMALIZATION_RESOURCE_PUT = "${PREFIX}.${reqres}.PUT./resource/(.\\*)\""
-        String HEADER_NORMALIZATION_SERVERS_GET = "${PREFIX}.${reqres}.GET./servers/(.\\*)\""
-        String HEADER_NORMALIZATION_SERVERS_POST = "${PREFIX}.${reqres}.POST./servers/(.\\*)\""
-        String HEADER_NORMALIZATION_SERVERS_PUT = "${PREFIX}.${reqres}.PUT./servers/(.\\*)\""
+        String HEADER_NORMALIZATION_ROOT_GET = "${PREFIX},007=\"${reqres}\",008=\"GET\",009=\"_\\*\""
+        String HEADER_NORMALIZATION_ROOT_POST = "${PREFIX},007=\"${reqres}\",008=\"POST\",009=\"_\\*\""
+        String HEADER_NORMALIZATION_ROOT_PUT = "${PREFIX},007=\"${reqres}\",008=\"PUT\",009=\"_\\*\""
+        String HEADER_NORMALIZATION_RESOURCE_POST = "${PREFIX},007=\"${reqres}\",008=\"POST\",009=\"/resource/(_\\*)\""
+        String HEADER_NORMALIZATION_RESOURCE_PUT = "${PREFIX},007=\"${reqres}\",008=\"PUT\",009=\"/resource/(_\\*)\""
+        String HEADER_NORMALIZATION_SERVERS_GET = "${PREFIX},007=\"${reqres}\",008=\"GET\",009=\"/servers/(_\\*)\""
+        String HEADER_NORMALIZATION_SERVERS_POST = "${PREFIX},007=\"${reqres}\",008=\"POST\",009=\"/servers/(_\\*)\""
+        String HEADER_NORMALIZATION_SERVERS_PUT = "${PREFIX},007=\"${reqres}\",008=\"PUT\",009=\"/servers/(_\\*)\""
         reposeConfigProvider.applyConfigs("features/filters/headerNormalization/metrics/${reqres}", params)
         repose.start()
 
@@ -142,9 +142,9 @@ class HeaderNormalizationJMXTest extends ReposeValveTest {
 
         given:
         String reqres = "request"
-        String HEADER_NORMALIZATION_ROOT_GET = "${PREFIX}.${reqres}.GET..\\*\""
-        String HEADER_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX}.${reqres}.GET./secondary/path/(.\\*)\""
-        String HEADER_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX}.${reqres}.GET./tertiary/path/(.\\*)\""
+        String HEADER_NORMALIZATION_ROOT_GET = "${PREFIX},007=\"${reqres}\",008=\"GET\",009=\"_\\*\""
+        String HEADER_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX},007=\"${reqres}\",008=\"GET\",009=\"/secondary/path/(_\\*)\""
+        String HEADER_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX},007=\"${reqres}\",008=\"GET\",009=\"/tertiary/path/(_\\*)\""
         reposeConfigProvider.applyConfigs("features/filters/headerNormalization/metrics/multiple", params)
         repose.start()
 
