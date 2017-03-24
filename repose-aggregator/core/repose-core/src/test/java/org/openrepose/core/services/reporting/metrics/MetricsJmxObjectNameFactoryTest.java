@@ -26,7 +26,6 @@ import javax.management.ObjectName;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.openrepose.core.services.reporting.metrics.MetricsJmxObjectNameFactory.*;
 
 public class MetricsJmxObjectNameFactoryTest {
 
@@ -49,27 +48,32 @@ public class MetricsJmxObjectNameFactoryTest {
     }
 
     @Test
-    public void objectNameTypeShouldBeTheType() throws Exception {
-        ObjectName objectName = objectNameFactory.createName(DEFAULT_TYPE, DEFAULT_DOMAIN, DEFAULT_NAME);
+    public void objectNamePropertiesShouldBeTheNameSegmentsSplitAndQuoted() throws Exception {
+        String name = "one.two.three";
+        ObjectName objectName = objectNameFactory.createName(DEFAULT_TYPE, DEFAULT_DOMAIN, name);
 
-        assertThat(objectName.getKeyProperty(TYPE_KEY), equalTo(DEFAULT_TYPE));
-    }
-
-    @Test
-    public void objectNameNameShouldBeTheNameQuoted() throws Exception {
-        ObjectName objectName = objectNameFactory.createName(DEFAULT_TYPE, DEFAULT_DOMAIN, DEFAULT_NAME);
-
-        assertThat(objectName.getKeyProperty(NAME_KEY), equalTo(ObjectName.quote(DEFAULT_NAME)));
+        assertThat(objectName.getKeyProperty("001"), equalTo(ObjectName.quote("one")));
+        assertThat(objectName.getKeyProperty("002"), equalTo(ObjectName.quote("two")));
+        assertThat(objectName.getKeyProperty("003"), equalTo(ObjectName.quote("three")));
     }
 
     @Test
     public void canonicalObjectNameShouldBeAsExpected() throws Exception {
-        ObjectName objectName = objectNameFactory.createName(DEFAULT_TYPE, DEFAULT_DOMAIN, DEFAULT_NAME);
+        String name = "one.two.three.four.five.six.seven.eight.nine.ten";
+        ObjectName objectName = objectNameFactory.createName(DEFAULT_TYPE, DEFAULT_DOMAIN, name);
 
         // The constructed ObjectName with properties lexically sorted.
         String expectedCanonicalName = DEFAULT_DOMAIN + ":" +
-            NAME_KEY + "=" + ObjectName.quote(DEFAULT_NAME) + "," +
-            TYPE_KEY + "=" + DEFAULT_TYPE;
+            "001=" + ObjectName.quote("one") + "," +
+            "002=" + ObjectName.quote("two") + "," +
+            "003=" + ObjectName.quote("three") + "," +
+            "004=" + ObjectName.quote("four") + "," +
+            "005=" + ObjectName.quote("five") + "," +
+            "006=" + ObjectName.quote("six") + "," +
+            "007=" + ObjectName.quote("seven") + "," +
+            "008=" + ObjectName.quote("eight") + "," +
+            "009=" + ObjectName.quote("nine") + "," +
+            "010=" + ObjectName.quote("ten");
 
         assertThat(objectName.getCanonicalName(), equalTo(expectedCanonicalName));
     }

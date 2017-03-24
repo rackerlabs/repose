@@ -58,7 +58,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
      *
      * @return a string with either the hostname, or something to ID this host
      */
-    private static String bestGuessHostname() {
+    public static String bestGuessHostname() {
         String result;
         if (System.getProperty("os.name").startsWith("Windows")) {
             LOG.debug("Looking up a windows COMPUTERNAME environment var for the JMX name");

@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.reporting.metrics;
 
-import com.codahale.metrics.MetricRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -30,7 +29,6 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
-import org.openrepose.core.spring.ReposeJmxNamingStrategy;
 
 import javax.servlet.ServletContextEvent;
 import java.io.IOException;
@@ -49,7 +47,6 @@ public class MetricsServiceContextTest {
         protected ConfigurationService configurationService;
         protected HealthCheckService healthCheckService;
         protected HealthCheckServiceProxy healthCheckServiceProxy;
-        protected ReposeJmxNamingStrategy jmxNamingStrategy;
         protected ServletContextEvent sce;
 
         @Before
@@ -58,9 +55,7 @@ public class MetricsServiceContextTest {
             healthCheckService = mock(HealthCheckService.class);
             healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
             when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
-            jmxNamingStrategy = mock(ReposeJmxNamingStrategy.class);
-            when(jmxNamingStrategy.getJmxPrefix()).thenReturn("MockJMX-");
-            metricsService = new MetricsServiceImpl(configurationService, healthCheckService, jmxNamingStrategy);
+            metricsService = new MetricsServiceImpl(configurationService, healthCheckService);
             sce = mock(ServletContextEvent.class);
         }
 

@@ -31,40 +31,41 @@ import java.util.Hashtable;
 @Named
 public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
 
-    public static final String TYPE_KEY = "type";
     public static final String NAME_KEY = "name";
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(MetricsJmxObjectNameFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsJmxObjectNameFactory.class);
+    private static final int STARTING_KEY_INDEX = 1;
+    private static final String KEY_SEGMENT_DELIMITER = "\\.";
+    private static final String KEY_FORMAT = "%03d";
 
     @Override
     public ObjectName createName(String type, String domain, String name) {
         try {
             /*
+             Split the name on every period and give each segment its own property.
+             Doing so should give us unlimited nested buckets in JConsole.
              Since the name argument is provided by the user, we always quote it.
-             All of the other parameters are coming from the Dropwizard metrics library,
-             so we can be reasonably certain that they are not patterns, and therefore do
-             not need to be quoted.
               */
+            int keyIndex = STARTING_KEY_INDEX;
             Hashtable<String, String> objectNameProperties = new Hashtable<>();
-            objectNameProperties.put(TYPE_KEY, type);
-            objectNameProperties.put(NAME_KEY, ObjectName.quote(name));
+            for (String nameSegment : name.split(KEY_SEGMENT_DELIMITER)) {
+                objectNameProperties.put(String.format(KEY_FORMAT, keyIndex++), ObjectName.quote(nameSegment));
+            }
 
             /*
-             If for some reason the ObjectName is still a pattern, fall back to quoting all input.
+             If for some reason the ObjectName is still a pattern, fall back to quoting the domain.
              */
             ObjectName objectName = new ObjectName(domain, objectNameProperties);
             if (objectName.isPattern()) {
-                objectNameProperties.put(TYPE_KEY, type);
-                objectNameProperties.put(NAME_KEY, ObjectName.quote(name));
                 objectName = new ObjectName(ObjectName.quote(domain), objectNameProperties);
             }
 
-            return objectName;
+            return new ObjectName(objectName.getCanonicalName());
         } catch (MalformedObjectNameException mone) {
             try {
                 return new ObjectName(domain, NAME_KEY, ObjectName.quote(name));
             } catch (MalformedObjectNameException moreMone) {
-                LOGGER.warn("Unable to register {} {} {}", domain, type, name, moreMone);
+                LOGGER.warn("Unable to register {} {}", domain, name, moreMone);
                 throw new RuntimeException(moreMone);
             }
         }

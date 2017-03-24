@@ -37,28 +37,19 @@ import static com.codahale.metrics.MetricRegistry.name;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.openrepose.core.services.reporting.metrics.MetricsServiceImpl.METRIC_DOMAIN;
 
 public class MetricsServiceImplTest {
 
-    private final String JMX_PREFIX = "mock.prefix.";
-
     private MetricsServiceImpl metricsService;
-    private ReposeJmxNamingStrategy jmxNamingStrategy;
 
     @Before
     public void setUp() {
-        jmxNamingStrategy = mock(ReposeJmxNamingStrategy.class);
-        when(jmxNamingStrategy.getJmxPrefix()).thenReturn(JMX_PREFIX);
-
         metricsService = new MetricsServiceImpl(
             mock(ConfigurationService.class),
-            mock(HealthCheckService.class),
-            jmxNamingStrategy);
+            mock(HealthCheckService.class));
     }
 
-    private Object getAttribute(String name, String type, String att)
+    private Object getAttribute(String name, String att)
         throws
         MalformedObjectNameException,
         AttributeNotFoundException,
@@ -66,14 +57,17 @@ public class MetricsServiceImplTest {
         ReflectionException,
         InstanceNotFoundException {
 
-        Hashtable<String, String> hash = new Hashtable<>();
-        hash.put("name", ObjectName.quote(name));
-        hash.put("type", type);
+        int keyIndex = 1;
+        Hashtable<String, String> objectNameProperties = new Hashtable<>();
+        for (String nameSegment : name.split("\\.")) {
+            objectNameProperties.put(String.format("%03d", keyIndex++), ObjectName.quote(nameSegment));
+        }
 
         // Lets you see all registered MBean ObjectNames
         //Set<ObjectName> set = ManagementFactory.getPlatformMBeanServer().queryNames(null, null);
 
-        ObjectName on = new ObjectName(jmxNamingStrategy.getJmxPrefix() + METRIC_DOMAIN, hash);
+        ObjectName on = new ObjectName(ReposeJmxNamingStrategy.bestGuessHostname(), objectNameProperties);
+        on = new ObjectName(on.getCanonicalName());
 
         return ManagementFactory.getPlatformMBeanServer().getAttribute(on, att);
     }
@@ -92,7 +86,7 @@ public class MetricsServiceImplTest {
         m.mark();
         m.mark();
 
-        long l = (Long) getAttribute(name(this.getClass(), "meter1", "hits"), "meters", "Count");
+        long l = (Long) getAttribute(name(this.getClass(), "meter1", "hits"), "Count");
 
         assertEquals((long) 3, l);
     }
@@ -114,7 +108,7 @@ public class MetricsServiceImplTest {
         c.inc();
         c.dec();
 
-        long l = (Long) getAttribute(name(this.getClass(), "counter1"), "counters", "Count");
+        long l = (Long) getAttribute(name(this.getClass(), "counter1"), "Count");
 
         assertEquals((long) 3, l);
     }
@@ -137,13 +131,13 @@ public class MetricsServiceImplTest {
         }
         tc.stop();
 
-        assertEquals(1L, ((Long) getAttribute(name(this.getClass(), "name1"), "timers", "Count")).longValue());
-        assertThat((Double) getAttribute(name(this.getClass(), "name1"), "timers", "Mean"), greaterThan(0.0));
+        assertEquals(1L, ((Long) getAttribute(name(this.getClass(), "name1"), "Count")).longValue());
+        assertThat((Double) getAttribute(name(this.getClass(), "name1"), "Mean"), greaterThan(0.0));
 
         t.update(1000L, TimeUnit.MILLISECONDS);
 
-        assertEquals(2L, ((Long) getAttribute(name(this.getClass(), "name1"), "timers", "Count")).longValue());
-        assertThat((Double) getAttribute(name(this.getClass(), "name1"), "timers", "Mean"), greaterThan(0.0));
+        assertEquals(2L, ((Long) getAttribute(name(this.getClass(), "name1"), "Count")).longValue());
+        assertThat((Double) getAttribute(name(this.getClass(), "name1"), "Mean"), greaterThan(0.0));
     }
 
     @Test
