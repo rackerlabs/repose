@@ -30,15 +30,15 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     //Have to configure this with logic to get the hostname so that JMX works
     @Shared
-    String PREFIX = "${jmxHostname}-metrics:type=meters,name=\"org.openrepose.filters.apivalidator.ApiValidatorHandler.invalid-request"
+    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"filters\",004=\"apivalidator\",005=\"ApiValidatorHandler\",006=\"invalid-request\""
 
     String NAME_ROLE_1 = "role-1"
     String NAME_ROLE_2 = "role-2"
     String NAME_ROLE_3 = "role-3"
 
-    String API_VALIDATOR_1 = PREFIX + "." + NAME_ROLE_1 + "\""
-    String API_VALIDATOR_2 = PREFIX + "." + NAME_ROLE_2 + "\""
-    String API_VALIDATOR_3 = PREFIX + "." + NAME_ROLE_3 + "\""
+    String API_VALIDATOR_1 = PREFIX + ",007=\"" + NAME_ROLE_1 + "\""
+    String API_VALIDATOR_2 = PREFIX + ",007=\"" + NAME_ROLE_2 + "\""
+    String API_VALIDATOR_3 = PREFIX + ",007=\"" + NAME_ROLE_3 + "\""
 
     def setupSpec() {
         params = properties.getDefaultTemplateParams()
