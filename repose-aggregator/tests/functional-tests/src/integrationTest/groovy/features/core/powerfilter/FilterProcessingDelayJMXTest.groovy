@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,10 +25,10 @@ import org.rackspace.deproxy.Response
 
 class FilterProcessingDelayJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"${jmxHostname}-org.openrepose.core\":type=\"FilterProcessingTime\",scope=\"Delay\""
+    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"core\",004=\"FilterProcessingTime\",005=\"Delay\""
 
-    String API_VALIDATOR = PREFIX + ",name=\"api-validator\""
-    String IP_IDENTITY = PREFIX + ",name=\"ip-user\""
+    String API_VALIDATOR = PREFIX + ",006=\"api-validator\""
+    String IP_IDENTITY = PREFIX + ",006=\"ip-user\""
 
     def handler = { return new Response(200) }
 
