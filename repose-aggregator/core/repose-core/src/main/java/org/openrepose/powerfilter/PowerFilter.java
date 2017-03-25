@@ -179,7 +179,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         healthCheckServiceProxy = healthCheckService.register();
     }
 
-    public static void markResponseCodeHelper(MetricsService metricsService, int responseCode, Logger log, String logPrefix) {
+    public static void markResponseCodeHelper(MetricsService metricsService, int responseCode, Logger log, String component) {
         int code = responseCode / 100;
         String meterId = null;
         if (1 < code && code < 6) {
@@ -187,10 +187,10 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
         if (meterId != null) {
             metricsService.getRegistry()
-                .meter(MetricRegistry.name("org.openrepose.core.ResponseCode", meterId))
+                .meter(MetricRegistry.name("org.openrepose.core.ResponseCode", component, meterId))
                 .mark();
         } else {
-            log.error((logPrefix != null ? logPrefix + ":  " : "") + "Encountered invalid response code: " + responseCode);
+            log.error((component != null ? component + ":  " : "") + "Encountered invalid response code: " + responseCode);
         }
     }
 
@@ -443,7 +443,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
             final long stopTime = System.currentTimeMillis();
 
-            metricsService.ifPresent(ms -> markResponseCodeHelper(ms, ((HttpServletResponse) response).getStatus(), LOG, null));
+            metricsService.ifPresent(ms -> markResponseCodeHelper(ms, ((HttpServletResponse) response).getStatus(), LOG, "Repose"));
 
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
         }

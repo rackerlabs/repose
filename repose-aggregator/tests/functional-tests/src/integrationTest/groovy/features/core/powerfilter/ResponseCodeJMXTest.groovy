@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,15 +35,13 @@ class ResponseCodeJMXTest extends ReposeValveTest {
     //One second timeout, initial delay is 0 and the delay is .1, which is every 100ms
     final def conditions = new PollingConditions(timeout: 1)
 
-    String PREFIX = "\"${jmxHostname}-org.openrepose.core\":type=\"ResponseCode\",scope=\""
+    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"core\",004=\"ResponseCode\",005=\"Repose\""
 
-    String NAME_2XX = "\",name=\"2XX\""
-    String ALL_2XX = PREFIX + "All Endpoints" + NAME_2XX
-    String REPOSE_2XX = PREFIX + "Repose" + NAME_2XX
+    String NAME_2XX = ",006=\"2XX\""
+    String REPOSE_2XX = PREFIX + NAME_2XX
 
-    String NAME_5XX = "\",name=\"5XX\""
-    String ALL_5XX = PREFIX + "All Endpoints" + NAME_5XX
-    String REPOSE_5XX = PREFIX + "Repose" + NAME_5XX
+    String NAME_5XX = ",006=\"5XX\""
+    String REPOSE_5XX = PREFIX + NAME_5XX
 
     def handler5XX = { request -> return new Response(502, 'WIZARD FAIL') }
 
@@ -66,12 +64,6 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         // the initial values are equivalent the the number of calls made in the when block
         def repose2XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_2XX, "Count")
         repose2XXtarget = (repose2XXtarget == null) ? 3 : repose2XXtarget + 3
-        def all2XXtarget = repose.jmx.quickMBeanAttribute(ALL_2XX, "Count")
-        all2XXtarget = (all2XXtarget == null) ? 3 : all2XXtarget + 3
-        def repose5XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count")
-        repose5XXtarget = (repose5XXtarget == null) ? 0 : repose5XXtarget
-        def all5XXtarget = repose.jmx.quickMBeanAttribute(ALL_5XX, "Count")
-        all5XXtarget = (all5XXtarget == null) ? 0 : all5XXtarget
         def responses = []
 
         when:
@@ -82,9 +74,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         then:
         conditions.eventually {
             assert repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
-            assert repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
             assert repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count").is(null)
-            assert repose.jmx.quickMBeanAttribute(ALL_5XX, "Count").is(null)
         }
 
         responses.each { MessageChain mc ->
@@ -99,12 +89,8 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         given:
         def repose2XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_2XX, "Count")
         repose2XXtarget = (repose2XXtarget == null) ? 1 : repose2XXtarget + 1
-        def all2XXtarget = repose.jmx.quickMBeanAttribute(ALL_2XX, "Count")
-        all2XXtarget = (all2XXtarget == null) ? 1 : all2XXtarget + 1
         def repose5XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count")
         repose5XXtarget = (repose5XXtarget == null) ? 1 : repose5XXtarget + 1
-        def all5XXtarget = repose.jmx.quickMBeanAttribute(ALL_5XX, "Count")
-        all5XXtarget = (all5XXtarget == null) ? 1 : all5XXtarget + 1
 
         when:
         MessageChain mc1 = deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handler5XX])
@@ -114,9 +100,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         mc1.receivedResponse.code == "502"
         mc2.receivedResponse.code == "200"
         repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
-        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
         repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count") == repose5XXtarget
-        repose.jmx.getMBeanAttribute(ALL_5XX, "Count") == all5XXtarget
     }
 
     /**
