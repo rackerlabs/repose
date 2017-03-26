@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,11 +38,11 @@ import org.rackspace.deproxy.Deproxy
 @Category(Slow.class)
 class VersioningJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"Versioning\",scope=\"versioning\""
+    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"filters\",004=\"versioning\",005=\"VersioningFilter\",006=\"VersionedRequest\""
 
-    String VERSION_UNVERSIONED = "${PREFIX},name=\"Unversioned\""
-    String VERSION_V1 = "${PREFIX},name=\"v1\""
-    String VERSION_V2 = "${PREFIX},name=\"v2\""
+    String VERSION_UNVERSIONED = "${PREFIX},007=\"Unversioned\""
+    String VERSION_V1 = "${PREFIX},007=\"v1\""
+    String VERSION_V2 = "${PREFIX},007=\"v2\""
 
     Map params
     ReposeConfigurationProvider reposeConfigProvider
