@@ -419,7 +419,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricRegistry).meter(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}.PATCH..*")
+        verify(metricRegistry).meter(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}.PATCH._*")
       }
 
       it(s"will update metrics when a request matches a config target when using a specified URL on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
