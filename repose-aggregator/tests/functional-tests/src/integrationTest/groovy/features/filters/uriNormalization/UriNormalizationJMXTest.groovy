@@ -30,16 +30,16 @@ import org.rackspace.deproxy.Deproxy
 @Category(Slow.class)
 class UriNormalizationJMXTest extends ReposeValveTest {
 
-    String PREFIX = "${jmxHostname}-metrics:type=meters,name=\"org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization"
+    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"filters\",004=\"urinormalization\",005=\"UriNormalizationFilter\",006=\"Normalization\""
 
-    String URI_NORMALIZATION_ROOT_GET = "${PREFIX}.GET..\\*\""
-    String URI_NORMALIZATION_ROOT_POST = "${PREFIX}.POST..\\*\""
-    String URI_NORMALIZATION_RESOURCE_GET = "${PREFIX}.GET./resource/.\\*\""
-    String URI_NORMALIZATION_RESOURCE_POST = "${PREFIX}.POST./resource/.\\*\""
-    String URI_NORMALIZATION_SERVERS_GET = "${PREFIX}.GET./servers/.\\*\""
-    String URI_NORMALIZATION_SERVERS_POST = "${PREFIX}.POST./servers/.\\*\""
-    String URI_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX}.GET./secondary/path/.\\*\""
-    String URI_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX}.GET./tertiary/path/.\\*\""
+    String URI_NORMALIZATION_ROOT_GET = "${PREFIX},007=\"GET\",008=\"_\\*\""
+    String URI_NORMALIZATION_ROOT_POST = "${PREFIX},007=\"POST\",008=\"_\\*\""
+    String URI_NORMALIZATION_RESOURCE_GET = "${PREFIX},007=\"GET\",008=\"/resource/_\\*\""
+    String URI_NORMALIZATION_RESOURCE_POST = "${PREFIX},007=\"POST\",008=\"/resource/_\\*\""
+    String URI_NORMALIZATION_SERVERS_GET = "${PREFIX},007=\"GET\",008=\"/servers/_\\*\""
+    String URI_NORMALIZATION_SERVERS_POST = "${PREFIX},007=\"POST\",008=\"/servers/_\\*\""
+    String URI_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX},007=\"GET\",008=\"/secondary/path/_\\*\""
+    String URI_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX},007=\"GET\",008=\"/tertiary/path/_\\*\""
 
     Map params
     ReposeConfigurationProvider reposeConfigProvider

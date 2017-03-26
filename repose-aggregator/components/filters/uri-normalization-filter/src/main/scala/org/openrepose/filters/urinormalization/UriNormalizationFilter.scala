@@ -68,7 +68,7 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
                   classOf[UriNormalizationFilter],
                   "Normalization",
                   request.getMethod,
-                  queryStringNormalizer.getLastMatch.toString))
+                  queryStringNormalizer.getLastMatch.toString.replace('.', '_')))
                 .mark()))
       }
 
