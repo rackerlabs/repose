@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,10 +35,6 @@ import spock.util.concurrent.PollingConditions
 class ApiValidatorJMXTestSwitchMBeanQuickTest extends ReposeValveTest {
 
     final def conditions = new PollingConditions(timeout: 10, initialDelay: 3)
-
-    //Have to configure this with logic to get the hostname so that JMX works
-    @Shared
-    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"ApiValidator\",scope=\""
 
     String validatorBeanDomain = 'com.rackspace.com.papi.components.checker:*'
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
