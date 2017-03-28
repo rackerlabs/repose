@@ -16,7 +16,7 @@
 ~~~~~~~~~\. __________________/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 </pre>
 
-#REPOSE - The REstful PrOxy Service Engine#
+# REPOSE - The REstful PrOxy Service Engine #
 
 Repose is an open-source platform that you can use to build stacks of reusable software
 components. These components can be leveraged by service developers to perform
@@ -32,7 +32,7 @@ proxy that allows services to use Enterprise Integration Patterns (EIP).
 For more information, check out our [Getting Started with Repose](https://repose.atlassian.net/wiki/display/REPOSE/Getting+Started+with+Repose) guide.
 
 
-##Benefits##
+## Benefits ##
 
 * **Scalable**. Repose is incredibly scalable because it is designed to be stateless.
 * **Flexible**. Repose can be run as a [standalone Linux service (Valve)](https://repose.atlassian.net/wiki/display/REPOSE/Valve+Installation)
@@ -45,7 +45,7 @@ For more information, check out our [Getting Started with Repose](https://repose
 * **Improving**. Repose continues to be under [active development](https://github.com/rackerlabs/repose/releases).
 
 
-##Repose Components##
+## Repose Components ##
 
 Repose includes several [filters and services](https://repose.atlassian.net/wiki/display/REPOSE/Filters+and+services)
 out of the box.  These include:
@@ -64,7 +64,7 @@ Repose also makes it easy to create your own custom components.  Check out
 our [example custom filter](https://github.com/rackerlabs/repose-hello-world) for more details.
 
  
-##Installation##
+## Installation ##
 You can install Repose using the following methods:
 
 * RPM using yum ([Valve](https://repose.atlassian.net/wiki/display/REPOSE/Valve+Installation#ValveInstallation-RHEL%28yum%29baseddistributions) or [WAR](https://repose.atlassian.net/wiki/display/REPOSE/WAR+Installation#WARInstallation-RHEL%28yum%29baseddistributions))
@@ -73,7 +73,7 @@ You can install Repose using the following methods:
 * [Chef](https://github.com/rackerlabs/cookbook-repose)
 
 
-## Configuration##
+## Configuration ##
 
 Repose will search for configuration files in the user specified directory.
 
@@ -108,7 +108,7 @@ Setting the Configuration Root Directory.
 ```
 
 
-##Licensing##
+## Licensing ##
 
 Original files contained with this distribution of Repose are licensed under
 the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0).
