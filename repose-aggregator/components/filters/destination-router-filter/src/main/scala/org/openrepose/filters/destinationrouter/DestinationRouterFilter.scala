@@ -47,7 +47,7 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
   private var configuration: DestinationRouterConfiguration = _
   private var routedResponseMetric: Option[Meter] = None
   private val metricsServiceOption = Option(metricsService.orElse(null))
-  private val getRoutedResponseMetricName = MetricRegistry.name(classOf[DestinationRouterFilter], "Routed Response", _)
+  private val getRoutedResponseMetricName = MetricRegistry.name(classOf[DestinationRouterFilter], "Routed Response", _: String)
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Destination Router Filter initializing")
