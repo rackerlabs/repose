@@ -1,0 +1,48 @@
+= Metrics Service
+
+include::../_includes/in-progress.adoc[]
+
+The Metrics Service enables the registration, collection, and reporting of metrics across Repose.
+
+Metrics collected by this service provide insight into the state of Repose and its components at any given time.
+
+== Background
+
+The goal of the Metrics Service is to provide a simple, convenient mechanism for gathering and reporting metrics.
+To that end, the Metrics Service manages a centralized metrics registry and reporters for that registry.
+By exposing the Metrics Service as a Java `@Named` component, other Repose components may easily leverage the ability to record metrics.
+
+Implementation wise, the Metrics Service is a light-weight wrapper around the http://metrics.dropwizard.io/[Dropwizard metrics library].
+This allows the service to offer all of the capabilities of a powerful, open-source metrics library.
+
+== Configuration
+* *Default Configuration:* metrics.cfg.xml
+* *Released:* v2.7.0
+* link:../schemas/metrics.xsd[Schema]
+
+=== Full Configuration
+[source, xml]
+.metrics.cfg.xml
+----
+<metrics xmlns="http://docs.openrepose.org/repose/metrics/v1.0"
+         enabled="true"> <!-- 1 -->
+    <graphite> <!-- 2 -->
+        <server host="graphite.example.com" <!-- 3 -->
+                port="12345" <!-- 4 -->
+                period="10" <!-- 5 -->
+                prefix="repose.example"/> <!-- 6 -->
+    </graphite>
+</metrics>
+----
+<1> Enables the service.
+If this attribute is set to `false`, then metrics will not be reported, +
+Defaults to `true`.
+<2> Holds the Graphite server definitions.
+<3> Declares that a Graphite server running on the `graphite.example.com` host should receive published metrics.
+<4> Declares the port that the Graphite server is listening on.
+<5> Defines the polling period, in seconds, of the Graphite reporter.
+In this case, new metrics will be sent to the Graphite server every `10` seconds.
+<6> Defines the prefix which will be prepended to the names of any metrics being sent to the Graphite server.
+
+== Further Information
+For more information about what the Metrics service can do, see the http://metrics.dropwizard.io/3.2.0/manual/index.html[Dropwizard Metrics User Manual].

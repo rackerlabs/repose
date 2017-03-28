@@ -13,6 +13,9 @@ include::_includes/in-progress.adoc[]
 
 * https://repose.atlassian.net/browse/REP-4725[REP-4725] - Repose will no longer add a `Server` header to responses from neither the main endpoint nor the Dist-Datastore endpoint.
 
+* https://repose.atlassian.net/browse/REP-5204[REP-5204] - the <<services/metrics.adoc#, Metrics Service>> library has been updated from Yammer v2.2.0 to Dropwizard v3.2.0.
+The service interface has also been modified to provide a simpler, more flexible experience.
+
 == 8.4.1.0
 
 * https://repose.atlassian.net/browse/REP-5101[REP-5101] - <<filters/saml-policy.adoc#, Saml Policy Filter>> now allows un-encoded `application/xml` requests in addition to the previous `application/x-www-form-urlencoded` requests.
