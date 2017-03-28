@@ -133,7 +133,7 @@ public class MetricsServiceImpl implements MetricsService {
         final GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry)
                 .prefixedWith(prefix)
                 .build(graphite);
-        reporter.start(period, TimeUnit.MINUTES);
+        reporter.start(period, TimeUnit.SECONDS);
 
         synchronized (listGraphite) {
             listGraphite.add(reporter);
