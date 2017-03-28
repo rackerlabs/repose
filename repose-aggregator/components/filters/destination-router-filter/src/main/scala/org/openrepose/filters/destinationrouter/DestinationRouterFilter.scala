@@ -25,7 +25,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.codahale.metrics.MetricRegistry
+import com.codahale.metrics.{Meter, MetricRegistry}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
@@ -45,7 +45,9 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
   private var initialized: Boolean = false
   private var configurationFileName: String = _
   private var configuration: DestinationRouterConfiguration = _
+  private var routedResponseMetric: Option[Meter] = None
   private val metricsServiceOption = Option(metricsService.orElse(null))
+  private val getRoutedResponseMetricName = MetricRegistry.name(classOf[DestinationRouterFilter], "Routed Response", _)
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Destination Router Filter initializing")
@@ -91,13 +93,7 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
             logger.error("The destination could not be added -- the destinations attribute was of an unknown type")
         }
 
-        metricsServiceOption.foreach(metricsService =>
-          metricsService.getRegistry
-            .meter(MetricRegistry.name(
-              classOf[DestinationRouterFilter],
-              "Routed Response",
-              target.getId))
-            .mark())
+        routedResponseMetric.foreach(_.mark())
       }
 
       chain.doFilter(httpRequest, httpResponse)
@@ -110,6 +106,8 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
     // Set the default quality since XJC won't
     val target = configurationObject.getTarget
     if (!target.isSetQuality) target.setQuality(0.5)
+
+    routedResponseMetric = metricsServiceOption.map(_.getRegistry.meter(getRoutedResponseMetricName(target.getId)))
 
     configuration = configurationObject
 
