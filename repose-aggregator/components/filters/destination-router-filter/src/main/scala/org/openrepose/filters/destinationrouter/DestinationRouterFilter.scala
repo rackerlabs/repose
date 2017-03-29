@@ -46,7 +46,7 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
   private var configurationFileName: String = _
   private var configuration: DestinationRouterConfiguration = _
   private var routedResponseMetric: Option[Meter] = None
-  private val metricsServiceOption = Option(metricsService.orElse(null))
+  private val metricRegistryOpt = Option(metricsService.orElse(null)).map(_.getRegistry)
   private val getRoutedResponseMetricName = MetricRegistry.name(classOf[DestinationRouterFilter], "Routed Response", _: String)
 
   override def init(filterConfig: FilterConfig): Unit = {
@@ -107,7 +107,7 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
     val target = configurationObject.getTarget
     if (!target.isSetQuality) target.setQuality(0.5)
 
-    routedResponseMetric = metricsServiceOption.map(_.getRegistry.meter(getRoutedResponseMetricName(target.getId)))
+    routedResponseMetric = metricRegistryOpt.map(_.meter(getRoutedResponseMetricName(target.getId)))
 
     configuration = configurationObject
 

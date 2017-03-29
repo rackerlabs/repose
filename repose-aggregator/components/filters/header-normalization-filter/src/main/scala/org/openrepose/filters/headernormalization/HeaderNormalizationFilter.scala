@@ -47,7 +47,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
   private var initialized = false
   private var configRequest: Seq[Target] = _
   private var configResponse: Seq[Target] = _
-  private val metricsServiceOption = Option(metricsService.orElse(null))
+  private val metricRegistryOption = Option(metricsService.orElse(null)).map(_.getRegistry)
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Header Normalization filter initializing...")
@@ -80,8 +80,8 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedRequest.removeHeader)
 
-      metricsServiceOption.foreach(metricsService =>
-        metricsService.getRegistry
+      metricRegistryOption.foreach(metricRegistry =>
+        metricRegistry
           .meter(MetricRegistry.name(
             classOf[HeaderNormalizationFilter],
             "Normalization",
@@ -116,8 +116,8 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedResponse.get.removeHeader)
 
-      metricsServiceOption.foreach(metricsService =>
-        metricsService.getRegistry
+      metricRegistryOption.foreach(metricRegistry =>
+        metricRegistry
           .meter(MetricRegistry.name(
             classOf[HeaderNormalizationFilter],
             "Normalization",

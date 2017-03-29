@@ -8,6 +8,7 @@ dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "io.dropwizard.metrics:metrics-core"
     compile "org.slf4j:slf4j-api"
 
     generatedCompile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime"

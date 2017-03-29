@@ -64,7 +64,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
   private val versioningObjectFactory = new ObjectFactory()
   private val healthCheckServiceProxy = healthCheckService.register
-  private val metricsServiceOption = Option(metricsService.orElse(null))
+  private val metricRegistryOpt = Option(metricsService.orElse(null)).map(_.getRegistry)
 
   private var configurationFileName: String = _
   private var serviceVersionMappings: Map[String, ServiceVersionMapping] = _
@@ -111,9 +111,9 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
       try {
         def markMeter(name: String): Unit = {
-          metricsServiceOption.foreach(metricService =>
+          metricRegistryOpt.foreach(metricRegistry =>
             // todo: replace "versioning" with filter-id or name-number in sys-model
-            metricService.getRegistry
+            metricRegistry
               .meter(MetricRegistry.name(
                 classOf[VersioningFilter],
                 "VersionedRequest",

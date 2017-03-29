@@ -44,7 +44,7 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
   extends Filter with UpdateListener[UriNormalizationConfig] with LazyLogging {
 
   private final val DefaultConfig: String = "uri-normalization.cfg.xml"
-  private val metricsServiceOption = Option(metricsService.orElse(null))
+  private val metricRegistryOpt = Option(metricsService.orElse(null)).map(_.getRegistry)
 
   private var initialized: Boolean = false
   private var configFilename: String = _
@@ -62,8 +62,8 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
       if (request.getParameterMap.nonEmpty) {
         queryStringNormalizers.find(_.normalize(request))
           .foreach(queryStringNormalizer =>
-            metricsServiceOption.foreach(metricService =>
-              metricService.getRegistry
+            metricRegistryOpt.foreach(metricRegistry =>
+              metricRegistry
                 .meter(MetricRegistry.name(
                   classOf[UriNormalizationFilter],
                   "Normalization",
