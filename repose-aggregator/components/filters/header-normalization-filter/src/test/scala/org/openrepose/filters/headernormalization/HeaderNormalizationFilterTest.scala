@@ -47,32 +47,32 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
   import HeaderNormalizationFilterTest._
 
+  final val METRIC_PREFIX = "org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization"
+
   var filter: HeaderNormalizationFilter = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
-  private val filterChain = mock[FilterChain]
-  private val filterConfig = mock[FilterConfig]
-  private val METRIC_PREFIX = "org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization"
-  private val metricsService = mock[MetricsService]
-  private val metricsServiceOpt = Optional.of(metricsService)
-  private val metricRegistry = mock[MetricRegistry]
-  private val meter = mock[Meter]
+  var filterChain: FilterChain = _
+  var filterConfig: FilterConfig = _
+  var metricsService: MetricsService = _
+  var metricRegistry: MetricRegistry = _
+  var meter: Meter = _
 
   override def beforeEach(): Unit = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
 
-    reset(filterChain)
-    reset(filterConfig)
-    reset(metricsService)
-    reset(metricRegistry)
-    reset(meter)
+    filterChain = mock[FilterChain]
+    filterConfig = mock[FilterConfig]
+    metricsService = mock[MetricsService]
+    metricRegistry = mock[MetricRegistry]
+    meter = mock[Meter]
 
     when(filterConfig.getInitParameterNames).thenReturn(List.empty[String].toIterator.asJavaEnumeration)
     when(metricsService.getRegistry).thenReturn(metricRegistry)
     when(metricRegistry.meter(anyString())).thenReturn(meter)
 
-    filter = new HeaderNormalizationFilter(mock[ConfigurationService], metricsServiceOpt)
+    filter = new HeaderNormalizationFilter(mock[ConfigurationService], Optional.of(metricsService))
     filter.init(filterConfig)
   }
 
