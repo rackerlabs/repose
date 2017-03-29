@@ -1,7 +1,5 @@
 = Metrics Service
 
-include::../_includes/in-progress.adoc[]
-
 The Metrics Service enables the registration, collection, and reporting of metrics across Repose.
 
 Metrics collected by this service provide insight into the state of Repose and its components at any given time.
