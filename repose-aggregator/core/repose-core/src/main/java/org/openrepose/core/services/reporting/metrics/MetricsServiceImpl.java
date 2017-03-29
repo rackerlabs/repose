@@ -129,9 +129,9 @@ public class MetricsServiceImpl implements MetricsService {
 
     private void addGraphiteServer(String host, int port, long period, String prefix)
             throws IOException {
-        final Graphite graphite = new Graphite(new InetSocketAddress(host, port));
-        final GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry)
-                .prefixedWith(prefix)
+        Graphite graphite = new Graphite(new InetSocketAddress(host, port));
+        GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry)
+                .prefixedWith(MetricRegistry.name(prefix, ReposeJmxNamingStrategy.bestGuessHostname()))
                 .build(graphite);
         reporter.start(period, TimeUnit.SECONDS);
 
