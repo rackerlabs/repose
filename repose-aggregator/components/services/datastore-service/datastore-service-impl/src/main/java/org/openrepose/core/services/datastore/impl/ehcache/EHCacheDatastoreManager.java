@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.datastore.impl.ehcache;
 
-import com.codahale.metrics.ehcache.InstrumentedEhcache;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -55,8 +54,12 @@ public class EHCacheDatastoreManager implements DatastoreManager {
         final Ehcache cacheOrig = new Cache(cacheName, 20000, false, false, 5, 2);
         cacheManagerInstance.addCache(cacheOrig);
 
-        this.cache = metricsService.map(metrics -> InstrumentedEhcache.instrument(metrics.getRegistry(), cacheOrig))
-                .orElse(cacheOrig);
+        // TODO: Instrument the EHCache.
+        // WARNING! The InstrumentedEhcache is causing the GraphiteReporter to fail. This may have to do with the
+        // dependency issue described in the Gradle build file, but more investigation is required.
+        // this.cache = metricsService.map(metrics -> InstrumentedEhcache.instrument(metrics.getRegistry(), cacheOrig))
+        //         .orElse(cacheOrig);
+        this.cache = cacheOrig;
     }
 
     @Override

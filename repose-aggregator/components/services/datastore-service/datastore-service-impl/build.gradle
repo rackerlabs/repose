@@ -9,7 +9,12 @@ dependencies {
     compile "org.eclipse.jetty:jetty-servlet"
     compile "org.springframework:spring-beans"
     compile "net.sf.ehcache:ehcache-core"
-    compile "io.dropwizard.metrics:metrics-ehcache"
+    // TODO: Add this dependency. Beware! Doing so pulls in a transitive "ehcache" artifact
+    //       which shares some classes with "ehcache-core" above. The classpath conflict
+    //       should be resolved before this dependency is uncommented.
+    //       Note that "ehcache-core" appears to be discouraged for use. It was moved into the
+    //       "net.sf.ehcache.internal" package. Perhaps the standard "ehcache" should be used instead.
+    // compile "io.dropwizard.metrics:metrics-ehcache"
 
     provided "javax.inject:javax.inject"
     provided "javax.servlet:javax.servlet-api"
