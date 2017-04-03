@@ -44,3 +44,59 @@ In this case, new metrics will be sent to the Graphite server every `10` seconds
 
 == Further Information
 For more information about what the Metrics service can do, see the http://metrics.dropwizard.io/3.2.0/manual/index.html[Dropwizard Metrics User Manual].
+
+=== Aggregating Metrics
+
+This service supports the automatic aggregation of certain metrics.
+In some cases, aggregating metrics provides useful insight into the system at a level where individual metrics may not be present.
+For example, a `Meter` on its own might track the status codes sent in responses from a single filter.
+However, we want to be able to view the status codes send in responses from all filters.
+For that purpose, this service supplies a `SummingMeter`.
+See <<SummingMeter>> for more details.
+
+The following nested sections provide details about the supported aggregation metrics.
+
+==== SummingMeter
+
+`SummingMeter` s can be used to mark multiple `Meter` s at the same time.
+While this makes `SummingMeter` s generally useful, when used in conjunction with the `SummingMeterFactory`, they are used to track an additional `Meter` which serves as the sum of all `Meter` s created by the `SummingMeterFactory`.
+That is where the name `SummingMeter` comes from.
+
+A `SummingMeter` should be constructed by utilizing the `SummingMeterFactory` accessible via this service.
+
+[source, java]
+----
+SummingMeterFactory summingMeterFactory =
+    metricsService.createSummingMeterFactory("prefix"); // <1> <2>
+
+SummingMeter meter =
+    summingMeterFactory.createSummingMeter("summingMeter"); // <3>
+
+meter.mark(); // <4>
+----
+<1> Assume that the `MetricsService` has been injected.
+<2> Creates a `SummingMeterFactory` which will prefix the names of all `Meter` s it creates with `prefix`.
+<3> Creates a `SummingMeter` registered with the name `prefix.summingMeter` which provides the same interactions as a standard `Meter`.
+<4> Marks the `SummingMeter`.
+    When marked, `SummingMeter` s will mark themselves as well as an `ACROSS ALL` meter with the same prefix (e.g., `prefix.ACROSS ALL`).
+
+The `SummingMeterFactory` also provides support for `SummingMeter` trees.
+These trees enable nesting of `Meter` s in more interesting ways.
+
+[source, java]
+----
+SummingMeterFactory parentSummingMeterFactory =
+    metricsService.createSummingMeterFactory(MetricRegistry.name("prefix", "parent"));
+
+SummingMeterFactory childSummingMeterFactory =
+    parentSummingMeter.createChildFactory("child"); // <1>
+
+SummingMeter summingMeter =
+    childSummingMeterFactory.createSummingMeter("summingMeter"); // <2>
+
+summingMeter.mark(); // <3>
+----
+<1> Creates a `SummingMeterFactory` with a full prefix of `prefix.parent.child`.
+<2> Creates a `SummingMeter` with the name `prefix.parent.child.summingMeter`.
+<3> Marks the `SummingMeter` as well as both `ACROSS ALL` `Meter` s of the ancestral `SummingMeterFactory` s.
+    This means that all of the following `Metric` s are marked: `prefix.parent.child.summingMeter`, `prefix.parent.child.ACROSS ALL`, and `prefix.parent.ACROSS ALL`.
