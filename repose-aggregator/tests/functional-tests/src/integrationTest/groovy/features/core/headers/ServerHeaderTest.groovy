@@ -59,11 +59,6 @@ class ServerHeaderTest extends ReposeValveTest {
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/headers", params)
 
-        //////////////////////////
-        /* TODO: Remove this!!! */
-        repose.enableSuspend()  //
-        //////////////////////////
-
         repose.start(
                 killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
