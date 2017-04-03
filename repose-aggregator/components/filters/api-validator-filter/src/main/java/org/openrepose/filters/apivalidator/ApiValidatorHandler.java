@@ -28,6 +28,7 @@ import com.rackspace.com.papi.components.checker.wadl.WADLException;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
+import org.openrepose.core.services.reporting.metrics.SummingMeterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public class ApiValidatorHandler {
     private Set<String> matchedRoles;
     private boolean multiRoleMatch = false;
     private boolean delegatingMode;
-    private final Optional<MetricRegistry> metricRegistryOpt;
+    private final Optional<SummingMeterFactory> invalidRequestMeterFactory;
 
     public ApiValidatorHandler(
             ValidatorInfo defaultValidator,
@@ -58,7 +59,9 @@ public class ApiValidatorHandler {
         this.multiRoleMatch = multiRoleMatch;
         this.defaultValidator = defaultValidator;
         this.delegatingMode = delegatingMode;
-        this.metricRegistryOpt = metricsService.map(MetricsService::getRegistry);
+        this.invalidRequestMeterFactory = metricsService.map(ms -> ms.createSummingMeterFactory(MetricRegistry.name(
+                ApiValidatorHandler.class,
+                "invalid-request")));
     }
 
     private boolean appendDefaultValidator(List<ValidatorInfo> validatorList) {
@@ -146,14 +149,9 @@ public class ApiValidatorHandler {
                 }
 
                 if (!isValid) {
-                    metricRegistryOpt.ifPresent(metricRegistry ->
+                    invalidRequestMeterFactory.ifPresent(factory ->
                         matchedRoles.forEach(role ->
-                            metricRegistry
-                                .meter(MetricRegistry.name(
-                                    ApiValidatorHandler.class,
-                                    "invalid-request",
-                                    role))
-                                .mark()
+                            factory.createSummingMeter(role).mark()
                         )
                     );
                     if (multiRoleMatch) {
