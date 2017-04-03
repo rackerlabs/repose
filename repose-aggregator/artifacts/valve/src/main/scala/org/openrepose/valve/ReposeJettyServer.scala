@@ -23,7 +23,7 @@ import java.util
 import javax.servlet.DispatcherType
 
 import com.typesafe.config.ConfigFactory
-import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
+import org.eclipse.jetty.server.{Connector, HttpConnectionFactory, Server, ServerConnector}
 import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.commons.utils.io.FileUtilities
@@ -86,6 +86,10 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     //Set up connectors
     val httpConnector: Option[ServerConnector] = httpPort.map { port =>
       val conn = new ServerConnector(s)
+      conn.getConnectionFactory(classOf[HttpConnectionFactory])
+        .getHttpConfiguration
+        .setSendServerVersion(false)
+
       if (testMode) {
         conn.setPort(0)
       } else {
