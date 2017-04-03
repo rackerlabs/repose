@@ -40,12 +40,14 @@ import java.util.*;
 
 public class ApiValidatorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandler.class);
+    private static final String INVALID_REQUEST_METRIC_PREFIX = MetricRegistry.name(ApiValidatorHandler.class, "invalid-request");
+
     private final List<ValidatorInfo> validators;
     private final ValidatorInfo defaultValidator;
     private Set<String> matchedRoles;
     private boolean multiRoleMatch = false;
     private boolean delegatingMode;
-    private final Optional<SummingMeterFactory> invalidRequestMeterFactory;
+    private final Optional<MetricsService> metricsService;
 
     public ApiValidatorHandler(
             ValidatorInfo defaultValidator,
@@ -59,9 +61,7 @@ public class ApiValidatorHandler {
         this.multiRoleMatch = multiRoleMatch;
         this.defaultValidator = defaultValidator;
         this.delegatingMode = delegatingMode;
-        this.invalidRequestMeterFactory = metricsService.map(ms -> ms.createSummingMeterFactory(MetricRegistry.name(
-                ApiValidatorHandler.class,
-                "invalid-request")));
+        this.metricsService = metricsService;
     }
 
     private boolean appendDefaultValidator(List<ValidatorInfo> validatorList) {
@@ -149,11 +149,12 @@ public class ApiValidatorHandler {
                 }
 
                 if (!isValid) {
-                    invalidRequestMeterFactory.ifPresent(factory ->
+                    metricsService.ifPresent(ms -> {
+                        SummingMeterFactory meterFactory = ms.createSummingMeterFactory(INVALID_REQUEST_METRIC_PREFIX);
                         matchedRoles.forEach(role ->
-                            factory.createSummingMeter(role).mark()
-                        )
-                    );
+                            meterFactory.createSummingMeter(role)
+                                .mark());
+                    });
                     if (multiRoleMatch) {
                         sendMultiMatchErrorResponse(lastValidatorResult, response);
                     }
