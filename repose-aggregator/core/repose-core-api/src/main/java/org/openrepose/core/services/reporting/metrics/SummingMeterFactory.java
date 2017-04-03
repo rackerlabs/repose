@@ -19,14 +19,20 @@
  */
 package org.openrepose.core.services.reporting.metrics;
 
-import com.codahale.metrics.MetricRegistry;
-import org.openrepose.commons.utils.Destroyable;
+import com.codahale.metrics.Meter;
 
 /**
- * This service creates all necessary classes to track repose performance through JMX & Graphite.
+ * A factory used to create {@link Meter}s. The {@link Meter}s created by this
+ * factory will have their values tracked and summed. The summed value will be
+ * reported as its own {@link Meter}.
+ * <p>
+ * This factory is hierarchical. Child factory names will be prefixed by the name
+ * of their parent factory. The overall structure of all factories is a tree.
  */
-public interface MetricsService extends Destroyable {
-    MetricRegistry getRegistry();
+public interface SummingMeterFactory {
+    Meter getAcrossAllMeter();
 
-    SummingMeterFactory createSummingMeterFactory(String namePrefix);
+    Meter createSummingMeter(String name);
+
+    SummingMeterFactory createChildFactory(String name);
 }

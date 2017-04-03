@@ -21,6 +21,7 @@ package org.openrepose.core.services.reporting.metrics;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,7 @@ import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
@@ -154,5 +155,18 @@ public class MetricsServiceImplTest {
 
         metricsService.setEnabled(true);
         assertTrue(metricsService.isEnabled());
+    }
+
+    @Test
+    public void createSummingMeterFactoryShouldBePassedTheServiceMetricRegistry() throws Exception {
+        String namePrefix = MetricRegistry.name("test", "name", "prefix");
+        String name = "foo";
+
+        MetricRegistry metricRegistry = metricsService.getRegistry();
+        SummingMeterFactory summingMeterFactory = metricsService.createSummingMeterFactory(namePrefix);
+
+        summingMeterFactory.createSummingMeter(name);
+
+        assertThat(metricRegistry.getMeters(), hasKey(MetricRegistry.name(namePrefix, name)));
     }
 }

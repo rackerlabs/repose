@@ -161,6 +161,11 @@ public class MetricsServiceImpl implements MetricsService {
         return metricRegistry;
     }
 
+    @Override
+    public SummingMeterFactory createSummingMeterFactory(String namePrefix) {
+        return new SummingMeterFactoryImpl(metricRegistry, namePrefix);
+    }
+
     @PreDestroy
     @Override
     public void destroy() {
