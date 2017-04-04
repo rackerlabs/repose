@@ -101,7 +101,7 @@ class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
   private val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
     ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
 
-  if (reposeVersion != "10") {
+  if (reposeVersion.startsWith("8.") || reposeVersion.startsWith("9.")) {
     describe("deprecated schema validation") {
       it("should successfully validate when the deprecated header-filters is used") {
         val config =
