@@ -19,6 +19,7 @@
  */
 package org.openrepose.powerfilter;
 
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonRequestAttributes;
@@ -56,6 +57,9 @@ import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
  */
 public class PowerFilterRouterImpl implements PowerFilterRouter {
     public static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
+
+    private static final String ALL_ENDPOINTS = "All Endpoints";
+
     private final DestinationLocationBuilder locationBuilder;
     private final Map<String, Destination> destinations;
     private final ReposeCluster domain;
@@ -153,10 +157,12 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         // track response code for endpoint & across all endpoints
                         String endpoint = getEndpoint(configDestinationElement, location);
 
-                        metricsService.ifPresent(ms ->
-                            PowerFilter.markResponseCodeHelper(ms, servletResponse.getStatus(), LOG, endpoint)
-                        );
-                        markRequestTimeoutHelper(servletResponse.getStatus(), endpoint);
+                        metricsService.ifPresent(ms -> {
+                            PowerFilter.markResponseCodeHelper(ms, servletResponse.getStatus(), LOG, endpoint);
+                            PowerFilter.markResponseCodeHelper(ms, servletResponse.getStatus(), LOG, ALL_ENDPOINTS);
+                            markRequestTimeoutHelper(servletResponse.getStatus(), endpoint);
+                            markRequestTimeoutHelper(servletResponse.getStatus(), ALL_ENDPOINTS);
+                        });
 
                         final long stopTime = System.currentTimeMillis();
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), stopTime - startTime);

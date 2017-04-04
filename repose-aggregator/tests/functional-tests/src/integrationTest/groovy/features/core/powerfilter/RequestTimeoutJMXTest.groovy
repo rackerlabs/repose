@@ -28,7 +28,13 @@ import org.rackspace.deproxy.Response
 @Category(Slow.class)
 class RequestTimeoutJMXTest extends ReposeValveTest {
 
-    String MBEAN_NAME = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"core\",004=\"RequestTimeout\",005=\"TimeoutToOrigin\",006=\"localhost:${properties.targetPort}/root_path\""
+    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"core\",004=\"RequestTimeout\",005=\"TimeoutToOrigin\""
+
+    String NAME_OPENREPOSE_ENDPOINT = ",006=\"localhost:${properties.targetPort}/root_path\""
+    String ALL_ENDPOINTS = ",006=\"All Endpoints\""
+
+    String TIMEOUT_TO_ORIGIN = PREFIX + NAME_OPENREPOSE_ENDPOINT
+    String ALL_TIMEOUT_TO_ORIGIN = PREFIX + ALL_ENDPOINTS
 
     def handlerTimeout = { request -> return new Response(408, 'WIZARD FAIL') }
 
@@ -44,7 +50,7 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
 
     def "when responses have timed out, should increment RequestTimeout mbeans for specific endpoint"() {
         given:
-        def target = repose.jmx.quickMBeanAttribute(MBEAN_NAME, "Count")
+        def target = repose.jmx.quickMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count")
         target = (target == null) ? 0 : target
 
         when:
@@ -52,6 +58,35 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
 
         then:
-        repose.jmx.getMBeanAttribute(MBEAN_NAME, "Count") == (target + 2)
+        repose.jmx.getMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count") == (target + 2)
+    }
+
+
+    def "when responses have timed out, should increment RequestTimeout mbeans for all endpoint"() {
+        given:
+        def target = repose.jmx.quickMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
+        target = (target == null) ? 0 : target
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
+        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
+
+        then:
+        repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == (target + 2)
+    }
+
+    def "when SOME responses have timed out, should increment RequestTimeout mbeans for specific endpoint only for timeouts"() {
+        given:
+        def target = repose.jmx.quickMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
+        target = (target == null) ? 0 : target
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
+        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
+
+        then:
+        repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == (target + 2)
     }
 }
