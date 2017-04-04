@@ -65,8 +65,8 @@ public class MultiMeterTest {
         MultiMeter multiMeter = new MultiMeter(meterOne, meterTwo);
         multiMeter.mark();
 
-        verify(meterOne).mark();
-        verify(meterTwo).mark();
+        verify(meterOne).mark(1L);
+        verify(meterTwo).mark(1L);
         assertThat(multiMeter.getCount(), is(1L));
     }
 

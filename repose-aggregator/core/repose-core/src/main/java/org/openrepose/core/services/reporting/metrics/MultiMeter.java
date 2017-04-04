@@ -51,7 +51,7 @@ public class MultiMeter extends Meter {
     public void mark() {
         // This is an exact duplicate of the method body in super.
         // It is included so that if the inherited method changes, our behavior does not.
-        mark(1);
+        mark(1L);
     }
 
     @Override
