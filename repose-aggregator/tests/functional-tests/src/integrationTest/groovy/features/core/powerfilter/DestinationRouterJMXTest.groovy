@@ -74,12 +74,9 @@ class DestinationRouterJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_ALL, "Count") == (target + 2)
     }
 
-
     def "when requests DO NOT match destination router target URI, should NOT increment DestinationRouter mbeans for all endpoints"() {
         given:
         def target = repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_ALL, "Count")
-        target = (target == null) ? 0 : target
-
 
         when:
         deproxy.makeRequest([url: reposeEndpoint + "/non-existing"])
