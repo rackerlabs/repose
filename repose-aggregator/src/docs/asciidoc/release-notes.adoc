@@ -11,6 +11,8 @@ include::_includes/in-progress.adoc[]
 
 * https://repose.atlassian.net/browse/REP-4754[REP-4754] - the <<filters/rate-limiting.adoc#, Rate Limiting filter>> now returns a 406 if a user requests an unsupported media type in the `Accept` header.
 
+* https://repose.atlassian.net/browse/REP-4725[REP-4725] - Repose will no longer add a `Server` header to responses from neither the main endpoint nor the Dist-Datastore endpoint.
+
 == 8.4.1.0
 
 * https://repose.atlassian.net/browse/REP-5101[REP-5101] - <<filters/saml-policy.adoc#, Saml Policy Filter>> now allows un-encoded `application/xml` requests in addition to the previous `application/x-www-form-urlencoded` requests.
