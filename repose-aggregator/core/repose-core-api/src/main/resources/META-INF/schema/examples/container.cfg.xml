@@ -31,11 +31,13 @@
             <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
 -->
         </ssl-configuration>
+        <via-configuration enabled="true" content="Add me to the Via header."/>
     </deployment-config>
 
     <cluster-config cluster-id="internal-cluster">
         <ssl-configuration need-client-auth="true">
             <truststore-filename>external.truststore</truststore-filename>
         </ssl-configuration>
+        <via-configuration enabled="true" content="Override the Deployment Config Via header."/>
     </cluster-config>
 </repose-container>
