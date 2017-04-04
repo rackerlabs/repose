@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,6 +34,7 @@ import javax.management.remote.JMXServiceURL
  * Deceptively Simple JMX client
  */
 class JmxClient {
+    public static final String COUNT_ATTRIBUTE = "Count"
 
     def String jmxUrl
     def clock = new SystemClock()
@@ -70,6 +71,25 @@ class JmxClient {
             throw new SpockAssertionError(ste.getMessage(), whyFail)
         }
 
+    }
+
+    int getMBeanCountAttribute(String name) {
+        try {
+            server.getAttribute(new ObjectName(name), COUNT_ATTRIBUTE) as int
+        } catch (Exception e) {
+            0
+        }
+    }
+
+    int getMBeanCountAttributeWithWaitForNonZero(String name) {
+        def obj = null
+
+        eventually {
+            obj = server.getAttribute(new ObjectName(name), COUNT_ATTRIBUTE)
+            assert obj != null
+        }
+
+        obj as int
     }
 
     /**
