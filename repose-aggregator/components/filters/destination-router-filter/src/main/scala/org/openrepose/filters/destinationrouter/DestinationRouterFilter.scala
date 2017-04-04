@@ -36,18 +36,17 @@ import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.filters.routing.servlet.config.DestinationRouterConfiguration
 
 @Named
-class DestinationRouterFilter @Inject()(configurationService: ConfigurationService, metricsService: Optional[MetricsService])
+class DestinationRouterFilter @Inject()(configurationService: ConfigurationService, optMetricsService: Optional[MetricsService])
   extends Filter with UpdateListener[DestinationRouterConfiguration] with LazyLogging {
 
   private final val DefaultConfigFileName = "destination-router.cfg.xml"
   private final val SchemaFilePath = "/META-INF/schema/config/destination-router-configuration.xsd"
+  private final val RoutedResponseMetricPrefix = MetricRegistry.name(classOf[DestinationRouterFilter], "Routed Response")
 
   private var initialized: Boolean = false
   private var configurationFileName: String = _
   private var configuration: DestinationRouterConfiguration = _
-  private var routedResponseMetric: Option[Meter] = None
-  private val metricRegistryOpt = Option(metricsService.orElse(null)).map(_.getRegistry)
-  private val getRoutedResponseMetricName = MetricRegistry.name(classOf[DestinationRouterFilter], "Routed Response", _: String)
+  private val metricsService = Option(optMetricsService.orElse(null))
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Destination Router Filter initializing")
@@ -93,7 +92,11 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
             logger.error("The destination could not be added -- the destinations attribute was of an unknown type")
         }
 
-        routedResponseMetric.foreach(_.mark())
+        metricsService foreach {
+          _.createSummingMeterFactory(RoutedResponseMetricPrefix)
+            .createSummingMeter(target.getId)
+            .mark()
+        }
       }
 
       chain.doFilter(httpRequest, httpResponse)
@@ -106,8 +109,6 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
     // Set the default quality since XJC won't
     val target = configurationObject.getTarget
     if (!target.isSetQuality) target.setQuality(0.5)
-
-    routedResponseMetric = metricRegistryOpt.map(_.meter(getRoutedResponseMetricName(target.getId)))
 
     configuration = configurationObject
 
