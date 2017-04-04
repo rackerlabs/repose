@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class SummingMeterTest {
+public class MultiMeterTest {
 
     @Test
     public void markAllShouldMarkAllInputMetersOnCall() throws Exception {
@@ -35,7 +35,7 @@ public class SummingMeterTest {
         Meter meterTwo = mock(Meter.class);
         Meter meterThree = mock(Meter.class);
 
-        SummingMeter.markAll(meterOne, meterTwo, meterThree);
+        MultiMeter.markAll(meterOne, meterTwo, meterThree);
 
         verify(meterOne).mark();
         verify(meterTwo).mark();
@@ -50,7 +50,7 @@ public class SummingMeterTest {
         Meter meterTwo = mock(Meter.class);
         Meter meterThree = mock(Meter.class);
 
-        SummingMeter.markNAll(n, meterOne, meterTwo, meterThree);
+        MultiMeter.markNAll(n, meterOne, meterTwo, meterThree);
 
         verify(meterOne).mark(n);
         verify(meterTwo).mark(n);
@@ -62,12 +62,12 @@ public class SummingMeterTest {
         Meter meterOne = mock(Meter.class);
         Meter meterTwo = mock(Meter.class);
 
-        SummingMeter summingMeter = new SummingMeter(meterOne, meterTwo);
-        summingMeter.mark();
+        MultiMeter multiMeter = new MultiMeter(meterOne, meterTwo);
+        multiMeter.mark();
 
         verify(meterOne).mark();
         verify(meterTwo).mark();
-        assertThat(summingMeter.getCount(), is(1L));
+        assertThat(multiMeter.getCount(), is(1L));
     }
 
     @Test
@@ -77,11 +77,11 @@ public class SummingMeterTest {
         Meter meterOne = mock(Meter.class);
         Meter meterTwo = mock(Meter.class);
 
-        SummingMeter summingMeter = new SummingMeter(meterOne, meterTwo);
-        summingMeter.mark(n);
+        MultiMeter multiMeter = new MultiMeter(meterOne, meterTwo);
+        multiMeter.mark(n);
 
         verify(meterOne).mark(n);
         verify(meterTwo).mark(n);
-        assertThat(summingMeter.getCount(), is(n));
+        assertThat(multiMeter.getCount(), is(n));
     }
 }

@@ -73,7 +73,7 @@ public class SummingMeterFactoryImpl implements SummingMeterFactory {
 
         @Override
         public Meter newMetric() {
-            return new SummingMeter(auxiliaryMeters);
+            return new MultiMeter(auxiliaryMeters);
         }
     }
 }

@@ -56,31 +56,30 @@ See <<SummingMeter>> for more details.
 
 The following nested sections provide details about the supported aggregation metrics.
 
-==== SummingMeter
+==== Summing Meter
 
-`SummingMeter` s can be used to mark multiple `Meter` s at the same time.
-While this makes `SummingMeter` s generally useful, when used in conjunction with the `SummingMeterFactory`, they are used to track an additional `Meter` which serves as the sum of all `Meter` s created by the `SummingMeterFactory`.
-That is where the name `SummingMeter` comes from.
+`MultiMeter` s can be used to mark multiple `Meter` s at the same time.
+While this makes `MultiMeter` s generally useful, when used in conjunction with the `SummingMeterFactory`, they are used to track an additional `Meter` which serves as the sum of all `Meter` s created by the `SummingMeterFactory`.
 
-A `SummingMeter` should be constructed by utilizing the `SummingMeterFactory` accessible via this service.
+A summing `Meter` should be constructed by utilizing the `SummingMeterFactory` accessible via this service.
 
 [source, java]
 ----
 SummingMeterFactory summingMeterFactory =
     metricsService.createSummingMeterFactory("prefix"); // <1> <2>
 
-SummingMeter meter =
+Meter meter =
     summingMeterFactory.createSummingMeter("summingMeter"); // <3>
 
 meter.mark(); // <4>
 ----
 <1> Assume that the `MetricsService` has been injected.
 <2> Creates a `SummingMeterFactory` which will prefix the names of all `Meter` s it creates with `prefix`.
-<3> Creates a `SummingMeter` registered with the name `prefix.summingMeter` which provides the same interactions as a standard `Meter`.
-<4> Marks the `SummingMeter`.
-    When marked, `SummingMeter` s will mark themselves as well as an `ACROSS ALL` meter with the same prefix (e.g., `prefix.ACROSS ALL`).
+<3> Creates a `MultiMeter` registered with the name `prefix.summingMeter` which provides the same interactions as a standard `Meter`.
+<4> Marks the `MultiMeter`.
+    When marked, `MultiMeter` s created in this way will mark themselves as well as an `ACROSS ALL` meter with the same prefix (e.g., `prefix.ACROSS ALL`).
 
-The `SummingMeterFactory` also provides support for `SummingMeter` trees.
+The `SummingMeterFactory` also provides support for `Meter` trees.
 These trees enable nesting of `Meter` s in more interesting ways.
 
 [source, java]
@@ -91,12 +90,12 @@ SummingMeterFactory parentSummingMeterFactory =
 SummingMeterFactory childSummingMeterFactory =
     parentSummingMeter.createChildFactory("child"); // <1>
 
-SummingMeter summingMeter =
+Meter meter =
     childSummingMeterFactory.createSummingMeter("summingMeter"); // <2>
 
-summingMeter.mark(); // <3>
+meter.mark(); // <3>
 ----
 <1> Creates a `SummingMeterFactory` with a full prefix of `prefix.parent.child`.
-<2> Creates a `SummingMeter` with the name `prefix.parent.child.summingMeter`.
-<3> Marks the `SummingMeter` as well as both `ACROSS ALL` `Meter` s of the ancestral `SummingMeterFactory` s.
+<2> Creates a `Meter` with the name `prefix.parent.child.summingMeter`.
+<3> Marks the `Meter` as well as both `ACROSS ALL` `Meter` s of the ancestral `SummingMeterFactory` s.
     This means that all of the following `Metric` s are marked: `prefix.parent.child.summingMeter`, `prefix.parent.child.ACROSS ALL`, and `prefix.parent.ACROSS ALL`.

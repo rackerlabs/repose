@@ -42,20 +42,20 @@ public class SummingMeterFactoryImplTest {
     private final static String NAME_PREFIX = "test.name.prefix";
 
     private Meter acrossAllMeter;
-    private Meter aggregateMeter;
+    private Meter multiMeter;
     private MetricRegistry metricRegistry;
     private SummingMeterFactory summingMeterFactory;
 
     @Before
     public void setup() {
         acrossAllMeter = mock(Meter.class);
-        aggregateMeter = mock(SummingMeter.class);
+        multiMeter = mock(MultiMeter.class);
         metricRegistry = mock(MetricRegistry.class);
 
         when(metricRegistry.meter(Matchers.endsWith(ACROSS_ALL)))
             .thenReturn(acrossAllMeter);
         when(metricRegistry.meter(anyString(), any(MetricRegistry.MetricSupplier.class)))
-            .thenReturn(aggregateMeter);
+            .thenReturn(multiMeter);
 
         summingMeterFactory = new SummingMeterFactoryImpl(metricRegistry, NAME_PREFIX);
     }
@@ -72,7 +72,7 @@ public class SummingMeterFactoryImplTest {
         Meter meter = summingMeterFactory.createSummingMeter(meterName);
 
         verify(metricRegistry).meter(eq(name(NAME_PREFIX, meterName)), argThat(instanceOf(SummingMeterSupplier.class)));
-        assertThat(meter, is(aggregateMeter));
+        assertThat(meter, is(multiMeter));
     }
 
     @Test

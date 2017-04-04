@@ -31,11 +31,11 @@ import java.util.stream.Stream;
  * <p>
  * This class also provides convenient static methods for marking a set of {@link Meter}s.
  */
-public class SummingMeter extends Meter {
+public class MultiMeter extends Meter {
 
     private final Meter[] auxiliaryMeters;
 
-    public SummingMeter(Meter... auxiliaryMeters) {
+    public MultiMeter(Meter... auxiliaryMeters) {
         this.auxiliaryMeters = auxiliaryMeters;
     }
 
