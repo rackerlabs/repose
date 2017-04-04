@@ -64,6 +64,8 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 5. Remove the flush output filter
        *
        * 6. Extract common XML types (e.g., keystore configuration).
+       *
+       * 7. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
        */
     }
 
