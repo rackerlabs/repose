@@ -23,213 +23,180 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Shared
 
 @Category(Slow.class)
 class ApiValidatorJMXTest extends ReposeValveTest {
 
-    //Have to configure this with logic to get the hostname so that JMX works
-    @Shared
-    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"filters\",004=\"apivalidator\",005=\"ApiValidatorHandler\",006=\"invalid-request\""
+    private static final String KEY_PROPERTIES_PREFIX =
+        /001="org",002="openrepose",003="filters",004="apivalidator",005="ApiValidatorHandler",006="invalid-request"/
 
-    String NAME_ROLE_1 = "role-1"
-    String NAME_ROLE_2 = "role-2"
-    String NAME_ROLE_3 = "role-3"
-    String NAME_ROLE_ALL = "ACROSS ALL"
+    private static final String ROLE_ALL = "ACROSS ALL"
 
-    String API_VALIDATOR_1 = PREFIX + ",007=\"" + NAME_ROLE_1 + "\""
-    String API_VALIDATOR_2 = PREFIX + ",007=\"" + NAME_ROLE_2 + "\""
-    String API_VALIDATOR_3 = PREFIX + ",007=\"" + NAME_ROLE_3 + "\""
-    String API_VALIDATOR_ALL = PREFIX + ",007=\"" + NAME_ROLE_ALL + "\""
+    private static String apiValidator1
+    private static String apiValidator2
+    private static String apiValidator3
+    private static String apiValidatorAll
 
     def setupSpec() {
-        params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.cleanConfigDirectory() //Ensure this crap is cleaned up
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
+
+        def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmx", params)
         repose.start()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
-        repose.waitForNon500FromUrl(properties.reposeEndpoint)
-    }
 
-    static def params
+        repose.waitForNon500FromUrl(properties.reposeEndpoint)
+
+        apiValidator1 = /$jmxHostname:$KEY_PROPERTIES_PREFIX,007="role-1"/
+        apiValidator2 = /$jmxHostname:$KEY_PROPERTIES_PREFIX,007="role-2"/
+        apiValidator3 = /$jmxHostname:$KEY_PROPERTIES_PREFIX,007="role-3"/
+        apiValidatorAll = /$jmxHostname:$KEY_PROPERTIES_PREFIX,007="$ROLE_ALL"/
+    }
 
     def "when request is for role-1, should increment invalid request for ApiValidator mbeans for role 1"() {
         given:
-        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
-        validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
-        validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
-        validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
-        validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
+        def validator1Target = repose.jmx.getMBeanCountAttribute(apiValidator1)
+        def validator2Target = repose.jmx.getMBeanCountAttribute(apiValidator2)
+        def validator3Target = repose.jmx.getMBeanCountAttribute(apiValidator3)
+        def validatorAllTarget = repose.jmx.getMBeanCountAttribute(apiValidatorAll)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-1']])
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-1']])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-1'])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-1'])
 
         then:
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == (validator1Target + 1)
-        repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count") == ((validator2Target == 0) ? null : validator2Target)
-        repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 1)
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator1) == validator1Target + 1
+        repose.jmx.getMBeanCountAttribute(apiValidator2) == validator2Target
+        repose.jmx.getMBeanCountAttribute(apiValidator3) == validator3Target
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorAll) == validatorAllTarget + 1
     }
 
     def "when request is for role-2, should increment invalid request for ApiValidator mbeans for role 2"() {
         given:
-        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
-        validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
-        validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
-        validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
-        validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
+        def validator1Target = repose.jmx.getMBeanCountAttribute(apiValidator1)
+        def validator2Target = repose.jmx.getMBeanCountAttribute(apiValidator2)
+        def validator3Target = repose.jmx.getMBeanCountAttribute(apiValidator3)
+        def validatorAllTarget = repose.jmx.getMBeanCountAttribute(apiValidatorAll)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-2']])
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-2']])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-2'])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-2'])
 
         then:
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == (validator2Target + 1)
-        repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count") == ((validator1Target == 0) ? null : validator1Target)
-        repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 1)
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator2) == validator2Target + 1
+        repose.jmx.getMBeanCountAttribute(apiValidator1) == validator1Target
+        repose.jmx.getMBeanCountAttribute(apiValidator3) == validator3Target
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorAll) == validatorAllTarget + 1
     }
 
     def "when request is for role-3, should increment invalid request for ApiValidator mbeans for role 3"() {
         given:
-        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
-        validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
-        validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
-        validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
-        validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
+        def validator1Target = repose.jmx.getMBeanCountAttribute(apiValidator1)
+        def validator2Target = repose.jmx.getMBeanCountAttribute(apiValidator2)
+        def validator3Target = repose.jmx.getMBeanCountAttribute(apiValidator3)
+        def validatorAllTarget = repose.jmx.getMBeanCountAttribute(apiValidatorAll)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3']])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3'])
+        deproxy.makeRequest(url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3'])
 
         then:
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
-        repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count") == ((validator2Target == 0) ? null : validator2Target)
-        repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count") == ((validator1Target == 0) ? null : validator1Target)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 1)
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator3) == validator3Target + 1
+        repose.jmx.getMBeanCountAttribute(apiValidator2) == validator2Target
+        repose.jmx.getMBeanCountAttribute(apiValidator1) == validator1Target
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorAll) == validatorAllTarget + 1
     }
 
     def "when request is for role-3 and role-2, should increment invalid request for ApiValidator mbeans for role 3 and role 2"() {
         given:
-        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
-        validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
-        validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
-        validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
-        validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
+        def validator1Target = repose.jmx.getMBeanCountAttribute(apiValidator1)
+        def validator2Target = repose.jmx.getMBeanCountAttribute(apiValidator2)
+        def validator3Target = repose.jmx.getMBeanCountAttribute(apiValidator3)
+        def validatorAllTarget = repose.jmx.getMBeanCountAttribute(apiValidatorAll)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3, role-2']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3, role-2']])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3, role-2'])
+        deproxy.makeRequest(url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3, role-2'])
 
         then:
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == (validator2Target + 1)
-        repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count") == ((validator1Target == 0) ? null : validator1Target)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 2)
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator3) == validator3Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator2) == validator2Target + 1
+        repose.jmx.getMBeanCountAttribute(apiValidator1) == validator1Target
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorAll) == validatorAllTarget + 2
     }
 
     def "when request is for role-3 and role-1, should increment invalid request for ApiValidator mbeans for role 3 and role 1"() {
         given:
-        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
-        validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
-        validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
-        validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
-        validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
+        def validator1Target = repose.jmx.getMBeanCountAttribute(apiValidator1)
+        def validator2Target = repose.jmx.getMBeanCountAttribute(apiValidator2)
+        def validator3Target = repose.jmx.getMBeanCountAttribute(apiValidator3)
+        def validatorAllTarget = repose.jmx.getMBeanCountAttribute(apiValidatorAll)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3, role-1']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3, role-1']])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3, role-1'])
+        deproxy.makeRequest(url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3, role-1'])
 
         then:
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
-        repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count") == ((validator2Target == 0) ? null : validator2Target)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == (validator1Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 2)
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator3) == validator3Target + 1
+        repose.jmx.getMBeanCountAttribute(apiValidator2) == validator2Target
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator1) == validator1Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorAll) == validatorAllTarget + 2
     }
 
     def "when request is for role-1 and role-2, should increment invalid request for ApiValidator mbeans for role 1 and role 2"() {
         given:
-        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
-        validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
-        validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
-        validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
-        validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
+        def validator1Target = repose.jmx.getMBeanCountAttribute(apiValidator1)
+        def validator2Target = repose.jmx.getMBeanCountAttribute(apiValidator2)
+        def validator3Target = repose.jmx.getMBeanCountAttribute(apiValidator3)
+        def validatorAllTarget = repose.jmx.getMBeanCountAttribute(apiValidatorAll)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-1, role-2']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-1, role-2']])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-1, role-2'])
+        deproxy.makeRequest(url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-1, role-2'])
 
         then:
-        repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count") == ((validator3Target == 0) ? null : validator3Target)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == (validator2Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == (validator1Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 2)
+        repose.jmx.getMBeanCountAttribute(apiValidator3) == validator3Target
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator2) == validator2Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator1) == validator1Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorAll) == validatorAllTarget + 2
     }
 
     def "when request is for role-3, role-1 and role-2, should increment invalid request for ApiValidator mbeans for role 3, role 1, and role 2"() {
         given:
-        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
-        validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
-        validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
-        validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
-        validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
+        def validator1Target = repose.jmx.getMBeanCountAttribute(apiValidator1)
+        def validator2Target = repose.jmx.getMBeanCountAttribute(apiValidator2)
+        def validator3Target = repose.jmx.getMBeanCountAttribute(apiValidator3)
+        def validatorAllTarget = repose.jmx.getMBeanCountAttribute(apiValidatorAll)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3, role-2, role-1']])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3, role-2, role-1']])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-3, role-2, role-1'])
+        deproxy.makeRequest(url: reposeEndpoint + "/non-resource", method: "get", headers: ['X-Roles': 'role-3, role-2, role-1'])
 
         then:
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == (validator2Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == (validator1Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 3)
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator3) == validator3Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator2) == validator2Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator1) == validator1Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorAll) == validatorAllTarget + 3
     }
 
     def "when request is for api validator, should increment ApiValidator mbeans for all"() {
         given:
-        def validator1Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_1, "Count")
-        validator1Target = (validator1Target == null) ? 0 : validator1Target
-        def validator2Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_2, "Count")
-        validator2Target = (validator2Target == null) ? 0 : validator2Target
-        def validator3Target = repose.jmx.quickMBeanAttribute(API_VALIDATOR_3, "Count")
-        validator3Target = (validator3Target == null) ? 0 : validator3Target
-        def validatorAllTarget = repose.jmx.quickMBeanAttribute(API_VALIDATOR_ALL, "Count")
-        validatorAllTarget = (validatorAllTarget == null) ? 0 : validatorAllTarget
+        def validator1Target = repose.jmx.getMBeanCountAttribute(apiValidator1)
+        def validator2Target = repose.jmx.getMBeanCountAttribute(apiValidator2)
+        def validator3Target = repose.jmx.getMBeanCountAttribute(apiValidator3)
+        def validatorAllTarget = repose.jmx.getMBeanCountAttribute(apiValidatorAll)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-3']])
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-2']])
-        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-1']])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-3'])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-2'])
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-1'])
 
         then:
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == (validator3Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == (validator2Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == (validator1Target + 1)
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == (validatorAllTarget + 3)
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator3) == validator3Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator2) == validator2Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator1) == validator1Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorAll) == validatorAllTarget + 3
     }
 }
