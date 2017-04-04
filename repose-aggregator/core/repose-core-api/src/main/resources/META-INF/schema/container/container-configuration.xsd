@@ -95,11 +95,14 @@
             </xs:annotation>
         </xs:attribute>
 
-        <!-- Check to make sure we really need this to be a Name -->
+        <!-- TODO for v9.0.0.0: The DeploymentConfigurationBase element's via attribute should be removed. -->
         <xs:attribute name="via" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>An identifying string that will be returned in the Via header.</html:p>
+                    <html:p>
+                        Deprecated: This attribute is deprecated and will be removed in future major release.
+                        An identifying string that will be returned in the Via header.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -121,6 +124,7 @@
                     <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1"/>
                     <xs:element name="ssl-configuration" type="papic:SslConfiguration" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="via-configuration" type="papic:ViaConfiguration" minOccurs="0" maxOccurs="1"/>
                 </xs:all>
 
                 <xs:attribute name="jmx-reset-time" type="papic:intGTZero" use="optional" default="15">
@@ -165,6 +169,7 @@
             <xs:extension base="papic:DeploymentConfigurationBase">
                 <xs:all>
                     <xs:element name="ssl-configuration" type="papic:SslConfigurationPatch" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="via-configuration" type="papic:ViaConfigurationPatch" minOccurs="0" maxOccurs="1"/>
                 </xs:all>
 
                 <xs:attribute name="cluster-id" type="xs:string" use="required">
@@ -245,6 +250,55 @@
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Name of the system state log config</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="ViaConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Contains the information needed to configure Repose's Via header.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="papic:EmptyString">
+                <xs:attribute name="enabled" type="xs:boolean" use="optional" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Indicates whether or not the Via header is created.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="content" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>An identifying string that will be returned in the Via header.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="ViaConfigurationPatch">
+        <xs:simpleContent>
+            <xs:extension base="papic:EmptyString">
+                <xs:attribute name="enabled" type="xs:boolean" use="optional" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Indicates whether or not the Via header is created.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="content" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>An identifying string that will be returned in the Via header.</html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
