@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, same}
 import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.MetricsService
+import org.openrepose.core.services.reporting.metrics.{MetricsService, SummingMeterFactory}
 import org.openrepose.filters.urinormalization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -41,25 +41,26 @@ import scala.collection.JavaConversions._
 @RunWith(classOf[JUnitRunner])
 class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
-  private val metricsService = mock[MetricsService]
-  private val metricsServiceOpt = Optional.of(metricsService)
-  private val metricRegistry = mock[MetricRegistry]
-  private val meter = mock[Meter]
-  private val configurationService = mock[ConfigurationService]
-
+  var metricsService: MetricsService = _
+  var metricsServiceOpt: Optional[MetricsService] = _
+  var summingMeterFactory: SummingMeterFactory = _
+  var meter: Meter = _
+  var configurationService: ConfigurationService = _
   var filter: UriNormalizationFilter = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
 
   override def beforeEach(): Unit = {
-    reset(metricsService)
-    reset(metricRegistry)
-    reset(meter)
-    reset(configurationService)
+    metricsService = mock[MetricsService]
+    summingMeterFactory = mock[SummingMeterFactory]
+    meter = mock[Meter]
+    configurationService = mock[ConfigurationService]
 
-    when(metricsService.getRegistry).thenReturn(metricRegistry)
-    when(metricRegistry.meter(anyString())).thenReturn(meter)
+    metricsServiceOpt = Optional.of(metricsService)
+
+    when(metricsService.createSummingMeterFactory(anyString())).thenReturn(summingMeterFactory)
+    when(summingMeterFactory.createSummingMeter(anyString())).thenReturn(meter)
 
     servletRequest = new MockHttpServletRequest("GET", "/a/really/nifty/uri")
     servletResponse = new MockHttpServletResponse

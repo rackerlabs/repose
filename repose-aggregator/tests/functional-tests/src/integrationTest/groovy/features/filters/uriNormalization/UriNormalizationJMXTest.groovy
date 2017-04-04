@@ -40,6 +40,7 @@ class UriNormalizationJMXTest extends ReposeValveTest {
     String URI_NORMALIZATION_SERVERS_POST = "${PREFIX},007=\"POST\",008=\"/servers/_\\*\""
     String URI_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX},007=\"GET\",008=\"/secondary/path/_\\*\""
     String URI_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX},007=\"GET\",008=\"/tertiary/path/_\\*\""
+    String URI_NORMALIZATION_ACROSS_ALL = "${PREFIX},007=\"ACROSS ALL\""
 
     Map params
     ReposeConfigurationProvider reposeConfigProvider
@@ -83,36 +84,48 @@ class UriNormalizationJMXTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 1
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 1
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}?a=1", method: "POST")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_POST, "Count") == 1
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 2
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/resource/1243?a=1", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_RESOURCE_GET, "Count") == 1
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 3
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/resource/1243?a=1", method: "POST")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_RESOURCE_POST, "Count") == 1
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 4
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/servers/1243?a=1", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SERVERS_GET, "Count") == 1
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 5
 
         when:
         mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/servers/1243?a=1", method: "POST")
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SERVERS_POST, "Count") == 1
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 6
+
+        when:
+        mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/servers/1243?a=1", method: "PUT")
+
+        then:
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 7
     }
 
     def "when multiple filter instances are configured, each should add to the count"() {
@@ -130,6 +143,7 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 1
         (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") ?: 0) == 0
         (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 1
 
 
         when: "client makes a request that matches two filters' uri-regex attributes (1 & 2)"
@@ -140,6 +154,7 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 2
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") == 1
         (repose.jmx.quickMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 3
 
 
         when: "client makes a request that matches two filters' uri-regex attributes (1 & 3)"
@@ -150,6 +165,7 @@ class UriNormalizationJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 2
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") == 1
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") == 2
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 5
     }
 
     def cleanup() {
