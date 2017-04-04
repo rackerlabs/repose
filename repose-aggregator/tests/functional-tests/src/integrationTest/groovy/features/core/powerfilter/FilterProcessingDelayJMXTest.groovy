@@ -21,16 +21,19 @@ package features.core.powerfilter
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Response
 
 class FilterProcessingDelayJMXTest extends ReposeValveTest {
+    private static final String KEY_PROPERTIES_PREFIX =
+        /001="org",002="openrepose",003="core",004="FilterProcessingTime",005="Delay"/
+    private static final String API_VALIDATOR_MBEAN_NAME = /006="api-validator"/
+    private static final String IP_IDENTITY_MBEAN_NAME = /006="ip-user"/
+    private static final List<String> TIMER_DOUBLE_ATTR_NAMES =
+        ["50thPercentile", "75thPercentile", "95thPercentile", "98thPercentile", "99thPercentile", "999thPercentile",
+         "OneMinuteRate", "FiveMinuteRate", "FifteenMinuteRate", "Min", "Max", "Mean", "MeanRate", "StdDev"]
+    private static final List<String> TIMER_STRING_ATTR_NAMES = ["DurationUnit", "RateUnit"]
 
-    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"core\",004=\"FilterProcessingTime\",005=\"Delay\""
-
-    String API_VALIDATOR = PREFIX + ",006=\"api-validator\""
-    String IP_IDENTITY = PREFIX + ",006=\"ip-user\""
-
-    def handler = { return new Response(200) }
+    private static String apiValidatorMetric
+    private static String ipIdentityMetric
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -42,26 +45,33 @@ class FilterProcessingDelayJMXTest extends ReposeValveTest {
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
+
+        apiValidatorMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$API_VALIDATOR_MBEAN_NAME"
+        ipIdentityMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$IP_IDENTITY_MBEAN_NAME"
     }
 
-    def "when a request is sent through Repose, should record per filter delay metrics"() {
+    def "when a request is sent through Repose, metrics should be recorded for each filter"() {
         given:
-        def ipIdentityCount = repose.jmx.getMBeanAttribute(IP_IDENTITY, "Count")
-        def apiValidatorCount = repose.jmx.getMBeanAttribute(API_VALIDATOR, "Count")
-
-        if (ipIdentityCount == null)
-            ipIdentityCount = 0
-        if (apiValidatorCount == null)
-            apiValidatorCount = 0
+        def apiValidatorInitialCount = repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorMetric)
+        def ipIdentityInitialCount = repose.jmx.getMBeanCountAttributeWithWaitForNonZero(ipIdentityMetric)
 
         when:
-        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "GET", headers: ["X-Roles": "role-1"],
-                defaultHandler: handler)
+        deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "GET", headers: ["X-Roles": "role-1"])
 
-        then:
-        repose.jmx.getMBeanAttribute(IP_IDENTITY, "Count") == ipIdentityCount + 1
-        repose.jmx.getMBeanAttribute(API_VALIDATOR, "Count") == apiValidatorCount + 1
-        repose.jmx.getMBeanAttribute(IP_IDENTITY, "Mean") > 0
-        repose.jmx.getMBeanAttribute(API_VALIDATOR, "Mean") > 0
+        then: "the request count has been incremented"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(ipIdentityMetric) == ipIdentityInitialCount + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorMetric) == apiValidatorInitialCount + 1
+
+        and: "the other attributes containing a double value are populated with a non-negative value"
+        TIMER_DOUBLE_ATTR_NAMES.each { attr ->
+            assert (repose.jmx.getMBeanAttribute(ipIdentityMetric, attr) as double) >= 0.0
+            assert (repose.jmx.getMBeanAttribute(apiValidatorMetric, attr) as double) >= 0.0
+        }
+
+        and: "the other attributes containing a string value are populated with a non-empty value"
+        TIMER_STRING_ATTR_NAMES.each { attr ->
+            assert !(repose.jmx.getMBeanAttribute(ipIdentityMetric, attr) as String).isEmpty()
+            assert !(repose.jmx.getMBeanAttribute(apiValidatorMetric, attr) as String).isEmpty()
+        }
     }
 }
