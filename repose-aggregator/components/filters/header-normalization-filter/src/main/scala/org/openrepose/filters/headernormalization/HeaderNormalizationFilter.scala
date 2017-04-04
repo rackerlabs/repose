@@ -40,14 +40,18 @@ import org.openrepose.filters.headernormalization.config.{HeaderNormalizationCon
 import scala.collection.JavaConverters._
 
 @Named
-class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: Optional[MetricsService])
+class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, optMetricsService: Optional[MetricsService])
   extends Filter with UpdateListener[HeaderNormalizationConfig] with LazyLogging {
+
+  private final val NormalizationMetricPrefix = MetricRegistry.name(classOf[HeaderNormalizationFilter], "Normalization")
+  private final val RequestNormalizationMetricPrefix = MetricRegistry.name(NormalizationMetricPrefix, "request")
+  private final val ResponseNormalizationMetricPrefix = MetricRegistry.name(NormalizationMetricPrefix, "response")
 
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized = false
   private var configRequest: Seq[Target] = _
   private var configResponse: Seq[Target] = _
-  private val metricRegistryOption = Option(metricsService.orElse(null)).map(_.getRegistry)
+  private val metricsService = Option(optMetricsService.orElse(null))
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Header Normalization filter initializing...")
@@ -80,15 +84,13 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedRequest.removeHeader)
 
-      metricRegistryOption.foreach(metricRegistry =>
-        metricRegistry
-          .meter(MetricRegistry.name(
-            classOf[HeaderNormalizationFilter],
-            "Normalization",
-            "request",
+      metricsService foreach {
+        _.createSummingMeterFactory(RequestNormalizationMetricPrefix)
+          .createSummingMeter(MetricRegistry.name(
             wrappedRequest.getMethod,
             target.url.pattern.toString.replace('.', '_')))
-          .mark())
+          .mark()
+      }
     }
 
     val wrappedResponse = if (configResponse.isEmpty) None else Option(
@@ -116,15 +118,13 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedResponse.get.removeHeader)
 
-      metricRegistryOption.foreach(metricRegistry =>
-        metricRegistry
-          .meter(MetricRegistry.name(
-            classOf[HeaderNormalizationFilter],
-            "Normalization",
-            "response",
+      metricsService foreach {
+        _.createSummingMeterFactory(ResponseNormalizationMetricPrefix)
+          .createSummingMeter(MetricRegistry.name(
             wrappedRequest.getMethod,
             target.url.pattern.toString.replace('.', '_')))
-          .mark())
+          .mark()
+      }
     }
 
     if (wrappedResponse.isDefined) wrappedResponse.get.commitToResponse()
