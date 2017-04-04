@@ -22,14 +22,14 @@ package org.openrepose.filters.destinationrouter
 import java.net.URL
 import java.util.Optional
 
-import com.codahale.metrics.{Meter, MetricRegistry}
+import com.codahale.metrics.Meter
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, same}
-import org.mockito.Mockito.{reset, verify, when}
+import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.MetricsService
+import org.openrepose.core.services.reporting.metrics.{MetricsService, SummingMeterFactory}
 import org.openrepose.filters.routing.servlet.config.{DestinationRouterConfiguration, Target}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -39,20 +39,22 @@ import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttp
 @RunWith(classOf[JUnitRunner])
 class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAfterEach with MockitoSugar {
 
-  private val configurationService = mock[ConfigurationService]
-  private val metricsService = mock[MetricsService]
-  private val metricsServiceOpt = Optional.of(metricsService)
-  private val metricRegistry = mock[MetricRegistry]
-  private val meter = mock[Meter]
+  private var configurationService: ConfigurationService = _
+  private var metricsService: MetricsService = _
+  private var metricsServiceOpt: Optional[MetricsService] = _
+  private var summingMeterFactory: SummingMeterFactory = _
+  private var meter: Meter = _
 
   override def beforeEach(): Unit = {
-    reset(configurationService)
-    reset(metricsService)
-    reset(metricRegistry)
-    reset(meter)
+    configurationService = mock[ConfigurationService]
+    metricsService = mock[MetricsService]
+    summingMeterFactory = mock[SummingMeterFactory]
+    meter = mock[Meter]
 
-    when(metricsService.getRegistry).thenReturn(metricRegistry)
-    when(metricRegistry.meter(anyString())).thenReturn(meter)
+    metricsServiceOpt = Optional.of(metricsService)
+
+    when(metricsService.createSummingMeterFactory(anyString())).thenReturn(summingMeterFactory)
+    when(summingMeterFactory.createSummingMeter(anyString())).thenReturn(meter)
   }
 
   describe("init") {
