@@ -24,7 +24,7 @@ import java.util.Optional
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{FilterChain, FilterConfig, ServletRequest, ServletResponse}
 
-import com.codahale.metrics.{Meter, MetricRegistry}
+import com.codahale.metrics.Meter
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
@@ -33,7 +33,7 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.MetricsService
+import org.openrepose.core.services.reporting.metrics.{MetricsService, SummingMeterFactory}
 import org.openrepose.filters.headernormalization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -55,7 +55,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
   var filterChain: FilterChain = _
   var filterConfig: FilterConfig = _
   var metricsService: MetricsService = _
-  var metricRegistry: MetricRegistry = _
+  var summingMeterFactory: SummingMeterFactory = _
   var meter: Meter = _
 
   override def beforeEach(): Unit = {
@@ -65,12 +65,12 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
     filterChain = mock[FilterChain]
     filterConfig = mock[FilterConfig]
     metricsService = mock[MetricsService]
-    metricRegistry = mock[MetricRegistry]
+    summingMeterFactory = mock[SummingMeterFactory]
     meter = mock[Meter]
 
     when(filterConfig.getInitParameterNames).thenReturn(List.empty[String].toIterator.asJavaEnumeration)
-    when(metricsService.getRegistry).thenReturn(metricRegistry)
-    when(metricRegistry.meter(anyString())).thenReturn(meter)
+    when(metricsService.createSummingMeterFactory(anyString())).thenReturn(summingMeterFactory)
+    when(summingMeterFactory.createSummingMeter(anyString())).thenReturn(meter)
 
     filter = new HeaderNormalizationFilter(mock[ConfigurationService], Optional.of(metricsService))
     filter.init(filterConfig)
@@ -419,7 +419,8 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricRegistry).meter(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}.PATCH._*")
+        verify(metricsService).createSummingMeterFactory(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}")
+        verify(summingMeterFactory).createSummingMeter(s"PATCH._*")
       }
 
       it(s"will update metrics when a request matches a config target when using a specified URL on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
@@ -435,7 +436,8 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricRegistry).meter(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}.GET./v1/servers/[^/]+/status")
+        verify(metricsService).createSummingMeterFactory(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}")
+        verify(summingMeterFactory).createSummingMeter(s"GET./v1/servers/[^/]+/status")
       }
 
       it(s"will NOT update metrics when a request does not match any config target on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
