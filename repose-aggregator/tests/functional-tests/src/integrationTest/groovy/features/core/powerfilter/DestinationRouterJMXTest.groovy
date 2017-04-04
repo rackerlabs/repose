@@ -20,69 +20,64 @@
 package features.core.powerfilter
 
 import framework.ReposeValveTest
-import framework.category.Slow
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 
-@Category(Slow.class)
 class DestinationRouterJMXTest extends ReposeValveTest {
 
-    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"filters\",004=\"destinationrouter\",005=\"DestinationRouterFilter\",006=\"Routed Response\""
+    private static final String KEY_PROPERTIES_PREFIX =
+        /001="org",002="openrepose",003="filters",004="destinationrouter",005="DestinationRouterFilter",006="Routed Response"/
+    private static final String ENDPOINT_MBEAN_NAME = /007="endpoint"/
+    private static final String ALL_MBEAN_NAME = /007="ACROSS ALL"/
 
-    String DESTINATION_ROUTER_TARGET = PREFIX + ",007=\"endpoint\""
-    String DESTINATION_ROUTER_ALL = PREFIX + ",007=\"ACROSS ALL\""
+    private static String destinationRouterEndpointMetric
+    private static String destinationRouterAllMetric
 
-    def setup() {
+    def setupSpec() {
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.targetPort)
+
+        destinationRouterEndpointMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$ENDPOINT_MBEAN_NAME"
+        destinationRouterAllMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$ALL_MBEAN_NAME"
+
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
         repose.start()
-
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
-    }
-
-    def cleanup() {
-        if (deproxy)
-            deproxy.shutdown()
-        repose.stop()
     }
 
     def "when requests match destination router target URI, should increment DestinationRouter mbeans for specific endpoint"() {
         given:
-        def target = repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count")
-        target = (target == null) ? 0 : target
+        def target = repose.jmx.getMBeanCountAttribute(destinationRouterEndpointMetric)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint/1"])
-        deproxy.makeRequest([url: reposeEndpoint + "/cluster"])
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint/1")
+        deproxy.makeRequest(url: reposeEndpoint + "/cluster")
 
-        then:
-        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == (target + 1)
+        then: "the endpoint metric only goes up by one since the call to /cluster should not count"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterEndpointMetric) == target + 1
     }
 
     def "when requests match destination router target URI, should increment DestinationRouter mbeans for all endpoints"() {
         given:
-        def target = repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_ALL, "Count")
-        target = (target == null) ? 0 : target
+        def target = repose.jmx.getMBeanCountAttribute(destinationRouterAllMetric)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint2/2"])
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint/2"])
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint2/2")
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint/2")
 
-        then:
-        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_ALL, "Count") == (target + 2)
+        then: "the all metric should go up by two"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterAllMetric) == target + 2
     }
 
     def "when requests DO NOT match destination router target URI, should NOT increment DestinationRouter mbeans for all endpoints"() {
         given:
-        def target = repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_ALL, "Count")
+        def target = repose.jmx.getMBeanCountAttribute(destinationRouterAllMetric)
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/non-existing"])
-        deproxy.makeRequest([url: reposeEndpoint + "/non-existing"])
+        deproxy.makeRequest(url: reposeEndpoint + "/non-existing")
+        deproxy.makeRequest(url: reposeEndpoint + "/non-existing")
 
-        then:
-        repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_ALL, "Count") == target
+        then: "the value did not change"
+        repose.jmx.getMBeanCountAttribute(destinationRouterAllMetric) == target
     }
 }
