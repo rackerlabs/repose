@@ -24,12 +24,12 @@ import org.rackspace.deproxy.Deproxy
 
 class MetricsEnableDisableTest extends ReposeValveTest {
 
-    private static final String DESTINATION_ROUTER_ENDPOINT_SUFFIX =
-        /:001="org",002="openrepose",003="filters",004="destinationrouter",005="DestinationRouterFilter",006="Routed Response",007="endpoint"/
-    private static final String DESTINATION_ROUTER_ALL_ENDPOINT_SUFFIX =
-        /:001="org",002="openrepose",003="filters",004="destinationrouter",005="DestinationRouterFilter",006="Routed Response",007="ACROSS ALL"/
-    private static final String REPOSE_RESPONSE_CODE_2XX_SUFFIX =
-        /:001="org",002="openrepose",003="core",004="ResponseCode",005="Repose",006="2XX"/
+    private static final String KEY_PROPERTIES_PREFIX = /001="org",002="openrepose"/
+    private static final String DESTINATION_ROUTER_MBEAN_PART =
+        /003="filters",004="destinationrouter",005="DestinationRouterFilter",006="Routed Response"/
+    private static final String ENDPOINT_MBEAN_NAME = /007="endpoint"/
+    private static final String ALL_MBEAN_NAME = /007="ACROSS ALL"/
+    private static final String REPOSE_RESPONSE_CODE_2XX_SUFFIX = /003="core",004="ResponseCode",005="Repose",006="2XX"/
 
     private static Map params
     private static String destinationRouterEndpointMetric
@@ -38,11 +38,13 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
 
-        destinationRouterEndpointMetric = jmxHostname + DESTINATION_ROUTER_ENDPOINT_SUFFIX
-        destinationRouterAllEndpointMetric = jmxHostname + DESTINATION_ROUTER_ALL_ENDPOINT_SUFFIX
-        reposeResponseCode2xxMetric = jmxHostname + REPOSE_RESPONSE_CODE_2XX_SUFFIX
+        destinationRouterEndpointMetric =
+            "$jmxHostname:$KEY_PROPERTIES_PREFIX,$DESTINATION_ROUTER_MBEAN_PART,$ENDPOINT_MBEAN_NAME"
+        destinationRouterAllEndpointMetric =
+            "$jmxHostname:$KEY_PROPERTIES_PREFIX,$DESTINATION_ROUTER_MBEAN_PART,$ALL_MBEAN_NAME"
+        reposeResponseCode2xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$REPOSE_RESPONSE_CODE_2XX_SUFFIX"
     }
 
     def setup() {
@@ -64,9 +66,9 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.getMBeanAttribute(destinationRouterEndpointMetric, "Count") == 1
-        repose.jmx.getMBeanAttribute(reposeResponseCode2xxMetric, "Count") == 1
-        repose.jmx.getMBeanAttribute(destinationRouterAllEndpointMetric, "Count") == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterEndpointMetric) == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(reposeResponseCode2xxMetric) == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterAllEndpointMetric) == 1
     }
 
     def "when metrics are disabled, reporting should not occur"() {
@@ -78,9 +80,9 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.quickMBeanAttribute(destinationRouterEndpointMetric, "Count") == null
-        repose.jmx.quickMBeanAttribute(reposeResponseCode2xxMetric, "Count") == null
-        repose.jmx.quickMBeanAttribute(destinationRouterAllEndpointMetric, "Count") == null
+        repose.jmx.getMBeanCountAttribute(destinationRouterEndpointMetric) == 0
+        repose.jmx.getMBeanCountAttribute(reposeResponseCode2xxMetric) == 0
+        repose.jmx.getMBeanCountAttribute(destinationRouterAllEndpointMetric) == 0
     }
 
     def "when 'enabled' is not specified, reporting should occur"() {
@@ -92,7 +94,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.getMBeanAttribute(destinationRouterEndpointMetric, "Count") == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterEndpointMetric) == 1
     }
 
     def "when metrics config is missing, reporting should occur"() {
@@ -103,6 +105,6 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.getMBeanAttribute(destinationRouterEndpointMetric, "Count") == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterEndpointMetric) == 1
     }
 }
