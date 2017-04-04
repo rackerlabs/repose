@@ -53,7 +53,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
                                  @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
                                  configurationService: ConfigurationService,
                                  healthCheckService: HealthCheckService,
-                                 metricsService: Optional[MetricsService])
+                                 optMetricsService: Optional[MetricsService])
   extends Filter with LazyLogging {
 
   private final val SystemModelConfigFileName = "system-model.cfg.xml"
@@ -61,10 +61,11 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
   private final val VersioningSchemaFilePath = "/META-INF/schema/config/versioning-configuration.xsd"
   private final val SystemModelConfigIssue = "SystemModelConfigIssue"
   private final val VersioningDefaultQuality = 0.5
+  private final val VersionedRequestMetricPrefix = MetricRegistry.name(classOf[VersioningFilter], "VersionedRequest")
 
   private val versioningObjectFactory = new ObjectFactory()
   private val healthCheckServiceProxy = healthCheckService.register
-  private val metricRegistryOpt = Option(metricsService.orElse(null)).map(_.getRegistry)
+  private val metricsService = Option(optMetricsService.orElse(null))
 
   private var configurationFileName: String = _
   private var serviceVersionMappings: Map[String, ServiceVersionMapping] = _
@@ -110,17 +111,6 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
       val configurationData = new ConfigurationData(destinations, serviceVersionMappings)
 
       try {
-        def markMeter(name: String): Unit = {
-          metricRegistryOpt.foreach(metricRegistry =>
-            // todo: replace "versioning" with filter-id or name-number in sys-model
-            metricRegistry
-              .meter(MetricRegistry.name(
-                classOf[VersioningFilter],
-                "VersionedRequest",
-                name))
-              .mark())
-        }
-
         Option(configurationData.getOriginServiceForRequest(wrappedRequest)) match {
           case Some(targetOriginService) =>
             val versionedRequest = new VersionedRequest(wrappedRequest, targetOriginService.getMapping)
@@ -133,7 +123,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
               httpResponse.setStatus(HttpServletResponse.SC_OK)
               httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
-              markMeter(targetOriginService.getMapping.getId)
+              markVersionedRequestMeter(targetOriginService.getMapping.getId)
             } else {
               val targetDestination = new RouteDestination(
                 targetOriginService.getOriginServiceHost.getId,
@@ -152,7 +142,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
                   logger.error("The destination could not be added -- the destinations attribute was of an unknown type")
               }
 
-              markMeter(targetOriginService.getMapping.getId)
+              markVersionedRequestMeter(targetOriginService.getMapping.getId)
 
               chain.doFilter(wrappedRequest, httpResponse)
             }
@@ -174,7 +164,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
             httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
-            markMeter("Unversioned")
+            markVersionedRequestMeter("Unversioned")
         }
       } catch {
         case vhnfe: VersionedHostNotFoundException =>
@@ -199,6 +189,13 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
     contentTransformer.transform(elementToMarshal, preferredMediaType, baos)
 
     RawInputStreamReader.instance.copyTo(new ByteArrayInputStream(baos.toByteArray), response.getOutputStream)
+  }
+
+  private def markVersionedRequestMeter(name: String): Unit = {
+    metricsService.map(_.getRegistry) foreach {
+      _.meter(MetricRegistry.name(VersionedRequestMetricPrefix, name))
+        .mark()
+    }
   }
 
   private object SystemModelConfigurationListener extends UpdateListener[SystemModel] {

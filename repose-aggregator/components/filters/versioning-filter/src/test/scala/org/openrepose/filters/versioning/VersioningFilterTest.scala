@@ -61,13 +61,13 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
   cluster.setDestinations(destinationList)
   systemModel.getReposeCluster.add(cluster)
 
-  private val configurationService = mock[ConfigurationService]
-  private val healthCheckService = mock[HealthCheckService]
-  private val healthCheckServiceProxy = mock[HealthCheckServiceProxy]
-  private val metricsService = mock[MetricsService]
-  private val metricsServiceOpt = Optional.of(metricsService)
-  private val metricRegistry = mock[MetricRegistry]
-  private val meter = mock[Meter]
+  var configurationService: ConfigurationService = _
+  var healthCheckService: HealthCheckService = _
+  var healthCheckServiceProxy: HealthCheckServiceProxy = _
+  var metricsService: MetricsService = _
+  var metricsServiceOpt: Optional[MetricsService] = _
+  var metricRegistry: MetricRegistry = _
+  var meter: Meter = _
   var request: MockHttpServletRequest = _
   var response: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
@@ -76,12 +76,14 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
   var versioningListener: UpdateListener[ServiceVersionMappingList] = _
 
   override def beforeEach(): Unit = {
-    reset(configurationService)
-    reset(healthCheckService)
-    reset(healthCheckServiceProxy)
-    reset(metricsService)
-    reset(metricRegistry)
-    reset(meter)
+    configurationService = mock[ConfigurationService]
+    healthCheckService = mock[HealthCheckService]
+    healthCheckServiceProxy = mock[HealthCheckServiceProxy]
+    metricsService = mock[MetricsService]
+    metricRegistry = mock[MetricRegistry]
+    meter = mock[Meter]
+
+    metricsServiceOpt = Optional.of(metricsService)
 
     when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
     when(metricsService.getRegistry).thenReturn(metricRegistry)
