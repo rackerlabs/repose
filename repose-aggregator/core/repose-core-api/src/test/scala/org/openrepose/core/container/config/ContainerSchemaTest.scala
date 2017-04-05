@@ -191,7 +191,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    <deployment-config>
           |        <deployment-directory>/var/repose</deployment-directory>
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |        <via-configuration content="test"/>
+          |        <via-configuration prefix="test"/>
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo"/>
@@ -210,7 +210,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    <deployment-config>
           |        <deployment-directory>/var/repose</deployment-directory>
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |        <via-configuration content="test"/>
+          |        <via-configuration prefix="test"/>
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo"/>
@@ -226,11 +226,11 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    <deployment-config>
           |        <deployment-directory>/var/repose</deployment-directory>
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |        <via-configuration content="test"/>
+          |        <via-configuration prefix="test"/>
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo">
-          |        <via-configuration content="override"/>
+          |        <via-configuration prefix="override"/>
           |    </cluster-config>
           |</repose-container>""".stripMargin
       validator.validateConfigString(config)
@@ -245,7 +245,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo">
-          |        <via-configuration enabled="false"/>
+          |        <via-configuration repose-version="false"/>
           |    </cluster-config>
           |</repose-container>""".stripMargin
       validator.validateConfigString(config)

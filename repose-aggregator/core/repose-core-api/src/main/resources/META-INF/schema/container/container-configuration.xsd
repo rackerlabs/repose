@@ -267,17 +267,23 @@
         </xs:annotation>
         <xs:simpleContent>
             <xs:extension base="papic:EmptyString">
-                <xs:attribute name="enabled" type="xs:boolean" use="optional" default="true">
+                <xs:attribute name="prefix" type="xs:string" use="optional">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>Indicates whether or not the Via header is created.</html:p>
+                            <html:p>
+                                An identifying string that will be returned in the Via header.
+                                If undefined and the repose-version is false, then no Via header will be added.
+                            </html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="content" type="xs:string" use="optional">
+                <xs:attribute name="repose-version" type="xs:boolean" use="optional" default="true">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>An identifying string that will be returned in the Via header.</html:p>
+                            <html:p>
+                                Indicates whether or not the Via header is created.
+                                If false and the prefix is undefined, then no Via header will be added.
+                            </html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
@@ -288,17 +294,23 @@
     <xs:complexType name="ViaConfigurationPatch">
         <xs:simpleContent>
             <xs:extension base="papic:EmptyString">
-                <xs:attribute name="enabled" type="xs:boolean" use="optional" default="true">
+                <xs:attribute name="prefix" type="xs:string" use="optional">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>Indicates whether or not the Via header is created.</html:p>
+                            <html:p>
+                                An identifying string that will be returned in the Via header.
+                                If undefined and the repose-version is false, then no Via header will be added.
+                            </html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="content" type="xs:string" use="optional">
+                <xs:attribute name="repose-version" type="xs:boolean" use="optional">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>An identifying string that will be returned in the Via header.</html:p>
+                            <html:p>
+                                Indicates whether or not the Via header is created.
+                                If false and the prefix is undefined, then no Via header will be added.
+                            </html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
