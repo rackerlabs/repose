@@ -184,9 +184,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |</repose-container>""".stripMargin
       validator.validateConfigString(config)
     }
-  }
 
-  describe("new schema validation with via-configuration element") {
     it("should reject a config where cluster IDs are not unique across all patches") {
       val config =
         """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
