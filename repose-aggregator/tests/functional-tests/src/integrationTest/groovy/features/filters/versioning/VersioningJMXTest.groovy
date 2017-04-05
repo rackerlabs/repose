@@ -19,104 +19,86 @@
  */
 package features.filters.versioning
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeValveLauncher
 import framework.ReposeValveTest
-import framework.TestProperties
-import framework.category.Slow
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 
 /**
  * This test ensures that the versioning filter provides metrics via JMX,
  * counting how many requests it services and which endpoints it sends them to.
- *
- * http://wiki.openrepose.org/display/REPOSE/Repose+JMX+Metrics+Development
- *
  */
 
-@Category(Slow.class)
 class VersioningJMXTest extends ReposeValveTest {
 
-    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"filters\",004=\"versioning\",005=\"VersioningFilter\",006=\"VersionedRequest\""
+    private static final String KEY_PROPERTIES_PREFIX =
+        /001="org",002="openrepose",003="filters",004="versioning",005="VersioningFilter",006="VersionedRequest"/
+    private static final String VERSION_UNVERSION_NAME = /007="Unversioned"/
+    private static final String VERSION_V1_NAME = /007="v1"/
+    private static final String VERSION_V2_NAME = /007="v2"/
+    private static final List<String> METER_DOUBLE_ATTR_NAMES =
+        ["OneMinuteRate", "FiveMinuteRate", "FifteenMinuteRate", "MeanRate"]
+    private static final String METER_STRING_ATTR_NAME = "RateUnit"
 
-    String VERSION_UNVERSIONED = "${PREFIX},007=\"Unversioned\""
-    String VERSION_V1 = "${PREFIX},007=\"v1\""
-    String VERSION_V2 = "${PREFIX},007=\"v2\""
+    private static String versionUnversionedMetric
+    private static String versionV1Metric
+    private static String versionV2Metric
 
-    Map params
-    ReposeConfigurationProvider reposeConfigProvider
-
-    def setup() {
-        properties = new TestProperties()
-
-        // start deproxy
+    def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         deproxy.addEndpoint(properties.targetPort2)
 
-        // configure and start repose
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/versioning/metrics", params)
+        repose.start()
 
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.reposeJar,
-                properties.reposeEndpoint,
-                properties.configDirectory,
-                properties.reposePort
-        )
-        repose.enableDebug()
+        repose.waitForNon500FromUrl(reposeEndpoint)
 
-        params = properties.getDefaultTemplateParams()
-        reposeConfigProvider.applyConfigs("common", params)
-
+        versionUnversionedMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$VERSION_UNVERSION_NAME"
+        versionV1Metric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$VERSION_V1_NAME"
+        versionV2Metric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$VERSION_V2_NAME"
     }
 
     def "when a client makes requests, jmx should keep accurate count"() {
-
-        given:
-        reposeConfigProvider.applyConfigs("features/filters/versioning/metrics", params)
-        repose.start()
-        sleep(30000)
-
-
+        given: "the initial values are known for the metrics potentially affected by the startup checking requests"
+        int versionUnversionedTarget = repose.jmx.getMBeanCountAttribute(versionUnversionedMetric)
+        int versionV1Target = repose.jmx.getMBeanCountAttribute(versionV1Metric)
+        int versionV2Target = repose.jmx.getMBeanCountAttribute(versionV2Metric)
 
         when:
-        def mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}", method: "GET")
+        deproxy.makeRequest(url: reposeEndpoint, method: "GET")
 
         then:
-        repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
-        (repose.jmx.quickMBeanAttribute(VERSION_V1, "Count") ?: 0) == 0
-        (repose.jmx.quickMBeanAttribute(VERSION_V2, "Count") ?: 0) == 0
-
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(versionUnversionedMetric) == versionUnversionedTarget + 1
+        repose.jmx.getMBeanCountAttribute(versionV1Metric) == versionV1Target
+        repose.jmx.getMBeanCountAttribute(versionV2Metric) == versionV2Target
 
         when:
-        mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/v1/resource", method: "GET")
+        deproxy.makeRequest(url: "$reposeEndpoint/v1/resource", method: "GET")
 
         then:
-        repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
-        repose.jmx.getMBeanAttribute(VERSION_V1, "Count") == 1
-        (repose.jmx.quickMBeanAttribute(VERSION_V2, "Count") ?: 0) == 0
-
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(versionUnversionedMetric) == versionUnversionedTarget + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(versionV1Metric) == versionV1Target + 1
+        repose.jmx.getMBeanCountAttribute(versionV2Metric) == versionV2Target
 
         when:
-        mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/v2/resource", method: "GET")
+        deproxy.makeRequest(url: "$reposeEndpoint/v2/resource", method: "GET")
 
         then:
-        repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
-        repose.jmx.getMBeanAttribute(VERSION_V1, "Count") == 1
-        repose.jmx.getMBeanAttribute(VERSION_V2, "Count") == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(versionUnversionedMetric) == versionUnversionedTarget + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(versionV1Metric) == versionV1Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(versionV2Metric) == versionV2Target + 1
 
-    }
-
-    def cleanup() {
-        if (repose && repose.isUp()) {
-            repose.stop()
+        and: "the other attributes containing a double value are populated with a non-negative value"
+        METER_DOUBLE_ATTR_NAMES.each { attr ->
+            assert (repose.jmx.getMBeanAttribute(versionUnversionedMetric, attr) as double) >= 0.0
+            assert (repose.jmx.getMBeanAttribute(versionV1Metric, attr) as double) >= 0.0
+            assert (repose.jmx.getMBeanAttribute(versionV2Metric, attr) as double) >= 0.0
         }
 
-        if (deproxy) {
-            deproxy.shutdown()
-        }
+        and: "the other attribute containing a string value is populated with a non-empty value"
+        !(repose.jmx.getMBeanAttribute(versionUnversionedMetric, METER_STRING_ATTR_NAME) as String).isEmpty()
+        !(repose.jmx.getMBeanAttribute(versionV1Metric, METER_STRING_ATTR_NAME) as String).isEmpty()
+        !(repose.jmx.getMBeanAttribute(versionV2Metric, METER_STRING_ATTR_NAME) as String).isEmpty()
     }
-
 }
