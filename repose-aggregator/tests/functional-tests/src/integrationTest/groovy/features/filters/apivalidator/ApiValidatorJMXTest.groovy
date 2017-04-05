@@ -20,15 +20,14 @@
 package features.filters.apivalidator
 
 import framework.ReposeValveTest
-import framework.category.Slow
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 
-@Category(Slow.class)
 class ApiValidatorJMXTest extends ReposeValveTest {
-
     private static final String KEY_PROPERTIES_PREFIX =
         /001="org",002="openrepose",003="filters",004="apivalidator",005="ApiValidatorHandler",006="invalid-request"/
+    private static final List<String> METER_DOUBLE_ATTR_NAMES =
+        ["OneMinuteRate", "FiveMinuteRate", "FifteenMinuteRate", "MeanRate"]
+    private static final String METER_STRING_ATTR_NAME = "RateUnit"
 
     private static final String ROLE_ALL = "ACROSS ALL"
 
@@ -194,9 +193,23 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "post", headers: ['X-Roles': 'role-1'])
 
         then:
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator3) == validator3Target + 1
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator2) == validator2Target + 1
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator1) == validator1Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator2) == validator2Target + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidator3) == validator3Target + 1
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(apiValidatorAll) == validatorAllTarget + 3
+
+        and: "the other attributes containing a double value are populated with a non-negative value"
+        METER_DOUBLE_ATTR_NAMES.each { attr ->
+            assert (repose.jmx.getMBeanAttribute(apiValidator1, attr) as double) >= 0.0
+            assert (repose.jmx.getMBeanAttribute(apiValidator2, attr) as double) >= 0.0
+            assert (repose.jmx.getMBeanAttribute(apiValidator3, attr) as double) >= 0.0
+            assert (repose.jmx.getMBeanAttribute(apiValidatorAll, attr) as double) >= 0.0
+        }
+
+        and: "the other attribute containing a string value is populated with a non-empty value"
+        !(repose.jmx.getMBeanAttribute(apiValidator1, METER_STRING_ATTR_NAME) as String).isEmpty()
+        !(repose.jmx.getMBeanAttribute(apiValidator2, METER_STRING_ATTR_NAME) as String).isEmpty()
+        !(repose.jmx.getMBeanAttribute(apiValidator3, METER_STRING_ATTR_NAME) as String).isEmpty()
+        !(repose.jmx.getMBeanAttribute(apiValidatorAll, METER_STRING_ATTR_NAME) as String).isEmpty()
     }
 }
