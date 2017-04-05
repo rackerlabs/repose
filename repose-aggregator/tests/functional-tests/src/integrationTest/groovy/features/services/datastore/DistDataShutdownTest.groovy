@@ -19,9 +19,9 @@
  */
 package features.services.datastore
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 
 class DistDataShutdownTest extends ReposeValveTest {
 
@@ -33,8 +33,8 @@ class DistDataShutdownTest extends ReposeValveTest {
     def "when configured with dist datastore as a service should shutdown nicely when asked"() {
         given: "repose is configured with dist datastore"
         def params = properties.getDefaultTemplateParams()
-        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
-        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort1 = PortFinder.instance.getNextOpenPort()
+        int dataStorePort2 = PortFinder.instance.getNextOpenPort()
         params += [
                 'datastorePort1': dataStorePort1,
                 'datastorePort2': dataStorePort2

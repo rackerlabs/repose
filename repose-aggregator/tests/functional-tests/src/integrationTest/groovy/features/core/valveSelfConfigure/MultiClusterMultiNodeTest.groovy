@@ -19,15 +19,14 @@
  */
 package features.core.valveSelfConfigure
 
+import framework.PortFinder
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
-
 
 @org.junit.experimental.categories.Category(Slow.class)
 class MultiClusterMultiNodeTest extends Specification {
@@ -58,9 +57,9 @@ class MultiClusterMultiNodeTest extends Specification {
         endpoint2 = deproxy.addEndpoint(targetPort2)
 
         port11 = properties.reposePort
-        port12 = PortFinder.Singleton.getNextOpenPort()
-        port21 = PortFinder.Singleton.getNextOpenPort()
-        port22 = PortFinder.Singleton.getNextOpenPort()
+        port12 = PortFinder.instance.getNextOpenPort()
+        port21 = PortFinder.instance.getNextOpenPort()
+        port22 = PortFinder.instance.getNextOpenPort()
 
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())

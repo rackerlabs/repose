@@ -19,12 +19,12 @@
  */
 package features.services.datastore
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 
 class DistDatastoreServicePatchTest extends ReposeValveTest {
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
@@ -41,8 +41,8 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
-        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort1 = PortFinder.instance.getNextOpenPort()
+        int dataStorePort2 = PortFinder.instance.getNextOpenPort()
 
         distDatastoreEndpoint = "http://localhost:${dataStorePort1}"
 

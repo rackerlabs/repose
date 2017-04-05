@@ -20,7 +20,6 @@
 package framework
 
 import org.linkedin.util.clock.SystemClock
-import org.rackspace.deproxy.PortFinder
 
 import java.util.concurrent.TimeoutException
 
@@ -93,7 +92,7 @@ class ReposeLintLauncher {
 
         if (debugEnabled) {
             if (!debugPort) {
-                debugPort = PortFinder.Singleton.getNextOpenPort()
+                debugPort = PortFinder.instance.getNextOpenPort()
             }
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
             if (doSuspend) {

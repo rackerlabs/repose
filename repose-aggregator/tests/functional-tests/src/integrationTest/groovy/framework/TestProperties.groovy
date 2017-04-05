@@ -19,8 +19,6 @@
  */
 package framework
 
-import org.rackspace.deproxy.PortFinder
-
 class TestProperties {
 
     String configDirectory
@@ -64,26 +62,23 @@ class TestProperties {
     int phonehomePort
     String targetHostname
 
-    TestProperties() {
-        this("test.properties")
-    }
+    PortFinder portFinder = PortFinder.instance
 
-    TestProperties(String resourceName) {
-        this(ClassLoader.getSystemResource(resourceName).openStream())
-    }
-
-    TestProperties(InputStream propertiesStream) {
+    TestProperties(String testRunDirectory = null) {
+        InputStream propertiesStream = ClassLoader.getSystemResource("test.properties").openStream()
 
         try {
             Properties properties = new Properties()
             properties.load(propertiesStream)
 
+            String runDirectory = testRunDirectory ? properties.getProperty("project.build.directory") + "/test-homes/" + testRunDirectory : properties.getProperty("repose.home")
+
             projectBuildDirectory = properties.getProperty("project.build.directory")
-            configDirectory = properties.getProperty("repose.config.directory")
+            configDirectory = runDirectory + properties.getProperty("repose.config.directory")
             configTemplates = properties.getProperty("repose.config.templates")
-            logFile = properties.getProperty("repose.log.name")
-            reposeLintLogFile = properties.getProperty("repose.lint.log.name")
-            logFilePattern = properties.getProperty("repose.log.pattern")
+            logFile = runDirectory + properties.getProperty("repose.log.name")
+            reposeLintLogFile = runDirectory + properties.getProperty("repose.lint.log.name")
+            logFilePattern = runDirectory + properties.getProperty("repose.log.pattern")
 
             connFramework = "jersey"
             def value = properties.getProperty("repose.container")
@@ -94,20 +89,28 @@ class TestProperties {
             reposeJar = properties.getProperty("repose.jar")
             reposeLintJar = properties.getProperty("repose.lint.jar")
             reposeRootWar = properties.getProperty("repose.root.war")
-            reposePort = PortFinder.Singleton.getNextOpenPort()
 
+            int portStart = properties.getProperty("port.finder.port.start") as int
+            int portMax = properties.getProperty("port.finder.port.max") as int
+            def workerIdPropertyName = properties.getProperty("port.finder.property.name.worker.id")
+            int workerId = System.getProperty(workerIdPropertyName, '1') as int
+            int portRange = properties.getProperty("port.finder.port.range") as int
+            portFinder.startPort = portStart + (workerId * portRange)
+            portFinder.maxPort = portMax
+
+            reposePort = portFinder.getNextOpenPort()
 
             glassfishJar = properties.getProperty("glassfish.jar")
             tomcatJar = properties.getProperty("tomcat.jar")
 
-            targetPort = PortFinder.Singleton.getNextOpenPort()
-            targetPort2 = PortFinder.Singleton.getNextOpenPort()
-            identityPort = PortFinder.Singleton.getNextOpenPort()
-            identityPort2 = PortFinder.Singleton.getNextOpenPort()
-            valkyriePort = PortFinder.Singleton.getNextOpenPort()
-            atomPort = PortFinder.Singleton.getNextOpenPort()
-            atomPort2 = PortFinder.Singleton.getNextOpenPort()
-            phonehomePort = PortFinder.Singleton.getNextOpenPort()
+            targetPort = portFinder.getNextOpenPort()
+            targetPort2 = portFinder.getNextOpenPort()
+            identityPort = portFinder.getNextOpenPort()
+            identityPort2 = portFinder.getNextOpenPort()
+            valkyriePort = portFinder.getNextOpenPort()
+            atomPort = portFinder.getNextOpenPort()
+            atomPort2 = portFinder.getNextOpenPort()
+            phonehomePort = portFinder.getNextOpenPort()
             targetHostname = properties.getProperty("target.hostname")
             reposeVersion = properties.getProperty("repose.version")
 

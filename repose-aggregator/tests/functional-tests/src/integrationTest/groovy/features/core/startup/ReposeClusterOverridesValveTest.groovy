@@ -28,7 +28,6 @@ import org.apache.http.ssl.SSLContexts
 import org.eclipse.jetty.server.Request
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.server.handler.AbstractHandler
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -69,7 +68,7 @@ class ReposeClusterOverridesValveTest extends Specification {
         reposeLogSearch = new ReposeLogSearch(properties.logFile)
 
         reposePort1 = properties.reposePort
-        reposePort2 = PortFinder.Singleton.getNextOpenPort()
+        reposePort2 = PortFinder.instance.getNextOpenPort()
 
         def params = properties.getDefaultTemplateParams()
         params += [

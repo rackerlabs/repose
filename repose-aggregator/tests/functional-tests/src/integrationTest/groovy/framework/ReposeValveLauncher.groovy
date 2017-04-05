@@ -25,7 +25,6 @@ import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.systemmodel.SystemModel
-import org.rackspace.deproxy.PortFinder
 
 import javax.management.ObjectName
 import java.util.concurrent.TimeoutException
@@ -34,25 +33,23 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 
 class ReposeValveLauncher extends ReposeLauncher {
 
-    def boolean debugEnabled
-    def boolean doSuspend
-    def String reposeJar
-    def String configDir
+    boolean debugEnabled
+    boolean doSuspend
+    String reposeJar
+    String configDir
 
     def clock = new SystemClock()
 
     def reposeEndpoint
-    def int reposePort
+    int reposePort
 
-    def JmxClient jmx
+    JmxClient jmx
     def jmxPort = null
     def debugPort = null
     def classPaths = []
     def additionalEnvironment = [:]
 
-    Process process
-
-    def ReposeConfigurationProvider configurationProvider
+    ReposeConfigurationProvider configurationProvider
 
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         TestProperties properties) {
@@ -116,10 +113,10 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         if (killOthersBeforeStarting) {
-            waitForCondition(clock, '5s', '1s', {
+            waitForCondition(clock, '5s', '1s') {
                 killIfUp()
                 !isUp()
-            })
+            }
         }
 
         def jmxprops = ""
@@ -129,7 +126,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         if (debugEnabled) {
             if (!debugPort) {
-                debugPort = PortFinder.Singleton.getNextOpenPort()
+                debugPort = PortFinder.instance.getNextOpenPort()
             }
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
             if (doSuspend) {
@@ -141,7 +138,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         if (!jmxPort) {
-            jmxPort = PortFinder.Singleton.getNextOpenPort()
+            jmxPort = PortFinder.instance.getNextOpenPort()
         }
         jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
@@ -157,7 +154,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         //Prepended the JUL logging manager from log4j2 so I can capture JUL logs, which are things in the JVM (like JMX)
         def cmd = "java -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
-        println("Starting repose: ${cmd}")
+        println("Starting repose: $cmd")
 
         def th = new Thread({
             //Construct a new environment, including all from the previous, and then overriding with our new one
@@ -170,7 +167,7 @@ class ReposeValveLauncher extends ReposeLauncher {
             def envList = newEnv.collect { k, v -> "$k=$v" }
             this.process = cmd.execute(envList, null)
             this.process.consumeProcessOutput(System.out, System.err)
-        });
+        })
 
         th.run()
         th.join()
@@ -187,9 +184,9 @@ class ReposeValveLauncher extends ReposeLauncher {
                 print("Waiting for repose auto-guessed node to start: ")
             }
 
-            waitForCondition(clock, '60s', '1s', {
+            waitForCondition(clock, '60s', '1s') {
                 isReposeNodeUp(clusterId, nodeId)
-            })
+            }
         }
     }
 
@@ -201,7 +198,6 @@ class ReposeValveLauncher extends ReposeLauncher {
             return false
         }
     }
-
 
     @Override
     void stop() {
@@ -225,17 +221,17 @@ class ReposeValveLauncher extends ReposeLauncher {
             this.process?.destroy()
 
             print("Waiting for Repose to shutdown")
-            waitForCondition(clock, "${timeout}", '1s', {
+            waitForCondition(clock, "${timeout}", '1s') {
                 print(".")
                 !isUp()
-            })
+            }
 
             println()
         } catch (IOException ioex) {
             this.process.waitForOrKill(5000)
             killIfUp()
             if (throwExceptionOnKill) {
-                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
+                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: ${ioex.getMessage()}", ioex)
             }
         } finally {
             configurationProvider.cleanConfigDirectory()
@@ -317,7 +313,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     @Override
-    public boolean isUp() {
+    boolean areAnyUp() {
         println TestUtils.getJvmProcesses()
         return TestUtils.getJvmProcesses().contains("repose-valve.jar")
     }

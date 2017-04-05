@@ -19,15 +19,15 @@
  */
 package features.filters.compression
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 
 class CompressionResponseCodeTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(PortFinder.Singleton.getNextOpenPort())
+        deproxy.addEndpoint(PortFinder.instance.getNextOpenPort())
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)

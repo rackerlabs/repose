@@ -19,6 +19,7 @@
  */
 package features.services.datastore
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -26,7 +27,6 @@ import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 
 @Category(Slow.class)
 class DistDatastoreServiceTest extends ReposeValveTest {
@@ -39,8 +39,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
-        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort1 = PortFinder.instance.getNextOpenPort()
+        int dataStorePort2 = PortFinder.instance.getNextOpenPort()
 
         distDatastoreEndpoint = "http://localhost:${dataStorePort1}"
 
