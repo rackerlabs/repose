@@ -29,7 +29,7 @@ import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MetricsService, SummingMeterFactory}
+import org.openrepose.core.services.reporting.metrics.{MetricsService, AggregateMeterFactory}
 import org.openrepose.filters.routing.servlet.config.{DestinationRouterConfiguration, Target}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -42,19 +42,19 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
   private var configurationService: ConfigurationService = _
   private var metricsService: MetricsService = _
   private var metricsServiceOpt: Optional[MetricsService] = _
-  private var summingMeterFactory: SummingMeterFactory = _
+  private var summingMeterFactory: AggregateMeterFactory = _
   private var meter: Meter = _
 
   override def beforeEach(): Unit = {
     configurationService = mock[ConfigurationService]
     metricsService = mock[MetricsService]
-    summingMeterFactory = mock[SummingMeterFactory]
+    summingMeterFactory = mock[AggregateMeterFactory]
     meter = mock[Meter]
 
     metricsServiceOpt = Optional.of(metricsService)
 
     when(metricsService.createSummingMeterFactory(anyString())).thenReturn(summingMeterFactory)
-    when(summingMeterFactory.createSummingMeter(anyString())).thenReturn(meter)
+    when(summingMeterFactory.createMeter(anyString())).thenReturn(meter)
   }
 
   describe("init") {

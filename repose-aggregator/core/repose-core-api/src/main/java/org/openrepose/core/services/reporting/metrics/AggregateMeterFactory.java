@@ -29,10 +29,10 @@ import com.codahale.metrics.Meter;
  * This factory is hierarchical. Child factory names will be prefixed by the name
  * of their parent factory. The overall structure of all factories is a tree.
  */
-public interface SummingMeterFactory {
-    Meter getAcrossAllMeter();
+public interface AggregateMeterFactory {
+    Meter getAggregateMeter();
 
-    Meter createSummingMeter(String name);
+    Meter createMeter(String name);
 
-    SummingMeterFactory createChildFactory(String name);
+    AggregateMeterFactory createChildFactory(String name);
 }

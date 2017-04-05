@@ -25,7 +25,7 @@ import com.codahale.metrics.MetricRegistry.MetricSupplier;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
-public class SummingMeterFactoryImpl implements SummingMeterFactory {
+public class SummingMeterFactory implements AggregateMeterFactory {
 
     public static final String ACROSS_ALL = "ACROSS ALL";
 
@@ -34,14 +34,14 @@ public class SummingMeterFactoryImpl implements SummingMeterFactory {
     private final Meter acrossAllMeter;
     private final SummingMeterSupplier summingMeterSupplier;
 
-    public SummingMeterFactoryImpl(MetricRegistry metricRegistry, String namePrefix) {
+    public SummingMeterFactory(MetricRegistry metricRegistry, String namePrefix) {
         this.namePrefix = namePrefix;
         this.metricRegistry = metricRegistry;
         this.acrossAllMeter = metricRegistry.meter(name(namePrefix, ACROSS_ALL));
         this.summingMeterSupplier = new SummingMeterSupplier(acrossAllMeter);
     }
 
-    private SummingMeterFactoryImpl(MetricRegistry metricRegistry, String namePrefix, SummingMeterSupplier ancestralMeterSupplier) {
+    private SummingMeterFactory(MetricRegistry metricRegistry, String namePrefix, SummingMeterSupplier ancestralMeterSupplier) {
         this.namePrefix = namePrefix;
         this.metricRegistry = metricRegistry;
         this.acrossAllMeter = metricRegistry.meter(name(namePrefix, ACROSS_ALL), ancestralMeterSupplier);
@@ -49,18 +49,18 @@ public class SummingMeterFactoryImpl implements SummingMeterFactory {
     }
 
     @Override
-    public Meter createSummingMeter(String name) {
+    public Meter createMeter(String name) {
         return metricRegistry.meter(name(namePrefix, name), summingMeterSupplier);
     }
 
     @Override
-    public Meter getAcrossAllMeter() {
+    public Meter getAggregateMeter() {
         return acrossAllMeter;
     }
 
     @Override
-    public SummingMeterFactoryImpl createChildFactory(String name) {
-        return new SummingMeterFactoryImpl(metricRegistry, name(namePrefix, name), summingMeterSupplier);
+    public SummingMeterFactory createChildFactory(String name) {
+        return new SummingMeterFactory(metricRegistry, name(namePrefix, name), summingMeterSupplier);
     }
 
     public static class SummingMeterSupplier implements MetricSupplier<Meter> {

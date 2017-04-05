@@ -86,7 +86,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
 
       metricsService foreach {
         _.createSummingMeterFactory(RequestNormalizationMetricPrefix)
-          .createSummingMeter(MetricRegistry.name(
+          .createMeter(MetricRegistry.name(
             wrappedRequest.getMethod,
             MetricNameUtility.safeReportingName(target.url.pattern.toString)))
           .mark()
@@ -120,7 +120,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
 
       metricsService foreach {
         _.createSummingMeterFactory(ResponseNormalizationMetricPrefix)
-          .createSummingMeter(MetricRegistry.name(
+          .createMeter(MetricRegistry.name(
             wrappedRequest.getMethod,
             MetricNameUtility.safeReportingName(target.url.pattern.toString)))
           .mark()

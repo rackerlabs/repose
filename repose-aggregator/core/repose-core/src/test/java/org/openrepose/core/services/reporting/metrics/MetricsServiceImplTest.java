@@ -163,9 +163,9 @@ public class MetricsServiceImplTest {
         String name = "foo";
 
         MetricRegistry metricRegistry = metricsService.getRegistry();
-        SummingMeterFactory summingMeterFactory = metricsService.createSummingMeterFactory(namePrefix);
+        AggregateMeterFactory summingMeterFactory = metricsService.createSummingMeterFactory(namePrefix);
 
-        summingMeterFactory.createSummingMeter(name);
+        summingMeterFactory.createMeter(name);
 
         assertThat(metricRegistry.getMeters(), hasKey(MetricRegistry.name(namePrefix, name)));
     }

@@ -94,7 +94,7 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
 
         metricsService foreach {
           _.createSummingMeterFactory(RoutedResponseMetricPrefix)
-            .createSummingMeter(target.getId)
+            .createMeter(target.getId)
             .mark()
         }
       }

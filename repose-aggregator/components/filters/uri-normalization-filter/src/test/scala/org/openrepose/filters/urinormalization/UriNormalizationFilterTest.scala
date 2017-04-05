@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, same}
 import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MetricsService, SummingMeterFactory}
+import org.openrepose.core.services.reporting.metrics.{MetricsService, AggregateMeterFactory}
 import org.openrepose.filters.urinormalization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -43,7 +43,7 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Ma
 
   var metricsService: MetricsService = _
   var metricsServiceOpt: Optional[MetricsService] = _
-  var summingMeterFactory: SummingMeterFactory = _
+  var summingMeterFactory: AggregateMeterFactory = _
   var meter: Meter = _
   var configurationService: ConfigurationService = _
   var filter: UriNormalizationFilter = _
@@ -53,14 +53,14 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Ma
 
   override def beforeEach(): Unit = {
     metricsService = mock[MetricsService]
-    summingMeterFactory = mock[SummingMeterFactory]
+    summingMeterFactory = mock[AggregateMeterFactory]
     meter = mock[Meter]
     configurationService = mock[ConfigurationService]
 
     metricsServiceOpt = Optional.of(metricsService)
 
     when(metricsService.createSummingMeterFactory(anyString())).thenReturn(summingMeterFactory)
-    when(summingMeterFactory.createSummingMeter(anyString())).thenReturn(meter)
+    when(summingMeterFactory.createMeter(anyString())).thenReturn(meter)
 
     servletRequest = new MockHttpServletRequest("GET", "/a/really/nifty/uri")
     servletResponse = new MockHttpServletResponse

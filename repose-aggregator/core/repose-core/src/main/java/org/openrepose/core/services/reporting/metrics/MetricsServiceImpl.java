@@ -39,7 +39,6 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -162,8 +161,8 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public SummingMeterFactory createSummingMeterFactory(String namePrefix) {
-        return new SummingMeterFactoryImpl(metricRegistry, namePrefix);
+    public AggregateMeterFactory createSummingMeterFactory(String namePrefix) {
+        return new SummingMeterFactory(metricRegistry, namePrefix);
     }
 
     @PreDestroy

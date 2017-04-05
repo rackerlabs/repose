@@ -28,7 +28,7 @@ import com.rackspace.com.papi.components.checker.wadl.WADLException;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.SummingMeterFactory;
+import org.openrepose.core.services.reporting.metrics.AggregateMeterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,9 +150,9 @@ public class ApiValidatorHandler {
 
                 if (!isValid) {
                     metricsService.ifPresent(ms -> {
-                        SummingMeterFactory meterFactory = ms.createSummingMeterFactory(INVALID_REQUEST_METRIC_PREFIX);
+                        AggregateMeterFactory meterFactory = ms.createSummingMeterFactory(INVALID_REQUEST_METRIC_PREFIX);
                         matchedRoles.forEach(role ->
-                            meterFactory.createSummingMeter(role)
+                            meterFactory.createMeter(role)
                                 .mark());
                     });
                     if (multiRoleMatch) {

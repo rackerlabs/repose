@@ -65,7 +65,7 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
         queryStringNormalizers.find(_.normalize(request)) foreach { queryStringNormalizer =>
           metricRegistryOpt foreach {
             _.createSummingMeterFactory(NormalizationMetricPrefix)
-              .createSummingMeter(MetricRegistry.name(request.getMethod, queryStringNormalizer.getLastMatch.toString.replace('.', '_')))
+              .createMeter(MetricRegistry.name(request.getMethod, queryStringNormalizer.getLastMatch.toString.replace('.', '_')))
               .mark()
           }
         }

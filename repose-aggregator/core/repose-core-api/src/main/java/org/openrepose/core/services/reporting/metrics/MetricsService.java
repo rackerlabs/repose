@@ -28,5 +28,5 @@ import org.openrepose.commons.utils.Destroyable;
 public interface MetricsService extends Destroyable {
     MetricRegistry getRegistry();
 
-    SummingMeterFactory createSummingMeterFactory(String namePrefix);
+    AggregateMeterFactory createSummingMeterFactory(String namePrefix);
 }

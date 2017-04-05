@@ -34,30 +34,30 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.openrepose.core.services.reporting.metrics.SummingMeterFactoryImpl.ACROSS_ALL;
-import static org.openrepose.core.services.reporting.metrics.SummingMeterFactoryImpl.SummingMeterSupplier;
+import static org.openrepose.core.services.reporting.metrics.SummingMeterFactory.ACROSS_ALL;
+import static org.openrepose.core.services.reporting.metrics.SummingMeterFactory.SummingMeterSupplier;
 
 public class SummingMeterFactoryImplTest {
 
     private final static String NAME_PREFIX = "test.name.prefix";
 
     private Meter acrossAllMeter;
-    private Meter multiMeter;
+    private Meter meter;
     private MetricRegistry metricRegistry;
-    private SummingMeterFactory summingMeterFactory;
+    private AggregateMeterFactory summingMeterFactory;
 
     @Before
     public void setup() {
         acrossAllMeter = mock(Meter.class);
-        multiMeter = mock(MultiMeter.class);
+        meter = mock(Meter.class);
         metricRegistry = mock(MetricRegistry.class);
 
         when(metricRegistry.meter(Matchers.endsWith(ACROSS_ALL)))
             .thenReturn(acrossAllMeter);
         when(metricRegistry.meter(anyString(), any(MetricRegistry.MetricSupplier.class)))
-            .thenReturn(multiMeter);
+            .thenReturn(meter);
 
-        summingMeterFactory = new SummingMeterFactoryImpl(metricRegistry, NAME_PREFIX);
+        summingMeterFactory = new SummingMeterFactory(metricRegistry, NAME_PREFIX);
     }
 
     @Test
@@ -69,15 +69,15 @@ public class SummingMeterFactoryImplTest {
     public void createAggregateMeterShouldRegisterAndReturnAnAggregatedMeter() throws Exception {
         String meterName = "foo";
 
-        Meter meter = summingMeterFactory.createSummingMeter(meterName);
+        Meter meter = summingMeterFactory.createMeter(meterName);
 
         verify(metricRegistry).meter(eq(name(NAME_PREFIX, meterName)), argThat(instanceOf(SummingMeterSupplier.class)));
-        assertThat(meter, is(multiMeter));
+        assertThat(meter, is(this.meter));
     }
 
     @Test
     public void getAcrossAllMeterShouldReturnTheAcrossAllMeter() throws Exception {
-        Meter meter = summingMeterFactory.getAcrossAllMeter();
+        Meter meter = summingMeterFactory.getAggregateMeter();
 
         assertThat(meter, is(acrossAllMeter));
     }
@@ -85,15 +85,15 @@ public class SummingMeterFactoryImplTest {
     @Test
     public void createChildFactoryShouldReturnASummingMeterFactoryThatProducesHierarchicallyCumulativeMeters() throws Exception {
         MetricRegistry registry = new MetricRegistry();
-        SummingMeterFactory parentFactory = new SummingMeterFactoryImpl(registry, "parent");
-        SummingMeterFactory childFactory = parentFactory.createChildFactory("child");
-        SummingMeterFactory grandchildFactory = childFactory.createChildFactory("grandchild");
+        AggregateMeterFactory parentFactory = new SummingMeterFactory(registry, "parent");
+        AggregateMeterFactory childFactory = parentFactory.createChildFactory("child");
+        AggregateMeterFactory grandchildFactory = childFactory.createChildFactory("grandchild");
 
-        Meter grandchildAllMeter = grandchildFactory.getAcrossAllMeter();
+        Meter grandchildAllMeter = grandchildFactory.getAggregateMeter();
         grandchildAllMeter.mark();
 
-        assertThat(parentFactory.getAcrossAllMeter().getCount(), is(1L));
-        assertThat(childFactory.getAcrossAllMeter().getCount(), is(1L));
-        assertThat(grandchildFactory.getAcrossAllMeter().getCount(), is(1L));
+        assertThat(parentFactory.getAggregateMeter().getCount(), is(1L));
+        assertThat(childFactory.getAggregateMeter().getCount(), is(1L));
+        assertThat(grandchildFactory.getAggregateMeter().getCount(), is(1L));
     }
 }
