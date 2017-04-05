@@ -33,7 +33,7 @@ import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, Htt
 import org.openrepose.commons.utils.string.RegexString
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.MetricsService
+import org.openrepose.core.services.reporting.metrics.{MetricNameUtility, MetricsService}
 import org.openrepose.filters.headernormalization.HeaderNormalizationFilter._
 import org.openrepose.filters.headernormalization.config.{HeaderNormalizationConfig, HttpHeaderList, HttpMethod, Target => ConfigTarget}
 
@@ -88,7 +88,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         _.createSummingMeterFactory(RequestNormalizationMetricPrefix)
           .createSummingMeter(MetricRegistry.name(
             wrappedRequest.getMethod,
-            target.url.pattern.toString.replace('.', '_')))
+            MetricNameUtility.safeReportingName(target.url.pattern.toString)))
           .mark()
       }
     }
@@ -122,7 +122,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         _.createSummingMeterFactory(ResponseNormalizationMetricPrefix)
           .createSummingMeter(MetricRegistry.name(
             wrappedRequest.getMethod,
-            target.url.pattern.toString.replace('.', '_')))
+            MetricNameUtility.safeReportingName(target.url.pattern.toString)))
           .mark()
       }
     }
