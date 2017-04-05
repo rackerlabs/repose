@@ -22,7 +22,7 @@ com.fasterxml.jackson.core                jackson-databind         2.4.0        
 commons-codec                             commons-codec            1.10            Apache License Version 2.0  http://commons.apache.org/proper/commons-codec/
 commons-pool                              commons-pool             1.6             Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/
 com.typesafe.scala-logging                scala-logging-slf4j_2.11 2.1.2           Apache License Version 2.0  https://github.com/typesafehub/scala-logging
-com.yammer.metrics                        metrics-core             2.2.0           Apache License Version 2.0  http://metrics.dropwizard.io/2.2.0/maven/metrics-core/license.html
+io.dropwizard.metrics                     metrics-core             3.2.0           Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
 org.apache.commons                        commons-lang3            3.3.2           Apache License Version 2.0  http://projects.apache.org/projects/commons_lang.html
 org.apache.httpcomponents                 httpclient               4.4.1           Apache License Version 2.0  http://hc.apache.org/httpcomponents-client-4.4.x/index.html
 org.codehaus.groovy                       groovy-all               2.4.3           Apache License Version 2.0  https://github.com/apache/groovy

@@ -32,9 +32,7 @@ import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.ResponseMode;
-import org.openrepose.core.FilterProcessingTime;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.TimerByCategory;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.intrafilterlogging.RequestLog;
 import org.openrepose.powerfilter.intrafilterlogging.ResponseLog;
@@ -73,12 +71,12 @@ public class PowerFilterChain implements FilterChain {
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
     private final PowerFilterRouter router;
+    private final MetricsService metricsService;
     private final SplittableHeaderUtil splittabelHeaderUtil;
     private List<FilterContext> currentFilters;
     private int position;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
-    private TimerByCategory filterTimer;
     private Optional<String> bypassUrl;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy,
@@ -91,11 +89,8 @@ public class PowerFilterChain implements FilterChain {
         this.filterChainCopy = new LinkedList<>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.router = router;
+        this.metricsService = metricsService;
         this.bypassUrl = bypassUrl;
-        if (metricsService != null) {
-            filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
-                    TimeUnit.MILLISECONDS);
-        }
         splittabelHeaderUtil = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
                 ExtendedHttpHeader.values());
     }
@@ -104,7 +99,7 @@ public class PowerFilterChain implements FilterChain {
             throws IOException, ServletException {
 
         boolean addTraceHeader = traceRequest(wrappedRequest);
-        boolean useTrace = addTraceHeader || (filterTimer != null);
+        boolean useTrace = addTraceHeader || Optional.ofNullable(metricsService).isPresent();
 
         tracer = new RequestTracer(useTrace, addTraceHeader);
         currentFilters = getFilterChainForRequest(wrappedRequest.getRequestURI());
@@ -185,7 +180,7 @@ public class PowerFilterChain implements FilterChain {
             HttpServletResponse httpResponse,
             FilterContext filterContext) throws IOException, ServletException {
         HttpServletRequest maybeWrappedServletRequest = httpRequest;
-        HttpServletResponse maybeWrappedServletResponse =  httpResponse;
+        HttpServletResponse maybeWrappedServletResponse = httpResponse;
 
         try {
             // we don't want to handle trace logging being turned on in the middle of a request, so check upfront
@@ -294,7 +289,7 @@ public class PowerFilterChain implements FilterChain {
                     splitValues.stream()
                             .filter(StringUtils::isNotEmpty)
                             .forEach(splitValue -> httpServletResponseWrapper.addHeader(headerName, splitValue));
-        });
+                });
     }
 
     private Collection<String> splitResponseHeaderValues(Collection<String> headerValues) {
@@ -327,16 +322,23 @@ public class PowerFilterChain implements FilterChain {
             setStartTimeForHttpLogger(start, httpRequest);
             doReposeFilter(httpRequest, httpResponse, filter);
             long delay = tracer.traceExit((HttpServletResponse) servletResponse, filter.getFilterConfig().getName());
-            if (filterTimer != null) {
-                filterTimer.update(filter.getFilterConfig().getName(), delay, TimeUnit.MILLISECONDS);
-            }
+            updateTimer(filter.getFilterConfig().getName(), delay);
         } else {
             tracer.traceEnter();
             doRouting(httpRequest, servletResponse);
             long delay = tracer.traceExit((HttpServletResponse) servletResponse, "route");
-            if (filterTimer != null) {
-                filterTimer.update("route", delay, TimeUnit.MILLISECONDS);
-            }
+            updateTimer("route", delay);
+        }
+    }
+
+    private void updateTimer(String name, long durationMillis) {
+        if (Optional.ofNullable(metricsService).isPresent()) {
+            metricsService.getRegistry().timer(
+                    metricsService.name(
+                            "org.openrepose.core.FilterProcessingTime",
+                            "Delay",
+                            name))
+                    .update(durationMillis, TimeUnit.MILLISECONDS);
         }
     }
 }

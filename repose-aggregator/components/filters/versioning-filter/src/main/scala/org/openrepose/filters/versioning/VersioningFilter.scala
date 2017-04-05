@@ -20,7 +20,6 @@
 package org.openrepose.filters.versioning
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -34,7 +33,6 @@ import org.openrepose.commons.utils.http.media.MediaType
 import org.openrepose.commons.utils.io.RawInputStreamReader
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, RouteDestination}
 import org.openrepose.core.filter.{FilterConfigHelper, SystemModelInterrogator}
-import org.openrepose.core.filters.Versioning
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.{HealthCheckService, Severity}
 import org.openrepose.core.services.reporting.metrics.MetricsService
@@ -64,17 +62,12 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
   private val versioningObjectFactory = new ObjectFactory()
   private val healthCheckServiceProxy = healthCheckService.register
-  private val mbcVersionedRequests = metricsService.newMeterByCategory(
-    classOf[Versioning],
-    "versioning",
-    "VersionedRequest",
-    TimeUnit.SECONDS)
-  // todo: replace "versioning" with filter-id or name-number in sys-model
+  private val metricsServiceOption = Option(metricsService)
 
   private var configurationFileName: String = _
   private var serviceVersionMappings: Map[String, ServiceVersionMapping] = _
   private var destinations: Map[String, Destination] = _
-  private var contentTransformer:ContentTransformer = _
+  private var contentTransformer: ContentTransformer = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Versioning Filter initializing")
@@ -115,6 +108,16 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
       val configurationData = new ConfigurationData(destinations, serviceVersionMappings)
 
       try {
+        def markMeter(name: String): Unit = {
+          metricsServiceOption.foreach(metricService =>
+            metricService.getRegistry.meter(metricService.name(
+              "org.openrepose.core.filters.Versioning",
+              "versioning", // todo: replace "versioning" with filter-id or name-number in sys-model
+              "VersionedRequest",
+              name))
+              .mark())
+        }
+
         Option(configurationData.getOriginServiceForRequest(wrappedRequest)) match {
           case Some(targetOriginService) =>
             val versionedRequest = new VersionedRequest(wrappedRequest, targetOriginService.getMapping)
@@ -127,7 +130,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
               httpResponse.setStatus(HttpServletResponse.SC_OK)
               httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
-              mbcVersionedRequests.mark(targetOriginService.getMapping.getId)
+              markMeter(targetOriginService.getMapping.getId)
             } else {
               val targetDestination = new RouteDestination(
                 targetOriginService.getOriginServiceHost.getId,
@@ -146,7 +149,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
                   logger.error("The destination could not be added -- the destinations attribute was of an unknown type")
               }
 
-              mbcVersionedRequests.mark(targetOriginService.getMapping.getId)
+              markMeter(targetOriginService.getMapping.getId)
 
               chain.doFilter(wrappedRequest, httpResponse)
             }
@@ -168,7 +171,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
             httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
-            mbcVersionedRequests.mark("Unversioned")
+            markMeter("Unversioned")
         }
       } catch {
         case vhnfe: VersionedHostNotFoundException =>

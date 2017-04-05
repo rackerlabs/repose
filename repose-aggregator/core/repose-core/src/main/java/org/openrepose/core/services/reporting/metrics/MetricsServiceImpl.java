@@ -19,9 +19,11 @@
  */
 package org.openrepose.core.services.reporting.metrics;
 
-import com.yammer.metrics.core.*;
-import com.yammer.metrics.reporting.GraphiteReporter;
-import com.yammer.metrics.reporting.JmxReporter;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricFilter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
@@ -38,17 +40,19 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This factory class generates Yammer Metrics objects & exposes them through JMX & Graphite.  Any metric classes which
- * might be used by multiple components should have a factory method off this class.
+ * This class provides the capabilities to instrument filters/services and expose them through JMX & Graphite.
+ * Any metric classes which might be used by multiple components should have a factory method off this class.
  * <p/>
- * To ensure no namespace collisions between clusters & nodes, the {@link org.openrepose.core.spring.ReposeJmxNamingStrategy} object is used.  This object
- * also provides the ObjectName for any Spring-managed MBeans.
+ * To ensure no namespace collisions between clusters & nodes,
+ * the {@link org.openrepose.core.spring.ReposeJmxNamingStrategy} object is used.
+ * This object also provides the ObjectName for any Spring-managed MBeans.
  * <p/>
  * <h1>Custom MXBeans </h1>
  * <p/>
@@ -81,9 +85,9 @@ public class MetricsServiceImpl implements MetricsService {
     private final ConfigurationService configurationService;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private final MetricsCfgListener metricsCfgListener = new MetricsCfgListener();
-    private MetricsRegistry metrics;
-    private JmxReporter jmx;
-    private List<GraphiteReporter> listGraphite = new ArrayList<>();
+    private MetricRegistry metricRegistry;
+    private JmxReporter jmxReporter;
+    private final List<GraphiteReporter> listGraphite = new ArrayList<>();
     private ReposeJmxNamingStrategy reposeStrat;
     private boolean enabled;
 
@@ -97,12 +101,15 @@ public class MetricsServiceImpl implements MetricsService {
         this.reposeStrat = reposeStrat;
         this.healthCheckServiceProxy = healthCheckService.register();
 
-        this.metrics = new MetricsRegistry();
-
+        this.metricRegistry = new MetricRegistry();
         //There are tests that don't start the JMX if the metrics service isn't enabled...
-        this.jmx = new JmxReporter(metrics);
-        jmx.start(); //But it needs to be started if there's no configs
-
+        this.jmxReporter = JmxReporter
+                .forRegistry(metricRegistry)
+                .inDomain("org.openrepose")
+                // TODO: This may need to be used much like API-Checker's JmxObjectNameFactory.
+                //.createsObjectNamesWith(new CustomObjectNameFactory())
+                .build();
+        this.jmxReporter.start(); //But it needs to be started if there's no configs
         this.enabled = true;
     }
 
@@ -125,25 +132,26 @@ public class MetricsServiceImpl implements MetricsService {
         }
     }
 
-    public void addGraphiteServer(String host, int port, long period, String prefix)
+    private void addGraphiteServer(String host, int port, long period, String prefix)
             throws IOException {
-        GraphiteReporter graphite = new GraphiteReporter(metrics,
-                prefix,
-                MetricPredicate.ALL,
-                new GraphiteReporter.DefaultSocketProvider(host, port),
-                Clock.defaultClock());
-
-        graphite.start(period, TimeUnit.SECONDS);
+        final Graphite graphite = new Graphite(new InetSocketAddress(host, port));
+        final GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry)
+                .prefixedWith(prefix)
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .filter(MetricFilter.ALL)
+                .build(graphite);
+        reporter.start(period, TimeUnit.MINUTES);
 
         synchronized (listGraphite) {
-            listGraphite.add(graphite);
+            listGraphite.add(reporter);
         }
     }
 
-    public void shutdownGraphite() {
+    private void shutdownGraphite() {
         synchronized (listGraphite) {
             for (GraphiteReporter graphite : listGraphite) {
-                graphite.shutdown();
+                graphite.stop();
             }
         }
     }
@@ -157,33 +165,13 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public Meter newMeter(Class klass, String name, String scope, String eventType, TimeUnit unit) {
-        return metrics.newMeter(makeMetricName(klass, name, scope), eventType, unit);
+    public MetricRegistry getRegistry() {
+        return metricRegistry;
     }
 
     @Override
-    public Counter newCounter(Class klass, String name, String scope) {
-        return metrics.newCounter(makeMetricName(klass, name, scope));
-    }
-
-    @Override
-    public Timer newTimer(Class klass, String name, String scope, TimeUnit duration, TimeUnit rate) {
-        return metrics.newTimer(makeMetricName(klass, name, scope), duration, rate);
-    }
-
-    @Override
-    public TimerByCategory newTimerByCategory(Class klass, String scope, TimeUnit duration, TimeUnit rate) {
-        return new TimerByCategoryImpl(this, klass, scope, duration, rate);
-    }
-
-    @Override
-    public MeterByCategory newMeterByCategory(Class klass, String scope, String eventType, TimeUnit unit) {
-        return new MeterByCategoryImpl(this, klass, scope, eventType, unit);
-    }
-
-    @Override
-    public MeterByCategorySum newMeterByCategorySum(Class klass, String scope, String eventType, TimeUnit unit) {
-        return new MeterByCategorySum(this, klass, scope, eventType, unit);
+    public String name(String className, String... names) {
+        return MetricRegistry.name(reposeStrat.getJmxPrefix() + className, names);
     }
 
     @PreDestroy
@@ -191,25 +179,9 @@ public class MetricsServiceImpl implements MetricsService {
     public void destroy() {
         configurationService.unsubscribeFrom(DEFAULT_CONFIG_NAME, metricsCfgListener);
 
-        metrics.shutdown();
-        jmx.shutdown();
+        jmxReporter.stop();
 
         shutdownGraphite();
-    }
-
-    /**
-     * This creates a metric name based off the local JVM JMX Naming strategy.
-     * TODO: This might not actually be what we want. We might want to make metrics based on the local node....
-     *
-     * @param klass
-     * @param name
-     * @param scope
-     * @return
-     */
-    private MetricName makeMetricName(Class klass, String name, String scope) {
-        return new MetricName(reposeStrat.getJmxPrefix() + klass.getPackage().getName(),
-                klass.getSimpleName(),
-                name, scope);
     }
 
     private class MetricsCfgListener implements UpdateListener<MetricsConfiguration> {
@@ -222,7 +194,7 @@ public class MetricsServiceImpl implements MetricsService {
             shutdownGraphite();
 
             //We're going to reset the JMX stuff
-            jmx.shutdown();
+            jmxReporter.stop();
 
             if (metricsC.getGraphite() != null) {
                 for (GraphiteServer gs : metricsC.getGraphite().getServer()) {
@@ -242,7 +214,7 @@ public class MetricsServiceImpl implements MetricsService {
 
             //Only start JMX if it's enabled...
             if (metricsC.isEnabled()) {
-                jmx.start();
+                jmxReporter.start();
             }
             initialized = true;
         }

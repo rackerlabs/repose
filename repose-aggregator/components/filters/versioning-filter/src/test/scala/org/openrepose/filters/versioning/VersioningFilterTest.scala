@@ -20,9 +20,9 @@
 package org.openrepose.filters.versioning
 
 import java.net.URL
-import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.codahale.metrics.{Meter, MetricRegistry}
 import org.apache.http.HttpHeaders
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -32,7 +32,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.{HealthCheckService, HealthCheckServiceProxy, Severity}
-import org.openrepose.core.services.reporting.metrics.{MeterByCategory, MetricsService}
+import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel._
 import org.openrepose.filters.versioning.config.{MediaType, MediaTypeList, ServiceVersionMapping, ServiceVersionMappingList}
 import org.scalatest.junit.JUnitRunner
@@ -60,11 +60,12 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
   cluster.setDestinations(destinationList)
   systemModel.getReposeCluster.add(cluster)
 
-  var configurationService: ConfigurationService = _
-  var healthCheckService: HealthCheckService = _
-  var healthCheckServiceProxy: HealthCheckServiceProxy = _
-  var metricsService: MetricsService = _
-  var meterByCategory: MeterByCategory = _
+  private val configurationService = mock[ConfigurationService]
+  private val healthCheckService = mock[HealthCheckService]
+  private val healthCheckServiceProxy = mock[HealthCheckServiceProxy]
+  private val metricsService = mock[MetricsService]
+  private val metricRegistry = mock[MetricRegistry]
+  private val meter = mock[Meter]
   var request: MockHttpServletRequest = _
   var response: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
@@ -72,19 +73,21 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
   var systemModelListener: UpdateListener[SystemModel] = _
   var versioningListener: UpdateListener[ServiceVersionMappingList] = _
 
-  override def beforeEach() = {
-    configurationService = mock[ConfigurationService]
-    healthCheckService = mock[HealthCheckService]
-    healthCheckServiceProxy = mock[HealthCheckServiceProxy]
-    metricsService = mock[MetricsService]
-    meterByCategory = mock[MeterByCategory]
+  override def beforeEach(): Unit = {
+    reset(configurationService)
+    reset(healthCheckService)
+    reset(healthCheckServiceProxy)
+    reset(metricsService)
+    reset(metricRegistry)
+    reset(meter)
+
+    when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
+    when(metricsService.getRegistry).thenReturn(metricRegistry)
+    when(metricRegistry.meter(anyString())).thenReturn(meter)
 
     request = new MockHttpServletRequest()
     response = new MockHttpServletResponse()
     filterChain = new MockFilterChain()
-
-    when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
-    when(metricsService.newMeterByCategory(any[Class[_]], anyString(), anyString(), any[TimeUnit])).thenReturn(meterByCategory)
 
     val systemModelListenerCaptor = ArgumentCaptor.forClass(classOf[UpdateListener[SystemModel]])
     val versioningListenerCaptor = ArgumentCaptor.forClass(classOf[UpdateListener[ServiceVersionMappingList]])

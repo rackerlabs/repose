@@ -20,9 +20,7 @@
 package org.openrepose.powerfilter;
 
 import org.openrepose.core.filter.routing.DestinationLocationBuilder;
-import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.openrepose.core.services.reporting.ReportingService;
-import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.routing.RoutingService;
 import org.openrepose.core.spring.ReposeSpringProperties;
@@ -31,6 +29,7 @@ import org.openrepose.core.systemmodel.DestinationEndpoint;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.nodeservice.request.RequestHeaderService;
+import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,24 +41,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Named
 public class PowerFilterRouterFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterFactory.class);
+    private final MetricsService metricsService;
     private final ReportingService reportingService;
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
     private final RoutingService routingService;
     private final String nodeId;
     private final String clusterId;
-
-    private MetricsService metricsService;
-
-    //These are here and not in the impl, because we want them to stay around if the router changes
-    private ConcurrentHashMap<String, MeterByCategory> mapResponseCodes = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, MeterByCategory> mapRequestTimeouts = new ConcurrentHashMap<>();
 
     @Inject
     public PowerFilterRouterFactory(
@@ -70,14 +63,14 @@ public class PowerFilterRouterFactory {
             RoutingService routingService,
             @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
             @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId) {
+        LOG.info("Creating Repose Router Factory!");
+        this.metricsService = metricsService;
+        this.reportingService = reportingService;
+        this.requestHeaderService = requestHeaderService;
+        this.responseHeaderService = responseHeaderService;
+        this.routingService = routingService;
         this.nodeId = nodeId;
         this.clusterId = clusterId;
-        LOG.info("Creating Repose Router Factory!");
-        this.routingService = routingService;
-        this.reportingService = reportingService;
-        this.responseHeaderService = responseHeaderService;
-        this.requestHeaderService = requestHeaderService;
-        this.metricsService = metricsService;
     }
 
     public PowerFilterRouter getPowerFilterRouter(ReposeCluster domain,
@@ -120,8 +113,6 @@ public class PowerFilterRouterFactory {
                 requestHeaderService,
                 responseHeaderService,
                 metricsService,
-                mapResponseCodes,
-                mapRequestTimeouts,
                 reportingService);
     }
 
@@ -130,6 +121,4 @@ public class PowerFilterRouterFactory {
             targetList.put(dest.getId(), dest);
         }
     }
-
-
 }
