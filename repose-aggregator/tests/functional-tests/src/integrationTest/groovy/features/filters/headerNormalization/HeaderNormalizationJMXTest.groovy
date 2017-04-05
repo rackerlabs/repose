@@ -30,6 +30,9 @@ class HeaderNormalizationJMXTest extends ReposeValveTest {
 
     private static final String KEY_PROPERTIES_PREFIX =
         /001="org",002="openrepose",003="filters",004="headernormalization",005="HeaderNormalizationFilter",006="Normalization"/
+    private static final List<String> METER_DOUBLE_ATTR_NAMES =
+        ["OneMinuteRate", "FiveMinuteRate", "FifteenMinuteRate", "MeanRate"]
+    private static final String METER_STRING_ATTR_NAME = "RateUnit"
 
     private static Map params
     private static String jmxPrefix
@@ -165,5 +168,19 @@ class HeaderNormalizationJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormSecondaryPathGet) == 1
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormTertiaryPathGet) == 2
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 5
+
+        and: "the other attributes containing a double value are populated with a non-negative value"
+        METER_DOUBLE_ATTR_NAMES.each { attr ->
+            assert (repose.jmx.getMBeanAttribute(headerNormRootGet, attr) as double) >= 0.0
+            assert (repose.jmx.getMBeanAttribute(headerNormSecondaryPathGet, attr) as double) >= 0.0
+            assert (repose.jmx.getMBeanAttribute(headerNormTertiaryPathGet, attr) as double) >= 0.0
+            assert (repose.jmx.getMBeanAttribute(headerNormAll, attr) as double) >= 0.0
+        }
+
+        and: "the other attribute containing a string value is populated with a non-empty value"
+        !(repose.jmx.getMBeanAttribute(headerNormRootGet, METER_STRING_ATTR_NAME) as String).isEmpty()
+        !(repose.jmx.getMBeanAttribute(headerNormSecondaryPathGet, METER_STRING_ATTR_NAME) as String).isEmpty()
+        !(repose.jmx.getMBeanAttribute(headerNormTertiaryPathGet, METER_STRING_ATTR_NAME) as String).isEmpty()
+        !(repose.jmx.getMBeanAttribute(headerNormAll, METER_STRING_ATTR_NAME) as String).isEmpty()
     }
 }
