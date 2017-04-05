@@ -6,7 +6,9 @@
             <node id="simple-node" hostname="localhost" http-port="${reposePort}"/>
         </nodes>
 
-        <filters/>
+        <filters>
+            <filter name="add-header" uri-regex="/add/server/header"/>
+        </filters>
 
         <destinations>
             <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"

@@ -75,4 +75,15 @@ class ServerHeaderTest extends ReposeValveTest {
         "OriginServiceHeader" | 1
         null                  | 0
     }
+
+    def "The received response should have the Server header if set by a filter"() {
+        when: "a request is made"
+        MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/add/server/header")
+
+        then: "it should make it to the origin service"
+        mc.handlings.size() == 1
+
+        and: "the response should have the server header"
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 1
+    }
 }
