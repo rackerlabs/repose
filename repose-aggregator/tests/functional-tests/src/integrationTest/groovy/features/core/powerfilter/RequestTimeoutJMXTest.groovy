@@ -20,23 +20,23 @@
 package features.core.powerfilter
 
 import framework.ReposeValveTest
-import framework.category.Slow
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
 
-@Category(Slow.class)
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_TIMEOUT
+
 class RequestTimeoutJMXTest extends ReposeValveTest {
+    private static final String KEY_PROPERTIES_PREFIX =
+        /001="org",002="openrepose",003="core",004="RequestTimeout",005="TimeoutToOrigin"/
+    private static final String ALL_ENDPOINTS_MBEAN_NAME = /006="All Endpoints"/
+    private static final List<String> METER_DOUBLE_ATTR_NAMES =
+        ["OneMinuteRate", "FiveMinuteRate", "FifteenMinuteRate", "MeanRate"]
+    private static final String METER_STRING_ATTR_NAME = "RateUnit"
 
-    String PREFIX = "${jmxHostname}:001=\"org\",002=\"openrepose\",003=\"core\",004=\"RequestTimeout\",005=\"TimeoutToOrigin\""
+    private static String timeoutToRootPathEndpointMetric
+    private static String timeoutToAllEndpointsMetric
 
-    String NAME_OPENREPOSE_ENDPOINT = ",006=\"localhost:${properties.targetPort}/root_path\""
-    String ALL_ENDPOINTS = ",006=\"All Endpoints\""
-
-    String TIMEOUT_TO_ORIGIN = PREFIX + NAME_OPENREPOSE_ENDPOINT
-    String ALL_TIMEOUT_TO_ORIGIN = PREFIX + ALL_ENDPOINTS
-
-    def handlerTimeout = { request -> return new Response(408, 'WIZARD FAIL') }
+    def handlerTimeout = { new Response(SC_REQUEST_TIMEOUT, 'WIZARD FAIL') }
 
     def setupSpec() {
         def params = properties.getDefaultTemplateParams()
@@ -46,47 +46,71 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+
+        timeoutToRootPathEndpointMetric =
+            $/$jmxHostname:$KEY_PROPERTIES_PREFIX,006="localhost:${properties.targetPort}/root_path"/$
+        timeoutToAllEndpointsMetric = /$jmxHostname:$KEY_PROPERTIES_PREFIX,$ALL_ENDPOINTS_MBEAN_NAME/
     }
 
     def "when responses have timed out, should increment RequestTimeout mbeans for specific endpoint"() {
         given:
-        def target = repose.jmx.quickMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count")
-        target = (target == null) ? 0 : target
+        def target = repose.jmx.getMBeanCountAttribute(timeoutToRootPathEndpointMetric)
 
-        when:
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
+        when: "two requests are made that will timeout in the origin service"
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout)
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout)
 
-        then:
-        repose.jmx.getMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count") == (target + 2)
+        then: "the two requests are reflected in the endpoint metric"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(timeoutToRootPathEndpointMetric) == target + 2
+
+        and: "the other attributes containing a double value are populated with a non-negative value"
+        METER_DOUBLE_ATTR_NAMES.each { attr ->
+            assert (repose.jmx.getMBeanAttribute(timeoutToRootPathEndpointMetric, attr) as double) >= 0.0
+        }
+
+        and: "the other attribute containing a string value is populated with a non-empty value"
+        !(repose.jmx.getMBeanAttribute(timeoutToRootPathEndpointMetric, METER_STRING_ATTR_NAME) as String).isEmpty()
     }
-
 
     def "when responses have timed out, should increment RequestTimeout mbeans for all endpoint"() {
         given:
-        def target = repose.jmx.quickMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
-        target = (target == null) ? 0 : target
+        def target = repose.jmx.getMBeanCountAttribute(timeoutToAllEndpointsMetric)
 
-        when:
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
+        when: "two requests are made that will timeout in the origin service"
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout)
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout)
 
-        then:
-        repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == (target + 2)
+        then: "the two requests are reflected in the all endpoints metric"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(timeoutToAllEndpointsMetric) == target + 2
+
+        and: "the other attributes containing a double value are populated with a non-negative value"
+        METER_DOUBLE_ATTR_NAMES.each { attr ->
+            assert (repose.jmx.getMBeanAttribute(timeoutToAllEndpointsMetric, attr) as double) >= 0.0
+        }
+
+        and: "the other attribute containing a string value is populated with a non-empty value"
+        !(repose.jmx.getMBeanAttribute(timeoutToAllEndpointsMetric, METER_STRING_ATTR_NAME) as String).isEmpty()
     }
 
     def "when SOME responses have timed out, should increment RequestTimeout mbeans for specific endpoint only for timeouts"() {
         given:
-        def target = repose.jmx.quickMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
-        target = (target == null) ? 0 : target
+        def target = repose.jmx.getMBeanCountAttribute(timeoutToAllEndpointsMetric)
 
-        when:
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
+        when: "two of the four requests will timeout in the origin service"
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout)
+        deproxy.makeRequest(url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout)
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
 
-        then:
-        repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == (target + 2)
+        then: "the two requests that timed out are reflected in the all endpoints metric"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(timeoutToAllEndpointsMetric) == target + 2
+
+        and: "the other attributes containing a double value are populated with a non-negative value"
+        METER_DOUBLE_ATTR_NAMES.each { attr ->
+            assert (repose.jmx.getMBeanAttribute(timeoutToAllEndpointsMetric, attr) as double) >= 0.0
+        }
+
+        and: "the other attribute containing a string value is populated with a non-empty value"
+        !(repose.jmx.getMBeanAttribute(timeoutToAllEndpointsMetric, METER_STRING_ATTR_NAME) as String).isEmpty()
     }
 }
