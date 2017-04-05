@@ -343,7 +343,8 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         "Content-type"  | "text/plain, application/json"
         "If-Match"      | "entity-tag-1, entity-tag-2"
         "If-None-Match" | "entity-tag-1, entity-tag-2"
-        "Server"        | "ServerSoft/1.2.3 libwww/9.53.7b2 (comment, comment, comment)"
+        // TODO: Uncomment this as part of: https://repose.atlassian.net/browse/REP-5320
+        //"Server"        | "ServerSoft/1.2.3 libwww/9.53.7b2 (comment, comment, comment)"
         "Vary"          | "header-1, header-2, header-3"
     }
 
