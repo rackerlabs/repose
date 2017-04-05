@@ -23,11 +23,13 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
 class DestinationRouterJMXTest extends ReposeValveTest {
-
     private static final String KEY_PROPERTIES_PREFIX =
         /001="org",002="openrepose",003="filters",004="destinationrouter",005="DestinationRouterFilter",006="Routed Response"/
     private static final String ENDPOINT_MBEAN_NAME = /007="endpoint"/
     private static final String ALL_MBEAN_NAME = /007="ACROSS ALL"/
+    private static final List<String> METER_DOUBLE_ATTR_NAMES =
+        ["OneMinuteRate", "FiveMinuteRate", "FifteenMinuteRate", "MeanRate"]
+    private static final String METER_STRING_ATTR_NAME = "RateUnit"
 
     private static String destinationRouterEndpointMetric
     private static String destinationRouterAllMetric
@@ -55,6 +57,14 @@ class DestinationRouterJMXTest extends ReposeValveTest {
 
         then: "the endpoint metric only goes up by one since the call to /cluster should not count"
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterEndpointMetric) == target + 1
+
+        and: "the other attributes containing a double value are populated with a non-negative value"
+        METER_DOUBLE_ATTR_NAMES.each { attr ->
+            assert (repose.jmx.getMBeanAttribute(destinationRouterEndpointMetric, attr) as double) >= 0.0
+        }
+
+        and: "the other attribute containing a string value is populated with a non-empty value"
+        !(repose.jmx.getMBeanAttribute(destinationRouterEndpointMetric, METER_STRING_ATTR_NAME) as String).isEmpty()
     }
 
     def "when requests match destination router target URI, should increment DestinationRouter mbeans for all endpoints"() {
@@ -67,6 +77,14 @@ class DestinationRouterJMXTest extends ReposeValveTest {
 
         then: "the all metric should go up by two"
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterAllMetric) == target + 2
+
+        and: "the other attributes containing a double value are populated with a non-negative value"
+        METER_DOUBLE_ATTR_NAMES.each { attr ->
+            assert (repose.jmx.getMBeanAttribute(destinationRouterAllMetric, attr) as double) >= 0.0
+        }
+
+        and: "the other attribute containing a string value is populated with a non-empty value"
+        !(repose.jmx.getMBeanAttribute(destinationRouterAllMetric, METER_STRING_ATTR_NAME) as String).isEmpty()
     }
 
     def "when requests DO NOT match destination router target URI, should NOT increment DestinationRouter mbeans for all endpoints"() {
