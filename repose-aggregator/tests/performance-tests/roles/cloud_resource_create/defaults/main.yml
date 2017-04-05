@@ -1,0 +1,12 @@
+{
+  cloud: {
+    server: {
+      repose: {
+        flavor: "io1-15"
+      },
+      files: {
+        /root/.ssh/authorized_keys: "/root/.ssh/id_rsa.pub"
+      }
+    }
+  }
+}

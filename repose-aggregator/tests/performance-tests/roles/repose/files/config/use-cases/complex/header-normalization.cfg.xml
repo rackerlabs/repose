@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<header-normalization xmlns="http://docs.openrepose.org/repose/header-normalization/v1.0">
+    <header-filters>
+        <target>
+            <blacklist id="ReposeHeaders">
+                <header id="X-PP-User"/>
+                <header id="X-PP-Groups"/>
+                <header id="X-Authorization"/>
+                <header id="X-User-Name"/>
+                <header id="X-User-Id"/>
+                <header id="X-Tenant-Name"/>
+                <header id="X-Tenant-Id"/>
+                <header id="X-Roles"/>
+                <header id="X-Impersonator-Id"/>
+                <header id="X-Impersonator-Name"/>
+            </blacklist>
+        </target>
+    </header-filters>
+</header-normalization>

@@ -1,0 +1,31 @@
+- name: Delete the load balancer pointing to Repose
+  local_action:
+    module: rax_clb
+    credentials: ~/.raxpub
+    name: "{{ cloud.naming_prefix }}-lb"
+    port: 80
+    protocol: HTTP
+    type: PUBLIC
+    timeout: 30
+    region: "{{ cloud.region }}"
+    wait: yes
+    state: absent
+  register: repose_lb
+  tags:
+    - repose
+
+- name: Delete the load balancer pointing directly to the origin service
+  local_action:
+    module: rax_clb
+    credentials: ~/.raxpub
+    name: "no-{{ cloud.naming_prefix }}-lb"
+    port: 80
+    protocol: HTTP
+    type: PUBLIC
+    timeout: 30
+    region: "{{ cloud.region }}"
+    wait: yes
+    state: absent
+  register: no_repose_lb
+  tags:
+    - origin

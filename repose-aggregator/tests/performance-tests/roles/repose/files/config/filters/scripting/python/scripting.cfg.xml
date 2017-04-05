@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="python"><![CDATA[
+path = request.getRequestURI()
+pathSegments = path.strip("/").split("/")
+queryString = request.getQueryString()
+
+if len(pathSegments) >= 2:
+    if queryString is not None:
+      queryString = queryString + "&penultimate=" + pathSegments[len(pathSegments) - 2] + "&ultimate=" + pathSegments[len(pathSegments) - 1]
+    else:
+      queryString = "penultimate=" + pathSegments[len(pathSegments) - 2] + "&ultimate=" + pathSegments[len(pathSegments) - 1]
+
+    request.setQueryString(queryString)
+    request.setRequestURI("/" + "/".join(pathSegments[-2:]))
+
+filterChain.doFilter(request, response)
+]]></scripting>

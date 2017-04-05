@@ -1,0 +1,5 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  roles:
+    - cloud_resource_delete
