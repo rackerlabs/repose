@@ -291,6 +291,7 @@
                             <html:p>
                                 Indicates whether or not the Via header is created.
                                 If false and the prefix is undefined, then no Via header will be added.
+                                (Default: true)
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
