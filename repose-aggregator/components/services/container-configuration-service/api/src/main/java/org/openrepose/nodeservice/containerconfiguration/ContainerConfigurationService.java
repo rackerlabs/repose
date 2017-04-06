@@ -38,6 +38,11 @@ public interface ContainerConfigurationService {
     Optional<String> getVia();
 
     /**
+     * @return if the Via string should include the Repose version.
+     */
+    boolean isViaReposeVersion();
+
+    /**
      * @return the maximum size of the request body in bytes, if configured.
      */
     Optional<Long> getContentBodyReadLimit();

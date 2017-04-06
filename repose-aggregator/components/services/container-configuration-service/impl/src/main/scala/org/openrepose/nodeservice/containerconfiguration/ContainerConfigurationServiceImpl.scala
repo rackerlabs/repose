@@ -75,6 +75,16 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     }
   }
 
+  override def isViaReposeVersion: Boolean = {
+    initializationCheck()
+    val viaHdrOpt = Optional.ofNullable(patchedDeploymentConfiguration.getViaHeader)
+    if (viaHdrOpt.isPresent) {
+      viaHdrOpt.get.isReposeVersion
+    } else {
+      true
+    }
+  }
+
   override def getContentBodyReadLimit: Optional[Long] = {
     initializationCheck()
     Optional.ofNullable(patchedDeploymentConfiguration.getContentBodyReadLimit)
