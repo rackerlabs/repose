@@ -50,6 +50,8 @@ class FakeContainerConfigurationService extends ContainerConfigurationService {
 
   override def getVia: Optional[String] = via
 
+  override def isViaReposeVersion: Boolean = true
+
   override def getContentBodyReadLimit: Optional[Long] = contentBodyReadLimit
 
   override def getDeploymentConfiguration: DeploymentConfiguration = deploymentConfiguration
