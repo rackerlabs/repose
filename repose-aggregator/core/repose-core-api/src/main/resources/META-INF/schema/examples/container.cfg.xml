@@ -31,13 +31,13 @@
             <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
 -->
         </ssl-configuration>
-        <via-configuration prefix="Add me to the Via header." repose-version="true"/>
+        <via-header prefix="Add me to the Via header." repose-version="true"/>
     </deployment-config>
 
     <cluster-config cluster-id="internal-cluster">
         <ssl-configuration need-client-auth="true">
             <truststore-filename>external.truststore</truststore-filename>
         </ssl-configuration>
-        <via-configuration prefix="Override the Deployment Config Via header." repose-version="false"/>
+        <via-header prefix="Override the Deployment Config Via header." repose-version="false"/>
     </cluster-config>
 </repose-container>

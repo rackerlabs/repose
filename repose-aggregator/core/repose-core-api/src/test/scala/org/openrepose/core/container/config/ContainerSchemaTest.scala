@@ -191,7 +191,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    <deployment-config>
           |        <deployment-directory>/var/repose</deployment-directory>
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |        <via-configuration prefix="test"/>
+          |        <via-header prefix="test"/>
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo"/>
@@ -210,7 +210,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    <deployment-config>
           |        <deployment-directory>/var/repose</deployment-directory>
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |        <via-configuration prefix="test"/>
+          |        <via-header prefix="test"/>
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo"/>
@@ -226,11 +226,11 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    <deployment-config>
           |        <deployment-directory>/var/repose</deployment-directory>
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |        <via-configuration prefix="test"/>
+          |        <via-header prefix="test"/>
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo">
-          |        <via-configuration prefix="override"/>
+          |        <via-header prefix="override"/>
           |    </cluster-config>
           |</repose-container>""".stripMargin
       validator.validateConfigString(config)
@@ -245,7 +245,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo">
-          |        <via-configuration repose-version="false"/>
+          |        <via-header repose-version="false"/>
           |    </cluster-config>
           |</repose-container>""".stripMargin
       validator.validateConfigString(config)
@@ -298,7 +298,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
             |    <deployment-config via="test">
             |        <deployment-directory>/var/repose</deployment-directory>
             |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-            |        <via-configuration repose-version="false"/>
+            |        <via-header repose-version="false"/>
             |    </deployment-config>
             |
             |    <cluster-config cluster-id="foo"/>
@@ -306,7 +306,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
         val exception = intercept[SAXParseException] {
           validator.validateConfigString(config)
         }
-        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-configuration element")
+        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-header element")
       }
 
       it("should reject a config where both the deprecated Via attribute and the new Via Configuration are defined in a cluster-config") {
@@ -318,13 +318,13 @@ class ContainerSchemaTest extends FunSpec with Matchers {
             |    </deployment-config>
             |
             |    <cluster-config cluster-id="foo" via="test">
-            |        <via-configuration repose-version="false"/>
+            |        <via-header repose-version="false"/>
             |    </cluster-config>
             |</repose-container>""".stripMargin
         val exception = intercept[SAXParseException] {
           validator.validateConfigString(config)
         }
-        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-configuration element")
+        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-header element")
       }
 
       it("should reject a config where both the deprecated Via attribute and the new Via Configuration are defined in a single cluster-config") {
@@ -336,7 +336,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
             |    </deployment-config>
             |
             |    <cluster-config cluster-id="foo" via="test">
-            |        <via-configuration repose-version="false"/>
+            |        <via-header repose-version="false"/>
             |    </cluster-config>
             |
             |    <cluster-config cluster-id="bar"/>
@@ -344,7 +344,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
         val exception = intercept[SAXParseException] {
           validator.validateConfigString(config)
         }
-        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-configuration element")
+        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-header element")
       }
 
       it("should accept a config where a deprecated Via attribute is defined in the deployment-config and the new Via Configuration is defined in a cluster-config") {
@@ -356,7 +356,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
             |    </deployment-config>
             |
             |    <cluster-config cluster-id="foo">
-            |        <via-configuration repose-version="false"/>
+            |        <via-header repose-version="false"/>
             |    </cluster-config>
             |</repose-container>""".stripMargin
         validator.validateConfigString(config)
@@ -371,7 +371,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
             |    </deployment-config>
             |
             |    <cluster-config cluster-id="foo">
-            |        <via-configuration repose-version="false"/>
+            |        <via-header repose-version="false"/>
             |    </cluster-config>
             |
             |    <cluster-config cluster-id="bar" via="override"/>
