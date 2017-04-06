@@ -289,7 +289,7 @@
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
-                                Indicates whether or not the Via header is created.
+                                Indicates whether or not the Via header will include the Repose version.
                                 If false and the prefix is undefined, then no Via header will be added.
                                 (Default: true)
                             </html:p>
@@ -317,7 +317,7 @@
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
-                                Indicates whether or not the Via header is created.
+                                Indicates whether or not the Via header will include the Repose version.
                                 If false and the prefix is undefined, then no Via header will be added.
                             </html:p>
                         </xs:documentation>
