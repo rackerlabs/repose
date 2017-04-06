@@ -290,6 +290,94 @@ class ContainerSchemaTest extends FunSpec with Matchers {
             |</repose-container>""".stripMargin
         validator.validateConfigString(config)
       }
+
+
+      it("should reject a config where both the deprecated Via attribute and the new Via Configuration are defined in the deployment-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config via="test">
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |        <via-configuration repose-version="false"/>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo"/>
+            |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-configuration element")
+      }
+
+      it("should reject a config where both the deprecated Via attribute and the new Via Configuration are defined in a cluster-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config>
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo" via="test">
+            |        <via-configuration repose-version="false"/>
+            |    </cluster-config>
+            |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-configuration element")
+      }
+
+      it("should reject a config where both the deprecated Via attribute and the new Via Configuration are defined in a single cluster-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config>
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo" via="test">
+            |        <via-configuration repose-version="false"/>
+            |    </cluster-config>
+            |
+            |    <cluster-config cluster-id="bar"/>
+            |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-configuration element")
+      }
+
+      it("should accept a config where a deprecated Via attribute is defined in the deployment-config and the new Via Configuration is defined in a cluster-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config via="test">
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo">
+            |        <via-configuration repose-version="false"/>
+            |    </cluster-config>
+            |</repose-container>""".stripMargin
+        validator.validateConfigString(config)
+      }
+
+      it("should accept a config where a deprecated Via attribute is defined in one cluster-config and the new Via Configuration is defined in another cluster-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config via="test">
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo">
+            |        <via-configuration repose-version="false"/>
+            |    </cluster-config>
+            |
+            |    <cluster-config cluster-id="bar" via="override"/>
+            |</repose-container>""".stripMargin
+        validator.validateConfigString(config)
+      }
     } else {
       it("should reject a config that uses the old via attribute") {
         val config =

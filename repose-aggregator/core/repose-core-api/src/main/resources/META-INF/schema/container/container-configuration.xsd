@@ -160,6 +160,10 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
+                <xs:assert vc:minVersion="1.1"
+                           test="count((@via, ./papic:via-configuration)) le 1"
+                           xerces:message="Cannot define both a deprecated via attribute and the new via-configuration element"
+                           saxon:message="Cannot define both a deprecated via attribute and the new via-configuration element"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -205,6 +209,10 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
+                <xs:assert vc:minVersion="1.1"
+                           test="count((@via, ./papic:via-configuration)) le 1"
+                           xerces:message="Cannot define both a deprecated via attribute and the new via-configuration element"
+                           saxon:message="Cannot define both a deprecated via attribute and the new via-configuration element"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
