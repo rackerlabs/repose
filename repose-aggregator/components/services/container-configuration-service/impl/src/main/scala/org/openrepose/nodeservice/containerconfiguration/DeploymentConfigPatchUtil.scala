@@ -44,6 +44,7 @@ object DeploymentConfigPatchUtil {
 
     Option(patch.getHttpPort).foreach(baseClone.setHttpPort)
     Option(patch.getHttpsPort).foreach(baseClone.setHttpsPort)
+    // TODO: Remove this Via configuration in v9.0.0.0
     Option(patch.getVia).foreach(baseClone.setVia)
     Option(patch.getContentBodyReadLimit).foreach(baseClone.setContentBodyReadLimit)
     // Option(patch.getJmxResetTime).foreach(baseClone.setJmxResetTime)
@@ -55,6 +56,13 @@ object DeploymentConfigPatchUtil {
       }
       patchSslConfiguration(baseClone.getSslConfiguration, sslConfiguration)
     }
+    Option(patch.getViaHeader) foreach { viaHeader =>
+      if (Option(baseClone.getViaHeader).isEmpty) {
+        baseClone.setViaHeader(new ViaHeader())
+      }
+      patchViaHeader(baseClone.getViaHeader, viaHeader)
+    }
+
     /* INFO: These calls are commented out as patching for those nodes is not yet supported. A future update may
            add more patching support, so the code is being left in.
 
@@ -129,7 +137,7 @@ object DeploymentConfigPatchUtil {
     *
     * @param base  the base configuration object
     * @param patch the patch configuration object, the values of which will override the base
-    * @return a new configuration object with the patch applied to the base
+    * @return the base configuration object with the patch applied
     */
   def patchSslConfiguration(base: SslConfiguration,
                             patch: SslConfigurationPatch): SslConfiguration = {
@@ -144,6 +152,21 @@ object DeploymentConfigPatchUtil {
     Option(patch.getExcludedCiphers).foreach(base.setExcludedCiphers)
     Option(patch.isTlsRenegotiationAllowed).foreach(base.setTlsRenegotiationAllowed)
     Option(patch.isNeedClientAuth).foreach(base.setNeedClientAuth)
+
+    base
+  }
+
+  /**
+    * This function does not return a copy of the base configuration, but instead mutates it directly.
+    *
+    * @param base  the base configuration object
+    * @param patch the patch configuration object, the values of which will override the base
+    * @return the base configuration object with the patch applied
+    */
+  def patchViaHeader(base: ViaHeader,
+                            patch: ViaHeaderPatch): ViaHeader = {
+    Option(patch.isReposeVersion).foreach(base.setReposeVersion)
+    Option(patch.getPrefix).foreach(base.setPrefix)
 
     base
   }

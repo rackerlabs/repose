@@ -65,7 +65,14 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
 
   override def getVia: Optional[String] = {
     initializationCheck()
-    Optional.ofNullable(patchedDeploymentConfiguration.getVia)
+    val viaHdrOpt = Optional.ofNullable(patchedDeploymentConfiguration.getViaHeader)
+    if (viaHdrOpt.isPresent) {
+      Optional.ofNullable(viaHdrOpt.get.getPrefix)
+    } else {
+      // TODO for v9.0.0.0: This will need updated.
+      Optional.ofNullable(patchedDeploymentConfiguration.getVia)
+      //Optional.empty()
+    }
   }
 
   override def getContentBodyReadLimit: Optional[Long] = {
