@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
-    <deployment-config via="patchable">
+    <deployment-config>
         <deployment-directory auto-clean="true">${repose.home}</deployment-directory>
         <artifact-directory check-interval="1000">${repose.home}/artifacts</artifact-directory>
         <logging-configuration href="file://${repose.config.directory}/log4j2-test.xml"/>
@@ -9,9 +9,9 @@
             <keystore-password>password</keystore-password>
             <key-password>password</key-password>
         </ssl-configuration>
+        <via-header prefix="patchable"/>
     </deployment-config>
-    <cluster-config cluster-id="repose1"
-                    via="repose1">
+    <cluster-config cluster-id="repose1">
         <ssl-configuration need-client-auth="true">
             <keystore-filename>server.jks</keystore-filename>
             <keystore-password>password</keystore-password>
@@ -27,9 +27,9 @@
             </excluded-protocols>
             <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
         </ssl-configuration>
+        <via-header prefix="repose1"/>
     </cluster-config>
-    <cluster-config cluster-id="repose2"
-                    via="repose2">
+    <cluster-config cluster-id="repose2">
         <ssl-configuration need-client-auth="true">
             <keystore-filename>client.jks</keystore-filename>
             <keystore-password>password</keystore-password>
@@ -45,5 +45,6 @@
             </excluded-protocols>
             <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
         </ssl-configuration>
+        <via-header prefix="repose2"/>
     </cluster-config>
 </repose-container>
