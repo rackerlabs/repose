@@ -9,7 +9,7 @@
             <keystore-password>password</keystore-password>
             <key-password>password</key-password>
         </ssl-configuration>
-        <via-header prefix="patchable"/>
+        <via-header response-prefix="patchable"/>
     </deployment-config>
     <cluster-config cluster-id="repose1">
         <ssl-configuration need-client-auth="true">
@@ -27,7 +27,7 @@
             </excluded-protocols>
             <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
         </ssl-configuration>
-        <via-header prefix="repose1"/>
+        <via-header response-prefix="repose1"/>
     </cluster-config>
     <cluster-config cluster-id="repose2">
         <ssl-configuration need-client-auth="true">
@@ -45,6 +45,6 @@
             </excluded-protocols>
             <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
         </ssl-configuration>
-        <via-header prefix="repose2"/>
+        <via-header response-prefix="repose2"/>
     </cluster-config>
 </repose-container>
