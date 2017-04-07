@@ -19,7 +19,7 @@
  */
 package org.openrepose.nodeservice.response;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.proxy.TargetHostInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +35,11 @@ public class LocationHeaderBuilder {
     private static final Integer DEFAULT_HTTP_PORT = 80;
     private static final Integer DEFAULT_HTTPS_PORT = 443;
 
-    public void setLocationHeader(HttpServletRequest originalRequest, HttpServletResponse servletResponse, String destinationUri, String requestedContext, String rootPath) throws MalformedURLException {
+    private LocationHeaderBuilder() {
+        // Prevent construction of this utility class.
+    }
+
+    public static void setLocationHeader(HttpServletRequest originalRequest, HttpServletResponse servletResponse, String destinationUri, String requestedContext, String rootPath) throws MalformedURLException {
         final URL locationUrl = getLocationUrl(servletResponse);
 
         if (locationUrl == null) {
@@ -52,7 +56,7 @@ public class LocationHeaderBuilder {
         }
     }
 
-    private int getPort(URL url) {
+    private static int getPort(URL url) {
         if (url.getPort() == -1) {
             return getDefaultPort(url.getProtocol());
         }
@@ -60,7 +64,7 @@ public class LocationHeaderBuilder {
         return url.getPort();
     }
 
-    private int getDefaultPort(String scheme) {
+    private static int getDefaultPort(String scheme) {
         if (HTTPS.equalsIgnoreCase(scheme)) {
             return DEFAULT_HTTPS_PORT;
         }
@@ -71,30 +75,30 @@ public class LocationHeaderBuilder {
         return -1;
     }
 
-    private URL extractHostPath(HttpServletRequest request) throws MalformedURLException {
+    private static URL extractHostPath(HttpServletRequest request) throws MalformedURLException {
         final StringBuilder myHostName = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
         myHostName.append(":").append(request.getServerPort());
         myHostName.append(request.getContextPath());
         return new URL(myHostName.toString());
     }
 
-    private URL getLocationUrl(HttpServletResponse servletResponse) throws MalformedURLException {
+    private static URL getLocationUrl(HttpServletResponse servletResponse) throws MalformedURLException {
         String locationHeader = servletResponse.getHeader(HttpHeaders.LOCATION);
-        if (StringUtilities.isNotBlank(locationHeader)) {
+        if (StringUtils.isNotBlank(locationHeader)) {
             return new URL(locationHeader);
         }
         return null;
     }
 
-    private String getAbsolutePath(String inPath) {
-        if (StringUtilities.isBlank(inPath)) {
+    private static String getAbsolutePath(String inPath) {
+        if (StringUtils.isBlank(inPath)) {
             return "";
         }
         return !inPath.startsWith("/") ? "/" + inPath : inPath;
 
     }
 
-    private String fixPathPrefix(String locationPath, String requestedPrefix, String addedPrefix) {
+    private static String fixPathPrefix(String locationPath, String requestedPrefix, String addedPrefix) {
         String prefixToRemove = getAbsolutePath(addedPrefix);
         String prefixToAdd = getAbsolutePath(requestedPrefix);
         String result = locationPath;
@@ -106,7 +110,7 @@ public class LocationHeaderBuilder {
         return result;
     }
 
-    private boolean shouldRewriteLocation(URL locationUrl, URL proxiedHostUrl, URL requestedHost) {
+    private static boolean shouldRewriteLocation(URL locationUrl, URL proxiedHostUrl, URL requestedHost) {
         if (proxiedHostUrl == null || locationUrl.getHost().equals(proxiedHostUrl.getHost()) && getPort(locationUrl) == getPort(proxiedHostUrl)) {
             return true;
         }
@@ -118,14 +122,14 @@ public class LocationHeaderBuilder {
         return false;
     }
 
-    private String translateLocationUrl(URL locationUrl, URL proxiedHostUrl, URL requestedHost, String requestedContext, String proxiedRootPath) {
+    private static String translateLocationUrl(URL locationUrl, URL proxiedHostUrl, URL requestedHost, String requestedContext, String proxiedRootPath) {
         StringBuilder buffer = new StringBuilder();
 
         if (locationUrl == null) {
             return null;
         }
 
-        if (StringUtilities.isEmpty(locationUrl.getHost())) {
+        if (StringUtils.isEmpty(locationUrl.getHost())) {
             return requestedContext;
         }
 
