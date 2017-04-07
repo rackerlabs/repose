@@ -32,7 +32,7 @@ import org.openrepose.commons.utils.http.normal.QueryStringNormalizer
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.MetricsService
+import org.openrepose.core.services.reporting.metrics.{MetricNameUtility, MetricsService}
 import org.openrepose.filters.urinormalization.config.{HttpMethod, UriNormalizationConfig}
 import org.openrepose.filters.urinormalization.normalizer.{MediaTypeNormalizer, MultiInstanceWhiteListFactory}
 
@@ -65,7 +65,7 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
         queryStringNormalizers.find(_.normalize(request)) foreach { queryStringNormalizer =>
           metricRegistryOpt foreach {
             _.createSummingMeterFactory(NormalizationMetricPrefix)
-              .createMeter(MetricRegistry.name(request.getMethod, queryStringNormalizer.getLastMatch.toString.replace('.', '_')))
+              .createMeter(MetricRegistry.name(request.getMethod, MetricNameUtility.safeReportingName(queryStringNormalizer.getLastMatch.toString)))
               .mark()
           }
         }
