@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<add-headers xmlns="http://docs.openrepose.org/repose/add-header/v1.0">
+    <response>
+        <header name="Server">FooServer 1.0</header>
+    </response>
+</add-headers>

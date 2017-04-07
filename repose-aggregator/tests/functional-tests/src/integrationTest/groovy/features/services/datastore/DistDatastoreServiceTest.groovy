@@ -27,6 +27,7 @@ import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
+import org.springframework.http.HttpHeaders
 
 @Category(Slow.class)
 class DistDatastoreServiceTest extends ReposeValveTest {
@@ -83,6 +84,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '405'
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
     }
 
     def "PATCH a new cache object should return 200 response" () {
@@ -103,6 +105,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '200'
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
     }
 
     def "PATCH a cache object to an existing key should patch the cached value"() {
@@ -141,6 +144,9 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         mc2.receivedResponse.code == "200"
         objectSerializer.readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
         objectSerializer.readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
+        mc1.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
+        mc2.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
+        mc3.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
     }
 
     def "when putting cache objects"() {
@@ -162,6 +168,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '202'
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
     }
 
     def "when checking cache object time to live"() {
@@ -177,6 +184,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
                                 headers    : headers,
                                 requestBody: body
                         ])
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
+
         mc =
                 deproxy.makeRequest(
                         [
@@ -185,6 +194,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
                                 headers: headers
                         ])
         mc.receivedResponse.code == '200'
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
 
         when:
         Thread.sleep(7500)
@@ -198,7 +208,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '404'
-
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
     }
 
     def "when deleting cache objects"() {
@@ -222,8 +232,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         then: "should report success"
         mc.receivedResponse.code == "202"
         mc.receivedResponse.body == ""
-
-
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
 
         when: "checking that it's there"
         mc =
@@ -237,8 +246,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         then: "should report that it is"
         mc.receivedResponse.code == "200"
         mc.receivedResponse.body == body
-
-
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
 
         when: "deleting the object from the datastore"
         mc =
@@ -252,8 +260,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         then: "should report that it was successfully deleted"
         mc.receivedResponse.code == "204"
         mc.receivedResponse.body == ""
-
-
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
 
         when: "checking that it's gone"
         mc =
@@ -267,6 +274,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         then: "should report it missing"
         mc.receivedResponse.code == "404"
         mc.receivedResponse.body == ""
+        mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
     }
 
     def "Should not split request headers according to rfc"() {

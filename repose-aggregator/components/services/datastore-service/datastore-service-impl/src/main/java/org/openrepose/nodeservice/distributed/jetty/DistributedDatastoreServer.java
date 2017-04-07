@@ -19,6 +19,7 @@
  */
 package org.openrepose.nodeservice.distributed.jetty;
 
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -86,6 +87,9 @@ public class DistributedDatastoreServer {
             } else {
                 conn = new ServerConnector(server);
             }
+            conn.getConnectionFactory(HttpConnectionFactory.class)
+                    .getHttpConfiguration()
+                    .setSendServerVersion(false);
 
             conn.setPort(port);
             this.port = port; //Save the port so we know if it's changed
