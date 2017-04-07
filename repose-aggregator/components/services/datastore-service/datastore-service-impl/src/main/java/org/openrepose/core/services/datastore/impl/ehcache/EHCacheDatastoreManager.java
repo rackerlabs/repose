@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.datastore.impl.ehcache;
 
-import com.yammer.metrics.ehcache.InstrumentedEhcache;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -27,8 +26,10 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreManager;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class EHCacheDatastoreManager implements DatastoreManager {
@@ -37,10 +38,9 @@ public class EHCacheDatastoreManager implements DatastoreManager {
     private static final String CACHE_NAME_PREFIX = "PAPI_LOCAL";
     private static final String CACHE_MANAGER_NAME = "LocalDatastoreCacheManager";
     private final CacheManager cacheManagerInstance;
-    private final String cacheName;
-    private Ehcache instrumentedCache;
+    private Ehcache cache;
 
-    public EHCacheDatastoreManager() {
+    public EHCacheDatastoreManager(Optional<MetricsService> metricsService) {
 
         Configuration defaultConfiguration = new Configuration();
         defaultConfiguration.setName(CACHE_MANAGER_NAME);
@@ -49,17 +49,22 @@ public class EHCacheDatastoreManager implements DatastoreManager {
 
         this.cacheManagerInstance = CacheManager.newInstance(defaultConfiguration);
 
-        cacheName = CACHE_NAME_PREFIX + ":" + cacheManagerInstance.getName() + UUID.randomUUID().toString();
+        String cacheName = CACHE_NAME_PREFIX + ":" + cacheManagerInstance.getName() + UUID.randomUUID().toString();
 
-        final Ehcache cache = new Cache(cacheName, 20000, false, false, 5, 2);
-        cacheManagerInstance.addCache(cache);
+        final Ehcache cacheOrig = new Cache(cacheName, 20000, false, false, 5, 2);
+        cacheManagerInstance.addCache(cacheOrig);
 
-        this.instrumentedCache = InstrumentedEhcache.instrument(cache);
+        // TODO: Instrument the EHCache.
+        // WARNING! The InstrumentedEhcache is causing the GraphiteReporter to fail. This may have to do with the
+        // dependency issue described in the Gradle build file, but more investigation is required.
+        // this.cache = metricsService.map(metrics -> InstrumentedEhcache.instrument(metrics.getRegistry(), cacheOrig))
+        //         .orElse(cacheOrig);
+        this.cache = cacheOrig;
     }
 
     @Override
     public Datastore getDatastore() {
-        return new EHCacheDatastore(instrumentedCache);
+        return new EHCacheDatastore(cache);
     }
 
     @Override

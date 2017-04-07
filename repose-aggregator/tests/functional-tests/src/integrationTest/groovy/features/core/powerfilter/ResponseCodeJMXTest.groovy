@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,73 +23,87 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
 import spock.lang.Unroll
-import spock.util.concurrent.PollingConditions
+
+import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
+import static javax.servlet.http.HttpServletResponse.SC_GONE
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+import static javax.servlet.http.HttpServletResponse.SC_OK
 
 @Category(Slow.class)
 class ResponseCodeJMXTest extends ReposeValveTest {
+    private static final String KEY_PROPERTIES_PREFIX = /001="org",002="openrepose",003="core",004="ResponseCode"/
+    private static final String REPOSE_ENDPOINT = /005="Repose"/
+    private static final String ALL_ENDPOINTS = /005="All Endpoints"/
+    private static final String STATUS_2XX = /006="2XX"/
+    private static final String STATUS_4XX = /006="4XX"/
+    private static final String STATUS_5XX = /006="5XX"/
 
-    //One second timeout, initial delay is 0 and the delay is .1, which is every 100ms
-    final def conditions = new PollingConditions(timeout: 1)
-
-    String PREFIX = "\"${jmxHostname}-org.openrepose.core\":type=\"ResponseCode\",scope=\""
-
-    String NAME_2XX = "\",name=\"2XX\""
-    String ALL_2XX = PREFIX + "All Endpoints" + NAME_2XX
-    String REPOSE_2XX = PREFIX + "Repose" + NAME_2XX
-
-    String NAME_5XX = "\",name=\"5XX\""
-    String ALL_5XX = PREFIX + "All Endpoints" + NAME_5XX
-    String REPOSE_5XX = PREFIX + "Repose" + NAME_5XX
-
-    def handler5XX = { request -> return new Response(502, 'WIZARD FAIL') }
+    private static String rootEndpoint2xxMetric
+    private static String rootTwoEndpoint2xxMetric
+    private static String repose2xxMetric
+    private static String allEndpoints2xxMetric
+    private static String rootEndpoint4xxMetric
+    private static String repose4xxMetric
+    private static String allEndpoints4xxMetric
+    private static String rootEndpoint5xxMetric
+    private static String repose5xxMetric
+    private static String allEndpoints5xxMetric
 
     def setupSpec() {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/responsecodejmx", params)
         repose.start()
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+
+        String rootEndpoint = $/005="localhost:${properties.targetPort}/root_path"/$
+        String rootTwoEndpoint = $/005="localhost:${properties.targetPort}/root_path2"/$
+        rootEndpoint2xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$rootEndpoint,$STATUS_2XX"
+        rootTwoEndpoint2xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$rootTwoEndpoint,$STATUS_2XX"
+        repose2xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$REPOSE_ENDPOINT,$STATUS_2XX"
+        allEndpoints2xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$ALL_ENDPOINTS,$STATUS_2XX"
+        rootEndpoint4xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$rootEndpoint,$STATUS_4XX"
+        repose4xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$REPOSE_ENDPOINT,$STATUS_4XX"
+        allEndpoints4xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$ALL_ENDPOINTS,$STATUS_4XX"
+        rootEndpoint5xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$rootEndpoint,$STATUS_5XX"
+        repose5xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$REPOSE_ENDPOINT,$STATUS_5XX"
+        allEndpoints5xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$ALL_ENDPOINTS,$STATUS_5XX"
     }
 
-    // Greg/Dimitry: Is it expected that all2XX and repose2XX are equal?  It's not the sum of repose responses + origin service
-    // responses?
     @Unroll("When sending requests, the counters should be incremented: iteration #loop")
     def "when sending requests, response code counters should be incremented"() {
-        given:
-        // the initial values are equivalent the the number of calls made in the when block
-        def repose2XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_2XX, "Count")
-        repose2XXtarget = (repose2XXtarget == null) ? 3 : repose2XXtarget + 3
-        def all2XXtarget = repose.jmx.quickMBeanAttribute(ALL_2XX, "Count")
-        all2XXtarget = (all2XXtarget == null) ? 3 : all2XXtarget + 3
-        def repose5XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count")
-        repose5XXtarget = (repose5XXtarget == null) ? 0 : repose5XXtarget
-        def all5XXtarget = repose.jmx.quickMBeanAttribute(ALL_5XX, "Count")
-        all5XXtarget = (all5XXtarget == null) ? 0 : all5XXtarget
-        def responses = []
+        given: "we know the initial values"
+        def rootPath2xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint2xxMetric)
+        def repose2xxTarget = repose.jmx.getMBeanCountAttribute(repose2xxMetric)
+        def all2xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints2xxMetric)
+        def rootPath5xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint5xxMetric)
+        def repose5xxTarget = repose.jmx.getMBeanCountAttribute(repose5xxMetric)
+        def all5xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints5xxMetric)
 
-        when:
-        responses.add(deproxy.makeRequest(url: reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(url: reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(url: reposeEndpoint + "/cluster"))
+        when: "requests are made that should go to the default endpoint"
+        def responses = [
+            deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),
+            deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),
+            deproxy.makeRequest(url: reposeEndpoint + "/cluster")]
 
-        then:
-        conditions.eventually {
-            assert repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
-            assert repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
-            assert repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count").is(null)
-            assert repose.jmx.quickMBeanAttribute(ALL_5XX, "Count").is(null)
-        }
+        then: "the 2xx metrics should be incremented by 3"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootEndpoint2xxMetric) == rootPath2xxTarget + 3
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose2xxMetric) == repose2xxTarget + 3
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(allEndpoints2xxMetric) == all2xxTarget + 3
 
-        responses.each { MessageChain mc ->
-            assert (mc.receivedResponse.code == "200")
-        }
+        and: "the 5xx metrics should not be incremented"
+        repose.jmx.getMBeanCountAttribute(rootEndpoint5xxMetric) == rootPath5xxTarget
+        repose.jmx.getMBeanCountAttribute(repose5xxMetric) == repose5xxTarget
+        repose.jmx.getMBeanCountAttribute(allEndpoints5xxMetric) == all5xxTarget
+
+        and: "the client received a good response code for every request"
+        responses.every { it.receivedResponse.code as Integer == SC_OK }
 
         where:
         loop << (1..500).toArray()
@@ -97,53 +111,106 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
     def "when responses have 2XX and 5XX status codes, should increment 2XX and 5XX mbeans"() {
         given:
-        def repose2XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_2XX, "Count")
-        repose2XXtarget = (repose2XXtarget == null) ? 1 : repose2XXtarget + 1
-        def all2XXtarget = repose.jmx.quickMBeanAttribute(ALL_2XX, "Count")
-        all2XXtarget = (all2XXtarget == null) ? 1 : all2XXtarget + 1
-        def repose5XXtarget = repose.jmx.quickMBeanAttribute(REPOSE_5XX, "Count")
-        repose5XXtarget = (repose5XXtarget == null) ? 1 : repose5XXtarget + 1
-        def all5XXtarget = repose.jmx.quickMBeanAttribute(ALL_5XX, "Count")
-        all5XXtarget = (all5XXtarget == null) ? 1 : all5XXtarget + 1
+        def rootPath2xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint2xxMetric)
+        def repose2xxTarget = repose.jmx.getMBeanCountAttribute(repose2xxMetric)
+        def all2xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints2xxMetric)
+        def rootPath5xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint5xxMetric)
+        def repose5xxTarget = repose.jmx.getMBeanCountAttribute(repose5xxMetric)
+        def all5xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints5xxMetric)
 
-        when:
-        MessageChain mc1 = deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handler5XX])
-        MessageChain mc2 = deproxy.makeRequest(url: reposeEndpoint + "/cluster")
+        when: "requests are made that should go to the default endpoint"
+        def mc1 = deproxy.makeRequest(
+            url: reposeEndpoint + "/endpoint",
+            defaultHandler: { new Response(SC_BAD_GATEWAY) })
+        def mc2 = deproxy.makeRequest(url: reposeEndpoint + "/cluster")
 
-        then:
-        mc1.receivedResponse.code == "502"
-        mc2.receivedResponse.code == "200"
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
-        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
-        repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count") == repose5XXtarget
-        repose.jmx.getMBeanAttribute(ALL_5XX, "Count") == all5XXtarget
+        then: "the client received the correct response code"
+        mc1.receivedResponse.code as Integer == SC_BAD_GATEWAY
+        mc2.receivedResponse.code as Integer == SC_OK
+
+        and: "all of the metrics were incremented by 1"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootEndpoint2xxMetric) == rootPath2xxTarget + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose2xxMetric) == repose2xxTarget + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(allEndpoints2xxMetric) == all2xxTarget + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootEndpoint5xxMetric) == rootPath5xxTarget + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose5xxMetric) == repose5xxTarget + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(allEndpoints5xxMetric) == all5xxTarget + 1
     }
 
-    /**
-     *  TODO:
-     *
-     *  1) Need to verify counts for:
-     *     - endpoint
-     *     - cluster
-     *     - All Endpoints
-     *  2) Need to verify that Repose 5XX is sum of all non "All Endpoints" 5XX bean
-     *  3) Need to verify that Repose 2XX is sum of all non "All Endpoints" 2XX bean
-     */
-    @Ignore
-    def "when sending requests to service cluster, response codes should be recorded"() {
+    def "when the response code returned by Repose differs from the origin service response code, mbeans should be incremented appropriately"() {
+        given:
+        def rootPath2xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint2xxMetric)
+        def repose2xxTarget = repose.jmx.getMBeanCountAttribute(repose2xxMetric)
+        def all2xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints2xxMetric)
+        def rootPath4xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint4xxMetric)
+        def repose4xxTarget = repose.jmx.getMBeanCountAttribute(repose4xxMetric)
+        def all4xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints4xxMetric)
+        def rootPath5xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint5xxMetric)
+        def repose5xxTarget = repose.jmx.getMBeanCountAttribute(repose5xxMetric)
+        def all5xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints5xxMetric)
 
-        when:
+        when: "requests are made that should go to the default endpoint"
+        def mc1 = deproxy.makeRequest(
+            url: reposeEndpoint + "/endpoint",
+            defaultHandler: { new Response(SC_BAD_GATEWAY) })
+        def mc2 = deproxy.makeRequest(
+            url: reposeEndpoint + "/endpoint",
+            defaultHandler: { new Response(SC_INTERNAL_SERVER_ERROR) })
+        def mc3 = deproxy.makeRequest(url: reposeEndpoint + "/cluster")
 
-        // NOTE:  We verify that Repose is up and running by sending a GET request in repose.start()
-        // This is logged as well, so we need to add this to our count
+        then: "the client received the correct response codes"
+        mc1.receivedResponse.code as Integer == SC_BAD_GATEWAY
+        mc2.receivedResponse.code as Integer == SC_GONE
+        mc3.receivedResponse.code as Integer == SC_OK
 
-        deproxy.makeRequest(url: reposeEndpoint + "/endpoint");
-        deproxy.makeRequest(url: reposeEndpoint + "/endpoint");
-        deproxy.makeRequest(url: reposeEndpoint + "/cluster");
+        and: "the root path endpoint metrics are updated to reflect what the origin service returned (502, 500, 200)"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootEndpoint2xxMetric) == rootPath2xxTarget + 1
+        repose.jmx.getMBeanCountAttribute(rootEndpoint4xxMetric) == rootPath4xxTarget
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootEndpoint5xxMetric) == rootPath5xxTarget + 2
 
-        def reposeCount = repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count")
+        and: "the Repose response metrics are updated to reflect what it returned (502, 410, 200)"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose2xxMetric) == repose2xxTarget + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose4xxMetric) == repose4xxTarget + 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose5xxMetric) == repose5xxTarget + 1
 
-        then:
-        reposeCount == 4
+        and: "the ALL response metrics are updated to reflect what the origin service returned (502, 500, 200)"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(allEndpoints2xxMetric) == all2xxTarget + 1
+        repose.jmx.getMBeanCountAttribute(allEndpoints4xxMetric) == all4xxTarget
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(allEndpoints5xxMetric) == all5xxTarget + 2
+    }
+
+    def "the ALL endpoint metrics should include response code data for all of the configured endpoints"() {
+        given: "we know the initial values"
+        def rootPath2xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint2xxMetric)
+        def rootTwoPath2xxTarget = repose.jmx.getMBeanCountAttribute(rootTwoEndpoint2xxMetric)
+        def repose2xxTarget = repose.jmx.getMBeanCountAttribute(repose2xxMetric)
+        def all2xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints2xxMetric)
+        def rootPath5xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint5xxMetric)
+        def repose5xxTarget = repose.jmx.getMBeanCountAttribute(repose5xxMetric)
+        def all5xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints5xxMetric)
+
+        when: "requests are made that should go to different endpoints"
+        def responses = [
+            deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),  // /root_path
+            deproxy.makeRequest(url: reposeEndpoint + "/secondary"), // /root_path2
+            deproxy.makeRequest(url: reposeEndpoint + "/cluster")]   // /root_path
+
+        then: "the client received a good response code for every request"
+        responses.every { it.receivedResponse.code as Integer == SC_OK }
+
+        and: "the 2xx metric for the default endpoint is only incremented by 2"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootEndpoint2xxMetric) == rootPath2xxTarget + 2
+
+        and: "the 2xx metric for the secondary endpoint is incremented by 1"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootTwoEndpoint2xxMetric) == rootTwoPath2xxTarget + 1
+
+        and: "the 2xx metrics for the Repose and the ALL Endpoints are incremented by 3"
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose2xxMetric) == repose2xxTarget + 3
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(allEndpoints2xxMetric) == all2xxTarget + 3
+
+        and: "the 5xx metrics are not incremented"
+        repose.jmx.getMBeanCountAttribute(rootEndpoint5xxMetric) == rootPath5xxTarget
+        repose.jmx.getMBeanCountAttribute(repose5xxMetric) == repose5xxTarget
+        repose.jmx.getMBeanCountAttribute(allEndpoints5xxMetric) == all5xxTarget
     }
 }

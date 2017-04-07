@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.services.datastore.distributed.impl.ehcache;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -26,16 +28,25 @@ import org.junit.runner.RunWith;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.impl.DatastoreServiceImpl;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
+
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class ReposeLocalCacheTest {
 
     public static class TestParent {
+
+        MetricsService metricsService = mock(MetricsService.class);
+        MetricRegistry metricRegistry = mock(MetricRegistry.class);
+        Timer timer = mock(Timer.class);
+        Timer.Context timerContext = mock(Timer.Context.class);
 
         String tenantId, token, userId;
         ReposeLocalCache reposeLocalCacheMock;
@@ -49,7 +60,17 @@ public class ReposeLocalCacheTest {
             token = "token";
             userId = "userId";
             reposeLocalCacheMock = mock(ReposeLocalCache.class);
-            datastoreService = new DatastoreServiceImpl();
+
+            reset(metricsService);
+            reset(metricRegistry);
+            reset(timer);
+            reset(timerContext);
+
+            when(metricsService.getRegistry()).thenReturn(metricRegistry);
+            when(metricRegistry.timer(anyString())).thenReturn(timer);
+            when(timer.time()).thenReturn(timerContext);
+
+            datastoreService = new DatastoreServiceImpl(Optional.of(metricsService));
         }
 
         @Test

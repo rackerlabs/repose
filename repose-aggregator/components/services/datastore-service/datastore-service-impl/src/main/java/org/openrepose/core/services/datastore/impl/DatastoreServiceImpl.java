@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,12 +26,15 @@ import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.core.services.datastore.impl.distributed.HashRingDatastoreManager;
 import org.openrepose.core.services.datastore.impl.ehcache.EHCacheDatastoreManager;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Named
 public class DatastoreServiceImpl implements DatastoreService {
@@ -41,8 +44,9 @@ public class DatastoreServiceImpl implements DatastoreService {
     private final DatastoreManager localDatastoreManager;
     private final Map<String, DatastoreManager> distributedManagers;
 
-    public DatastoreServiceImpl() {
-        localDatastoreManager = new EHCacheDatastoreManager();
+    @Inject
+    public DatastoreServiceImpl(Optional<MetricsService> metricsService) {
+        localDatastoreManager = new EHCacheDatastoreManager(metricsService);
         distributedManagers = new HashMap<>();
     }
 

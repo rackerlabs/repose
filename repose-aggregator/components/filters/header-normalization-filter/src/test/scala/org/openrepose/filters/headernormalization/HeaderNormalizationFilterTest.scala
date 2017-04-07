@@ -20,9 +20,11 @@
 
 package org.openrepose.filters.headernormalization
 
+import java.util.Optional
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{FilterChain, FilterConfig, ServletRequest, ServletResponse}
 
+import com.codahale.metrics.Meter
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
@@ -31,7 +33,7 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.{MetricsService, AggregateMeterFactory}
 import org.openrepose.filters.headernormalization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -45,26 +47,32 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
   import HeaderNormalizationFilterTest._
 
+  final val METRIC_PREFIX = "org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization"
+
   var filter: HeaderNormalizationFilter = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
   var filterChain: FilterChain = _
   var filterConfig: FilterConfig = _
   var metricsService: MetricsService = _
-  var metricsMeters: MeterByCategorySum = _
+  var summingMeterFactory: AggregateMeterFactory = _
+  var meter: Meter = _
 
   override def beforeEach(): Unit = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
+
     filterChain = mock[FilterChain]
     filterConfig = mock[FilterConfig]
     metricsService = mock[MetricsService]
-    metricsMeters = mock[MeterByCategorySum]
+    summingMeterFactory = mock[AggregateMeterFactory]
+    meter = mock[Meter]
 
     when(filterConfig.getInitParameterNames).thenReturn(List.empty[String].toIterator.asJavaEnumeration)
-    when(metricsService.newMeterByCategorySum(any(), any(), any(), any())).thenReturn(metricsMeters)
+    when(metricsService.createSummingMeterFactory(anyString())).thenReturn(summingMeterFactory)
+    when(summingMeterFactory.createMeter(anyString())).thenReturn(meter)
 
-    filter = new HeaderNormalizationFilter(mock[ConfigurationService], metricsService)
+    filter = new HeaderNormalizationFilter(mock[ConfigurationService], Optional.of(metricsService))
     filter.init(filterConfig)
   }
 
@@ -411,7 +419,8 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricsMeters).mark(s".*_PATCH_${requestResponseTypeToString(target)}")
+        verify(metricsService).createSummingMeterFactory(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}")
+        verify(summingMeterFactory).createMeter(s"PATCH._*")
       }
 
       it(s"will update metrics when a request matches a config target when using a specified URL on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
@@ -427,7 +436,8 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricsMeters).mark(s"/v1/servers/[^/]+/status_GET_${requestResponseTypeToString(target)}")
+        verify(metricsService).createSummingMeterFactory(s"$METRIC_PREFIX.${requestResponseTypeToString(target)}")
+        verify(summingMeterFactory).createMeter(s"GET./v1/servers/[^/]+/status")
       }
 
       it(s"will NOT update metrics when a request does not match any config target on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
@@ -443,7 +453,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         filter.doFilter(servletRequest, servletResponse, filterChain)
 
-        verify(metricsMeters, never()).mark(any())
+        verify(meter, never()).mark(any())
       }
     }
   }
@@ -553,11 +563,15 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 object HeaderNormalizationFilterTest {
 
   sealed trait TargetType
+
   object RequestTarget extends TargetType
+
   object ResponseTarget extends TargetType
 
   sealed trait AccessList
+
   object WhiteList extends AccessList
+
   object BlackList extends AccessList
 
   case class ConfigTarget(targetType: TargetType, access: AccessList, headers: List[String], uri: Option[String], methods: Option[Iterable[String]])

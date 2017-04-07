@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 
 @Named
 public class ApiValidatorFilter implements Filter {
@@ -43,7 +44,7 @@ public class ApiValidatorFilter implements Filter {
     private static final String SCHEMA_FILE_NAME = "/META-INF/schema/config/validator-configuration.xsd";
 
     private final ConfigurationService configurationService;
-    private final MetricsService metricsService;
+    private final Optional<MetricsService> metricsService;
     private String configFileName;
     private ApiValidatorHandlerFactory handlerFactory;
     private String configurationRoot;
@@ -51,7 +52,7 @@ public class ApiValidatorFilter implements Filter {
     @Inject
     public ApiValidatorFilter(
             ConfigurationService configurationService,
-            MetricsService metricsService,
+            Optional<MetricsService> metricsService,
             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configurationRoot) {
         this.configurationService = configurationService;
         this.metricsService = metricsService;

@@ -20,36 +20,33 @@
 package org.openrepose.filters.destinationrouter
 
 import java.util
-import java.util.concurrent.TimeUnit
+import java.util.Optional
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.filter.FilterConfigHelper
-import org.openrepose.core.filters.DestinationRouter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.filters.routing.servlet.config.DestinationRouterConfiguration
 
 @Named
-class DestinationRouterFilter @Inject()(configurationService: ConfigurationService, metricsService: MetricsService)
+class DestinationRouterFilter @Inject()(configurationService: ConfigurationService, optMetricsService: Optional[MetricsService])
   extends Filter with UpdateListener[DestinationRouterConfiguration] with LazyLogging {
 
   private final val DefaultConfigFileName = "destination-router.cfg.xml"
   private final val SchemaFilePath = "/META-INF/schema/config/destination-router-configuration.xsd"
-
-  private val mbcsRoutedReponse = metricsService.newMeterByCategorySum(classOf[DestinationRouter],
-    "destination-router",
-    "Routed Response",
-    TimeUnit.SECONDS)
+  private final val RoutedResponseMetricPrefix = MetricRegistry.name(classOf[DestinationRouterFilter], "Routed Response")
 
   private var initialized: Boolean = false
   private var configurationFileName: String = _
   private var configuration: DestinationRouterConfiguration = _
+  private val metricsService = Option(optMetricsService.orElse(null))
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Destination Router Filter initializing")
@@ -95,7 +92,11 @@ class DestinationRouterFilter @Inject()(configurationService: ConfigurationServi
             logger.error("The destination could not be added -- the destinations attribute was of an unknown type")
         }
 
-        mbcsRoutedReponse.mark(target.getId)
+        metricsService foreach {
+          _.createSummingMeterFactory(RoutedResponseMetricPrefix)
+            .createMeter(target.getId)
+            .mark()
+        }
       }
 
       chain.doFilter(httpRequest, httpResponse)

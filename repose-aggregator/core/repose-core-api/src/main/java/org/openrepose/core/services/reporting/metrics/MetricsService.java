@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,27 +19,14 @@
  */
 package org.openrepose.core.services.reporting.metrics;
 
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.Timer;
+import com.codahale.metrics.MetricRegistry;
 import org.openrepose.commons.utils.Destroyable;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * This service creates all necessary classes to track repose performance through JMX & Graphite.
  */
 public interface MetricsService extends Destroyable {
+    MetricRegistry getRegistry();
 
-    Meter newMeter(Class klass, String name, String scope, String eventType, TimeUnit unit);
-
-    MeterByCategory newMeterByCategory(Class klass, String scope, String eventType, TimeUnit unit);
-
-    MeterByCategorySum newMeterByCategorySum(Class klass, String scope, String eventType, TimeUnit unit);
-
-    Counter newCounter(Class klass, String name, String scope);
-
-    Timer newTimer(Class klass, String name, String scope, TimeUnit duration, TimeUnit rate);
-
-    TimerByCategory newTimerByCategory(Class klass, String scope, TimeUnit duration, TimeUnit rate);
+    AggregateMeterFactory createSummingMeterFactory(String namePrefix);
 }

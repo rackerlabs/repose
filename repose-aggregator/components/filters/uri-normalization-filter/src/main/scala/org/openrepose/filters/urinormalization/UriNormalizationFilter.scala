@@ -20,19 +20,19 @@
 package org.openrepose.filters.urinormalization
 
 import java.net.URL
-import java.util.concurrent.TimeUnit
+import java.util.Optional
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.normal.QueryStringNormalizer
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
-import org.openrepose.core.filters.UriNormalization
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.{MetricNameUtility, MetricsService}
 import org.openrepose.filters.urinormalization.config.{HttpMethod, UriNormalizationConfig}
 import org.openrepose.filters.urinormalization.normalizer.{MediaTypeNormalizer, MultiInstanceWhiteListFactory}
 
@@ -40,16 +40,13 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 @Named
-class UriNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: MetricsService)
+class UriNormalizationFilter @Inject()(configurationService: ConfigurationService, optMetricsService: Optional[MetricsService])
   extends Filter with UpdateListener[UriNormalizationConfig] with LazyLogging {
 
   private final val DefaultConfig: String = "uri-normalization.cfg.xml"
+  private final val NormalizationMetricPrefix = MetricRegistry.name(classOf[UriNormalizationFilter], "Normalization")
 
-  private val mbcsUriNormalizations: MeterByCategorySum = metricsService.newMeterByCategorySum(
-    classOf[UriNormalization],
-    "uri-normalization",
-    "Normalization",
-    TimeUnit.SECONDS)
+  private val metricRegistryOpt = Option(optMetricsService.orElse(null))
 
   private var initialized: Boolean = false
   private var configFilename: String = _
@@ -65,8 +62,13 @@ class UriNormalizationFilter @Inject()(configurationService: ConfigurationServic
 
       mediaTypeNormalizer.normalizeContentMediaType(request)
       if (request.getParameterMap.nonEmpty) {
-        queryStringNormalizers.find(_.normalize(request))
-          .foreach(queryStringNormalizer => mbcsUriNormalizations.mark(queryStringNormalizer.getLastMatch.toString + "_" + request.getMethod))
+        queryStringNormalizers.find(_.normalize(request)) foreach { queryStringNormalizer =>
+          metricRegistryOpt foreach {
+            _.createSummingMeterFactory(NormalizationMetricPrefix)
+              .createMeter(MetricRegistry.name(request.getMethod, MetricNameUtility.safeReportingName(queryStringNormalizer.getLastMatch.toString)))
+              .mark()
+          }
+        }
       }
 
       filterChain.doFilter(request, servletResponse)

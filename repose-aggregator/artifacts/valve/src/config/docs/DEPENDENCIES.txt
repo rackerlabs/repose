@@ -29,9 +29,9 @@ com.typesafe.akka                         akka-actor_2.11          2.3.12       
 com.typesafe                              config                   1.2.1           Apache License Version 2.0  https://github.com/typesafehub/config
 com.typesafe.play                         play-json_2.11           2.5.2           Apache License Version 2.0  https://github.com/playframework/playframework
 com.typesafe.scala-logging                scala-logging-slf4j_2.11 2.1.2           Apache License Version 2.0  https://github.com/typesafehub/scala-logging
-com.yammer.metrics                        metrics-core             2.2.0           Apache License Version 2.0  http://metrics.dropwizard.io/2.2.0/maven/metrics-core/license.html
-com.yammer.metrics                        metrics-ehcache          2.2.0           Apache License Version 2.0  http://metrics.dropwizard.io/2.2.0/maven/metrics-ehcache/license.html
-com.yammer.metrics                        metrics-graphite         2.2.0           Apache License Version 2.0  http://metrics.dropwizard.io/2.2.0/maven/metrics-graphite/license.html
+io.dropwizard.metrics                     metrics-core             3.2.0           Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
+io.dropwizard.metrics                     metrics-ehcache          3.2.0           Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
+io.dropwizard.metrics                     metrics-graphite         3.2.0           Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
 javax.inject                              javax.inject             1               Apache License Version 2.0  https://jcp.org/en/jsr/detail?id=330
 javax.ws.rs                               javax.ws.rs-api          2.0.1           CDDL v1.1                   https://jax-rs-spec.java.net/
 joda-time                                 joda-time                2.7             Apache License Version 2.0  http://joda-time.sourceforge.net/license.html

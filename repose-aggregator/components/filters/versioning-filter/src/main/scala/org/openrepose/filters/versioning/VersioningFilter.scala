@@ -20,12 +20,13 @@
 package org.openrepose.filters.versioning
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.util.concurrent.TimeUnit
+import java.util.Optional
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.bind.JAXBElement
 
+import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
@@ -34,7 +35,6 @@ import org.openrepose.commons.utils.http.media.MediaType
 import org.openrepose.commons.utils.io.RawInputStreamReader
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, RouteDestination}
 import org.openrepose.core.filter.{FilterConfigHelper, SystemModelInterrogator}
-import org.openrepose.core.filters.Versioning
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.{HealthCheckService, Severity}
 import org.openrepose.core.services.reporting.metrics.MetricsService
@@ -53,7 +53,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
                                  @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
                                  configurationService: ConfigurationService,
                                  healthCheckService: HealthCheckService,
-                                 metricsService: MetricsService)
+                                 optMetricsService: Optional[MetricsService])
   extends Filter with LazyLogging {
 
   private final val SystemModelConfigFileName = "system-model.cfg.xml"
@@ -61,20 +61,16 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
   private final val VersioningSchemaFilePath = "/META-INF/schema/config/versioning-configuration.xsd"
   private final val SystemModelConfigIssue = "SystemModelConfigIssue"
   private final val VersioningDefaultQuality = 0.5
+  private final val VersionedRequestMetricPrefix = MetricRegistry.name(classOf[VersioningFilter], "VersionedRequest")
 
   private val versioningObjectFactory = new ObjectFactory()
   private val healthCheckServiceProxy = healthCheckService.register
-  private val mbcVersionedRequests = metricsService.newMeterByCategory(
-    classOf[Versioning],
-    "versioning",
-    "VersionedRequest",
-    TimeUnit.SECONDS)
-  // todo: replace "versioning" with filter-id or name-number in sys-model
+  private val metricsService = Option(optMetricsService.orElse(null))
 
   private var configurationFileName: String = _
   private var serviceVersionMappings: Map[String, ServiceVersionMapping] = _
   private var destinations: Map[String, Destination] = _
-  private var contentTransformer:ContentTransformer = _
+  private var contentTransformer: ContentTransformer = _
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Versioning Filter initializing")
@@ -127,7 +123,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
               httpResponse.setStatus(HttpServletResponse.SC_OK)
               httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
-              mbcVersionedRequests.mark(targetOriginService.getMapping.getId)
+              markVersionedRequestMeter(targetOriginService.getMapping.getId)
             } else {
               val targetDestination = new RouteDestination(
                 targetOriginService.getOriginServiceHost.getId,
@@ -146,7 +142,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
                   logger.error("The destination could not be added -- the destinations attribute was of an unknown type")
               }
 
-              mbcVersionedRequests.mark(targetOriginService.getMapping.getId)
+              markVersionedRequestMeter(targetOriginService.getMapping.getId)
 
               chain.doFilter(wrappedRequest, httpResponse)
             }
@@ -168,7 +164,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
 
             httpResponse.addHeader("Content-Type", getPreferredMediaRange(wrappedRequest).getMimeType.getName)
 
-            mbcVersionedRequests.mark("Unversioned")
+            markVersionedRequestMeter("Unversioned")
         }
       } catch {
         case vhnfe: VersionedHostNotFoundException =>
@@ -193,6 +189,13 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
     contentTransformer.transform(elementToMarshal, preferredMediaType, baos)
 
     RawInputStreamReader.instance.copyTo(new ByteArrayInputStream(baos.toByteArray), response.getOutputStream)
+  }
+
+  private def markVersionedRequestMeter(name: String): Unit = {
+    metricsService.map(_.getRegistry) foreach {
+      _.meter(MetricRegistry.name(VersionedRequestMetricPrefix, name))
+        .mark()
+    }
   }
 
   private object SystemModelConfigurationListener extends UpdateListener[SystemModel] {

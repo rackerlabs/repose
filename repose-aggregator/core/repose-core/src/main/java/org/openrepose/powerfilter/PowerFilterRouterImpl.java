@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,26 +19,24 @@
  */
 package org.openrepose.powerfilter;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonRequestAttributes;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
-import org.openrepose.core.RequestTimeout;
-import org.openrepose.core.ResponseCode;
 import org.openrepose.core.filter.logic.DispatchPathBuilder;
 import org.openrepose.core.filter.routing.DestinationLocation;
 import org.openrepose.core.filter.routing.DestinationLocationBuilder;
-import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.openrepose.core.services.reporting.ReportingService;
-import org.openrepose.core.services.reporting.metrics.MeterByCategory;
-import org.openrepose.core.services.reporting.metrics.MeterByCategorySum;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.systemmodel.Destination;
 import org.openrepose.core.systemmodel.DestinationCluster;
 import org.openrepose.core.systemmodel.DestinationEndpoint;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.nodeservice.request.RequestHeaderService;
+import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +48,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 
 import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
 
@@ -61,6 +57,9 @@ import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
  */
 public class PowerFilterRouterImpl implements PowerFilterRouter {
     public static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
+
+    private static final String ALL_ENDPOINTS = "All Endpoints";
+
     private final DestinationLocationBuilder locationBuilder;
     private final Map<String, Destination> destinations;
     private final ReposeCluster domain;
@@ -68,13 +67,8 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private final ServletContext servletContext;
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
-    private final MetricsService metricsService;
-    private final ConcurrentMap<String, MeterByCategory> mapResponseCodes;
-    private final ConcurrentMap<String, MeterByCategory> mapRequestTimeouts;
+    private final Optional<MetricsService> metricsService;
     private final ReportingService reportingService;
-    private final MeterByCategory mbcAllResponse;
-    private final MeterByCategory mbcAllTimeouts;
-
 
     public PowerFilterRouterImpl(DestinationLocationBuilder locationBuilder,
                                  Map<String, Destination> destinations,
@@ -83,12 +77,9 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                                  ServletContext servletContext,
                                  RequestHeaderService requestHeaderService,
                                  ResponseHeaderService responseHeaderService,
-                                 MetricsService metricsService,
-                                 ConcurrentMap<String, MeterByCategory> mapResponseCodes,
-                                 ConcurrentMap<String, MeterByCategory> mapRequestTimeouts,
-                                 ReportingService reportingService
+                                 ReportingService reportingService,
+                                 Optional<MetricsService> metricsService
     ) {
-
         this.locationBuilder = locationBuilder;
         this.destinations = destinations;
         this.domain = domain;
@@ -97,19 +88,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.requestHeaderService = requestHeaderService;
         this.responseHeaderService = responseHeaderService;
         this.metricsService = metricsService;
-        this.mapResponseCodes = mapResponseCodes;
-        this.mapRequestTimeouts = mapRequestTimeouts;
         this.reportingService = reportingService;
-
-        mbcAllResponse = metricsService.newMeterByCategory(ResponseCode.class,
-                "All Endpoints",
-                "Response Codes",
-                TimeUnit.SECONDS);
-
-        mbcAllTimeouts = metricsService.newMeterByCategory(RequestTimeout.class,
-                "TimeoutToOrigin",
-                "Request Timeout",
-                TimeUnit.SECONDS);
     }
 
     @Override
@@ -177,13 +156,13 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
                         // track response code for endpoint & across all endpoints
                         String endpoint = getEndpoint(configDestinationElement, location);
-                        MeterByCategory mbc = verifyGet(endpoint);
-                        MeterByCategory mbcTimeout = getTimeoutMeter(endpoint);
 
-                        PowerFilter.markResponseCodeHelper(mbc, servletResponse.getStatus(), LOG, endpoint);
-                        PowerFilter.markResponseCodeHelper(mbcAllResponse, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL);
-                        markRequestTimeoutHelper(mbcTimeout, servletResponse.getStatus(), endpoint);
-                        markRequestTimeoutHelper(mbcAllTimeouts, servletResponse.getStatus(), "All Endpoints");
+                        metricsService.ifPresent(ms -> {
+                            PowerFilter.markResponseCodeHelper(ms, servletResponse.getStatus(), LOG, endpoint);
+                            PowerFilter.markResponseCodeHelper(ms, servletResponse.getStatus(), LOG, ALL_ENDPOINTS);
+                            markRequestTimeoutHelper(servletResponse.getStatus(), endpoint);
+                            markRequestTimeoutHelper(servletResponse.getStatus(), ALL_ENDPOINTS);
+                        });
 
                         final long stopTime = System.currentTimeMillis();
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), stopTime - startTime);
@@ -220,31 +199,12 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         return sb.toString();
     }
 
-    private MeterByCategory verifyGet(String endpoint) {
-        mapResponseCodes.putIfAbsent(endpoint, metricsService.newMeterByCategory(ResponseCode.class,
-                endpoint,
-                "Response Codes",
-                TimeUnit.SECONDS));
-
-        return mapResponseCodes.get(endpoint);
-    }
-
-    private MeterByCategory getTimeoutMeter(String endpoint) {
-        mapRequestTimeouts.putIfAbsent(endpoint, metricsService.newMeterByCategory(RequestTimeout.class,
-                "TimeoutToOrigin",
-                "Request Timeout",
-                TimeUnit.SECONDS));
-
-        return mapRequestTimeouts.get(endpoint);
-    }
-
-    public void markRequestTimeoutHelper(MeterByCategory mbc, int responseCode, String endpoint) {
-        if (mbc == null) {
-            return;
-        }
-
-        if (responseCode == HTTP_CLIENT_TIMEOUT) {
-            mbc.mark(endpoint);
-        }
+    private void markRequestTimeoutHelper(int responseCode, String endpoint) {
+        metricsService.filter(__ -> responseCode == HTTP_CLIENT_TIMEOUT)
+            .ifPresent(ms ->
+                ms.getRegistry()
+                    .meter(MetricRegistry.name("org.openrepose.core.RequestTimeout.TimeoutToOrigin", endpoint))
+                    .mark()
+            );
     }
 }

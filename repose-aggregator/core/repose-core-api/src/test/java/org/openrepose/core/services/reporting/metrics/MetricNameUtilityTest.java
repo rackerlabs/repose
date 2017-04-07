@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,20 +19,28 @@
  */
 package org.openrepose.core.services.reporting.metrics;
 
-/**
- * Interface to allow different MeterByCategory implementations (like
- * {@link org.openrepose.core.services.reporting.metrics.impl.MeterByCategoryImpl} &
- * {@link org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum}) to be used interchangeably.
- * <p/>
- * Any class which implements this interface is expected to be thread-safe.  The individual yammer Meter class are
- * thread-safe.
- * <p/>
- * These objects should be created by the {@link org.openrepose.core.services.reporting.metrics.impl.MetricsServiceImpl}
- * factory class.
- */
-public interface MeterByCategory {
+import org.junit.Test;
 
-    void mark(String key);
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.*;
 
-    void mark(String key, long n);
+public class MetricNameUtilityTest {
+
+    @Test
+    public void safeReportingNameShouldNotModifyASafeName() throws Exception {
+        String name = "myName";
+
+        String safeName = MetricNameUtility.safeReportingName(name);
+
+        assertThat(safeName, equalTo(name));
+    }
+
+    @Test
+    public void safeReportingNameShouldReplaceUnsafeCharacters() throws Exception {
+        String name = "/a/.+/.*";
+
+        String safeName = MetricNameUtility.safeReportingName(name);
+
+        assertThat(safeName, equalTo(name.replace('.', '_')));
+    }
 }

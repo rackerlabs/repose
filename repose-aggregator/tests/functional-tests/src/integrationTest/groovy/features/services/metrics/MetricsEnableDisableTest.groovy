@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,19 +24,33 @@ import org.rackspace.deproxy.Deproxy
 
 class MetricsEnableDisableTest extends ReposeValveTest {
 
-    String PREFIX = "\"${jmxHostname}-org.openrepose.core.filters\":type=\"DestinationRouter\",scope=\""
-    String RESPONSE_CODE_PREFIX = "\"${jmxHostname}-org.openrepose.core\":type=\"ResponseCode\",scope=\""
+    private static final String KEY_PROPERTIES_PREFIX = /001="org",002="openrepose"/
+    private static final String DESTINATION_ROUTER_MBEAN_PART =
+        /003="filters",004="destinationrouter",005="DestinationRouterFilter",006="Routed Response"/
+    private static final String ENDPOINT_MBEAN_NAME = /007="endpoint"/
+    private static final String ALL_MBEAN_NAME = /007="ACROSS ALL"/
+    private static final String REPOSE_RESPONSE_CODE_2XX_SUFFIX = /003="core",004="ResponseCode",005="Repose",006="2XX"/
 
-    String NAME_TARGET = "\",name=\"endpoint\""
-    String NAME_2XX = "\",name=\"2XX\""
-    String REPOSE_2XX = RESPONSE_CODE_PREFIX + "Repose" + NAME_2XX
-    String ALL_ENDPOINTS_2XX = RESPONSE_CODE_PREFIX + "All Endpoints" + NAME_2XX
-
-    String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
+    private static Map params
+    private static String destinationRouterEndpointMetric
+    private static String destinationRouterAllEndpointMetric
+    private static String reposeResponseCode2xxMetric
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
+
+        destinationRouterEndpointMetric =
+            "$jmxHostname:$KEY_PROPERTIES_PREFIX,$DESTINATION_ROUTER_MBEAN_PART,$ENDPOINT_MBEAN_NAME"
+        destinationRouterAllEndpointMetric =
+            "$jmxHostname:$KEY_PROPERTIES_PREFIX,$DESTINATION_ROUTER_MBEAN_PART,$ALL_MBEAN_NAME"
+        reposeResponseCode2xxMetric = "$jmxHostname:$KEY_PROPERTIES_PREFIX,$REPOSE_RESPONSE_CODE_2XX_SUFFIX"
+    }
+
+    def setup() {
+        params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
     }
 
     def cleanup() {
@@ -44,11 +58,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     }
 
     def "when metrics are enabled, reporting should occur"() {
-
-        setup: "load the correct configuration file"
-        def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
+        given: "Repose is started with configuration that enables metrics"
         repose.configurationProvider.applyConfigs("features/services/metrics/metricsenabled", params)
         repose.start()
 
@@ -56,17 +66,13 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == 1
-        repose.jmx.getMBeanAttribute(ALL_ENDPOINTS_2XX, "Count") == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterEndpointMetric) == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(reposeResponseCode2xxMetric) == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterAllEndpointMetric) == 1
     }
 
     def "when metrics are disabled, reporting should not occur"() {
-
-        setup: "load the correct configuration file"
-        def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
+        given: "Repose is started with configuration that disables metrics"
         repose.configurationProvider.applyConfigs("features/services/metrics/metricsdisabled", params)
         repose.start()
 
@@ -74,17 +80,13 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.quickMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == null
-        repose.jmx.quickMBeanAttribute(REPOSE_2XX, "Count") == null
-        repose.jmx.quickMBeanAttribute(ALL_ENDPOINTS_2XX, "Count") == null
+        repose.jmx.getMBeanCountAttribute(destinationRouterEndpointMetric) == 0
+        repose.jmx.getMBeanCountAttribute(reposeResponseCode2xxMetric) == 0
+        repose.jmx.getMBeanCountAttribute(destinationRouterAllEndpointMetric) == 0
     }
 
     def "when 'enabled' is not specified, reporting should occur"() {
-
-        setup: "load the correct configuration file"
-        def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
+        given: "Repose is started with configuration that does not specify if metrics should be enabled nor disabled"
         repose.configurationProvider.applyConfigs("features/services/metrics/notspecified", params)
         repose.start()
 
@@ -92,22 +94,17 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterEndpointMetric) == 1
     }
 
     def "when metrics config is missing, reporting should occur"() {
-
-        setup: "only load the common configuration files"
-        def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
+        given: "Repose is started with no metrics related configuration"
         repose.start()
 
         when:
         deproxy.makeRequest(url: reposeEndpoint + "/endpoint/1")
 
         then:
-        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(destinationRouterEndpointMetric) == 1
     }
-
 }

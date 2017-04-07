@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,14 +19,12 @@
  */
 package org.openrepose.core.services.reporting.metrics;
 
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.Timer;
-import com.yammer.metrics.core.TimerContext;
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.spring.ReposeJmxNamingStrategy;
@@ -36,232 +34,139 @@ import java.lang.management.ManagementFactory;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.greaterThan;
+import static com.codahale.metrics.MetricRegistry.name;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-@RunWith(Enclosed.class)
 public class MetricsServiceImplTest {
 
-    public static class Register {
+    private MetricsServiceImpl metricsService;
 
-        protected final String JMX_PREFIX = "MOCK-PREFIX-";
-        protected MetricsServiceImpl metricsService;
-        protected ReposeJmxNamingStrategy jmxNamingStrategy;
+    @Before
+    public void setUp() {
+        metricsService = new MetricsServiceImpl(
+            mock(ConfigurationService.class),
+            mock(HealthCheckService.class));
+    }
 
-        @Before
-        public void setUp() {
-            jmxNamingStrategy = mock(ReposeJmxNamingStrategy.class);
-            when(jmxNamingStrategy.getJmxPrefix()).thenReturn(JMX_PREFIX);
-            metricsService = new MetricsServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), jmxNamingStrategy);
+    private Object getAttribute(String name, String att)
+        throws
+        MalformedObjectNameException,
+        AttributeNotFoundException,
+        MBeanException,
+        ReflectionException,
+        InstanceNotFoundException {
+
+        int keyIndex = 1;
+        Hashtable<String, String> objectNameProperties = new Hashtable<>();
+        for (String nameSegment : name.split("\\.")) {
+            objectNameProperties.put(String.format("%03d", keyIndex++), ObjectName.quote(nameSegment));
         }
 
-        protected Object getAttribute(Class klass, String name, String scope, String att)
-                throws
-                MalformedObjectNameException,
-                AttributeNotFoundException,
-                MBeanException,
-                ReflectionException,
-                InstanceNotFoundException {
+        // Lets you see all registered MBean ObjectNames
+        //Set<ObjectName> set = ManagementFactory.getPlatformMBeanServer().queryNames(null, null);
 
-            Hashtable<String, String> hash = new Hashtable<>();
-            hash.put("name", "\"" + name + "\"");
-            hash.put("scope", "\"" + scope + "\"");
-            hash.put("type", "\"" + klass.getSimpleName() + "\"");
+        ObjectName on = new ObjectName(ReposeJmxNamingStrategy.bestGuessHostname(), objectNameProperties);
+        on = new ObjectName(on.getCanonicalName());
 
-            // Lets you see all registered MBean ObjectNames
-            //Set<ObjectName> set = ManagementFactory.getPlatformMBeanServer().queryNames(null, null);
+        return ManagementFactory.getPlatformMBeanServer().getAttribute(on, att);
+    }
 
-            ObjectName on = new ObjectName("\"" + JMX_PREFIX + klass.getPackage().getName() + "\"", hash);
+    @Test
+    public void testServiceMeter()
+        throws
+        MalformedObjectNameException,
+        AttributeNotFoundException,
+        MBeanException,
+        ReflectionException,
+        InstanceNotFoundException {
+        Meter m = metricsService.getRegistry().meter(name(this.getClass(), "meter1", "hits"));
 
-            return ManagementFactory.getPlatformMBeanServer().getAttribute(on, att);
+        m.mark();
+        m.mark();
+        m.mark();
+
+        long l = (Long) getAttribute(name(this.getClass(), "meter1", "hits"), "Count");
+
+        assertEquals((long) 3, l);
+    }
+
+    @Test
+    public void testServiceCounter()
+        throws
+        MalformedObjectNameException,
+        AttributeNotFoundException,
+        MBeanException,
+        ReflectionException,
+        InstanceNotFoundException {
+
+        Counter c = metricsService.getRegistry().counter(name(this.getClass(), "counter1"));
+
+        c.inc();
+        c.inc();
+        c.inc();
+        c.inc();
+        c.dec();
+
+        long l = (Long) getAttribute(name(this.getClass(), "counter1"), "Count");
+
+        assertEquals((long) 3, l);
+    }
+
+    @Test
+    public void testServiceTimer() throws
+        MalformedObjectNameException,
+        AttributeNotFoundException,
+        MBeanException,
+        ReflectionException,
+        InstanceNotFoundException {
+
+        Timer t = metricsService.getRegistry().timer(name(this.getClass(), "name1"));
+
+        Timer.Context tc = t.time();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ie) {
+            // We don't care.
         }
+        tc.stop();
 
-        @Test
-        public void testServiceMeter()
-                throws
-                MalformedObjectNameException,
-                AttributeNotFoundException,
-                MBeanException,
-                ReflectionException,
-                InstanceNotFoundException {
+        assertEquals(1L, ((Long) getAttribute(name(this.getClass(), "name1"), "Count")).longValue());
+        assertThat((Double) getAttribute(name(this.getClass(), "name1"), "Mean"), greaterThan(0.0));
 
-            Meter m = metricsService.newMeter(this.getClass(), "meter1", "scope1", "hits", TimeUnit.SECONDS);
+        t.update(1000L, TimeUnit.MILLISECONDS);
 
-            m.mark();
-            m.mark();
-            m.mark();
+        assertEquals(2L, ((Long) getAttribute(name(this.getClass(), "name1"), "Count")).longValue());
+        assertThat((Double) getAttribute(name(this.getClass(), "name1"), "Mean"), greaterThan(0.0));
+    }
 
-            long l = (Long) getAttribute(this.getClass(), "meter1", "scope1", "Count");
+    @Test
+    public void testServiceEnabledDisabled()
+        throws
+        MalformedObjectNameException,
+        AttributeNotFoundException,
+        MBeanException,
+        ReflectionException,
+        InstanceNotFoundException {
 
-            assertEquals((long) 3, l);
-        }
+        metricsService.setEnabled(false);
+        assertFalse(metricsService.isEnabled());
 
-        @Test
-        public void testServiceCounter()
-                throws
-                MalformedObjectNameException,
-                AttributeNotFoundException,
-                MBeanException,
-                ReflectionException,
-                InstanceNotFoundException {
+        metricsService.setEnabled(true);
+        assertTrue(metricsService.isEnabled());
+    }
 
-            Counter c = metricsService.newCounter(this.getClass(), "counter1", "scope1");
+    @Test
+    public void createSummingMeterFactoryShouldBePassedTheServiceMetricRegistry() throws Exception {
+        String namePrefix = MetricRegistry.name("test", "name", "prefix");
+        String name = "foo";
 
-            c.inc();
-            c.inc();
-            c.inc();
-            c.inc();
-            c.dec();
+        MetricRegistry metricRegistry = metricsService.getRegistry();
+        AggregateMeterFactory summingMeterFactory = metricsService.createSummingMeterFactory(namePrefix);
 
-            long l = (Long) getAttribute(this.getClass(), "counter1", "scope1", "Count");
+        summingMeterFactory.createMeter(name);
 
-            assertEquals((long) 3, l);
-        }
-
-        @Test
-        public void testServiceTimer() throws
-                MalformedObjectNameException,
-                AttributeNotFoundException,
-                MBeanException,
-                ReflectionException,
-                InstanceNotFoundException {
-
-            Timer t = metricsService.newTimer(this.getClass(), "name1", "scope1", TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS);
-
-            TimerContext tc = t.time();
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ie) {
-            }
-            tc.stop();
-
-            assertEquals(1L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
-            assertThat(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue(), greaterThan(0.0));
-
-            t.update(1000L, TimeUnit.MILLISECONDS);
-
-            assertEquals(2L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
-            assertThat(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue(), greaterThan(0.0));
-        }
-
-        @Test
-        public void testMeterByCategory() throws
-                MalformedObjectNameException,
-                AttributeNotFoundException,
-                MBeanException,
-                ReflectionException,
-                InstanceNotFoundException {
-
-            MeterByCategory m = metricsService.newMeterByCategory(this.getClass(), "scope1", "hits", TimeUnit.SECONDS);
-
-            m.mark("meter1");
-            m.mark("meter2", (long) 4);
-            m.mark("meter1");
-
-            long l = (Long) getAttribute(this.getClass(), "meter1", "scope1", "Count");
-            assertEquals((long) 2, l);
-
-            l = (Long) getAttribute(this.getClass(), "meter2", "scope1", "Count");
-            assertEquals((long) 4, l);
-        }
-
-        @Test
-        public void testMeterByCategorySum() throws
-                MalformedObjectNameException,
-                AttributeNotFoundException,
-                MBeanException,
-                ReflectionException,
-                InstanceNotFoundException {
-
-            MeterByCategory m = metricsService.newMeterByCategorySum(this.getClass(), "scope1", "hits", TimeUnit.SECONDS);
-
-            m.mark("meter1");
-            m.mark("meter2", (long) 4);
-            m.mark("meter1");
-
-            long l = (Long) getAttribute(this.getClass(), "meter1", "scope1", "Count");
-            assertEquals((long) 2, l);
-
-            l = (Long) getAttribute(this.getClass(), "meter2", "scope1", "Count");
-            assertEquals((long) 4, l);
-
-            l = (Long) getAttribute(this.getClass(), MeterByCategorySum.ALL, "scope1", "Count");
-            assertEquals((long) 6, l);
-        }
-
-        @Test
-        public void testTimerByCategory() throws
-                MalformedObjectNameException,
-                AttributeNotFoundException,
-                MBeanException,
-                ReflectionException,
-                InstanceNotFoundException {
-
-            TimerByCategory t = metricsService.newTimerByCategory(this.getClass(), "scope1", TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS);
-
-            TimerContext tc = t.time("key1");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ie) {
-            }
-            tc.stop();
-
-            assertEquals(1L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
-            assertThat(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue(), greaterThan(0.0));
-
-            tc = t.time("key2");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ie) {
-            }
-            tc.stop();
-
-            assertEquals(1L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
-            assertThat(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue(), greaterThan(0.0));
-
-            t.update("key1", 1000L, TimeUnit.MILLISECONDS);
-
-            assertEquals(2L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
-            assertThat(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue(), greaterThan(0.0));
-
-            t.update("key2", 1000L, TimeUnit.MILLISECONDS);
-
-            assertEquals(2L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
-            assertThat(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue(), greaterThan(0.0));
-        }
-
-        @Test(expected = IllegalArgumentException.class)
-        public void testNoAllowALL() {
-
-            MeterByCategory m = metricsService.newMeterByCategorySum(this.getClass(), "scope1", "hits", TimeUnit.SECONDS);
-
-            m.mark(MeterByCategorySum.ALL);
-        }
-
-        @Test(expected = IllegalArgumentException.class)
-        public void testNoAllowALL2() {
-
-            MeterByCategory m = metricsService.newMeterByCategorySum(this.getClass(), "scope1", "hits", TimeUnit.SECONDS);
-
-            m.mark(MeterByCategorySum.ALL, 2);
-        }
-
-        @Test
-        public void testServiceEnabledDisabled()
-                throws
-                MalformedObjectNameException,
-                AttributeNotFoundException,
-                MBeanException,
-                ReflectionException,
-                InstanceNotFoundException {
-
-            metricsService.setEnabled(false);
-            assertFalse(metricsService.isEnabled());
-
-            metricsService.setEnabled(true);
-            assertTrue(metricsService.isEnabled());
-        }
+        assertThat(metricRegistry.getMeters(), hasKey(MetricRegistry.name(namePrefix, name)));
     }
 }

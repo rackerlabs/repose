@@ -20,14 +20,16 @@
 package org.openrepose.filters.urinormalization
 
 import java.net.URL
+import java.util.Optional
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
+import com.codahale.metrics.{Meter, MetricRegistry}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, same}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.{MetricsService, AggregateMeterFactory}
 import org.openrepose.filters.urinormalization.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -39,18 +41,27 @@ import scala.collection.JavaConversions._
 @RunWith(classOf[JUnitRunner])
 class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
-  val meterByCategorySum = mock[MeterByCategorySum]
-  val metricsService = mock[MetricsService]
-  val configurationService = mock[ConfigurationService]
-
+  var metricsService: MetricsService = _
+  var metricsServiceOpt: Optional[MetricsService] = _
+  var summingMeterFactory: AggregateMeterFactory = _
+  var meter: Meter = _
+  var configurationService: ConfigurationService = _
   var filter: UriNormalizationFilter = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: MockHttpServletResponse = _
   var filterChain: MockFilterChain = _
 
-  when(metricsService.newMeterByCategorySum(any(), anyString(), anyString(), any())).thenReturn(meterByCategorySum)
+  override def beforeEach(): Unit = {
+    metricsService = mock[MetricsService]
+    summingMeterFactory = mock[AggregateMeterFactory]
+    meter = mock[Meter]
+    configurationService = mock[ConfigurationService]
 
-  override def beforeEach() = {
+    metricsServiceOpt = Optional.of(metricsService)
+
+    when(metricsService.createSummingMeterFactory(anyString())).thenReturn(summingMeterFactory)
+    when(summingMeterFactory.createMeter(anyString())).thenReturn(meter)
+
     servletRequest = new MockHttpServletRequest("GET", "/a/really/nifty/uri")
     servletResponse = new MockHttpServletResponse
     filterChain = new MockFilterChain
@@ -61,7 +72,7 @@ class UriNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with Ma
     servletRequest.setParameter("c", "3")
     servletRequest.setParameter("d", "4")
 
-    filter = new UriNormalizationFilter(configurationService, metricsService)
+    filter = new UriNormalizationFilter(configurationService, metricsServiceOpt)
   }
 
   describe("init") {

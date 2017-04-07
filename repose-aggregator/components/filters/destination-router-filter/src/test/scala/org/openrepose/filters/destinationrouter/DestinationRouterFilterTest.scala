@@ -20,15 +20,16 @@
 package org.openrepose.filters.destinationrouter
 
 import java.net.URL
-import java.util.concurrent.TimeUnit
+import java.util.Optional
 
+import com.codahale.metrics.Meter
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyString, isA, same}
-import org.mockito.Mockito.{reset, verify, when}
+import org.mockito.Matchers.{any, anyString, same}
+import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.{MetricsService, AggregateMeterFactory}
 import org.openrepose.filters.routing.servlet.config.{DestinationRouterConfiguration, Target}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -38,18 +39,27 @@ import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttp
 @RunWith(classOf[JUnitRunner])
 class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAfterEach with MockitoSugar {
 
-  val configurationService = mock[ConfigurationService]
-  val meterByCategorySum = mock[MeterByCategorySum]
-  val metricsService = mock[MetricsService]
+  private var configurationService: ConfigurationService = _
+  private var metricsService: MetricsService = _
+  private var metricsServiceOpt: Optional[MetricsService] = _
+  private var summingMeterFactory: AggregateMeterFactory = _
+  private var meter: Meter = _
 
-  override def beforeEach() = {
-    reset(configurationService)
-    reset(metricsService)
+  override def beforeEach(): Unit = {
+    configurationService = mock[ConfigurationService]
+    metricsService = mock[MetricsService]
+    summingMeterFactory = mock[AggregateMeterFactory]
+    meter = mock[Meter]
+
+    metricsServiceOpt = Optional.of(metricsService)
+
+    when(metricsService.createSummingMeterFactory(anyString())).thenReturn(summingMeterFactory)
+    when(summingMeterFactory.createMeter(anyString())).thenReturn(meter)
   }
 
   describe("init") {
     it("should register with the configuration service") {
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       filter.init(new MockFilterConfig())
 
@@ -59,7 +69,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
 
   describe("destroy") {
     it("should un-register with the configuration service") {
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       filter.destroy()
 
@@ -72,7 +82,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
       val request = new MockHttpServletRequest()
       val response = new MockHttpServletResponse()
       val chain = new MockFilterChain()
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       val config = new DestinationRouterConfiguration()
       val target = new Target()
@@ -89,8 +99,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
       val request = new MockHttpServletRequest()
       val response = new MockHttpServletResponse()
       val chain = new MockFilterChain()
-      when(metricsService.newMeterByCategorySum(any[Class[DestinationRouterConfiguration]], anyString(), anyString(), any(classOf[TimeUnit]))).thenReturn(meterByCategorySum)
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       val config = new DestinationRouterConfiguration()
       val target = new Target()
@@ -109,8 +118,7 @@ class DestinationRouterFilterTest extends FunSpec with Matchers with BeforeAndAf
       val request = new MockHttpServletRequest()
       val response = new MockHttpServletResponse()
       val chain = new MockFilterChain()
-      when(metricsService.newMeterByCategorySum(any[Class[DestinationRouterConfiguration]], anyString(), anyString(), any(classOf[TimeUnit]))).thenReturn(meterByCategorySum)
-      val filter = new DestinationRouterFilter(configurationService, metricsService)
+      val filter = new DestinationRouterFilter(configurationService, metricsServiceOpt)
 
       val config = new DestinationRouterConfiguration()
       val target = new Target()

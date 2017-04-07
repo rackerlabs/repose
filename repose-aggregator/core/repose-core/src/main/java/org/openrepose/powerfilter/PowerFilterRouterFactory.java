@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,9 +20,7 @@
 package org.openrepose.powerfilter;
 
 import org.openrepose.core.filter.routing.DestinationLocationBuilder;
-import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.openrepose.core.services.reporting.ReportingService;
-import org.openrepose.core.services.reporting.metrics.MeterByCategory;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.routing.RoutingService;
 import org.openrepose.core.spring.ReposeSpringProperties;
@@ -31,6 +29,7 @@ import org.openrepose.core.systemmodel.DestinationEndpoint;
 import org.openrepose.core.systemmodel.Node;
 import org.openrepose.core.systemmodel.ReposeCluster;
 import org.openrepose.nodeservice.request.RequestHeaderService;
+import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,16 +37,13 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.ServletContext;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 @Named
 public class PowerFilterRouterFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterFactory.class);
+    private final Optional<MetricsService> metricsService;
     private final ReportingService reportingService;
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
@@ -55,29 +51,24 @@ public class PowerFilterRouterFactory {
     private final String nodeId;
     private final String clusterId;
 
-    private MetricsService metricsService;
-
-    //These are here and not in the impl, because we want them to stay around if the router changes
-    private ConcurrentHashMap<String, MeterByCategory> mapResponseCodes = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, MeterByCategory> mapRequestTimeouts = new ConcurrentHashMap<>();
-
     @Inject
     public PowerFilterRouterFactory(
-            MetricsService metricsService,
-            ReportingService reportingService,
-            RequestHeaderService requestHeaderService,
-            ResponseHeaderService responseHeaderService,
-            RoutingService routingService,
-            @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
-            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId) {
+        @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
+        @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+        ReportingService reportingService,
+        RequestHeaderService requestHeaderService,
+        ResponseHeaderService responseHeaderService,
+        RoutingService routingService,
+        Optional<MetricsService> metricsService
+    ) {
+        LOG.info("Creating Repose Router Factory!");
+        this.metricsService = metricsService;
+        this.reportingService = reportingService;
+        this.requestHeaderService = requestHeaderService;
+        this.responseHeaderService = responseHeaderService;
+        this.routingService = routingService;
         this.nodeId = nodeId;
         this.clusterId = clusterId;
-        LOG.info("Creating Repose Router Factory!");
-        this.routingService = routingService;
-        this.reportingService = reportingService;
-        this.responseHeaderService = responseHeaderService;
-        this.requestHeaderService = requestHeaderService;
-        this.metricsService = metricsService;
     }
 
     public PowerFilterRouter getPowerFilterRouter(ReposeCluster domain,
@@ -113,16 +104,14 @@ public class PowerFilterRouterFactory {
         }
 
         return new PowerFilterRouterImpl(locationBuilder,
-                destinations,
-                domain,
-                defaultDestination,
-                servletContext,
-                requestHeaderService,
-                responseHeaderService,
-                metricsService,
-                mapResponseCodes,
-                mapRequestTimeouts,
-                reportingService);
+            destinations,
+            domain,
+            defaultDestination,
+            servletContext,
+            requestHeaderService,
+            responseHeaderService,
+            reportingService,
+            metricsService);
     }
 
     private void addDestinations(List<? extends Destination> destList, Map<String, Destination> targetList) {
@@ -130,6 +119,4 @@ public class PowerFilterRouterFactory {
             targetList.put(dest.getId(), dest);
         }
     }
-
-
 }

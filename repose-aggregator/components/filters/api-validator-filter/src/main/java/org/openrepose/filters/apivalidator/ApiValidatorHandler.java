@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.apivalidator;
 
+import com.codahale.metrics.MetricRegistry;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.ValidatorException;
 import com.rackspace.com.papi.components.checker.step.results.ErrorResult;
@@ -26,9 +27,8 @@ import com.rackspace.com.papi.components.checker.step.results.Result;
 import com.rackspace.com.papi.components.checker.wadl.WADLException;
 import org.openrepose.commons.utils.http.OpenStackServiceHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
-import org.openrepose.core.filters.ApiValidator;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.reporting.metrics.MeterByCategorySum;
+import org.openrepose.core.services.reporting.metrics.AggregateMeterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,35 +37,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class ApiValidatorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandler.class);
+    private static final String INVALID_REQUEST_METRIC_PREFIX = MetricRegistry.name(ApiValidatorHandler.class, "invalid-request");
+
     private final List<ValidatorInfo> validators;
     private final ValidatorInfo defaultValidator;
     private Set<String> matchedRoles;
     private boolean multiRoleMatch = false;
     private boolean delegatingMode;
-    private MeterByCategorySum mbcsInvalidRequests;
+    private final Optional<MetricsService> metricsService;
 
     public ApiValidatorHandler(
             ValidatorInfo defaultValidator,
             List<ValidatorInfo> validators,
             boolean multiRoleMatch,
             boolean delegatingMode,
-            MetricsService metricsService) {
+            Optional<MetricsService> metricsService) {
         this.validators = new ArrayList<>(validators.size());
         this.matchedRoles = new HashSet<>();
         this.validators.addAll(validators);
         this.multiRoleMatch = multiRoleMatch;
         this.defaultValidator = defaultValidator;
         this.delegatingMode = delegatingMode;
-
-        // TODO replace "api-validator" with filter-id or name-number in sys-model
-        if (metricsService != null) {
-            mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class,
-                    "api-validator", "InvalidRequest", TimeUnit.SECONDS);
-        }
+        this.metricsService = metricsService;
     }
 
     private boolean appendDefaultValidator(List<ValidatorInfo> validatorList) {
@@ -153,11 +149,12 @@ public class ApiValidatorHandler {
                 }
 
                 if (!isValid) {
-                    if (mbcsInvalidRequests != null) {
-                        for (String s : matchedRoles) {
-                            mbcsInvalidRequests.mark(s);
-                        }
-                    }
+                    metricsService.ifPresent(ms -> {
+                        AggregateMeterFactory meterFactory = ms.createSummingMeterFactory(INVALID_REQUEST_METRIC_PREFIX);
+                        matchedRoles.forEach(role ->
+                            meterFactory.createMeter(role)
+                                .mark());
+                    });
                     if (multiRoleMatch) {
                         sendMultiMatchErrorResponse(lastValidatorResult, response);
                     }

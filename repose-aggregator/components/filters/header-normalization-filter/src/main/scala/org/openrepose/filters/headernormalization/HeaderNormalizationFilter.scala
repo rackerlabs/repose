@@ -17,38 +17,41 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-
 package org.openrepose.filters.headernormalization
 
 import java.net.URL
-import java.util.concurrent.TimeUnit
+import java.util.Optional
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.commons.utils.string.RegexString
 import org.openrepose.core.filter.FilterConfigHelper
-import org.openrepose.core.filters.HeaderNormalization
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.reporting.metrics.{MeterByCategorySum, MetricsService}
+import org.openrepose.core.services.reporting.metrics.{MetricNameUtility, MetricsService}
 import org.openrepose.filters.headernormalization.HeaderNormalizationFilter._
 import org.openrepose.filters.headernormalization.config.{HeaderNormalizationConfig, HttpHeaderList, HttpMethod, Target => ConfigTarget}
 
 import scala.collection.JavaConverters._
 
 @Named
-class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, metricsService: MetricsService)
+class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, optMetricsService: Optional[MetricsService])
   extends Filter with UpdateListener[HeaderNormalizationConfig] with LazyLogging {
+
+  private final val NormalizationMetricPrefix = MetricRegistry.name(classOf[HeaderNormalizationFilter], "Normalization")
+  private final val RequestNormalizationMetricPrefix = MetricRegistry.name(NormalizationMetricPrefix, "request")
+  private final val ResponseNormalizationMetricPrefix = MetricRegistry.name(NormalizationMetricPrefix, "response")
 
   private var configurationFile: String = DEFAULT_CONFIG
   private var initialized = false
   private var configRequest: Seq[Target] = _
   private var configResponse: Seq[Target] = _
-  private var metricsMeter: MeterByCategorySum = _
+  private val metricsService = Option(optMetricsService.orElse(null))
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("Header Normalization filter initializing...")
@@ -57,8 +60,6 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
     logger.info(s"Initializing Header Normalization filter using config $configurationFile")
     val xsdUrl: URL = getClass.getResource(SCHEMA_FILE_NAME)
     configurationService.subscribeTo(filterConfig.getFilterName, configurationFile, xsdUrl, this, classOf[HeaderNormalizationConfig])
-
-    metricsMeter = metricsService.newMeterByCategorySum(classOf[HeaderNormalization], "header-normalization", "Normalization", TimeUnit.SECONDS)
 
     logger.trace("Header Normalization filter initialized.")
   }
@@ -83,7 +84,13 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedRequest.removeHeader)
 
-      metricsMeter.mark(s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_request")
+      metricsService foreach {
+        _.createSummingMeterFactory(RequestNormalizationMetricPrefix)
+          .createMeter(MetricRegistry.name(
+            wrappedRequest.getMethod,
+            MetricNameUtility.safeReportingName(target.url.pattern.toString)))
+          .mark()
+      }
     }
 
     val wrappedResponse = if (configResponse.isEmpty) None else Option(
@@ -111,7 +118,13 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
         case BlackList => target.headers
       }).foreach(wrappedResponse.get.removeHeader)
 
-      metricsMeter.mark(s"${target.url.pattern.toString}_${wrappedRequest.getMethod}_response")
+      metricsService foreach {
+        _.createSummingMeterFactory(ResponseNormalizationMetricPrefix)
+          .createMeter(MetricRegistry.name(
+            wrappedRequest.getMethod,
+            MetricNameUtility.safeReportingName(target.url.pattern.toString)))
+          .mark()
+      }
     }
 
     if (wrappedResponse.isDefined) wrappedResponse.get.commitToResponse()
@@ -190,8 +203,11 @@ object HeaderNormalizationFilter {
   val AllHttpMethods: String = HttpMethod.ALL.toString
 
   sealed trait AccessList
+
   object WhiteList extends AccessList
+
   object BlackList extends AccessList
 
   case class Target(url: RegexString, methods: Set[String], access: AccessList, headers: Set[String])
+
 }
