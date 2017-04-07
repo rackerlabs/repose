@@ -67,7 +67,7 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     initializationCheck()
     val viaHdrOpt = Optional.ofNullable(patchedDeploymentConfiguration.getViaHeader)
     if (viaHdrOpt.isPresent) {
-      Optional.ofNullable(viaHdrOpt.get.getPrefix)
+      Optional.ofNullable(viaHdrOpt.get.getResponsePrefix)
     } else {
       // TODO for v9.0.0.0: This will need updated.
       Optional.ofNullable(patchedDeploymentConfiguration.getVia)

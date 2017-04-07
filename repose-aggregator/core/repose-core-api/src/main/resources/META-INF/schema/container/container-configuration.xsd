@@ -275,11 +275,21 @@
         </xs:annotation>
         <xs:simpleContent>
             <xs:extension base="papic:EmptyString">
-                <xs:attribute name="prefix" type="xs:string" use="optional">
+                <xs:attribute name="request-prefix" type="xs:string" use="optional">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
-                                An identifying string that will be returned in the Via header.
+                                An identifying string that will be sent in the request Via header to the origin service.
+                                If undefined, then the hostname and servicing port will be added.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="response-prefix" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be returned in the response Via header to the client.
                                 If undefined and the repose-version is false, then no Via header will be added.
                             </html:p>
                         </xs:documentation>
@@ -303,11 +313,21 @@
     <xs:complexType name="ViaHeaderPatch">
         <xs:simpleContent>
             <xs:extension base="papic:EmptyString">
-                <xs:attribute name="prefix" type="xs:string" use="optional">
+                <xs:attribute name="request-prefix" type="xs:string" use="optional">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
-                                An identifying string that will be returned in the Via header.
+                                An identifying string that will be sent in the request Via header to the origin service.
+                                If undefined, then the hostname and servicing port will be added.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="response-prefix" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be returned in the response Via header to the client.
                                 If undefined and the repose-version is false, then no Via header will be added.
                             </html:p>
                         </xs:documentation>

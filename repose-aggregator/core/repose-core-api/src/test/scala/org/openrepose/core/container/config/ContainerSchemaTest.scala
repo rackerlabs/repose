@@ -191,7 +191,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    <deployment-config>
           |        <deployment-directory>/var/repose</deployment-directory>
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |        <via-header prefix="test"/>
+          |        <via-header response-prefix="test"/>
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo"/>
@@ -210,7 +210,7 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    <deployment-config>
           |        <deployment-directory>/var/repose</deployment-directory>
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |        <via-header prefix="test"/>
+          |        <via-header response-prefix="test"/>
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo"/>
@@ -226,11 +226,11 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    <deployment-config>
           |        <deployment-directory>/var/repose</deployment-directory>
           |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |        <via-header prefix="test"/>
+          |        <via-header response-prefix="test"/>
           |    </deployment-config>
           |
           |    <cluster-config cluster-id="foo">
-          |        <via-header prefix="override"/>
+          |        <via-header response-prefix="override"/>
           |    </cluster-config>
           |</repose-container>""".stripMargin
       validator.validateConfigString(config)
