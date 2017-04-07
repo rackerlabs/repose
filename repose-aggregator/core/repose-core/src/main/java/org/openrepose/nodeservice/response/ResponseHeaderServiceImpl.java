@@ -110,7 +110,7 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
         @Override
         public void configurationUpdated(DeploymentConfiguration configurationObject) {
-            final String viaReceivedBy = configurationObject.getVia();
+            final String viaReceivedBy = containerConfigurationService.getVia().get();
 
             final ViaResponseHeaderBuilder viaBuilder = new ViaResponseHeaderBuilder(reposeVersion, viaReceivedBy);
             final LocationHeaderBuilder locationBuilder = new LocationHeaderBuilder();

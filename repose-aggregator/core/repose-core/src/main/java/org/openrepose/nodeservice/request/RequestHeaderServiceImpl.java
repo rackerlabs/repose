@@ -120,7 +120,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
 
         @Override
         public void configurationUpdated(DeploymentConfiguration configurationObject) {
-            viaReceivedBy = configurationObject.getVia();
+            viaReceivedBy = containerConfigurationService.getVia().get();
 
             final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
             updateConfig(viaBuilder);
