@@ -63,26 +63,27 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     configurationService.unsubscribeFrom(ContainerConfigurationFilename, this)
   }
 
-  override def getVia: Optional[String] = {
+  override def getRequestVia: Optional[String] = {
     initializationCheck()
-    val viaHdrOpt = Optional.ofNullable(patchedDeploymentConfiguration.getViaHeader)
-    if (viaHdrOpt.isPresent) {
-      Optional.ofNullable(viaHdrOpt.get.getResponsePrefix)
-    } else {
-      // TODO for v9.0.0.0: This will need updated.
-      Optional.ofNullable(patchedDeploymentConfiguration.getVia)
-      //Optional.empty()
-    }
+    Option(patchedDeploymentConfiguration.getViaHeader)
+      .map(viaHdr => Optional.ofNullable(viaHdr.getRequestPrefix))
+      .getOrElse(Optional.empty())
   }
 
-  override def isViaReposeVersion: Boolean = {
+  override def getResponseVia: Optional[String] = {
     initializationCheck()
-    val viaHdrOpt = Optional.ofNullable(patchedDeploymentConfiguration.getViaHeader)
-    if (viaHdrOpt.isPresent) {
-      viaHdrOpt.get.isReposeVersion
-    } else {
-      true
-    }
+    Option(patchedDeploymentConfiguration.getViaHeader)
+      .map(viaHdr => Optional.ofNullable(viaHdr.getResponsePrefix))
+      // TODO for v9.0.0.0: This will need updated.
+      .getOrElse(Optional.ofNullable(patchedDeploymentConfiguration.getVia))
+      //.getOrElse(Optional.empty())
+  }
+
+  override def includeViaReposeVersion: Boolean = {
+    initializationCheck()
+    Option(patchedDeploymentConfiguration.getViaHeader)
+      .map(_.isReposeVersion)
+      .orElse(Option(true)).get
   }
 
   override def getContentBodyReadLimit: Optional[Long] = {
@@ -143,10 +144,10 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
   // Note: The container configuration should be read on init of this class. As such, this check
   //       should not ever fail.
   private def initializationCheck(): Unit =
-    if (!isInitialized) {
-      logger.error(NotInitializedMessage)
-      throw new IllegalStateException(NotInitializedMessage)
-    }
+  if (!isInitialized) {
+    logger.error(NotInitializedMessage)
+    throw new IllegalStateException(NotInitializedMessage)
+  }
 }
 
 object ContainerConfigurationServiceImpl {

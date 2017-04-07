@@ -80,17 +80,60 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
     }
   }
 
-  describe("getVia") {
+  describe("getRequestVia") {
     it("should throw an Exception if the service is not yet initialized") {
       intercept[IllegalStateException] {
-        containerConfigurationService.getVia
+        containerConfigurationService.getRequestVia
       }
     }
 
     it("should return an empty Optional if not configured") {
       containerConfigurationService.configurationUpdated(minimalContainerConfiguration())
 
-      containerConfigurationService.getVia.isPresent shouldBe false
+      containerConfigurationService.getRequestVia.isPresent shouldBe false
+    }
+
+    it("should return the configured via string") {
+      val config = minimalContainerConfiguration()
+      val viaHeader = new ViaHeader
+      viaHeader.setRequestPrefix("via")
+      config.getDeploymentConfig.setViaHeader(viaHeader)
+
+      containerConfigurationService.configurationUpdated(config)
+
+      containerConfigurationService.getRequestVia.get shouldEqual "via"
+    }
+
+    it("should return the patched via string") {
+      val config = minimalContainerConfiguration()
+      val viaHeader = new ViaHeader
+      viaHeader.setRequestPrefix("via")
+      config.getDeploymentConfig.setViaHeader(viaHeader)
+
+      val configPatch = new DeploymentConfigurationPatch()
+      val viaHeaderPatch = new ViaHeaderPatch
+      viaHeaderPatch.setRequestPrefix("patch-via")
+      configPatch.setClusterId(DefaultClusterId)
+      configPatch.setViaHeader(viaHeaderPatch)
+      config.getClusterConfig.add(configPatch)
+
+      containerConfigurationService.configurationUpdated(config)
+
+      containerConfigurationService.getRequestVia.get shouldEqual "patch-via"
+    }
+  }
+
+  describe("getResponseVia") {
+    it("should throw an Exception if the service is not yet initialized") {
+      intercept[IllegalStateException] {
+        containerConfigurationService.getResponseVia
+      }
+    }
+
+    it("should return an empty Optional if not configured") {
+      containerConfigurationService.configurationUpdated(minimalContainerConfiguration())
+
+      containerConfigurationService.getResponseVia.isPresent shouldBe false
     }
 
     // TODO Remove this for v9.0.0.0.
@@ -100,18 +143,18 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
 
       containerConfigurationService.configurationUpdated(config)
 
-      containerConfigurationService.getVia.get shouldEqual "via"
+      containerConfigurationService.getResponseVia.get shouldEqual "via"
     }
 
     it("should return the configured via string") {
       val config = minimalContainerConfiguration()
       val viaHeader = new ViaHeader
-      viaHeader.setPrefix("via")
+      viaHeader.setResponsePrefix("via")
       config.getDeploymentConfig.setViaHeader(viaHeader)
 
       containerConfigurationService.configurationUpdated(config)
 
-      containerConfigurationService.getVia.get shouldEqual "via"
+      containerConfigurationService.getResponseVia.get shouldEqual "via"
     }
 
     // TODO Remove this for v9.0.0.0.
@@ -125,32 +168,32 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
 
       containerConfigurationService.configurationUpdated(config)
 
-      containerConfigurationService.getVia.get shouldEqual "patch-via"
+      containerConfigurationService.getResponseVia.get shouldEqual "patch-via"
     }
 
     it("should return the patched via string") {
       val config = minimalContainerConfiguration()
       val viaHeader = new ViaHeader
-      viaHeader.setPrefix("via")
+      viaHeader.setResponsePrefix("via")
       config.getDeploymentConfig.setViaHeader(viaHeader)
 
       val configPatch = new DeploymentConfigurationPatch()
       val viaHeaderPatch = new ViaHeaderPatch
-      viaHeaderPatch.setPrefix("patch-via")
+      viaHeaderPatch.setResponsePrefix("patch-via")
       configPatch.setClusterId(DefaultClusterId)
       configPatch.setViaHeader(viaHeaderPatch)
       config.getClusterConfig.add(configPatch)
 
       containerConfigurationService.configurationUpdated(config)
 
-      containerConfigurationService.getVia.get shouldEqual "patch-via"
+      containerConfigurationService.getResponseVia.get shouldEqual "patch-via"
     }
   }
 
-  describe("isViaReposeVersion") {
+  describe("includeViaReposeVersion") {
     it("should throw an Exception if the service is not yet initialized") {
       intercept[IllegalStateException] {
-        containerConfigurationService.isViaReposeVersion
+        containerConfigurationService.includeViaReposeVersion
       }
     }
 
@@ -158,7 +201,7 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
       val config = minimalContainerConfiguration()
       containerConfigurationService.configurationUpdated(config)
 
-      containerConfigurationService.isViaReposeVersion shouldBe true
+      containerConfigurationService.includeViaReposeVersion shouldBe true
     }
 
     it("should return true if not configured") {
@@ -167,7 +210,7 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
       config.getDeploymentConfig.setViaHeader(viaHeader)
       containerConfigurationService.configurationUpdated(config)
 
-      containerConfigurationService.isViaReposeVersion shouldBe true
+      containerConfigurationService.includeViaReposeVersion shouldBe true
     }
 
     Seq(true, false).foreach { state =>
@@ -179,7 +222,7 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
 
         containerConfigurationService.configurationUpdated(config)
 
-        containerConfigurationService.isViaReposeVersion shouldBe state
+        containerConfigurationService.includeViaReposeVersion shouldBe state
       }
 
       it(s"should return the patched configured state '$state'") {
@@ -195,7 +238,7 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
 
         containerConfigurationService.configurationUpdated(config)
 
-        containerConfigurationService.isViaReposeVersion shouldBe state
+        containerConfigurationService.includeViaReposeVersion shouldBe state
       }
     }
   }
