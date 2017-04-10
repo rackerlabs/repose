@@ -1,0 +1,336 @@
+= Performance Testing
+
+include::../_includes/in-progress.adoc[]
+
+Performance testing is a method of testing various aspects of Repose in order to collect performance data.
+Performance data can be used to determine the overhead of the aspects in question, both at a system resource level as well as at a response time level.
+
+To performance test Repose, and collect the resulting data for analysis, the <<Framework>> is used.
+
+== Methodology
+
+In an attempt to provide the most meaningful data possible, the following test cases will be covered by independent tests:
+
+* The simplest (i.e., passthrough) Repose deployment.
+* Every Repose filter.
+* A relatively complex Repose deployment.
+* Common Repose deployments (e.g., RBAC).
+
+== Framework
+
+=== Design
+
+The overall design of the automatic performance testing framework can be outlined succinctly by the following diagram:
+
+image::perf-test-design-diagram.png[Performance Test Framework Design Diagram]
+
+Put into words, a code change in the Repose GitHub repository will trigger a Jenkins job to run.
+The Jenkins job will run the Ansible playbooks for all defined test cases.
+The Ansible playbooks, in turn, will allocate the necessary cloud resources, and begin executing the Gatling simulations for each test case.
+As Gatling runs, it will pipe the performance data it captures out to InfluxDB.
+Once Gatling execution completes, cloud resources will be cleaned up, and the Ansible playbook will finish executing.
+At some point, Grafana will query InfluxDB to retrieve the performance data which will be made available in the form of one or more dashboards.
+
+=== Creating a New Test
+
+[NOTE]
+====
+Certain general directories will be subdivided into test categories.
+If a directory is subdivided, new files and directories should be placed in the appropriate category.
+For example, the `repose-aggregator/tests/performance-tests/inventories/` directory contains the `filters/` and `use-cases/` sub-directories.
+A new filter inventory, then, should be placed under the `filters/` directory rather than the parent `inventories/` directory.
+====
+
+. Create an http://docs.ansible.com/ansible/intro_inventory.html[Ansible inventory] for the new test.
+.. Create a new inventory directory under under the `repose-aggregator/tests/performance-tests/inventories/` directory of the Repose project.
+The name of the new directory should describe the feature under test.
+.. Add http://docs.ansible.com/ansible/intro_inventory.html#splitting-out-host-and-group-specific-data[group variables] in a `group_vars/` directory under your new inventory directory.
+Group variables should generally be placed in a file named `all` to make them usable by all host groups.
++
+[NOTE]
+====
+Certain variables (e.g., `gatling.test.name`) must be defined.
+====
+.. Add http://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups[a `hosts` file] under your new inventory directory.
++
+[NOTE]
+====
+Only `localhost` need be defined in the `hosts` file -- all other hosts will be added dynamically as the Playbook runs.
+====
+. Add Repose configuration files.
+.. Create new directories under `repose-aggregator/tests/performance-tests/roles/repose/` with the same names and hierarchy as the previously created inventory directory.
+Template files should be placed under the `templates/` directory while raw configuration files should be placed under the `files/config/` directory.
+. Create a http://gatling.io/docs/current/general/concepts/#simulation[Gatling simulation].
+.. Create new directories under `repose-aggregator/tests/performance-tests/roles/gatling/` with the same names and hierarchy as the previously created inventory directory.
+.. Write a Gatling simulation.
+This code will be responsible for generating test traffic and, ultimately, performance test data.
+. If necessary, add mock services under `repose-aggregator/tests/performance-tests/roles/repose/mocks/`.
+
+[NOTE]
+====
+The inventory directory created in the steps above is not strictly necessary.
+While it is the conventional way of defining a new test, Ansible can be invoked using any directory as the inventory directory.
+In fact, the directory that we have created will only be needed when we invoke the Ansible Playbook.
+The command in "How To Run Performance Tests Using Vagrant" shows the Ansible Playbook being invoked with the "-i" option, which allows a user to specify the inventory directory.
+====
+
+[NOTE]
+====
+Ansible Playbooks support Jinja2 templates.
+These templates allow users to add dynamic content to files.
+Most if not all of the configuration files that were referred to above will be Jinja2 files, distinguishable by the `.j2` file extension.
+====
+
+=== Running a Test Automatically
+
+A Jenkins job is triggered any time that code on the master branch of the https://github.com/rackerlabs/repose[Repose Git Repository] changes.
+The Jenkins job will run the performance tests automatically, and publish the results.
+<<Design>> describes the full automated process in more detail.
+
+=== Running a Test Manually
+
+[IMPORTANT]
+.TODO
+====
+* Add the link to the Puppet manifest.
+====
+
+. Set up your environment.
++
+[NOTE]
+====
+We use of Puppet to manage our performance test environment.
+The details of our environment can be found in our [Puppet manifest].
+If you have https://puppet.com/[Puppet] installed, you can download our manifest and re-create our environment by running `puppet apply` directly on the downloaded file.
+====
+. Clone the https://github.com/rackerlabs/repose[Repose GitHub repository] from Github. +
+`git clone https://github.com/rackerlabs/repose.git`
+. Navigate to the performance test directory in the project. +
+`cd repose/repose-aggregator/tests/performance-tests`
+. Run the `start_test.yml` Ansible playbook. +
+This playbook will create the necessary Cloud resources, deploy test resources to them, and execute the Gatling simulation.
+When running the playbook, you may specify which test to run and what configuration to override for that test.
++
+```
+ansible-playbook start_test.yml \ # <1>
+  -i inventories/filters/saml \ # <2>
+  -e '{gatling: {test: {params: {duration_in_min: 15, saml: {num_of_issuers: 2}}}}}' \ # <3>
+  -vvvv # <4>
+```
+<1> Run the `start_test.yml` playbook.
+<2> Use the SAML inventory.
+The inventory used dictates the test to run.
+<3> Override the configuration for the two specified properties using YAML syntax.
+<4> Provide very verbose output.
+. View the <<Results>>.
+. Clean up cloud resources (i.e., cloud servers and load balancers). +
+`ansible-playbook stop_test.yml -i inventories/filters/saml -vvvv`
+
+
+== Results
+
+=== Grafana Dashboard
+
+[IMPORTANT]
+.TODO
+====
+* Add a link to our Grafana instance.
+* Describe the dashboard(s).
+====
+
+Grafana serves as the user interface to performance test data.
+
+
+=== HTML Report
+
+After test execution has completed, Gatling will generate a HTML report.
+The report can be found inside an archive residing in the `/root` directory with a file name like `gatling-results-repose-1487613066553.tar.gz`.
+The exact file name will be included in the output of the `Fetch the Gatling results` task which will resemble the following snippet:
+```
+changed: [perf_saml-testsuite01] => {
+    "changed": true,
+    "checksum": "4abdc6827e21343904c5744df42c7da57db8c978",
+    "dest": "/root/gatling-results-repose-1487613066553.tar.gz", # <1>
+    "invocation": {
+        "module_args": {
+            "dest": "/root/",
+            "flat": true,
+            "src": "/root/gatling-results-repose-1487613066553.tar.gz"
+        },
+        "module_name": "fetch"
+    },
+    "md5sum": "5441b5b8229434a79c4546c74b85338a",
+    "remote_checksum": "4abdc6827e21343904c5744df42c7da57db8c978",
+    "remote_md5sum": null
+}
+```
+<1> This is the file name.
+
+After the report archive is located, the content must be extracted before the report can be viewed.
+That can be done with a command like the following: +
+`tar xvf /root/gatling-results-repose-1487613066553.tar.gz`
+
+Once the report has been extracted, it can be viewed in the `index.html` file.
+Using a web browser will provide the best viewing experience.
+
+[NOTE]
+====
+At the time of writing, a Cloud server is being used as a "master" node to coordinate the performance tests.
+For that reason, the Ansible task which fetches the results from Gatling can and will place those results in the `/root` directory on the node which launched the playbook.
+Issues may arise if the Ansible playbook is run in an environment where the `/root` directory cannot be written to.
+====
+
+== Debugging
+
+=== Running Gatling Manually
+
+If needed, Gatling can be run manually using a command like the following while working in the `repose-aggregator/tests/performance-tests/roles/gatling/files/simulations` directory:
+```
+gatling -s filters.saml.SamlSimulation # <1>
+```
+<1> `filters.saml.SamlSimulation` is the package-qualified class name of the simulation to run.
+It should be replaced with the FQCN of the simulation that should be run.
+
+=== Configuring Gatling Manually
+
+Files and directories of interest:
+
+* `conf/logback.xml` - Lets you turn on debug logging; useful to see the request and response data.
+* `conf/application.conf` - The configuration file read by the simulations.
+* `results/` - Contains all of the results.
+
+== Additional Information
+
+=== Warmup Duration
+
+Run the simple use-case test for 15 minutes with a 5 minute warmup (20 minutes total):
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/use-cases/simple \
+  -e '{gatling: {test: {params: {duration_in_min: 15, warmup_duration_in_min: 5}}}}' \
+  -vvvv
+```
+
+=== Skipping Repose or Origin Service Tests
+
+By default, both the Repose test and the origin service test (i.e., Repose is bypassed) are run.
+You can use Ansible tags to specify that only one of those tests should be run.
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/filters/saml \
+  --tags "repose" \
+  -vvvv
+```
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/filters/saml \
+  --tags "origin" \
+  -vvvv
+```
+
+=== Cloud Server Flavor
+
+You can specify which cloud server flavor to use in the configuration overrides.
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/filters/saml \
+  -e '{cloud: {server: {repose: {flavor: performance1-4}}}}' \
+  -vvvv
+```
+
+=== Increasing Timeout for Repose Startup
+
+By default, the Repose start task will wait 5 minutes for Repose to start up.
+If you expect Repose to take longer to start (e.g., due to a large WADL), you can increase this timeout using a command like the following:
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/filters/saml \
+  -e '{repose: {service: {start_timeout_in_sec: 900}}}' \
+  -vvvv
+```
+
+=== Saxon
+
+To get Repose to use Saxon, add a `saxon.lic` file to the `roles/repose/files/` directory and pass in the following configuration override:
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/filters/saml \
+  -e '{repose: {systemd_opts: {use_saxon: true}}}' \
+  -vvvv
+```
+
+=== JVM Options (Heap size, Garbage Collection, etc.)
+
+You can set the JVM Options (`JAVA_OPTS`) used by Repose by setting the following configuration override:
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/filters/saml \
+  -e '{repose: {systemd_opts: {java_opts: "-Xmx2g -Xms2g -XX:+UseG1GC -XX:+UseStringDeduplication"}}}' \
+  -vvvv
+```
+
+=== Automatic Cloud Resource Cleanup
+
+An Ansibile playbook has been defined that will run a performance test and clean up after itself.
+To run that playbook, switch `start_test.yml` with `site.yml` when running a performance test.
+
+```
+ansible-playbook site.yml \
+  -i inventories/filters/saml \
+  -vvvv
+```
+
+=== Running a Test Again
+
+You can re-run a test using the same cloud resources by simply running the `start_test.yml` playbook again.
+You can even specify different configuration overrides in subsequent runs, although there are some limitations.
+For example, you can enable Saxon for a subsequent run, but you can't disable it afterwards.
+Also, if you don't want the Repose JVM already warmed up from the previous run, you should have Ansible restart the Repose service.
+This feature is considered experimental.
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/filters/saml \
+  -e '{repose: {service: {state: restarted}, systemd_opts: {use_saxon: true}}}' \
+  -vvvv
+```
+
+=== Gatling Output Directory Name
+
+You can specify the base name of the directory containing the Gatling results in the configuration overrides.
+For example, if you wanted the base name `custom-base-name` (resulting in a directory name resembling `custom-base-name-repose-1487812914968`), you would run:
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/filters/saml \
+  -e '{gatling: {results: {output_dir: custom-base-name}}}' \
+  -vvvv
+```
+
+=== Running Parallel Tests
+
+Running a performance test with a unique naming prefix enables you to run a particular inventory multiple times simultaneously (each run requires a unique prefix):
+
+```
+ansible-playbook start_test.yml \
+  -i inventories/filters/saml \
+  -e '{cloud: {naming_prefix: perf_saml_many_issuers}, gatling: {test: {params: {saml: {num_of_issuers: 100}}}}}' \
+  -vvvv
+```
+
+If you're using the `stop_test.yml` playbook to clean up your cloud resources, you'll need to include the unique prefix to ensure the correct resources are deleted.
+If the prefix is not specified, the wrong cloud resources or no cloud resources could end up being deleted, and in both cases, no error will be returned (due to idempotency).
+
+```
+ansible-playbook stop_test.yml \
+  -i inventories/filters/saml \
+  -e '{cloud: {naming_prefix: perf_saml_many_issuers}}' \
+  -vvvv
+```
