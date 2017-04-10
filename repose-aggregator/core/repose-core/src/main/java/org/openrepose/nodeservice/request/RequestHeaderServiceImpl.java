@@ -19,13 +19,12 @@
  */
 package org.openrepose.nodeservice.request;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
-import org.openrepose.core.container.config.DeploymentConfiguration;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
@@ -49,7 +48,6 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
 
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     private static final Logger LOG = LoggerFactory.getLogger(RequestHeaderServiceImpl.class);
-    private final DeploymentConfigurationListener deploymentConfigurationListener;
     private final ContainerConfigurationService containerConfigurationService;
     private final SystemModelListener systemModelListener;
     private final ConfigurationService configurationService;
@@ -58,8 +56,6 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     private final String reposeVersion;
 
     private String hostname;
-    private String viaReceivedBy;
-    private ViaHeaderBuilder viaHeaderBuilder;
     private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Inject
@@ -75,7 +71,6 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
         this.nodeId = nodeId;
         this.reposeVersion = reposeVersion;
 
-        this.deploymentConfigurationListener = new DeploymentConfigurationListener();
         this.systemModelListener = new SystemModelListener();
         healthCheckServiceProxy = healthCheckService.register(); //Sometimes we might deregister before we get to init
     }
@@ -83,20 +78,13 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     @PostConstruct
     public void init() {
         URL systemModelXsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-
-        containerConfigurationService.subscribeTo(deploymentConfigurationListener);
         configurationService.subscribeTo("system-model.cfg.xml", systemModelXsdURL, systemModelListener, SystemModel.class);
     }
 
     @PreDestroy
     public void destroy() {
         healthCheckServiceProxy.deregister();
-        containerConfigurationService.unsubscribeFrom(deploymentConfigurationListener);
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
-    }
-
-    public synchronized void updateConfig(ViaHeaderBuilder viaHeaderBuilder) {
-        this.viaHeaderBuilder = viaHeaderBuilder;
     }
 
     @Override
@@ -106,32 +94,17 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
 
     @Override
     public void setVia(HttpServletRequestWrapper request) {
-        final String via = viaHeaderBuilder.buildVia(request);
-        request.addHeader(CommonHttpHeader.VIA, via);
-    }
-
-    /**
-     * Listens for updates to the container.cfg.xml file which holds the via
-     * header receivedBy value.
-     */
-    private class DeploymentConfigurationListener implements UpdateListener<DeploymentConfiguration> {
-
-        private boolean isInitialized = false;
-
-        @Override
-        public void configurationUpdated(DeploymentConfiguration configurationObject) {
-            viaReceivedBy = containerConfigurationService.getVia().get();
-
-            final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
-            updateConfig(viaBuilder);
-
-            isInitialized = true;
+        final StringBuilder builder = new StringBuilder();
+        this.appendProtocolVersion(builder, request);
+        final Optional<String> requestVia = containerConfigurationService.getRequestVia();
+        if (requestVia.isPresent() && StringUtils.isNotBlank(requestVia.get())) {
+            builder.append(requestVia.get());
+        } else {
+            builder.append(hostname == null ? "Repose" : hostname)
+                    .append(":").append(request.getLocalPort());
         }
-
-        @Override
-        public boolean isInitialized() {
-            return isInitialized;
-        }
+        builder.append(" (Repose/").append(reposeVersion).append(")");
+        request.addHeader(CommonHttpHeader.VIA, builder.toString());
     }
 
     /**
@@ -149,11 +122,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
 
             if (ln.isPresent()) {
                 hostname = ln.get().getHostname();
-
-                final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
-                updateConfig(viaBuilder);
                 isInitialized = true;
-
                 healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");

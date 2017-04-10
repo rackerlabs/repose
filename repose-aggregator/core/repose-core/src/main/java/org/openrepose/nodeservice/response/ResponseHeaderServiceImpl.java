@@ -19,24 +19,21 @@
  */
 package org.openrepose.nodeservice.response;
 
-import org.openrepose.commons.config.manager.UpdateListener;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
-import org.openrepose.core.container.config.DeploymentConfiguration;
-import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
+import java.util.Optional;
 
 @Named
 public class ResponseHeaderServiceImpl implements ResponseHeaderService {
@@ -45,41 +42,33 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     private final String reposeVersion;
     private final ContainerConfigurationService containerConfigurationService;
-    private final DeploymentConfigurationListener configurationListener;
-
-    private ViaHeaderBuilder viaHeaderBuilder;
-    private LocationHeaderBuilder locationHeaderBuilder;
 
     @Inject
     public ResponseHeaderServiceImpl(ContainerConfigurationService containerConfigurationService,
                                      @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion) {
         this.containerConfigurationService = containerConfigurationService;
-        this.configurationListener = new DeploymentConfigurationListener();
         this.reposeVersion = reposeVersion;
-    }
-
-    @PostConstruct
-    public void init() {
-        containerConfigurationService.subscribeTo(configurationListener);
-    }
-
-    @PreDestroy
-    public void destroy() {
-        containerConfigurationService.unsubscribeFrom(configurationListener);
-    }
-
-    public synchronized void updateConfig(ViaHeaderBuilder viaHeaderBuilder, LocationHeaderBuilder locationHeaderBuilder) {
-        this.viaHeaderBuilder = viaHeaderBuilder;
-        this.locationHeaderBuilder = locationHeaderBuilder;
     }
 
     @Override
     public void setVia(HttpServletRequest request, HttpServletResponse response) {
-        final String existingVia = response.getHeader(CommonHttpHeader.VIA);
-        final String myVia = viaHeaderBuilder.buildVia(request);
-        final String via = StringUtilities.isBlank(existingVia) ? myVia : existingVia + ", " + myVia;
-
-        response.setHeader(CommonHttpHeader.VIA, via);
+        final Optional<String> responseVia = containerConfigurationService.getResponseVia();
+        final boolean includeViaReposeVersion = containerConfigurationService.includeViaReposeVersion();
+        if ((responseVia.isPresent() && StringUtils.isNotBlank(responseVia.get())) || includeViaReposeVersion) {
+            final String existingVia = response.getHeader(CommonHttpHeader.VIA);
+            final StringBuilder builder = new StringBuilder();
+            if (StringUtilities.isNotBlank(existingVia)) {
+                builder.append(existingVia).append(", ");
+            }
+            this.appendProtocolVersion(builder, request);
+            if (responseVia.isPresent() && StringUtils.isNotBlank(responseVia.get())) {
+                builder.append(responseVia.get());
+            }
+            if (includeViaReposeVersion) {
+                builder.append(" (Repose/").append(reposeVersion).append(")");
+            }
+            response.setHeader(CommonHttpHeader.VIA, builder.toString());
+        }
     }
 
     @Override
@@ -90,7 +79,7 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
             destinationUri = proxiedRootContext;
         }
         try {
-            locationHeaderBuilder.setLocationHeader(originalRequest, response, destinationUri, destination.getContextRemoved(), proxiedRootContext);
+            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destinationUri, destination.getContextRemoved(), proxiedRootContext);
         } catch (MalformedURLException ex) {
             LOG.warn("Invalid URL in location header processing", ex);
         }
@@ -98,30 +87,5 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     private String cleanPath(String uri) {
         return uri == null ? "" : uri.split("\\?")[0];
-    }
-
-    /**
-     * Listens for updates to the container.cfg.xml file which holds the via
-     * header receivedBy value.
-     */
-    private class DeploymentConfigurationListener implements UpdateListener<DeploymentConfiguration> {
-
-        private boolean isInitialized = false;
-
-        @Override
-        public void configurationUpdated(DeploymentConfiguration configurationObject) {
-            final String viaReceivedBy = containerConfigurationService.getVia().get();
-
-            final ViaResponseHeaderBuilder viaBuilder = new ViaResponseHeaderBuilder(reposeVersion, viaReceivedBy);
-            final LocationHeaderBuilder locationBuilder = new LocationHeaderBuilder();
-            updateConfig(viaBuilder, locationBuilder);
-
-            isInitialized = true;
-        }
-
-        @Override
-        public boolean isInitialized() {
-            return isInitialized;
-        }
     }
 }

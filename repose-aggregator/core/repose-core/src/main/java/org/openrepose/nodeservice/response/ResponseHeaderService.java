@@ -20,11 +20,12 @@
 package org.openrepose.nodeservice.response;
 
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
+import org.openrepose.nodeservice.ReqResHeaderService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public interface ResponseHeaderService {
+public interface ResponseHeaderService extends ReqResHeaderService {
     void setVia(HttpServletRequest request, HttpServletResponse response);
 
     void fixLocationHeader(HttpServletRequest originalRequest, HttpServletResponse response, RouteDestination destination, String destinationLocationUri, String requestedContext);

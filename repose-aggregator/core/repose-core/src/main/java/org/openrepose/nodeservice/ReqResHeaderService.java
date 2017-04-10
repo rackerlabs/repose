@@ -17,27 +17,22 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.nodeservice.response;
+package org.openrepose.nodeservice;
 
-import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.core.services.headers.common.ViaHeaderBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class ViaResponseHeaderBuilder extends ViaHeaderBuilder {
-
-    private final String reposeVersion;
-    private final String viaReceivedBy;
-
-    public ViaResponseHeaderBuilder(String reposeVersion, String configuredViaReceivedBy) {
-        this.reposeVersion = reposeVersion;
-        this.viaReceivedBy = StringUtilities.isBlank(configuredViaReceivedBy) ? "Repose" : configuredViaReceivedBy;
-    }
-
-    @Override
-    protected String getViaValue(HttpServletRequest request) {
-        StringBuilder builder = new StringBuilder(" ");
-
-        return builder.append(viaReceivedBy).append(" (Repose/").append(reposeVersion).append(")").toString();
+public interface ReqResHeaderService {
+    default void appendProtocolVersion(final StringBuilder builder, final HttpServletRequest request) {
+        String requestProtocol = request.getProtocol();
+        LoggerFactory.getLogger(ReqResHeaderService.class).debug("Protocol Received: " + requestProtocol);
+        if (StringUtils.isNotBlank(requestProtocol)) {
+            builder.append(requestProtocol.contains("1.0")
+                    ? "1.0"
+                    : "1.1");
+            builder.append(" ");
+        }
     }
 }
