@@ -32,7 +32,6 @@ public interface ReqResHeaderService {
             builder.append(requestProtocol.contains("1.0")
                     ? "1.0"
                     : "1.1");
-            builder.append(" ");
         }
     }
 }

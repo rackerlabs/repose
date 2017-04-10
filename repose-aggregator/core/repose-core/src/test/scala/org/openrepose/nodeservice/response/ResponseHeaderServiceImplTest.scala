@@ -52,7 +52,7 @@ class ResponseHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with
   describe("The Response Header Service Implementation") {
     val local = Math.abs(Random.nextInt)
     val shouldOrNot: Boolean => String = { boolean => if (boolean) "should" else "should not" }
-    val prefixToString: String => String = { string => if (string != null && string.length > 0) string else "" }
+    val prefixToString: String => String = { string => if (string != null && string.length > 0) s" $string" else "" }
     val versionString: Boolean => String = { boolean => if (boolean) s" (Repose/$version)" else "" }
     Seq("1.0", "1.1") foreach { protocol =>
       Seq("prefix", "", null) foreach { prefix =>
@@ -66,7 +66,7 @@ class ResponseHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with
             responseHeaderServiceImpl.setVia(request, response)
 
             if ((prefix != null && prefix.length > 0) || includeVersion) {
-              verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol ${prefixToString(prefix)}${versionString(includeVersion)}")
+              verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol${prefixToString(prefix)}${versionString(includeVersion)}")
             } else {
               verify(response, never).setHeader(anyString, anyString)
             }
