@@ -67,7 +67,7 @@ class RequestHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with 
 
           requestHeaderServiceImpl.setVia(request)
 
-          verify(request).addHeader(CommonHttpHeader.VIA, s"$protocol ${prefixToString(prefix)} (Repose/$version)}")
+          verify(request).addHeader(CommonHttpHeader.VIA, s"$protocol ${prefixToString(prefix)} (Repose/$version)")
         }
       }
     }
