@@ -59,7 +59,7 @@ class NoViaConfigTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/via/noviaconfigured", params)
+        repose.configurationProvider.applyConfigs("features/core/via/notconfigured", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
 
