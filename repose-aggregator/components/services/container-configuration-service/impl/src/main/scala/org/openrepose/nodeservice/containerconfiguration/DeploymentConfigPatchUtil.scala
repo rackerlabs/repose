@@ -164,7 +164,7 @@ object DeploymentConfigPatchUtil {
     * @return the base configuration object with the patch applied
     */
   def patchViaHeader(base: ViaHeader,
-                            patch: ViaHeaderPatch): ViaHeader = {
+                     patch: ViaHeaderPatch): ViaHeader = {
     Option(patch.isReposeVersion).foreach(base.setReposeVersion)
     Option(patch.getRequestPrefix).foreach(base.setRequestPrefix)
     Option(patch.getResponsePrefix).foreach(base.setResponsePrefix)
