@@ -59,6 +59,7 @@ class NoViaConfigTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/via", params)
         repose.configurationProvider.applyConfigs("features/core/via/notconfigured", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
@@ -111,7 +112,7 @@ class NoViaConfigTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "an existing Via header in the request from the client is not altered"() {
+    def "an existing Via header in the request from the client is not altered with client header: #clientVia"() {
         given: "the client request will contain a Via header"
         Map<String, String> headers = [(VIA): clientVia]
 
@@ -148,7 +149,7 @@ class NoViaConfigTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "an existing Via header in the response from the origin service is not altered"() {
+    def "an existing Via header in the response from the origin service is not altered with server header: #originServiceVia"() {
         given: "the origin service will return the given value in the Via header"
         Closure<Response> originService = { new Response(SC_OK, null, [(VIA): originServiceVia]) }
 
