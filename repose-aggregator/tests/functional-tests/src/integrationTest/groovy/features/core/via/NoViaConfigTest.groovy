@@ -22,7 +22,6 @@ package features.core.via
 
 import framework.ReposeValveTest
 import framework.server.CustomizableSocketServerConnector
-import org.apache.http.HttpResponse
 import org.apache.http.HttpVersion
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
@@ -38,6 +37,7 @@ import spock.lang.Unroll
 import static framework.server.CustomizableSocketServerConnector.HTTP_1_0
 import static framework.server.CustomizableSocketServerConnector.HTTP_1_1
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static org.rackspace.deproxy.Deproxy.REQUEST_ID_HEADER_NAME
 import static org.springframework.http.HttpHeaders.VIA
 
 /**
@@ -84,7 +84,7 @@ class NoViaConfigTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
         then:
-        mc.handlings[0].request.headers.getFirstValue(VIA) == "1.1 Repose (Repose/$reposeVersion)"
+        mc.receivedResponse.headers.getFirstValue(VIA) == "1.1 Repose (Repose/$reposeVersion)"
     }
 
     def "for an HTTP/1.0 request from the client, the default Via header is added to the request going to the origin service with the correct protocol"() {
@@ -93,11 +93,20 @@ class NoViaConfigTest extends ReposeValveTest {
         HttpUriRequest request = new HttpGet(reposeEndpoint)
         request.setProtocolVersion(HttpVersion.HTTP_1_0)
 
+        and: "Deproxy will track the request to the origin service"
+        MessageChain mc = new MessageChain()
+        String requestId = UUID.randomUUID().toString()
+        deproxy.addMessageChain(requestId, mc)
+        request.addHeader(REQUEST_ID_HEADER_NAME, requestId)
+
         when:
-        HttpResponse response = client.execute(request)
+        client.execute(request)
 
         then:
-        response.getFirstHeader(VIA).value == "1.0 localhost:$reposePort (Repose/$reposeVersion)"
+        mc.handlings[0].request.headers.getFirstValue(VIA) == "1.0 localhost:$reposePort (Repose/$reposeVersion)"
+
+        cleanup:
+        deproxy.removeMessageChain(requestId)
     }
 
     def "for an HTTP/1.0 response from the origin service, the default Via header is added to the response going to the client with the correct protocol"() {
@@ -108,7 +117,7 @@ class NoViaConfigTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
         then:
-        mc.handlings[0].request.headers.getFirstValue(VIA) == "1.0 Repose (Repose/$reposeVersion)"
+        mc.receivedResponse.headers.getFirstValue(VIA) == "1.0 Repose (Repose/$reposeVersion)"
     }
 
     @Unroll
@@ -161,7 +170,7 @@ class NoViaConfigTest extends ReposeValveTest {
 
         then: "the response to the client will have the original list of proxies and the new Repose value"
         String expectedNewValue = "1.1 Repose (Repose/$reposeVersion)"
-        List<String> actualViaHeaders = mc.handlings[0].request.headers.findAll(VIA)
+        List<String> actualViaHeaders = mc.receivedResponse.headers.findAll(VIA)
 
         // test should not care if the Repose value was appended or added to the header, so accept either behavior
         (actualViaHeaders.size() == 1 && actualViaHeaders[0] == "$originServiceVia, $expectedNewValue") ||
