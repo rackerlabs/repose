@@ -65,7 +65,9 @@ class ResponseHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with
 
             responseHeaderServiceImpl.setVia(request, response)
 
-            if ((prefix != null && prefix.length > 0) || includeVersion) {
+            if ((prefix == null || prefix.length == 0) && includeVersion) {
+              verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol Repose${versionString(includeVersion)}")
+            } else if ((prefix != null && prefix.length > 0) || includeVersion) {
               verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol${prefixToString(prefix)}${versionString(includeVersion)}")
             } else {
               verify(response, never).setHeader(anyString, anyString)
