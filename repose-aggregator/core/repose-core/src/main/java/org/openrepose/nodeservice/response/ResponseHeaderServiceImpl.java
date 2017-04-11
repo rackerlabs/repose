@@ -61,11 +61,16 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
                 builder.append(existingVia).append(", ");
             }
             this.appendProtocolVersion(builder, request);
+            boolean addedVia = false;
             if (responseVia.isPresent() && StringUtils.isNotBlank(responseVia.get())) {
                 builder.append(" ");
                 builder.append(responseVia.get());
+                addedVia = true;
             }
             if (includeViaReposeVersion) {
+                if (!addedVia) {
+                    builder.append(" Repose");
+                }
                 builder.append(" (Repose/").append(reposeVersion).append(")");
             }
             response.setHeader(CommonHttpHeader.VIA, builder.toString());
