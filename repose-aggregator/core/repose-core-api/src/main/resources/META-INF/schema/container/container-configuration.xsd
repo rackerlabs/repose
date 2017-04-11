@@ -20,7 +20,8 @@
   -->
 
 
-<xs:schema xmlns:papic="http://docs.openrepose.org/repose/container/v2.0" xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema xmlns:papic="http://docs.openrepose.org/repose/container/v2.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xerces="http://xerces.apache.org"
@@ -161,7 +162,8 @@
                     </xs:annotation>
                 </xs:attribute>
                 <xs:assert vc:minVersion="1.1"
-                           test="count((@via, ./papic:via-header)) le 1"
+                           xpathDefaultNamespace="##targetNamespace"
+                           test="count((@via, via-header)) le 1"
                            xerces:message="Cannot define both a deprecated via attribute and the new via-header element"
                            saxon:message="Cannot define both a deprecated via attribute and the new via-header element"/>
             </xs:extension>
@@ -210,7 +212,8 @@
                     </xs:annotation>
                 </xs:attribute>
                 <xs:assert vc:minVersion="1.1"
-                           test="count((@via, ./papic:via-header)) le 1"
+                           xpathDefaultNamespace="##targetNamespace"
+                           test="count((@via, via-header)) le 1"
                            xerces:message="Cannot define both a deprecated via attribute and the new via-header element"
                            saxon:message="Cannot define both a deprecated via attribute and the new via-header element"/>
             </xs:extension>
