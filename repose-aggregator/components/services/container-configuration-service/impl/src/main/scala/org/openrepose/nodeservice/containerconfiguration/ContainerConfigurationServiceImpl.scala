@@ -67,7 +67,9 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     initializationCheck()
     Option(patchedDeploymentConfiguration.getViaHeader)
       .map(viaHdr => Optional.ofNullable(viaHdr.getRequestPrefix))
-      .getOrElse(Optional.empty())
+      // TODO for v9.0.0.0: This will need updated.
+      .getOrElse(Optional.ofNullable(patchedDeploymentConfiguration.getVia))
+      //.getOrElse(Optional.empty())
   }
 
   override def getResponseVia: Optional[String] = {
