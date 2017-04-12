@@ -87,9 +87,7 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
 
   override def includeViaReposeVersion: Boolean = {
     initializationCheck()
-    Option(patchedDeploymentConfiguration.getViaHeader)
-      .map(_.isReposeVersion)
-      .orElse(Option(true)).get
+    Option(patchedDeploymentConfiguration.getViaHeader).forall(_.isReposeVersion)
   }
 
   override def getContentBodyReadLimit: Optional[Long] = {
