@@ -78,7 +78,7 @@ The command in "How To Run Performance Tests Using Vagrant" shows the Ansible Pl
 ====
 Ansible Playbooks support Jinja2 templates.
 These templates allow users to add dynamic content to files.
-Most if not all of the configuration files that were referred to above will be Jinja2 files, distinguishable by the `.j2` file extension.
+Most if not all of the configuration files that were referred to above will be Jinja2 files, distinguishable by the additional `.j2` file extension.
 ====
 
 === Running a Test Automatically
@@ -99,7 +99,7 @@ The Jenkins job will run the performance tests automatically, and publish the re
 +
 [NOTE]
 ====
-We use of Puppet to manage our performance test environment.
+We use Puppet to manage our performance test environment.
 The details of our environment can be found in our [Puppet manifest].
 If you have https://puppet.com/[Puppet] installed, you can download our manifest and re-create our environment by running `puppet apply` directly on the downloaded file.
 ====
@@ -143,7 +143,7 @@ Grafana serves as the user interface to performance test data.
 
 === HTML Report
 
-After test execution has completed, Gatling will generate a HTML report.
+After test execution has completed, Gatling will generate an HTML report.
 The report can be found inside an archive residing in the `/root` directory with a file name like `gatling-results-repose-1487613066553.tar.gz`.
 The exact file name will be included in the output of the `Fetch the Gatling results` task which will resemble the following snippet:
 ```
