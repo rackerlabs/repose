@@ -50,6 +50,8 @@ class CustomizableSocketServerConnector extends SocketServerConnector {
             response.message = ""
         }
 
+        log.debug("Sending HTTP protocol $httpProtocol")
+
         writer.write("$httpProtocol ${response.code} ${response.message}")
         writer.write("\r\n")
 

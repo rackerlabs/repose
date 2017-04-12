@@ -22,6 +22,7 @@ package features.core.via
 
 import framework.ReposeValveTest
 import framework.server.CustomizableSocketServerConnector
+import org.apache.http.HttpResponse
 import org.apache.http.HttpVersion
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
@@ -31,6 +32,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -73,7 +75,7 @@ class ViaHeaderOldAttributeConfigTest extends ReposeValveTest {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
-        then:
+        then: "the request to the origin service should have a Via header with the given value"
         mc.handlings[0].request.headers.getFirstValue(VIA) == "1.1 $VIA_PREFIX (Repose/$reposeVersion)"
     }
 
@@ -84,7 +86,7 @@ class ViaHeaderOldAttributeConfigTest extends ReposeValveTest {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
-        then:
+        then: "the response to the client should have a Via header with the given value"
         mc.receivedResponse.headers.getFirstValue(VIA) == "1.1 $VIA_PREFIX (Repose/$reposeVersion)"
     }
 
@@ -103,13 +105,14 @@ class ViaHeaderOldAttributeConfigTest extends ReposeValveTest {
         when:
         client.execute(request)
 
-        then:
+        then: "the request to the origin service should have a Via header with the given value"
         mc.handlings[0].request.headers.getFirstValue(VIA) == "1.0 $VIA_PREFIX (Repose/$reposeVersion)"
 
         cleanup:
         deproxy.removeMessageChain(requestId)
     }
 
+    @Ignore("Repose does not support reading the HTTP Protocol of the origin service response but should (RFC 7230 - 5.7.1)")
     def "for an HTTP/1.0 response from the origin service, the Via header in the response going to the client should contain the configured value"() {
         given: "the origin service will return an HTTP/1.0 response"
         socketServerConnector.httpProtocol = HTTP_1_0
@@ -117,8 +120,58 @@ class ViaHeaderOldAttributeConfigTest extends ReposeValveTest {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
-        then:
+        then: "the response to the client should have a Via header with the given value"
         mc.receivedResponse.headers.getFirstValue(VIA) == "1.0 $VIA_PREFIX (Repose/$reposeVersion)"
+    }
+
+    def "for an HTTP/1.0 request and HTTP/1.1 response, the Via header in the response going to the client should contain the configured value"() {
+        given: "the client will make an HTTP/1.0 request"
+        HttpClient client = HttpClients.createDefault()
+        HttpUriRequest request = new HttpGet(reposeEndpoint)
+        request.setProtocolVersion(HttpVersion.HTTP_1_0)
+
+        and: "Deproxy will track the request to the origin service"
+        MessageChain mc = new MessageChain()
+        String requestId = UUID.randomUUID().toString()
+        deproxy.addMessageChain(requestId, mc)
+        request.addHeader(REQUEST_ID_HEADER_NAME, requestId)
+
+        and: "the origin service will return an HTTP/1.1 response"
+        socketServerConnector.httpProtocol = HTTP_1_1
+
+        when:
+        HttpResponse response = client.execute(request)
+
+        then: "the response to the client should have a Via header with the given value"
+        response.getFirstHeader(VIA).getValue() == "1.1 $VIA_PREFIX (Repose/$reposeVersion)"
+
+        cleanup:
+        deproxy.removeMessageChain(requestId)
+    }
+
+    def "for an HTTP/1.0 request and response, the Via header in the response going to the client should contain the configured value"() {
+        given: "the client will make an HTTP/1.0 request"
+        HttpClient client = HttpClients.createDefault()
+        HttpUriRequest request = new HttpGet(reposeEndpoint)
+        request.setProtocolVersion(HttpVersion.HTTP_1_0)
+
+        and: "Deproxy will track the request to the origin service"
+        MessageChain mc = new MessageChain()
+        String requestId = UUID.randomUUID().toString()
+        deproxy.addMessageChain(requestId, mc)
+        request.addHeader(REQUEST_ID_HEADER_NAME, requestId)
+
+        and: "the origin service will return an HTTP/1.0 response"
+        socketServerConnector.httpProtocol = HTTP_1_0
+
+        when:
+        HttpResponse response = client.execute(request)
+
+        then: "the response to the client should have a Via header with the given value"
+        response.getFirstHeader(VIA).getValue() == "1.0 $VIA_PREFIX (Repose/$reposeVersion)"
+
+        cleanup:
+        deproxy.removeMessageChain(requestId)
     }
 
     @Unroll
