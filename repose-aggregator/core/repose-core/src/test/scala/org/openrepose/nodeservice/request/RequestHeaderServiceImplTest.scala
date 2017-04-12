@@ -21,6 +21,7 @@ package org.openrepose.nodeservice.request
 
 import java.util.Optional
 
+import org.apache.commons.lang3.StringUtils
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -63,7 +64,7 @@ class RequestHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with 
         it(s"should set the Via header with protocol '$protocol', prefix '$prefix', and should include version '$version'") {
           when(request.getLocalPort).thenReturn(local)
           when(request.getProtocol).thenReturn(s"HTTP/$protocol")
-          when(containerConfigurationService.getRequestVia).thenReturn(Optional.ofNullable(prefix))
+          when(containerConfigurationService.getRequestVia).thenReturn(Optional.ofNullable(Option(prefix).filter(StringUtils.isNotBlank).orNull))
 
           requestHeaderServiceImpl.setVia(request)
 

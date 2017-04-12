@@ -19,7 +19,6 @@
  */
 package org.openrepose.nodeservice.request;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestUtil;
@@ -99,7 +98,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
         builder.append(HttpServletRequestUtil.getProtocolVersion(request));
         final Optional<String> requestVia = containerConfigurationService.getRequestVia();
         builder.append(" ");
-        if (requestVia.isPresent() && StringUtils.isNotBlank(requestVia.get())) {
+        if (requestVia.isPresent()) {
             builder.append(requestVia.get());
         } else {
             builder.append(hostname == null ? "Repose" : hostname)

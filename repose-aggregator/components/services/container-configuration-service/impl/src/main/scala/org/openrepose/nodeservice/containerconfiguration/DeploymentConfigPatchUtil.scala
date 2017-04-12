@@ -19,6 +19,7 @@
  */
 package org.openrepose.nodeservice.containerconfiguration
 
+import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.container.config._
 
@@ -166,8 +167,8 @@ object DeploymentConfigPatchUtil {
   def patchViaHeader(base: ViaHeader,
                      patch: ViaHeaderPatch): ViaHeader = {
     Option(patch.isReposeVersion).foreach(base.setReposeVersion)
-    Option(patch.getRequestPrefix).foreach(base.setRequestPrefix)
-    Option(patch.getResponsePrefix).foreach(base.setResponsePrefix)
+    Option(patch.getRequestPrefix).filter(StringUtils.isNotBlank).foreach(base.setRequestPrefix)
+    Option(patch.getResponsePrefix).filter(StringUtils.isNotBlank).foreach(base.setResponsePrefix)
 
     base
   }
