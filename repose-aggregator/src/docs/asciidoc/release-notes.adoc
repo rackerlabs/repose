@@ -4,14 +4,15 @@ include::_includes/in-progress.adoc[]
 
 == Future Release
 * https://repose.atlassian.net/browse/REP-4024[REP-4024] - the <<filters/header-normalization.adoc#, Header Normalization filter>> updated to include removing headers on the Response.
-* https://repose.atlassian.net/browse/REP-3901[REP-3901] - The Debian and RPM Repose Valve and WAR artifacts will now create the `repose` user and group even if the configuration files are already present.
+* https://repose.atlassian.net/browse/REP-3901[REP-3901] - the Debian and RPM Repose Valve and WAR artifacts will now create the `repose` user and group even if the configuration files are already present.
 * https://repose.atlassian.net/browse/REP-5130[REP-5130] - <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>> now gives a more specific and quieter log message when it runs into a non-xml or non-json content type.
-* https://repose.atlassian.net/browse/REP-4754[REP-4754] - the <<filters/rate-limiting.adoc#, Rate Limiting filter>> now returns a 406 if a user requests an unsupported media type in the `Accept` header.
+* https://repose.atlassian.net/browse/REP-4754[REP-4754] - the <<filters/rate-limiting.adoc#, Rate Limiting filter>> now returns a 406 if a user requests limits with an unsupported media type in the `Accept` header.
 * https://repose.atlassian.net/browse/REP-4725[REP-4725] - Repose will no longer add a `Server` header to responses from neither the main endpoint nor the Dist-Datastore endpoint.
 * https://repose.atlassian.net/browse/REP-5204[REP-5204] - the <<services/metrics.adoc#, Metrics Service>> library has been updated from Yammer v2.2.0 to Dropwizard v3.2.0.
 The service interface has also been modified to provide a simpler, more flexible experience.
-* https://repose.atlassian.net/browse/REP-5214[REP-5214] - The `Via` header configuration has been expanded in a backwards compatible way.
-However, there were some internal contract changes with the Via and Location header builders, but they should not affected any custom filters.
+* https://repose.atlassian.net/browse/REP-5214[REP-5214] - the `Via` header configuration has been expanded in a backwards compatible way.
+However, there were some internal contract changes with the Via and Location header builders, but they should not affect any custom filters.
+* https://repose.atlassian.net/browse/REP-4465[REP-4465] - certain `enum`s provided by Repose have been replaced by classes holding the same constant values.
 
 == 8.4.1.0
 
