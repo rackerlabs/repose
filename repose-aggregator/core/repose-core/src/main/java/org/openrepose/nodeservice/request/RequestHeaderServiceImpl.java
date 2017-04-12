@@ -98,11 +98,10 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
         final StringBuilder builder = new StringBuilder();
         builder.append(HttpServletRequestUtil.getProtocolVersion(request));
         final Optional<String> requestVia = containerConfigurationService.getRequestVia();
+        builder.append(" ");
         if (requestVia.isPresent() && StringUtils.isNotBlank(requestVia.get())) {
-            builder.append(" ");
             builder.append(requestVia.get());
         } else {
-            builder.append(" ");
             builder.append(hostname == null ? "Repose" : hostname)
                     .append(":").append(request.getLocalPort());
         }
