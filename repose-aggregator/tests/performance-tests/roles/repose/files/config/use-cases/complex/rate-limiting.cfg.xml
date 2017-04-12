@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting overLimit-429-responseCode="true"
+               use-capture-groups="true"
+               xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0"
+>
+    <request-endpoint uri-regex="/limits/?" include-absolute-limits="false"/>
+    <limit-group id="Verify_By_User_ID" groups="User_Standard">
+        <limit id="verification-01"
+               uri="/v2.1/users/*/verification"
+               uri-regex="(/).*/v2.1/users/[\w\d]*/verification"
+               http-methods="PUT"
+               unit="MINUTE"
+               value="10"/>
+    </limit-group>
+    <limit-group id="unlimited" groups="IP_Super" default="false"/>
+</rate-limiting>

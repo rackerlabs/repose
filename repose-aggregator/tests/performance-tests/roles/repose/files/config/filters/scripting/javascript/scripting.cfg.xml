@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="javascript"><![CDATA[
+    var path = request.getRequestURI();
+
+    if (path.startsWith("/")) {
+      path = path.substring(1);
+    }
+
+    var pathSegments = path.split("/");
+    var queryString = request.getQueryString();
+
+    if (pathSegments.length >= 2) {
+        if (queryString != null) {
+            queryString = queryString + "&penultimate=" + pathSegments[pathSegments.length - 2] + "&ultimate=" + pathSegments[pathSegments.length - 1];
+        } else {
+            queryString = "penultimate=" + pathSegments[pathSegments.length - 2] + "&ultimate=" + pathSegments[pathSegments.length - 1];
+        }
+
+        request.setQueryString(queryString);
+        request.setRequestURI("/" + pathSegments.slice(-2).join("/"));
+    }
+
+    filterChain.doFilter(request, response);
+]]></scripting>

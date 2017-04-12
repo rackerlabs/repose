@@ -1,0 +1,8 @@
+#jinja2: trim_blocks: "true", lstrip_blocks: "true"
+[Service]
+{% if repose.systemd_opts.use_saxon %}
+Environment="SAXON_HOME=/etc/repose"
+{% endif %}
+{% if repose.systemd_opts.java_opts is defined %}
+Environment="JAVA_OPTS={{ repose.systemd_opts.java_opts }}"
+{% endif %}

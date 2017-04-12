@@ -1,0 +1,59 @@
+- name: Install pip
+  apt:
+    pkg: python-pip
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+  become: yes
+
+- name: Install Maven
+  apt:
+    pkg: maven
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+  when: build_tool is not defined or build_tool == "maven"
+  become: yes
+
+- name: Install RPM
+  apt:
+    pkg: rpm
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+  become: yes
+
+- name: Install Java 8
+  apt:
+    pkg: openjdk-8-jdk
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+  become: yes
+
+- name: Install Git
+  apt: pkg=git state=latest
+  become: yes
+
+- name: Install Requests
+  pip: name=requests
+  become: yes
+
+- name: Install Repose
+  repose:
+    state: installed
+    release: "{{ repose.install.release | default('') }}"
+  when: repose.install.release is defined
+  async: 1200
+  poll: 30
+
+- name: Install Repose from a git repo
+  repose:
+    state: installed
+    git_build: "{{ repose.install.git.build }}"
+    git_repo: "{{ repose.install.git.repo }}"
+    git_branch: "{{ repose.install.git.branch }}"
+    build_tool: "{{ repose.install.git.build_tool }}"
+  when: repose.install.release is not defined
+  async: 1200
+  poll: 30

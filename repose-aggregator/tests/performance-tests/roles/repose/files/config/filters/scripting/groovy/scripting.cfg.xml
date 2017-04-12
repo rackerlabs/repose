@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy"><![CDATA[
+    path = request.getRequestURI()
+    pathSegments = path.tokenize("/")
+    queryString = request.getQueryString()
+
+    if (pathSegments.size() >= 2) {
+        if (queryString != null) {
+            queryString = queryString + "&penultimate=" + pathSegments.get(pathSegments.size() - 2) + "&ultimate=" + pathSegments.get(pathSegments.size() - 1)
+        } else {
+            queryString = "penultimate=" + pathSegments.get(pathSegments.size() - 2) + "&ultimate=" + pathSegments.get(pathSegments.size() - 1)
+        }
+
+        request.setQueryString(queryString)
+        request.setRequestURI("/" + pathSegments.dropRight(2).join("/"))
+    }
+
+    // Call the next filter in the chain
+    filterChain.doFilter(request, response)
+]]></scripting>

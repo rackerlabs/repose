@@ -63,3 +63,10 @@ log.txt
 .metadata
 .classpath
 .settings
+
+# Saxon
+saxon-license.lic
+
+# Performance test
+*.raxpub
+*.retry

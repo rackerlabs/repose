@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+
+    <!-- Configuration for the default pool. Any users of the service will by default, retrieve HTTP connections
+        using this default pool configuration.
+    -->
+    <pool id="default"
+        default="true"
+        http.conn-manager.max-total="200"
+        http.conn-manager.max-per-route="50"
+        http.socket.timeout="120000"
+        http.socket.buffer-size="16384"
+        http.connection.timeout="30000"
+        http.connection.max-line-length="8192"
+        http.connection.max-header-count="256"
+        http.connection.max-status-line-garbage="100"
+        http.tcp.nodelay="true"
+        keepalive.timeout="10000"/>
+
+    <pool id="keystone-v2-pool"
+          default="false"
+          http.conn-manager.max-total="200"
+          http.conn-manager.max-per-route="50"
+          http.socket.timeout="30000"
+          http.socket.buffer-size="16384"
+          http.connection.timeout="30000"
+          http.connection.max-line-length="8192"
+          http.connection.max-header-count="100"
+          http.connection.max-status-line-garbage="100"
+          http.tcp.nodelay="true"
+          keepalive.timeout="0"/>
+</http-connection-pools>

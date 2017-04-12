@@ -1,0 +1,70 @@
+{
+  dir_prefix: "filters/saml",
+  cloud: {
+    region: "IAD",
+    naming_prefix: "perf_saml",
+    server: {
+      image: "5cf469a9-c4f3-4455-ab1b-7f07ed2b9dec"  # public Ubuntu 16.04 LTS (PVHVM)
+    }
+  },
+  repose: {
+    config: {
+      system_model: {
+        http_port: 7070,
+        origin_port: 9090,
+        filters: [
+          { name: "saml-policy" }
+        ]
+      },
+      container: {
+        read_limit: 2097152
+      }
+    },
+    config_files: {
+      templates: [
+        "container.cfg.xml",
+        "system-model.cfg.xml",
+        "{{ dir_prefix }}/saml-policy.cfg.xml"
+      ],
+      files: [
+        "log4j2.xml",
+        "{{ dir_prefix }}/single.jks"
+      ]
+    },
+    systemd_opts: {
+      java_opts: "-Xmx1g -Xms1g"
+    }
+  },
+  nodejs: {
+    repo: "node_6.x"
+  },
+  mock: {
+    npm_package_file: "{{ dir_prefix }}/package.json",
+    backends: [
+      "{{ dir_prefix }}/keystone.js"
+    ]
+  },
+  gatling: {
+    test: {
+      name: "SamlSimulation",
+      package: "filters.saml",
+      config: "{{ dir_prefix }}/saml_simulation.conf",
+      params: {
+        throughput: 100,
+        ramp_up_users: {
+          new_per_sec: 2,
+          duration_in_sec: 25
+        },
+        saml: {
+          num_of_issuers: 1,
+          include_legacy_issuer: false,
+          xml_body: false
+        }
+      }
+    },
+    payloads: {
+      src_dir: "{{ dir_prefix }}",
+      dest_dir: "saml-payloads"
+    }
+  }
+}

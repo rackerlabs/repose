@@ -1,0 +1,17 @@
+- include: debug_info.yml
+  tags: [repose, origin]
+
+- include: install_mocks.yml
+  tags: [repose, origin]
+
+- include: run_mocks.yml
+  tags: [repose, origin]
+
+- include: install_repose.yml
+  tags: [repose]
+
+- include: configure_repose.yml
+  tags: [repose]
+
+- include: run_repose.yml
+  tags: [repose]
