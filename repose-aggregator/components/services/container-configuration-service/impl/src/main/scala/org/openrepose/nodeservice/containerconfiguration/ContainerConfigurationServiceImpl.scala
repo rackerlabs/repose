@@ -147,10 +147,11 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
 
   // Note: The container configuration should be read on init of this class. As such, this check
   //       should not ever fail.
-  private def initializationCheck(): Unit =
-  if (!isInitialized) {
-    logger.error(NotInitializedMessage)
-    throw new IllegalStateException(NotInitializedMessage)
+  private def initializationCheck(): Unit = {
+    if (!isInitialized) {
+      logger.error(NotInitializedMessage)
+      throw new IllegalStateException(NotInitializedMessage)
+    }
   }
 }
 
