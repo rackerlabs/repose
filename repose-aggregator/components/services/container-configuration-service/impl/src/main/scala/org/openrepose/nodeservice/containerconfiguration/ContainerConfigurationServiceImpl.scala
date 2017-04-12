@@ -65,20 +65,24 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
 
   override def getRequestVia: Optional[String] = {
     initializationCheck()
-    Option(patchedDeploymentConfiguration.getViaHeader)
-      .map(viaHdr => Optional.ofNullable(viaHdr.getRequestPrefix))
-      // TODO for v9.0.0.0: This will need updated.
-      .getOrElse(Optional.ofNullable(patchedDeploymentConfiguration.getVia))
-      //.getOrElse(Optional.empty())
+    Optional ofNullable {
+      Option(patchedDeploymentConfiguration.getViaHeader)
+        .map(_.getRequestPrefix)
+        // TODO for v9.0.0.0: Remove the .orElse().
+        .orElse(Option(patchedDeploymentConfiguration.getVia))
+        .orNull
+    }
   }
 
   override def getResponseVia: Optional[String] = {
     initializationCheck()
-    Option(patchedDeploymentConfiguration.getViaHeader)
-      .map(viaHdr => Optional.ofNullable(viaHdr.getResponsePrefix))
-      // TODO for v9.0.0.0: This will need updated.
-      .getOrElse(Optional.ofNullable(patchedDeploymentConfiguration.getVia))
-      //.getOrElse(Optional.empty())
+    Optional ofNullable {
+      Option(patchedDeploymentConfiguration.getViaHeader)
+        .map(_.getResponsePrefix)
+        // TODO for v9.0.0.0: Remove the .orElse().
+        .orElse(Option(patchedDeploymentConfiguration.getVia))
+        .orNull
+    }
   }
 
   override def includeViaReposeVersion: Boolean = {
