@@ -22,6 +22,7 @@ package org.openrepose.nodeservice.request;
 import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestUtil;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.filter.SystemModelInterrogator;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -95,7 +96,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     @Override
     public void setVia(HttpServletRequestWrapper request) {
         final StringBuilder builder = new StringBuilder();
-        this.appendProtocolVersion(builder, request);
+        builder.append(HttpServletRequestUtil.getProtocolVersion(request));
         final Optional<String> requestVia = containerConfigurationService.getRequestVia();
         if (requestVia.isPresent() && StringUtils.isNotBlank(requestVia.get())) {
             builder.append(" ");

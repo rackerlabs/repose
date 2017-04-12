@@ -17,21 +17,25 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.nodeservice;
+package org.openrepose.commons.utils.servlet.http;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
-public interface ReqResHeaderService {
-    default void appendProtocolVersion(final StringBuilder builder, final HttpServletRequest request) {
-        String requestProtocol = request.getProtocol();
-        LoggerFactory.getLogger(ReqResHeaderService.class).debug("Protocol Received: " + requestProtocol);
+public class HttpServletRequestUtil {
+    private HttpServletRequestUtil() {
+        // Prevent construction of this utility class.
+    }
+
+    public static String getProtocolVersion(final HttpServletRequest request) {
+        String rtn = "";
+        final String requestProtocol = request.getProtocol();
         if (StringUtils.isNotBlank(requestProtocol)) {
-            builder.append(requestProtocol.contains("1.0")
+            rtn = requestProtocol.contains("1.0")
                     ? "1.0"
-                    : "1.1");
+                    : "1.1";
         }
+        return rtn;
     }
 }

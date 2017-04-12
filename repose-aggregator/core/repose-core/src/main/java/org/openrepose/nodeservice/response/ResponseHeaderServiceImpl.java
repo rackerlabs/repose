@@ -22,6 +22,7 @@ package org.openrepose.nodeservice.response;
 import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestUtil;
 import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
@@ -60,7 +61,7 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
             if (StringUtilities.isNotBlank(existingVia)) {
                 builder.append(existingVia).append(", ");
             }
-            this.appendProtocolVersion(builder, request);
+            builder.append(HttpServletRequestUtil.getProtocolVersion(request));
             boolean addedVia = false;
             if (responseVia.isPresent() && StringUtils.isNotBlank(responseVia.get())) {
                 builder.append(" ");
