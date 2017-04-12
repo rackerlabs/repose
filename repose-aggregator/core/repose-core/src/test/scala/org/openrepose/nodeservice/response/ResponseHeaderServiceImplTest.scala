@@ -31,8 +31,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
-import scala.util.Random
-
 @RunWith(classOf[JUnitRunner])
 class ResponseHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
@@ -50,30 +48,57 @@ class ResponseHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with
   }
 
   describe("The Response Header Service Implementation") {
-    val local = Math.abs(Random.nextInt)
-    val shouldOrNot: Boolean => String = { boolean => if (boolean) "should" else "should not" }
-    val prefixToString: String => String = { string => if (string != null && string.length > 0) s" $string" else "" }
+
+    val withOrOut: Boolean => String = { boolean => if (boolean) "with" else "without" }
     val versionString: Boolean => String = { boolean => if (boolean) s" (Repose/$version)" else "" }
-    Seq("1.0", "1.1") foreach { protocol =>
-      Seq("prefix", "", null) foreach { prefix =>
-        Seq(true, false) foreach { includeVersion =>
-          it(s"${shouldOrNot((prefix != null && prefix.length > 0) || includeVersion)} set the Via header with protocol '$protocol', prefix '$prefix', and includeVersion '$includeVersion'") {
-            when(request.getLocalPort).thenReturn(local)
-            when(request.getProtocol).thenReturn(s"HTTP/$protocol")
-            when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable(prefix))
-            when(containerConfigurationService.includeViaReposeVersion()).thenReturn(includeVersion)
+    Seq(
+      ("1.0", "prefix", true),
+      ("1.0", "prefix", false),
+      ("1.1", "prefix", true),
+      ("1.1", "prefix", false)
+    ) foreach { case (protocol, prefix, includeVersion) =>
+      it(s"should set the Via header with protocol '$protocol', prefix '$prefix', and ${withOrOut(includeVersion)} version '$version'") {
+        when(request.getProtocol).thenReturn(s"HTTP/$protocol")
+        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable(prefix))
+        when(containerConfigurationService.includeViaReposeVersion()).thenReturn(includeVersion)
 
-            responseHeaderServiceImpl.setVia(request, response)
+        responseHeaderServiceImpl.setVia(request, response)
 
-            if ((prefix == null || prefix.length == 0) && includeVersion) {
-              verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol Repose${versionString(includeVersion)}")
-            } else if ((prefix != null && prefix.length > 0) || includeVersion) {
-              verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol${prefixToString(prefix)}${versionString(includeVersion)}")
-            } else {
-              verify(response, never).setHeader(anyString, anyString)
-            }
-          }
-        }
+        verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol $prefix${versionString(includeVersion)}")
+      }
+    }
+
+    Seq(
+      ("1.0", "", true),
+      ("1.0", null, true),
+      ("1.1", "", true),
+      ("1.1", null, true)
+    ) foreach { case (protocol, prefix, includeVersion) =>
+      it(s"should set the Via header with protocol '$protocol', default prefix 'Repose' not '$prefix', and version '$version'") {
+        when(request.getProtocol).thenReturn(s"HTTP/$protocol")
+        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable(prefix))
+        when(containerConfigurationService.includeViaReposeVersion()).thenReturn(includeVersion)
+
+        responseHeaderServiceImpl.setVia(request, response)
+
+        verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol Repose (Repose/$version)")
+      }
+    }
+
+    Seq(
+      ("1.0", "", false),
+      ("1.0", null, false),
+      ("1.1", "", false),
+      ("1.1", null, false)
+    ) foreach { case (protocol, prefix, includeVersion) =>
+      it(s"should not set the Via header with protocol '$protocol', prefix '$prefix', or version '$version'") {
+        when(request.getProtocol).thenReturn(s"HTTP/$protocol")
+        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable(prefix))
+        when(containerConfigurationService.includeViaReposeVersion()).thenReturn(includeVersion)
+
+        responseHeaderServiceImpl.setVia(request, response)
+
+        verify(response, never).setHeader(anyString, anyString)
       }
     }
   }
