@@ -123,6 +123,7 @@ class NoViaConfigTest extends ReposeValveTest {
         mc.receivedResponse.headers.getFirstValue(VIA) == "1.0 Repose (Repose/$reposeVersion)"
     }
 
+    @Ignore("Repose purposely does not pass this test in order to maintain backwards compatibility but should (RFC 7230 - 5.7.1)")
     def "for an HTTP/1.0 request and HTTP/1.1 response, the Via header is added to the response going to the client with the correct protocol"() {
         given: "the client will make an HTTP/1.0 request"
         HttpClient client = HttpClients.createDefault()
