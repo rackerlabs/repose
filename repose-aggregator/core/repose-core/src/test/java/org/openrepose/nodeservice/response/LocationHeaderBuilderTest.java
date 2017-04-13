@@ -35,13 +35,11 @@ import static org.mockito.Mockito.*;
 public class LocationHeaderBuilderTest {
 
     public static class WhenRewritingLocationHeaders {
-        private LocationHeaderBuilder instance;
         private HttpServletRequest originalRequest;
         private HttpServletResponse response;
 
         @Before
         public void setUp() {
-            instance = new LocationHeaderBuilder();
             originalRequest = mock(HttpServletRequest.class);
             response = mock(HttpServletResponse.class);
 
@@ -62,11 +60,10 @@ public class LocationHeaderBuilderTest {
 
             when(response.getHeader(eq(LOCATION))).thenReturn("http://myhost.com:8080/mocks/test");
 
-            instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com:8080/test";
             verify(response).setHeader(eq(LOCATION), eq(expected));
-
         }
 
         @Test
@@ -83,11 +80,10 @@ public class LocationHeaderBuilderTest {
 
             when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test");
 
-            instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com:8080/test";
             verify(response).setHeader(eq(LOCATION), eq(expected));
-
         }
 
         @Test
@@ -104,11 +100,10 @@ public class LocationHeaderBuilderTest {
 
             when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test");
 
-            instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com:8080/v1/test";
             verify(response).setHeader(eq(LOCATION), eq(expected));
-
         }
 
         @Test
@@ -125,11 +120,10 @@ public class LocationHeaderBuilderTest {
 
             when(response.getHeader(eq(LOCATION))).thenReturn("http://myhost.com/mocks/test");
 
-            instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com/test";
             verify(response).setHeader(eq(LOCATION), eq(expected));
-
         }
 
         @Test
@@ -146,11 +140,10 @@ public class LocationHeaderBuilderTest {
 
             when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test");
 
-            instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com/test";
             verify(response).setHeader(eq(LOCATION), eq(expected));
-
         }
 
         @Test
@@ -167,13 +160,10 @@ public class LocationHeaderBuilderTest {
 
             when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test?param=value");
 
-            instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
             final String expected = "http://myhost.com/test?param=value";
             verify(response).setHeader(eq(LOCATION), eq(expected));
-
         }
-
-
     }
 }

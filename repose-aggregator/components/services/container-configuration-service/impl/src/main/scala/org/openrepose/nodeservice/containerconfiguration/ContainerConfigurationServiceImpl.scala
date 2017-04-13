@@ -63,9 +63,31 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     configurationService.unsubscribeFrom(ContainerConfigurationFilename, this)
   }
 
-  override def getVia: Optional[String] = {
+  override def getRequestVia: Optional[String] = {
     initializationCheck()
-    Optional.ofNullable(patchedDeploymentConfiguration.getVia)
+    Optional ofNullable {
+      Option(patchedDeploymentConfiguration.getViaHeader)
+        .map(_.getRequestPrefix)
+        // TODO for v9.0.0.0: Remove the .orElse().
+        .orElse(Option(patchedDeploymentConfiguration.getVia))
+        .orNull
+    }
+  }
+
+  override def getResponseVia: Optional[String] = {
+    initializationCheck()
+    Optional ofNullable {
+      Option(patchedDeploymentConfiguration.getViaHeader)
+        .map(_.getResponsePrefix)
+        // TODO for v9.0.0.0: Remove the .orElse().
+        .orElse(Option(patchedDeploymentConfiguration.getVia))
+        .orNull
+    }
+  }
+
+  override def includeViaReposeVersion: Boolean = {
+    initializationCheck()
+    Option(patchedDeploymentConfiguration.getViaHeader).forall(_.isReposeVersion)
   }
 
   override def getContentBodyReadLimit: Optional[Long] = {
@@ -125,11 +147,12 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
 
   // Note: The container configuration should be read on init of this class. As such, this check
   //       should not ever fail.
-  private def initializationCheck(): Unit =
+  private def initializationCheck(): Unit = {
     if (!isInitialized) {
       logger.error(NotInitializedMessage)
       throw new IllegalStateException(NotInitializedMessage)
     }
+  }
 }
 
 object ContainerConfigurationServiceImpl {

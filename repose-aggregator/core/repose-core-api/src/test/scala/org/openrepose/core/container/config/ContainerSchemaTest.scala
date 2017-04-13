@@ -22,6 +22,7 @@ package org.openrepose.core.container.config
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
@@ -142,39 +143,6 @@ class ContainerSchemaTest extends FunSpec with Matchers {
       exception.getLocalizedMessage should include ("is not facet-valid with respect to maxInclusive")
     }
 
-    it("should reject a config where cluster IDs are not unique across all patches") {
-      val config =
-        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
-          |    <deployment-config>
-          |        <deployment-directory>/var/repose</deployment-directory>
-          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |    </deployment-config>
-          |
-          |    <cluster-config cluster-id="foo" via="test"/>
-          |
-          |    <cluster-config cluster-id="foo" via="test"/>
-          |</repose-container>""".stripMargin
-      val exception = intercept[SAXParseException] {
-        validator.validateConfigString(config)
-      }
-      exception.getLocalizedMessage should include("When defining per-cluster configuration, all cluster IDs must be unique")
-    }
-
-    it("should accept a config where cluster IDs are unique across all patches") {
-      val config =
-        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
-          |    <deployment-config>
-          |        <deployment-directory>/var/repose</deployment-directory>
-          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
-          |    </deployment-config>
-          |
-          |    <cluster-config cluster-id="foo" via="test"/>
-          |
-          |    <cluster-config cluster-id="bar" via="test"/>
-          |</repose-container>""".stripMargin
-      validator.validateConfigString(config)
-    }
-
     it("should reject a config where ssl-configuration is partially patched but not in the base") {
       val config =
         """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
@@ -215,6 +183,252 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |    </cluster-config>
           |</repose-container>""".stripMargin
       validator.validateConfigString(config)
+    }
+
+    it("should reject a config where cluster IDs are not unique across all patches") {
+      val config =
+        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+          |    <deployment-config>
+          |        <deployment-directory>/var/repose</deployment-directory>
+          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+          |        <via-header response-prefix="test"/>
+          |    </deployment-config>
+          |
+          |    <cluster-config cluster-id="foo"/>
+          |
+          |    <cluster-config cluster-id="foo"/>
+          |</repose-container>""".stripMargin
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include("When defining per-cluster configuration, all cluster IDs must be unique")
+    }
+
+    it("should accept a config where cluster IDs are unique across all patches") {
+      val config =
+        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+          |    <deployment-config>
+          |        <deployment-directory>/var/repose</deployment-directory>
+          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+          |        <via-header response-prefix="test"/>
+          |    </deployment-config>
+          |
+          |    <cluster-config cluster-id="foo"/>
+          |
+          |    <cluster-config cluster-id="bar"/>
+          |</repose-container>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should accept a config where the Via Configuration is defined at both the deployment and cluster config elements") {
+      val config =
+        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+          |    <deployment-config>
+          |        <deployment-directory>/var/repose</deployment-directory>
+          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+          |        <via-header response-prefix="test"/>
+          |    </deployment-config>
+          |
+          |    <cluster-config cluster-id="foo">
+          |        <via-header response-prefix="override"/>
+          |    </cluster-config>
+          |</repose-container>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should accept a config where the Via Configuration disables the via header") {
+      val config =
+        """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+          |    <deployment-config>
+          |        <deployment-directory>/var/repose</deployment-directory>
+          |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+          |    </deployment-config>
+          |
+          |    <cluster-config cluster-id="foo">
+          |        <via-header repose-version="false"/>
+          |    </cluster-config>
+          |</repose-container>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    Seq("request-prefix", "response-prefix") foreach { attribute =>
+      it(s"should reject a config where the deployment-config's via-header defines an empty $attribute") {
+        val config =
+          s"""<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+             |    <deployment-config>
+             |        <deployment-directory>/var/repose</deployment-directory>
+             |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+             |        <via-header $attribute=""/>
+             |    </deployment-config>
+             |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("is not facet-valid with respect to minLength")
+      }
+
+      it(s"should reject a config where the cluster-config's via-header defines an empty $attribute") {
+        val config =
+          s"""<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+             |    <deployment-config>
+             |        <deployment-directory>/var/repose</deployment-directory>
+             |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+             |    </deployment-config>
+             |
+             |    <cluster-config cluster-id="foo">
+             |        <via-header $attribute=""/>
+             |    </cluster-config>
+             |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("is not facet-valid with respect to minLength")
+      }
+    }
+  }
+
+  private val coreSpringProvider = CoreSpringProvider.getInstance()
+  coreSpringProvider.initializeCoreContext("/etc/repose", false)
+  private val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
+    ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
+  describe("deprecated schema validation") {
+    if (reposeVersion.startsWith("8.")) {
+      it("should reject a config where cluster IDs are not unique across all patches") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config>
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo" via="test"/>
+            |
+            |    <cluster-config cluster-id="foo" via="test"/>
+            |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("When defining per-cluster configuration, all cluster IDs must be unique")
+      }
+
+      it("should accept a config where cluster IDs are unique across all patches") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config>
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo" via="test"/>
+            |
+            |    <cluster-config cluster-id="bar" via="test"/>
+            |</repose-container>""".stripMargin
+        validator.validateConfigString(config)
+      }
+
+
+      it("should reject a config where both the deprecated Via attribute and the new Via Configuration are defined in the deployment-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config via="test">
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |        <via-header repose-version="false"/>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo"/>
+            |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-header element")
+      }
+
+      it("should reject a config where both the deprecated Via attribute and the new Via Configuration are defined in a cluster-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config>
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo" via="test">
+            |        <via-header repose-version="false"/>
+            |    </cluster-config>
+            |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-header element")
+      }
+
+      it("should reject a config where both the deprecated Via attribute and the new Via Configuration are defined in a single cluster-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config>
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo" via="test">
+            |        <via-header repose-version="false"/>
+            |    </cluster-config>
+            |
+            |    <cluster-config cluster-id="bar"/>
+            |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("Cannot define both a deprecated via attribute and the new via-header element")
+      }
+
+      it("should accept a config where a deprecated Via attribute is defined in the deployment-config and the new Via Configuration is defined in a cluster-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config via="test">
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo">
+            |        <via-header repose-version="false"/>
+            |    </cluster-config>
+            |</repose-container>""".stripMargin
+        validator.validateConfigString(config)
+      }
+
+      it("should accept a config where a deprecated Via attribute is defined in one cluster-config and the new Via Configuration is defined in another cluster-config") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config via="test">
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo">
+            |        <via-header repose-version="false"/>
+            |    </cluster-config>
+            |
+            |    <cluster-config cluster-id="bar" via="override"/>
+            |</repose-container>""".stripMargin
+        validator.validateConfigString(config)
+      }
+    } else {
+      it("should reject a config that uses the old via attribute") {
+        val config =
+          """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+            |    <deployment-config>
+            |        <deployment-directory>/var/repose</deployment-directory>
+            |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+            |    </deployment-config>
+            |
+            |    <cluster-config cluster-id="foo" via="test"/>
+            |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("Invalid content")
+      }
     }
   }
 }

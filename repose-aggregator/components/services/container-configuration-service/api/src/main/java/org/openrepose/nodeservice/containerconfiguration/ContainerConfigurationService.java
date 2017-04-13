@@ -33,9 +33,19 @@ import java.util.Optional;
 public interface ContainerConfigurationService {
 
     /**
-     * @return the configured Via string to be added to the Via header.
+     * @return the configured Via string to be added to the Request Via header.
      */
-    Optional<String> getVia();
+    Optional<String> getRequestVia();
+
+    /**
+     * @return the configured Via string to be added to the Response Via header.
+     */
+    Optional<String> getResponseVia();
+
+    /**
+     * @return if the Via string should include the Repose version.
+     */
+    boolean includeViaReposeVersion();
 
     /**
      * @return the maximum size of the request body in bytes, if configured.

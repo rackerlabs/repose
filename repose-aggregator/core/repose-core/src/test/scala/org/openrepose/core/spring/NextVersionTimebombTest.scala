@@ -64,6 +64,10 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 5. Remove the flush output filter
        *
        * 6. Extract common XML types (e.g., keystore configuration).
+       *
+       * 7. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
+       *    a. This needs done in the XSD.
+       *    b. There will also be some tests that should be removed also.
        */
     }
 
@@ -81,6 +85,7 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *    b. Update the `target` element's min to be One (1).
        *    c. Remove the deprecated top-level `whitelist` & `blacklist` elements.
        *    d. Remove the `HttpHeaderList` (`whitelist` & `blacklist`) element's id attribute.
+       *    e. Remove the old tests and conditional test
        */
     }
   }

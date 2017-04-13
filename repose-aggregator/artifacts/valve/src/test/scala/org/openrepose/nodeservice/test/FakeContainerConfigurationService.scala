@@ -48,7 +48,11 @@ class FakeContainerConfigurationService extends ContainerConfigurationService {
     config
   }
 
-  override def getVia: Optional[String] = via
+  override def getRequestVia: Optional[String] = via
+
+  override def getResponseVia: Optional[String] = via
+
+  override def includeViaReposeVersion: Boolean = true
 
   override def getContentBodyReadLimit: Optional[Long] = contentBodyReadLimit
 

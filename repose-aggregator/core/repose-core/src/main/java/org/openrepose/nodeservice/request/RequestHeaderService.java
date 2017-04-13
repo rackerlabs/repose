@@ -22,8 +22,7 @@ package org.openrepose.nodeservice.request;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 
 public interface RequestHeaderService {
+    void setVia(HttpServletRequestWrapper request);
 
     void setXForwardedFor(HttpServletRequestWrapper request);
-
-    void setVia(HttpServletRequestWrapper request);
 }

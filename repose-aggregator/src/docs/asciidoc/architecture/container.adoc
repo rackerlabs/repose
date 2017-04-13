@@ -51,7 +51,8 @@ Some values (e.g., the `deployment-directory`) cannot be overridden due to inter
 Currently the only items that are patchable are some of the `deployment-config` element's attributes.
 Specifically only the following:
 
-* `via`
+* `via` (Deprecated scheduled for removal in v9.0.0.0)
+* `via-header`
 * `content-body-read-limit`
 * `idleTimeout`
 * `soLingerTime`
@@ -64,6 +65,44 @@ This is the case as the exact location of the launcing JVM may not remain in the
 The path should not start or end with a whitespace character as all leading and trailing whitespace is ignored in reading this value.
 All white space in the middle of the path name will be preserved and should not be escaped in any way.
 ====
+
+== Via Header Configuration
+
+The following assume:
+
+* the request and response are `HTTP/1.1`
+* the host is `localhost`
+* the servicing port is `10010`
+* the Repose version is `8.4.1.0`
+
+The interaction between the deprecated `via` attribute and the new `via-header` element are as follows:
+
+[cols="4", options="header,autowidth"]
+|===
+|via attribute | via-header element | Request header                         | Response header
+|Undefined     | Undefined          | `1.1 localhost:10010 (Repose/8.4.1.0)` | `1.1 Repose (Repose/8.4.1.0)`
+|`Stuff`       | Undefined          | `1.1 Stuff (Repose/8.4.1.0)`           | `1.1 Stuff (Repose/8.4.1.0)`
+|`Stuff`       | **Defined**        2+| Will not parse
+|===
+
+The following further assumes the deprecated `via` attribute is not defined and the `via-header` element contains:
+
+[cols="5", options="header,autowidth"]
+|===
+|request-prefix | response-prefix | repose-version | Request header                         | Response header
+|Undefined      | Undefined       | Undefined      | `1.1 localhost:10010 (Repose/8.4.1.0)` | `1.1 Repose (Repose/8.4.1.0)`
+|`Potato`       | Undefined       | Undefined      | `1.1 Potato (Repose/8.4.1.0)`          | `1.1 Repose (Repose/8.4.1.0)`
+|Undefined      | `Salad`         | Undefined      | `1.1 localhost:10010 (Repose/8.4.1.0)` | `1.1 Salad (Repose/8.4.1.0)`
+|`Potato`       | `Salad`         | Undefined      | `1.1 Potato (Repose/8.4.1.0)`          | `1.1 Salad (Repose/8.4.1.0)`
+|Undefined      | Undefined       | `true`         | `1.1 localhost:10010 (Repose/8.4.1.0)` | `1.1 Repose (Repose/8.4.1.0)`
+|`Potato`       | Undefined       | `true`         | `1.1 Potato (Repose/8.4.1.0)`          | `1.1 Repose (Repose/8.4.1.0)`
+|Undefined      | `Salad`         | `true`         | `1.1 localhost:10010 (Repose/8.4.1.0)` | `1.1 Salad (Repose/8.4.1.0)`
+|`Potato`       | `Salad`         | `true`         | `1.1 Potato (Repose/8.4.1.0)`          | `1.1 Salad (Repose/8.4.1.0)`
+|Undefined      | Undefined       | `false`        | `1.1 localhost:10010 (Repose/8.4.1.0)` | No header *added*
+|`Potato`       | Undefined       | `false`        | `1.1 Potato (Repose/8.4.1.0)`          | No header *added*
+|Undefined      | `Salad`         | `false`        | `1.1 localhost:10010 (Repose/8.4.1.0)` | `1.1 Salad`
+|`Potato`       | `Salad`         | `false`        | `1.1 Potato (Repose/8.4.1.0)`          | `1.1 Salad`
+|===
 
 == User-Supplied Logging Configuration
 There are two steps to supply a logging configuration for Repose:

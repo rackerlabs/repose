@@ -8,6 +8,7 @@ dependencies {
 
     provided "org.glassfish:javax.servlet"
 
+    testCompile project(":repose-aggregator:core:repose-core")
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"

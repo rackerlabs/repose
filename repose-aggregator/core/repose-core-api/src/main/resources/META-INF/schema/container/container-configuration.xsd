@@ -19,8 +19,8 @@
   =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
   -->
 
-
-<xs:schema xmlns:papic="http://docs.openrepose.org/repose/container/v2.0" xmlns:html="http://www.w3.org/1999/xhtml"
+<xs:schema xmlns:papic="http://docs.openrepose.org/repose/container/v2.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xerces="http://xerces.apache.org"
@@ -95,11 +95,14 @@
             </xs:annotation>
         </xs:attribute>
 
-        <!-- Check to make sure we really need this to be a Name -->
+        <!-- TODO for v9.0.0.0: The DeploymentConfigurationBase element's via attribute should be removed. -->
         <xs:attribute name="via" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>An identifying string that will be returned in the Via header.</html:p>
+                    <html:p>
+                        Deprecated: This attribute is deprecated and will be removed in future major release.
+                        An identifying string that will be returned in the Via header.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -121,6 +124,7 @@
                     <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1"/>
                     <xs:element name="ssl-configuration" type="papic:SslConfiguration" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="via-header" type="papic:ViaHeader" minOccurs="0" maxOccurs="1"/>
                 </xs:all>
 
                 <xs:attribute name="jmx-reset-time" type="papic:intGTZero" use="optional" default="15">
@@ -156,6 +160,11 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
+                <xs:assert vc:minVersion="1.1"
+                           xpathDefaultNamespace="##targetNamespace"
+                           test="count((@via, via-header)) le 1"
+                           xerces:message="Cannot define both a deprecated via attribute and the new via-header element"
+                           saxon:message="Cannot define both a deprecated via attribute and the new via-header element"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -165,6 +174,7 @@
             <xs:extension base="papic:DeploymentConfigurationBase">
                 <xs:all>
                     <xs:element name="ssl-configuration" type="papic:SslConfigurationPatch" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="via-header" type="papic:ViaHeaderPatch" minOccurs="0" maxOccurs="1"/>
                 </xs:all>
 
                 <xs:attribute name="cluster-id" type="xs:string" use="required">
@@ -200,6 +210,11 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
+                <xs:assert vc:minVersion="1.1"
+                           xpathDefaultNamespace="##targetNamespace"
+                           test="count((@via, via-header)) le 1"
+                           xerces:message="Cannot define both a deprecated via attribute and the new via-header element"
+                           saxon:message="Cannot define both a deprecated via attribute and the new via-header element"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -245,6 +260,88 @@
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Name of the system state log config</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="ViaHeader">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Contains the information needed to configure Repose's Via header.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="papic:EmptyString">
+                <xs:attribute name="request-prefix" type="papic:NonBlankString" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be sent in the request Via header to the origin service.
+                                If undefined, then the hostname and servicing port will be added to the request.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="response-prefix" type="papic:NonBlankString" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be returned in the response Via header to the client.
+                                If undefined and the repose-version is false, then no Via header will be added to the response.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="repose-version" type="xs:boolean" use="optional" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Indicates whether or not the Via header will include the Repose version.
+                                If false and the response-prefix is undefined, then no Via header will be added will be add to the response.
+                                (Default: true)
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="ViaHeaderPatch">
+        <xs:simpleContent>
+            <xs:extension base="papic:EmptyString">
+                <xs:attribute name="request-prefix" type="papic:NonBlankString" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be sent in the request Via header to the origin service.
+                                If undefined, then the hostname and servicing port will be added to the request.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="response-prefix" type="papic:NonBlankString" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be returned in the response Via header to the client.
+                                If undefined and the repose-version is false, then no Via header will be added to the response.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="repose-version" type="xs:boolean" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Indicates whether or not the Via header will include the Repose version.
+                                If false and the response-prefix is undefined, then no Via header will be added to the response.
+                            </html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
@@ -497,6 +594,12 @@
     <xs:simpleType name="EmptyString">
         <xs:restriction base="xs:string">
             <xs:length value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="NonBlankString">
+        <xs:restriction base="xs:normalizedString">
+            <xs:whiteSpace value="collapse"/>
+            <xs:minLength value="1"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>
