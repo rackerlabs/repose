@@ -66,7 +66,7 @@ class ResponseHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with
 
       it(s"should set the Via header with protocol '$protocol', default prefix 'Repose' not 'NULL', and version '$version'") {
         when(request.getProtocol).thenReturn(s"HTTP/$protocol")
-        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable(null.asInstanceOf[String]))
+        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable[String](null))
         when(containerConfigurationService.includeViaReposeVersion()).thenReturn(true)
 
         responseHeaderServiceImpl.setVia(request, response)
@@ -76,7 +76,7 @@ class ResponseHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with
 
       it(s"should not set the Via header with protocol '$protocol', prefix 'NULL', or version '$version'") {
         when(request.getProtocol).thenReturn(s"HTTP/$protocol")
-        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable(null.asInstanceOf[String]))
+        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable[String](null))
         when(containerConfigurationService.includeViaReposeVersion()).thenReturn(false)
 
         responseHeaderServiceImpl.setVia(request, response)
