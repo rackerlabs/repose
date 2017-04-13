@@ -3,6 +3,9 @@
 include::_includes/in-progress.adoc[]
 
 == Future Release
+
+== 8.5.0.0
+
 * https://repose.atlassian.net/browse/REP-4024[REP-4024] - the <<filters/header-normalization.adoc#, Header Normalization filter>> updated to include removing headers on the Response.
 * https://repose.atlassian.net/browse/REP-3901[REP-3901] - the Debian and RPM Repose Valve and WAR artifacts will now create the `repose` user and group even if the configuration files are already present.
 * https://repose.atlassian.net/browse/REP-5130[REP-5130] - <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>> now gives a more specific and quieter log message when it runs into a non-xml or non-json content type.
