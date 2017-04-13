@@ -25,6 +25,7 @@ import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.{ContainerConfiguration, DeploymentConfiguration}
 import org.openrepose.core.services.config.ConfigurationService
@@ -68,8 +69,9 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     Optional ofNullable {
       Option(patchedDeploymentConfiguration.getViaHeader)
         .map(_.getRequestPrefix)
+        .filter(StringUtils.isNotBlank)
         // TODO for v9.0.0.0: Remove the .orElse().
-        .orElse(Option(patchedDeploymentConfiguration.getVia))
+        .orElse(Option(patchedDeploymentConfiguration.getVia).filter(StringUtils.isNotBlank))
         .orNull
     }
   }
@@ -79,8 +81,9 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     Optional ofNullable {
       Option(patchedDeploymentConfiguration.getViaHeader)
         .map(_.getResponsePrefix)
+        .filter(StringUtils.isNotBlank)
         // TODO for v9.0.0.0: Remove the .orElse().
-        .orElse(Option(patchedDeploymentConfiguration.getVia))
+        .orElse(Option(patchedDeploymentConfiguration.getVia).filter(StringUtils.isNotBlank))
         .orNull
     }
   }
