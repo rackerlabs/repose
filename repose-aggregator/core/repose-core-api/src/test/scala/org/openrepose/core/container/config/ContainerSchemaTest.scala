@@ -250,6 +250,41 @@ class ContainerSchemaTest extends FunSpec with Matchers {
           |</repose-container>""".stripMargin
       validator.validateConfigString(config)
     }
+
+    Seq("request-prefix", "response-prefix") foreach { attribute =>
+      it(s"should reject a config where the deployment-config's via-header defines an empty $attribute") {
+        val config =
+          s"""<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+             |    <deployment-config>
+             |        <deployment-directory>/var/repose</deployment-directory>
+             |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+             |        <via-header $attribute=""/>
+             |    </deployment-config>
+             |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("is not facet-valid with respect to minLength")
+      }
+
+      it(s"should reject a config where the cluster-config's via-header defines an empty $attribute") {
+        val config =
+          s"""<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+             |    <deployment-config>
+             |        <deployment-directory>/var/repose</deployment-directory>
+             |        <artifact-directory>/usr/share/repose/filters</artifact-directory>
+             |    </deployment-config>
+             |
+             |    <cluster-config cluster-id="foo">
+             |        <via-header $attribute=""/>
+             |    </cluster-config>
+             |</repose-container>""".stripMargin
+        val exception = intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }
+        exception.getLocalizedMessage should include("is not facet-valid with respect to minLength")
+      }
+    }
   }
 
   private val coreSpringProvider = CoreSpringProvider.getInstance()

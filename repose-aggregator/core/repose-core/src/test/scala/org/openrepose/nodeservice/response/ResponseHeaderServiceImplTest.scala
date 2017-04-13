@@ -51,50 +51,33 @@ class ResponseHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with
 
     val withOrOut: Boolean => String = { boolean => if (boolean) "with" else "without" }
     val versionString: Boolean => String = { boolean => if (boolean) s" (Repose/$version)" else "" }
-    Seq(
-      ("1.0", "prefix", true),
-      ("1.0", "prefix", false),
-      ("1.1", "prefix", true),
-      ("1.1", "prefix", false)
-    ) foreach { case (protocol, prefix, includeVersion) =>
-      it(s"should set the Via header with protocol '$protocol', prefix '$prefix', and ${withOrOut(includeVersion)} version '$version'") {
-        when(request.getProtocol).thenReturn(s"HTTP/$protocol")
-        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable(prefix))
-        when(containerConfigurationService.includeViaReposeVersion()).thenReturn(includeVersion)
+    Seq("1.0", "1.1") foreach { protocol =>
+      Seq(true, false) foreach { includeVersion =>
+        it(s"should set the Via header with protocol '$protocol', prefix 'prefix', and ${withOrOut(includeVersion)} version '$version'") {
+          when(request.getProtocol).thenReturn(s"HTTP/$protocol")
+          when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable("prefix"))
+          when(containerConfigurationService.includeViaReposeVersion()).thenReturn(includeVersion)
 
-        responseHeaderServiceImpl.setVia(request, response)
+          responseHeaderServiceImpl.setVia(request, response)
 
-        verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol $prefix${versionString(includeVersion)}")
+          verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol prefix${versionString(includeVersion)}")
+        }
       }
-    }
 
-    Seq(
-      ("1.0", "", true),
-      ("1.0", null, true),
-      ("1.1", "", true),
-      ("1.1", null, true)
-    ) foreach { case (protocol, prefix, includeVersion) =>
-      it(s"should set the Via header with protocol '$protocol', default prefix 'Repose' not '$prefix', and version '$version'") {
+      it(s"should set the Via header with protocol '$protocol', default prefix 'Repose' not 'NULL', and version '$version'") {
         when(request.getProtocol).thenReturn(s"HTTP/$protocol")
-        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable(prefix))
-        when(containerConfigurationService.includeViaReposeVersion()).thenReturn(includeVersion)
+        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable[String](null))
+        when(containerConfigurationService.includeViaReposeVersion()).thenReturn(true)
 
         responseHeaderServiceImpl.setVia(request, response)
 
         verify(response).setHeader(CommonHttpHeader.VIA, s"$protocol Repose (Repose/$version)")
       }
-    }
 
-    Seq(
-      ("1.0", "", false),
-      ("1.0", null, false),
-      ("1.1", "", false),
-      ("1.1", null, false)
-    ) foreach { case (protocol, prefix, includeVersion) =>
-      it(s"should not set the Via header with protocol '$protocol', prefix '$prefix', or version '$version'") {
+      it(s"should not set the Via header with protocol '$protocol', prefix 'NULL', or version '$version'") {
         when(request.getProtocol).thenReturn(s"HTTP/$protocol")
-        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable(prefix))
-        when(containerConfigurationService.includeViaReposeVersion()).thenReturn(includeVersion)
+        when(containerConfigurationService.getResponseVia).thenReturn(Optional.ofNullable[String](null))
+        when(containerConfigurationService.includeViaReposeVersion()).thenReturn(false)
 
         responseHeaderServiceImpl.setVia(request, response)
 

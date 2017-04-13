@@ -19,7 +19,6 @@
  */
 package org.openrepose.nodeservice.response;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestUtil;
@@ -55,21 +54,19 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
     public void setVia(HttpServletRequest request, HttpServletResponse response) {
         final Optional<String> responseVia = containerConfigurationService.getResponseVia();
         final boolean includeViaReposeVersion = containerConfigurationService.includeViaReposeVersion();
-        if ((responseVia.isPresent() && StringUtils.isNotBlank(responseVia.get())) || includeViaReposeVersion) {
+        if (responseVia.isPresent() || includeViaReposeVersion) {
             final String existingVia = response.getHeader(CommonHttpHeader.VIA);
             final StringBuilder builder = new StringBuilder();
             if (StringUtilities.isNotBlank(existingVia)) {
                 builder.append(existingVia).append(", ");
             }
             builder.append(HttpServletRequestUtil.getProtocolVersion(request));
-            boolean addedVia = false;
-            if (responseVia.isPresent() && StringUtils.isNotBlank(responseVia.get())) {
+            responseVia.ifPresent(resVia -> {
                 builder.append(" ");
                 builder.append(responseVia.get());
-                addedVia = true;
-            }
+            });
             if (includeViaReposeVersion) {
-                if (!addedVia) {
+                if (!responseVia.isPresent()) {
                     builder.append(" Repose");
                 }
                 builder.append(" (Repose/").append(reposeVersion).append(")");

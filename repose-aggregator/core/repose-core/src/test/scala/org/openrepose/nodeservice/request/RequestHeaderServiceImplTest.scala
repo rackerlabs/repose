@@ -59,7 +59,7 @@ class RequestHeaderServiceImplTest extends FunSpec with BeforeAndAfterEach with 
     val local = Math.abs(Random.nextInt)
     val prefixToString: String => String = { string => if (string == null || string.length < 1) s"Repose:$local" else string }
     Seq("1.0", "1.1") foreach { protocol =>
-      Seq("prefix", "", null) foreach { prefix =>
+      Seq("prefix", null) foreach { prefix =>
         it(s"should set the Via header with protocol '$protocol', prefix '$prefix', and should include version '$version'") {
           when(request.getLocalPort).thenReturn(local)
           when(request.getProtocol).thenReturn(s"HTTP/$protocol")
