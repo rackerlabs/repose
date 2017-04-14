@@ -40,6 +40,8 @@ ext {
     scalaMajDotMin = "$scalaMajor.$scalaMinor"
 }
 
+task('buildAndTestAll', description: 'Builds all the sub-projects as well as runs there tests.', group: 'release')
+
 task('publishToPackageRepo', group: 'publishing', description: 'Publishes the debian and rpm packages to the package repo.',
         dependsOn: [':repose-aggregator:artifacts:cli-utils:buildDeb',
                     ':repose-aggregator:artifacts:cli-utils:buildRpm',
@@ -54,7 +56,9 @@ task('publishToPackageRepo', group: 'publishing', description: 'Publishes the de
                     ':repose-aggregator:artifacts:valve:buildDeb',
                     ':repose-aggregator:artifacts:valve:buildRpm',
                     ':repose-aggregator:artifacts:web-application:buildDeb',
-                    ':repose-aggregator:artifacts:web-application:buildRpm',]) << {
+                    ':repose-aggregator:artifacts:web-application:buildRpm',
+                    ':buildAndTestAll',
+        ]) << {
     ssh.run {
         session(remotes.packageRepo) {
             put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
@@ -75,7 +79,7 @@ task('publishToPackageRepo', group: 'publishing', description: 'Publishes the de
     }
 }
 
-task('tagVersion', description: 'Tag the repository with the current version.', group: 'release') << {
+task('tagVersion', description: 'Tag the repository with the current version.', group: 'release', dependsOn: [buildAndTestAll]) << {
     scmFactory.create().tag(version)
 }
 
@@ -361,8 +365,10 @@ subprojects {
         sign configurations.archives
     }
 
+    def publishGate = project.tasks.getByPath(':buildAndTestAll')
+    publishGate.dependsOn build, check
+    publish.dependsOn publishGate
     project.tasks.getByPath(':release').dependsOn publish
-    publish.dependsOn build
 }
 
 dependencyRecommendations {
