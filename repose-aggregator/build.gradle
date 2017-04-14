@@ -2,6 +2,8 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.ajoberstar.grgit.Grgit
 
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 
 apply plugin: 'org.asciidoctor.convert'
@@ -76,9 +78,10 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
     includesWriter.close()
 
     // Update the latest link, if applicable
-    def latestLinkFile = project.file("${project.buildDir}/gh-pages/versions/latest")
+    def latestLinkPath = project.buildDir.toPath().resolve(Paths.get('gh-pages', 'versions', 'latest'))
     if (newVersionIndex == 0) {
-        ['ln', '-s', '-f', String.valueOf(version), latestLinkFile.absolutePath].execute().waitFor()
+        Files.deleteIfExists(latestLinkPath)
+        Files.createSymbolicLink(latestLinkPath, Paths.get(String.valueOf(version)))
     }
 
     copy {
