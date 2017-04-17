@@ -2,6 +2,7 @@
   connection: local
   gather_facts: True
   roles:
+    - control_machine
     - cloud_resource_create
 
 - hosts: performance

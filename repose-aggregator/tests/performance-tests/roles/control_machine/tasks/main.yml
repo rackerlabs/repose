@@ -1,0 +1,4 @@
+- name: Load the variables specific for this performance test from a file.
+  include_vars:
+    dir: test_vars/
+    files_matching: "{{ perf_test }}"

@@ -2,4 +2,5 @@
   connection: local
   gather_facts: False
   roles:
+    - control_machine
     - cloud_resource_delete
