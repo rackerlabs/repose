@@ -901,12 +901,12 @@ This allows the service to offer all of the capabilities of a powerful, open-sou
 <div class="title">metrics.cfg.xml</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;metrics</span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://docs.openrepose.org/repose/metrics/v1.0</span><span class="delimiter">&quot;</span></span>
-         <span class="attribute-name">enabled</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <span class="comment">&lt;!-- 1 --&gt;</span>
-    <span class="tag">&lt;graphite&gt;</span> <span class="comment">&lt;!-- 2 --&gt;</span>
-        <span class="tag">&lt;server</span> <span class="attribute-name">host</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">graphite.example.com</span><span class="delimiter">&quot;</span></span> <span class="error">&lt;</span><span class="error">!</span><span class="attribute-name">--</span> <span class="attribute-name">3</span> <span class="attribute-name">--</span><span class="tag">&gt;</span>
-                port=&quot;12345&quot; <span class="comment">&lt;!-- 4 --&gt;</span>
-                period=&quot;10&quot; <span class="comment">&lt;!-- 5 --&gt;</span>
-                prefix=&quot;repose.example&quot;/<span class="error">&gt;</span> <span class="comment">&lt;!-- 6 --&gt;</span>
+         <span class="attribute-name">enabled</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="tag">&lt;graphite&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span class="tag">&lt;server</span> <span class="attribute-name">host</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">graphite.example.com</span><span class="delimiter">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+                <span class="attribute-name">port</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">12345</span><span class="delimiter">&quot;</span></span> <i class="conum" data-value="4"></i><b>(4)</b>
+                <span class="attribute-name">period</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">10</span><span class="delimiter">&quot;</span></span> <i class="conum" data-value="5"></i><b>(5)</b>
+                <span class="attribute-name">prefix</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">repose.example</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span> <i class="conum" data-value="6"></i><b>(6)</b>
     <span class="tag">&lt;/graphite&gt;</span>
 <span class="tag">&lt;/metrics&gt;</span></code></pre>
 </div>
