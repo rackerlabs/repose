@@ -36,7 +36,7 @@ COPY *.rpm /release-verification/
 RUN rm /release-verification/DELETE-ME.rpm
 
 RUN sh /release-verification/scripts/node_install.sh
-RUN npm install libxmljs
+RUN npm install --unsafe-perm libxmljs
 
 RUN sh /release-verification/scripts/fake_keystone_prepare.sh
 RUN cp /release-verification/fake-services/fake-keystone2/package.json /opt/fake-keystone/package.json
