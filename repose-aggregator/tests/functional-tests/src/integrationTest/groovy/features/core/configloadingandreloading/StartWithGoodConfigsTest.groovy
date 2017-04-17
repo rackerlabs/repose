@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,28 +23,16 @@ import framework.*
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Specification
+import spock.lang.Shared
 import spock.lang.Unroll
 
 @Category(Slow.class)
-class StartWithGoodConfigsTest extends Specification {
+class StartWithGoodConfigsTest extends ReposeValveTest {
 
-    int reposePort
-    int targetPort
-    String url
-    TestProperties properties
-    ReposeConfigurationProvider reposeConfigProvider
-    ReposeLogSearch reposeLogSearch
-    ReposeValveLauncher repose
+    @Shared
     Map params = [:]
-    Deproxy deproxy
 
-    def setup() {
-
-        properties = new TestProperties()
-        this.reposePort = properties.reposePort
-        this.targetPort = properties.targetPort
-        this.url = properties.reposeEndpoint
+    def setupSpec() {
 
         int dataStorePort = PortFinder.instance.getNextOpenPort()
         params = properties.getDefaultTemplateParams()
@@ -55,11 +43,7 @@ class StartWithGoodConfigsTest extends Specification {
 
         // start a deproxy
         deproxy = new Deproxy()
-        deproxy.addEndpoint(this.targetPort)
-
-        // setup config provider
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
-
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     @Unroll("start with good #componentLabel configs, should get #expectedResponseCode")
@@ -67,28 +51,18 @@ class StartWithGoodConfigsTest extends Specification {
 
         given:
         // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
+        repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
 
-        // start repose
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                url,
-                properties.getConfigDirectory(),
-                reposePort
-        )
-        repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
-        repose.waitForNon500FromUrl(url)
+        repose.waitForNon500FromUrl(reposeEndpoint)
 
 
         expect: "starting Repose with good configs should yield 200's"
-        deproxy.makeRequest(url: url).receivedResponse.code == "${expectedResponseCode}"
+        deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "${expectedResponseCode}"
 
 
         where:
@@ -105,15 +79,6 @@ class StartWithGoodConfigsTest extends Specification {
         "header-user"        | 200
         "ip-user"            | 200
         "validator"          | 200
-    }
-
-    def cleanup() {
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
     }
 }
 
