@@ -96,10 +96,10 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
     }
 }
 
-project.tasks.getByPath(':release').dependsOn publishDocs
-
 asciidoctor.dependsOn copyXsds
 build.dependsOn asciidoctor
+publishDocs.dependsOn project.tasks.getByPath(':buildAll')
+project.tasks.getByPath(':release').dependsOn publishDocs
 
 /**
  * @return -1 if v1 is a lower version than v2, 0 if they are equal, and 1 if v1 is a greater version than v2
