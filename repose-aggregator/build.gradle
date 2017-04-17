@@ -95,7 +95,7 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
 
 asciidoctor.dependsOn copyXsds
 build.dependsOn asciidoctor
-publishDocs.dependsOn project.tasks.getByPath(':buildAndTestAll')
+publishDocs.dependsOn project.tasks.getByPath(':buildAll')
 project.tasks.getByPath(':release').dependsOn publishDocs
 
 /**
