@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,26 +19,19 @@
  */
 package features.filters.keystonev2.authorizationonly.connectionpooling
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeValveLauncher
-import framework.TestProperties
+import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Handling
-import spock.lang.Specification
 
 /**
  * Created with IntelliJ IDEA.
  * User: izrik
  *
  */
-class KeystoneV2ZConnectionPoolingTest extends Specification {
+class KeystoneV2AuthorizationConnectionPoolingTest extends ReposeValveTest {
 
-    int reposePort
-    int originServicePort
-    int identityServicePort
-    String urlBase
 
     MockIdentityV2Service fakeIdentityV2Service
 
@@ -46,57 +39,28 @@ class KeystoneV2ZConnectionPoolingTest extends Specification {
     Endpoint originEndpoint
     Endpoint identityEndpoint
 
-    TestProperties properties
-    def logFile
-    ReposeConfigurationProvider reposeConfigProvider
-    ReposeValveLauncher repose
 
     def setup() {
 
-        // get ports
-        properties = new TestProperties()
-
-        reposePort = properties.reposePort
-        originServicePort = properties.targetPort
-        identityServicePort = properties.identityPort
-
-        fakeIdentityV2Service = new MockIdentityV2Service(identityServicePort, originServicePort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
 
         // start deproxy
         deproxy = new Deproxy()
-        originEndpoint = deproxy.addEndpoint(originServicePort)
-        identityEndpoint = deproxy.addEndpoint(identityServicePort,
+        originEndpoint = deproxy.addEndpoint(properties.targetPort)
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 "identity", "localhost", fakeIdentityV2Service.handler)
 
         // configure and start repose
-
-        def targetHostname = properties.targetHostname
-        urlBase = "http://${targetHostname}:${reposePort}"
-        logFile = properties.logFile
-
-        def configDirectory = properties.configDirectory
-        def configTemplates = properties.configTemplates
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
-
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.reposeJar,
-                urlBase,
-                configDirectory,
-                reposePort
-        )
-        repose.enableDebug()
-
         def params = properties.getDefaultTemplateParams()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/filters/keystonev2/authorizationonly/connectionpooling", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/authorizationonly/connectionpooling", params)
         repose.start()
     }
 
     def "when a client makes requests, Repose should re-use the connection to the Identity service"() {
 
         setup:
-        def url = "${urlBase}/servers/tenantid/resource"
+        def url = "${reposeEndpoint}/servers/tenantid/resource"
 
 
         when: "making two requests to Repose"
@@ -117,16 +81,5 @@ class KeystoneV2ZConnectionPoolingTest extends Specification {
         identityHandlings.size() > 0
         // there should be no requests to auth with a different connection id
         diff.size() == 0
-    }
-
-    def cleanup() {
-
-        if (repose && repose.isUp()) {
-            repose.stop()
-        }
-
-        if (deproxy) {
-            deproxy.shutdown()
-        }
     }
 }
