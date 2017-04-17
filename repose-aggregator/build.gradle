@@ -29,7 +29,6 @@ asciidoctor {
     requires 'asciidoctor-diagram'
     options template_dirs: ["${project.projectDir}/src/docs/asciidoc/_backends/haml"]
     attributes 'source-highlighter': 'coderay',
-               'imagesdir': "${project.projectDir}/src/docs/asciidoc/_images",
                'stylesdir': "${project.projectDir}/src/docs/asciidoc/_stylesheets",
                'stylesheet': 'repose.css',
                'toc': 'left',
