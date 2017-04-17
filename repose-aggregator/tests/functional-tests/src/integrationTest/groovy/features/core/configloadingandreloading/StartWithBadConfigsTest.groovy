@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,44 +19,27 @@
  */
 package features.core.configloadingandreloading
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeValveLauncher
-import framework.TestProperties
+import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Specification
+import spock.lang.Shared
 import spock.lang.Unroll
 
 @Category(Slow.class)
-class StartWithBadConfigsTest extends Specification {
+class StartWithBadConfigsTest extends ReposeValveTest {
 
-    int reposePort
-    int targetPort
-    String url
-    TestProperties properties
-    ReposeConfigurationProvider reposeConfigProvider
-    ReposeValveLauncher repose
+    @Shared
     Map params = [:]
-    Deproxy deproxy
     boolean expectCleanShutdown = true
 
-    def setup() {
-
-        properties = new TestProperties()
-        this.reposePort = properties.reposePort
-        this.targetPort = properties.targetPort
-        this.url = properties.reposeEndpoint
+    def setupSpec() {
 
         params = properties.getDefaultTemplateParams()
 
         // start a deproxy
         deproxy = new Deproxy()
-        deproxy.addEndpoint(this.targetPort)
-
-        // setup config provider
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
-
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     @Unroll("start with bad #componentLabel configs, should get 503")
@@ -64,27 +47,19 @@ class StartWithBadConfigsTest extends Specification {
 
         given:
         // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
+        repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
         expectCleanShutdown = true
 
-        // start repose
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                url,
-                properties.getConfigDirectory(),
-                reposePort
-        )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
-        repose.waitForDesiredResponseCodeFromUrl(url, [503])
+        repose.waitForDesiredResponseCodeFromUrl(reposeEndpoint, [503])
 
 
         expect: "starting Repose with good configs should yield 503's"
-        deproxy.makeRequest(url: url).receivedResponse.code == "503"
+        deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "503"
 
 
         where:
@@ -109,27 +84,18 @@ class StartWithBadConfigsTest extends Specification {
 
         given:
         // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
-        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
+        repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
         expectCleanShutdown = false
 
-        // start repose
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                url,
-                properties.getConfigDirectory(),
-                reposePort
-        )
-        repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         sleep 35000
 
 
         when: "starting Repose with bad configs should lead to a connection exception"
-        deproxy.makeRequest(url: url)
+        deproxy.makeRequest(url: reposeEndpoint)
 
         then:
         thrown(ConnectException)
@@ -141,11 +107,6 @@ class StartWithBadConfigsTest extends Specification {
     }
 
     def cleanup() {
-        if (repose) {
-            repose.stop(throwExceptionOnKill: expectCleanShutdown)
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
+        repose?.stop(throwExceptionOnKill: expectCleanShutdown)
     }
 }
