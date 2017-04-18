@@ -2,17 +2,11 @@
   dir_prefix: "filters/scripting",
   script_lang: "groovy",
   cloud: {
-    region: "IAD",
-    naming_prefix: "perf_scripting",
-    server: {
-      image: "5cf469a9-c4f3-4455-ab1b-7f07ed2b9dec"  # public Ubuntu 16.04 LTS (PVHVM)
-    }
+    naming_prefix: "perf_scripting"
   },
   repose: {
     config: {
       system_model: {
-        http_port: 7070,
-        origin_port: 8080,
         filters: [
           { name: "scripting" }
         ]
