@@ -35,7 +35,7 @@
     module: add_host
     hostname: "{{ repose_lb.balancer.virtual_ips[0].address }}"
     groupname: load_balancer
-  changed_when: "{{ repose_lb.changed }}"
+  changed_when: repose_lb.changed
   tags:
     - repose
 
@@ -44,6 +44,6 @@
     module: add_host
     hostname: "{{ no_repose_lb.balancer.virtual_ips[0].address }}"
     groupname: no_repose_load_balancer
-  changed_when: "{{ no_repose_lb.changed }}"
+  changed_when: no_repose_lb.changed
   tags:
     - origin
