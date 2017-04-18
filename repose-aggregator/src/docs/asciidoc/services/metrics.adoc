@@ -23,12 +23,12 @@ This allows the service to offer all of the capabilities of a powerful, open-sou
 .metrics.cfg.xml
 ----
 <metrics xmlns="http://docs.openrepose.org/repose/metrics/v1.0"
-         enabled="true"> <!-- 1 -->
-    <graphite> <!-- 2 -->
-        <server host="graphite.example.com" <!-- 3 -->
-                port="12345" <!-- 4 -->
-                period="10" <!-- 5 -->
-                prefix="repose.example"/> <!-- 6 -->
+         enabled="true"> <!--1-->
+    <graphite> <!--2-->
+        <server host="graphite.example.com" <!--3-->
+                port="12345" <!--4-->
+                period="10" <!--5-->
+                prefix="repose.example"/> <!--6-->
     </graphite>
 </metrics>
 ----

@@ -22,7 +22,22 @@ In an attempt to provide the most meaningful data possible, the following test c
 
 The overall design of the automatic performance testing framework can be outlined succinctly by the following diagram:
 
-image::perf-test-design-diagram.png[Performance Test Framework Design Diagram]
+[ditaa, perf-test-design-diagram, png]
+....
+/-----------\           /-------\       /-------\         /-------\
+|           | Triggers  |       | Runs  |       | Starts  |       |
+|Code Change|---------->|Jenkins|------>|Ansible|-------->|Gatling|-+
+|           |           |       |       |       |         |       | |
+\-----------/           \-------/       \-------/         \-------/ |
+      +-------------------------------------------------------------+
+      |
+      v
+/--------\             /-------\
+|        | Pulls From  |       |
+|InfluxDB|<------------|Grafana|
+|        |             |       |
+\--------/             \-------/
+....
 
 Put into words, a code change in the Repose GitHub repository will trigger a Jenkins job to run.
 The Jenkins job will run the Ansible playbooks for all defined test cases.
