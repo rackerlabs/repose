@@ -1,16 +1,21 @@
 - hosts: localhost
   connection: local
   gather_facts: True
+  vars_files:
+    - test_vars/{{ perf_test }}.yml
   roles:
-    - control_machine
     - cloud_resource_create
 
 - hosts: performance
   gather_facts: True
+  vars_files:
+      - test_vars/{{ perf_test }}.yml
   roles:
     - repose
 
 - hosts: test_agent
   gather_facts: True
+  vars_files:
+      - test_vars/{{ perf_test }}.yml
   roles:
     - gatling
