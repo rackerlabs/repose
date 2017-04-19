@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,6 @@ import org.rackspace.deproxy.MessageChain
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
 
-import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
 class DistDatastoreServiceClientAuthFullTest extends Specification {
@@ -37,7 +36,7 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
     static ReposeLauncher repose2
 
     def setupSpec() {
-        def properties = new TestProperties()
+        def properties = new TestProperties(this.getClass().canonicalName.replace('.', '/'))
         def reposeLogSearch = new ReposeLogSearch(properties.logFile)
 
         def reposePort1 = properties.reposePort
@@ -62,12 +61,6 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
         def configDirectory = properties.getConfigDirectory()
         def config = new ReposeConfigurationProvider(configDirectory, configTemplates)
         config.applyConfigs("common", params)
-        // Have to manually copy binary files, because the applyConfigs() attempts to substitute template parameters
-        // when they are found and it breaks everything. :(
-        def serverFileOrig = new File(configTemplates, "common/server.jks")
-        def serverFile = new File(configDirectory, "server.jks")
-        def serverFileDest = new FileOutputStream(serverFile)
-        Files.copy(serverFileOrig.toPath(), serverFileDest)
         config.applyConfigs("features/services/datastore/multinode", params)
         config.applyConfigs("features/services/datastore/multinode/clientauth", params)
 
@@ -91,7 +84,7 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
 
     def "Test repose container with multi-nodes"() {
         given:
-        def MessageChain mc
+        MessageChain mc
         def user = UUID.randomUUID().toString();
 
         // This tests rate limit share between 2 nodes which is accomplished using the dist datastore.
