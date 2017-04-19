@@ -2,7 +2,7 @@
   local_action:
     module: rax_clb
     credentials: ~/.raxpub
-    name: "{{ cloud.naming_prefix }}-lb"
+    name: "{{ cloud.naming_prefix }}-repose-lb"
     port: 80
     protocol: HTTP
     type: PUBLIC
@@ -18,7 +18,7 @@
   local_action:
     module: rax_clb
     credentials: ~/.raxpub
-    name: "{{ cloud.naming_prefix }}-origin-lb"
+    name: "{{ cloud.naming_prefix }}-origin-service-lb"
     port: 80
     protocol: HTTP
     type: PUBLIC
