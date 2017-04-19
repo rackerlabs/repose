@@ -1,8 +1,5 @@
 {
   dir_prefix: "filters/translation",
-  cloud: {
-    naming_prefix: "perf_translation"
-  },
   repose: {
     config: {
       system_model: {

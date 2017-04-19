@@ -1,9 +1,6 @@
 {
   dir_prefix: "filters/scripting",
   script_lang: "groovy",
-  cloud: {
-    naming_prefix: "perf_scripting"
-  },
   repose: {
     config: {
       system_model: {

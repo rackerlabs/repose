@@ -1,8 +1,5 @@
 {
   dir_prefix: "filters/keystonev2",
-  cloud: {
-    naming_prefix: "perf_keystonev2"
-  },
   repose: {
     config: {
       system_model: {

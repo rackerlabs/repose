@@ -1,8 +1,5 @@
 {
   dir_prefix: "filters/saml",
-  cloud: {
-    naming_prefix: "perf_saml"
-  },
   repose: {
     config: {
       system_model: {

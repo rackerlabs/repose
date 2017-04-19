@@ -1,8 +1,5 @@
 {
   dir_prefix: "filters/valkyrie",
-  cloud: {
-    naming_prefix: "perf_valkyrie"
-  },
   repose: {
     config: {
       system_model: {

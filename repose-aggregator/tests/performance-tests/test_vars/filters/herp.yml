@@ -1,8 +1,5 @@
 {
   dir_prefix: "filters/herp",
-  cloud: {
-    naming_prefix: "perf_herp"
-  },
   repose: {
     config: {
       system_model: {

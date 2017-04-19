@@ -1,8 +1,5 @@
 {
   dir_prefix: "use-cases/complex",
-  cloud: {
-    naming_prefix: "perf_complex"
-  },
   repose: {
     config: {
       system_model: {

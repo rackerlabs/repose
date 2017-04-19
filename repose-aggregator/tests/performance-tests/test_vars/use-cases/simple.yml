@@ -1,8 +1,5 @@
 {
   dir_prefix: "use-cases/simple",
-  cloud: {
-    naming_prefix: "perf_simple",
-  },
   repose: {
     config: {
       system_model: {
