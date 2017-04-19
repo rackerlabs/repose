@@ -53,3 +53,4 @@
     src: gatling.conf
     dest: /root/gatling/current/conf/gatling.conf
     mode: 0644
+    backup: yes
