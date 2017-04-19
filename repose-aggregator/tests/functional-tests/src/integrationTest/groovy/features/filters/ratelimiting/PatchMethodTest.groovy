@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,41 +19,21 @@
  */
 package features.filters.ratelimiting
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeValveLauncher
-import framework.TestProperties
+import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Specification
 
-class PatchMethodTest extends Specification {
+class PatchMethodTest extends ReposeValveTest {
 
-    Deproxy deproxy
-
-    TestProperties properties
-    ReposeConfigurationProvider reposeConfigProvider
-    ReposeValveLauncher repose
-
-    def setup() {
-
-        properties = new TestProperties()
-
+    def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+    }
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
-
+    def setup() {
         def params = properties.getDefaultTemplateParams()
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/filters/ratelimiting/oneNode", params)
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.reposeJar,
-                properties.reposeEndpoint,
-                properties.configDirectory,
-                properties.reposePort
-        )
-        repose.enableDebug()
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/oneNode", params)
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(properties.reposeEndpoint)
@@ -63,7 +43,7 @@ class PatchMethodTest extends Specification {
 
         given:
         def mc
-        String url = "${properties.reposeEndpoint}/patchmethod/resource"
+        String url = "$reposeEndpoint/patchmethod/resource"
         def headers = ['X-PP-User': 'user', 'X-PP-Groups': 'patchmethod']
 
 
@@ -107,7 +87,7 @@ class PatchMethodTest extends Specification {
 
         given:
         def mc
-        String url = "${properties.reposeEndpoint}/allmethods/resource"
+        String url = "$reposeEndpoint/allmethods/resource"
         def headers = ['X-PP-User': 'user', 'X-PP-Groups': 'allmethods']
 
         when: "we make some requests with mixed methods"
@@ -151,7 +131,7 @@ class PatchMethodTest extends Specification {
 
         given:
         def mc
-        String url = "${properties.reposeEndpoint}/patchmethod/resource"
+        String url = "$reposeEndpoint/patchmethod/resource"
         def headers1 = ['X-PP-User': 'user1', 'X-PP-Groups': 'patchmethod']
         def headers2 = ['X-PP-User': 'user2', 'X-PP-Groups': 'patchmethod']
 
@@ -196,7 +176,7 @@ class PatchMethodTest extends Specification {
 
         given:
         def mc
-        String url = "${properties.reposeEndpoint}/patchmethod/resource"
+        String url = "$reposeEndpoint/patchmethod/resource"
         def headers1 = ['X-PP-User': 'user1', 'X-PP-Groups': 'patchmethod', 'random-header': 'testtest']
 
         when: "we make a PATCH request"
@@ -211,13 +191,6 @@ class PatchMethodTest extends Specification {
     }
 
     def cleanup() {
-
-        if (repose) {
-            repose.stop()
-        }
-
-        if (deproxy) {
-            deproxy.shutdown()
-        }
+        repose?.stop()
     }
 }
