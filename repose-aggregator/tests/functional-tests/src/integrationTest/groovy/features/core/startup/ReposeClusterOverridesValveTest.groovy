@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,6 @@ import org.apache.http.ssl.SSLContexts
 import org.eclipse.jetty.server.Request
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.server.handler.AbstractHandler
-import spock.lang.Specification
 import spock.lang.Unroll
 
 import javax.servlet.ServletException
@@ -37,21 +36,15 @@ import javax.servlet.http.HttpServletResponse
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
-class ReposeClusterOverridesValveTest extends Specification {
+class ReposeClusterOverridesValveTest extends ReposeValveTest {
     static String RESPONSE_BODY = "RESPONSE BODY"
     static char[] PASSWORD = "password".toCharArray()
-    static TestProperties properties
-    static ReposeLogSearch reposeLogSearch
-    static String configDirectory
-    static ReposeConfigurationProvider config
     static int reposePort1
     static int reposePort2
 
     static org.eclipse.jetty.server.Server originService
-    static ReposeLauncher repose
 
     def setupSpec() {
-        properties = new TestProperties()
         originService = new org.eclipse.jetty.server.Server(0)
         originService.setHandler(new AbstractHandler() {
             @Override
@@ -65,7 +58,6 @@ class ReposeClusterOverridesValveTest extends Specification {
         originService.start()
         properties.targetPort = ((ServerConnector) originService.connectors[0]).localPort
 
-        reposeLogSearch = new ReposeLogSearch(properties.logFile)
 
         reposePort1 = properties.reposePort
         reposePort2 = PortFinder.instance.getNextOpenPort()
@@ -78,10 +70,7 @@ class ReposeClusterOverridesValveTest extends Specification {
                 'repose.node.id'   : 'node1',
         ]
 
-        def configTemplates = properties.getConfigTemplates()
-        configDirectory = properties.getConfigDirectory()
-        config = new ReposeConfigurationProvider(configDirectory, configTemplates)
-        config.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("common", params)
         // Have to manually copy binary files, because the applyConfigs() attempts to substitute template parameters
         // when they are found and it breaks everything. :(
         def serverFileOrig = new File(configTemplates, "common/server.jks")
@@ -96,12 +85,10 @@ class ReposeClusterOverridesValveTest extends Specification {
         def bogusFile = new File(configDirectory, "bogus.jks")
         def bogusFileDest = new FileOutputStream(bogusFile)
         Files.copy(bogusFileOrig.toPath(), bogusFileDest)
-        config.applyConfigs("features/core/startup/override", params)
+        repose.configurationProvider.applyConfigs("features/core/startup/override", params)
 
         reposeLogSearch.cleanLog()
 
-        repose = new ReposeValveLauncher(config, properties)
-        repose.enableDebug()
         repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
         reposeLogSearch.awaitByString("repose1:node1 -- Repose ready", 1, 60, TimeUnit.SECONDS)
         reposeLogSearch.awaitByString("repose2:node2 -- Repose ready", 1, 60, TimeUnit.SECONDS)
