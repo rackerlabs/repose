@@ -59,10 +59,10 @@ For example, the `repose-aggregator/tests/performance-tests/roles/repose/files/c
 
 . Create a vars file for the new test.
 .. These are located in `repose-aggregator/tests/performance-tests/test_vars/`.
-.. At a minimum, it should contain the `dir_prefix`, a filter chain, and the Gatling simulation name and package.
+.. At a minimum, it should contain the `dir_prefix`, the filter chain, and the Gatling simulation name and package.
 . If necessary, add Repose configuration files.
 .. Create any necessary new directories under `repose-aggregator/tests/performance-tests/roles/repose/` with the same names and hierarchy configured in the `dir_prefix`.
-Template files should be placed under the `templates/config/` directory while raw configuration files should be placed under the `files/config/` directory.
+Template files should be placed under the `templates/config/` directory, and raw configuration files should be placed under the `files/config/` directory.
 . Create a http://gatling.io/docs/current/general/concepts/#simulation[Gatling simulation].
 .. Create a new directory under `repose-aggregator/tests/performance-tests/roles/gatling/files/simulations/` with the same name as the configured Gatling simulation package (may be different than `dir_prefix`).
 .. Write a Gatling simulation with the same name as the configured Gatling simulation name.
@@ -109,7 +109,8 @@ When running the playbook, you may specify which test to run and what configurat
 +
 ```
 ansible-playbook start_test.yml \ # <1>
-  -e '{perf_test: filters/saml, gatling: {test: {params: {duration_in_min: 15, saml: {num_of_issuers: 2}}}}}' \ # <2> <3>
+  -e '{perf_test: filters/saml, # <2>
+       gatling: {test: {params: {duration_in_min: 15, saml: {num_of_issuers: 2}}}}}' \ # <3>
   -vvvv # <4>
 ```
 <1> Run the `start_test.yml` playbook.
@@ -205,7 +206,8 @@ Run the simple use-case test for 15 minutes with a 5 minute warmup (20 minutes t
 
 ```
 ansible-playbook start_test.yml \
-  -e '{perf_test: use-cases/simple, gatling: {test: {params: {duration_in_min: 15, warmup_duration_in_min: 5}}}}' \
+  -e '{perf_test: use-cases/simple,
+       gatling: {test: {params: {duration_in_min: 15, warmup_duration_in_min: 5}}}}' \
   -vvvv
 ```
 
@@ -234,7 +236,8 @@ You can specify which cloud server flavor to use in the configuration overrides.
 
 ```
 ansible-playbook start_test.yml \
-  -e '{perf_test: filters/saml, cloud: {server: {repose: {flavor: performance1-4}}}}' \
+  -e '{perf_test: filters/saml,
+       cloud: {server: {repose: {flavor: performance1-4}}}}' \
   -vvvv
 ```
 
@@ -245,7 +248,8 @@ If you expect Repose to take longer to start (e.g., due to a large WADL), you ca
 
 ```
 ansible-playbook start_test.yml \
-  -e '{perf_test: filters/saml, repose: {service: {start_timeout_in_sec: 900}}}' \
+  -e '{perf_test: filters/saml,
+       repose: {service: {start_timeout_in_sec: 900}}}' \
   -vvvv
 ```
 
@@ -255,7 +259,8 @@ To get Repose to use Saxon, add a `saxon-license.lic` file to the `repose-aggreg
 
 ```
 ansible-playbook start_test.yml \
-  -e '{perf_test: filters/saml, repose: {systemd_opts: {use_saxon: true}}}' \
+  -e '{perf_test: filters/saml,
+       repose: {systemd_opts: {use_saxon: true}}}' \
   -vvvv
 ```
 
@@ -265,7 +270,10 @@ You can set the JVM Options (`JAVA_OPTS`) used by Repose by setting the followin
 
 ```
 ansible-playbook start_test.yml \
-  -e '{perf_test: filters/saml, repose: {systemd_opts: {java_opts: "-Xmx2g -Xms2g -XX:+UseG1GC -XX:+UseStringDeduplication"}}}' \
+  -e '{perf_test: filters/saml,
+       repose: {
+         systemd_opts: {
+           java_opts: "-Xmx2g -Xms2g -XX:+UseG1GC -XX:+UseStringDeduplication"}}}' \
   -vvvv
 ```
 
@@ -289,7 +297,8 @@ This feature is considered experimental.
 
 ```
 ansible-playbook start_test.yml \
-  -e '{perf_test: filters/saml, repose: {service: {state: restarted}, systemd_opts: {use_saxon: true}}}' \
+  -e '{perf_test: filters/saml,
+       repose: {service: {state: restarted}, systemd_opts: {use_saxon: true}}}' \
   -vvvv
 ```
 
@@ -300,7 +309,8 @@ For example, if you wanted the base name `custom-base-name` (resulting in a dire
 
 ```
 ansible-playbook start_test.yml \
-  -e '{perf_test: filters/saml, gatling: {results: {output_dir: custom-base-name}}}' \
+  -e '{perf_test: filters/saml,
+       gatling: {results: {output_dir: custom-base-name}}}' \
   -vvvv
 ```
 
@@ -310,7 +320,9 @@ Running a performance test with a unique naming prefix enables you to run a part
 
 ```
 ansible-playbook start_test.yml \
-  -e '{perf_test: filters/saml, cloud: {naming_prefix: perf-saml-many-issuers}, gatling: {test: {params: {saml: {num_of_issuers: 100}}}}}' \
+  -e '{perf_test: filters/saml,
+       cloud: {naming_prefix: perf-saml-many-issuers},
+       gatling: {test: {params: {saml: {num_of_issuers: 100}}}}}' \
   -vvvv
 ```
 
@@ -319,7 +331,8 @@ If the prefix is not specified, the wrong cloud resources or no cloud resources 
 
 ```
 ansible-playbook stop_test.yml \
-  -e '{perf_test: filters/saml, cloud: {naming_prefix: perf-saml-many-issuers}}' \
+  -e '{perf_test: filters/saml,
+       cloud: {naming_prefix: perf-saml-many-issuers}}' \
   -vvvv
 ```
 
@@ -330,6 +343,7 @@ You can specify one of the other scripting languages available using the followi
 
 ```bash
 ansible-playbook start_test.yml \
-  -e '{perf_test: filters/scripting, script_lang: python}' \
+  -e '{perf_test: filters/scripting,
+       script_lang: python}' \
   -vvvv
 ```
