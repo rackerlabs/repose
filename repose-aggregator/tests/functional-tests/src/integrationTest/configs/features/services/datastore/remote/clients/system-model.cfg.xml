@@ -2,9 +2,11 @@
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
     <repose-cluster id="repose">
         <nodes>
-            <node id="nofilters" hostname="localhost" http-port="${reposePort}"/>
+            <node id="client1" hostname="localhost" http-port="${reposePort}"/>
+            <node id="client2" hostname="localhost" http-port="${reposePort2}"/>
         </nodes>
         <filters>
+            <filter name="rate-limiting"/>
         </filters>
         <services>
             <service name="remote-datastore"/>
