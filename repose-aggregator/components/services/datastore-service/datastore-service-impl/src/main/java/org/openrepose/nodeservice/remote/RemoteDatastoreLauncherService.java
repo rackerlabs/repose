@@ -50,7 +50,10 @@ import java.util.concurrent.atomic.AtomicReference;
 @Named
 public class RemoteDatastoreLauncherService {
     public static final String DEFAULT_CONFIG_NAME = "remote-datastore.cfg.xml";
+    public static final String DEFAULT_CONFIG_SCHEMA = "/META-INF/schema/remote-datastore/remote-datastore.xsd";
     public static final String REMOTE_DATASTORE_NAME = "remote-datastore";
+    public static final String SYSTEM_CONFIG_NAME = "system-model.cfg.xml";
+    public static final String SYSTEM_CONFIG_SCHEMA = "/META-INF/schema/system-model/system-model.xsd";
 
     private static final Logger LOG = LoggerFactory.getLogger(RemoteDatastoreLauncherService.class);
     private static final String REMOTE_DATASTORE_SERVICE_CONFIG_ISSUE = "remote-datastore-config-issue";
@@ -89,39 +92,28 @@ public class RemoteDatastoreLauncherService {
     public void init() {
         //Subscribe to the system model to know if we even want to turn on...
         // (If we do want to turn on, we should probably only then subscribe to the remote datastore config)
-        URL systemModelXSD = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-        configurationService.subscribeTo("system-model.cfg.xml", systemModelXSD, systemModelListener, SystemModel.class);
+        URL systemModelXSD = getClass().getResource(SYSTEM_CONFIG_SCHEMA);
+        configurationService.subscribeTo(SYSTEM_CONFIG_NAME, systemModelXSD, systemModelListener, SystemModel.class);
         //If and only if we're going to be turned on, should we subscribe to the other one
     }
 
     private void initRemoteDatastore() {
-        healthCheckServiceProxy.reportIssue(REMOTE_DATASTORE_SERVICE_CONFIG_ISSUE, "Metrics Service Configuration Error", Severity.BROKEN);
-        URL xsdURL = getClass().getResource("/META-INF/schema/remote-datastore/remote-datastore.xsd");
+        healthCheckServiceProxy.reportIssue(REMOTE_DATASTORE_SERVICE_CONFIG_ISSUE, "Remote Datastore Service Configuration Error", Severity.BROKEN);
+        URL xsdURL = getClass().getResource(DEFAULT_CONFIG_SCHEMA);
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, configurationListener, RemoteDatastoreConfiguration.class);
-
-        // The Metrics config is optional so in the case where the configuration listener doesn't mark it initialized
-        // and the file doesn't exist, this means that the Metrics service will load its own default configuration
-        // and the initial health check error should be cleared.
-        try {
-            if (!configurationListener.isInitialized() && !configurationService.getResourceResolver().resolve("metrics.cfg.xml").exists()) {
-                healthCheckServiceProxy.resolveIssue(REMOTE_DATASTORE_SERVICE_CONFIG_ISSUE);
-            }
-        } catch (IOException io) {
-            LOG.error("Error attempting to search for {}", DEFAULT_CONFIG_NAME, io);
-        }
     }
 
     private void destroyRemoteDatastore() {
         isRunning = false;
         datastoreService.destroyDatastore(REMOTE_DATASTORE_NAME);
-        configurationService.unsubscribeFrom("remote-datastore.cfg.xml", configurationListener);
+        configurationService.unsubscribeFrom(DEFAULT_CONFIG_NAME, configurationListener);
         healthCheckServiceProxy.resolveIssue(REMOTE_DATASTORE_SERVICE_CONFIG_ISSUE);
     }
 
     @PreDestroy
     public void destroy() {
         healthCheckServiceProxy.deregister();
-        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+        configurationService.unsubscribeFrom(SYSTEM_CONFIG_NAME, systemModelListener);
         destroyRemoteDatastore();
     }
 
@@ -159,12 +151,14 @@ public class RemoteDatastoreLauncherService {
 
         @Override
         public void configurationUpdated(RemoteDatastoreConfiguration configurationObject) {
-            Optional<RemoteClusterConfiguration> oldClusterConfigOpt = currentConfiguration
-                    .get()
-                    .getCluster()
-                    .stream()
-                    .filter(cluster -> cluster.getId().equals(clusterId))
-                    .findFirst();
+            RemoteDatastoreConfiguration currentRemoteDatastoreConfiguration = currentConfiguration.get();
+            Optional<RemoteClusterConfiguration> oldClusterConfigOpt = currentRemoteDatastoreConfiguration == null ?
+                    Optional.empty() :
+                    currentRemoteDatastoreConfiguration
+                            .getCluster()
+                            .stream()
+                            .filter(cluster -> cluster.getId().equals(clusterId))
+                            .findFirst();
             Optional<RemoteClusterConfiguration> newClusterConfigOpt = configurationObject
                     .getCluster()
                     .stream()
@@ -192,8 +186,7 @@ public class RemoteDatastoreLauncherService {
                         new InetSocketAddress(newClusterConfig.getHost(), newClusterConfig.getPort()),
                         newClusterConfig.getConnectionPoolId(),
                         newClusterConfig.isUseSSL());
-                initRemoteDatastore();
-            } else if (oldClusterConfigOpt.isPresent() && newClusterConfigOpt.isPresent()) {
+            } else if (oldClusterConfigOpt.isPresent() /*&& newClusterConfigOpt.isPresent()*/) {
                 RemoteClusterConfiguration oldClusterConfig = oldClusterConfigOpt.get();
                 RemoteClusterConfiguration newClusterConfig = newClusterConfigOpt.get();
                 if (!oldClusterConfig.getHost().equalsIgnoreCase(newClusterConfig.getHost()) ||
@@ -208,11 +201,11 @@ public class RemoteDatastoreLauncherService {
                             new InetSocketAddress(newClusterConfig.getHost(), newClusterConfig.getPort()),
                             newClusterConfig.getConnectionPoolId(),
                             newClusterConfig.isUseSSL());
-                    initRemoteDatastore();
                 }
             } //else { /* DO NOTHING */ }
             currentConfiguration.set(configurationObject);
             initialized = true;
+            healthCheckServiceProxy.resolveIssue(REMOTE_DATASTORE_SERVICE_CONFIG_ISSUE);
         }
 
         @Override
