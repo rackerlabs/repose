@@ -19,13 +19,13 @@
  */
 package features.services.datastore
 
+import framework.ReposeConfigurationProvider
+import framework.ReposeValveLauncher
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.io.ObjectSerializer
-import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 
 @Category(Slow.class)
@@ -39,16 +39,35 @@ class RemoteDatastoreServiceTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
+        int datastorePort = PortFinder.Singleton.getNextOpenPort()
+        int reposePort2 = PortFinder.Singleton.getNextOpenPort()
 
-        remoteDatastoreEndpoint = "http://localhost:${dataStorePort1}"
+        remoteDatastoreEndpoint = "http://localhost:${datastorePort}"
 
         params = properties.getDefaultTemplateParams()
-        params += ['datastorePort1': dataStorePort1]
+        params += ['datastorePort': datastorePort]
+        params += ['reposePort2': reposePort2]
 
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore/remote", params)
-        repose.start([clusterId: "repose", nodeId: "nofilters"])
+        repose.configurationProvider.applyConfigs("features/services/datastore/remote/clients", params)
+        repose.start([clusterId: "repose", nodeId: "client1"])
+
+        def repose2ConfigProvider = new ReposeConfigurationProvider(properties)
+        def repose2 = new ReposeValveLauncher(repose2ConfigProvider, properties)
+        repose2.enableDebug()
+        //def repose2LogSearch = new ReposeLogSearch(logFile)
+        repose2.configurationProvider.applyConfigs("common", params)
+        repose2.configurationProvider.applyConfigs("features/services/datastore/remote/clients", params)
+        repose2.start([clusterId: "repose", nodeId: "client2"])
+
+        def datastoreConfigProvider = new ReposeConfigurationProvider(properties)
+        def datastore = new ReposeValveLauncher(datastoreConfigProvider, properties)
+        datastore.enableDebug()
+        //def datastoreLogSearch = new ReposeLogSearch(logFile)
+        datastore.configurationProvider.applyConfigs("common", params)
+        datastore.configurationProvider.applyConfigs("features/services/datastore/remote/datastore", params)
+        datastore.start([clusterId: "repose", nodeId: "remote"])
+
         waitUntilReadyToServiceRequests()
     }
 
@@ -58,7 +77,7 @@ class RemoteDatastoreServiceTest extends ReposeValveTest {
     def "PUT'ing a cache object should return 202"() {
     }
 
-    def "PATCH'ing a new cache object should return 200 response" () {
+    def "PATCH'ing a new cache object should return 200 response"() {
     }
 
     def "PATCH'ing a cache object to an existing key should patch the cached value"() {
@@ -70,6 +89,6 @@ class RemoteDatastoreServiceTest extends ReposeValveTest {
     def "DELETE'ing a cache object should return 204"() {
     }
 
-    def "TRACE'ing should return 405 response" () {
+    def "TRACE'ing should return 405 response"() {
     }
 }
