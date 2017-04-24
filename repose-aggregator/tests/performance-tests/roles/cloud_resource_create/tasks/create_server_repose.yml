@@ -42,7 +42,7 @@
   retries: 30
   delay: 10
   with_items: "{{ cloud_server_create.instances }}"
-  when: "{{ cloud_server_create.changed }}"
+  when: cloud_server_create.changed
   tags:
     - repose
     - origin
