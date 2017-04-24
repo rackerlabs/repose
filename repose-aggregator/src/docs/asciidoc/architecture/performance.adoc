@@ -107,12 +107,13 @@ If you have https://puppet.com/[Puppet] installed, you can download our manifest
 This playbook will create the necessary Cloud resources, provision the servers, and execute the Gatling simulation.
 When running the playbook, you may specify which test to run and what configuration to override for that test.
 +
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \ # <1>
   -e '{perf_test: filters/saml, # <2>
        gatling: {test: {params: {duration_in_min: 15, saml: {num_of_issuers: 2}}}}}' \ # <3>
   -vvvv # <4>
-```
+----
 <1> Run the `start_test.yml` playbook.
 <2> Set the config value for `perf_test` to `filters/saml` to run the SAML test.
 <3> Override the values for the two config parameters using YAML syntax.
@@ -141,7 +142,8 @@ Grafana serves as the user interface to performance test data.
 After test execution has completed, Gatling will generate an HTML report.
 The report can be found inside an archive residing in the `/root` directory with a file name like `gatling-results-repose-1487613066553.tar.gz`.
 The exact file name will be included in the output of the `Fetch the Gatling results` task which will resemble the following snippet:
-```
+[listing]
+----
 changed: [perf-filters-saml-testsuite01] => {
     "changed": true,
     "checksum": "4abdc6827e21343904c5744df42c7da57db8c978",
@@ -158,7 +160,7 @@ changed: [perf-filters-saml-testsuite01] => {
     "remote_checksum": "4abdc6827e21343904c5744df42c7da57db8c978",
     "remote_md5sum": null
 }
-```
+----
 <1> This is the file name.
 
 After the report archive is located, the content must be extracted before the report can be viewed.
@@ -179,12 +181,13 @@ The `/root` directory needs to exist and be writable by the user running Ansible
 === Running Gatling Manually
 
 If you need to manually run Gatling, you can do so from the Gatling host.
-```
+[source,bash]
+----
 export GATLING_HOME="/root/gatling/current" <1>
 cd $GATLING_HOME
 
 gatling -s filters.saml.SamlSimulation # <2>
-```
+----
 <1> `GATLING_HOME` needs to be set for Gatling to run.
 <2> `filters.saml.SamlSimulation` is the package-qualified class name of the simulation to run.
 It should be replaced with the FQCN of the simulation that should be run.
@@ -204,88 +207,96 @@ Files and directories of interest:
 
 Run the simple use-case test for 15 minutes with a 5 minute warmup (20 minutes total):
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: use-cases/simple,
        gatling: {test: {params: {duration_in_min: 15, warmup_duration_in_min: 5}}}}' \
   -vvvv
-```
+----
 
 === Skipping Repose or Origin Service Tests
 
 By default, both the Repose test and the origin service test (i.e., Repose is bypassed) are run.
 You can use Ansible tags to specify that only one of those tests should be run.
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml}' \
   --tags "repose" \
   -vvvv
-```
+----
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml}' \
   --tags "origin" \
   -vvvv
-```
+----
 
 === Cloud Server Flavor
 
 You can specify which cloud server flavor to use in the configuration overrides.
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml,
        cloud: {server: {repose: {flavor: performance1-4}}}}' \
   -vvvv
-```
+----
 
 === Increasing Timeout for Repose Startup
 
 By default, the Repose start task will wait 5 minutes for Repose to start up.
 If you expect Repose to take longer to start (e.g., due to a large WADL), you can increase this timeout using a command like the following:
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml,
        repose: {service: {start_timeout_in_sec: 900}}}' \
   -vvvv
-```
+----
 
 === Saxon
 
 To get Repose to use Saxon, add a `saxon-license.lic` file to the `repose-aggregator/tests/performance-tests/roles/repose/files/` directory and pass in the following configuration override:
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml,
        repose: {systemd_opts: {use_saxon: true}}}' \
   -vvvv
-```
+----
 
 === JVM Options (Heap size, Garbage Collection, etc.)
 
 You can set the JVM Options (`JAVA_OPTS`) used by Repose by setting the following configuration override:
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml,
        repose: {
          systemd_opts: {
            java_opts: "-Xmx2g -Xms2g -XX:+UseG1GC -XX:+UseStringDeduplication"}}}' \
   -vvvv
-```
+----
 
 === Automatic Cloud Resource Cleanup
 
 Use the master playbook to run a performance test and immediately clean up afterwards without having to running the individual playbooks.
 
-```
+[source,bash]
+----
 ansible-playbook site.yml \
   -e '{perf_test: filters/saml}' \
   -vvvv
-```
+----
 
 === Running a Test Again
 
@@ -295,55 +306,60 @@ For example, you can enable Saxon for a subsequent run, but you can't disable it
 Also, if you don't want the Repose JVM already warmed up from the previous run, you should have Ansible restart the Repose service.
 This feature is considered experimental.
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml,
        repose: {service: {state: restarted}, systemd_opts: {use_saxon: true}}}' \
   -vvvv
-```
+----
 
 === Gatling Output Directory Name
 
 You can specify the base name of the directory containing the Gatling results in the configuration overrides.
 For example, if you wanted the base name `custom-base-name` (resulting in a directory name resembling `custom-base-name-repose-1487812914968`), you would run:
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml,
        gatling: {results: {output_dir: custom-base-name}}}' \
   -vvvv
-```
+----
 
 === Running Parallel Tests
 
 Running a performance test with a unique naming prefix enables you to run a particular test multiple times simultaneously (each run requires a unique prefix):
 
-```
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml,
        cloud: {naming_prefix: perf-saml-many-issuers},
        gatling: {test: {params: {saml: {num_of_issuers: 100}}}}}' \
   -vvvv
-```
+----
 
 If you're using the `stop_test.yml` playbook to clean up your cloud resources, you'll need to include the unique prefix to ensure the correct resources are deleted.
 If the prefix is not specified, the wrong cloud resources or no cloud resources could end up being deleted, and in both cases, no error will be returned (due to idempotency).
 
-```
+[source,bash]
+----
 ansible-playbook stop_test.yml \
   -e '{perf_test: filters/saml,
        cloud: {naming_prefix: perf-saml-many-issuers}}' \
   -vvvv
-```
+----
 
 === Scripting Filter Test
 
 By default, the Scripting filter test will use the Groovy scripting config.
 You can specify one of the other scripting languages available using the following configuration override:
 
-```bash
+[source,bash]
+----
 ansible-playbook start_test.yml \
   -e '{perf_test: filters/scripting,
        script_lang: python}' \
   -vvvv
-```
+----
