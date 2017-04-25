@@ -20,7 +20,6 @@
 package features.core.phonehomeservice
 
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
 import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -38,13 +37,13 @@ import org.rackspace.deproxy.Response
  *  What is the Repose System Model (filter chain)
  */
 class PhoneHomeServiceTest extends ReposeValveTest {
-    def static originEndpoint
-    def static identityEndpoint
     def static phonehomeEndpoint
-    def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.targetPort, 'origin service')
+        phonehomeEndpoint = deproxy.addEndpoint(properties.phonehomePort, 'phone home service')
+
         reposeLogSearch.cleanLog()
 
         // empty phone-home.log
@@ -52,24 +51,18 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         reposeLogSearch.setLogFileLocation(logpath + "logs/phone-home.log")
         reposeLogSearch.cleanLog()
 
+    }
+
+    def "Verify Phone home service when start repose"() {
+        given:
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice/common", params);
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice/nofilter", params);
 
-        originEndpoint = deproxy.addEndpoint(params.targetPort, 'origin service')
-        phonehomeEndpoint = deproxy.addEndpoint(params.phonehomePort, 'phone home service')
-
         repose.start()
 
-        //fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
-        //identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
-        //fakeIdentityService.checkTokenValid = true
-    }
-
-    def "Verify Phone home service when start repose"() {
-        given:
         // repose start up with no filter
         def logpath = logFile.substring(0, logFile.indexOf("logs"))
         reposeLogSearch.setLogFileLocation(logpath + "logs/repose.log")
@@ -88,13 +81,14 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         def logpath = logFile.substring(0, logFile.indexOf("logs"))
         reposeLogSearch.setLogFileLocation(logpath + "logs/phone-home.log")
 
+        def headers = ['content-length': 0]
+        phonehomeEndpoint.defaultHandler = { return new Response(400, "", headers) }
+
         def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice/common", params);
         repose.configurationProvider.applyConfigs("features/core/phonehomeservice/somefilters", params);
         repose.start()
-
-        def headers = ['content-length': 0]
-        phonehomeEndpoint.defaultHandler = { return new Response(400, "", headers) }
 
         when: "repose update system moder"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
@@ -115,6 +109,10 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         line.jreVersion =~ ".*" //System.getProperty("java.version")
         line.jvmName =~ ".*"//System.getProperty("java.vm.name")
         line.serviceId == "repose-test-service2"
+    }
+
+    def cleanup() {
+        repose?.stop()
     }
 
     def getLog(def log, String serviceid) {
