@@ -91,13 +91,24 @@ gatling.*.*.*.* measurement.simulation.request.status.field
 
 Resulting in a database full of entries like the following:
 
-....
-name: gatling # <1>
-time                count max mean min percentiles50 percentiles75 percentiles95 percentiles99 request                  simulation    status stdDev
-----                ----- --- ---- --- ------------- ------------- ------------- ------------- -------                  ----------    ------ ------
-1492629621000000000 2     219  205 192 192           219           219           219           getComputers           computerworld all    12
-....
-<1> The name of the measurement.
+.Measurement Name: gatling
+[options="header,autowidth"]
+|===
+|Field/Tag Key | Field/Tag Value
+|time          | 1492629621000000000
+|count         | 2
+|max           | 219
+|mean          | 205
+|min           | 192
+|percentiles50 | 192
+|percentiles75 | 219
+|percentiles95 | 219
+|percentiles99 | 219
+|request       | getComputers
+|simulation    | computerworld
+|status        | all
+|stdDev        | 12
+|===
 
 To learn more about how InfluxDB handles Graphite input, see https://github.com/influxdata/influxdb/blob/master/services/graphite/README.md[Graphite Input].
 
