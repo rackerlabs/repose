@@ -104,7 +104,7 @@
                 <xs:documentation>
                     <html:p>
                         The password for the client authentication truststore.
-                        NOTE: This element is only used if the truststore-filename attribute is present.
+                        NOTE: This attribute is only used if the truststore-filename attribute is present.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
