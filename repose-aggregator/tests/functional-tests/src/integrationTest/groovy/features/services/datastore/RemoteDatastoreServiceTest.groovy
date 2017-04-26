@@ -20,75 +20,170 @@
 package features.services.datastore
 
 import framework.ReposeConfigurationProvider
+import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
-import framework.ReposeValveTest
+import framework.TestProperties
 import framework.category.Slow
+import org.apache.commons.io.filefilter.WildcardFileFilter
 import org.junit.experimental.categories.Category
+import org.linkedin.util.clock.SystemClock
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
+import spock.lang.Shared
+import spock.lang.Specification
+
+import java.nio.file.Files
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+
+import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 @Category(Slow.class)
-class RemoteDatastoreServiceTest extends ReposeValveTest {
+class RemoteDatastoreServiceTest extends Specification {
     //Since we're serializing objects here for the Remote datastore, we must have the objects in our classpath
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
 
-    static def params
-    static def remoteDatastoreEndpoint
+    @Shared
+    def repose1
+
+    @Shared
+    def repose2
+
+    @Shared
+    def remote
+
+    @Shared
+    def deproxy
+
+    @Shared
+    def repose1Port
+
+    @Shared
+    def repose2Port
+
+    @Shared
+    def reposeOneEndpoint
+
+    @Shared
+    def reposeTwoEndpoint
+    @Shared
+    def remoteDatastoreEndpoint
 
     def setupSpec() {
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
-        int datastorePort = PortFinder.Singleton.getNextOpenPort()
-        int reposePort2 = PortFinder.Singleton.getNextOpenPort()
 
+        repose1Port = PortFinder.Singleton.getNextOpenPort(10019)
+        repose2Port = PortFinder.Singleton.getNextOpenPort()
+        def remotePort = PortFinder.Singleton.getNextOpenPort()
+        def datastorePort = PortFinder.Singleton.getNextOpenPort()
+        def targetPort = PortFinder.Singleton.getNextOpenPort()
+
+        reposeOneEndpoint = "http://localhost:${repose1Port}"
+        reposeTwoEndpoint = "http://localhost:${repose2Port}"
         remoteDatastoreEndpoint = "http://localhost:${datastorePort}"
 
-        params = properties.getDefaultTemplateParams()
-        params += ['datastorePort': datastorePort]
-        params += ['reposePort2': reposePort2]
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(targetPort)
 
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore/remote/clients", params)
-        repose.start([clusterId: "repose", nodeId: "client1"])
+        def launcherAndLog1 = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
+        repose1 = launcherAndLog1.ReposeValveLauncher
 
-        def repose2ConfigProvider = new ReposeConfigurationProvider(properties)
-        def repose2 = new ReposeValveLauncher(repose2ConfigProvider, properties)
-        repose2.enableDebug()
-        //def repose2LogSearch = new ReposeLogSearch(logFile)
-        repose2.configurationProvider.applyConfigs("common", params)
-        repose2.configurationProvider.applyConfigs("features/services/datastore/remote/clients", params)
-        repose2.start([clusterId: "repose", nodeId: "client2"])
+        def launcherAndLog2 = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
+        repose2 = launcherAndLog2.ReposeValveLauncher
 
-        def datastoreConfigProvider = new ReposeConfigurationProvider(properties)
-        def datastore = new ReposeValveLauncher(datastoreConfigProvider, properties)
-        datastore.enableDebug()
-        //def datastoreLogSearch = new ReposeLogSearch(logFile)
-        datastore.configurationProvider.applyConfigs("common", params)
-        datastore.configurationProvider.applyConfigs("features/services/datastore/remote/datastore", params)
-        datastore.start([clusterId: "repose", nodeId: "remote"])
+        def launcherAndLogR = startRepose('remote', remotePort, targetPort, datastorePort, false)
+        remote = launcherAndLogR.ReposeValveLauncher
 
-        waitUntilReadyToServiceRequests()
+        waitUntilReadyToServiceRequests(launcherAndLog1.ReposeLogSearch)
+        waitUntilReadyToServiceRequests(launcherAndLog2.ReposeLogSearch)
+        waitUntilReadyToServiceRequests(launcherAndLogR.ReposeLogSearch)
+        System.out.println("REMOVE ME!!!")
     }
 
-    def "when configured with Remote Datastore service, repose should start and successfully execute calls"() {
+    def cleanupSpec() {
+        deproxy?.shutdown()
+        repose1?.stop()
+        repose2?.stop()
+        remote?.stop()
     }
 
-    def "PUT'ing a cache object should return 202"() {
+    static def startRepose(String subName, int reposePort, int targetPort, int datastorePort, boolean client) {
+        def testProperties = new TestProperties()
+        def reposeHome = testProperties.getReposeHome()
+        testProperties.setReposeHome("$reposeHome/$subName")
+        testProperties.setLogFile(
+                testProperties.getLogFile().replace(reposeHome, "$reposeHome/$subName"))
+        testProperties.setLogFilePattern(
+                testProperties.getLogFilePattern().replace(reposeHome, "$reposeHome/$subName"))
+        testProperties.setConfigDirectory(
+                testProperties.getConfigDirectory().replace(reposeHome, "$reposeHome/$subName"))
+        testProperties.setReposePort(reposePort)
+        testProperties.setTargetPort(targetPort)
+        def reposeConfigProvider = new ReposeConfigurationProvider(testProperties)
+        reposeConfigProvider.cleanConfigDirectory()
+        def reposeValveLauncher = new ReposeValveLauncher(reposeConfigProvider, testProperties)
+        reposeValveLauncher.enableDebug()
+        def reposeLogSearch = new ReposeLogSearch(testProperties.getLogFile())
+        reposeLogSearch.cleanLog()
+        def params = testProperties.getDefaultTemplateParams()
+        params.put('repose.artifact.directory', "$reposeHome/$subName/artifacts")
+        params.put('datastorePort', datastorePort)
+        reposeValveLauncher.configurationProvider.applyConfigs("common", params)
+        reposeValveLauncher.configurationProvider.applyConfigs("features/services/datastore/remote", params)
+        def type = client ? "client" : "datastore"
+        reposeValveLauncher.configurationProvider.applyConfigs("features/services/datastore/remote/$type", params)
+        reposeValveLauncher.start(false, false, "repose", type)
+        def artifacts = (new File(reposeHome, "artifacts")).listFiles(
+                ((FilenameFilter) new WildcardFileFilter("filter-bundle-*.ear")))
+        for (file in artifacts) {
+            def fileOrig = new File(reposeHome, "artifacts/${file.name}")
+            def fileNew = new File(reposeHome, "$subName/artifacts/${file.name}")
+            fileNew.parentFile.mkdirs()
+            def fileDest = new FileOutputStream(fileNew)
+            Files.copy(fileOrig.toPath(), fileDest)
+        }
+        return ['ReposeValveLauncher': reposeValveLauncher, 'ReposeLogSearch': reposeLogSearch]
     }
 
-    def "PATCH'ing a new cache object should return 200 response"() {
+    static def waitUntilReadyToServiceRequests(ReposeLogSearch reposeLogSearch) {
+        def clock = new SystemClock()
+        try {
+            waitForCondition(clock, '35s', '1s', {
+                return (reposeLogSearch.awaitByString("Repose ready", 1, 35, TimeUnit.SECONDS).size() > 0)
+            })
+        } catch (TimeoutException ignored) {
+            return false
+        }
     }
 
-    def "PATCH'ing a cache object to an existing key should patch the cached value"() {
-    }
+    def "When a limit has not been reached, request should pass"() {
+        given: "the rate-limit has not been reached"
+        def headers = ["X-PP-User": "user", "X-PP-Groups": "group"]
 
-    def "GET'ing a cache object when time to live is expired should return 404"() {
-    }
+        when: "the user sends their request"
+        def messageChain1
+        def messageChain2
+        for (int i = 0; i < 5; i++) {
+            messageChain1 = deproxy.makeRequest(url: reposeOneEndpoint, headers: headers)
+            messageChain2 = deproxy.makeRequest(url: reposeTwoEndpoint, headers: headers)
 
-    def "DELETE'ing a cache object should return 204"() {
-    }
+            then: "the request is not rate-limited, and passes to the origin service"
+            assert messageChain1.receivedResponse.code as Integer == SC_OK
+            assert messageChain1.handlings.size() == 1
+            assert messageChain2.receivedResponse.code as Integer == SC_OK
+            assert messageChain2.handlings.size() == 1
+        }
 
-    def "TRACE'ing should return 405 response"() {
+        and: "the user sends their request after the rate-limit has been reached"
+        messageChain1 = deproxy.makeRequest(url: reposeOneEndpoint, headers: headers)
+        messageChain2 = deproxy.makeRequest(url: reposeTwoEndpoint, headers: headers)
+
+        then: "the request is rate-limited, and passes to the origin service"
+        assert messageChain1.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
+        assert messageChain1.handlings.size() == 0
+        assert messageChain2.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
+        assert messageChain2.handlings.size() == 0
     }
 }
