@@ -23,14 +23,16 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Shared
 import spock.lang.Unroll
 
 @Category(Slow.class)
 class StartWithMissingConfigsTest extends ReposeValveTest {
 
+    @Shared
     Map params = [:]
 
-    def setup() {
+    def setupSpec() {
 
         params = properties.getDefaultTemplateParams()
 

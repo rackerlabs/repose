@@ -24,6 +24,7 @@ import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Handling
+import spock.lang.Shared
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,21 +33,19 @@ import org.rackspace.deproxy.Handling
  */
 class KeystoneV2AuthorizationConnectionPoolingTest extends ReposeValveTest {
 
-
+    @Shared
     MockIdentityV2Service fakeIdentityV2Service
 
-    Deproxy deproxy
-    Endpoint originEndpoint
+    @Shared
     Endpoint identityEndpoint
 
 
-    def setup() {
-
+    def setupSpec() {
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
 
         // start deproxy
         deproxy = new Deproxy()
-        originEndpoint = deproxy.addEndpoint(properties.targetPort)
+        deproxy.addEndpoint(properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 "identity", "localhost", fakeIdentityV2Service.handler)
 

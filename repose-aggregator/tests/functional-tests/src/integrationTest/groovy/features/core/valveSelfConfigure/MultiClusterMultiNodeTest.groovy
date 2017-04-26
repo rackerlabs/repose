@@ -24,20 +24,28 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
+import spock.lang.Shared
 
 @org.junit.experimental.categories.Category(Slow.class)
 class MultiClusterMultiNodeTest extends ReposeValveTest {
 
+    @Shared
     Endpoint endpoint1
+    @Shared
     Endpoint endpoint2
 
+    @Shared
     int port11
+    @Shared
     int port12
+    @Shared
     int port21
+    @Shared
     int port22
+    @Shared
     Map params = [:]
 
-    def setup() {
+    def setupSpec() {
 
         deproxy = new Deproxy()
         endpoint1 = deproxy.addEndpoint(properties.targetPort)

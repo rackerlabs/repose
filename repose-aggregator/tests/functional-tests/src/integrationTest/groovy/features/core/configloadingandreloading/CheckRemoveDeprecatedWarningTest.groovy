@@ -21,16 +21,17 @@ package features.core.configloadingandreloading
 
 import framework.*
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Shared
 
 /**
  * Created by jennyvo on 7/15/14.
  */
 class CheckRemoveDeprecatedWarningTest extends ReposeValveTest {
 
+    @Shared
     Map params = [:]
-    Deproxy deproxy
 
-    def setup() {
+    def setupSpec() {
 
         int dataStorePort = PortFinder.instance.getNextOpenPort()
         params = properties.getDefaultTemplateParams()

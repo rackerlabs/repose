@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,11 +38,9 @@ class DefaultDestinationTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-
     }
 
     def setup() {
-
         int dataStorePort = PortFinder.instance.getNextOpenPort()
         params = properties.getDefaultTemplateParams()
 
@@ -73,7 +71,6 @@ class DefaultDestinationTest extends ReposeValveTest {
 
         // start repose
         when: "starting Repose with more or less than one default destination endpoint"
-        reposeLogSearch.cleanLog()
         repose.start([waitOnJmxAfterStarting: false])
 
         then: "error should be logged"

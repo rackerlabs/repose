@@ -24,19 +24,24 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Shared
 
 @Category(Slow.class)
 class RuntimeSysmodChangesTest extends ReposeValveTest {
 
+    @Shared
     int port1
+    @Shared
     int port2
+    @Shared
     int port3
 
     //This must be longer than the 15 second hard coded Poller timeout
     //TODO: eventually replace this with a JMX trigger to force a configuration update.
+    @Shared
     int sleep_duration = 35000
 
-    def setup() {
+    def setupSpec() {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)

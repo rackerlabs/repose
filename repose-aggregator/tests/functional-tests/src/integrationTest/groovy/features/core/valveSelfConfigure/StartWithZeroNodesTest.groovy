@@ -22,15 +22,18 @@ package features.core.valveSelfConfigure
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Shared
 
 @org.junit.experimental.categories.Category(Slow.class)
 class StartWithZeroNodesTest extends ReposeValveTest {
 
+    @Shared
     int port
 
+    @Shared
     int sleep_duration = 35000
 
-    def setup() {
+    def setupSpec() {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)

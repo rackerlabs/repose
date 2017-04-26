@@ -30,7 +30,6 @@ class NoCaptureGroupsTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/nocapturegroups", params)
         repose.start(killOthersBeforeStarting: false,
