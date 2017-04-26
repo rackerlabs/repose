@@ -23,6 +23,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.text.StrSubstitutor
 import org.linkedin.util.clock.SystemClock
+
 /**
  * Responsible for applying and updating configuration files for an instance of Repose
  */
