@@ -79,7 +79,7 @@ class ComplexUseCaseSimulation extends Simulation {
     warmup,
     mainScenario
   ).assertions(
-    global.responseTime.percentile4.lte(percentile3ResponseTimeUpperBound),
+    global.responseTime.percentile3.lte(percentile3ResponseTimeUpperBound),
     global.successfulRequests.percent.gte(percentSuccessfulRequest)
   ).protocols(httpConf)
 
