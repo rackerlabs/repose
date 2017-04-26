@@ -8,7 +8,7 @@
             duration_in_sec: {{ gatling.test.params.ramp_up_users.duration_in_sec }},
         },
         expectations: {
-            max_response_time: {{ gatling.test.params.expectations.max_response_time_in_ms }},
+            percentile3_response_time_upper_bound: {{ gatling.test.params.expectations.percentile3_response_time_upper_bound_in_ms }},
             percent_successful_requests: {{ gatling.test.params.expectations.successful_requests_percentage }}
         }
     }

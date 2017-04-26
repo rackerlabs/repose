@@ -39,7 +39,7 @@ class SimpleUseCaseSimulation extends Simulation {
   val warmUpDuration = conf.getInt(s"$confRoot.warmup_duration")
   val rampUpUsers = conf.getInt(s"$confRoot.ramp_up_users.new_per_sec")
   val rampUpDuration = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
-  val maxResponseTime = conf.getInt(s"$confRoot.expectations.max_response_time")
+  val percentile3ResponseTimeUpperBound = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
   val percentSuccessfulRequest = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
 
   // this value is provided through a Java property on the command line when Gatling is run
@@ -74,7 +74,7 @@ class SimpleUseCaseSimulation extends Simulation {
     warmup,
     mainScenario
   ).assertions(
-    global.responseTime.percentile4.lte(maxResponseTime),
+    global.responseTime.percentile4.lte(percentile3ResponseTimeUpperBound),
     global.successfulRequests.percent.gte(percentSuccessfulRequest)
   ).protocols(httpConf)
 

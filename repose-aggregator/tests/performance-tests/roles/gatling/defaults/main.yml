@@ -15,7 +15,7 @@
           duration_in_sec: 10
         },
         expectations: {
-          max_response_time_in_ms: 500, # TODO: this is misleading since it looks at the 99th percentile time, not max time
+          percentile3_response_time_upper_bound_in_ms: 3000,
           successful_requests_percentage: 99
         }
       }
