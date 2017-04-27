@@ -23,16 +23,15 @@ import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreManager;
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
-import org.openrepose.core.services.datastore.impl.AbstractDatastoreManager;
 import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommandExecutor;
 
-public class HashRingDatastoreManager extends AbstractDatastoreManager {
+public class HashRingDatastoreManager implements DatastoreManager {
 
     private final HashRingDatastore datastore;
 
     public HashRingDatastoreManager(ClusterConfiguration configuration, Datastore localDatastore, String connPoolId, boolean useHttps) {
         datastore = new HashRingDatastore(
-                new RemoteCommandExecutor(configuration.getProxyService(), HOST_KEY, TRACING_HEADER),
+                new RemoteCommandExecutor(configuration.getProxyService()),
                 configuration.getClusterView(),
                 "",
                 localDatastore,

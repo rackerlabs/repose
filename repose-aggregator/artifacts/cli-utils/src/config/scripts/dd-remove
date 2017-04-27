@@ -11,7 +11,7 @@ function dropCacheKey() {
 
    echo "Calling remote cache endpoint to remove key: $ENCODED_CACHE_KEY"
 
-   curl -v -X DELETE -H "X-PP-Host-Key: temp" "${1}/powerapi/dist-datastore/objects/${ENCODED_CACHE_KEY}"
+   curl -v -X DELETE "${1}/powerapi/dist-datastore/objects/${ENCODED_CACHE_KEY}"
 }
 
 if [ ${#} -eq 2 ]; then

@@ -65,7 +65,6 @@ public class CacheRequestTest {
             when(mockedRequest.getLocalAddr()).thenReturn("localhost");
             when(mockedRequest.getLocalPort()).thenReturn(2101);
             when(mockedRequest.getRemoteHost()).thenReturn(remoteHost);
-            when(mockedRequest.getHeader(DatastoreHeader.HOST_KEY)).thenReturn("temp");
             when(mockedRequest.getHeader(DatastoreHeader.REMOTE_BEHAVIOR)).thenReturn("ALLOW_FORWARDING");
 
             return mockedRequest;
@@ -128,17 +127,6 @@ public class CacheRequestTest {
             final String urlFor = CacheRequest.urlFor(addr, RESOURCE, true);
 
             assertEquals("Cache request must generate valid cache URLs", "https://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + RESOURCE, urlFor);
-        }
-    }
-
-    public static class WhenReadingHostKey extends TestParent {
-
-        @Test(expected = MalformedCacheRequestException.class)
-        public void shouldRejectRequestsThatHaveNoHostKey() {
-            final HttpServletRequest request = mockRequestWithMethod("GET", "localhost");
-            when(request.getHeader(DatastoreHeader.HOST_KEY)).thenReturn(null);
-
-            CacheRequest.marshallCacheRequest(request);
         }
     }
 

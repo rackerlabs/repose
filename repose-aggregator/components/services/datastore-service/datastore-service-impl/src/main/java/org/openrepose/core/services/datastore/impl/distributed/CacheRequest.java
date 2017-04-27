@@ -38,17 +38,11 @@ public class CacheRequest {
     public static final int DEFAULT_TTL_IN_SECONDS = 60;
     private final RemoteBehavior requestedRemoteBehavior;
     private final String cacheKey;
-    private final String hostKey;
     private final int ttlInSeconds;
     private final byte[] payload;
 
-    public CacheRequest(String cacheKey, String hostKey, int ttlInSeconds, byte[] payload) {
-        this(cacheKey, hostKey, ttlInSeconds, payload, RemoteBehavior.ALLOW_FORWARDING);
-    }
-
-    public CacheRequest(String cacheKey, String hostKey, int ttlInSeconds, byte[] payload, RemoteBehavior requestedRemoteBehavior) {
+    public CacheRequest(String cacheKey, int ttlInSeconds, byte[] payload, RemoteBehavior requestedRemoteBehavior) {
         this.cacheKey = cacheKey;
-        this.hostKey = hostKey;
         this.ttlInSeconds = ttlInSeconds;
         this.payload = ArrayUtilities.nullSafeCopy(payload);
         this.requestedRemoteBehavior = requestedRemoteBehavior;
@@ -65,34 +59,16 @@ public class CacheRequest {
         return cacheKey;
     }
 
-    private static String getHostKey(HttpServletRequest request) {
-        final String hostKeyHeader = request.getHeader(DatastoreHeader.HOST_KEY);
-
-        if (StringUtilities.isBlank(hostKeyHeader)) {
-            throw new MalformedCacheRequestException(MalformedCacheRequestError.NO_DD_HOST_KEY);
-        }
-
-        return hostKeyHeader;
-    }
-
     public static boolean isCacheRequestValid(HttpServletRequest request) {
         return request.getRequestURI().startsWith(CACHE_URI_PATH);
     }
 
     public static String urlFor(InetSocketAddress remoteEndpoint, String key, boolean useHttps) {
-        String proto = "http";
-        if (useHttps) {
-            proto = "https";
-        }
-        return new StringBuilder(proto).append("://").append(remoteEndpoint.getAddress().getHostAddress()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).append(key).toString();
+        return "http" + (useHttps ? "s" : "") + "://" + remoteEndpoint.getAddress().getHostAddress() + ":" + remoteEndpoint.getPort() + CACHE_URI_PATH + key;
     }
 
     public static String urlFor(InetSocketAddress remoteEndpoint, boolean useHttps) {
-        String proto = "http";
-        if (useHttps) {
-            proto = "https";
-        }
-        return new StringBuilder(proto).append("://").append(remoteEndpoint.getAddress().getHostAddress()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).toString();
+        return "http" + (useHttps ? "s" : "") + "://" + remoteEndpoint.getAddress().getHostAddress() + ":" + remoteEndpoint.getPort() + CACHE_URI_PATH;
     }
 
     public static RemoteBehavior getRequestedRemoteBehavior(HttpServletRequest request) {
@@ -110,17 +86,18 @@ public class CacheRequest {
         return remoteBehavior;
     }
 
-    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
+    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
+    //We're defining the contract here, so the extra explicitness is warranted
     public static CacheRequest marshallCacheRequest(HttpServletRequest request) throws MalformedCacheRequestException {
         final String cacheKey = getCacheKey(request);
 
-        return new CacheRequest(cacheKey, getHostKey(request), -1, null, getRequestedRemoteBehavior(request));
+        return new CacheRequest(cacheKey, -1, null, getRequestedRemoteBehavior(request));
     }
 
-    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
+    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
+    //We're defining the contract here, so the extra explicitness is warranted
     public static CacheRequest marshallCacheRequestWithPayload(HttpServletRequest request) throws MalformedCacheRequestException {
         final String cacheKey = getCacheKey(request);
-        final String hostKey = getHostKey(request);
 
         try {
             final String ttlHeader = request.getHeader(ExtendedHttpHeader.X_TTL);
@@ -130,7 +107,7 @@ public class CacheRequest {
                 throw new MalformedCacheRequestException(MalformedCacheRequestError.TTL_HEADER_NOT_POSITIVE);
             }
 
-            return new CacheRequest(cacheKey, hostKey, ttlInSeconds, RawInputStreamReader.instance().readFully(request.getInputStream(), TWO_MEGABYTES_IN_BYTES), getRequestedRemoteBehavior(request));
+            return new CacheRequest(cacheKey, ttlInSeconds, RawInputStreamReader.instance().readFully(request.getInputStream(), TWO_MEGABYTES_IN_BYTES), getRequestedRemoteBehavior(request));
         } catch (NumberFormatException nfe) {
             throw new MalformedCacheRequestException(MalformedCacheRequestError.TTL_HEADER_NOT_POSITIVE, nfe);
         } catch (BufferCapacityException bce) {
@@ -144,20 +121,12 @@ public class CacheRequest {
         return ttlInSeconds;
     }
 
-    public boolean hasTtlSet() {
-        return ttlInSeconds != -1;
-    }
-
     public String getCacheKey() {
         return cacheKey;
     }
 
-    public String getHostKey() {
-        return hostKey;
-    }
-
     public byte[] getPayload() {
-        return (byte[]) payload.clone();
+        return payload.clone();
     }
 
     public boolean hasPayload() {

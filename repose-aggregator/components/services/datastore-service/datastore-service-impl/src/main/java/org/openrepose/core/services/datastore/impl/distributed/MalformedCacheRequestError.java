@@ -22,10 +22,6 @@ package org.openrepose.core.services.datastore.impl.distributed;
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 
 public class MalformedCacheRequestError {
-    public static final String MALFORMED_CACHE_REQUEST_ERROR = "Malformed Cache Request Error";
-    public static final String NO_DD_HOST_KEY = "No host key specified in header "
-            + DatastoreHeader.HOST_KEY
-            + " - this is a required header for this operation";
     public static final String CACHE_KEY_INVALID = "Cache key specified is invalid";
     public static final String UNEXPECTED_REMOTE_BEHAVIOR = "X-PP-Datastore-Behavior header is not an expected value";
     public static final String TTL_HEADER_NOT_POSITIVE = ExtendedHttpHeader.X_TTL + " must be a valid, positive integer number";

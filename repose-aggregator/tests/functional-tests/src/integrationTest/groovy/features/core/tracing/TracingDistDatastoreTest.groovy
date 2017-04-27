@@ -106,9 +106,8 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
                 url: distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + key,
                 method: 'PUT',
-                headers: ['X-PP-Host-Key': 'temp-host-key',
-                          'X-TTL'        : '10',
-                          'X-Trans-Id'   : 'test12345'],
+                headers: ['X-TTL'     : '10',
+                          'X-Trans-Id': 'test12345'],
                 requestBody: body
         )
         List<String> lines = reposeLogSearch.searchByString("Trans-Id:test12345 - .*SERVICING DISTDATASTORE REQUEST\$")
@@ -123,9 +122,8 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         mc = deproxy.makeRequest(
                 url: distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + key,
                 method: 'GET',
-                headers: ['X-PP-Host-Key': 'temp-host-key',
-                          'X-TTL'        : '10',
-                          'X-Trans-Id'   : 'test22345'],
+                headers: ['X-TTL'     : '10',
+                          'X-Trans-Id': 'test22345'],
         )
         lines = reposeLogSearch.searchByString("Trans-Id:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
 
@@ -140,9 +138,8 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         mc = deproxy.makeRequest(
                 url: distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + key,
                 method: 'DELETE',
-                headers: ['X-PP-Host-Key': 'temp-host-key',
-                          'X-TTL'        : '10',
-                          'X-Trans-Id'   : 'test32345'],
+                headers: ['X-TTL'     : '10',
+                          'X-Trans-Id': 'test32345'],
         )
         lines = reposeLogSearch.searchByString("Trans-Id:test22345 - .*SERVICING DISTDATASTORE REQUEST\$")
 

@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.core.services.datastore.impl.distributed.DatastoreHeader;
@@ -33,8 +32,6 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
 
     private final InetSocketAddress remoteEndpoint;
     private final String cacheObjectKey;
-    private String hostKey;
-    private String tracingHeader;
     private String connPoolId;
     private boolean useHttps;
 
@@ -63,8 +60,6 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
 
     protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {
         Map<String, String> headers = new HashMap<>();
-        headers.put(DatastoreHeader.HOST_KEY, hostKey);
-        headers.put(CommonHttpHeader.TRACE_GUID, tracingHeader);
         headers.put(DatastoreHeader.REMOTE_BEHAVIOR, remoteBehavior.name());
 
         return headers;
@@ -76,15 +71,5 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
 
     protected String getCacheObjectKey() {
         return cacheObjectKey;
-    }
-
-    @Override
-    public void setHostKey(String hostKey) {
-        this.hostKey = hostKey;
-    }
-
-    @Override
-    public void setTracingHeader(String tracingHeader) {
-        this.tracingHeader = tracingHeader;
     }
 }

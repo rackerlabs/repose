@@ -20,8 +20,6 @@
 package org.openrepose.core.services.datastore.impl.distributed;
 
 public class DatastoreHeader {
-
-    public static final String HOST_KEY = "X-PP-Host-Key";
     public static final String REMOTE_BEHAVIOR = "X-PP-Datastore-Behavior";
 
     private DatastoreHeader() {

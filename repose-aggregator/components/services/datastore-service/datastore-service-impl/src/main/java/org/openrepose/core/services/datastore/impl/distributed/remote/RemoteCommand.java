@@ -30,8 +30,4 @@ public interface RemoteCommand {
     ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior);
 
     Object handleResponse(ServiceClientResponse response) throws IOException;
-
-    void setHostKey(String hostKey);
-
-    void setTracingHeader(String tracingHeader);
 }

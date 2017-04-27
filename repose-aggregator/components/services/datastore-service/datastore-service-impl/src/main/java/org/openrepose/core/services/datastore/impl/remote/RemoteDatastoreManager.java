@@ -22,19 +22,19 @@ package org.openrepose.core.services.datastore.impl.remote;
 import org.openrepose.commons.utils.encoding.EncodingProvider;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.DatastoreManager;
 import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
-import org.openrepose.core.services.datastore.impl.AbstractDatastoreManager;
 import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommandExecutor;
 
 import java.net.InetSocketAddress;
 
-public class RemoteDatastoreManager extends AbstractDatastoreManager {
+public class RemoteDatastoreManager implements DatastoreManager {
 
     private final RemoteDatastore datastore;
 
     public RemoteDatastoreManager(RequestProxyService proxyService, EncodingProvider encodingProvider, Datastore localDatastore, InetSocketAddress target, String connPoolId, boolean useHttps) {
         datastore = new RemoteDatastore(
-                new RemoteCommandExecutor(proxyService, HOST_KEY, TRACING_HEADER),
+                new RemoteCommandExecutor(proxyService),
                 "",
                 localDatastore,
                 MD5MessageDigestFactory.getInstance(),

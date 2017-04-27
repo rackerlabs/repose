@@ -31,7 +31,7 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
 
     def DD_URI
-    def DD_HEADERS = ['X-PP-Host-Key': 'temp', 'X-TTL': '10']
+    def DD_HEADERS = ['X-TTL': '10']
     def BODY = objectSerializer.writeObject('test body')
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"

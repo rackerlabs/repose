@@ -66,19 +66,19 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "TRACE should return 405 response" () {
+    def "TRACE should return 405 response"() {
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = UUID.randomUUID().toString();
+        def headers = ['X-TTL': '5']
+        def objectkey = UUID.randomUUID().toString()
         def body = objectSerializer.writeObject(new StringValue.Patch("test data"))
 
         when:
         MessageChain mc =
                 deproxy.makeRequest(
                         [
-                                method: 'TRACE',
-                                url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                                headers:headers,
+                                method     : 'TRACE',
+                                url        : distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                                headers    : headers,
                                 requestBody: body
                         ])
 
@@ -87,10 +87,10 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         mc.receivedResponse.headers.getCountByName(HttpHeaders.SERVER) == 0
     }
 
-    def "PATCH a new cache object should return 200 response" () {
+    def "PATCH a new cache object should return 200 response"() {
         given:
-        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
-        def objectkey = UUID.randomUUID().toString();
+        def headers = ['X-TTL': '5']
+        def objectkey = UUID.randomUUID().toString()
         def body = objectSerializer.writeObject(new StringValue.Patch("test data"))
 
         when:
@@ -110,8 +110,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "PATCH a cache object to an existing key should patch the cached value"() {
         given:
-        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
-        def objectkey = UUID.randomUUID().toString();
+        def headers = ['X-TTL': '5']
+        def objectkey = UUID.randomUUID().toString()
         def body = objectSerializer.writeObject(new StringValue.Patch("original value"))
         def newBody = objectSerializer.writeObject(new StringValue.Patch(" patched on value"))
 
@@ -151,8 +151,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "when putting cache objects"() {
         given:
-        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
-        def objectkey = UUID.randomUUID().toString();
+        def headers = ['X-TTL': '5']
+        def objectkey = UUID.randomUUID().toString()
         def body = objectSerializer.writeObject(new StringValue("test data"))
 
 
@@ -173,8 +173,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "when checking cache object time to live"() {
         given:
-        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
-        def objectkey = UUID.randomUUID().toString();
+        def headers = ['X-TTL': '5']
+        def objectkey = UUID.randomUUID().toString()
         def body = objectSerializer.writeObject(new StringValue("test data"))
         MessageChain mc =
                 deproxy.makeRequest(
@@ -213,8 +213,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "when deleting cache objects"() {
         given:
-        def headers = ['X-PP-Host-Key': 'temp', 'x-ttl': '1000']
-        def objectkey = UUID.randomUUID().toString();
+        def headers = ['x-ttl': '1000']
+        def objectkey = UUID.randomUUID().toString()
         def body = objectSerializer.writeObject(new StringValue("test data"))
         def url = distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
 

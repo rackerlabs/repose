@@ -30,19 +30,13 @@ import java.io.IOException;
 public class RemoteCommandExecutor {
 
     private final RequestProxyService proxyService;
-    private String hostKey;
-    private String tracingHeader;
 
-    public RemoteCommandExecutor(RequestProxyService proxyService, String hostKey, String tracingHeader) {
+    public RemoteCommandExecutor(RequestProxyService proxyService) {
         this.proxyService = proxyService;
-        this.hostKey = hostKey;
-        this.tracingHeader = tracingHeader;
     }
 
     public Object execute(final RemoteCommand command, RemoteBehavior behavior) {
         try {
-            command.setHostKey(hostKey);
-            command.setTracingHeader(tracingHeader);
             ServiceClientResponse execute = command.execute(proxyService, behavior);
             return command.handleResponse(execute);
         } catch (ProxyRequestException ex) {
