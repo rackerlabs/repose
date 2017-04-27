@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,40 +19,19 @@
  */
 package features.filters.ratelimiting
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeValveLauncher
-import framework.TestProperties
+import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Specification
 
-class NoCaptureGroupsTest extends Specification {
-
-    static Deproxy deproxy
-
-    static TestProperties properties
-    static ReposeConfigurationProvider reposeConfigProvider
-    static ReposeValveLauncher repose
+class NoCaptureGroupsTest extends ReposeValveTest {
 
     def setupSpec() {
 
-        properties = new TestProperties()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
-
         def params = properties.getDefaultTemplateParams()
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/filters/ratelimiting/nocapturegroups", params)
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.reposeJar,
-                properties.reposeEndpoint,
-                properties.configDirectory,
-                properties.reposePort
-        )
-        repose.enableDebug()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/nocapturegroups", params)
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(properties.reposeEndpoint)
@@ -100,8 +79,8 @@ class NoCaptureGroupsTest extends Specification {
         given:
 
         def mc
-        String url1 = "${properties.reposeEndpoint}/servers/abc/instances/123"
-        String url2 = "${properties.reposeEndpoint}/servers/def/instances/456"
+        String url1 = "$reposeEndpoint/servers/abc/instances/123"
+        String url2 = "$reposeEndpoint/servers/def/instances/456"
         def headers = ['X-PP-User': 'user5', 'X-PP-Groups': 'captures']
 
 
@@ -130,17 +109,5 @@ class NoCaptureGroupsTest extends Specification {
         then: "it should be block as well"
         mc.receivedResponse.code == "413"
         mc.handlings.size() == 0
-    }
-
-
-    def cleanupSpec() {
-
-        if (repose) {
-            repose.stop()
-        }
-
-        if (deproxy) {
-            deproxy.shutdown()
-        }
     }
 }

@@ -9,7 +9,7 @@
             </Policies>
             <DefaultRolloverStrategy max="2"/>
         </RollingFile>
-        <File name="PhoneHomeMessages" fileName="${repose.home}/logs/phone-home.log" append="true">
+        <File name="PhoneHomeMessages" fileName="${repose.run.directory}/logs/phone-home.log" append="true">
             <PatternLayout>
                 <Pattern>%m%n</Pattern>
             </PatternLayout>

@@ -19,6 +19,7 @@
  */
 package features.core.startup
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.category.Release
 import org.apache.commons.io.FileUtils
@@ -29,7 +30,6 @@ import org.apache.http.impl.client.DefaultHttpClient
 import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeoutException
@@ -51,7 +51,7 @@ class ReposeStartupTest extends ReposeValveTest {
     def "repose should start with installation configs"() {
         setup:
         def params = properties.getDefaultTemplateParams()
-        def nextPort = PortFinder.Singleton.getNextOpenPort()
+        def nextPort = PortFinder.instance.getNextOpenPort()
 
         //note: Order matters here. The common directory overwrites some of the configs from the core directory.
         //      This means that the core configs we provide may not get tested, but due to the structure of our tests,

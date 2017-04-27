@@ -28,13 +28,19 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 
 abstract class ReposeLauncher {
 
-    abstract void start();
+    protected Process process
 
-    abstract void stop();
+    abstract void start()
 
-    abstract boolean isUp();
+    abstract void stop()
 
     abstract void enableDebug()
+
+    abstract boolean areAnyUp()
+
+    boolean isUp() {
+        this.process?.isAlive() ?: false
+    }
 
     /**
      * This enables easier debugging from the actual code under test.

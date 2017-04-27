@@ -42,16 +42,12 @@ class ReposeLintWRoleConfigTest extends Specification {
     @Shared
     ReposeConfigurationProvider reposeConfigurationProvider
     def static configrole = "reposetest"
-    def
     static String allowedWithoutAuthorizationDesc = "Users with the '${configrole}' Identity role WILL pass through this component BUT authorization checks will not be performed"
-    def
     static String allowedWithAuthorizationDesc = "Users with the '${configrole}' Identity role WILL pass through this component IF AND ONLY IF their Identity service catalog contains an endpoint required by the authorization component"
-    def static String allowedDesc = "Users with the '${configrole}' Identity role WILL pass through this component"
-    def
     static String notAllowedDesc = "Users with the '${configrole}' Identity role WILL NOT pass through this component"
 
     def setupSpec() {
-        this.testProperties = new TestProperties()
+        this.testProperties = new TestProperties(this.getClass().canonicalName.replace('.', '/'))
         this.testProperties.userRole = configrole
         this.reposeConfigurationProvider = new ReposeConfigurationProvider(testProperties)
         this.reposeLintLauncher = new ReposeLintLauncher(reposeConfigurationProvider, testProperties)

@@ -19,11 +19,11 @@
  */
 package features.services.datastore
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.category.Bug
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 
 @Category(Bug.class)
 //@Category(Slow.class)
@@ -33,7 +33,7 @@ class DistDatastoreServiceBurstTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort1 = PortFinder.instance.getNextOpenPort()
 
         datastoreEndpoint1 = "http://localhost:${dataStorePort1}"
 

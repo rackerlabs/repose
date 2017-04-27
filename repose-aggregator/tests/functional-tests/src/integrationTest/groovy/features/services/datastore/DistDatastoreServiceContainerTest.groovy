@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,6 @@ import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
@@ -60,14 +59,14 @@ class DistDatastoreServiceContainerTest extends Specification {
 
     def setupSpec() {
 
-        properties = new TestProperties()
+        properties = new TestProperties(this.getClass().canonicalName.replace('.', '/'))
         logFile = properties.logFile
         reposeLogSearch = new ReposeLogSearch(logFile)
 
         reposePort1 = properties.reposePort
-        reposePort2 = PortFinder.Singleton.getNextOpenPort()
-        dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
-        dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+        reposePort2 = PortFinder.instance.getNextOpenPort()
+        dataStorePort1 = PortFinder.instance.getNextOpenPort()
+        dataStorePort2 = PortFinder.instance.getNextOpenPort()
 
         reposeEndpoint1 = "http://localhost:${reposePort1}"
         reposeEndpoint2 = "http://localhost:${reposePort2}"

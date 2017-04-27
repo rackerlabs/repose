@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,86 +19,57 @@
  */
 package features.core.config
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeLogSearch
-import framework.ReposeValveLauncher
-import framework.TestProperties
+import framework.PortFinder
+import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
-import spock.lang.Specification
 import spock.lang.Unroll
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 @Category(Slow)
-class DefaultDestinationTest extends Specification {
+class DefaultDestinationTest extends ReposeValveTest {
 
-    int reposePort
-    int targetPort
-
-    String url
-    TestProperties properties
-    ReposeConfigurationProvider reposeConfigProvider
-    ReposeValveLauncher repose
-    ReposeLogSearch reposeLogSearch
     Map params = [:]
-    Deproxy deproxy
-    boolean expectCleanShutdown
 
     String errorMessage = "There should only be one default destination."
 
+    def setupSpec() {
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.targetPort)
+    }
+
     def setup() {
-
-        properties = new TestProperties()
-        this.reposePort = properties.reposePort
-        this.targetPort = properties.targetPort
-        this.url = properties.reposeEndpoint
-
-        int dataStorePort = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort = PortFinder.instance.getNextOpenPort()
         params = properties.getDefaultTemplateParams()
 
         params += [
                 'datastorePort': dataStorePort,
         ]
 
-        // start a deproxy
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(this.targetPort)
+        repose.configurationProvider.cleanConfigDirectory()
+    }
 
-        // setup config provider
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
-
+    def cleanup() {
+        repose?.stop()
     }
 
     @Unroll("Fails to connect when defaults: #default1, #default2, #default3")
     def "start with more or less than one default destination endpoint in system model configs, should log error and fail to connect"() {
         given:
         // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/core/config/common", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/config/common", params)
 
         params += [
                 "default1": default1, "default2": default2, "default3": default3
 
         ]
-        reposeConfigProvider.applyConfigs("features/core/config/default-dest", params)
-
-        // start repose
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                url,
-                properties.getConfigDirectory(),
-                reposePort
-        )
-        repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
+        repose.configurationProvider.applyConfigs("features/core/config/default-dest", params)
         reposeLogSearch.cleanLog()
 
-
+        // start repose
         when: "starting Repose with more or less than one default destination endpoint"
         repose.start([waitOnJmxAfterStarting: false])
 
@@ -111,7 +82,7 @@ class DefaultDestinationTest extends Specification {
         }
 
         when: "making a request to repose with and invalid default destination endpoint settings"
-        deproxy.makeRequest(url: url)
+        deproxy.makeRequest(url: reposeEndpoint)
         then: "connection exception should be returned"
         thrown(ConnectException)
 
@@ -130,36 +101,23 @@ class DefaultDestinationTest extends Specification {
     def "start with only one default destination endpoint in system model configs, should return 200"() {
         given:
         // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/core/config/common", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/config/common", params)
 
         params += [
                 "default1": default1, "default2": default2, "default3": default3
 
         ]
-        reposeConfigProvider.applyConfigs("features/core/config/default-dest", params)
-        expectCleanShutdown = true
+        repose.configurationProvider.applyConfigs("features/core/config/default-dest", params)
 
         // start repose
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                url,
-                properties.getConfigDirectory(),
-                reposePort
-        )
-        repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
         reposeLogSearch.cleanLog()
-
-
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
-        repose.waitForNon500FromUrl(url)
+        repose.waitForNon500FromUrl(reposeEndpoint)
 
         expect: "starting Repose with good configs should yield 200"
-        deproxy.makeRequest(url: url).receivedResponse.code == "200"
+        deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "200"
 
         where:
         default1 | default2 | default3
@@ -173,31 +131,22 @@ class DefaultDestinationTest extends Specification {
     def "start with more or less than one default destination and null values, should log error and fail to connect"() {
         given:
         // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/core/config/common", params)
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/config/common", params)
 
         params += [
                 "default1": defaultParamWrapper(default1),
                 "default2": defaultParamWrapper(default2),
                 "default3": defaultParamWrapper(default3)
         ]
-        reposeConfigProvider.applyConfigs("features/core/config/default-dest-null", params)
+        repose.configurationProvider.applyConfigs("features/core/config/default-dest-null", params)
 
         // start repose
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                url,
-                properties.getConfigDirectory(),
-                reposePort
-        )
-        repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
-        reposeLogSearch.cleanLog()
 
 
         when: "starting Repose with more or less than one default destination endpoint"
+        reposeLogSearch.cleanLog()
         repose.start([waitOnJmxAfterStarting: false])
 
         then: "error should be logged"
@@ -209,7 +158,7 @@ class DefaultDestinationTest extends Specification {
         }
 
         when: "making a request to repose with and invalid default destination endpoint settings"
-        deproxy.makeRequest(url: url)
+        deproxy.makeRequest(url: reposeEndpoint)
         then: "connection exception should be returned"
         thrown(ConnectException)
 
@@ -230,15 +179,5 @@ class DefaultDestinationTest extends Specification {
 
     private def defaultParamWrapper(Object value) {
         return value == null ? '' : '\" default=\"' + value
-    }
-
-
-    def cleanup() {
-        if (repose) {
-            repose.stop([throwExceptionOnKill: false])
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
     }
 }

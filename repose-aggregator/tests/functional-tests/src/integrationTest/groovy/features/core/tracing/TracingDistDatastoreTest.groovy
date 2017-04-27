@@ -19,13 +19,13 @@
  */
 package features.core.tracing
 
+import framework.PortFinder
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 
 /**
  * Specific tests for admin token
@@ -42,8 +42,8 @@ class TracingDistDatastoreTest extends ReposeValveTest {
     def setupSpec() {
 
         deproxy = new Deproxy()
-        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
-        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort1 = PortFinder.instance.getNextOpenPort()
+        int dataStorePort2 = PortFinder.instance.getNextOpenPort()
 
         distDatastoreEndpoint = "http://localhost:${dataStorePort1}"
 

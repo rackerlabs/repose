@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,51 +19,43 @@
  */
 package features.core.valveSelfConfigure
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeValveLauncher
-import framework.TestProperties
+import framework.PortFinder
+import framework.ReposeValveTest
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
-import org.rackspace.deproxy.PortFinder
-import spock.lang.Specification
-
+import spock.lang.Shared
 
 @org.junit.experimental.categories.Category(Slow.class)
-class MultiClusterMultiNodeTest extends Specification {
+class MultiClusterMultiNodeTest extends ReposeValveTest {
 
-    int targetPort1
-    int targetPort2
-    Deproxy deproxy
+    @Shared
     Endpoint endpoint1
+    @Shared
     Endpoint endpoint2
 
+    @Shared
     int port11
+    @Shared
     int port12
+    @Shared
     int port21
+    @Shared
     int port22
-    TestProperties properties
-    ReposeConfigurationProvider reposeConfigProvider
-    ReposeValveLauncher repose
+    @Shared
     Map params = [:]
 
-    def setup() {
+    def setupSpec() {
 
-        properties = new TestProperties()
-
-        targetPort1 = properties.targetPort
-        targetPort2 = properties.targetPort2
         deproxy = new Deproxy()
-        endpoint1 = deproxy.addEndpoint(targetPort1)
-        endpoint2 = deproxy.addEndpoint(targetPort2)
+        endpoint1 = deproxy.addEndpoint(properties.targetPort)
+        endpoint2 = deproxy.addEndpoint(properties.targetPort2)
 
         port11 = properties.reposePort
-        port12 = PortFinder.Singleton.getNextOpenPort()
-        port21 = PortFinder.Singleton.getNextOpenPort()
-        port22 = PortFinder.Singleton.getNextOpenPort()
+        port12 = PortFinder.instance.getNextOpenPort()
+        port21 = PortFinder.instance.getNextOpenPort()
+        port22 = PortFinder.instance.getNextOpenPort()
 
-
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         params = properties.getDefaultTemplateParams()
         params += [
@@ -72,19 +64,12 @@ class MultiClusterMultiNodeTest extends Specification {
                 'port21': port21,
                 'port22': port22,
         ]
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
-        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
-        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/two-clusters-two-nodes-each", params)
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                "http://localhost:${port11}",
-                properties.getConfigDirectory(),
-                port11
-        )
-        repose.enableDebug()
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
+        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
+        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/two-clusters-two-nodes-each", params)
+
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl("http://localhost:${port11}")
@@ -125,16 +110,6 @@ class MultiClusterMultiNodeTest extends Specification {
 
         then:
         thrown(ConnectException)
-    }
-
-    def cleanup() {
-
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
     }
 }
 

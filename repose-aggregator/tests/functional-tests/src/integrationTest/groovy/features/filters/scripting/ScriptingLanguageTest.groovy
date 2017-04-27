@@ -19,83 +19,40 @@
  */
 package features.filters.scripting
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeLogSearch
-import framework.ReposeValveLauncher
-import framework.TestProperties
+import framework.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Specification
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 4/1/16.
  */
-class ScriptingLanguageTest extends Specification {
+class ScriptingLanguageTest extends ReposeValveTest {
 
-    int reposePort
-    int targetPort
-    String url
-    TestProperties properties
-    ReposeConfigurationProvider reposeConfigProvider
-    ReposeLogSearch reposeLogSearch
-    ReposeValveLauncher repose
-    Map params = [:]
-    Deproxy deproxy
-
-    def setup() {
-        properties = new TestProperties()
-        this.reposePort = properties.reposePort
-        this.targetPort = properties.targetPort
-        this.url = properties.reposeEndpoint
-
-        params = properties.getDefaultTemplateParams()
-
+    def setupSpec() {
         // start a deproxy
         deproxy = new Deproxy()
-        deproxy.addEndpoint(this.targetPort)
-
-        // setup config provider
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
-
-    }
-
-    def cleanup() {
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     @Unroll ("Test with support language: #language")
     def "Test with all support languages scripting"() {
         given:
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/filters/scripting", params)
-        reposeConfigProvider.applyConfigs("features/filters/scripting/" + language, params)
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/scripting", params)
+        repose.configurationProvider.applyConfigs("features/filters/scripting/" + language, params)
 
-        // start repose
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                url,
-                properties.getConfigDirectory(),
-                reposePort
-        )
-        repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start()
-        repose.waitForNon500FromUrl(url)
+        repose.waitForNon500FromUrl(reposeEndpoint)
 
         when: "send request"
         MessageChain mc = deproxy.makeRequest(
                 [
                         method        : 'GET',
-                        url           : url,
+                        url           : reposeEndpoint,
                         defaultHandler: {
                             new Response(200, null, null, "This should be the body")
                         }

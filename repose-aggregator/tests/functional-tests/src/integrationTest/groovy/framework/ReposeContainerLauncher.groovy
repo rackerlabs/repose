@@ -20,7 +20,6 @@
 package framework
 
 import org.linkedin.util.clock.SystemClock
-import org.rackspace.deproxy.PortFinder
 
 import java.util.concurrent.TimeoutException
 
@@ -43,7 +42,6 @@ class ReposeContainerLauncher extends ReposeLauncher {
     def boolean doSuspend
 
     def clock = new SystemClock()
-    def Process process
 
     def ReposeConfigurationProvider configurationProvider
 
@@ -68,7 +66,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
 
         if (debugEnabled) {
             if (!debugPort) {
-                debugPort = PortFinder.Singleton.getNextOpenPort()
+                debugPort = PortFinder.instance.getNextOpenPort()
             }
             webXmlOverrides += " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend="
             if (doSuspend) {
@@ -159,7 +157,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
     }
 
     @Override
-    boolean isUp() {
+    boolean areAnyUp() {
         return TestUtils.getJvmProcesses().contains("ROOT.war")
     }
 
