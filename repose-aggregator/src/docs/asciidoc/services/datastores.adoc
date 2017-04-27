@@ -43,7 +43,6 @@ The following is a basic sample configuration.
 .dist-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-
 <distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
     <allowed-hosts allow-all="true"/>
     <port-config>
@@ -58,7 +57,6 @@ The following is a basic sample configuration.
 .dist-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-
 <distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'
                        connection-pool-id="default"         <!--1-->
                        keystore-filename="keystore.jks"     <!--2-->
@@ -131,7 +129,7 @@ At current the only supported hashing algorithm is MD5.
 Addressing a key is done by first normalizing all of the participating cluster nodes.
 This is done by an ascending sort.
 After the participating nodes have had their order normalized, the key-space is sliced up by dividing the maximum possible number of addresses by the total number of participating nodes.
-The given key is then reduced to its numeric representation and a cluster node is looked up by performing a modulus such that (<key-value> % <number-of-cluster-members>).
+The given key is then reduced to its numeric representation and a cluster node is looked up by performing a modulus such that (`<key-value> % <number-of-cluster-members>`).
 
 === Key-space Encoding
 By default, the internal Repose client implementation for the distributed datastore will obscure key-space by storing only the MD5 hash value of a given key and not the key's actual value.
@@ -140,9 +138,9 @@ The MD5 hash is represented as a 128bit UUID.
 
 Example Key Addressing
 
-* String Key: object-key
-* MD5 Hash: cd26615a30a3cdce02e3a834fed5711a
-* UUID: cecda330-5a61-26cd-1a71-d5fe34a8e302
+* String Key: `object-key`
+* MD5 Hash: `cd26615a30a3cdce02e3a834fed5711a`
+* UUID: `cecda330-5a61-26cd-1a71-d5fe34a8e302`
 
 If an external application makes a request for data stored by Repose components, it must first hash the key using MD5 before sending the request such that...
 
@@ -194,7 +192,7 @@ Luckily this can be mitigated by increasing the open file limit for the user run
 
 === JMX Reporting
 Currently Repose instances do not report Distributed Datastore information to JMX.
-This is something that has been done in the past, but an upgrade in metrics library has made this capability currently unavailable.
+This is something that has been done in the past, but an upgrade to the metrics library used has made this capability incompatible with the current codebase.
 
 === Authentication
 The authentication components will use the local datastore to cache token, role, and group information.
@@ -207,7 +205,7 @@ If no distributed datastores are available, then rate limiting will use the loca
 [source,xml]
 .system-model.cfg.xml
 ----
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   <repose-cluster id="repose">
     <nodes>
@@ -267,20 +265,31 @@ The following is a basic sample configuration.
 .remote-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-
 <remote-datastore>
-    <!-- FIX ME -->
+    <cluster id="repose"
+             host="remote.example.com"
+             port="8080"/>
 </remote-datastore>
 ----
 
 ==== Full Configuration
 
 [source,xml]
-.dist-datastore.cfg.xml
+.remote-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-
 <remote-datastore>
-    <!-- FIX ME -->
+    <cluster id="repose"                             <!--1-->
+             host="remote.example.com"               <!--2-->
+             port="8080"                             <!--3-->
+             useSSL="true"                           <!--4-->
+             connection-pool-id="remote-datastore"/> <!--5-->
 </remote-datastore>
 ----
+<1> Defines the id of the cluster this configuration is for.
+<2> Defines the host providing the remote datastore.
+<3> Defines the port on which the remote datastore is listening (1-65535).
+<4> Defines if the remote datastore is expecting a secure connection request (Default: True).
+<5> Http Connection Pool ID to use when connecting to the Remote Datastore.
+
+NOTE: Refer to the <<http-connection-pool.adoc#,http-connection-pool.cfg.xml>> documentation for setting up Client Authentication on the connection pool used to connect to the Remote Datastore.
