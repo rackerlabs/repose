@@ -22,13 +22,13 @@ package org.openrepose.core.services.datastore.impl.remote;
 import org.openrepose.commons.utils.encoding.EncodingProvider;
 import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.Datastore;
-import org.openrepose.core.services.datastore.DatastoreManager;
 import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
+import org.openrepose.core.services.datastore.impl.AbstractDatastoreManager;
 import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommandExecutor;
 
 import java.net.InetSocketAddress;
 
-public class RemoteDatastoreManager implements DatastoreManager {
+public class RemoteDatastoreManager extends AbstractDatastoreManager {
 
     private final RemoteDatastore datastore;
 

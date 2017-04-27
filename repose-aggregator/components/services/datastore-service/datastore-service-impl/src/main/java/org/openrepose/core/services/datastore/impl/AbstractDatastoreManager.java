@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,30 +17,11 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.datastore;
+package org.openrepose.core.services.datastore.impl;
 
-/**
- * A manager for {@link Datastore}s that manages their creation and lifecycle.
- */
-@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
-public interface DatastoreManager {
-    /**
-     * Get the datastore that is being managed.
-     *
-     * @return
-     * @throws DatastoreUnavailableException if no datastore is available
-     */
-    Datastore getDatastore() throws DatastoreUnavailableException;
+import org.openrepose.core.services.datastore.DatastoreManager;
 
-    /**
-     * Returns true if the datastore being managed is distributed, false if the datastore support local storage only.
-     *
-     * @return
-     */
-    boolean isDistributed();
-
-    /**
-     * Perform any shutdown needed on the datastore being managed.
-     */
-    void destroy();
+public abstract class AbstractDatastoreManager implements DatastoreManager {
+    public static final String HOST_KEY = "temp-host-key";
+    public static final String TRACING_HEADER = "temp-tracing-header";
 }
