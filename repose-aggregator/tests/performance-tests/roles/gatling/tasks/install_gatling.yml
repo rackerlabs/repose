@@ -47,3 +47,10 @@
   file:
     path: /root/gatling/current/user-files/simulations/computerdatabase
     state: absent
+
+- name: Copy Gatling configuration
+  copy:
+    src: gatling.conf
+    dest: /root/gatling/current/conf/gatling.conf
+    mode: 0644
+    backup: yes

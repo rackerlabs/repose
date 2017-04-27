@@ -48,6 +48,70 @@ As Gatling runs, it will pipe the performance data it captures to InfluxDB.
 Once Gatling execution completes, the cloud resources will be cleaned up, and the Ansible playbook will finish executing.
 At some point, Grafana will query InfluxDB to retrieve the performance data which will be made available in the form of one or more dashboards.
 
+==== Gatling
+
+Data will be transported from Gatling to InfluxDB using the Graphite line protocol.
+The data being transferred will include numerous statistics calculated for a distinct time.
+To get a better idea of the data in question, a sample has been provided which captures the number of request/response pairs sent at time `1492629621` as well as various statistics calculated from the amount of time taken to service those requests.
+Note that the sample data only captures a single second of the Gatling simulation.
+Much more data of the same form would be expected for every second that the Gatling simulation ran.
+
+....
+gatling.computerworld.getComputers.ok.count 2 1492629621
+gatling.computerworld.getComputers.ok.min 192 1492629621
+gatling.computerworld.getComputers.ok.max 219 1492629621
+gatling.computerworld.getComputers.ok.mean 205 1492629621
+gatling.computerworld.getComputers.ok.stdDev 13 1492629621
+gatling.computerworld.getComputers.ok.percentiles50 192 1492629621
+gatling.computerworld.getComputers.ok.percentiles75 219 1492629621
+gatling.computerworld.getComputers.ok.percentiles95 219 1492629621
+gatling.computerworld.getComputers.ok.percentiles99 219 1492629621
+gatling.computerworld.getComputers.ko.count 0 1492629621
+gatling.computerworld.getComputers.all.count 2 1492629621
+gatling.computerworld.getComputers.all.min 192 1492629621
+gatling.computerworld.getComputers.all.max 219 1492629621
+gatling.computerworld.getComputers.all.mean 205 1492629621
+gatling.computerworld.getComputers.all.stdDev 13 1492629621
+gatling.computerworld.getComputers.all.percentiles50 192 1492629621
+gatling.computerworld.getComputers.all.percentiles75 219 1492629621
+gatling.computerworld.getComputers.all.percentiles95 219 1492629621
+gatling.computerworld.getComputers.all.percentiles99 219 1492629621
+....
+
+==== InfluxDB
+
+InfluxDB will process the data it receives through its Graphite listener port by applying configured templates.
+These templates will translate the metric names from the Graphite line protocol into measurements, fields, tags, and values in the database.
+
+For example, given the sample data provided in the <<Gatling, Gatling section>>, the following template could be applied:
+
+....
+gatling.*.*.*.* measurement.simulation.request.status.field
+....
+
+Resulting in a database full of entries like the following:
+
+.Measurement Name: gatling
+[options="header,autowidth"]
+|===
+|Field/Tag Key | Field/Tag Value
+|time          | 1492629621000000000
+|count         | 2
+|max           | 219
+|mean          | 205
+|min           | 192
+|percentiles50 | 192
+|percentiles75 | 219
+|percentiles95 | 219
+|percentiles99 | 219
+|request       | getComputers
+|simulation    | computerworld
+|status        | all
+|stdDev        | 12
+|===
+
+To learn more about how InfluxDB handles Graphite input, see https://github.com/influxdata/influxdb/blob/master/services/graphite/README.md[Graphite Input].
+
 === Creating a New Test
 
 [NOTE]
