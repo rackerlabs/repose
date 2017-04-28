@@ -63,15 +63,6 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         KEY = UUID.randomUUID().toString()
     }
 
-    def "GET with empty host key returns 401"() {
-        when:
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: ['X-PP-Host-Key': '', 'X-TTL': '1']])
-
-        then:
-        mc.receivedResponse.code == '401'
-
-    }
-
     def "GET with no key returns 404 NOT FOUND"() {
         when:
         MessageChain mc = deproxy.makeRequest([method: 'GET', url: DD_URI, headers: DD_HEADERS])
