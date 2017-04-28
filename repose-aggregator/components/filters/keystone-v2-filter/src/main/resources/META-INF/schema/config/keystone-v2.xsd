@@ -115,6 +115,17 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="apply-rcn-roles" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Indicates whether or not to include the applyRCNroles query parameter when talking to
+                        Rackspace Keystone V2 Identity.
+                        (Default: false)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
         <xs:assert vc:minVersion="1.1"
                    test="if (@username or @password) then (@username and @password) else true()"
