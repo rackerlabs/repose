@@ -91,10 +91,9 @@ public class RemoteDatastoreLauncherService {
     @PostConstruct
     public void init() {
         //Subscribe to the system model to know if we even want to turn on...
-        // (If we do want to turn on, we should probably only then subscribe to the remote datastore config)
+        //If and only if we're going to be turned on, should we subscribe to the other one
         URL systemModelXSD = getClass().getResource(SYSTEM_CONFIG_SCHEMA);
         configurationService.subscribeTo(SYSTEM_CONFIG_NAME, systemModelXSD, systemModelListener, SystemModel.class);
-        //If and only if we're going to be turned on, should we subscribe to the other one
     }
 
     private void initRemoteDatastore() {
@@ -124,7 +123,7 @@ public class RemoteDatastoreLauncherService {
             SystemModelInterrogator smi = new SystemModelInterrogator(clusterId, nodeId);
             Optional<ReposeCluster> clusterOption = smi.getLocalCluster(configurationObject);
             if (clusterOption.isPresent()) {
-                boolean listed = smi.getServiceForCluster(configurationObject, "remote-datastore").isPresent();
+                boolean listed = smi.getServiceForCluster(configurationObject, REMOTE_DATASTORE_NAME).isPresent();
 
                 if (listed && !isRunning) {
                     //Note it as being broke, until it's properly configured.
@@ -152,13 +151,10 @@ public class RemoteDatastoreLauncherService {
         @Override
         public void configurationUpdated(RemoteDatastoreConfiguration configurationObject) {
             RemoteDatastoreConfiguration currentRemoteDatastoreConfiguration = currentConfiguration.get();
-            Optional<RemoteClusterConfiguration> oldClusterConfigOpt = currentRemoteDatastoreConfiguration == null ?
-                    Optional.empty() :
-                    currentRemoteDatastoreConfiguration
-                            .getCluster()
-                            .stream()
+            Optional<RemoteClusterConfiguration> oldClusterConfigOpt = Optional.ofNullable(currentRemoteDatastoreConfiguration)
+                    .flatMap(s -> s.getCluster().stream()
                             .filter(cluster -> cluster.getId().equals(clusterId))
-                            .findFirst();
+                            .findFirst());
             Optional<RemoteClusterConfiguration> newClusterConfigOpt = configurationObject
                     .getCluster()
                     .stream()
@@ -185,14 +181,14 @@ public class RemoteDatastoreLauncherService {
                         UUIDEncodingProvider.getInstance(),
                         new InetSocketAddress(newClusterConfig.getHost(), newClusterConfig.getPort()),
                         newClusterConfig.getConnectionPoolId(),
-                        newClusterConfig.isUseSSL());
+                        newClusterConfig.isUseHTTPS());
             } else if (oldClusterConfigOpt.isPresent() /*&& newClusterConfigOpt.isPresent()*/) {
                 RemoteClusterConfiguration oldClusterConfig = oldClusterConfigOpt.get();
                 RemoteClusterConfiguration newClusterConfig = newClusterConfigOpt.get();
                 if (!oldClusterConfig.getHost().equalsIgnoreCase(newClusterConfig.getHost()) ||
                         !oldClusterConfig.getConnectionPoolId().equals(newClusterConfig.getConnectionPoolId()) ||
                         oldClusterConfig.getPort() != newClusterConfig.getPort() ||
-                        oldClusterConfig.isUseSSL() != newClusterConfig.isUseSSL()) {
+                        oldClusterConfig.isUseHTTPS() != newClusterConfig.isUseHTTPS()) {
                     destroyRemoteDatastore();
                     datastoreService.createRemoteDatastore(
                             REMOTE_DATASTORE_NAME,
@@ -200,7 +196,7 @@ public class RemoteDatastoreLauncherService {
                             UUIDEncodingProvider.getInstance(),
                             new InetSocketAddress(newClusterConfig.getHost(), newClusterConfig.getPort()),
                             newClusterConfig.getConnectionPoolId(),
-                            newClusterConfig.isUseSSL());
+                            newClusterConfig.isUseHTTPS());
                 }
             } //else { /* DO NOTHING */ }
             currentConfiguration.set(configurationObject);

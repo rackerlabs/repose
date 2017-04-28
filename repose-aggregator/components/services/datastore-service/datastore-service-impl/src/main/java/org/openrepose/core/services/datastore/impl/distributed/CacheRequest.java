@@ -64,10 +64,15 @@ public class CacheRequest {
     }
 
     public static String urlFor(InetSocketAddress remoteEndpoint, String key, boolean useHttps) {
+        // This originally used StringBuilder, but the byte code was the same as straight concatenation in this case.
+        // So, for clarity, concatenation was used.
+        // Refer to the following for a complete explanation:
+        //  - http://www.pellegrino.link/2015/08/22/string-concatenation-with-java-8.html
         return "http" + (useHttps ? "s" : "") + "://" + remoteEndpoint.getAddress().getHostAddress() + ":" + remoteEndpoint.getPort() + CACHE_URI_PATH + key;
     }
 
     public static String urlFor(InetSocketAddress remoteEndpoint, boolean useHttps) {
+        // This too originally used StringBuilder.
         return "http" + (useHttps ? "s" : "") + "://" + remoteEndpoint.getAddress().getHostAddress() + ":" + remoteEndpoint.getPort() + CACHE_URI_PATH;
     }
 

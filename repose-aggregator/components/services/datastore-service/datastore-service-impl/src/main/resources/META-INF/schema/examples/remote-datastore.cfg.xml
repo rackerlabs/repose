@@ -4,6 +4,6 @@
     <cluster id="repose"
              host="remote.example.com"
              port="8080"
-             useSSL="true"
+             useHTTPS="true"
              connection-pool-id="remote-datastore-pool"/>
 </remote-datastore>

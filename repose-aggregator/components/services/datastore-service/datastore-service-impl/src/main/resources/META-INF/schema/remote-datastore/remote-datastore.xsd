@@ -19,7 +19,6 @@
   =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
   -->
 
-
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns="http://docs.openrepose.org/repose/remote-datastore/v1.0"
@@ -45,7 +44,7 @@
     <xs:complexType name="RemoteClusterConfiguration">
         <xs:annotation>
             <xs:documentation>
-                <html:p>The root config type for the Remote Datastore configuration file.</html:p>
+                <html:p>The config type to define a Remote Datastore configuration for a specific cluster.</html:p>
             </xs:documentation>
         </xs:annotation>
         <xs:attribute name="id" type="xs:ID" use="required">
@@ -75,7 +74,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="useSSL" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="useHTTPS" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>

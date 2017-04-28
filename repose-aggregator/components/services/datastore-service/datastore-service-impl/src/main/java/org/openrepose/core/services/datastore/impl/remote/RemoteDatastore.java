@@ -77,10 +77,6 @@ public class RemoteDatastore implements DistributedDatastore {
         }
     }
 
-    private Object performAction(String name, DatastoreAction action) {
-        return performRemote(name, action);
-    }
-
     private Object performRemote(String name, DatastoreAction action) {
         try {
             LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " + target.toString());
@@ -111,7 +107,7 @@ public class RemoteDatastore implements DistributedDatastore {
 
     @Override
     public Serializable get(String hashedKey, byte[] id, RemoteBehavior remoteBehavior) {
-        return (Serializable) performAction(hashedKey, new DatastoreAction() {
+        return (Serializable) performRemote(hashedKey, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
@@ -145,7 +141,7 @@ public class RemoteDatastore implements DistributedDatastore {
     @Override
     public void put(String hashedKey, byte[] id, final Serializable value, final int ttl, final TimeUnit timeUnit,
                     RemoteBehavior remoteBehavior) {
-        performAction(hashedKey, new DatastoreAction() {
+        performRemote(hashedKey, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
@@ -175,7 +171,7 @@ public class RemoteDatastore implements DistributedDatastore {
 
     @Override
     public boolean remove(String hashedKey, byte[] id, RemoteBehavior remoteBehavior) {
-        return (Boolean) performAction(hashedKey, new DatastoreAction() {
+        return (Boolean) performRemote(hashedKey, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
@@ -209,7 +205,7 @@ public class RemoteDatastore implements DistributedDatastore {
     @Override
     public Serializable patch(String hashedKey, byte[] id, final SerializablePatch patch, final int ttl, final TimeUnit timeUnit,
                               RemoteBehavior remoteBehavior) {
-        return (Serializable) performAction(hashedKey, new DatastoreAction() {
+        return (Serializable) performRemote(hashedKey, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
