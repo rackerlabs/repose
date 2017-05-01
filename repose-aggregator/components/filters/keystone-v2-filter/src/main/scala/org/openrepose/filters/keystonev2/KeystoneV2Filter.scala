@@ -179,7 +179,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 }
               case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
                 Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
-              case Failure(e: AdminTokenUnauthorizedException) if isSelfValidating =>
+              case Failure(_: AdminTokenUnauthorizedException) if isSelfValidating =>
                 Reject(SC_UNAUTHORIZED, Some("Token unauthorized"))
               case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
             }
@@ -292,14 +292,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           Success(validationResult)
         } getOrElse {
           getValidatingToken(authToken, force = false) flatMap { validatingToken =>
-            requestHandler.validateToken(validatingToken, authToken) recoverWith {
+            requestHandler.validateToken(validatingToken, authToken, config.getIdentityService.isApplyRcnRoles) recoverWith {
               case _: AdminTokenUnauthorizedException =>
                 // Force acquiring of the admin token, and call the validation function again (retry once)
                 logger.trace("Forcing acquisition of new admin token")
                 getValidatingToken(authToken, force = true) match {
                   case Success(newValidatingToken) =>
                     logger.trace("Obtained admin token on second chance")
-                    requestHandler.validateToken(newValidatingToken, authToken, checkCache = false)
+                    requestHandler.validateToken(newValidatingToken, authToken, config.getIdentityService.isApplyRcnRoles, checkCache = false)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
             } cacheOnSuccess { validToken =>
@@ -307,7 +307,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               val timeToLive = getTtl(cacheSettings.getToken, cacheSettings.getVariability, Some(validToken))
 
               timeToLive foreach { ttl =>
-                datastore.patch(s"$USER_ID_KEY_PREFIX${validToken.userId}", new SetPatch(authToken), ttl, TimeUnit.SECONDS)
+                datastore.patch(s"$USER_ID_KEY_PREFIX${validToken.userId}", SetPatch(authToken), ttl, TimeUnit.SECONDS)
                 datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, ttl, TimeUnit.SECONDS)
               }
             }
@@ -373,11 +373,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             Success(endpointsData)
           case None =>
             getValidatingToken(authToken, force = false) flatMap { adminToken =>
-              requestHandler.getEndpointsForToken(adminToken, authToken) recoverWith {
+              requestHandler.getEndpointsForToken(adminToken, authToken, config.getIdentityService.isApplyRcnRoles) recoverWith {
                 case _: AdminTokenUnauthorizedException =>
                   // Force acquiring of the admin token, and call the endpoints function again (retry once)
                   getValidatingToken(authToken, force = true) match {
-                    case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken, checkCache = false)
+                    case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken, config.getIdentityService.isApplyRcnRoles, checkCache = false)
                     case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                   }
               } cacheOnSuccess { endpointsJson =>
@@ -421,11 +421,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             Success(groups)
           case None =>
             getValidatingToken(authToken, force = false) flatMap { adminToken =>
-              requestHandler.getGroups(adminToken, validToken.userId) recoverWith {
+              requestHandler.getGroups(adminToken, validToken.userId, config.getIdentityService.isApplyRcnRoles) recoverWith {
                 case _: AdminTokenUnauthorizedException =>
                   // Force acquiring of the admin token, and call the endpoints function again (retry once)
                   getValidatingToken(authToken, force = true) match {
-                    case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId, checkCache = false)
+                    case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId, config.getIdentityService.isApplyRcnRoles, checkCache = false)
                     case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                   }
                 case _: NotFoundException =>
@@ -473,7 +473,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         if (sendAllTenants && sendQuality) {
           val priorityTenants = (defaultTenant, matchedUriTenant) match {
             case (Some(default), Some(uri)) => Vector(s"$default;q=$defaultTenantQuality", s"$uri;q=$uriTenantQuality")
-            case (Some(default), None) => Vector(s"$defaultTenant;q=$defaultTenantQuality")
+            case (Some(_), None) => Vector(s"$defaultTenant;q=$defaultTenantQuality")
             case (None, Some(uri)) => Vector(s"$uri;q=$uriTenantQuality")
             case (None, None) => Vector.empty[String]
           }
@@ -618,14 +618,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     (tokenTtl, configuredTtl) match {
-      case (Some(tttl), None) => None
+      case (Some(_), None) => None
       case (Some(tttl), Some(cttl)) => Some(Math.min(tttl, cttl))
       case (None, Some(cttl)) => Some(cttl)
       case (None, None) => None
     }
   }
 
-  def isInitialized = SystemModelConfigListener.isInitialized && KeystoneV2ConfigListener.isInitialized
+  def isInitialized: Boolean = SystemModelConfigListener.isInitialized && KeystoneV2ConfigListener.isInitialized
 
   object SystemModelConfigListener extends UpdateListener[SystemModel] {
     private var initialized = false
@@ -750,7 +750,6 @@ object KeystoneV2Filter {
   private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
   private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
   private final val X_AUTH_PROXY = "Proxy"
-  private final val DELEGATED = "Delegated"
 
   implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
 
