@@ -1,3 +1,5 @@
+- include: create_network.yml
+
 - include: create_load_balancer.yml
 
 - include: create_server_repose.yml

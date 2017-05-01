@@ -7,6 +7,10 @@
     image: "{{ cloud.server.image }}"
     files: "{{ cloud.server.files }}"
     region: "{{ cloud.region }}"
+    networks:
+      - public
+      - private
+      - PerfNet
     state: present
     count: 2
     count_offset: 1
