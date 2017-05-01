@@ -110,7 +110,6 @@ class RemoteDatastoreServiceTest extends Specification {
         def reposeLogSearch = new ReposeLogSearch(testProperties.getLogFile())
         reposeLogSearch.cleanLog()
         def params = testProperties.getDefaultTemplateParams()
-        def runDir = testProperties.runDirectory
         params.put('datastorePort', datastorePort)
         reposeValveLauncher.configurationProvider.cleanConfigDirectory()
         reposeValveLauncher.configurationProvider.applyConfigs("common", params)
@@ -118,15 +117,6 @@ class RemoteDatastoreServiceTest extends Specification {
         def type = client ? "client" : "datastore"
         reposeValveLauncher.configurationProvider.applyConfigs("features/services/datastore/remote/$type", params)
         reposeValveLauncher.start(false, false, "repose", type)
-        def artifacts = (new File(runDir, "artifacts")).listFiles(
-                ((FilenameFilter) new WildcardFileFilter("filter-bundle-*.ear")))
-        artifacts.each { file ->
-            def fileOrig = new File(testProperties.reposeHome, "artifacts/${file.name}")
-            def fileNew = new File(runDir, "$subName/artifacts/${file.name}")
-            fileNew.parentFile.mkdirs()
-            def fileDest = new FileOutputStream(fileNew)
-            Files.copy(fileOrig.toPath(), fileDest)
-        }
         return ['ReposeValveLauncher': reposeValveLauncher, 'ReposeLogSearch': reposeLogSearch]
     }
 
