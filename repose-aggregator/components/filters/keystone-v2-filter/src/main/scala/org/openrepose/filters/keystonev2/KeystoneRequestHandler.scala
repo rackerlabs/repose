@@ -172,7 +172,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         case s: JsSuccess[Vector[Endpoint]] =>
           val endpoints = s.get
           Success(EndpointsData(jsonString, endpoints))
-        case f: JsError =>
+        case _: JsError =>
           Failure(IdentityCommunicationException("Identity didn't respond with proper Endpoints JSON"))
       }
     }
