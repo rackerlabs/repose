@@ -114,7 +114,7 @@ class DistDatastoreServiceContainerTest extends Specification {
         repose1.waitForNon500FromUrl(reposeEndpoint1, 120)
         repose2.waitForNon500FromUrl(reposeEndpoint2, 120)
 
-        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
+        def headers = ['X-TTL': '5']
         def objectkey = UUID.randomUUID().toString();
         def body = objectSerializer.writeObject(new StringValue.Patch("test data"))
         def strurl = datastoreEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey

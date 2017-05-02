@@ -35,7 +35,7 @@ class AbstractRemoteCommandTest {
     private AbstractRemoteCommand arc;
 
     @Before
-    public void setUp() {
+    void setUp() {
         arc = new AbstractRemoteCommand("", new InetSocketAddress(0), null, false) {
             @Override
             ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
@@ -47,15 +47,13 @@ class AbstractRemoteCommandTest {
                 return null
             }
         }
-        arc.setHostKey("hostKey")
     }
 
     @Test
-    public void shouldContainAddedHeaders() {
+    void shouldContainAddedHeaders() {
         MDC.put(TracingKey.TRACING_KEY, "tracingKey")
         Map<String, String> headers = arc.getHeaders(RemoteBehavior.ALLOW_FORWARDING)
 
-        assert (headers.get(DatastoreHeader.HOST_KEY).equals("hostKey"));
         assert (TracingHeaderHelper.getTraceGuid(headers.get(CommonHttpHeader.TRACE_GUID)).equals("tracingKey"));
         assert (headers.get(DatastoreHeader.REMOTE_BEHAVIOR).equals("ALLOW_FORWARDING"));
     }

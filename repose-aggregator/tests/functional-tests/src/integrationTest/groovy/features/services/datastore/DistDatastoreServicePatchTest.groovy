@@ -31,7 +31,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
 
     String DD_URI
-    def DD_HEADERS = ['X-PP-Host-Key': 'temp', 'X-TTL': '10']
+    def DD_HEADERS = ['X-TTL': '10']
     def BODY = objectSerializer.writeObject(new StringValue.Patch("test data"))
     def INVALID_BODY = objectSerializer.writeObject("test data")
     static def KEY
@@ -110,7 +110,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     def "PATCH with missing X-TTL is allowed"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: ['X-PP-Host-Key': 'temp'], requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: [], requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '200'
@@ -144,22 +144,6 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '400'
         mc.receivedResponse.body.toString().contains("Cache key specified is invalid")
-    }
-
-    def "PATCH with missing X-PP-Host-Key should return a 401 Unauthorized and not be stored"() {
-
-        when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: ['X-TTL': '10'], requestBody: BODY])
-
-        then:
-        mc.receivedResponse.code == '401'
-        mc.receivedResponse.body.toString().contains("No host key specified in header X-PP-Host-Key")
-
-        when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
-
-        then: "The key is valid but does not exist, so should return a 404 NOT FOUND"
-        mc.receivedResponse.code == '404'
     }
 
     def "PATCH of invalid key should fail with 400 Bad Request"() {

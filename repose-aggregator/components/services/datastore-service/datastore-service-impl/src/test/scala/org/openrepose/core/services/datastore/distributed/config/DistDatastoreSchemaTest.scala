@@ -28,7 +28,7 @@ import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
 class DistDatastoreSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/dist-datastore-configuration.xsd")
+  val validator = ConfigValidator("/META-INF/schema/dist-datastore/dist-datastore.xsd")
 
   describe("schema validation") {
     it("should successfully validate the sample config") {

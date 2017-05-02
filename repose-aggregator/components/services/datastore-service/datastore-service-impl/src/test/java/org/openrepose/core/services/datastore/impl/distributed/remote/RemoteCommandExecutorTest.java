@@ -34,15 +34,13 @@ import static org.mockito.Mockito.mock;
 
 public class RemoteCommandExecutorTest {
 
-    private static final String HOST_KEY = "host_key";
-    private static final String TRACING_HEADER = "tracing_header";
     RequestProxyService mockRequestProxyService;
     RemoteCommandExecutor executor;
 
     @Before
     public void setup() throws Exception {
         mockRequestProxyService = mock(RequestProxyService.class);
-        executor = new RemoteCommandExecutor(mockRequestProxyService, HOST_KEY, TRACING_HEADER);
+        executor = new RemoteCommandExecutor(mockRequestProxyService);
     }
 
     @Test
@@ -91,16 +89,6 @@ public class RemoteCommandExecutorTest {
                 throw new IOException("foo", new IllegalArgumentException());
             }
             return Boolean.TRUE;
-        }
-
-        @Override
-        public void setHostKey(String hostKey) {
-            assertEquals("Host key must be set in the remote command", HOST_KEY, hostKey);
-        }
-
-        @Override
-        public void setTracingHeader(String tracingHeader) {
-            assertEquals("Host key must be set in the remote command", TRACING_HEADER, tracingHeader);
         }
     }
 }

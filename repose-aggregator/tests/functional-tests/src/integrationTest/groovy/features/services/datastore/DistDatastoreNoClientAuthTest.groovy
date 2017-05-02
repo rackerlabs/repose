@@ -75,7 +75,7 @@ class DistDatastoreNoClientAuthTest extends ReposeValveTest {
 
     def "should not be able to put an object in the datastore as an anonymous client"() {
         given:
-        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
+        def headers = ['X-TTL': '5']
         def objectkey = UUID.randomUUID().toString()
         def body = objectSerializer.writeObject(new StringValue("test data"))
 

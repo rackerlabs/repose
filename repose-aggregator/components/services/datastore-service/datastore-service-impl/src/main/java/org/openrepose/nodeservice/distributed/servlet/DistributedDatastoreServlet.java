@@ -51,7 +51,7 @@ import static org.openrepose.core.services.datastore.impl.distributed.MalformedC
 /**
  * Holds most of the work for running a distributed datastore.
  * Exposes the ClusterView and the ACL for update.
- *
+ * <p>
  * There's no reason we need this class serializable, and we don't want to imply we support it.
  * So, I'm suppressing the non-serializable fields warning instead of marking them transient.
  */
@@ -151,10 +151,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
             LOG.error("Malformed cache request during GET", e);
             switch (e.getMessage()) {
-                case NO_DD_HOST_KEY:
-                    resp.getWriter().write(e.getMessage());
-                    resp.setStatus(SC_UNAUTHORIZED);
-                    break;
                 case CACHE_KEY_INVALID:
                     resp.getWriter().write(e.getMessage());
                     resp.setStatus(SC_NOT_FOUND);
@@ -213,10 +209,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
             } catch (MalformedCacheRequestException e) {
                 LOG.trace("Malformed cache request on Delete", e);
                 switch (e.getMessage()) {
-                    case NO_DD_HOST_KEY:
-                        resp.getWriter().write(e.getMessage());
-                        resp.setStatus(SC_UNAUTHORIZED);
-                        break;
                     case UNEXPECTED_REMOTE_BEHAVIOR:
                         resp.setStatus(SC_BAD_REQUEST);
                         break;
@@ -304,10 +296,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
         LOG.error("Handling Malformed Cache Request", mcre);
         switch (mcre.getMessage()) {
-            case NO_DD_HOST_KEY:
-                response.getWriter().write(mcre.getMessage());
-                response.setStatus(SC_UNAUTHORIZED);
-                break;
             case OBJECT_TOO_LARGE:
                 response.getWriter().write(mcre.getMessage());
                 response.setStatus(SC_REQUEST_ENTITY_TOO_LARGE);

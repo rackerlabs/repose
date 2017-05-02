@@ -17,26 +17,29 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.datastore.impl.distributed;
+package org.openrepose.core.services.datastore.impl.remote;
 
+import org.openrepose.commons.utils.encoding.EncodingProvider;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreManager;
-import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
 import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommandExecutor;
 
-public class HashRingDatastoreManager implements DatastoreManager {
+import java.net.InetSocketAddress;
 
-    private final HashRingDatastore datastore;
+public class RemoteDatastoreManager implements DatastoreManager {
 
-    public HashRingDatastoreManager(ClusterConfiguration configuration, Datastore localDatastore, String connPoolId, boolean useHttps) {
-        datastore = new HashRingDatastore(
-                new RemoteCommandExecutor(configuration.getProxyService()),
-                configuration.getClusterView(),
+    private final RemoteDatastore datastore;
+
+    public RemoteDatastoreManager(RequestProxyService proxyService, EncodingProvider encodingProvider, Datastore localDatastore, InetSocketAddress target, String connPoolId, boolean useHttps) {
+        datastore = new RemoteDatastore(
+                new RemoteCommandExecutor(proxyService),
                 "",
                 localDatastore,
                 MD5MessageDigestFactory.getInstance(),
-                configuration.getEncodingProvider(),
+                encodingProvider,
+                target,
                 connPoolId,
                 useHttps);
     }

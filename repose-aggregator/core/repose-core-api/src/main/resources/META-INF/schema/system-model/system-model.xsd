@@ -305,7 +305,7 @@
     <xs:complexType name="Service">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a filter that can be used to process and route requests</html:p>
+                <html:p>Defines a service that can be used to assist filters</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -319,6 +319,7 @@
             <xs:simpleType>
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="dist-datastore"/>
+                    <xs:enumeration value="remote-datastore"/>
                     <xs:enumeration value="atom-feed-service"/>
                 </xs:restriction>
             </xs:simpleType>

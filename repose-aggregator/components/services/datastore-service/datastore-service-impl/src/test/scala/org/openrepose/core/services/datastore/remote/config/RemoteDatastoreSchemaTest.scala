@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,18 +17,22 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.datastore.impl.distributed;
 
-import org.openrepose.commons.utils.http.ExtendedHttpHeader;
+package org.openrepose.core.services.datastore.remote.config
 
-public class MalformedCacheRequestError {
-    public static final String CACHE_KEY_INVALID = "Cache key specified is invalid";
-    public static final String UNEXPECTED_REMOTE_BEHAVIOR = "X-PP-Datastore-Behavior header is not an expected value";
-    public static final String TTL_HEADER_NOT_POSITIVE = ExtendedHttpHeader.X_TTL + " must be a valid, positive integer number";
-    public static final String OBJECT_TOO_LARGE = "Object is too large to store into the cache.";
-    public static final String UNABLE_TO_READ_CONTENT = "Unable to read content";
+import org.junit.runner.RunWith
+import org.openrepose.commons.test.ConfigValidator
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSpec, Matchers}
+import org.xml.sax.SAXParseException
 
-    private MalformedCacheRequestError() {
-        // This class should not be instantiated.
+@RunWith(classOf[JUnitRunner])
+class RemoteDatastoreSchemaTest extends FunSpec with Matchers {
+  val validator = ConfigValidator("/META-INF/schema/remote-datastore/remote-datastore.xsd")
+
+  describe("schema validation") {
+    it("should successfully validate the sample config") {
+      validator.validateConfigFile("/META-INF/schema/examples/remote-datastore.cfg.xml")
     }
+  }
 }

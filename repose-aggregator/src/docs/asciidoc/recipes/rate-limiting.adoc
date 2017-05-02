@@ -1,3 +1,72 @@
 = Rate Limiting
 
 include::../_includes/in-progress.adoc[]
+
+=== Configuration
+* *Default Configuration:* rate-limiting.cfg.xml
+* *Released:* prior to version v1.0.6
+* link:../schemas/rate-limiting-configuration.xsd[Schema]
+
+Rate limiting can be configured to use any of the datastore types to store rate limiting information for users.
+By default, rate limiting will use the distributed datastore (`hash-ring`) if available.
+If no distributed datastores are available, then rate limiting will use the local datastore.
+
+[source,xml]
+.system-model.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+    <nodes>
+      <node id="node1" hostname="localhost" http-port="9090"/>
+      <node id="node2" hostname="localhost" http-port="8080"/>
+    </nodes>
+    <filters>
+      <filter name="rate-limiting"/>
+    </filters>
+    <services>
+      <service name="dist-datastore"/>
+    </services>
+    <destinations>
+      <endpoint id="endpoint" protocol="http" hostname="originservice" root-path="/" port="8080" default="true"/>
+    </destinations>
+  </repose-cluster>
+</system-model>
+----
+
+In the following example, the Repose instance with the `node` `id` of `node1` will launch a Distributed Datastore service which will listen on port 9999.
+The Repose instance with the `node` `id` of `node2` will launch it's own Distributed Datastore service which will listen on port 7777.
+With `allow-all` set to `false`, a host that is not in the cluster cannot communicate with the Distributed Datastore.
+
+[source,xml]
+.dist-datastore.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
+    <allowed-hosts allow-all="false"/>
+    <port-config>
+        <port port="9999" cluster="repose"/>
+        <port port="7777" cluster="repose" node="node2"/>
+    </port-config>
+</distributed-datastore>
+----
+
+[source,xml]
+.rate-limiting.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0" datastore="distributed/hash-ring">
+    <!-- Protects the Origin Service from being flooded. -->
+    <global-limit-group>
+        <limit id="global" uri="*" uri-regex=".*" value="1000" unit="MINUTE"/>
+    </global-limit-group>
+
+    <!-- Limits for all other requests -->
+    <limit-group id="limited" groups="IP_Standard" default="true">
+        <limit id="all" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="MINUTE"/>
+    </limit-group>
+
+    <!-- Limits for WhiteListed IPs -->
+    <limit-group id="unlimited" groups="IP_Super" default="false"/>
+</rate-limiting>
+----

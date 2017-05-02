@@ -19,13 +19,18 @@
  */
 package org.openrepose.core.services.datastore;
 
+import org.openrepose.commons.utils.encoding.EncodingProvider;
+import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
+
+import java.net.InetSocketAddress;
 
 /**
  * DatastoreService - service that manages the lifecycle and configuration of {@link Datastore}s
  */
-@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
+//We're defining the contract here, so the extra explicitness is warranted
+@SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
 public interface DatastoreService {
 
     /**
@@ -36,8 +41,8 @@ public interface DatastoreService {
     /**
      * Get a datastore associated with the provided datastore name
      *
-     * @param datastoreName
-     * @return
+     * @param datastoreName name for the Datastore
+     * @return the Datastore with the provided name
      * @throws DatastoreUnavailableException if no datastore exists with the given datastoreName
      */
     Datastore getDatastore(String datastoreName) throws DatastoreUnavailableException;
@@ -45,7 +50,7 @@ public interface DatastoreService {
     /**
      * Get the distributed datastore managed by the service.
      *
-     * @return
+     * @return the default Distributed Datastore
      * @throws DatastoreUnavailableException if no distributed datastore exists
      */
     DistributedDatastore getDistributedDatastore() throws DatastoreUnavailableException;
@@ -53,7 +58,7 @@ public interface DatastoreService {
     /**
      * Shutdown the datastore associated with the datastore name
      *
-     * @param datastoreName
+     * @param datastoreName unique name for the Datastore
      */
     void destroyDatastore(String datastoreName);
 
@@ -61,9 +66,9 @@ public interface DatastoreService {
      * Create and return a distributed datastore using the provided configuration.  The created
      * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
      *
-     * @param datastoreName
-     * @param configuration
-     * @return
+     * @param datastoreName unique name for this Datastore
+     * @param configuration Configuration for the entire Cluster
+     * @return the newly created Datastore
      * @throws DatastoreServiceException if the datastore creation fails
      */
     DistributedDatastore createDatastore(String datastoreName, ClusterConfiguration configuration)
@@ -73,12 +78,30 @@ public interface DatastoreService {
      * Create and return a distributed datastore using the provided configuration.  The created
      * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
      *
-     * @param datastoreName
-     * @param configuration
-     * @return
+     * @param datastoreName unique name for this Datastore
+     * @param configuration Configuration for the entire Cluster
+     * @param connPoolId    the name of the pool to borrow a connection from
+     * @param useHttps      indicates if SSL/TLS should be used
+     * @return the newly created Datastore
      * @throws DatastoreServiceException if the datastore creation fails
      */
     DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId, boolean useHttps)
+            throws DatastoreServiceException;
+
+    /**
+     * Create and return a remote datastore using the provided configuration.  The created
+     * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
+     *
+     * @param datastoreName    unique name for this Datastore
+     * @param proxyService     Proxy Service for making remote calls
+     * @param encodingProvider Encoding Provider
+     * @param target           the IP Socket Address of the Datastore
+     * @param connPoolId       the name of the pool to borrow a connection from
+     * @param useHttps         indicates if SSL/TLS should be used
+     * @return the newly created Datastore
+     * @throws DatastoreServiceException if the datastore creation fails
+     */
+    DistributedDatastore createRemoteDatastore(String datastoreName, RequestProxyService proxyService, EncodingProvider encodingProvider, InetSocketAddress target, String connPoolId, boolean useHttps)
             throws DatastoreServiceException;
 
     /**

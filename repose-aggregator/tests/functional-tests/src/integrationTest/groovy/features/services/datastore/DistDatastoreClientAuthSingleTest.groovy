@@ -112,7 +112,7 @@ class DistDatastoreClientAuthSingleTest extends ReposeValveTest {
 
     def "should be able to put an object in the datastore as an authenticated client"() {
         given:
-        def headers = ['X-PP-Host-Key': 'temp', 'X-TTL': '5']
+        def headers = ['X-TTL': '5']
         def objectkey = UUID.randomUUID().toString()
         def body = objectSerializer.writeObject(new StringValue("test data"))
 

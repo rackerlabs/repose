@@ -101,7 +101,7 @@ public class DistributedDatastoreLauncherService {
 
         //Start listening to the dd config, so we can update our service with more stuff
         ddConfigListener = new DistributedDatastoreConfigurationListener();
-        URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
+        URL xsdURL = getClass().getResource("/META-INF/schema/dist-datastore/dist-datastore.xsd");
         this.configurationService.subscribeTo("", "dist-datastore.cfg.xml",
                 xsdURL,
                 ddConfigListener,
@@ -223,10 +223,9 @@ public class DistributedDatastoreLauncherService {
     @PostConstruct
     public void initialize() {
         //Subscribe to the system model to know if we even want to turn on...
-        // (If we do want to turn on, we should probably only then subscribe to the ddconfig)
+        //If and only if we're going to be turned on, should we subscribe to the other one
         URL systemModelXSD = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
         configurationService.subscribeTo("system-model.cfg.xml", systemModelXSD, systemModelListener, SystemModel.class);
-        //If and only if we're going to be turned on, should we subscribe to the other one
     }
 
     private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {

@@ -22,9 +22,9 @@ package org.openrepose.core.services.datastore;
 /**
  * A manager for {@link Datastore}s that manages their creation and lifecycle.
  */
-@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
+@SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
+//We're defining the contract here, so the extra explicitness is warranted
 public interface DatastoreManager {
-
     /**
      * Get the datastore that is being managed.
      *
