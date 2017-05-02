@@ -6,7 +6,7 @@
     flavor: "{{ cloud.server.repose.flavor }}"
     image: "{{ cloud.server.image }}"
     files: "{{ cloud.server.files }}"
-    region: "{{ cloud.region }}"
+    region: IAD
     networks:
       - public
       - private
@@ -40,7 +40,7 @@
     module: rax_facts
     credentials: ~/.raxpub
     id: "{{ item.rax_id }}"
-    region: "{{ cloud.region }}"
+    region: IAD
   register: rax_facts
   until: rax_facts.ansible_facts['rax_metadata']['rax_service_level_automation']|default('') == 'Complete'
   retries: 30
@@ -62,7 +62,7 @@
     type: primary
     wait: yes
     wait_timeout: 60
-    region: "{{ cloud.region }}"
+    region: IAD
   with_items: "{{ cloud_server_create.instances }}"
   tags:
     - repose
@@ -78,7 +78,7 @@
     type: primary
     wait: yes
     wait_timeout: 60
-    region: "{{ cloud.region }}"
+    region: IAD
   with_items: "{{ cloud_server_create.instances }}"
   tags:
     - origin

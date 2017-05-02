@@ -5,7 +5,7 @@
     name: "{{ cloud.naming_prefix }}-repose-test%02d"
     flavor: performance1-2
     image: "{{ cloud.server.image }}"
-    region: "{{ cloud.region }}"
+    region: IAD
     state: absent
     count: 2
     count_offset: 1

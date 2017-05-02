@@ -1,6 +1,6 @@
 {
   cloud: {
-    region: "IAD",
+    region: IAD,
     naming_prefix: "perf-{{ dir_prefix | regex_replace('[^0-9a-zA-Z]+', '-') }}",
     server: {
       image: "5cf469a9-c4f3-4455-ab1b-7f07ed2b9dec"  # public Ubuntu 16.04 LTS (PVHVM)

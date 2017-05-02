@@ -4,5 +4,5 @@
     credentials: ~/.raxpub
     label: PerfNet
     cidr: 192.168.3.0/24
-    region: "{{ cloud.region }}"
+    region: IAD
     state: present

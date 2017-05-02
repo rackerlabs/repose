@@ -7,7 +7,7 @@
     protocol: HTTP
     type: PUBLIC
     timeout: 30
-    region: "{{ cloud.region }}"
+    region: IAD
     wait: yes
     state: absent
   register: repose_lb
@@ -23,7 +23,7 @@
     protocol: HTTP
     type: PUBLIC
     timeout: 30
-    region: "{{ cloud.region }}"
+    region: IAD
     wait: yes
     state: absent
   register: no_repose_lb
