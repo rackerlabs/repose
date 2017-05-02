@@ -210,7 +210,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
   }
 
   private def getApplyRcnRoles(applyRcnRoles: Boolean): String = {
-    if (applyRcnRoles) "?applyRCNroles" else ""
+    if (applyRcnRoles) "?apply_rcn_roles" else ""
   }
 }
 

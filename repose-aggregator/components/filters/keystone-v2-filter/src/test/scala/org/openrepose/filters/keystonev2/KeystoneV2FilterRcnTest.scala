@@ -74,7 +74,7 @@ class KeystoneV2FilterRcnTest extends FunSpec
 
   Seq(true, false) foreach { applyRcnRoles =>
     val shouldOrNot: Boolean => String = { boolean => if (boolean) "should" else "should NOT" }
-    val appendRcnParameter: Boolean => String = { boolean => if (boolean) "?applyRCNroles" else "" }
+    val appendRcnParameter: Boolean => String = { boolean => if (boolean) "?apply_rcn_roles" else "" }
     describe(s"With apply-rcn-roles $applyRcnRoles") {
       val identityServiceUri = "https://some.identity.com"
 
@@ -89,7 +89,7 @@ class KeystoneV2FilterRcnTest extends FunSpec
            |""".stripMargin
       )
 
-      it(s"${shouldOrNot(applyRcnRoles)} append the applyRCNroles query parameter to the Identity interactions") {
+      it(s"${shouldOrNot(applyRcnRoles)} append the apply_rcn_roles query parameter to the Identity interactions") {
         filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
         filter.init(mockFilterConfig)
         filter.KeystoneV2ConfigListener.configurationUpdated(configuration)

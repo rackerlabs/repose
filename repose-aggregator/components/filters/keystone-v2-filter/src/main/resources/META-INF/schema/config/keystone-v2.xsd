@@ -119,7 +119,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Indicates whether or not to include the applyRCNroles query parameter when talking to
+                        Indicates whether or not to include the apply_rcn_roles query parameter when talking to
                         Rackspace Keystone V2 Identity.
                         (Default: false)
                     </html:p>
