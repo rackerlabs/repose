@@ -1,11 +1,12 @@
 stage("Performance Test") {
     def perfTestWithExtraVars = [
-            "filters/saml": "",
-            "filters/scripting": "script_lang=python",
-            "uses-cases/simple": ""]
+            ["filters/saml", ""],
+            ["filters/scripting", "script_lang=python"],
+            ["uses-cases/simple", ""]]
     def perfTestsToRun = [:]
 
-    perfTestWithExtraVars.each { perfTest, extraVars ->
+    for (int index = 0; index < perfTestWithExtraVars.size(); index++) {
+        def (perfTest, extraVars) = perfTestWithExtraVars[index]
         def jobName = perfTest + (extraVars ? "-$extraVars" : "")
 
         perfTestsToRun[jobName] = {
