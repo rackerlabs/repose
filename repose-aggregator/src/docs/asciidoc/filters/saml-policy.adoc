@@ -32,7 +32,7 @@ If issuer isn't in the configured bypass list indicating the use of the legacy v
 Additionally the SAML Response will be signed with the configured credentials.
 
 === Recommended follow-on (succeeding) filters
-None.
+This filter is not strictly required by any other filters.
 
 === Response body changes
 If the legacy v1.0 API is in use, then the response body is not modified.
