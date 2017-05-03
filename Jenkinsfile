@@ -17,9 +17,9 @@ stage("Performance Test") {
     for (int index = 0; index < perfTestWithExtraVars.size(); index++) {
         def perfTest = perfTestWithExtraVars[index][0]
         def extraVars = perfTestWithExtraVars[index][1]
-        def jobName = perfTest + (extraVars ? "-$extraVars" : "")
+        def pipelineBranch = perfTest + (extraVars ? "-$extraVars" : "")
 
-        perfTestsToRun[jobName] = {
+        perfTestsToRun[pipelineBranch] = {
             node("jdk8") {
                 withEnv(["perf_test=$perfTest", "extra_vars=$extraVars"]) {
                     retry(3) {
