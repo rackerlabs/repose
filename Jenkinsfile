@@ -1,11 +1,13 @@
 #!/usr/bin/env groovy
 
-stage("Performance Test") {
+stage("SCM") {
     node("jdk8") {
         git(branch: "jenkins-pipeline-test", url: "https://github.com/rackerlabs/repose.git")
         stash(name: "script", includes: "test.sh,repose-aggregator/tests/performance-tests/")
     }
+}
 
+stage("Performance Test") {
     def perfTestWithExtraVars = [
             ["filters/saml", ""],
             ["filters/scripting", "script_lang=python"],
