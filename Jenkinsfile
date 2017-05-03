@@ -5,7 +5,7 @@ stage("Performance Test") {
             "uses-cases/simple": ""]
     def perfTestsToRun = [:]
 
-    def perfTestWithExtraVarsEntries = perfTestWithExtraVars.entrySet()
+    def perfTestWithExtraVarsEntries = perfTestWithExtraVars.entrySet().toArray()
     for (int index = 0; index < perfTestWithExtraVarsEntries.size(); index++) {
         def perfTest = perfTestWithExtraVarsEntries[index].key
         def extraVars = perfTestWithExtraVarsEntries[index].value
