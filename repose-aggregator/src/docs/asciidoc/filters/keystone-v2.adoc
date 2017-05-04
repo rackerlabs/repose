@@ -1,4 +1,5 @@
 = Keystone v2 Filter
+
 == General filter information
 * *Name:* keystone-v2
 * *Default Configuration:* keystone-v2.cfg.xml
@@ -36,7 +37,7 @@ The following headers are created using the information returned from the authen
 The following headers are added for use by the <<rate-limiting.adoc#, Rate Limiting filter>>:
 
 * `X-PP-User` - Identifies user name. (ex. "jjenkins")
-* `X-PP-Groups` Identifies groups. (ex. "admin", "user")
+* `X-PP-Groups` - Identifies groups. (ex. "admin", "user")
 ** Only if the `set-groups-in-header` attribute is `true`.
 
 If the `set-catalog-in-header` attribute is `true`, then the service catalog from the authentication service is a base 64 encoded and placed in the following header:
@@ -63,7 +64,9 @@ If any of this information is provided, then it will be passed in the following 
 * `X-Tenant-Name` - The Tenant Name for the user.
 * `X-Token-Expires` - The date/time of when the token provided by the Keystone v2 Identity service expires.
 
-If delegation is enabled, then the `X-Delegated` header is created for use by the <<herp.adoc#, HERP>> and <<derp.adoc#, DeRP>> filters and is intended for internal processing within Repose.
+If delegation is enabled, then the `X-Delegated` header is created.
+This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within Repose.
+However, it can be exposed to the origin service under certain configurations.
 
 === Request body changes
 This filter does not modify the request body.
@@ -171,10 +174,10 @@ This configuration will provide the basic headers using self-validating tokens.
     <identity-service uri="http://identity.example.com"/> <!--1-->
 </keystone-v2>
 ----
-<1> Keystone v2 Identity service Endpoint URI.
+<1> The Keystone v2 Identity service Endpoint URI.
 
 === Using an admin account (not recommended)
-This configuration will uses an admin account instead of using the self-validating tokens feature.
+This configuration will use an admin account instead of using the self-validating tokens feature.
 
 [source,xml]
 .keystone-v2.cfg.xml
@@ -187,9 +190,9 @@ This configuration will uses an admin account instead of using the self-validati
     />
 </keystone-v2>
 ----
-<1> Admin username to access Keystone v2 Identity service.
-<2> Admin password to access Keystone v2 Identity service.
-<3> Keystone v2 Identity service Endpoint URI.
+<1> Admin username to access the Keystone v2 Identity service.
+<2> Admin password to access the Keystone v2 Identity service.
+<3> The Keystone v2 Identity service Endpoint URI.
 
 [NOTE]
 ====
@@ -213,20 +216,18 @@ This configuration is an example using the `identity-service` element's configur
     />
 </keystone-v2>
 ----
-<1> Keystone v2 Identity service Endpoint URI.
-<2> Http Connection pool ID to use when talking to Keystone v2 Identity service.
+<1> The Keystone v2 Identity service Endpoint URI.
+<2> Http Connection pool ID to use when talking to the Keystone v2 Identity service.
 <3> Set the user's roles in the `X-Roles` header. (Default: true)
 <4> Set the user's groups in the `X-PP-Groups` header. (Default: true)
 <5> Set the user's service catalog, base64 encoded, in the `X-Catalog` header. (Default: false)
-<6> Indicates whether or not to include the `apply_rcn_roles` query parameter when talking to Keystone v2 Identity service. (Default: false)
+<6> Indicates whether or not to include the `apply_rcn_roles` query parameter when talking to the Keystone v2 Identity service. (Default: false)
 
 === Enable Delegation
 In some cases, you may want to delegate the decision to authenticate a request down the chain to either another filter or to the origin service.
-This filter allows an unauthenticated request to pass as either confirmed or indeterminate when placed in delegating mode.
-The filter sends a confirmed value when valid credentials have been confirmed by the Keystone v2 Identity service, and sends an indeterminate value when the Keystone v2 Identity service can not confirm the credentials.
+This filter allows a request to pass as either `confirmed` or `indeterminate` when configured to run in delegating mode.
 To place the filter in delegating mode, add the `delegating` element to the filter configuration with an optional `quality` attribute that determines the delegating priority.
-If this filter is configured to run in delegating mode, the `X-Identity-Status` header is set to a value of indeterminate.
-The request is then passed along to subsequent filters and the origin service with the `X-Delegated` header set.
+When in delegating mode, the filter sets the `X-Identity-Status` header with a value of `confirmed` when valid credentials have been authenticated by the Keystone v2 Identity service and to `indeterminate` when the credentials are not.
 
 [source,xml]
 .keystone-v2.cfg.xml
@@ -246,8 +247,8 @@ When setting up a chain of delegating filters the highest quality number will be
 You can configure this filter to allow no-op processing of requests that do not require authentication.
 For example, a service might want all calls authenticated with the exception of the call for WADL retrieval.
 In this situation, you can configure the whitelist as shown in the example below.
-The whitelist contains a list of regular expressions that Repose attempts to match against the full request URI.
-If the URI matches a regular expression on the white list, the request is passed to the origin service.
+The whitelist contains a list of https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] that Repose attempts to match against the full request URI.
+If the URI matches an expression in the white list, then the request is passed to the origin service.
 Otherwise, authentication is performed against the request.
 
 [source,xml]
@@ -261,11 +262,11 @@ Otherwise, authentication is performed against the request.
     </white-list>
 </keystone-v2>
 ----
-<1> The regular expression to allow matching URI's to pass without requiring authentication.
+<1> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] to allow matching URI's to pass without requiring authentication.
 
 === Configuring Cache Timeouts
 This filter caches authentication tokens.
-The length of time that tokens are cached is determined by the Time To Live (TTL) value that is returned from the authentication service (e.g., a Keystone v2 Identity service) during token validation.
+The length of time that tokens are cached is determined by the Time To Live (TTL) value that is returned from the authentication service (e.g., the Keystone v2 Identity service) during token validation.
 
 You can configure alternate maximum TTL for caching of authentication tokens, groups, and endpoints.
 If you specify the token element value in the configuration file, this value is used when caching tokens, unless the token TTL value provided by the Keystone v2 Identity service is less than the token-cache-timeout value.
@@ -287,7 +288,7 @@ If the token's TTL exceeds the maximum allowed TTL value (2^31 - 1), the maximum
     </cache>
 </keystone-v2>
 ----
-<1> This value will be added or subtracted to the cache timeouts to make sure that the cached items have some variability so they don't all expire at the exact same time. (Default: 0)
+<1> This value will be added or subtracted to the cache timeouts to help ensure that the cached items have some variability so they don't all expire at the exact same time. (Default: 0)
 <2> The number of seconds which cached tokens will live in the datastore.
 <3> The number of seconds which cached groups will live in the datastore.
 <4> The number of seconds which cached endpoints will live in the datastore.
@@ -305,7 +306,7 @@ Each timeout value behaves in the following way:
 === Cache invalidation using an Atom Feed
 You can configure this filter to use an Atom Feed for cache expiration.
 This configuration blocks malicious users from accessing the origin service by repeatedly checking the Cloud Feed from the authentication service.
-To set up this filter to use Cloud feeds for cache expiration, you will need to enable the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> in the <<../architecture/system-model.adoc#, System model>>, configure the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>>, and configure this filter with which feeds to listen too.
+To set up this filter to use Cloud Feeds for cache expiration, you will need to enable the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> in the <<../architecture/system-model.adoc#, System model>>, configure the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>>, and configure this filter with which feeds to listen to.
 
 [NOTE]
 ====
@@ -338,12 +339,12 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <identity-service uri="http://identity.example.com"/>
     <tenant-handling send-all-tenant-ids="false">                      <!--1-->
-        <validate-tenant strip-token-tenant-prefixes="/foo:/bar-"      <!--2--> <!--3-->
+        <validate-tenant strip-token-tenant-prefixes="/foo:/bar-"     <!--2--> <!--3-->
                          enable-legacy-roles-mode="false"              <!--4-->
         >
             <uri-extraction-regex>${your-regex}</uri-extraction-regex> <!--5-->
         </validate-tenant>
-        <send-tenant-id-quality default-tenant-quality="0.9"           <!--6--> <!--7-->
+        <send-tenant-id-quality default-tenant-quality="0.9"          <!--6--> <!--7-->
                                 uri-tenant-quality="0.7"               <!--8-->
                                 roles-tenant-quality="0.5"             <!--9-->
         >
@@ -356,7 +357,7 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 The post-strip Tenant ID is only used in the Tenant Validation check.
 <4> If in legacy roles mode, then all roles associated with a user token are forwarded.
 If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. (Default: false)
-<5> The Java Regular Expression with a single matching group to extract the Tenant ID from the URI for validation.
+<5> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with a single capturing group around the portion of the URI to extract the Tenant ID from for validation.
 <6> If this element is included, then include Quality parameters on all the tenant ID headers sent.
 <7> The default tenant has the highest quality. (Default: 0.9)
 <8> Followed by the one that matches the URI (if any). (Default: 0.7)
@@ -364,9 +365,9 @@ If NOT in legacy roles mode, then roles which aren't tied to the tenant provided
 
 [NOTE]
 ====
-The `${your-regex}` should be replaced by a Java Regular Expression that contains a capture group around the portion of the URI where the tenant ID is expected.
-This will populate the `X-Tenant-Id` header with the value in the capture group.
 If the `validate-tenant` element is not present, then this filter will not attempt to validate a Tenant ID from the URI.
+
+The `uri-extraction-regex` will be used to populate the `X-Tenant-ID` header with the value extracted by the capturing group.
 ====
 
 === Tenant ID Validation Bypass
@@ -397,9 +398,9 @@ If endpoint authorization is enabled, then the user must have an endpoint in the
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <identity-service uri="http://identity.example.com"/>
     <require-service-endpoint public-url="https://service.example.com" <!--1--> <!--2-->
-                              region="ORD"                             <!--3-->
-                              name="OpenStackCompute"                  <!--4-->
-                              type="compute"                           <!--5-->
+                              region="ORD"                              <!--3-->
+                              name="OpenStackCompute"                   <!--4-->
+                              type="compute"                            <!--5-->
     />
 </keystone-v2>
 ----
