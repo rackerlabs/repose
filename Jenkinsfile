@@ -13,9 +13,11 @@ stage("Performance Test") {
         def pipelineBranch = perfTest + (extraVars ? "-$extraVars" : "")
 
         perfTestsToRun[pipelineBranch] = {
-            build(job: "mario-test-job", parameters: [
-                    [$class: "StringParameterValue", name: "perf_test", value: perfTest],
-                    [$class: "StringParameterValue", name: "extra_vars", value: extraVars]])
+            retry(3) {
+                build(job: "mario-test-job", parameters: [
+                        [$class: "StringParameterValue", name: "perf_test", value: perfTest],
+                        [$class: "StringParameterValue", name: "extra_vars", value: extraVars]])
+            }
         }
     }
 
