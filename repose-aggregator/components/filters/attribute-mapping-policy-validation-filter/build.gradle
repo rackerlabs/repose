@@ -1,0 +1,11 @@
+dependencies {
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "com.rackspace.identity.components.attribute-mapper:mapper-core"
+
+    provided "javax.servlet:javax.servlet-api"
+    provided "javax.inject:javax.inject"
+
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+}
