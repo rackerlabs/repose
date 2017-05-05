@@ -112,6 +112,15 @@ Resulting in a database full of entries like the following:
 
 To learn more about how InfluxDB handles Graphite input, see https://github.com/influxdata/influxdb/blob/master/services/graphite/README.md[Graphite Input].
 
+==== Network
+
+A private network has been established to secure the transfer of performance data.
+This private network helps minimize host exposure to potential adversaries, and in doing so, helps prevent performance data corruption.
+
+The following diagram illustrates the network used during each interaction between components from the <<Design>>.
+
+image::../images/performance-test-framework.png[Performance Test Framework]
+
 === Creating a New Test
 
 [NOTE]
