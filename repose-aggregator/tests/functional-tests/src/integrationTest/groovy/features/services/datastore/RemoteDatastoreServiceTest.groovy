@@ -39,6 +39,12 @@ class RemoteDatastoreServiceTest extends Specification {
 
     Deproxy deproxy
 
+    int repose1Port
+    int repose2Port
+    int remoteDatastorePort
+    int datastorePort
+    int targetPort
+
     String repose1Endpoint
     String repose2Endpoint
     String remoteDatastoreEndpoint
@@ -48,11 +54,11 @@ class RemoteDatastoreServiceTest extends Specification {
     ReposeLogSearch remoteDatastoreLogSearch
 
     def setup() {
-        def repose1Port = PortFinder.instance.getNextOpenPort()
-        def repose2Port = PortFinder.instance.getNextOpenPort()
-        def remoteDatastorePort = PortFinder.instance.getNextOpenPort()
-        def datastorePort = PortFinder.instance.getNextOpenPort()
-        def targetPort = PortFinder.instance.getNextOpenPort()
+        repose1Port = PortFinder.instance.getNextOpenPort()
+        repose2Port = PortFinder.instance.getNextOpenPort()
+        remoteDatastorePort = PortFinder.instance.getNextOpenPort()
+        datastorePort = PortFinder.instance.getNextOpenPort()
+        targetPort = PortFinder.instance.getNextOpenPort()
 
         repose1Endpoint = "http://localhost:$repose1Port"
         repose2Endpoint = "http://localhost:$repose2Port"
@@ -60,15 +66,6 @@ class RemoteDatastoreServiceTest extends Specification {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(targetPort, 'origin service')
-
-        (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
-        (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
-        (remoteDatastore, remoteDatastoreLogSearch) =
-            startRepose('remote', remoteDatastorePort, targetPort, datastorePort, false)
-
-        waitUntilReadyToServiceRequests(repose1LogSearch)
-        waitUntilReadyToServiceRequests(repose2LogSearch)
-        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
     }
 
     def cleanup() {
@@ -107,11 +104,22 @@ class RemoteDatastoreServiceTest extends Specification {
     }
 
     def "When a limit has not been reached, request should pass"() {
-        given: "the rate-limit has not been reached"
-        def headers = ["X-PP-User": "user", "X-PP-Groups": "group"]
+        given: "three Repose instances are started, two to handle traffic, one to act as the remote datastore"
+        (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
+        (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
+        (remoteDatastore, remoteDatastoreLogSearch) =
+            startRepose('remote', remoteDatastorePort, targetPort, datastorePort, false)
 
+        and: "the Repose instances are ready to service requests"
+        waitUntilReadyToServiceRequests(repose1LogSearch)
+        waitUntilReadyToServiceRequests(repose2LogSearch)
+        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+
+        and: "the rate-limit has not been reached"
+        def headers = ["X-PP-User": "user", "X-PP-Groups": "group"]
         def messageChain1
         def messageChain2
+
         when: "the user sends their request"
         5.times {
             messageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
