@@ -125,10 +125,10 @@ class RemoteDatastoreServiceTest extends Specification {
             messageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
             messageChain2 = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
 
-            then: "the request is not rate-limited, and passes to the origin service"
+            then: "the requests are not rate-limited and pass to the origin service"
             assert messageChain1.receivedResponse.code as Integer == SC_OK
-            assert messageChain1.handlings.size() == 1
             assert messageChain2.receivedResponse.code as Integer == SC_OK
+            assert messageChain1.handlings.size() == 1
             assert messageChain2.handlings.size() == 1
         }
 
@@ -136,11 +136,11 @@ class RemoteDatastoreServiceTest extends Specification {
         messageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
         messageChain2 = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
 
-        then: "the request is rate-limited"
+        then: "the requests are rate-limited"
         messageChain1.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
         messageChain2.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
 
-        and: "the request does not pass to the origin service"
+        and: "the requests do not pass to the origin service"
         messageChain1.handlings.size() == 0
         messageChain2.handlings.size() == 0
     }
@@ -182,5 +182,79 @@ class RemoteDatastoreServiceTest extends Specification {
 
         and: "the request does not pass to the origin service"
         messageChain.handlings.size() == 0
+    }
+
+    def "Repose instances should reconnect to the remote datastore when the remote datastore is restarted"() {
+        given: "three Repose instances are started, two to handle traffic, one to act as the remote datastore"
+        (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
+        (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
+        (remoteDatastore, remoteDatastoreLogSearch) =
+            startRepose('remote', remoteDatastorePort, targetPort, datastorePort, false)
+
+        and: "they are ready to service requests"
+        waitUntilReadyToServiceRequests(repose1LogSearch)
+        waitUntilReadyToServiceRequests(repose2LogSearch)
+        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+
+        and: "requests will be made using the rate limiting group allowing 10 requests per hour"
+        def headers = ["X-PP-User": "user", "X-PP-Groups": "10_per_hour"]
+
+        when: "the user sends a request to each Repose instance"
+        def singleMessageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
+        def singleMessageChain2 = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
+
+        then: "the requests are not rate-limited and pass to the origin service"
+        assert singleMessageChain1.receivedResponse.code as Integer == SC_OK
+        assert singleMessageChain2.receivedResponse.code as Integer == SC_OK
+        assert singleMessageChain1.handlings.size() == 1
+        assert singleMessageChain2.handlings.size() == 1
+
+        when: "the remote datastore is stopped"
+        remoteDatastore.stop()
+
+        and: "the user sends 10 requests to each Repose instance"
+        def manyMessageChains1 = (1..10).collect { deproxy.makeRequest(url: repose1Endpoint, headers: headers) }
+        def manyMessageChains2 = (1..10).collect { deproxy.makeRequest(url: repose2Endpoint, headers: headers) }
+
+        then: "all 20 requests are successful since they should be using their local datastore now"
+        manyMessageChains1.each { messageChain ->
+            assert messageChain.receivedResponse.code as Integer == SC_OK
+            assert messageChain.handlings.size() == 1
+        }
+        manyMessageChains2.each { messageChain ->
+            assert messageChain.receivedResponse.code as Integer == SC_OK
+            assert messageChain.handlings.size() == 1
+        }
+
+        when: "the remote datastore is started again and is ready to service requests"
+        (remoteDatastore, remoteDatastoreLogSearch) =
+            startRepose('remote', remoteDatastorePort, targetPort, datastorePort, false)
+        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+
+        and: "the user sends 10 requests total (5 to each Repose instance)"
+        manyMessageChains1 = (1..5).collect { deproxy.makeRequest(url: repose1Endpoint, headers: headers) }
+        manyMessageChains2 = (1..5).collect { deproxy.makeRequest(url: repose2Endpoint, headers: headers) }
+
+        then: "all 10 requests are successful since they should be using the remote datastore again"
+        manyMessageChains1.each { messageChain ->
+            assert messageChain.receivedResponse.code as Integer == SC_OK
+            assert messageChain.handlings.size() == 1
+        }
+        manyMessageChains2.each { messageChain ->
+            assert messageChain.receivedResponse.code as Integer == SC_OK
+            assert messageChain.handlings.size() == 1
+        }
+
+        when: "the user sends a request after the rate-limit has been reached"
+        singleMessageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
+        singleMessageChain2 = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
+
+        then: "the request is rate-limited"
+        singleMessageChain1.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
+        singleMessageChain2.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
+
+        and: "the request does not pass to the origin service"
+        singleMessageChain1.handlings.size() == 0
+        singleMessageChain2.handlings.size() == 0
     }
 }
