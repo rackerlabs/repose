@@ -48,11 +48,11 @@ class RemoteDatastoreServiceTest extends Specification {
 
     String repose1Endpoint
     String repose2Endpoint
-    String remoteDatastoreEndpoint
+    String reposeRemoteEndpoint
 
     ReposeLogSearch repose1LogSearch
     ReposeLogSearch repose2LogSearch
-    ReposeLogSearch remoteDatastoreLogSearch
+    ReposeLogSearch reposeRemoteLogSearch
 
     def setup() {
         repose1Port = PortFinder.instance.getNextOpenPort()
@@ -63,7 +63,7 @@ class RemoteDatastoreServiceTest extends Specification {
 
         repose1Endpoint = "http://localhost:$repose1Port"
         repose2Endpoint = "http://localhost:$repose2Port"
-        remoteDatastoreEndpoint = "http://localhost:$reposeRemotePort"
+        reposeRemoteEndpoint = "http://localhost:$reposeRemotePort"
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(targetPort, 'origin service')
@@ -108,34 +108,34 @@ class RemoteDatastoreServiceTest extends Specification {
         given: "three Repose instances are started, two to handle traffic, one to act as the remote datastore"
         (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
         (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
-        (remoteDatastore, remoteDatastoreLogSearch) =
+        (remoteDatastore, reposeRemoteLogSearch) =
             startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
 
         and: "they are ready to service requests"
         waitUntilReadyToServiceRequests(repose1LogSearch)
         waitUntilReadyToServiceRequests(repose2LogSearch)
-        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+        waitUntilReadyToServiceRequests(reposeRemoteLogSearch)
 
         and: "the rate-limit has not been reached"
         def headers = ["X-PP-User": "user", "X-PP-Groups": "group"]
-        def messageChain1
-        def messageChain2
 
-        when: "the user sends their request"
-        5.times {
-            messageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
-            messageChain2 = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
+        when: "the user sends 10 requests total (5 to each Repose instance)"
+        def manyMessageChains1 = (1..5).collect { deproxy.makeRequest(url: repose1Endpoint, headers: headers) }
+        def manyMessageChains2 = (1..5).collect { deproxy.makeRequest(url: repose2Endpoint, headers: headers) }
 
-            then: "the requests are not rate-limited and pass to the origin service"
-            assert messageChain1.receivedResponse.code as Integer == SC_OK
-            assert messageChain2.receivedResponse.code as Integer == SC_OK
-            assert messageChain1.handlings.size() == 1
-            assert messageChain2.handlings.size() == 1
+        then: "the requests are not rate-limited and pass to the origin service"
+        manyMessageChains1.each { messageChain ->
+            assert messageChain.receivedResponse.code as Integer == SC_OK
+            assert messageChain.handlings.size() == 1
+        }
+        manyMessageChains2.each { messageChain ->
+            assert messageChain.receivedResponse.code as Integer == SC_OK
+            assert messageChain.handlings.size() == 1
         }
 
-        and: "the user sends their request after the rate-limit has been reached"
-        messageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
-        messageChain2 = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
+        when: "the user sends their request after the rate-limit has been reached"
+        def messageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
+        def messageChain2 = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
 
         then: "the requests are rate-limited"
         messageChain1.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
@@ -149,12 +149,12 @@ class RemoteDatastoreServiceTest extends Specification {
     def "Rate limits survive Repose swap outs if the remote datastore remains running"() {
         given: "the remote datastore and a Repose instance are started"
         (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
-        (remoteDatastore, remoteDatastoreLogSearch) =
+        (remoteDatastore, reposeRemoteLogSearch) =
             startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
 
         and: "they are ready to service requests"
         waitUntilReadyToServiceRequests(repose1LogSearch)
-        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+        waitUntilReadyToServiceRequests(reposeRemoteLogSearch)
 
         and: "requests will be made using the rate limiting group allowing 10 requests per hour"
         def headers = ["X-PP-User": "user", "X-PP-Groups": "10_per_hour"]
@@ -189,13 +189,13 @@ class RemoteDatastoreServiceTest extends Specification {
         given: "three Repose instances are started, two to handle traffic, one to act as the remote datastore"
         (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
         (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
-        (remoteDatastore, remoteDatastoreLogSearch) =
+        (remoteDatastore, reposeRemoteLogSearch) =
             startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
 
         and: "they are ready to service requests"
         waitUntilReadyToServiceRequests(repose1LogSearch)
         waitUntilReadyToServiceRequests(repose2LogSearch)
-        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+        waitUntilReadyToServiceRequests(reposeRemoteLogSearch)
 
         and: "requests will be made using the rate limiting group allowing 10 requests per hour"
         def headers = ["X-PP-User": "user", "X-PP-Groups": "10_per_hour"]
@@ -228,9 +228,9 @@ class RemoteDatastoreServiceTest extends Specification {
         }
 
         when: "the remote datastore is started again and is ready to service requests"
-        (remoteDatastore, remoteDatastoreLogSearch) =
+        (remoteDatastore, reposeRemoteLogSearch) =
             startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
-        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+        waitUntilReadyToServiceRequests(reposeRemoteLogSearch)
 
         and: "the user sends 10 requests total (5 to each Repose instance)"
         manyMessageChains1 = (1..5).collect { deproxy.makeRequest(url: repose1Endpoint, headers: headers) }
@@ -263,13 +263,13 @@ class RemoteDatastoreServiceTest extends Specification {
         given: "three Repose instances are started, two to handle traffic, one to act as the remote datastore"
         (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
         (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
-        (remoteDatastore, remoteDatastoreLogSearch) =
+        (remoteDatastore, reposeRemoteLogSearch) =
             startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
 
         and: "they are ready to service requests"
         waitUntilReadyToServiceRequests(repose1LogSearch)
         waitUntilReadyToServiceRequests(repose2LogSearch)
-        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+        waitUntilReadyToServiceRequests(reposeRemoteLogSearch)
 
         and: "requests will be made using the rate limiting group allowing 10 requests per hour"
         def headers = ["X-PP-User": "user", "X-PP-Groups": "10_per_hour"]
@@ -318,13 +318,13 @@ class RemoteDatastoreServiceTest extends Specification {
         given: "three Repose instances are started, two to handle traffic, one to act as the remote datastore"
         (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
         (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
-        (remoteDatastore, remoteDatastoreLogSearch) =
+        (remoteDatastore, reposeRemoteLogSearch) =
             startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
 
         and: "they are ready to service requests"
         waitUntilReadyToServiceRequests(repose1LogSearch)
         waitUntilReadyToServiceRequests(repose2LogSearch)
-        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+        waitUntilReadyToServiceRequests(reposeRemoteLogSearch)
 
         and: "requests will be made using the rate limiting group allowing 10 requests per hour"
         def headers = ["X-PP-User": "user", "X-PP-Groups": "10_per_hour"]
@@ -344,7 +344,7 @@ class RemoteDatastoreServiceTest extends Specification {
         messageChain.handlings.size() == 1
 
         when: "the user sends a request to the remote datastore Repose instance"
-        messageChain = deproxy.makeRequest(url: remoteDatastoreEndpoint, headers: headers)
+        messageChain = deproxy.makeRequest(url: reposeRemoteEndpoint, headers: headers)
 
         then: "the request fails with the configured status code and does not get to the origin service"
         messageChain.receivedResponse.code as Integer == I_AM_A_TEAPOT.value()
