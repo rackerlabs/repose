@@ -7,17 +7,12 @@
 
     <!-- Limits for "10_per_hour" group -->
     <limit-group id="limited_hour" groups="10_per_hour" default="false">
-        <limit id="all" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="HOUR"/>
-    </limit-group>
-
-    <!-- Limits for "10_per_min_alt" group (alternate to the default limit group) -->
-    <limit-group id="limited_min_alt" groups="10_per_min_alt" default="false">
-        <limit id="all" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="MINUTE"/>
+        <limit id="limit_hour" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="HOUR"/>
     </limit-group>
 
     <!-- Limits for all other requests (default) -->
     <limit-group id="limited_min" groups="IP_Standard" default="true">
-        <limit id="all" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="MINUTE"/>
+        <limit id="limit_default" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="MINUTE"/>
     </limit-group>
 
     <!-- Limits for WhiteListed IPs -->
