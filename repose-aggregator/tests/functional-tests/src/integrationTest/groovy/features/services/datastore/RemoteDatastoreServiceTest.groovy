@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+import static org.springframework.http.HttpStatus.I_AM_A_TEAPOT
 
 @Category(Slow.class)
 class RemoteDatastoreServiceTest extends Specification {
@@ -41,7 +42,7 @@ class RemoteDatastoreServiceTest extends Specification {
 
     int repose1Port
     int repose2Port
-    int remoteDatastorePort
+    int reposeRemotePort
     int datastorePort
     int targetPort
 
@@ -56,13 +57,13 @@ class RemoteDatastoreServiceTest extends Specification {
     def setup() {
         repose1Port = PortFinder.instance.getNextOpenPort()
         repose2Port = PortFinder.instance.getNextOpenPort()
-        remoteDatastorePort = PortFinder.instance.getNextOpenPort()
+        reposeRemotePort = PortFinder.instance.getNextOpenPort()
         datastorePort = PortFinder.instance.getNextOpenPort()
         targetPort = PortFinder.instance.getNextOpenPort()
 
         repose1Endpoint = "http://localhost:$repose1Port"
         repose2Endpoint = "http://localhost:$repose2Port"
-        remoteDatastoreEndpoint = "http://localhost:$datastorePort"
+        remoteDatastoreEndpoint = "http://localhost:$reposeRemotePort"
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(targetPort, 'origin service')
@@ -108,7 +109,7 @@ class RemoteDatastoreServiceTest extends Specification {
         (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
         (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
         (remoteDatastore, remoteDatastoreLogSearch) =
-            startRepose('remote', remoteDatastorePort, targetPort, datastorePort, false)
+            startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
 
         and: "they are ready to service requests"
         waitUntilReadyToServiceRequests(repose1LogSearch)
@@ -149,7 +150,7 @@ class RemoteDatastoreServiceTest extends Specification {
         given: "the remote datastore and a Repose instance are started"
         (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
         (remoteDatastore, remoteDatastoreLogSearch) =
-            startRepose('remote', remoteDatastorePort, targetPort, datastorePort, false)
+            startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
 
         and: "they are ready to service requests"
         waitUntilReadyToServiceRequests(repose1LogSearch)
@@ -189,7 +190,7 @@ class RemoteDatastoreServiceTest extends Specification {
         (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
         (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
         (remoteDatastore, remoteDatastoreLogSearch) =
-            startRepose('remote', remoteDatastorePort, targetPort, datastorePort, false)
+            startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
 
         and: "they are ready to service requests"
         waitUntilReadyToServiceRequests(repose1LogSearch)
@@ -228,7 +229,7 @@ class RemoteDatastoreServiceTest extends Specification {
 
         when: "the remote datastore is started again and is ready to service requests"
         (remoteDatastore, remoteDatastoreLogSearch) =
-            startRepose('remote', remoteDatastorePort, targetPort, datastorePort, false)
+            startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
         waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
 
         and: "the user sends 10 requests total (5 to each Repose instance)"
@@ -263,7 +264,7 @@ class RemoteDatastoreServiceTest extends Specification {
         (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
         (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
         (remoteDatastore, remoteDatastoreLogSearch) =
-            startRepose('remote', remoteDatastorePort, targetPort, datastorePort, false)
+            startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
 
         and: "they are ready to service requests"
         waitUntilReadyToServiceRequests(repose1LogSearch)
@@ -311,5 +312,42 @@ class RemoteDatastoreServiceTest extends Specification {
         and: "the requests do not pass to the origin service"
         singleMessageChain1.handlings.size() == 0
         singleMessageChain2.handlings.size() == 0
+    }
+
+    def "Remote Datastore can be configured to not allow traffic to the origin service which would bypass rate limiting"() {
+        given: "three Repose instances are started, two to handle traffic, one to act as the remote datastore"
+        (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
+        (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
+        (remoteDatastore, remoteDatastoreLogSearch) =
+            startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
+
+        and: "they are ready to service requests"
+        waitUntilReadyToServiceRequests(repose1LogSearch)
+        waitUntilReadyToServiceRequests(repose2LogSearch)
+        waitUntilReadyToServiceRequests(remoteDatastoreLogSearch)
+
+        and: "requests will be made using the rate limiting group allowing 10 requests per hour"
+        def headers = ["X-PP-User": "user", "X-PP-Groups": "10_per_hour"]
+
+        when: "the user sends a request to the first Repose instance"
+        def messageChain = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
+
+        then: "the request is not rate-limited and passes to the origin service"
+        messageChain.receivedResponse.code as Integer == SC_OK
+        messageChain.handlings.size() == 1
+
+        when: "the user sends a request to the second Repose instance"
+        messageChain = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
+
+        then: "the request is not rate-limited and passes to the origin service"
+        messageChain.receivedResponse.code as Integer == SC_OK
+        messageChain.handlings.size() == 1
+
+        when: "the user sends a request to the remote datastore Repose instance"
+        messageChain = deproxy.makeRequest(url: remoteDatastoreEndpoint, headers: headers)
+
+        then: "the request fails with the configured status code and does not get to the origin service"
+        messageChain.receivedResponse.code as Integer == I_AM_A_TEAPOT.value()
+        messageChain.handlings.size() == 0
     }
 }
