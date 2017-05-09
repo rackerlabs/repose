@@ -74,7 +74,7 @@ class KeystoneV2FilterRcnTest extends FunSpec
 
   Seq(true, false) foreach { applyRcnRoles =>
     val shouldOrNot: Boolean => String = { boolean => if (boolean) "should" else "should NOT" }
-    val appendRcnParameter: Boolean => String = { boolean => if (boolean) "?apply_rcn_roles" else "" }
+    val appendRcnParameter: Boolean => String = { boolean => if (boolean) "?apply_rcn_roles=true" else "" }
     describe(s"With apply-rcn-roles $applyRcnRoles") {
       val identityServiceUri = "https://some.identity.com"
 
