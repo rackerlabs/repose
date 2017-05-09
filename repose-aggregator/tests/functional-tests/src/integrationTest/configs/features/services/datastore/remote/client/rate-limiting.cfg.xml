@@ -5,9 +5,14 @@
         <limit id="global" uri="*" uri-regex=".*" value="1000" unit="MINUTE"/>
     </global-limit-group>
 
-    <!-- Limits for all other requests -->
-    <limit-group id="limited" groups="IP_Standard" default="true">
-        <limit id="all" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="MINUTE"/>
+    <!-- Limits for "10_per_hour" group -->
+    <limit-group id="limited_hour" groups="10_per_hour" default="false">
+        <limit id="limit_hour" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="HOUR"/>
+    </limit-group>
+
+    <!-- Limits for all other requests (default) -->
+    <limit-group id="limited_min" groups="IP_Standard" default="true">
+        <limit id="limit_default" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="MINUTE"/>
     </limit-group>
 
     <!-- Limits for WhiteListed IPs -->
