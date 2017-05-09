@@ -124,14 +124,10 @@ class RemoteDatastoreServiceTest extends Specification {
         def manyMessageChains2 = (1..5).collect { deproxy.makeRequest(url: repose2Endpoint, headers: headers) }
 
         then: "the requests are not rate-limited and pass to the origin service"
-        manyMessageChains1.each { messageChain ->
-            assert messageChain.receivedResponse.code as Integer == SC_OK
-            assert messageChain.handlings.size() == 1
-        }
-        manyMessageChains2.each { messageChain ->
-            assert messageChain.receivedResponse.code as Integer == SC_OK
-            assert messageChain.handlings.size() == 1
-        }
+        manyMessageChains1.every { it.receivedResponse.code as Integer == SC_OK }
+        manyMessageChains2.every { it.receivedResponse.code as Integer == SC_OK }
+        manyMessageChains1.every { it.handlings.size() == 1 }
+        manyMessageChains2.every { it.handlings.size() == 1 }
 
         when: "the user sends their request after the rate-limit has been reached"
         def messageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
@@ -163,10 +159,8 @@ class RemoteDatastoreServiceTest extends Specification {
         def messageChains = (1..10).collect { deproxy.makeRequest(url: repose1Endpoint, headers: headers) }
 
         then: "all 10 requests are successful"
-        messageChains.each { messageChain ->
-            assert messageChain.receivedResponse.code as Integer == SC_OK
-            assert messageChain.handlings.size() == 1
-        }
+        messageChains.every { it.receivedResponse.code as Integer == SC_OK }
+        messageChains.every { it.handlings.size() == 1 }
 
         when: "the Repose instance is stopped"
         repose1.stop()
@@ -205,10 +199,10 @@ class RemoteDatastoreServiceTest extends Specification {
         def singleMessageChain2 = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
 
         then: "the requests are not rate-limited and pass to the origin service"
-        assert singleMessageChain1.receivedResponse.code as Integer == SC_OK
-        assert singleMessageChain2.receivedResponse.code as Integer == SC_OK
-        assert singleMessageChain1.handlings.size() == 1
-        assert singleMessageChain2.handlings.size() == 1
+        singleMessageChain1.receivedResponse.code as Integer == SC_OK
+        singleMessageChain2.receivedResponse.code as Integer == SC_OK
+        singleMessageChain1.handlings.size() == 1
+        singleMessageChain2.handlings.size() == 1
 
         when: "the remote datastore is stopped"
         remoteDatastore.stop()
@@ -218,14 +212,10 @@ class RemoteDatastoreServiceTest extends Specification {
         def manyMessageChains2 = (1..10).collect { deproxy.makeRequest(url: repose2Endpoint, headers: headers) }
 
         then: "all 20 requests are successful since they should be using their local datastore now"
-        manyMessageChains1.each { messageChain ->
-            assert messageChain.receivedResponse.code as Integer == SC_OK
-            assert messageChain.handlings.size() == 1
-        }
-        manyMessageChains2.each { messageChain ->
-            assert messageChain.receivedResponse.code as Integer == SC_OK
-            assert messageChain.handlings.size() == 1
-        }
+        manyMessageChains1.every { it.receivedResponse.code as Integer == SC_OK }
+        manyMessageChains2.every { it.receivedResponse.code as Integer == SC_OK }
+        manyMessageChains1.every { it.handlings.size() == 1 }
+        manyMessageChains2.every { it.handlings.size() == 1 }
 
         when: "the remote datastore is started again and is ready to service requests"
         (remoteDatastore, reposeRemoteLogSearch) =
@@ -237,14 +227,10 @@ class RemoteDatastoreServiceTest extends Specification {
         manyMessageChains2 = (1..5).collect { deproxy.makeRequest(url: repose2Endpoint, headers: headers) }
 
         then: "all 10 requests are successful since they should be using the remote datastore again"
-        manyMessageChains1.each { messageChain ->
-            assert messageChain.receivedResponse.code as Integer == SC_OK
-            assert messageChain.handlings.size() == 1
-        }
-        manyMessageChains2.each { messageChain ->
-            assert messageChain.receivedResponse.code as Integer == SC_OK
-            assert messageChain.handlings.size() == 1
-        }
+        manyMessageChains1.every { it.receivedResponse.code as Integer == SC_OK }
+        manyMessageChains2.every { it.receivedResponse.code as Integer == SC_OK }
+        manyMessageChains1.every { it.handlings.size() == 1 }
+        manyMessageChains2.every { it.handlings.size() == 1 }
 
         when: "the user sends a request after the rate-limit has been reached"
         singleMessageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
@@ -279,10 +265,10 @@ class RemoteDatastoreServiceTest extends Specification {
         def singleMessageChain2 = deproxy.makeRequest(url: repose2Endpoint, headers: headers)
 
         then: "the requests are not rate-limited and pass to the origin service"
-        assert singleMessageChain1.receivedResponse.code as Integer == SC_OK
-        assert singleMessageChain2.receivedResponse.code as Integer == SC_OK
-        assert singleMessageChain1.handlings.size() == 1
-        assert singleMessageChain2.handlings.size() == 1
+        singleMessageChain1.receivedResponse.code as Integer == SC_OK
+        singleMessageChain2.receivedResponse.code as Integer == SC_OK
+        singleMessageChain1.handlings.size() == 1
+        singleMessageChain2.handlings.size() == 1
 
         when: "the remote datastore is stopped"
         remoteDatastore.stop()
@@ -292,14 +278,10 @@ class RemoteDatastoreServiceTest extends Specification {
         def manyMessageChains2 = (1..10).collect { deproxy.makeRequest(url: repose2Endpoint, headers: headers) }
 
         then: "all 20 requests are successful since they should be using their local datastore now"
-        manyMessageChains1.each { messageChain ->
-            assert messageChain.receivedResponse.code as Integer == SC_OK
-            assert messageChain.handlings.size() == 1
-        }
-        manyMessageChains2.each { messageChain ->
-            assert messageChain.receivedResponse.code as Integer == SC_OK
-            assert messageChain.handlings.size() == 1
-        }
+        manyMessageChains1.every { it.receivedResponse.code as Integer == SC_OK }
+        manyMessageChains2.every { it.receivedResponse.code as Integer == SC_OK }
+        manyMessageChains1.every { it.handlings.size() == 1 }
+        manyMessageChains2.every { it.handlings.size() == 1 }
 
         when: "the user sends their request after the rate-limit has been reached"
         singleMessageChain1 = deproxy.makeRequest(url: repose1Endpoint, headers: headers)
