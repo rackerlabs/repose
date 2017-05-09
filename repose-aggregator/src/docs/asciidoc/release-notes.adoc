@@ -15,6 +15,13 @@ include::_includes/in-progress.adoc[]
 * https://repose.atlassian.net/browse/REP-4725[REP-4725] - Repose will no longer add a `Server` header to responses from neither the main endpoint nor the Dist-Datastore endpoint.
 * https://repose.atlassian.net/browse/REP-5204[REP-5204] - the <<services/metrics.adoc#, Metrics Service>> library has been updated from Yammer v2.2.0 to Dropwizard v3.2.0.
 The service interface has also been modified to provide a simpler, more flexible experience.
++
+[IMPORTANT]
+====
+As part of the upgrade, some metric names reported by various components have been changed.
+Furthermore, all metrics reported to JMX via the <<services/metrics.adoc#,Metrics Service>> now follow a new naming scheme.
+See <<services/metrics.adoc#,Metrics Service>> for details on the metrics currently being reported.
+====
 * https://repose.atlassian.net/browse/REP-5214[REP-5214] - the `Via` header configuration has been expanded in a backwards compatible way.
 However, there were some internal contract changes with the Via and Location header builders, but they should not affect any custom filters.
 * https://repose.atlassian.net/browse/REP-4465[REP-4465] - certain enums provided by Repose have been replaced by classes holding the same constant values.
