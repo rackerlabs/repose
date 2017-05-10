@@ -59,32 +59,35 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
     val requestPayloadBuffer = new BufferedServletInputStream(httpServletRequest.getInputStream)
     requestPayloadBuffer.mark(Integer.MAX_VALUE)
 
-    (validateHttpMethod(httpServletRequest) flatMap { _ =>
+    validateHttpMethod(httpServletRequest) flatMap { _ =>
       getPolicyAsXmlSource(requestContentType, httpServletRequest.getInputStream)
     } map { policyXmlSource =>
       AttributeMapper.validatePolicy(policyXmlSource, XSDEngine.AUTO.toString)
-    } map { _ =>
-      requestPayloadBuffer.reset()
-      chain.doFilter(
-        new HttpServletRequestWrapper(
-          httpServletRequest,
-          requestPayloadBuffer),
-        response)
-    } recover {
-      case uhme: UnsupportedHttpMethodException =>
-        logger.debug("Unsupported HTTP method -- no validation performed", uhme)
-        chain.doFilter(request, response)
-      case ucte: UnsupportedContentTypeException =>
-        logger.debug("Unsupported Content-Type -- validation failed", ucte)
-        httpServletResponse.sendError(
-          SC_UNSUPPORTED_MEDIA_TYPE,
-          ucte.message)
-      case e@(_: SaxonApiException | _: TransformerException | _: JsonProcessingException | _: JsonParseException) =>
-        logger.debug("Validation failed", e)
-        httpServletResponse.sendError(
-          SC_BAD_REQUEST,
-          "Failed to validate attribute mapping policy in request")
-    }).get
+    } match {
+      case Success(_) =>
+        requestPayloadBuffer.reset()
+        chain.doFilter(
+          new HttpServletRequestWrapper(
+            httpServletRequest,
+            requestPayloadBuffer),
+          response)
+      case Failure(exception) =>
+        exception match {
+          case uhme: UnsupportedHttpMethodException =>
+            logger.debug("Unsupported HTTP method -- no validation performed", uhme)
+            chain.doFilter(request, response)
+          case ucte: UnsupportedContentTypeException =>
+            logger.debug("Unsupported Content-Type -- validation failed", ucte)
+            httpServletResponse.sendError(
+              SC_UNSUPPORTED_MEDIA_TYPE,
+              ucte.message)
+          case e@(_: SaxonApiException | _: TransformerException | _: JsonProcessingException | _: JsonParseException) =>
+            logger.debug("Validation failed", e)
+            httpServletResponse.sendError(
+              SC_BAD_REQUEST,
+              "Failed to validate attribute mapping policy in request")
+        }
+    }
   }
 
   def validateHttpMethod(request: HttpServletRequest): Try[Unit.type] = {
