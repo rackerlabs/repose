@@ -20,6 +20,7 @@ The service interface has also been modified to provide a simpler, more flexible
 ====
 As part of the upgrade, some metric names reported by various components have been changed.
 Furthermore, all metrics reported to JMX via the <<services/metrics.adoc#,Metrics Service>> now follow a new naming scheme.
+Due to a technical issue with the new version of the metric library, EHCache metrics are no longer being reported, but there is planned work to restore them.
 See <<services/metrics.adoc#,Metrics Service>> for details on the metrics currently being reported.
 ====
 * https://repose.atlassian.net/browse/REP-5214[REP-5214] - the `Via` header configuration has been expanded in a backwards compatible way.
