@@ -99,3 +99,24 @@ meter.mark(); // <3>
 <2> Creates a `Meter` with the name `prefix.parent.child.summingMeter`.
 <3> Marks the `Meter` as well as both `ACROSS ALL` `Meter` s of the ancestral `SummingMeterFactory` s.
     This means that all of the following `Metric` s are marked: `prefix.parent.child.summingMeter`, `prefix.parent.child.ACROSS ALL`, and `prefix.parent.ACROSS ALL`.
+
+=== Metrics Directory
+
+The following list attempts to aggregate all of the metrics being reported to this service by various components:
+
+* PowerFilter
+** org.openrepose.core.ResponseCode.<component>.<meterId>
+* PowerFilterChain
+** org.openrepose.core.FilterProcessingTime.Delay.<name>
+* PowerFilterRouterImpl
+** org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>
+* <<../filters/versioning.adoc#_metrics, Versioning Filter>>
+* ApiValidatorFilter
+** org.openrepose.filters.apivalidator.ApiValidatorHandler.invalid-request.<role>
+* DestinationRouterFilter
+** org.openrepose.filters.destinationrouter.DestinationRouterFilter.Routed Response.<target.getId>
+* HeaderNormalizationFilter
+** org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.request.<wrappedRequest.getMethod>.<target.url.pattern>
+** org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.response.<wrappedRequest.getMethod>.<target.url.pattern>
+* UriNormalizationFilter
+** org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization.<request.getMethod>.<queryStringNormalizer.getLastMatch>
