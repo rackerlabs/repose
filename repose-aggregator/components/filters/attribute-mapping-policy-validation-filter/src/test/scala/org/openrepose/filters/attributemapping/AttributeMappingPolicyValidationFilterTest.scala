@@ -58,7 +58,7 @@ class AttributeMappingPolicyValidationFilterTest
       filter.validateHttpMethod(request) shouldBe a[Success[_]]
     }
 
-    HttpMethods foreach { method =>
+    UnsupportedHttpMethods foreach { method =>
       it(s"should return a Failure if the method is $method") {
         request.setMethod(method)
 
@@ -125,7 +125,7 @@ class AttributeMappingPolicyValidationFilterTest
       response.isCommitted shouldBe true
     }
 
-    HttpMethods foreach { method =>
+    UnsupportedHttpMethods foreach { method =>
       it(s"should pass $method requests through the filter") {
         request.setMethod(method)
 
@@ -139,7 +139,7 @@ class AttributeMappingPolicyValidationFilterTest
 }
 
 object AttributeMappingPolicyValidationFilterTest {
-  final val HttpMethods = Set(
+  final val UnsupportedHttpMethods = Set(
     "GET",
     "DELETE",
     "POST",

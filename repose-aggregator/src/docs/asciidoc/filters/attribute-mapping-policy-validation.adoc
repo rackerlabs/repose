@@ -1,7 +1,5 @@
 = Attribute Mapping Policy Validation Filter
 
-include::../_includes/in-progress.adoc[]
-
 This filter will validate attribute mapping policies in requests to the origin service.
 
 The origin service is expected to be an Identity service.
