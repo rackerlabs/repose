@@ -119,15 +119,15 @@ meter.mark(); // <3>
 
 The following list attempts to aggregate all of the metrics being reported to this service by various components:
 
+* <<../filters/api-validator.adoc#_metrics, API Validator Filter>>
+* <<../filters/versioning.adoc#_metrics, Versioning Filter>>
+
 * PowerFilter
 ** org.openrepose.core.ResponseCode.<component>.<meterId>
 * PowerFilterChain
 ** org.openrepose.core.FilterProcessingTime.Delay.<name>
 * PowerFilterRouterImpl
 ** org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>
-* <<../filters/versioning.adoc#_metrics, Versioning Filter>>
-* ApiValidatorFilter
-** org.openrepose.filters.apivalidator.ApiValidatorHandler.invalid-request.<role>
 * DestinationRouterFilter
 ** org.openrepose.filters.destinationrouter.DestinationRouterFilter.Routed Response.<target.getId>
 * HeaderNormalizationFilter
