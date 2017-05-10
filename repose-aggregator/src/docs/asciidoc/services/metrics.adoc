@@ -45,6 +45,21 @@ In this case, new metrics will be sent to the Graphite server every `10` seconds
 == Further Information
 For more information about what the Metrics service can do, see the http://metrics.dropwizard.io/3.2.0/manual/index.html[Dropwizard Metrics User Manual].
 
+=== JMX Reporting
+
+All metrics reported to this service will be reported to JMX.
+
+In order to report metrics to JMX, this service must translate metric names into https://docs.oracle.com/javase/8/docs/api/javax/management/ObjectName.html[JMX ObjectNames].
+A metric can be named virtually anything, but names often follow the `<segment1>.<segment2>.<...>.<segmentn>` convention.
+A simplified general form for an object name is `<domain>:<key1>=<value1>,<key2>=<value2>,<...>,<keyn>=<valuen>`.
+To go from metric name to object name, the translation process will start by prepending the metric name with the hostname of the host running Repose.
+Next, it will split the metric name using `.` as a delimiter.
+The index of each delimited segment will act as the key for that segment, and the value of the segment will act as the value.
+
+For example, a metric named `org.openrepose.example.count` will be reported to JMX as `<hostname>:001="org",002="openrepose",003="example",004="count"`.
+
+While this approach can cause some difficulty in querying metrics from JMX, it provides easier navigation of metrics when using a tool such as http://openjdk.java.net/tools/svc/jconsole/[JConsole].
+
 === Aggregating Metrics
 
 This service supports the automatic aggregation of certain metrics.
