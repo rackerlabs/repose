@@ -59,7 +59,7 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
     val requestPayloadBuffer = new BufferedServletInputStream(httpServletRequest.getInputStream)
     requestPayloadBuffer.mark(Integer.MAX_VALUE)
 
-    validateHttpMethod(httpServletRequest) flatMap { _ =>
+    (validateHttpMethod(httpServletRequest) flatMap { _ =>
       getPolicyAsXmlSource(requestContentType, httpServletRequest.getInputStream)
     } map { policyXmlSource =>
       AttributeMapper.validatePolicy(policyXmlSource, XSDEngine.AUTO.toString)
@@ -84,7 +84,7 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
         httpServletResponse.sendError(
           SC_BAD_REQUEST,
           "Failed to validate attribute mapping policy in request")
-    }
+    }).get
   }
 
   def validateHttpMethod(request: HttpServletRequest): Try[Unit.type] = {
