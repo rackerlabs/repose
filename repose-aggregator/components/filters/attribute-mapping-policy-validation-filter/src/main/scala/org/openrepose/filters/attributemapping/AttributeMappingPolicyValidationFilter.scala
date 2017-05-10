@@ -19,16 +19,101 @@
  */
 package org.openrepose.filters.attributemapping
 
+import java.io.InputStream
 import javax.inject.Named
 import javax.servlet._
+import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_UNSUPPORTED_MEDIA_TYPE}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.xml.transform.stream.StreamSource
+import javax.xml.transform.{Source, TransformerFactory}
 
+import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import net.sf.saxon.s9api.XdmDestination
+import org.openrepose.commons.utils.io.BufferedServletInputStream
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+
+import scala.util.{Failure, Success, Try}
 
 @Named
 class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
-  override def init(filterConfig: FilterConfig): Unit = ???
 
-  override def destroy(): Unit = ???
+  import AttributeMappingPolicyValidationFilter._
 
-  override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = ???
+  // Create a transform factory using the default implementation and the classloader for this class
+  private val transformerFactory = TransformerFactory.newInstance(
+    "org.apache.xalan.xsltc.trax.TransformerFactoryImpl",
+    this.getClass.getClassLoader)
+
+  override def init(filterConfig: FilterConfig): Unit = {}
+
+  override def destroy(): Unit = {}
+
+  override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
+    val httpServletRequest = request.asInstanceOf[HttpServletRequest]
+    val httpServletResponse = response.asInstanceOf[HttpServletResponse]
+    val requestContentType = httpServletRequest.getContentType
+
+    // Buffer the request payload so that we can validate the policy, but forward the original payload
+    val requestPayloadBuffer = new BufferedServletInputStream(httpServletRequest.getInputStream)
+    requestPayloadBuffer.mark(Integer.MAX_VALUE)
+
+    validateHttpMethod(httpServletRequest) flatMap { _ =>
+      getPolicyAsXmlSource(requestContentType, httpServletRequest.getInputStream)
+    } map { policyXmlSource =>
+      AttributeMapper.validatePolicy(policyXmlSource, XSDEngine.AUTO.toString)
+    } map { _ =>
+      requestPayloadBuffer.reset()
+      chain.doFilter(
+        new HttpServletRequestWrapper(
+          httpServletRequest,
+          requestPayloadBuffer),
+        response)
+    } recover {
+      case uhme: UnsupportedHttpMethodException =>
+        logger.debug("Unsupported HTTP method -- no validation performed", uhme)
+        chain.doFilter(request, response)
+      case ucte: UnsupportedContentTypeException =>
+        logger.debug("Unsupported Content-Type -- validation failed", ucte)
+        httpServletResponse.sendError(
+          SC_UNSUPPORTED_MEDIA_TYPE,
+          ucte.message)
+      // TODO: Narrow Exception to the specific exception(s) to be caught
+      case e: Exception =>
+        logger.debug("Validation failed", e)
+        httpServletResponse.sendError(
+          SC_BAD_REQUEST,
+          "Failed to validate attribute mapping policy in request")
+    }
+  }
+
+  def validateHttpMethod(request: HttpServletRequest): Try[Unit.type] = {
+    if ("PUT".equalsIgnoreCase(request.getMethod)) Success(Unit)
+    else Failure(UnsupportedHttpMethodException(s"${request.getMethod} is not a supported HTTP method"))
+  }
+
+  def getPolicyAsXmlSource(contentType: String, policy: InputStream): Try[Source] = {
+    val contentTypeLowerCase = contentType.toLowerCase
+    val requestStreamSource = new StreamSource(policy)
+
+    if (contentTypeLowerCase.contains("json")) {
+      Try {
+        val outPolicyXml = new XdmDestination
+        AttributeMapper.policy2XML(requestStreamSource, outPolicyXml)
+        outPolicyXml.getXdmNode.asSource
+      }
+    } else if (contentTypeLowerCase.contains("xml")) {
+      Success(requestStreamSource)
+    } else {
+      Failure(UnsupportedContentTypeException(s"$contentType is not a supported Content-Type"))
+    }
+  }
+}
+
+object AttributeMappingPolicyValidationFilter {
+
+  case class UnsupportedContentTypeException(message: String) extends Exception(message)
+
+  case class UnsupportedHttpMethodException(message: String) extends Exception(message)
+
 }
