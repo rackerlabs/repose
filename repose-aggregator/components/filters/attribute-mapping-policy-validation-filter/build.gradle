@@ -5,6 +5,7 @@ dependencies {
     compile "com.rackspace.identity.components.attribute-mapper:mapper-core"
     //todo: remove this once we can move the translation filter up to the same version of saxon
     compile "net.sf.saxon:Saxon-EE:9.7.0-8"
+    compile "com.fasterxml.jackson.core:jackson-databind"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"

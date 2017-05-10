@@ -25,11 +25,12 @@ import javax.servlet._
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_UNSUPPORTED_MEDIA_TYPE}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.transform.stream.StreamSource
-import javax.xml.transform.{Source, TransformerFactory}
+import javax.xml.transform.{Source, TransformerException, TransformerFactory}
 
+import com.fasterxml.jackson.core.{JsonParseException, JsonProcessingException}
 import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import net.sf.saxon.s9api.XdmDestination
+import net.sf.saxon.s9api.{SaxonApiException, XdmDestination}
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 
@@ -78,8 +79,7 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
         httpServletResponse.sendError(
           SC_UNSUPPORTED_MEDIA_TYPE,
           ucte.message)
-      // TODO: Narrow Exception to the specific exception(s) to be caught
-      case e: Exception =>
+      case e@(_: SaxonApiException | _: TransformerException | _: JsonProcessingException | _: JsonParseException) =>
         logger.debug("Validation failed", e)
         httpServletResponse.sendError(
           SC_BAD_REQUEST,
