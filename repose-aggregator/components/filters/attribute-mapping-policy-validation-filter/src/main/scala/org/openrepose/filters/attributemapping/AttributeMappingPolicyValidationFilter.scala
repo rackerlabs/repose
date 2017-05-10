@@ -41,11 +41,6 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
 
   import AttributeMappingPolicyValidationFilter._
 
-  // Create a transform factory using the default implementation and the classloader for this class
-  private val transformerFactory = TransformerFactory.newInstance(
-    "org.apache.xalan.xsltc.trax.TransformerFactoryImpl",
-    this.getClass.getClassLoader)
-
   override def init(filterConfig: FilterConfig): Unit = {}
 
   override def destroy(): Unit = {}
