@@ -188,7 +188,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
     handleResponse("endpoints", akkaResponse, extractEndpointInfo)
   }
 
-  final def getGroups(authenticatingToken: String, forToken: String, applyRcnRoles: Boolean, checkCache: Boolean = true): Try[Vector[String]] = {
+  final def getGroups(authenticatingToken: String, forToken: String, checkCache: Boolean = true): Try[Vector[String]] = {
     def extractGroupInfo(inputStream: InputStream): Try[Vector[String]] = {
       Try {
         val input: String = Source.fromInputStream(inputStream).getLines mkString ""
@@ -200,7 +200,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
 
     val akkaResponse = Try(akkaServiceClient.get(
       s"$GROUPS_KEY_PREFIX$forToken",
-      s"$identityServiceUri${GROUPS_ENDPOINT(forToken)}${getApplyRcnRoles(applyRcnRoles)}",
+      s"$identityServiceUri${GROUPS_ENDPOINT(forToken)}",
       (Map(CommonHttpHeader.AUTH_TOKEN -> authenticatingToken,
         HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,

@@ -116,7 +116,7 @@ class KeystoneV2FilterRcnTest extends FunSpec
         )).thenReturn(new ServiceClientResponse(SC_OK, endpointsResponse()))
         when(mockAkkaServiceClient.get(
           mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"),
-          mockitoEq(s"$identityServiceUri${GROUPS_ENDPOINT(VALID_USER_ID)}${appendRcnParameter(applyRcnRoles)}"),
+          mockitoEq(s"$identityServiceUri${GROUPS_ENDPOINT(VALID_USER_ID)}"),
           argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)),
           anyBoolean()
         )).thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))

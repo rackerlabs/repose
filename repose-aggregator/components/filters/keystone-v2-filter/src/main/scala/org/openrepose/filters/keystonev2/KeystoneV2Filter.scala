@@ -421,11 +421,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             Success(groups)
           case None =>
             getValidatingToken(authToken, force = false) flatMap { adminToken =>
-              requestHandler.getGroups(adminToken, validToken.userId, config.getIdentityService.isApplyRcnRoles) recoverWith {
+              requestHandler.getGroups(adminToken, validToken.userId) recoverWith {
                 case _: AdminTokenUnauthorizedException =>
                   // Force acquiring of the admin token, and call the endpoints function again (retry once)
                   getValidatingToken(authToken, force = true) match {
-                    case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId, config.getIdentityService.isApplyRcnRoles, checkCache = false)
+                    case Success(newAdminToken) => requestHandler.getGroups(newAdminToken, validToken.userId, checkCache = false)
                     case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                   }
                 case _: NotFoundException =>
