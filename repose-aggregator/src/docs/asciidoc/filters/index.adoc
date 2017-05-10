@@ -8,6 +8,9 @@ Enables users to add new headers and header values to a request and/or response.
 == <<api-validator.adoc#,API Validator Filter>>
 *IN PROGRESS*
 
+== <<attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation filter>>
+For Identity usage in validating attribute mapping policies which may be applied by the <<saml-policy.adoc#,SAML Policy Translation Filter>>.
+
 == <<body-extractor-to-header.adoc#,Body Extractor to Header Filter>>
 *IN PROGRESS*
 
