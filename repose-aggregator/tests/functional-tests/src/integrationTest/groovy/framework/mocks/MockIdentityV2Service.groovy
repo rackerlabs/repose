@@ -44,7 +44,6 @@ import static javax.servlet.http.HttpServletResponse.*
 class MockIdentityV2Service {
     static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 
-    static final String PATH_REGEX_USER_GLOBAL_ROLES = '^/v2.0/users/([^/]+)/roles'
     static final String PATH_REGEX_GROUPS = '^/v2.0/users/([^/]+)/RAX-KSGRP'
     static final String PATH_REGEX_ENDPOINTS = '^/v2.0/tokens/([^/]+)/endpoints'
     static final String PATH_REGEX_VALIDATE_TOKEN = '^/v2.0/tokens/([^/]+)/?$'
@@ -58,7 +57,6 @@ class MockIdentityV2Service {
     private AtomicInteger getGroupsCount = new AtomicInteger(0)
     private AtomicInteger generateTokenCount = new AtomicInteger(0)
     private AtomicInteger getEndpointsCount = new AtomicInteger(0)
-    private AtomicInteger getUserGlobalRolesCount = new AtomicInteger(0)
     private AtomicInteger getIdpFromIssuerCount = new AtomicInteger(0)
     private AtomicInteger getMappingPolicyForIdpCount = new AtomicInteger(0)
     private AtomicInteger generateTokenFromSamlResponseCount = new AtomicInteger(0)
@@ -93,8 +91,6 @@ class MockIdentityV2Service {
     def contact_id
     def contactIdJson
     def contactIdXml
-    def additionalRolesXml
-    def additionalRolesJson
     def impersonate_id
     def impersonate_name
     def validateTenant
@@ -112,7 +108,6 @@ class MockIdentityV2Service {
     Closure<Response> getGroupsHandler
     Closure<Response> generateTokenHandler
     Closure<Response> getEndpointsHandler
-    Closure<Response> getUserGlobalRolesHandler
     Closure<Response> getIdpFromIssuerHandler
     Closure<Response> getMappingPolicyForIdpHandler
     Closure<Response> generateTokenFromSamlResponseHandler
@@ -168,7 +163,6 @@ class MockIdentityV2Service {
         getGroupsCount.set(0)
         generateTokenCount.set(0)
         getEndpointsCount.set(0)
-        getUserGlobalRolesCount.set(0)
         getIdpFromIssuerCount.set(0)
         getMappingPolicyForIdpCount.set(0)
         generateTokenFromSamlResponseCount.set(0)
@@ -183,7 +177,6 @@ class MockIdentityV2Service {
         getGroupsHandler = this.&getGroups
         generateTokenHandler = this.&generateToken
         getEndpointsHandler = this.&getEndpoints
-        getUserGlobalRolesHandler = this.&getUserGlobalRoles
         getIdpFromIssuerHandler = createGetIdpFromIssuerHandler()
         getMappingPolicyForIdpHandler = createGetMappingPolicyForIdp()
         generateTokenFromSamlResponseHandler = this.&generateTokenFromSamlResponse
@@ -215,8 +208,6 @@ class MockIdentityV2Service {
         contact_id = "${random.nextInt()}"
         contactIdJson = ""
         contactIdXml = ""
-        additionalRolesXml = ""
-        additionalRolesJson = ""
         impersonate_id = ""
         impersonate_name = ""
         validateTenant = null
@@ -255,12 +246,6 @@ class MockIdentityV2Service {
          * userId : String - The user ID.
          * X-Auth-Token : String - A valid authentication token for an administrative user.
          * List groups for a specified user.
-         *
-         * GET
-         * /v2.0/users/{user_id}/roles
-         * X-Auth-Token : String - A valid authentication token for an administrative user.
-         * user_id : String - The user ID.
-         * Lists global roles for a specified user. Excludes tenant roles.
          *
          * GET
          * /v2.0/RAX-AUTH/federation/identity-providers?issuer={issuer}
@@ -335,15 +320,6 @@ class MockIdentityV2Service {
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
-            } else if (isGetUserGlobalRolesCallPath(path)) {
-                if (method == "GET") {
-                    getUserGlobalRolesCount.incrementAndGet()
-                    def match = (path =~ PATH_REGEX_USER_GLOBAL_ROLES)
-                    def userId = match[0][1]
-                    return getUserGlobalRolesHandler(userId, request, shouldReturnXml)
-                } else {
-                    return new Response(SC_METHOD_NOT_ALLOWED)
-                }
             }
         } else if (path.startsWith("/v2.0/RAX-AUTH/federation/")) {
             if (isSamlIdpIssuerCallPath(path)) {
@@ -372,10 +348,6 @@ class MockIdentityV2Service {
         }
 
         return new Response(SC_NOT_IMPLEMENTED)
-    }
-
-    static boolean isGetUserGlobalRolesCallPath(String path) {
-        path ==~ PATH_REGEX_USER_GLOBAL_ROLES
     }
 
     static boolean isGetGroupsCallPath(String path) {
@@ -701,29 +673,6 @@ class MockIdentityV2Service {
                 region           : this.region,
                 contactIdXml     : this.contactIdXml,
                 contactIdJson    : this.contactIdJson
-        ]
-
-        def body = templateEngine.createTemplate(template).make(params)
-        return new Response(SC_OK, null, headers, body)
-    }
-
-    /**
-     * Simulate response get user global roles
-     * @param userId
-     * @param request
-     * @param xml
-     * @return
-     */
-    Response getUserGlobalRoles(String userId, Request request, boolean xml) {
-        def template
-        def headers = [:]
-
-        headers.put('Content-type', xml ? 'application/xml' : 'application/json')
-        template = xml ? UserGlobalRolesXmlTemplate : UserGlobalRolesJsonTemplate
-
-        def params = [
-                addRolesXml : additionalRolesXml,
-                addRolesJson: additionalRolesJson
         ]
 
         def body = templateEngine.createTemplate(template).make(params)
@@ -1716,63 +1665,6 @@ class MockIdentityV2Service {
     }
   }
 }
-"""
-
-    def UserGlobalRolesXmlTemplate = """\
-<?xml version="1.0" encoding="UTF-8"?>
-  <roles
-    xmlns:atom="http://www.w3.org/2005/Atom"
-    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
-    xmlns="http://docs.openstack.org/identity/api/v2.0"
-    xmlns:ns4="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0"
-    xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
-    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-    xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-    xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0">
-    <role id="9" name="Racker"
-        description="Defines a user as being a Racker"
-        serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221" rax-auth:propagate="true"/>
-    <role id="5" name="object-store:default"
-        description="Role to access keystone service"
-        serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
-    <role id="6" name="compute:default"
-        description="Role to access keystone service"
-        serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221""/>
-    <role id="3" name="identity:user-admin"
-        description="User Admin Role"
-        serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
-    \${addRolesXml}
-</roles>
-"""
-
-    def UserGlobalRolesJsonTemplate = """\
-{
-    "roles": [
-        {
-            "description": "Defines a user as being Racker",
-            "id": "9",
-            "name": "Racker",
-            "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
-        },
-        {
-            "description": "Role to access keystone service",
-            "id": "5",
-            "name": "object-store:default",
-            "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
-        },
-        {
-            "description": "Role to access keystone service",
-            "id": "6",
-            "name": "compute:default",
-            "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
-        },
-        {
-            "description": "Admin role for database service",
-            "id": "3",
-            "name": "User Admin Role",
-            "serviceId": "18e7a7032733486cd32f472d7bd58f709ac0d221"
-        },
-        \${addRolesJson}
 """
 
     static final String IDP_NO_RESULTS = """\
