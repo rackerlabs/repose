@@ -55,7 +55,7 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
     requestPayloadBuffer.mark(Integer.MAX_VALUE)
 
     validateHttpMethod(httpServletRequest) flatMap { _ =>
-      getPolicyAsXmlSource(requestContentType, httpServletRequest.getInputStream)
+      getPolicyAsXmlSource(requestContentType, requestPayloadBuffer)
     } map { policyXmlSource =>
       AttributeMapper.validatePolicy(policyXmlSource, XSDEngine.AUTO.toString)
     } match {
