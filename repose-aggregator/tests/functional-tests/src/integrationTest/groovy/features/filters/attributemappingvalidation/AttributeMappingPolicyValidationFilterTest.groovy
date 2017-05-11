@@ -54,6 +54,9 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
 
         then:
         mc.handlings.size() == times
+        if(method != "PUT") {
+            assert mc.handlings[0].request.body == body
+        }
 
         where:
         method   | body     | times
