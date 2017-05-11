@@ -22,6 +22,7 @@ package org.openrepose.filters.attributemapping
 import java.io.ByteArrayInputStream
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
+import javax.xml.transform.stream.StreamSource
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -29,6 +30,7 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.http.MediaType
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
+import scala.io.Source
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
@@ -78,6 +80,28 @@ class AttributeMappingPolicyValidationFilterTest
 
     it("should return a Failure if the content-type is not supported") {
       filter.getPolicyAsXmlSource("text/plain", new ByteArrayInputStream(ValidJsonPolicy.getBytes)) shouldBe a[Failure[_]]
+    }
+  }
+
+  describe("getPolicyAsInputStream") {
+    it(s"should return JSON with the provided content if the content-type is JSON") {
+      val result = filter.getPolicyAsInputStream(MediaType.APPLICATION_JSON_VALUE, new StreamSource(new ByteArrayInputStream(ValidXmlPolicy.getBytes)))
+
+      result shouldBe a[Success[_]]
+      // TODO: Replace this ghetto JSON comparison
+      hashByChar(Source.fromInputStream(result.get).mkString.replaceAll("\\s+", "")) shouldBe hashByChar(ValidJsonPolicy.replaceAll("\\s+", ""))
+    }
+
+    it(s"should return XML with the provided content if the content-type is XML") {
+      val result = filter.getPolicyAsInputStream(MediaType.APPLICATION_XML_VALUE, new StreamSource(new ByteArrayInputStream(ValidXmlPolicy.getBytes)))
+
+      result shouldBe a[Success[_]]
+      // TODO: Replace this ghetto XML comparison
+      hashByChar(Source.fromInputStream(result.get).mkString.replaceAll("\\s+", "")) shouldBe hashByChar(ValidXmlPolicy.replaceAll("\\s+", ""))
+    }
+
+    it("should return a Failure if the content-type is not supported") {
+      filter.getPolicyAsInputStream("text/plain", new StreamSource(ValidXmlPolicy)) shouldBe a[Failure[_]]
     }
   }
 
@@ -238,4 +262,6 @@ object AttributeMappingPolicyValidationFilterTest {
       |   </rules>
       |</mapping>
     """.stripMargin
+
+  def hashByChar(s: String): Int = s.map(_.hashCode).sum
 }
