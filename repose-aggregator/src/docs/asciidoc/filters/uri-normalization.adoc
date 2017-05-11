@@ -49,4 +49,25 @@ This configuration will ???.
 <1> Specifies ???.
 
 == Additional Information
-*Remove this section if not needed.*
+
+=== Metrics
+
+This component reports the following metrics to the <<../services/metrics.adoc#, Metrics Service>>:
+
+[cols="3", options="header,autowidth"]
+|===
+|Metric Type
+|Metric Name
+|Description
+
+| Meter
+| `org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization.<request-method>.<uri-regex>`
+| Counts the number of times that the query parameters of a request with method `request-method` and a URL matching `uri-regex` are normalized by this filter.
+`request-method` is the HTTP method of the request.
+`uri-regex` is the configured target `uri-regex` that matches the request URL.
+
+| Meter
+| `org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization.ACROSS ALL`
+| Counts the number of times that the query parameters of a request are normalized by this filter.
+This meter is the sum of all `org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization.<request-method>.<uri-regex>` meters.
+|===

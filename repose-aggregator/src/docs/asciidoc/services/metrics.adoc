@@ -122,6 +122,7 @@ The following list attempts to aggregate all of the metrics being reported to th
 * <<../filters/api-validator.adoc#_metrics, API Validator Filter>>
 * <<../filters/destination-router.adoc#_metrics, Destination Router Filter>>
 * <<../filters/header-normalization.adoc#_metrics, Header Normalization Filter>>
+* <<../filters/uri-normalization.adoc#_metrics, URI Normalization Filter>>
 * <<../filters/versioning.adoc#_metrics, Versioning Filter>>
 
 * PowerFilter
@@ -130,5 +131,3 @@ The following list attempts to aggregate all of the metrics being reported to th
 ** org.openrepose.core.FilterProcessingTime.Delay.<name>
 * PowerFilterRouterImpl
 ** org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>
-* UriNormalizationFilter
-** org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization.<request.getMethod>.<queryStringNormalizer.getLastMatch>
