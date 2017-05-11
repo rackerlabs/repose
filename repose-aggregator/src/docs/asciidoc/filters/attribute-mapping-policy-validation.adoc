@@ -26,7 +26,8 @@ None.
 None.
 
 === Request body changes
-None.
+All requests that make it through this filter will have their respective bodies replaced by a normalized version of the original body.
+In some cases, the request body may not change.
 
 === Recommended follow-on (succeeding) filters
 * <<saml-policy.adoc#,SAML Policy Translation Filter>> - These two filters work well together to provide mechanisms for attribute mapping policy management and application.
