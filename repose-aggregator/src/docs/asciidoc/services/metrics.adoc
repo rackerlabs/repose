@@ -120,9 +120,9 @@ meter.mark(); // <3>
 The following list attempts to aggregate all of the metrics being reported to this service by various components:
 
 * <<../filters/api-validator.adoc#_metrics, API Validator Filter>>
-* <<../filters/versioning.adoc#_metrics, Versioning Filter>>
 * <<../filters/destination-router.adoc#_metrics, Destination Router Filter>>
 * <<../filters/header-normalization.adoc#_metrics, Header Normalization Filter>>
+* <<../filters/versioning.adoc#_metrics, Versioning Filter>>
 
 * PowerFilter
 ** org.openrepose.core.ResponseCode.<component>.<meterId>
