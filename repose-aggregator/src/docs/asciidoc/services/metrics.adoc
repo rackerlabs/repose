@@ -117,7 +117,9 @@ meter.mark(); // <3>
 
 === Metrics Directory
 
-The following list attempts to aggregate all of the metrics being reported to this service by various components:
+The following lists attempt to aggregate all of the metrics being reported to this service by various components.
+
+==== Filters
 
 * <<../filters/api-validator.adoc#_metrics, API Validator Filter>>
 * <<../filters/destination-router.adoc#_metrics, Destination Router Filter>>
@@ -125,9 +127,50 @@ The following list attempts to aggregate all of the metrics being reported to th
 * <<../filters/uri-normalization.adoc#_metrics, URI Normalization Filter>>
 * <<../filters/versioning.adoc#_metrics, Versioning Filter>>
 
-* PowerFilter
-** org.openrepose.core.ResponseCode.<component>.<meterId>
-* PowerFilterChain
-** org.openrepose.core.FilterProcessingTime.Delay.<name>
-* PowerFilterRouterImpl
-** org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>
+==== Miscellaneous
+
+[cols="4", options="header,autowidth"]
+|===
+|Component
+|Metric Type
+|Metric Name
+|Description
+
+| Power Filter
+| Meter
+| `org.openrepose.core.ResponseCode.Repose.<response-code>`
+| Counts the number of responses with a `<response-code>` status code returned to the client.
+`<response-code>` is the HTTP status code in the response before being sent to the client (i.e., after Repose processing has occurred).
+
+| Power Filter Chain
+| Timer
+| `org.openrepose.core.FilterProcessingTime.Delay.<name>`
+| Tracks the amount of time it takes for a component named `<name>` to complete its processing.
+`<name>` is either the name of a filter or `route`.
+`route` indicates that the component being timed is the routing component, which includes forwarding a request to the origin service and waiting on a response.
+
+| Power Filter Router
+| Meter
+| `org.openrepose.core.ResponseCode.<endpoint>.<response-code>`
+| Counts the number of responses with a `<response-code>` status code returned by `<endpoint>`.
+`<response-code>` is the HTTP status code in the response from `<endpoint>`.
+`<endpoint>` is the endpoint that the request was made to.
+
+| Power Filter Router
+| Meter
+| `org.openrepose.core.ResponseCode.ALL ENDPOINTS.<response-code>`
+| Counts the number of responses with a `<response-code>` status code returned by all endpoints.
+This meter is the sum of all `org.openrepose.core.ResponseCode.<endpoint>.<response-code>` meters.
+
+| Power Filter Router
+| Meter
+| `org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>`
+| Counts the number of responses with a `408` status code returned by `<endpoint>`.
+`<endpoint>` is the endpoint that the request was made to.
+
+| Power Filter Router
+| Meter
+| `org.openrepose.core.RequestTimeout.TimeoutToOrigin.ALL ENDPOINTS`
+| Counts the number of responses with a `408` status code returned by all endpoints.
+This meter is the sum of all `org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>` meters.
+|===
