@@ -71,14 +71,14 @@ class TenantedNonDelegableTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, tenantId, request, xml ->
+                tokenId, tenantId, request ->
                     new Response(authResponseCode)
             }
         }
 
         if (groupResponseCode != 200) {
             fakeIdentityV2Service.getGroupsHandler = {
-                userId, request, xml ->
+                userId, request ->
                     new Response(groupResponseCode)
             }
         }

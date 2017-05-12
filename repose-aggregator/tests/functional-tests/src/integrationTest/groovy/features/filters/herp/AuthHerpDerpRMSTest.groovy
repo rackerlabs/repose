@@ -70,7 +70,7 @@ class AuthHerpDerpRMSTest extends ReposeValveTest {
         }
 
         fakeIdentityService.validateTokenHandler = {
-            tokenId, tenantid, request, xml ->
+            tokenId, tenantid, request ->
                 new Response(authRespCode)
         }
 

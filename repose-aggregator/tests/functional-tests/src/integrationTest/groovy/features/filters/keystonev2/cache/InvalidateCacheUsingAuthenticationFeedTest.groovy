@@ -105,7 +105,7 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
 
         fakeIdentityV2Service.with {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, tenantId, request, xml ->
+                tokenId, tenantId, request ->
                     new Response(404)
             }
         }
@@ -221,7 +221,7 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         //Make identity respond with a 404 every time now.
         fakeIdentityV2Service.with {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, tenantId, request, xml ->
+                tokenId, tenantId, request ->
                     new Response(404)
             }
         }

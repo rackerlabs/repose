@@ -174,9 +174,9 @@ class MockIdentityV2Service {
     void resetHandlers() {
         handler = this.&handleRequest
         validateTokenHandler = this.&validateToken
-        getGroupsHandler = this.&getGroups
+        getGroupsHandler = this.&listUserGroups
         generateTokenHandler = this.&generateToken
-        getEndpointsHandler = this.&getEndpoints
+        getEndpointsHandler = this.&listEndpointsForToken
         getIdpFromIssuerHandler = createGetIdpFromIssuerHandler()
         getMappingPolicyForIdpHandler = createGetMappingPolicyForIdp()
         generateTokenFromSamlResponseHandler = this.&generateTokenFromSamlResponse
@@ -230,6 +230,7 @@ class MockIdentityV2Service {
          * POST
          * /v2.0/tokens
          * Authenticates and generates a token.
+         * This is used by Keystone v2 for getting an admin token and by the Basic Auth filter.
          *
          * GET
          * /v2.0/tokens/{tokenId}{?belongsTo}
@@ -296,7 +297,7 @@ class MockIdentityV2Service {
                     getEndpointsCount.incrementAndGet()
                     def match = (path =~ PATH_REGEX_ENDPOINTS)
                     def tokenId = match[0][1]
-                    return getEndpointsHandler(tokenId, request, shouldReturnXml)
+                    return getEndpointsHandler(tokenId, request)
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
@@ -305,7 +306,7 @@ class MockIdentityV2Service {
                     validateTokenCount.incrementAndGet()
                     def match = (path =~ PATH_REGEX_VALIDATE_TOKEN)
                     def tokenId = match[0][1]
-                    return validateTokenHandler(tokenId, validateTenant, request, shouldReturnXml)
+                    return validateTokenHandler(tokenId, validateTenant, request)
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
@@ -316,7 +317,7 @@ class MockIdentityV2Service {
                     getGroupsCount.incrementAndGet()
                     def match = (path =~ PATH_REGEX_GROUPS)
                     def userId = match[0][1]
-                    return getGroupsHandler(userId, request, shouldReturnXml)
+                    return getGroupsHandler(userId, request)
                 } else {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
@@ -525,13 +526,7 @@ class MockIdentityV2Service {
         return new Response(code, null, headers, body)
     }
 
-    /**
-     * Simuate response for validateToken call of identity v2
-     * @param tokenId
-     * @param tenantId (if validateToken with belongsTo tenant)
-     * @return an instance of response
-     */
-    Response validateToken(String tokenId, String tenantId = null, Request request, boolean xml) {
+    Response validateToken(String tokenId, String tenantId, Request request) {
         def requestToken = tokenId
         def passedTenant = tenantId ?: client_tenantid
 
@@ -546,11 +541,9 @@ class MockIdentityV2Service {
                 serviceadmin   : service_admin_role,
                 impersonateid  : impersonate_id,
                 impersonatename: impersonate_name,
-                contactIdXml   : contactIdXml,
                 contactIdJson  : contactIdJson
         ]
         if (contact_id) {
-            params.contactIdXml = /rax-auth:contactId="$contact_id"/
             params.contactIdJson = /"RAX-AUTH:contactId" : "$contact_id",/
         }
 
@@ -558,55 +551,33 @@ class MockIdentityV2Service {
         def template
         def headers = [:]
 
-        headers.put('Content-type', xml ? 'application/xml' : 'application/json')
+        headers.put('Content-type', 'application/json')
 
         if (isTokenValid) {
             code = SC_OK
-            if (xml) {
-                if (tokenId == "rackerButts") {
-                    template = rackerTokenXmlTemplate
-                } else if (tokenId == "rackerSSO") {
-                    template = rackerSuccessfulValidateRespXmlTemplate
-                } else if (tokenId == "dedicatedUser") {
-                    template = dedicatedUserSuccessfulRespXmlTemplate
-                } else if (tokenId == "failureRacker") {
-                    template = rackerTokenWithoutProperRoleXmlTemplate
-                } else if (impersonate_id != "") {
-                    template = successfulImpersonateValidateTokenXmlTemplate
-                } else {
-                    template = successfulValidateTokenXmlTemplate
-                }
+            if (tokenId == "rackerSSO") {
+                template = rackerSuccessfulValidateRespJsonTemplate
+            } else if (tokenId == "dedicatedUser") {
+                template = dedicatedUserSuccessfulRespJsonTemplate
+            } else if (impersonate_id != "") {
+                template = successfulImpersonateValidateTokenJsonTemplate
             } else {
-                if (tokenId == "rackerSSO") {
-                    template = rackerSuccessfulValidateRespJsonTemplate
-                } else if (tokenId == "dedicatedUser") {
-                    template = dedicatedUserSuccessfulRespJsonTemplate
-                } else if (impersonate_id != "") {
-                    template = successfulImpersonateValidateTokenJsonTemplate
-                } else {
-                    template = successfulValidateTokenJsonTemplate
-                }
+                template = successfulValidateTokenJsonTemplate
             }
         } else {
             code = SC_NOT_FOUND
-            template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
+            template = identityFailureJsonTemplate
         }
 
         def body = templateEngine.createTemplate(template).make(params)
         if (sleeptime > 0) {
             sleep(sleeptime)
         }
+
         return new Response(code, null, headers, body)
     }
 
-    /**
-     * Simulate response list groups for user
-     * @param userId
-     * @param request
-     * @param xml
-     * @return
-     */
-    Response getGroups(String userId, Request request, boolean xml) {
+    Response listUserGroups(String userId, Request request) {
         def requestUserId = userId
         def params = [
                 expires     : getExpires(),
@@ -622,19 +593,19 @@ class MockIdentityV2Service {
         def template
         def headers = [:]
 
-        headers.put('Content-type', xml ? 'application/xml' : 'application/json')
+        headers.put('Content-type', 'application/json')
 
         if (userId == client_userid.toString() || userId == (admin_userid as String)) {
             if (userId == "rackerSSOUsername" || service_admin_role.toLowerCase() == "racker") {
                 code = SC_NOT_FOUND
-                template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
+                template = identityFailureJsonTemplate
             } else {
                 code = SC_OK
-                template = xml ? groupsXmlTemplate : groupsJsonTemplate
+                template = groupsJsonTemplate
             }
         } else {
             code = SC_INTERNAL_SERVER_ERROR
-            template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
+            template = identityFailureJsonTemplate
         }
 
         def body = templateEngine.createTemplate(template).make(params)
@@ -642,24 +613,9 @@ class MockIdentityV2Service {
         return new Response(code, null, headers, body)
     }
 
-    /**
-     * Simulate response get endpoints
-     * @param tokenId
-     * @param request
-     * @param xml
-     * @return
-     */
-    Response getEndpoints(String tokenId, Request request, boolean xml) {
-        def template
-        def headers = [:]
-
-        if (xml) {
-            headers.put('Content-type', 'application/xml')
-            template = appendedflag ? this.identityEndpointXmlAppendedTemplate : this.identityEndpointXmlTemplate
-        } else {
-            headers.put('Content-type', 'application/json')
-            template = appendedflag ? this.identityEndpointsJsonAppendedTemplate : this.identityEndpointsJsonTemplate
-        }
+    Response listEndpointsForToken(String tokenId, Request request) {
+        def headers = ['Content-type': 'application/json']
+        def template = appendedflag ? this.identityEndpointsJsonAppendedTemplate : this.identityEndpointsJsonTemplate
 
         def params = [
                 identityPort     : this.port,
@@ -671,7 +627,6 @@ class MockIdentityV2Service {
                 originServicePort: this.originServicePort,
                 endpointUrl      : this.endpointUrl,
                 region           : this.region,
-                contactIdXml     : this.contactIdXml,
                 contactIdJson    : this.contactIdJson
         ]
 
@@ -1116,55 +1071,6 @@ class MockIdentityV2Service {
 }
 """
 
-    // Successful validate token response in xml
-    def successfulValidateTokenXmlTemplate = """\
-<?xml version="1.0" encoding="UTF-8"?>
-<access
-    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-    xmlns="http://docs.openstack.org/identity/api/v2.0">
-    <token id="\${token}"
-        expires="\${expires}">
-        <tenant id="\${tenantid}" name="\${tenantname}" />
-    </token>
-    <user
-        xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
-        id="\${userid}" username="\${username}" rax-auth:defaultRegion="DFW">
-        <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-            <role id="123" name="compute:admin" />
-            <role id="234" name="object-store:admin" />
-        </roles>
-    </user>
-</access>
-"""
-
-    // Successful impersonate validate token response in xml
-    def successfulImpersonateValidateTokenXmlTemplate = """\
-<?xml version="1.0" encoding="UTF-8"?>
-<access
-    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-    xmlns="http://docs.openstack.org/identity/api/v2.0">
-    <token id="\${token}"
-        expires="\${expires}">
-        <tenant id="\${tenantid}" name="\${tenantname}" />
-    </token>
-    <user
-        xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
-        id="\${userid}" username="\${username}" rax-auth:defaultRegion="DFW">
-        <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-            <role id="123" name="compute:admin" />
-            <role id="234" name="object-store:admin" />
-        </roles>
-    </user>
-    <RAX-AUTH:impersonator id="\${impersonateid}"
-        username="\${impersonatename}">
-        <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-            <role id="123" name="Racker" />
-            <role id="234" name="object-store:admin" />
-        </roles>
-    </RAX-AUTH:impersonator>
-</access>
-"""
-
     // Successful validate token response in json
     def successfulValidateTokenJsonTemplate = """\
 {
@@ -1289,16 +1195,6 @@ class MockIdentityV2Service {
 """
 
     // TODO: Replace this with builder
-    def groupsXmlTemplate = """\
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
-    <group id="0" name="Default">
-        <description>Default Limits</description>
-    </group>
-</groups>
-"""
-
-    // TODO: Replace this with builder
     def identityEndpointsJsonTemplate = """\
 {
     "endpoints_links": [
@@ -1397,167 +1293,6 @@ class MockIdentityV2Service {
     ]
 }"""
 
-    // TODO: Replace this with builder
-    def identityEndpointXmlTemplate = """\
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
-           xmlns:ns2="http://www.w3.org/2005/Atom"
-           xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-           xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
-           xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-           xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
-           xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
-  <endpoint id="1"
-            type="object-store"
-            name="swift"
-            region="\${region}"
-            publicURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
-            internalURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
-            adminURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
-            tenantId="\${tenant}"/>
-  <endpoint id="2"
-            type="compute"
-            name="nova_compat"
-            region="\${region}"
-            publicURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
-            internalURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
-            adminURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
-            tenantId="\${tenant}"/>
-    <endpoint id="3"
-            type="service"
-            name="OpenStackService"
-            region="\${region}"
-            publicURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
-            internalURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
-            adminURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
-            tenantId="\${tenant}"/>
-</endpoints>"""
-
-    // TODO: Replace this with builder
-    def identityEndpointXmlAppendedTemplate = """\
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
-           xmlns:ns2="http://www.w3.org/2005/Atom"
-           xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-           xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
-           xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-           xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
-           xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
-  <endpoint id="2"
-            type="compute"
-            name="nova_compat"
-            region="\${region}"
-            publicURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
-            internalURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
-            adminURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
-            tenantId="\${tenant}"/>
-   <endpoint id="3"
-            type="service"
-            name="OpenStackService"
-            region="\${region}"
-            publicURL="http://\${endpointUrl}:\${originServicePort}/v1/appended/\${tenant}"
-            internalURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
-            adminURL="http://\${endpointUrl}:\${originServicePort}/v1/\${tenant}"
-            tenantId="\${tenant}"/>
-</endpoints>"""
-
-    // TODO: Replace this with builder
-    def rackerTokenXmlTemplate = """\
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<access xmlns="http://docs.openstack.org/identity/api/v2.0"
-    xmlns:ns2="http://www.w3.org/2005/Atom"
-    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-    xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
-    xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-    xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
-    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
-    <token id="\${token}"
-           expires="\${expires}">
-        <tenant id="\${tenantid}" name="\${tenantid}"/>
-        <rax-auth:authenticatedBy>
-            <rax-auth:credential>PASSWORD</rax-auth:credential>
-        </rax-auth:authenticatedBy>
-    </token>
-    <user id="\${userid}" name="\${username}" rax-auth:defaultRegion="DFW" \${contactIdXml}>
-        <roles>
-            <role id="9" name="Racker"
-                description="Defines a user as being a Racker"
-                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
-            <role id="5" name="object-store:default"
-                description="Role to access keystone service"
-                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"
-                tenantId="\${tenantidtwo}"/>
-            <role id="6" name="compute:default"
-                description="Role to access keystone service"
-                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"
-                tenantId="\${tenantid}"/>
-            <role id="3" name="identity:user-admin"
-                description="User Admin Role"
-                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
-            <role name="dl_RackUSA"/>
-            <role name="dl_RackGlobal"/>
-            <role name="dl_cloudblock"/>
-            <role name="dl_US Managers"/>
-            <role name="DL_USManagers"/>
-        </roles>
-    </user>
-</access>
-"""
-
-    def rackerTokenWithoutProperRoleXmlTemplate = """\
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<access xmlns="http://docs.openstack.org/identity/api/v2.0"
-    xmlns:ns2="http://www.w3.org/2005/Atom"
-    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-    xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
-    xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-    xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
-    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
-    <token id="\${token}"
-           expires="\${expires}">
-        <tenant id="\${tenantid}" name="\${tenantname}"/>
-        <rax-auth:authenticatedBy>
-            <rax-auth:credential>PASSWORD</rax-auth:credential>
-        </rax-auth:authenticatedBy>
-    </token>
-    <user id="rackerUsername">
-        <roles>
-            <role name="dl_RackUSA"/>
-            <role name="dl_RackGlobal"/>
-            <role name="dl_cloudblock"/>
-            <role name="dl_US Managers"/>
-            <role name="DL_USManagers"/>
-        </roles>
-    </user>
-</access>
-"""
-
-    def rackerSuccessfulValidateRespXmlTemplate = """\
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<access xmlns="http://docs.openstack.org/identity/api/v2.0"
-    xmlns:ns2="http://www.w3.org/2005/Atom"
-    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-    xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
-    xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-    xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
-    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
-    <token id="\${token}"
-        expires="\${expires}"/>
-    <user id="rackerSSOUsername">
-        <roles>
-            <role id="9" name="\${serviceadmin}"
-                description="Defines a user as being a Racker"
-                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
-            <role id="100" name="dl_RackUSA" />
-            <role name="dl_RackGlobal"/>
-            <role name="dl_cloudblock"/>
-            <role name="dl_US Managers"/>
-            <role name="DL_USManagers"/>
-        </roles>
-    </user>
-</access>
-"""
-
     def rackerSuccessfulValidateRespJsonTemplate = """\
 {
   "access": {
@@ -1585,44 +1320,6 @@ class MockIdentityV2Service {
     }
   }
 }
-"""
-
-    def dedicatedUserSuccessfulRespXmlTemplate = """\
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<access xmlns:atom="http://www.w3.org/2005/Atom"
-        xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
-        xmlns="http://docs.openstack.org/identity/api/v2.0"
-        xmlns:ns4="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0"
-        xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
-        xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-        xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-        xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0">
-    <token id="\${token}" expires="\${expires}">
-        <rax-auth:authenticatedBy>
-            <rax-auth:credential>PASSWORD</rax-auth:credential>
-        </rax-auth:authenticatedBy>
-    </token>
-    <user id="dedicatedUser" name="dedicated_29502_1099363" rax-auth:defaultRegion="ORD" \${contactIdXml}>
-        <roles>
-            <role id="10015582"
-                  name="monitoring:admin"
-                  description="Monitoring Admin Role for Account User"
-                  serviceId="bde1268ebabeeabb70a0e702a4626977c331d5c4"
-                  tenantId="\${tenantid}" rax-auth:propagate="false"/>
-            <role id="16"
-                  name="dedicated:default"
-                  description="a role that allows a user access to dedicated service methods"
-                  serviceId="bde1268ebabeeabb70a0e702a4626977c331d5c4"
-                  tenantId="\${tenantid}"
-                  rax-auth:propagate="true"/>
-            <role id="2"
-                  name="identity:default"
-                  description="Default Role."
-                  serviceId="bde1268ebabeeabb70a0e702a4626977c331d5c4"
-                  rax-auth:propagate="false"/>
-        </roles>
-    </user>
-</access>
 """
 
     def dedicatedUserSuccessfulRespJsonTemplate = """\

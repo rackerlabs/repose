@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,10 +69,10 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
             fakeIdentityV2Service.generateTokenHandler = { request, xml -> return new Response(errorCode) }
         }
         if (validateBroken) {
-            fakeIdentityV2Service.validateTokenHandler = { tokenId, tenantId, request, xml -> return new Response(errorCode) }
+            fakeIdentityV2Service.validateTokenHandler = { tokenId, tenantId, request -> return new Response(errorCode) }
         }
         if (groupsBroken) {
-            fakeIdentityV2Service.getGroupsHandler = { userId, request, xml -> return new Response(errorCode) }
+            fakeIdentityV2Service.getGroupsHandler = { userId, request -> return new Response(errorCode) }
         }
         def tokenId = "$adminBroken$validateBroken$groupsBroken$errorCode"
 
@@ -135,8 +135,8 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             validateTokenHandler = {
-                tokenId, tenantId, request, xml ->
-                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString], xml)
+                tokenId, tenantId, request ->
+                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString])
             }
         }
         reposeLogSearch.cleanLog()

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -76,7 +76,7 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
             fakeIdentityV2Service.generateTokenHandler = { request, xml -> return new Response(errorCode) }
         }
         if (endpointsBroken) {
-            fakeIdentityV2Service.getEndpointsHandler = { tokenId, request, xml -> return new Response(errorCode) }
+            fakeIdentityV2Service.getEndpointsHandler = { tokenId, request -> return new Response(errorCode) }
         }
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
@@ -122,8 +122,8 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             getEndpointsHandler = {
-                tokenId, request, xml ->
-                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString], xml)
+                tokenId, request ->
+                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString])
             }
         }
 
