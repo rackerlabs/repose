@@ -45,6 +45,21 @@ In this case, new metrics will be sent to the Graphite server every `10` seconds
 == Further Information
 For more information about what the Metrics service can do, see the http://metrics.dropwizard.io/3.2.0/manual/index.html[Dropwizard Metrics User Manual].
 
+=== JMX Reporting
+
+All metrics reported to this service will be reported to JMX.
+
+In order to report metrics to JMX, this service must translate metric names into https://docs.oracle.com/javase/8/docs/api/javax/management/ObjectName.html[JMX ObjectNames].
+A metric can be named virtually anything, but names often follow the `<segment1>.<segment2>.<...>.<segmentn>` convention.
+A simplified general form for an object name is `<domain>:<key1>=<value1>,<key2>=<value2>,<...>,<keyn>=<valuen>`.
+To go from metric name to object name, the translation process will start by prepending the metric name with the hostname of the host running Repose.
+Next, it will split the metric name using `.` as a delimiter.
+The index of each delimited segment will act as the key for that segment, and the value of the segment will act as the value.
+
+For example, a metric named `org.openrepose.example.count` will be reported to JMX as `<hostname>:001="org",002="openrepose",003="example",004="count"`.
+
+While this approach can cause some difficulty in querying metrics from JMX, it provides easier navigation of metrics when using a tool such as http://openjdk.java.net/tools/svc/jconsole/[JConsole].
+
 === Aggregating Metrics
 
 This service supports the automatic aggregation of certain metrics.
@@ -99,3 +114,63 @@ meter.mark(); // <3>
 <2> Creates a `Meter` with the name `prefix.parent.child.summingMeter`.
 <3> Marks the `Meter` as well as both `ACROSS ALL` `Meter` s of the ancestral `SummingMeterFactory` s.
     This means that all of the following `Metric` s are marked: `prefix.parent.child.summingMeter`, `prefix.parent.child.ACROSS ALL`, and `prefix.parent.ACROSS ALL`.
+
+=== Metrics Directory
+
+The following lists attempt to aggregate all of the metrics being reported to this service by various components.
+
+==== Filters
+
+* <<../filters/api-validator.adoc#_metrics, API Validator Filter>>
+* <<../filters/destination-router.adoc#_metrics, Destination Router Filter>>
+* <<../filters/header-normalization.adoc#_metrics, Header Normalization Filter>>
+* <<../filters/uri-normalization.adoc#_metrics, URI Normalization Filter>>
+* <<../filters/versioning.adoc#_metrics, Versioning Filter>>
+
+==== Miscellaneous
+
+[cols="4", options="header,autowidth"]
+|===
+|Component
+|Metric Type
+|Metric Name
+|Description
+
+| Power Filter
+| Meter
+| `org.openrepose.core.ResponseCode.Repose.<response-code>`
+| Counts the number of responses with a `<response-code>` status code returned to the client.
+`<response-code>` is the HTTP status code in the response before being sent to the client (i.e., after Repose processing has occurred).
+
+| Power Filter Chain
+| Timer
+| `org.openrepose.core.FilterProcessingTime.Delay.<name>`
+| Tracks the amount of time it takes for a component named `<name>` to complete its processing.
+`<name>` is either the name of a filter or `route`.
+`route` indicates that the component being timed is the routing component, which includes forwarding a request to the origin service and waiting on a response.
+
+| Power Filter Router
+| Meter
+| `org.openrepose.core.ResponseCode.<endpoint>.<response-code>`
+| Counts the number of responses with a `<response-code>` status code returned by `<endpoint>`.
+`<response-code>` is the HTTP status code in the response from `<endpoint>`.
+`<endpoint>` is the endpoint that the request was made to.
+
+| Power Filter Router
+| Meter
+| `org.openrepose.core.ResponseCode.All Endpoints.<response-code>`
+| Counts the number of responses with a `<response-code>` status code returned by all endpoints.
+This meter is the sum of all `org.openrepose.core.ResponseCode.<endpoint>.<response-code>` meters.
+
+| Power Filter Router
+| Meter
+| `org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>`
+| Counts the number of responses with a `408` status code returned by `<endpoint>`.
+`<endpoint>` is the endpoint that the request was made to.
+
+| Power Filter Router
+| Meter
+| `org.openrepose.core.RequestTimeout.TimeoutToOrigin.All Endpoints`
+| Counts the number of responses with a `408` status code returned by all endpoints.
+This meter is the sum of all `org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>` meters.
+|===

@@ -49,4 +49,19 @@ This configuration will ???.
 <1> Specifies ???.
 
 == Additional Information
-*Remove this section if not needed.*
+
+=== Metrics
+
+This component reports the following metrics to the <<../services/metrics.adoc#, Metrics Service>>:
+
+[cols="3", options="header,autowidth"]
+|===
+|Metric Type
+|Metric Name
+|Description
+
+| Meter
+| `org.openrepose.filters.versioning.VersioningFilter.VersionedRequest.<name>`
+| Counts the number of times any request is processed using a version mapping specified by `<name>`.
+`<name>` is the `id` attribute of the `version-mapping` element in this filter's configuration.
+|===

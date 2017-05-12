@@ -144,3 +144,38 @@ header-normalization.cfg.xml
 <9> Since the uri-regex attribute is not specified, this target applies to all POST and PUT requests.
     Valid http-methods are: GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE, and ALL
 <10> Since neither the uri-regex nor http-methods are specified, this target applies to all requests and responses that don't match one of the previous targets.
+
+== Additional Information
+
+=== Metrics
+
+This component reports the following metrics to the <<../services/metrics.adoc#, Metrics Service>>:
+
+[cols="3", options="header,autowidth"]
+|===
+|Metric Type
+|Metric Name
+|Description
+
+| Meter
+| `org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.request.<request-method>.<target-url-pattern>`
+| Counts the number of times a request with method `request-method` and a URL matching `target-url-pattern` is processed.
+`request-method` is the HTTP method of the request.
+`target-url-pattern` is the configured `uri-regex` that matches the request URL.
+
+| Meter
+| `org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.request.ACROSS ALL`
+| Counts the number of times a request is processed by this filter.
+This meter is the sum of all `org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.request.<request-method>.<target-url-pattern>` meters.
+
+| Meter
+| `org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.response.<request-method>.<target-url-pattern>`
+| Counts the number of times a response to a request with method `request-method` and a URL matching `target-url-pattern` is processed.
+`request-method` is the HTTP method of the request.
+`target-url-pattern` is the configured `uri-regex` that matches the request URL.
+
+| Meter
+| `org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.response.ACROSS ALL`
+| Counts the number of times a response is processed by this filter.
+This meter is the sum of all `org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.response.<request-method>.<target-url-pattern>` meters.
+|===
