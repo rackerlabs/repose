@@ -158,7 +158,7 @@ The following lists attempt to aggregate all of the metrics being reported to th
 
 | Power Filter Router
 | Meter
-| `org.openrepose.core.ResponseCode.ALL ENDPOINTS.<response-code>`
+| `org.openrepose.core.ResponseCode.All Endpoints.<response-code>`
 | Counts the number of responses with a `<response-code>` status code returned by all endpoints.
 This meter is the sum of all `org.openrepose.core.ResponseCode.<endpoint>.<response-code>` meters.
 
@@ -170,7 +170,7 @@ This meter is the sum of all `org.openrepose.core.ResponseCode.<endpoint>.<respo
 
 | Power Filter Router
 | Meter
-| `org.openrepose.core.RequestTimeout.TimeoutToOrigin.ALL ENDPOINTS`
+| `org.openrepose.core.RequestTimeout.TimeoutToOrigin.All Endpoints`
 | Counts the number of responses with a `408` status code returned by all endpoints.
 This meter is the sum of all `org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>` meters.
 |===
