@@ -8,6 +8,8 @@ include::_includes/in-progress.adoc[]
 * https://repose.atlassian.net/browse/REP-5343[REP-5343] - Updated the Keystone v2 filter to support the new Apply RCN Roles feature of Rackspace Keystone V2 Identity.
 Converted the https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filter[old Keystone v2 filter documentation] over to the <<filters/keystone-v2.adoc#, new versioned docs>>.
 * https://repose.atlassian.net/browse/REP-5438[REP-5438] - the <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> has been released!
+* https://repose.atlassian.net/browse/REP-5221[REP-5221] - Updated the API Checker library from v2.1.1 to v2.2.0.
+** This brings the bulk metadata feature to the <<filters/api-validator.adoc#, API Validator filter>>.
 
 == 8.5.0.1
 
