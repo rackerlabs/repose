@@ -16,7 +16,7 @@ Currently, only JSON bodies are supported.
 If you would like to request XML support, please <<../contact-us.adoc#,contact us>>!
 ====
 * **Account Permission to Role Translation**:
-Takes the user's account level permissions and translates their names into the standard `X-Roles` header allowing any of the standard means of RBAC to be used on the request.
+Takes the user's account level permissions and translates their names into the standard `X-Roles` header allowing <<../recipes/role-based-access-control.adoc#,Role-based access control (RBAC)>> to be used on the request.
 This includes translating the user's device permission for the device specified in the `X-Device-Id` header (when the request contains one).
 
 Each function is optional, and as many or as few as desired can be used.
@@ -118,7 +118,7 @@ Culling will also not be performed when configured in this manner.
 The Valkyrie filter can add the user's permissions to the `X-Roles` header, but it is left to a subsequent filter or the origin service to validate the request.
 
 == Examples
-=== Basic
+=== Basic Example
 This configuration will authorize users against Valkyrie.
 
 [source,xml]
