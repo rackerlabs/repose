@@ -174,7 +174,7 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
             .request.path ==~ APPLY_RCN_ROLES_QUERY_PARAM
 
         where:
-        requestPurpose       | pathRegex             | handlerSetter                                  | defaultHandler
+        requestPurpose       | pathRegex             | handlerSetter                         | defaultHandler
         "validate the token" | TOKEN_VALIDATION_PATH | mockIdentity.&setValidateTokenHandler | mockIdentity.&validateToken
         "get the endpoints"  | GET_ENDPOINTS_PATH    | mockIdentity.&setGetEndpointsHandler  | mockIdentity.&listEndpointsForToken
     }
