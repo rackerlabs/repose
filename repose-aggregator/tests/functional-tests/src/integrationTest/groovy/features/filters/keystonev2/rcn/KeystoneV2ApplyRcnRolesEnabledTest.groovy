@@ -23,15 +23,19 @@ package features.filters.keystonev2.rcn
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 import spock.lang.Shared
+import spock.lang.Unroll
 
 import java.util.regex.Pattern
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
 
+/**
+ * This is the primary functional test suite for the Apply RCN Roles feature. Other functional tests cover unique cases
+ * and try to not cover essentially the same cases already covered here.
+ */
 class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
     private static final Pattern APPLY_RCN_ROLES_QUERY_PARAM = ~$/$/.*\?.*apply_rcn_roles=(?i:true).*/$
     private static final Pattern TOKEN_VALIDATION_PATH = ~$/$/v2.0/tokens/[^/]+/$
@@ -62,7 +66,8 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
         fakeIdentityV2Service.resetHandlers()
     }
 
-    def "When Repose calls Identity to validate the token, it includes the apply_rcn_role query param"() {
+    @Unroll
+    def "When Repose calls Identity to #requestPurpose, it includes the apply_rcn_role query param"() {
         given: "a new user (token and id) to ensure the calls to Identity are not handled by the Akka cache"
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -71,39 +76,21 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
         def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
 
         when:
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/test/validate/token", headers: headers)
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/test", headers: headers)
 
         then: "the client response was successful"
         messageChain.receivedResponse.code as Integer == SC_OK
 
         and: "a request was sent to Identity to validate the token"
-        messageChain.orphanedHandlings.find { it.request.path ==~ TOKEN_VALIDATION_PATH }
+        messageChain.orphanedHandlings.find { it.request.path ==~ pathRegex }
 
         and: "the token validation request to Identity included the query parameter set to true (case insensitive on the value)"
-        messageChain.orphanedHandlings.find { it.request.path ==~ TOKEN_VALIDATION_PATH }
-            .request.path ==~ APPLY_RCN_ROLES_QUERY_PARAM
-    }
+        messageChain.orphanedHandlings.find { it.request.path ==~ pathRegex }.request.path ==~ APPLY_RCN_ROLES_QUERY_PARAM
 
-    def "When Repose calls Identity to get the endpoints, it includes the apply_rcn_role query param"() {
-        given: "a new user (token and id) to ensure the calls to Identity are not handled by the Akka cache"
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            client_userid = UUID.randomUUID().toString()
-        }
-        def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
-
-        when:
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/test/get/endpoints", headers: headers)
-
-        then: "the client response was successful"
-        messageChain.receivedResponse.code as Integer == SC_OK
-
-        and: "a request was sent to Identity to get the endpoints"
-        messageChain.orphanedHandlings.find { it.request.path ==~ GET_ENDPOINTS_PATH }
-
-        and: "the get endpoints request to Identity included the query parameter set to true (case insensitive on the value)"
-        messageChain.orphanedHandlings.find { it.request.path ==~ GET_ENDPOINTS_PATH }
-            .request.path ==~ APPLY_RCN_ROLES_QUERY_PARAM
+        where:
+        requestPurpose       | pathRegex
+        "validate the token" | TOKEN_VALIDATION_PATH
+        "get the endpoints"  | GET_ENDPOINTS_PATH
     }
 
     def "When Repose calls Identity to get the groups, it does not include the apply_rcn_role query param"() {
@@ -137,14 +124,10 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
         def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
 
         and: "the admin token will have to be requested again"
-        def initialAdminToken = fakeIdentityV2Service.admin_token
-        fakeIdentityV2Service.validateTokenHandler = { String tokenId, String tenantId, Request request ->
-            if (fakeIdentityV2Service.admin_token == initialAdminToken) {
-                fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
-                return new Response(SC_UNAUTHORIZED)
-            } else {
-                return fakeIdentityV2Service.validateToken(tokenId, tenantId, request)
-            }
+        fakeIdentityV2Service.validateTokenHandler = { tokenId, tenantId, request ->
+            fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
+            fakeIdentityV2Service.validateTokenHandler = fakeIdentityV2Service.&validateToken
+            return new Response(SC_UNAUTHORIZED)
         }
 
         when:
@@ -161,7 +144,8 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
             .request.path ==~ APPLY_RCN_ROLES_QUERY_PARAM)
     }
 
-    def "When Repose has to retry the call to Identity to validate the token, it includes the apply_rcn_role query param"() {
+    @Unroll
+    def "When Repose has to retry the call to Identity to #requestPurpose, it includes the apply_rcn_role query param"() {
         given: "a new user (token and id) to ensure the calls to Identity are not handled by the Akka cache"
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -170,61 +154,29 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
         def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
 
         and: "the admin token will have expired between the time it will be requested and the time it will be used for the validate token call"
-        def initialAdminToken = fakeIdentityV2Service.admin_token
-        fakeIdentityV2Service.validateTokenHandler = { String tokenId, String tenantId, Request request ->
-            if (fakeIdentityV2Service.admin_token == initialAdminToken) {
-                fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
-                return new Response(SC_UNAUTHORIZED)
-            } else {
-                return fakeIdentityV2Service.validateToken(tokenId, tenantId, request)
-            }
+        (handlerSetter as Closure) { unused1, unused2, unused3 = null ->
+            fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
+            handlerSetter(defaultHandler)
+            return new Response(SC_UNAUTHORIZED)
         }
 
-        when:
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/test/retry/validate/token", headers: headers)
+        when: "a request is sent"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/test/retry/identity/call", headers: headers)
 
         then: "the client response was successful"
         messageChain.receivedResponse.code as Integer == SC_OK
 
-        and: "the request to validate the token with Identity was sent twice"
-        messageChain.orphanedHandlings.findAll { it.request.path ==~ TOKEN_VALIDATION_PATH }.size() == 2
+        and: "the request was sent to Identity twice"
+        messageChain.orphanedHandlings.findAll { it.request.path ==~ pathRegex }.size() == 2
 
-        and: "the retried token validation request to Identity included the query parameter set to true (case insensitive on the value)"
-        messageChain.orphanedHandlings.findAll { it.request.path ==~ TOKEN_VALIDATION_PATH }[1]
+        and: "the retried request to Identity included the query parameter set to true (case insensitive on the value)"
+        messageChain.orphanedHandlings.findAll { it.request.path ==~ pathRegex }[1]
             .request.path ==~ APPLY_RCN_ROLES_QUERY_PARAM
-    }
 
-    def "When Repose has to retry the call to Identity to get the endpoints, it includes the apply_rcn_role query param"() {
-        given: "a new user (token and id) to ensure the calls to Identity are not handled by the Akka cache"
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            client_userid = UUID.randomUUID().toString()
-        }
-        def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
-
-        and: "the admin token will have expired between the time it will be requested and the time it will be used for the get endpoints call"
-        def initialAdminToken = fakeIdentityV2Service.admin_token
-        fakeIdentityV2Service.getEndpointsHandler = { String tokenId, Request request ->
-            if (fakeIdentityV2Service.admin_token == initialAdminToken) {
-                fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
-                return new Response(SC_UNAUTHORIZED)
-            } else {
-                return fakeIdentityV2Service.listEndpointsForToken(tokenId, request)
-            }
-        }
-
-        when:
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/test/retry/validate/token", headers: headers)
-
-        then: "the client response was successful"
-        messageChain.receivedResponse.code as Integer == SC_OK
-
-        and: "the request to get the endpoints from Identity was sent twice"
-        messageChain.orphanedHandlings.findAll { it.request.path ==~ GET_ENDPOINTS_PATH }.size() == 2
-
-        and: "the retried get endpoints request to Identity included the query parameter set to true (case insensitive on the value)"
-        messageChain.orphanedHandlings.findAll { it.request.path ==~ GET_ENDPOINTS_PATH }[1]
-            .request.path ==~ APPLY_RCN_ROLES_QUERY_PARAM
+        where:
+        requestPurpose       | pathRegex             | handlerSetter                                  | defaultHandler
+        "validate the token" | TOKEN_VALIDATION_PATH | fakeIdentityV2Service.&setValidateTokenHandler | fakeIdentityV2Service.&validateToken
+        "get the endpoints"  | GET_ENDPOINTS_PATH    | fakeIdentityV2Service.&setGetEndpointsHandler  | fakeIdentityV2Service.&listEndpointsForToken
     }
 
     def "When Repose has to retry the call to Identity to get the groups, it does not include the apply_rcn_role query param"() {
@@ -236,14 +188,10 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
         def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
 
         and: "the admin token will have expired between the time it will be requested and the time it will be used for the get groups call"
-        def initialAdminToken = fakeIdentityV2Service.admin_token
-        fakeIdentityV2Service.getGroupsHandler = { String userId, Request request ->
-            if (fakeIdentityV2Service.admin_token == initialAdminToken) {
-                fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
-                return new Response(SC_UNAUTHORIZED)
-            } else {
-                return fakeIdentityV2Service.listUserGroups(userId, request)
-            }
+        fakeIdentityV2Service.getGroupsHandler = { tokenId, request ->
+            fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
+            fakeIdentityV2Service.getGroupsHandler = fakeIdentityV2Service.&listUserGroups
+            return new Response(SC_UNAUTHORIZED)
         }
 
         when:
