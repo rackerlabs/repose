@@ -1,18 +1,21 @@
 = API Validator Filter
 
 The API Validation filter validates all requests against a configured https://www.w3.org/Submission/wadl/[Web Application Description Language (WADL)] file.
-For example, if a request to the authentication service is missing the username in the URI, but the authentication service requires the username in the URI, then the request will be rejected before it reaches the authentication service.
+For example, if a request to the origin service is missing the tenant ID in the URI, but the origin service requires the tenant ID to be there, then the request will be rejected before it reaches the origin service.
 The API Validation filter can also be configured to validate the content of the request body against an https://www.w3.org/standards/techs/xmlschema[XML Schema Definition (XSD)] or http://json-schema.org/[JSON Schema] referenced as a grammar in the WADL.
 
+[NOTE]
+====
 A working knowledge of WADL's and XSD's/JSON Schemas will make the configuration of this filter much easier.
 Therefore, it is recommended that you read up on these subjects before attempting to use this filter.
 A good tutorial on XSD 1.1, including a comparison of XSD 1.1 and XSD 1.0, is located at:
 
 * http://www.xfront.com/xml-schema-1-1/
 
-Most of the ideas described in this conference session is implemented in this filter:
+Most of the ideas described in this conference session are implemented in this filter:
 
 * http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html[Using XProc, XSLT 2.0, and XSD 1.1 to validate RESTful services]
+====
 
 == General filter information
 * *Name:* api-validator
@@ -136,16 +139,16 @@ This configuration expands the basic example in order to show off all of the fea
 </validators>
 ----
 <1> List of roles that are applied on single validator.
-    Triggers off of 'X-Roles' header.
+    Triggers off of `X-Roles` header. +
     *DEPRECATED:* Roles defined outside of the WADL will not be supported in Repose 9 and this attribute will not be available.
-<2> Set to `true` to use this validator if no 'X-Roles' header is passed.
-    If the api-validator config 'multi-match' is set to `true` then the default validator will be the first validator to process the incoming request.
-    If multi-match is set to `false` and if no validator is matched to the users' roles, then the filter will use the default validator.
+<2> Set to `true` to use this validator if no `X-Roles` header is passed.
+    If the api-validator config `multi-match` is set to `true` then the default validator will be the first validator to process the incoming request.
+    If multi-match is set to `false` and if no validator is matched to the users' roles, then the filter will use the default validator. +
     *DEPRECATED:* Multiple validators will not be supported in Repose 9 and this attribute will not be available.
 <3> Location of the WADL to associate with this validator.
     If not specified, then the wadl needs to be embedded within the validator element.
     Can be located within the file system or pointed to a remote file.
-    Can use absolute or relative path.
+    Can use absolute or relative path. +
     *DEPRECATED:* This attribute is currently optional, but will be *required* in Repose 9.
     Currently both a WADL file and embedded WADL can not be defined.
     Currently at least a WADL file or embedded WADL must be defined.
@@ -163,25 +166,27 @@ This configuration expands the basic example in order to show off all of the fea
      The transformation rules can be defined in the WADL via the Rackspace WADL extension: `rax:preprocess` (Default: true)
 <12> Analyzes the state machine generated from the WADL and makes sure that there aren't any duplicate nodes in the machine. (Default: true)
 <13> XPath version used in the WADL.
-     Can be 1 or 2.
-     If 1 is set the Xalan implementation will be used, if 2 then Saxon will be used.
-     Note that XPath 2 with schema awareness requires a Saxon license.  (Default: 1)
-<14> The XSL engine to use. Possible choices are Xalan, XalanC, and Saxon.
-     Note that Saxon is an XSL 2.0 engine, but most 1.0 XSLs should work fine.
-     * Xalan - Standard Java XSL engine
-     * XalanC - compiles XSL into byte code and is a very efficient 1.0 engine (Default)
-     * SaxonHE - Implements v2.0 of the XSL language, but gives a license error when attempting a transform.
-     * SaxonEE - Implements v2.0 of the XSL language, and allows transforms.
-<15> The XSD engine to use for validation. Possible choices are Xerces and SaxonEE.
-     Note that the SaxonEE validator requires a license.  (Default: Xerces)
+     Can be 1 or 2. (Default: 1) +
+     *NOTE:* _IF_ 1 is set, _THEN_ the Xalan implementation will be used; _ELSE IF_ 2, _THEN_ Saxon will be used. +
+     *NOTE:* XPath 2 with schema awareness requires a Saxon license.
+<14> Indicates the XSL engine to use from the possible list of: +
+     *&deg; Xalan* - Standard Java XSL engine +
+     *&deg; XalanC* - compiles XSL into byte code and is a very efficient 1.0 engine (Default) +
+     *&deg; SaxonHE* - Implements v2.0 of the XSL language, but gives a license error when attempting a transform. +
+     *&deg; SaxonEE* - Implements v2.0 of the XSL language, and allows transforms. +
+     *NOTE:* Even though Saxon is an XSL 2.0 engine, most 1.0 XSLs should work fine.
+<15> Indicates the XSD engine to use for validation from the possible list of: +
+     *&deg; Xerces* (Default) +
+     *&deg; SaxonEE* +
+     *NOTE:* The SaxonEE validator requires a license.
 <16> Enables the use of the rax:ignoreXSD extension in WADL files to exclude some representations from validation against the XSD.  (Default: true)
 <17> This is an optimization where the well formed check and multiple XPath checks can be merged into a single check. (Default: true)
 <18> Sets the name for this validator.
      The name is used as the MBean name when connecting to Repose via JMX.
 <19> If set to true and the WADL defines required headers then the filter will check that those required headers are present. (Default: false)
-<20> Enables the use of `rax:roles` in WADL files to determine resource access.
-     If `true`, then `rax:roles` defined in the supplied WADL files will be used to determine resource access.
-     NOTE: If `true`, check-headers will also be enabled regardless of your setting. (Default: false)
+<20> Enables the use of `rax:roles` in WADL files to determine resource access. (Default: false) +
+     *NOTE:* _IF_ `true`, _THEN_ `rax:roles` defined in the supplied WADL files will be used to determine resource access. +
+     *NOTE:* _IF_ `true`, _THEN_ check-headers will also be enabled regardless of it's setting.
 <21> Mask `rax-roles` with `404` and `405` errors.
      By default `rax-roles` responds with a `403` if there is a role mismatch, if this is set to `true`, then the response will be `404` if no methods are accessible or `405` if some methods are available. (Default: false)
 <22> If set to `true`, then the validity of the generated state machine is checked (e.g. no dead-end paths, there is a single start state, no none connected nodes, etc.). (Default: true)
@@ -285,11 +290,11 @@ This configuration shows the deprecated, but currently legal, multi-validator de
     </validator>
 </validators>
 ----
-<1> Defines the `roles` to which this validator is applied.
+<1> Defines the `roles` to which this validator is applied. +
     *DEPRECATED:* Roles defined outside of the WADL will not be supported in Repose 9 and this attribute will not be available.
-<2> Indicates that this is not the default validator.
+<2> Indicates that this is not the default validator. +
     *DEPRECATED:* Multiple validators will not be supported in Repose 9 and this attribute will not be available.
-<3> Shows how to embed a WADL into the configuration.
+<3> Shows how to embed a WADL into the configuration. +
     *DEPRECATED:* This element body is currently optional, but will not be supported in Repose 9.
     Currently both a WADL file and embedded WADL can not be defined.
     Currently at least a WADL file or embedded WADL must be defined.
