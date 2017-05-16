@@ -83,9 +83,10 @@ This configuration is the most basic example of this filter's configuration.
 .validator.cfg.xml
 ----
 <validators xmlns="http://docs.openrepose.org/repose/validator/v1.0">
-    <validator role="default"                         <!--1-->
-               default="true"                         <!--2-->
-               wadl="file://path/to/wadl/file.wadl"/> <!--3-->
+    <validator role="default" <!--1-->
+               default="true" <!--2-->
+               wadl="file:///path/to/wadl/file.wadl" <!--3-->
+    />
 </validators>
 ----
 <1> The `role` attribute is deprecated, but is currently required and doesn't have a default value.
@@ -109,28 +110,29 @@ This configuration expands the basic example in order to show off all of the fea
 .validator.cfg.xml
 ----
 <validators xmlns="http://docs.openrepose.org/repose/validator/v1.0">
-    <validator role="default"                       <!--1-->
-               default="true"                       <!--2-->
-               wadl="file://path/to/wadl/file.wadl" <!--3-->
-               enable-api-coverage="false"          <!--4-->
-               dot-output="/tmp/default.dot"        <!--5-->
-               check-well-formed="false"            <!--6-->
-               check-grammars="false"               <!--7-->
-               check-elements="true"                <!--8-->
-               check-plain-params="true"            <!--9-->
-               do-xsd-grammar-transform="true"      <!--10-->
-               enable-pre-process-extension="true"  <!--11-->
-               remove-dups="true"                   <!--12-->
-               xpath-version="2"                    <!--13-->
-               xsl-engine="XalanC"                  <!--14-->
-               xsd-engine="Xerces"                  <!--15-->
-               enable-ignore-xsd-extension="false"  <!--16-->
-               join-xpath-checks="false"            <!--17-->
-               validator-name="testName"            <!--18-->
-               check-headers="true"                 <!--19-->
-               enable-rax-roles="false"             <!--20-->
-               mask-rax-roles-403="false"           <!--21-->
-               validate-checker="true"/>            <!--22-->
+    <validator role="default" <!--1-->
+               default="true" <!--2-->
+               wadl="file:///path/to/wadl/file.wadl" <!--3-->
+               enable-api-coverage="false" <!--4-->
+               dot-output="/tmp/default.dot" <!--5-->
+               check-well-formed="false" <!--6-->
+               check-grammars="false" <!--7-->
+               check-elements="true" <!--8-->
+               check-plain-params="true" <!--9-->
+               do-xsd-grammar-transform="true" <!--10-->
+               enable-pre-process-extension="true" <!--11-->
+               remove-dups="true" <!--12-->
+               xpath-version="2" <!--13-->
+               xsl-engine="XalanC" <!--14-->
+               xsd-engine="Xerces" <!--15-->
+               enable-ignore-xsd-extension="false" <!--16-->
+               join-xpath-checks="false" <!--17-->
+               validator-name="testName" <!--18-->
+               check-headers="true" <!--19-->
+               enable-rax-roles="false" <!--20-->
+               mask-rax-roles-403="false" <!--21-->
+               validate-checker="true" <!--22-->
+    />
 </validators>
 ----
 <1> List of roles that are applied on single validator.
@@ -212,8 +214,8 @@ This configuration shows the deprecated, but currently legal, multi-validator de
     <validator role="default"
                default="true"
                wadl="file://path/to/wadl/file.wadl"/>
-    <validator role="embedded"                                             <!--1-->
-               default="false"                                             <!--2-->
+    <validator role="embedded" <!--1-->
+               default="false" <!--2-->
                check-well-formed="false"
                check-grammars="true"
                check-elements="true"

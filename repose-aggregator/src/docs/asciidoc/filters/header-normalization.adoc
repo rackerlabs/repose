@@ -98,8 +98,8 @@ header-normalization.cfg.xml
 ----
 <header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
     <target uri-regex="/servers/(.*)" http-methods="ALL"> <!--1-->
-        <request> <!--2--><!--3-->
-            <whitelist> <!--4--><!--5-->
+        <request> <!--2--> <!--3-->
+            <whitelist> <!--4--> <!--5-->
                 <header id="X-Auth-Key"/> <!--6-->
                 <header id="X-Auth-User"/>
             </whitelist>

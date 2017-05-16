@@ -149,9 +149,9 @@ In other words, the `match` elements are logically AND'd and the `filterOut` blo
     <filterOut>
         <match field="userName" regex=".*[fF]oo.*"/> <!--1-->
         <match field="dataCenter" regex="DFW"/>
-    </filterOut>  <!--2-->
+    </filterOut> <!--2-->
     <filterOut>
-        <match field="userName" regex=".*[bB]ar.*"/>  <!--1-->
+        <match field="userName" regex=".*[bB]ar.*"/> <!--1-->
         <match field="parameters.abc" regex="123"/>
     </filterOut>
 </highly-efficient-record-processor>

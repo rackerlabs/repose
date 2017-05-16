@@ -52,24 +52,23 @@ The following is a basic sample configuration.
 ----
 
 ==== Full Configuration
-
 [source,xml]
 .dist-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'
-                       connection-pool-id="default"         <!--1-->
-                       keystore-filename="keystore.jks"     <!--2-->
-                       keystore-password="password"         <!--3-->
-                       key-password="secret"                <!--4-->
+                       connection-pool-id="default" <!--1-->
+                       keystore-filename="keystore.jks" <!--2-->
+                       keystore-password="password" <!--3-->
+                       key-password="secret" <!--4-->
                        truststore-filename="truststore.jks" <!--5-->
-                       truststore-password="trusting">      <!--6-->
-    <allowed-hosts allow-all="false">                       <!--7--><!--8-->
-        <allow host="127.0.0.1"/>                           <!--9-->
+                       truststore-password="trusting"> <!--6-->
+    <allowed-hosts allow-all="false"> <!--7--> <!--8-->
+        <allow host="127.0.0.1"/> <!--9-->
     </allowed-hosts>
     <port-config>
-        <port port="9999" cluster="repose"/>                <!--10-->
-        <port port="7777" cluster="repose" node="node2"/>   <!--11-->
+        <port port="9999" cluster="repose"/> <!--10-->
+        <port port="7777" cluster="repose" node="node2"/> <!--11-->
     </port-config>
 </distributed-datastore>
 ----
@@ -231,16 +230,15 @@ The following is a basic sample configuration.
 ----
 
 ==== Full Configuration
-
 [source,xml]
 .remote-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <remote-datastore>
-    <cluster id="repose"                             <!--1-->
-             host="remote.example.com"               <!--2-->
-             port="8080"                             <!--3-->
-             useHTTPS="true"                         <!--4-->
+    <cluster id="repose" <!--1-->
+             host="remote.example.com" <!--2-->
+             port="8080" <!--3-->
+             useHTTPS="true" <!--4-->
              connection-pool-id="remote-datastore"/> <!--5-->
 </remote-datastore>
 ----
