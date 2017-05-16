@@ -1,7 +1,5 @@
 = Rate Limiting Filter
 
-include::../_includes/in-progress.adoc[]
-
 The Rate Limiting filter can be used to limit the number of requests that make it through Repose to specified resources belonging to the origin service.
 By imposing a rate limit, an operator can prevent the origin service from being flooded by requests, thereby bounding the potential for congestion or contention.
 

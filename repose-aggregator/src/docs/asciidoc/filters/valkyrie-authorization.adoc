@@ -1,7 +1,5 @@
 = Valkyrie Authorization Filter
 
-include::../_includes/in-progress.adoc[]
-
 The Valkyrie Authorization filter performs three distinct functions:
 
 * **Per-Device Authorization**:

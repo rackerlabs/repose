@@ -52,7 +52,7 @@ Removes headers from a request and/or response by preventing specific headers or
 *IN PROGRESS*
 
 == <<herp.adoc#,Highly Efficient Record Processor (HERP) Filter>>
-*IN PROGRESS*
+Logs an event for each API request regarding the processing of each so usage of a service can be audited.
 
 == <<ip-user.adoc#,IP User Filter>>
 *IN PROGRESS*
@@ -76,7 +76,7 @@ Provides a mechanism for authenticating incoming requests with the OpenStack Key
 For identity usage for rate limiting and user access events.
 
 == <<rate-limiting.adoc#,Rate Limiting Filter>>
-*IN PROGRESS*
+Enables limiting the number of requests that make it through Repose to specified resources belonging to the origin service.
 
 == <<saml-policy.adoc#,SAML Policy Translation Filter>>
 Allows the translation and addition of new assertions to a SAML response request.
@@ -106,7 +106,11 @@ Enables users to write custom filters for Repose using a variety of scripting la
 *IN PROGRESS*
 
 == <<valkyrie-authorization.adoc#,Valkyrie Authorization Filter>>
-*IN PROGRESS*
+This filter performs three distinct functions:
+
+* Per-Device Authorization
+* Response Collection Resource Culling
+* Account Permission to Role Translation
 
 == <<versioning.adoc#,Versioning Filter>>
 *IN PROGRESS*
