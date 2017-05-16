@@ -44,7 +44,7 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
     private static final Pattern GET_TOKEN_PATH = ~$/$/v2.0/tokens(\?.*)?/$
 
     @Shared
-    MockIdentityV2Service fakeIdentityV2Service
+    MockIdentityV2Service mockIdentity
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -55,25 +55,25 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/rcn/rcnenabled", params)
 
-        fakeIdentityV2Service = new MockIdentityV2Service(params.identityPort, params.targetPort)
-        deproxy.addEndpoint(params.identityPort, 'identity service', null, fakeIdentityV2Service.handler)
+        mockIdentity = new MockIdentityV2Service(params.identityPort, params.targetPort)
+        deproxy.addEndpoint(params.identityPort, 'identity service', null, mockIdentity.handler)
 
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def setup() {
-        fakeIdentityV2Service.resetHandlers()
+        mockIdentity.resetHandlers()
     }
 
     @Unroll
     def "When Repose calls Identity to #requestPurpose, it includes the apply_rcn_role query param"() {
         given: "a new user (token and id) to ensure the calls to Identity are not handled by the Akka cache"
-        fakeIdentityV2Service.with {
+        mockIdentity.with {
             client_token = UUID.randomUUID().toString()
             client_userid = UUID.randomUUID().toString()
         }
-        def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
+        def headers = ['X-Auth-Token': mockIdentity.client_token]
 
         when:
         def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/test", headers: headers)
@@ -95,11 +95,11 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
 
     def "When Repose calls Identity to get the groups, it does not include the apply_rcn_role query param"() {
         given: "a new user (token and id) to ensure the calls to Identity are not handled by the Akka cache"
-        fakeIdentityV2Service.with {
+        mockIdentity.with {
             client_token = UUID.randomUUID().toString()
             client_userid = UUID.randomUUID().toString()
         }
-        def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
+        def headers = ['X-Auth-Token': mockIdentity.client_token]
 
         when:
         def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/test/get/groups", headers: headers)
@@ -117,16 +117,16 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
 
     def "When Repose calls Identity to get the admin token, it does not include the apply_rcn_role query param"() {
         given: "a new user (token and id) to ensure the calls to Identity are not handled by the Akka cache"
-        fakeIdentityV2Service.with {
+        mockIdentity.with {
             client_token = UUID.randomUUID().toString()
             client_userid = UUID.randomUUID().toString()
         }
-        def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
+        def headers = ['X-Auth-Token': mockIdentity.client_token]
 
         and: "the admin token will have to be requested again"
-        fakeIdentityV2Service.validateTokenHandler = { tokenId, tenantId, request ->
-            fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
-            fakeIdentityV2Service.validateTokenHandler = fakeIdentityV2Service.&validateToken
+        mockIdentity.validateTokenHandler = { tokenId, tenantId, request ->
+            mockIdentity.admin_token = UUID.randomUUID().toString()
+            mockIdentity.validateTokenHandler = mockIdentity.&validateToken
             return new Response(SC_UNAUTHORIZED)
         }
 
@@ -147,15 +147,15 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
     @Unroll
     def "When Repose has to retry the call to Identity to #requestPurpose, it includes the apply_rcn_role query param"() {
         given: "a new user (token and id) to ensure the calls to Identity are not handled by the Akka cache"
-        fakeIdentityV2Service.with {
+        mockIdentity.with {
             client_token = UUID.randomUUID().toString()
             client_userid = UUID.randomUUID().toString()
         }
-        def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
+        def headers = ['X-Auth-Token': mockIdentity.client_token]
 
         and: "the admin token will have expired between the time it will be requested and the time it will be used for the validate token call"
         (handlerSetter as Closure) { unused1, unused2, unused3 = null ->
-            fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
+            mockIdentity.admin_token = UUID.randomUUID().toString()
             handlerSetter(defaultHandler)
             return new Response(SC_UNAUTHORIZED)
         }
@@ -175,22 +175,22 @@ class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
 
         where:
         requestPurpose       | pathRegex             | handlerSetter                                  | defaultHandler
-        "validate the token" | TOKEN_VALIDATION_PATH | fakeIdentityV2Service.&setValidateTokenHandler | fakeIdentityV2Service.&validateToken
-        "get the endpoints"  | GET_ENDPOINTS_PATH    | fakeIdentityV2Service.&setGetEndpointsHandler  | fakeIdentityV2Service.&listEndpointsForToken
+        "validate the token" | TOKEN_VALIDATION_PATH | mockIdentity.&setValidateTokenHandler | mockIdentity.&validateToken
+        "get the endpoints"  | GET_ENDPOINTS_PATH    | mockIdentity.&setGetEndpointsHandler  | mockIdentity.&listEndpointsForToken
     }
 
     def "When Repose has to retry the call to Identity to get the groups, it does not include the apply_rcn_role query param"() {
         given: "a new user (token and id) to ensure the calls to Identity are not handled by the Akka cache"
-        fakeIdentityV2Service.with {
+        mockIdentity.with {
             client_token = UUID.randomUUID().toString()
             client_userid = UUID.randomUUID().toString()
         }
-        def headers = ['X-Auth-Token': fakeIdentityV2Service.client_token]
+        def headers = ['X-Auth-Token': mockIdentity.client_token]
 
         and: "the admin token will have expired between the time it will be requested and the time it will be used for the get groups call"
-        fakeIdentityV2Service.getGroupsHandler = { tokenId, request ->
-            fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
-            fakeIdentityV2Service.getGroupsHandler = fakeIdentityV2Service.&listUserGroups
+        mockIdentity.getGroupsHandler = { tokenId, request ->
+            mockIdentity.admin_token = UUID.randomUUID().toString()
+            mockIdentity.getGroupsHandler = mockIdentity.&listUserGroups
             return new Response(SC_UNAUTHORIZED)
         }
 
