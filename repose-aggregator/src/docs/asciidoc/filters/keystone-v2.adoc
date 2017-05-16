@@ -1,5 +1,7 @@
 = Keystone v2 Filter
 
+Provides a mechanism for authenticating incoming requests with the OpenStack Keystone v2 Identity service.
+
 == General filter information
 * *Name:* keystone-v2
 * *Default Configuration:* keystone-v2.cfg.xml
@@ -239,9 +241,9 @@ When in delegating mode, the filter sets the `X-Identity-Status` header with a v
 </keystone-v2>
 ----
 <1> If this element is present, then delegation is enabled.
-Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.
+    Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.
 <2> Indicates the quality that will be added to any output headers.
-When setting up a chain of delegating filters the highest quality number will be the one that is eventually output. (Default: 0.7)
+    When setting up a chain of delegating filters the highest quality number will be the one that is eventually output. (Default: 0.7)
 
 === Configuring White-Listed URI's
 You can configure this filter to allow no-op processing of requests that do not require authentication.
@@ -298,7 +300,7 @@ If the token's TTL exceeds the maximum allowed TTL value (2^31 - 1), the maximum
 Each timeout value behaves in the following way:
 
 * If `-1`, caching is disabled.
-* If `0`, data is cached indefinitely.
+* If `0`, data is cached indefinitely. +
   In other words, data is eternal.
 * If greater than 0, data is cached for the value provided, in seconds.
 ====
@@ -338,15 +340,15 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <?xml version="1.0" encoding="UTF-8"?>
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <identity-service uri="http://identity.example.com"/>
-    <tenant-handling send-all-tenant-ids="false">                      <!--1-->
-        <validate-tenant strip-token-tenant-prefixes="/foo:/bar-"     <!--2--> <!--3-->
-                         enable-legacy-roles-mode="false"              <!--4-->
+    <tenant-handling send-all-tenant-ids="false"> <!--1-->
+        <validate-tenant strip-token-tenant-prefixes="/foo:/bar-" <!--2--> <!--3-->
+                         enable-legacy-roles-mode="false" <!--4-->
         >
             <uri-extraction-regex>${your-regex}</uri-extraction-regex> <!--5-->
         </validate-tenant>
-        <send-tenant-id-quality default-tenant-quality="0.9"          <!--6--> <!--7-->
-                                uri-tenant-quality="0.7"               <!--8-->
-                                roles-tenant-quality="0.5"             <!--9-->
+        <send-tenant-id-quality default-tenant-quality="0.9" <!--6--> <!--7-->
+                                uri-tenant-quality="0.7" <!--8-->
+                                roles-tenant-quality="0.5" <!--9-->
         >
     </tenant-handling>
 </keystone-v2>
@@ -354,9 +356,9 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <1> Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not. (Default: false)
 <2> If this element is included, then Tenant ID Validation will be enforced based on the value extracted from the URI.
 <3> A `/` delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
-The post-strip Tenant ID is only used in the Tenant Validation check.
+    The post-strip Tenant ID is only used in the Tenant Validation check.
 <4> If in legacy roles mode, then all roles associated with a user token are forwarded.
-If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. (Default: false)
+    If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. (Default: false)
 <5> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with a single capturing group around the portion of the URI to extract the Tenant ID from for validation.
 <6> If this element is included, then include Quality parameters on all the tenant ID headers sent.
 <7> The default tenant has the highest quality. (Default: 0.9)
@@ -380,7 +382,7 @@ These configured roles will be compared to the roles returned in a token from th
 <?xml version="1.0" encoding="UTF-8"?>
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <identity-service uri="http://identity.example.com"/>
-    <pre-authorized-roles>  <!--1-->
+    <pre-authorized-roles> <!--1-->
         <role>racker</role> <!--2-->
     </pre-authorized-roles>
 </keystone-v2>
@@ -398,9 +400,9 @@ If endpoint authorization is enabled, then the user must have an endpoint in the
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <identity-service uri="http://identity.example.com"/>
     <require-service-endpoint public-url="https://service.example.com" <!--1--> <!--2-->
-                              region="ORD"                              <!--3-->
-                              name="OpenStackCompute"                   <!--4-->
-                              type="compute"                            <!--5-->
+                              region="ORD" <!--3-->
+                              name="OpenStackCompute" <!--4-->
+                              type="compute" <!--5-->
     />
 </keystone-v2>
 ----

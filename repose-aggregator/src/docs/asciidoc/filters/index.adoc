@@ -60,7 +60,7 @@ Enables users to add support for Cross-Origin Resource Sharing requests.
 *IN PROGRESS*
 
 == <<keystone-v2.adoc#,Keystone v2 Filter>>
-*IN PROGRESS*
+Provides a mechanism for authenticating incoming requests with the OpenStack Keystone v2 Identity service.
 
 == <<keystone-v2-basic-auth.adoc#,Keystone v2 Basic Auth Filter>>
 *IN PROGRESS*
