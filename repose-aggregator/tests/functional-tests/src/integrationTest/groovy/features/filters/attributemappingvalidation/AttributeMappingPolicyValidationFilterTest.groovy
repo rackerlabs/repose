@@ -47,14 +47,14 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     @Unroll
     def "#method should hit origin service #times times"() {
         given:
-        Map headers = body ? ["content-type" : TEXT_PLAIN] : [:]
+        Map headers = body ? ["content-type": TEXT_PLAIN] : [:]
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, headers: headers, requestBody: body)
 
         then:
         mc.handlings.size() == times
-        if(method != "PUT") {
+        if (method != "PUT") {
             assert mc.handlings[0].request.body == body
         }
 
@@ -92,7 +92,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             """
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type" : APPLICATION_XML], requestBody: body)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
 
         then:
         mc.receivedResponse.code == "200"
@@ -124,7 +124,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             """
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type" : APPLICATION_JSON], requestBody: body)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
 
         then:
         mc.receivedResponse.code == "200"
@@ -156,7 +156,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             """
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type" : APPLICATION_XML], requestBody: body)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
 
         then:
         mc.receivedResponse.code == "400"
@@ -187,7 +187,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             """
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type" : APPLICATION_JSON], requestBody: body)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
 
         then:
         mc.receivedResponse.code == "400"
