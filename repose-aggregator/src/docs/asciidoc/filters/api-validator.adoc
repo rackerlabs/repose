@@ -195,7 +195,8 @@ To place this filter in <<../recipes/delegation.adoc#,Delegation>> mode, add the
 <validators xmlns="http://docs.openrepose.org/repose/validator/v1.0">
     <validator role="default"
                default="true"
-               wadl="file://path/to/wadl/file.wadl"/>
+               wadl="file:///path/to/wadl/file.wadl"
+    />
     <delegating quality="0.3"/> <!--1--> <!--2-->
 </validators>
 ----
@@ -213,7 +214,8 @@ This configuration shows the deprecated, but currently legal, multi-validator de
 <validators xmlns="http://docs.openrepose.org/repose/validator/v1.0">
     <validator role="default"
                default="true"
-               wadl="file://path/to/wadl/file.wadl"/>
+               wadl="file:///path/to/wadl/file.wadl"
+    />
     <validator role="embedded" <!--1-->
                default="false" <!--2-->
                check-well-formed="false"
