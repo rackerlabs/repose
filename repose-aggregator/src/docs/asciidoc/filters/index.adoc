@@ -6,7 +6,8 @@ include::../_includes/in-progress.adoc[]
 Enables users to add new headers and header values to a request and/or response.
 
 == <<api-validator.adoc#,API Validator Filter>>
-*IN PROGRESS*
+Enables the ability to validate a call to an API.
+It can check to make sure a call has a properly formatted URI, perform <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>>, ensure body content complies with a schema, and much more.
 
 == <<attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation filter>>
 For Identity usage in validating attribute mapping policies which may be applied by the <<saml-policy.adoc#,SAML Policy Translation Filter>>.
@@ -42,7 +43,7 @@ Enables users to add support for Cross-Origin Resource Sharing requests.
 *IN PROGRESS*
 
 == <<header-normalization.adoc#,Header Normalization filter>>
-*IN PROGRESS*
+Removes headers from a request and/or response by preventing specific headers or by only allowing approved headers to continue on.
 
 == <<header-translation.adoc#,Header Translation Filter>>
 *IN PROGRESS*
