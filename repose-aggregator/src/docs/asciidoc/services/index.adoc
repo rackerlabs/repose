@@ -7,7 +7,6 @@ include::../_includes/in-progress.adoc[]
 
 == <<datastores.adoc#,Datastores>>
 Enables the local Repose node or an entire cluster to store various types of data.
-A common use-case is storing rate-limiting data in a distributed manner across an entire cluster.
 
 == <<health-check.adoc#,Health Check service>>
 *IN PROGRESS*

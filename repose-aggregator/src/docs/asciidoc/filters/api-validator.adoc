@@ -1,8 +1,8 @@
 = API Validator Filter
 
-The API Validation filter validates all requests against a configured https://www.w3.org/Submission/wadl/[Web Application Description Language (WADL)] file.
+The API Validator filter validates all requests against a configured https://www.w3.org/Submission/wadl/[Web Application Description Language (WADL)] file.
 For example, if a request to the origin service is missing the tenant ID in the URI, but the origin service requires the tenant ID to be there, then the request will be rejected before it reaches the origin service.
-The API Validation filter can also be configured to validate the content of the request body against an https://www.w3.org/standards/techs/xmlschema[XML Schema Definition (XSD)] or http://json-schema.org/[JSON Schema] referenced as a grammar in the WADL.
+The API Validator filter can also be configured to validate the content of the request body against an https://www.w3.org/standards/techs/xmlschema[XML Schema Definition (XSD)] or http://json-schema.org/[JSON Schema] referenced as a grammar in the WADL.
 
 [NOTE]
 ====
@@ -10,7 +10,7 @@ A working knowledge of WADL's and XSD's/JSON Schemas will make the configuration
 Therefore, it is recommended that you read up on these subjects before attempting to use this filter.
 A good tutorial on XSD 1.1, including a comparison of XSD 1.1 and XSD 1.0, is located at:
 
-* http://www.xfront.com/xml-schema-1-1/
+* http://www.xfront.com/xml-schema-1-1/[XML Schema 1.1 Tutorial]
 
 Most of the ideas described in this conference session are implemented in this filter:
 
@@ -96,7 +96,7 @@ This configuration is the most basic example of this filter's configuration.
 <2> The `default` attribute is deprecated, but currently has a default value of `false`.
 <3> This is the fully qualified URI for where the WADL file can be located.
 
-[NOTE]
+[TIP]
 ====
 Even though multiple `validator` element definitions and the `role` and `default` attributes on each are deprecated, the easiest way to future proof new configurations is to:
 
@@ -138,12 +138,11 @@ This configuration expands the basic example in order to show off all of the fea
     />
 </validators>
 ----
-<1> List of roles that are applied on single validator.
+<1> List of roles from which at least one role must match a role in the request for this validator to be applied.
     Triggers off of `X-Roles` header. +
     *DEPRECATED:* Roles defined outside of the WADL will not be supported in Repose 9 and this attribute will not be available.
-<2> Set to `true` to use this validator if no `X-Roles` header is passed.
-    If the api-validator config `multi-match` is set to `true` then the default validator will be the first validator to process the incoming request.
-    If multi-match is set to `false` and if no validator is matched to the users' roles, then the filter will use the default validator. +
+<2> If the api-validator config `multi-match` is set to `true` then the default validator will be the first validator to process the incoming request.
+    If multi-match is set to `false` and if no validator is matched to the users' roles, then the filter will use the default validator. (Default: false) +
     *DEPRECATED:* Multiple validators will not be supported in Repose 9 and this attribute will not be available.
 <3> Location of the WADL to associate with this validator.
     If not specified, then the wadl needs to be embedded within the validator element.
@@ -186,10 +185,11 @@ This configuration expands the basic example in order to show off all of the fea
 <19> If set to true and the WADL defines required headers then the filter will check that those required headers are present. (Default: false)
 <20> Enables the use of `rax:roles` in WADL files to determine resource access. (Default: false) +
      *NOTE:* _IF_ `true`, _THEN_ `rax:roles` defined in the supplied WADL files will be used to determine resource access. +
-     *NOTE:* _IF_ `true`, _THEN_ check-headers will also be enabled regardless of it's setting.
+     *NOTE:* _IF_ `true`, _THEN_ `check-headers` will also be enabled regardless of it's setting.
 <21> Mask `rax-roles` with `404` and `405` errors.
-     By default `rax-roles` responds with a `403` if there is a role mismatch, if this is set to `true`, then the response will be `404` if no methods are accessible or `405` if some methods are available. (Default: false)
-<22> If set to `true`, then the validity of the generated state machine is checked (e.g. no dead-end paths, there is a single start state, no none connected nodes, etc.). (Default: true)
+     By default `rax-roles` responds with a `403` if there is a role mismatch.
+     If this is set to `true`, then the response will be `404` if no methods are accessible or `405` if some methods are available. (Default: false)
+<22> If set to `true`, then the validity of the generated state machine is checked (e.g. no dead-end paths, there is a single start state, no orphaned nodes, etc.). (Default: true)
 
 === Enable Delegation
 To place this filter in <<../recipes/delegation.adoc#,Delegation>> mode, add the `delegating` element to the filter configuration with an optional `quality` attribute that determines the delegating priority.
