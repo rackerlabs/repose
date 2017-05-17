@@ -20,6 +20,7 @@
 package org.openrepose.filters.keystonev2
 
 import java.io.{ByteArrayInputStream, InputStream}
+import java.util
 import javax.servlet.FilterConfig
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -125,7 +126,7 @@ class KeystoneV2FilterRcnTest extends FunSpec
 
         val filterChainRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
         filterChainRequest shouldNot be(null)
-        filterChainRequest.getHeaders(PowerApiHeader.X_CATALOG).asScala.isEmpty shouldBe false
+        filterChainRequest.getHeaders(PowerApiHeader.X_CATALOG).asScala.toTraversable shouldNot be(empty)
         val filterChainResponse = filterChain.getResponse.asInstanceOf[HttpServletResponse]
         filterChainResponse shouldNot be(null)
         filterChainResponse.getStatus shouldBe responseStatus

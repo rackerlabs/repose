@@ -76,7 +76,7 @@ This filter does not modify the request body.
 === Recommended follow-on (succeeding) filters
 While there are no succeeding filters that are strictly required, the following filters may be useful:
 
-* <<simple-rbac.adoc#, Simple RBAC filter>> - Provides role-based access control to the origin service's API, making use of the `X-PP-Groups` header.
+* <<simple-rbac.adoc#, Simple RBAC filter>> - Provides role-based access control to the origin service's API, which can be configured to directly use the `X-PP-Groups`.
 * <<api-validator.adoc#, API Validator filter>> - Provides role-based access control to the origin service's API, making use of the `X-PP-Groups` header.
 * <<rate-limiting.adoc#, Rate Limiting filter>> - Provides rate limiting, making use of the `X-PP-User` header.
 
@@ -96,9 +96,9 @@ This filter does not modify the response body.
 |Repose Groups Call Returns
 
 | _Successful_ (`2xx`)
-| _OK_ (`200`)
-| _OK_ (`200`)
-| _OK_ (`200`)
+| Request continues
+| Request continues
+| Request continues
 
 | _Bad Request_ (`400`)
 | _Internal Server Error_ (`500`)
@@ -134,7 +134,7 @@ The admin token is unauthorized.
 | _Not Found_ (`404`)
 | _Unauthorized_ (`401`)
 | _Unauthorized_ (`401`)
-| _OK_ (`200`)
+| Request continues
 
 | _Method Not Allowed_ (`405`)
 | _Internal Server Error_ (`500`)
@@ -226,10 +226,11 @@ This configuration is an example using the `identity-service` element's configur
 <6> Indicates whether or not to include the `apply_rcn_roles` query parameter when talking to the Keystone v2 Identity service. (Default: false)
 
 === Enable Delegation
-In some cases, you may want to delegate the decision to authenticate a request down the chain to either another filter or to the origin service.
+In some cases, you may want to delegate the decision to reject a request down the chain to either another filter or to the origin service.
 This filter allows a request to pass as either `confirmed` or `indeterminate` when configured to run in delegating mode.
 To place the filter in delegating mode, add the `delegating` element to the filter configuration with an optional `quality` attribute that determines the delegating priority.
 When in delegating mode, the filter sets the `X-Identity-Status` header with a value of `confirmed` when valid credentials have been authenticated by the Keystone v2 Identity service and to `indeterminate` when the credentials are not.
+The the `X-Identity-Status` header is in addition to the regular `X-Delegated` delegation header being created.
 
 [source,xml]
 .keystone-v2.cfg.xml
@@ -243,7 +244,7 @@ When in delegating mode, the filter sets the `X-Identity-Status` header with a v
 <1> If this element is present, then delegation is enabled.
     Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.
 <2> Indicates the quality that will be added to any output headers.
-    When setting up a chain of delegating filters the highest quality number will be the one that is eventually output. (Default: 0.7)
+    When setting up a chain of delegating filters the highest quality number will be the one that is eventually output to the logging mechanisms. (Default: 0.7)
 
 === Configuring White-Listed URI's
 You can configure this filter to allow no-op processing of requests that do not require authentication.
@@ -300,7 +301,7 @@ If the token's TTL exceeds the maximum allowed TTL value (2^31 - 1), the maximum
 Each timeout value behaves in the following way:
 
 * If `-1`, caching is disabled.
-* If `0`, data is cached indefinitely. +
+* If `0`, data is cached using the TTL in the token provided by the Keystone v2 Identity service. +
   In other words, data is eternal.
 * If greater than 0, data is cached for the value provided, in seconds.
 ====
