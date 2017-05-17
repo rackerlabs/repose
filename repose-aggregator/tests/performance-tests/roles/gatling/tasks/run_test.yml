@@ -9,7 +9,7 @@
     - repose
 
 - name: Run Gatling against Repose
-  command: "gatling -s {{ gatling.test.package }}.{{ gatling.test.name }} -on {{ gatling.test.name }}Repose"
+  command: "gatling -s {{ gatling.test.package }}.{{ gatling.test.name }} -on {{ gatling.test.id|default(gatling.test.name) }}Repose"
   environment:
     GATLING_HOME: /root/gatling/current
     JAVA_OPTS: -Dtest.base_url={{ test_load_balancer }}
@@ -29,7 +29,7 @@
     - origin
 
 - name: Run Gatling against the mock origin service
-  command: "gatling -s {{ gatling.test.package }}.{{ gatling.test.name }} -on {{ gatling.test.name }}Origin"
+  command: "gatling -s {{ gatling.test.package }}.{{ gatling.test.name }} -on {{ gatling.test.id|default(gatling.test.name) }}Origin"
   environment:
     GATLING_HOME: /root/gatling/current
     JAVA_OPTS: -Dtest.base_url={{ test_load_balancer }}
