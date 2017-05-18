@@ -18,6 +18,7 @@
   },
   gatling: {
     test: {
+      id: "ScriptingFilter{{ script_lang|capitalize }}Simulation",
       name: "ScriptingFilterSimulation",
       package: "filters.scripting"
     }
