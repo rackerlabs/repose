@@ -61,22 +61,30 @@ This filter does not create/modify any response headers.
 | Status Code
 | Reasons
 
-| _Unauthorized_ (`401`)
+| `400`
+| The body of a request fails to validate.
+
+| `401`
 | A requested resource or method requires a specific `X-Authenticated-By` request header value that was not found.
 
-| _Forbidden_ (`403`)
+| `403`
 | A requested resource or method requires a specific `X-Roles` request header value that was not found.
 
-| _Not Found_ (`404`)
+| `404`
 | The filter determined that the URI is invalid.
 
   When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value did not have access to the URI.
 
-| _Method Not Allowed_ (`405`)
+| `405`
 | The URI is valid, but the Method is not appropriate for the URI.
 
   When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value had access to the URI, but not the requested Method.
 |===
+
+[NOTE]
+====
+Through the use of the `rax:code` WADL extension, any of these default codes can be overridden to any value.
+====
 
 == Examples
 === Basic Example
