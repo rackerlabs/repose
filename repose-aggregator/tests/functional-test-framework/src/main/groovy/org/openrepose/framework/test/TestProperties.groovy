@@ -66,69 +66,81 @@ class TestProperties {
     PortFinder portFinder = PortFinder.instance
 
     TestProperties(String testRunDirectory = null) {
-        InputStream propertiesStream = ClassLoader.getSystemResource("default-test.properties").openStream()
-        // TODO: Overlay repose-test.properties
+        // Open a stream of the default properties, which should always be available.
+        InputStream defaultPropertiesStream = ClassLoader.getSystemResource("default-test.properties").openStream()
 
-        try {
-            Properties properties = new Properties()
-            properties.load(propertiesStream)
-
-            runDirectory = testRunDirectory ? properties.getProperty("test.root.directory") + "/test-homes/" + testRunDirectory : properties.getProperty("repose.home")
-
-            testRootDirectory = properties.getProperty("test.root.directory")
-            configDirectory = runDirectory + properties.getProperty("repose.config.directory")
-            configTemplates = properties.getProperty("repose.config.templates")
-            logFile = runDirectory + properties.getProperty("repose.log.name")
-            reposeLintLogFile = runDirectory + properties.getProperty("repose.lint.log.name")
-            logFilePattern = runDirectory + properties.getProperty("repose.log.pattern")
-
-            connFramework = "jersey"
-            def value = properties.getProperty("repose.container")
-            if (value) {
-                reposeContainer = value
+        defaultPropertiesStream.withCloseable {
+            // Locate user properties, or throw an exception if user properties cannot be located.
+            URL userPropertiesUrl = ClassLoader.getSystemResource("repose-test.properties")
+            if (userPropertiesUrl == null) {
+                throw new RuntimeException("Failure in setup of test: unable to read property files")
             }
 
-            reposeJar = properties.getProperty("repose.jar")
-            reposeLintJar = properties.getProperty("repose.lint.jar")
-            reposeRootWar = properties.getProperty("repose.root.war")
+            // Open a stream of the user properties.
+            InputStream userPropertiesStream = userPropertiesUrl.openStream()
 
-            int portStart = properties.getProperty("port.finder.port.start") as int
-            int portMax = properties.getProperty("port.finder.port.max") as int
-            def workerIdPropertyName = properties.getProperty("port.finder.property.name.worker.id")
-            int workerId = System.getProperty(workerIdPropertyName, '1') as int
-            int portRange = properties.getProperty("port.finder.port.range") as int
-            portFinder.startPort = portStart + (workerId * portRange)
-            portFinder.maxPort = portMax
+            userPropertiesStream.withCloseable {
+                try {
+                    // Set properties
+                    Properties properties = new Properties()
+                    properties.load(defaultPropertiesStream)
+                    properties.load(userPropertiesStream)
 
-            reposePort = portFinder.getNextOpenPort()
+                    runDirectory = testRunDirectory ? properties.getProperty("test.root.directory") + "/test-homes/" + testRunDirectory : properties.getProperty("repose.home")
 
-            glassfishJar = properties.getProperty("glassfish.jar")
-            tomcatJar = properties.getProperty("tomcat.jar")
+                    testRootDirectory = properties.getProperty("test.root.directory")
+                    configDirectory = runDirectory + properties.getProperty("repose.config.directory")
+                    configTemplates = properties.getProperty("repose.config.templates")
+                    logFile = runDirectory + properties.getProperty("repose.log.name")
+                    reposeLintLogFile = runDirectory + properties.getProperty("repose.lint.log.name")
+                    logFilePattern = runDirectory + properties.getProperty("repose.log.pattern")
 
-            targetPort = portFinder.getNextOpenPort()
-            targetPort2 = portFinder.getNextOpenPort()
-            identityPort = portFinder.getNextOpenPort()
-            identityPort2 = portFinder.getNextOpenPort()
-            valkyriePort = portFinder.getNextOpenPort()
-            atomPort = portFinder.getNextOpenPort()
-            atomPort2 = portFinder.getNextOpenPort()
-            phonehomePort = portFinder.getNextOpenPort()
-            targetHostname = properties.getProperty("target.hostname")
-            reposeVersion = properties.getProperty("repose.version")
+                    connFramework = "jersey"
+                    def value = properties.getProperty("repose.container")
+                    if (value) {
+                        reposeContainer = value
+                    }
 
-            def reposeVersionMatcher = reposeVersion =~ /\.?(\d)/
-            reposeMajorVersion = Integer.parseInt(reposeVersionMatcher[0][1] as String)
-            reposeMinorVersion = Integer.parseInt(reposeVersionMatcher[1][1] as String)
-            reposeFilterVersion = Integer.parseInt(reposeVersionMatcher[2][1] as String)
-            reposePatchVersion = Integer.parseInt(reposeVersionMatcher[3][1] as String)
-            reposeHome = properties.getProperty("repose.home")
-            mocksWar = properties.getProperty("mocks.war")
-            userRole = "foyer"
+                    reposeJar = properties.getProperty("repose.jar")
+                    reposeLintJar = properties.getProperty("repose.lint.jar")
+                    reposeRootWar = properties.getProperty("repose.root.war")
 
-        } catch (Exception e) {
-            throw new RuntimeException("Failure in setup of test: unable to read property files", e)
-        } finally {
-            propertiesStream.close()
+                    int portStart = properties.getProperty("port.finder.port.start") as int
+                    int portMax = properties.getProperty("port.finder.port.max") as int
+                    def workerIdPropertyName = properties.getProperty("port.finder.property.name.worker.id")
+                    int workerId = System.getProperty(workerIdPropertyName, '1') as int
+                    int portRange = properties.getProperty("port.finder.port.range") as int
+                    portFinder.startPort = portStart + (workerId * portRange)
+                    portFinder.maxPort = portMax
+
+                    reposePort = portFinder.getNextOpenPort()
+
+                    glassfishJar = properties.getProperty("glassfish.jar")
+                    tomcatJar = properties.getProperty("tomcat.jar")
+
+                    targetPort = portFinder.getNextOpenPort()
+                    targetPort2 = portFinder.getNextOpenPort()
+                    identityPort = portFinder.getNextOpenPort()
+                    identityPort2 = portFinder.getNextOpenPort()
+                    valkyriePort = portFinder.getNextOpenPort()
+                    atomPort = portFinder.getNextOpenPort()
+                    atomPort2 = portFinder.getNextOpenPort()
+                    phonehomePort = portFinder.getNextOpenPort()
+                    targetHostname = properties.getProperty("target.hostname")
+                    reposeVersion = properties.getProperty("repose.version")
+
+                    def reposeVersionMatcher = reposeVersion =~ /\.?(\d)/
+                    reposeMajorVersion = Integer.parseInt(reposeVersionMatcher[0][1] as String)
+                    reposeMinorVersion = Integer.parseInt(reposeVersionMatcher[1][1] as String)
+                    reposeFilterVersion = Integer.parseInt(reposeVersionMatcher[2][1] as String)
+                    reposePatchVersion = Integer.parseInt(reposeVersionMatcher[3][1] as String)
+                    reposeHome = properties.getProperty("repose.home")
+                    mocksWar = properties.getProperty("mocks.war")
+                    userRole = "foyer"
+                } catch (Exception e) {
+                    throw new RuntimeException("Failure in setup of test: unable to read property files", e)
+                }
+            }
         }
     }
 
