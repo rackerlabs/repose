@@ -473,7 +473,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         if (sendAllTenants && sendQuality) {
           val priorityTenants = (defaultTenant, matchedUriTenant) match {
             case (Some(default), Some(uri)) => Vector(s"$default;q=$defaultTenantQuality", s"$uri;q=$uriTenantQuality")
-            case (Some(_), None) => Vector(s"$defaultTenant;q=$defaultTenantQuality")
+            case (Some(default), None) => Vector(s"$default;q=$defaultTenantQuality")
             case (None, Some(uri)) => Vector(s"$uri;q=$uriTenantQuality")
             case (None, None) => Vector.empty[String]
           }
