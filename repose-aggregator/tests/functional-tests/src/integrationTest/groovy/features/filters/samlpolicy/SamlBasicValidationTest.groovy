@@ -20,16 +20,16 @@
 
 package features.filters.samlpolicy
 
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
-import static features.filters.samlpolicy.util.SamlPayloads.*
-import static features.filters.samlpolicy.util.SamlUtilities.*
 import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.*
+import static org.openrepose.framework.test.util.saml.SamlPayloads.*
+import static org.openrepose.framework.test.util.saml.SamlUtilities.*
 
 /**
  * This functional test goes through the shared validation logic between Flow 1.0 and 2.0 including the requirements

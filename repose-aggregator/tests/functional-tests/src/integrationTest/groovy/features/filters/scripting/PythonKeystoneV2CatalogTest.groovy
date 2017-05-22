@@ -19,10 +19,10 @@
  */
 package features.filters.scripting
 
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
 import groovy.text.SimpleTemplateEngine
 import org.openrepose.commons.utils.http.PowerApiHeader
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request

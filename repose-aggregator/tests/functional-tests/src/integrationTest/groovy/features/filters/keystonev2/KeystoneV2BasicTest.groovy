@@ -19,9 +19,9 @@
  */
 package features.filters.keystonev2
 
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
 import org.apache.commons.lang3.RandomStringUtils
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll

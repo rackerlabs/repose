@@ -1,0 +1,25 @@
+dependencies {
+    compile project(':repose-aggregator:core:repose-core-api')
+    compile project(':repose-aggregator:commons:commons-utilities')
+    compile project(':repose-aggregator:commons:commons-configuration')
+    compile 'org.codehaus.groovy:groovy-all'
+    compile 'org.rackspace:deproxy'
+    compile 'org.spockframework:spock-core'
+    compile 'org.apache.commons:commons-lang3'
+    compile 'org.springframework:spring-web'
+    compile 'javax.ws.rs:javax.ws.rs-api'
+    compile 'joda-time:joda-time'
+    compile 'org.linkedin:org.linkedin.util-groovy'
+    compile 'org.opensaml:opensaml-core'
+    compile 'org.opensaml:opensaml-saml-impl'
+}
+
+processResources {
+    expand(
+        version: version,
+    )
+}
+
+license {
+    excludes(['**/credentials.xsd', '**/atom.xsd', '**/xml.xsd'])
+}

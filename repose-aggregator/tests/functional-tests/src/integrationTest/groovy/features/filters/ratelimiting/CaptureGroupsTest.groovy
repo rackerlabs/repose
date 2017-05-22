@@ -19,9 +19,9 @@
  */
 package features.filters.ratelimiting
 
-import framework.*
-import framework.category.Bug
 import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.category.Bug
 import org.rackspace.deproxy.Deproxy
 
 class CaptureGroupsTest extends ReposeValveTest {

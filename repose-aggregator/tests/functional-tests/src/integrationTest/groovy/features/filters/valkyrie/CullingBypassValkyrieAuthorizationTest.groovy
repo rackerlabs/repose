@@ -19,12 +19,12 @@
  */
 package features.filters.valkyrie
 
-import framework.ReposeValveTest
-import framework.category.Slow
-import org.junit.experimental.categories.Category
-import framework.mocks.MockIdentityV2Service
-import framework.mocks.MockValkyrie
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.category.Slow
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
+import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response

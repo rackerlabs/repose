@@ -21,16 +21,14 @@
 package features.services.atomfeed
 
 import features.filters.keystonev2.AtomFeedResponseSimulator
-import framework.ReposeValveTest
-import framework.category.Slow
-import framework.mocks.MockIdentityV2Service
 import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.category.Slow
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.HeaderCollection
 import org.rackspace.deproxy.Request
-import org.spockframework.runtime.ConditionNotSatisfiedError
-import spock.lang.FailsWith
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit

@@ -20,14 +20,14 @@
 
 package features.core.via
 
-import framework.ReposeValveTest
-import framework.server.CustomizableSocketServerConnector
 import org.apache.http.HttpResponse
 import org.apache.http.HttpVersion
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.impl.client.HttpClients
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.server.CustomizableSocketServerConnector
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.MessageChain
@@ -36,9 +36,9 @@ import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Unroll
 
-import static framework.server.CustomizableSocketServerConnector.HTTP_1_0
-import static framework.server.CustomizableSocketServerConnector.HTTP_1_1
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static CustomizableSocketServerConnector.HTTP_1_0
+import static CustomizableSocketServerConnector.HTTP_1_1
 import static org.rackspace.deproxy.Deproxy.REQUEST_ID_HEADER_NAME
 import static org.springframework.http.HttpHeaders.VIA
 

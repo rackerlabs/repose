@@ -19,8 +19,8 @@
  */
 package features.core.intrafilterlogging
 
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityService
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 

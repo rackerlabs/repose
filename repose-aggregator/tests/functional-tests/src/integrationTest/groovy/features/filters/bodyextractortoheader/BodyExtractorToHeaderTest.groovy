@@ -19,12 +19,13 @@
  */
 package features.filters.bodyextractortoheader
 
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-import static org.junit.Assert.*
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertTrue
 
 /**
  * Created by jennyvo on 4/28/16.

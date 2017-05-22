@@ -19,7 +19,7 @@
  */
 package features.services.datastore
 
-import framework.*
+import org.openrepose.framework.test.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.spockframework.runtime.SpockAssertionError

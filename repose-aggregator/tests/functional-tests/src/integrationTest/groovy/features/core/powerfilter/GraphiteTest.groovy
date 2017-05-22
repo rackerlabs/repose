@@ -19,9 +19,9 @@
  */
 package features.core.powerfilter
 
-import framework.PortFinder
-import framework.ReposeValveTest
-import framework.mocks.MockGraphite
+import org.openrepose.framework.test.PortFinder
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockGraphite
 import org.rackspace.deproxy.Deproxy
 
 class GraphiteTest extends ReposeValveTest {

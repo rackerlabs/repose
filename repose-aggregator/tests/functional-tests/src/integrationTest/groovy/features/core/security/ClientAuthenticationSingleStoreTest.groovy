@@ -19,16 +19,14 @@
  */
 package features.core.security
 
-import framework.ReposeValveTest
 import org.apache.http.NoHttpResponseException
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.ssl.SSLContexts
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
 
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit

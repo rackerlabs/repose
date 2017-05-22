@@ -19,14 +19,14 @@
  */
 package features.filters.uriNormalization
 
-import framework.ReposeValveTest
-import framework.category.Slow
+import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
-import org.junit.experimental.categories.Category
 
 /**
  * Functional test for the URI Normalization filter

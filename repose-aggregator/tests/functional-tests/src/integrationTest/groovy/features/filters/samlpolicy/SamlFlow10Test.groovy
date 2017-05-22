@@ -20,25 +20,25 @@
 
 package features.filters.samlpolicy
 
-import features.filters.samlpolicy.util.SamlUtilities
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
 import groovy.json.JsonSlurper
 import org.custommonkey.xmlunit.Diff
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
+import org.openrepose.framework.test.util.saml.SamlUtilities
 import org.opensaml.saml.saml2.core.Response
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response as DeproxyResponse
 import spock.lang.Unroll
 
-import static features.filters.samlpolicy.util.SamlPayloads.*
-import static features.filters.samlpolicy.util.SamlUtilities.*
-import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
-import static framework.mocks.MockIdentityV2Service.createIdentityFaultXmlWithValues
 import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.HttpHeaders.ACCEPT
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.*
+import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
+import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createIdentityFaultXmlWithValues
+import static org.openrepose.framework.test.util.saml.SamlPayloads.*
+import static org.openrepose.framework.test.util.saml.SamlUtilities.*
 
 /**
  * This functional test goes through the validation logic unique to Flow 1.0.

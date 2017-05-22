@@ -19,12 +19,11 @@
  */
 package features.filters.apivalidator
 
-import framework.ReposeValveTest
-import framework.category.Slow
 import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.spockframework.runtime.SpockAssertionError
-import spock.lang.Shared
 import spock.util.concurrent.PollingConditions
 
 /**

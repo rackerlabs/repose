@@ -19,7 +19,7 @@
  */
 package features.filters.apivalidator
 
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
 class ApiValidatorJMXTest extends ReposeValveTest {
