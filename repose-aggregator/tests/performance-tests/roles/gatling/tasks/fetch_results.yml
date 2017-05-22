@@ -1,7 +1,7 @@
 - name: Get a listing of directories with Gatling results for tests that hit Repose
   find:
     path: "/root/gatling/current/results/"
-    pattern: "*-repose*"
+    pattern: "*Repose-*"
     file_type: directory
   register: gatling_results_dir
   tags:
@@ -32,7 +32,7 @@
 - name: Get a listing of directories with Gatling results for tests that hit the mock origin service
   find:
     path: "/root/gatling/current/results/"
-    pattern: "*-origin*"
+    pattern: "*Origin-*"
     file_type: directory
   register: gatling_results_dir
   tags:
