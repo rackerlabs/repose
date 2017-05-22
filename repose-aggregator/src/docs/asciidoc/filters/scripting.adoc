@@ -40,9 +40,7 @@ Changes to the response code varies based on configuration.
 == Supported Scripting Languages
 * Groovy
 * Javascript
-* Lua
 * Python
-* Ruby
 
 [NOTE]
 ====
@@ -51,7 +49,7 @@ All supported languages are currently compilable.
 
 [TIP]
 ====
-An enumeration of all supported language names (e.g., `lua` and `luaj`) that will be accepted in configuration can be found in the XML schema linked on this page.
+An enumeration of all supported language names (e.g., `python` and `jython`) that will be accepted in configuration can be found in the XML schema linked on this page.
 ====
 
 == Bindings
