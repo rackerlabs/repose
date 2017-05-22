@@ -121,6 +121,9 @@
                     <html:p>
                         Indicates whether or not to include the apply_rcn_roles query parameter when talking to
                         Rackspace Keystone V2 Identity.
+                        If this attribute is true, then it indicates the response from Rackspace Keystone V2 Identity
+                        should also include any global Rackspace Customer Number (RCN) roles.
+                        Refer to the Rackspace Keystone V2 Identity documentation for more information.
                         (Default: false)
                     </html:p>
                 </xs:documentation>

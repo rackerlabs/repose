@@ -100,68 +100,63 @@ This filter does not modify the response body.
 | Request continues
 | Request continues
 
-| _Bad Request_ (`400`)
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
+| `400`
+| `500`
+| `500`
+| `500`
 
-| _Unauthorized_ (`401`)
+| `401`
 
-* The admin token has expired.
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
+* The admin credentials are invalid.
+| `500`
+| `500`
+| `500`
 
-| _Unauthorized_ (`401`)
+| `401`
 
 * Self-validating tokens are being used, and the user token has expired.
 |
-|_Unauthorized_ (`401`)
-|_Unauthorized_ (`401`)
+|`401`
+|`401`
 
-| _Payment Required_ (`402`)
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
-
-| _Forbidden_ (`403`)
+| `403`
 
 The admin token is unauthorized.
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
+| `500`
+| `500`
+| `500`
 
-| _Not Found_ (`404`)
-| _Unauthorized_ (`401`)
-| _Unauthorized_ (`401`)
+| `404`
+| `401`
+| `401`
 | Request continues
 
-| _Method Not Allowed_ (`405`)
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
-| _Internal Server Error_ (`500`)
+| `405`
+| `500`
+| `500`
+| `500`
 
-| _Request Entity Payload Too Large_ (`413`)
+| `413`
 
-_Too Many Requests_ (`429`)
+`429`
 
 The Keystone v2 Identity service rate limited the Repose instance.
-| _Service Unavailable_ (`503`)
-| _Service Unavailable_ (`503`)
-| _Service Unavailable_ (`503`)
+| `503`
+| `503`
+| `503`
 
-| _Internal Server Error_ (`500`)
+| `500`
 
-_Not Implemented_ (`501`)
+`501`
 
-_Bad Gateway_ (`502`)
+`502`
 
-_Service Unavailable_ (`503`)
+`503`
 
 The Keystone v2 Identity service failed to process the request.
-| _Bad Gateway_ (`502`)
-| _Bad Gateway_ (`502`)
-| _Bad Gateway_ (`502`)
+| `502`
+| `502`
+| `502`
 |===
 
 == Examples
@@ -219,7 +214,8 @@ This configuration is an example using the `identity-service` element's configur
 </keystone-v2>
 ----
 <1> The Keystone v2 Identity service Endpoint URI.
-<2> Http Connection pool ID to use when talking to the Keystone v2 Identity service.
+<2> Http Connection pool ID to use when talking to the Keystone v2 Identity service. +
+    *NOTE:* If the `connection-pool-id` is not defined, then the default pool is used.
 <3> Set the user's roles in the `X-Roles` header. (Default: true)
 <4> Set the user's groups in the `X-PP-Groups` header. (Default: true)
 <5> Set the user's service catalog, base64 encoded, in the `X-Catalog` header. (Default: false)
@@ -362,9 +358,14 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
     If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. (Default: false)
 <5> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with a single capturing group around the portion of the URI to extract the Tenant ID from for validation.
 <6> If this element is included, then include Quality parameters on all the tenant ID headers sent.
-<7> The default tenant has the highest quality. (Default: 0.9)
-<8> Followed by the one that matches the URI (if any). (Default: 0.7)
-<9> Followed by the tenants from the roles. (Default: 0.5)
+<7> The default tenant has the highest quality by default. (Default: 0.9)
+<8> Followed by the one that matches the URI by default (if any). (Default: 0.7)
+<9> Followed by the tenants from the roles by default. (Default: 0.5)
+
+[NOTE]
+====
+If the Default Tenant and the URI Tenant are the same, then the highest quality between the two will be used.
+====
 
 [NOTE]
 ====
@@ -412,3 +413,8 @@ If endpoint authorization is enabled, then the user must have an endpoint in the
 <3> Region to match on the user's service catalog entry.
 <4> Name of the service to match in the user's service catalog entry.
 <5> Type to match in the user's service catalog entry.
+
+[NOTE]
+====
+The `public-url`, `region`, `name`, and `type` attributes are all optional and can be combined as needed to achieve the desired restrictions.
+====
