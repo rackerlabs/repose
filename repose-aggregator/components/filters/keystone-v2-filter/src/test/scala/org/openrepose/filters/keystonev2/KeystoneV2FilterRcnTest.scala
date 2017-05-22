@@ -20,7 +20,6 @@
 package org.openrepose.filters.keystonev2
 
 import java.io.{ByteArrayInputStream, InputStream}
-import java.util
 import javax.servlet.FilterConfig
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
