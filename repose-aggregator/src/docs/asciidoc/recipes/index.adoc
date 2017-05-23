@@ -62,3 +62,6 @@ Rate limiting is a common use case for Repose and is easy to test.  See Rate Lim
 == <<client-authentication.adoc#, SSL/TLS Client Authentication>>
 Looking for a little more security talking to *Repose* or maybe from *Repose* to your origin service?
 SSL/TLS Client Authentication will allow you to limit traffic to those who present a valid certificate.
+
+== <<functional-test-framework.adoc#, Functional Test Framework>>
+Learn how to use the Repose functional test framework to create tests for features in Repose or its extension components.
