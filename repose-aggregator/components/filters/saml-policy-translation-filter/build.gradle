@@ -9,7 +9,7 @@ dependencies {
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "com.google.guava:guava"
     //todo: remove this once we can move the translation filter up to the same version of saxon
-    compile "net.sf.saxon:Saxon-EE:9.7.0-8"
+    compile "net.sf.saxon:Saxon-EE:9.7.0-15"
     compile "com.rackspace.identity.components.attribute-mapper:mapper-core"
     compile "com.rackspace.papi.components.api-checker:checker-util"
     compile "com.fasterxml.jackson.core:jackson-databind"
