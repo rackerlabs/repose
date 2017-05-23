@@ -192,7 +192,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
-            validateTokenHandler = { tokenId, tenantId, request, xml ->
+            validateTokenHandler = { tokenId, tenantId, request ->
                 new Response(401)
             }
         }
@@ -211,7 +211,7 @@ class KeystoneV2SelfValidationTest extends ReposeValveTest {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
-            getGroupsHandler = { userId, request, xml ->
+            getGroupsHandler = { userId, request ->
                 new Response(401)
             }
         }

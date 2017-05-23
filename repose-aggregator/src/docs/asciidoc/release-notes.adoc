@@ -5,6 +5,8 @@ include::_includes/in-progress.adoc[]
 == Future Release
 
 * https://repose.atlassian.net/browse/REP-5234[REP-5234] - added the new <<services/datastores.adoc#_remote_datastore, Remote Datastore service>> which allows the Distributed Datastore service concept to work in dynamic containerized environments like OpenShift.
+* https://repose.atlassian.net/browse/REP-5343[REP-5343] - Updated the Keystone v2 filter to support the new Apply RCN Roles feature of Rackspace Keystone V2 Identity.
+Converted the https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filter[old Keystone v2 filter documentation] over to the <<filters/keystone-v2.adoc#, new versioned docs>>.
 * https://repose.atlassian.net/browse/REP-5438[REP-5438] - the <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> has been released!
 
 == 8.5.0.1

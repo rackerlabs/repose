@@ -105,7 +105,7 @@ class PythonKeystoneV2CatalogTest extends ReposeValveTest {
     }
 
     Closure<Response> createEndpointsHandlerWith(String template) {
-        { String tokenId, Request request, boolean xml ->
+        { String tokenId, Request request ->
             def headers = ["Content-type": "application/json"]
             def params = [endpointUrl: reposeEndpoint, tenantId: tenantId]
             def body = templateEngine.createTemplate(template).make(params)

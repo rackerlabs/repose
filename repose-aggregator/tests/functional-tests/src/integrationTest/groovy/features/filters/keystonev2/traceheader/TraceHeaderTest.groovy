@@ -86,7 +86,7 @@ class TraceHeaderTest extends ReposeValveTest {
         }
 
         fakeIdentityV2Service.validateTokenHandler = {
-            tokenId, tenantId, request, xml ->
+            tokenId, tenantId, request ->
                 return new Response(identityrespcode)
         }
 

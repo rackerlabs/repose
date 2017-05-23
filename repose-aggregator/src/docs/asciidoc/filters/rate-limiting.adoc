@@ -53,10 +53,10 @@ Any of the following filters can be used to fulfill this role:
 The value of this header will be `application/xml`.
 
 === Request Body Changes
-None.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-None.
+This filter is not strictly required by any other filters.
 
 === Response Body Changes
 This filter will only modify the response body if this filter is configured with a `request-endpoint`.

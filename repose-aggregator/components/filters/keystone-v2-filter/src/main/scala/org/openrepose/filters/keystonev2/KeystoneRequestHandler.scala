@@ -99,7 +99,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
     }
   }
 
-  final def validateToken(validatingToken: String, validatableToken: String, checkCache: Boolean = true): Try[ValidToken] = {
+  final def validateToken(validatingToken: String, validatableToken: String, applyRcnRoles: Boolean, checkCache: Boolean = true): Try[ValidToken] = {
     def extractUserInformation(keystoneResponse: InputStream): Try[ValidToken] = {
       val input: String = Source.fromInputStream(keystoneResponse).getLines mkString ""
       try {
@@ -146,7 +146,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
 
     val akkaResponse = Try(akkaServiceClient.get(
       s"$TOKEN_KEY_PREFIX$validatableToken",
-      s"$identityServiceUri$TOKEN_ENDPOINT/$validatableToken",
+      s"$identityServiceUri$TOKEN_ENDPOINT/$validatableToken${getApplyRcnRoles(applyRcnRoles)}",
       (Map(CommonHttpHeader.AUTH_TOKEN -> validatingToken,
         HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
@@ -155,14 +155,14 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
     handleResponse("validate token", akkaResponse, extractUserInformation)
   }
 
-  final def getEndpointsForToken(authenticatingToken: String, forToken: String, checkCache: Boolean = true): Try[EndpointsData] = {
+  final def getEndpointsForToken(authenticatingToken: String, forToken: String, applyRcnRoles: Boolean, checkCache: Boolean = true): Try[EndpointsData] = {
     def extractEndpointInfo(inputStream: InputStream): Try[EndpointsData] = {
       implicit val endpointsReader = (
         (JsPath \ "region").readNullable[String] and
           (JsPath \ "name").readNullable[String] and
           (JsPath \ "type").readNullable[String] and
           (JsPath \ "publicURL").read[String]
-        )(Endpoint.apply _)
+        ) (Endpoint.apply _)
 
       val jsonString = Source.fromInputStream(inputStream).getLines mkString ""
       val json = Json.parse(jsonString)
@@ -171,14 +171,15 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       (json \ "endpoints").validate[Vector[Endpoint]] match {
         case s: JsSuccess[Vector[Endpoint]] =>
           val endpoints = s.get
-          Success(new EndpointsData(jsonString, endpoints))
-        case f: JsError =>
+          Success(EndpointsData(jsonString, endpoints))
+        case _: JsError =>
           Failure(IdentityCommunicationException("Identity didn't respond with proper Endpoints JSON"))
       }
     }
 
-    val akkaResponse = Try(akkaServiceClient.get(s"$ENDPOINTS_KEY_PREFIX$forToken",
-      s"$identityServiceUri${ENDPOINTS_ENDPOINT(forToken)}",
+    val akkaResponse = Try(akkaServiceClient.get(
+      s"$ENDPOINTS_KEY_PREFIX$forToken",
+      s"$identityServiceUri${ENDPOINTS_ENDPOINT(forToken)}${getApplyRcnRoles(applyRcnRoles)}",
       (Map(CommonHttpHeader.AUTH_TOKEN -> authenticatingToken,
         HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
         ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
@@ -197,7 +198,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       }
     }
 
-    val akkaResponse = Try(akkaServiceClient.get(s"$GROUPS_KEY_PREFIX$forToken",
+    val akkaResponse = Try(akkaServiceClient.get(
+      s"$GROUPS_KEY_PREFIX$forToken",
       s"$identityServiceUri${GROUPS_ENDPOINT(forToken)}",
       (Map(CommonHttpHeader.AUTH_TOKEN -> authenticatingToken,
         HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
@@ -206,25 +208,29 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
 
     handleResponse("groups", akkaResponse, extractGroupInfo)
   }
+
+  private def getApplyRcnRoles(applyRcnRoles: Boolean): String = {
+    if (applyRcnRoles) "?apply_rcn_roles=true" else ""
+  }
 }
 
 object KeystoneRequestHandler {
   final val SC_TOO_MANY_REQUESTS = 429
   final val TOKEN_ENDPOINT = "/v2.0/tokens"
-  final val GROUPS_ENDPOINT = (userId: String) => s"/v2.0/users/$userId/RAX-KSGRP"
-  final val ENDPOINTS_ENDPOINT = (token: String) => s"/v2.0/tokens/$token/endpoints"
+  final val GROUPS_ENDPOINT: (String) => String = (userId: String) => s"/v2.0/users/$userId/RAX-KSGRP"
+  final val ENDPOINTS_ENDPOINT: (String) => String = (token: String) => s"/v2.0/tokens/$token/endpoints"
   final val ADMIN_TOKEN_KEY = "IDENTITY:V2:ADMIN_TOKEN"
   final val TOKEN_KEY_PREFIX = "IDENTITY:V2:TOKEN:"
   final val USER_ID_KEY_PREFIX = "IDENTITY:V2:USER_ID:"
   final val GROUPS_KEY_PREFIX = "IDENTITY:V2:GROUPS:"
   final val ENDPOINTS_KEY_PREFIX = "IDENTITY:V2:ENDPOINTS:"
 
-  def iso8601ToRfc1123(iso: String) = {
+  def iso8601ToRfc1123(iso: String): String = {
     val dateTime = ISODateTimeFormat.dateTimeParser().parseDateTime(iso)
     DateUtils.formatDate(dateTime.toDate)
   }
 
-  def buildRetryValue(response: ServiceClientResponse) = {
+  def buildRetryValue(response: ServiceClientResponse): String = {
     response.getHeaders.find(header => HttpHeaders.RETRY_AFTER.equalsIgnoreCase(header.getName)) match {
       case Some(retryValue) => retryValue.getValue
       case _ =>
@@ -298,7 +304,7 @@ object KeystoneRequestHandler {
      * @param endpointRequirement an endpoint containing fields with required values
      * @return true if this endpoint has field values matching those in the endpointRequirement, false otherwise
      */
-    def meetsRequirement(endpointRequirement: Endpoint) = {
+    def meetsRequirement(endpointRequirement: Endpoint): Boolean = {
       def compare(available: Option[String], required: Option[String]) = (available, required) match {
         case (Some(x), Some(y)) => x == y
         case (None, Some(_)) => false

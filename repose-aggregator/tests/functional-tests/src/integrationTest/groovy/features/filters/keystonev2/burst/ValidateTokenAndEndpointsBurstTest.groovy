@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,9 +21,6 @@ package features.filters.keystonev2.burst
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV2Service
-import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
@@ -50,7 +47,6 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityV2Service.handler)
 
         Map header1 = ['X-Auth-Token': fakeIdentityV2Service.client_token]
-        Map acceptXML = ["accept": "application/xml"]
 
         def missingResponseErrorHandler = { Request request ->
             def headers = request.getHeaders()
@@ -58,23 +54,17 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
             if (!headers.contains("X-Auth-Token")) {
                 return new Response(500, "INTERNAL SERVER ERROR", null, "MISSING AUTH TOKEN")
             }
-            return new Response(200, "OK", header1 + acceptXML)
+            return new Response(200, "OK", header1)
         }
         deproxy.defaultHandler = missingResponseErrorHandler
     }
 
     def "under heavy load should not drop endpoints in headers"() {
-
         given:
         Map header1 = ['X-Auth-Token': fakeIdentityV2Service.client_token]
         fakeIdentityV2Service.resetCounts()
 
         List<Thread> clientThreads = new ArrayList<Thread>()
-
-        DateTimeFormatter fmt = DateTimeFormat
-                .forPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
-                .withLocale(Locale.US)
-                .withZone(DateTimeZone.UTC);
         def missingAuthResponse = false
         def missingAuthHeader = false
 
@@ -109,14 +99,13 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
         fakeIdentityV2Service.getEndpointsCount == 1
 
         and:
-        missingAuthHeader == false
+        !missingAuthHeader
 
         and:
-        missingAuthResponse == false
+        !missingAuthResponse
 
         where:
         numClients | callsPerClient
         10         | 5
     }
-
 }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,14 +71,14 @@ class TenantedNonDelegableTest extends ReposeValveTest {
 
         if (authResponseCode != 200) {
             fakeIdentityV2Service.validateTokenHandler = {
-                tokenId, tenantId, request, xml ->
+                tokenId, tenantId, request ->
                     new Response(authResponseCode)
             }
         }
 
         if (groupResponseCode != 200) {
             fakeIdentityV2Service.getGroupsHandler = {
-                userId, request, xml ->
+                userId, request ->
                     new Response(groupResponseCode)
             }
         }
@@ -155,7 +155,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy $responseTenant"
         request2.headers.getFirstValue("x-user-name") == "username"
 
-        mc.receivedResponse.headers.contains("www-authenticate") == false
+        !mc.receivedResponse.headers.contains("www-authenticate")
 
         where:
         requestTenant | responseTenant | serviceAdminRole      | responseCode
@@ -165,10 +165,9 @@ class TenantedNonDelegableTest extends ReposeValveTest {
 
     def "Should split request headers according to rfc by default"() {
         given:
-        def reqHeaders = ["user-agent"                                                                 : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
-                "usertest2, usertest3", "accept"                                                       : "application/xml;q=1 , application/json;q=0.5"]
-        Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
+        def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36",
+                          "x-pp-user" : "usertest1,usertest2, usertest3",
+                          "accept"    : "application/xml;q=1 , application/json;q=0.5"]
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -190,7 +189,6 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
         def xmlResp = { request -> return new Response(201, "Created", respHeaders) }
-        Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
@@ -350,7 +348,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy $requestTenant"
         request2.headers.getFirstValue("x-user-name") == "username"
 
-        mc.receivedResponse.headers.contains("www-authenticate") == false
+        !mc.receivedResponse.headers.contains("www-authenticate")
 
         where:
         requestTenant | responseTenant | serviceAdminRole | responseCode
