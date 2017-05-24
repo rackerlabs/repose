@@ -72,6 +72,7 @@ test.root.directory=/default/test/root # <1>
 repose.home=/default/repose/home # <2>
 repose.config.templates=/default/config/templates # <3>
 
+# Required (If Used) Properties
 repose.jar=/default/valve/location # <4>
 repose.lint.jar=/default/lint/location # <5>
 repose.root.war=/default/root/war/location # <6>
