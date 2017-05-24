@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,6 +67,7 @@ public class HttpxProducer {
         return result;
     }
 
+    @SuppressWarnings("squid:S2254")
     public RequestInformation getRequestInformation() {
         if (requestInformation == null) {
             requestInformation = OBJECT_FACTORY.createRequestInformation();
@@ -91,6 +92,10 @@ public class HttpxProducer {
             info.setServerName(StringUtilities.getValue(request.getServerName(), ""));
             info.setServerPort(request.getServerPort());
             info.setServletPath(StringUtilities.getValue(request.getServletPath(), ""));
+
+            // [squid:S2254] The Session ID is only made available to the Repose user as part of an XML payload
+            //               used during translation. Furthermore, the Session ID is read-only, and will not be
+            //               modified by the translation filter.
             info.setSessionId(StringUtilities.getValue(request.getRequestedSessionId(), ""));
 
             requestInformation.setInformational(info);
