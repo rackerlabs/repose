@@ -39,7 +39,7 @@ public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
     private static final String KEY_FORMAT = "%03d";
 
     @Override
-    @SuppressWarnings("squid:S00112")
+    @SuppressWarnings({"squid:S00112", "squid:S1166"})
     public ObjectName createName(String type, String domain, String name) {
         try {
             /*
@@ -69,6 +69,7 @@ public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
                 LOGGER.warn("Unable to register {} {}", domain, name, moreMone);
                 // [squid:S00112] A RuntimeException must be thrown here as our recovery logic failed,
                 //                but this method does not declare any checked exceptions.
+                // [squid:S1166] The exception is logged and converted into an unchecked exception.
                 //
                 // TODO: In a future version of the metrics library, this interface will change and this exception
                 // TODO: will not need to be handled. See: https://github.com/dropwizard/metrics/pull/1076
