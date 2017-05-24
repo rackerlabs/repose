@@ -39,7 +39,7 @@ public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
     private static final String KEY_FORMAT = "%03d";
 
     @Override
-    @SuppressWarnings({"squid:S00112", "squid:S1166"})
+    @SuppressWarnings({"squid:S00112", "squid:S1166", "squid:S1149"})
     public ObjectName createName(String type, String domain, String name) {
         try {
             /*
@@ -48,6 +48,7 @@ public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
              Since the name argument is provided by the user, we always quote it.
               */
             int keyIndex = STARTING_KEY_INDEX;
+            // [squid:S1149] Hashtable is a parameter of the ObjectName constructor.
             Hashtable<String, String> objectNameProperties = new Hashtable<>();
             for (String nameSegment : name.split(KEY_SEGMENT_DELIMITER)) {
                 objectNameProperties.put(String.format(KEY_FORMAT, keyIndex++), ObjectName.quote(nameSegment));
