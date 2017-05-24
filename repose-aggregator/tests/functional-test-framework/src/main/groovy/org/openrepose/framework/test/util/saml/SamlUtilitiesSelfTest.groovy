@@ -54,13 +54,13 @@ class SamlUtilitiesSelfTest extends Specification {
         [testDescription, saml] << [
             ["using MarkupBuilder, a custom closure, and a known good assertion string",
              samlResponse { MarkupBuilder builder ->
-                     builder.'saml2:Issuer'(SAML_EXTERNAL_ISSUER)
-                     builder.'saml2p:Status' {
-                         'saml2p:StatusCode'(Value: SAML_STATUS_SUCCESS)
-                     }
-                     builder.mkp.yieldUnescaped ASSERTION_SIGNED
-                     builder
-                }],
+                 builder.'saml2:Issuer'(SAML_EXTERNAL_ISSUER)
+                 builder.'saml2p:Status' {
+                     'saml2p:StatusCode'(Value: SAML_STATUS_SUCCESS)
+                 }
+                 builder.mkp.yieldUnescaped ASSERTION_SIGNED
+                 builder
+             }],
             ["using MarkupBuilder and closure composition", samlResponse(issuer() >> status() >> assertion())],
             ["using a known good payload", SAML_ONE_ASSERTION_SIGNED]
         ]
@@ -79,16 +79,16 @@ class SamlUtilitiesSelfTest extends Specification {
         isValidSignature == shouldBeValid
 
         where:
-        saml                                                                                                                                                                                                                                                      | certificateEntityId       | shouldBeValid | payloadDescription
-        SAML_ONE_ASSERTION_SIGNED                                                                                                                                                                                | "idp.external.com"        | true          | "known good payload"
-        SAML_ASSERTION_AND_MESSAGE_SIGNED                                                                                                                                                                        | "idp.external.com"        | true          | "known good payload with message signed too"
-        SAML_LEGACY_ISSUER_SIGNED_ASSERTION                                                                                                                                                                      | "legacy.idp.external.com" | true          | "known good payload with legacy issuer"
-        SAML_LEGACY_ISSUER_SIGNED_MESSAGE_AND_ASSERTION                                                                                                                                                          | "legacy.idp.external.com" | true          | "known good payload with message signed too and a legacy issuer"
-        SAML_ONE_ASSERTION_SIGNED                                                                                                                                                                                | "not.the.idp.com"         | false         | "known good payload"
-        SAML_LEGACY_ISSUER_SIGNED_ASSERTION                                                                                                                                                                      | "not.the.idp.com"         | false         | "known good payload with legacy issuer"
-        SAML_ONE_ASSERTION_SIGNED.replace("    ", "")                                                                                                                                                            | "idp.external.com"        | false         | "altered known good payload"
-        SAML_LEGACY_ISSUER_SIGNED_ASSERTION.replace("    ", "")                                                                                                                                                  | "legacy.idp.external.com" | false         | "altered known good payload with legacy issuer"
-        SAML_ASSERTION_INVALID_SIGNATURE                                                                                                                                                                         | "idp.external.com"        | false         | "known bad payload"
+        saml                                                        | certificateEntityId       | shouldBeValid | payloadDescription
+        SAML_ONE_ASSERTION_SIGNED                                   | "idp.external.com"        | true          | "known good payload"
+        SAML_ASSERTION_AND_MESSAGE_SIGNED                           | "idp.external.com"        | true          | "known good payload with message signed too"
+        SAML_LEGACY_ISSUER_SIGNED_ASSERTION                         | "legacy.idp.external.com" | true          | "known good payload with legacy issuer"
+        SAML_LEGACY_ISSUER_SIGNED_MESSAGE_AND_ASSERTION             | "legacy.idp.external.com" | true          | "known good payload with message signed too and a legacy issuer"
+        SAML_ONE_ASSERTION_SIGNED                                   | "not.the.idp.com"         | false         | "known good payload"
+        SAML_LEGACY_ISSUER_SIGNED_ASSERTION                         | "not.the.idp.com"         | false         | "known good payload with legacy issuer"
+        SAML_ONE_ASSERTION_SIGNED.replace("    ", "")               | "idp.external.com"        | false         | "altered known good payload"
+        SAML_LEGACY_ISSUER_SIGNED_ASSERTION.replace("    ", "")     | "legacy.idp.external.com" | false         | "altered known good payload with legacy issuer"
+        SAML_ASSERTION_INVALID_SIGNATURE                            | "idp.external.com"        | false         | "known bad payload"
         samlResponse(issuer() >> assertion(ASSERTION_SIGNED))       | "idp.external.com"        | true          | "generated saml with signature payload 1"
         samlResponse(issuer() >> assertion(ASSERTION_SIGNED_TWO))   | "idp.external.com"        | true          | "generated saml with signature payload 2"
         samlResponse(issuer() >> assertion(ASSERTION_SIGNED_THREE)) | "idp.external.com"        | true          | "generated saml with signature payload 3"
@@ -132,11 +132,11 @@ class SamlUtilitiesSelfTest extends Specification {
         response.issuer.value == "http://${certificateEntityId}" as String
 
         where:
-        saml                                                                                                                                                                                             | certificateEntityId       | testDescription
-        SAML_ONE_ASSERTION_SIGNED.replace("    ", "")                                                                                                   | "idp.external.com"        | "by tampering with the whitespace of a valid payload"
-        SAML_LEGACY_ISSUER_SIGNED_ASSERTION.replace("    ", "")                                                                                         | "legacy.idp.external.com" | "by tampering with the whitespace of a valid payload for a legacy issuer"
-        SAML_ASSERTION_INVALID_SIGNATURE                                                                                                                | "idp.external.com"        | "using a known bad payload"
-        samlResponse(issuer() >> assertion(fakeSign: true)) | "idp.external.com"        | "generating a saml:response with an invalid signature in the Assertion"
+        saml                                                    | certificateEntityId       | testDescription
+        SAML_ONE_ASSERTION_SIGNED.replace("    ", "")           | "idp.external.com"        | "by tampering with the whitespace of a valid payload"
+        SAML_LEGACY_ISSUER_SIGNED_ASSERTION.replace("    ", "") | "legacy.idp.external.com" | "by tampering with the whitespace of a valid payload for a legacy issuer"
+        SAML_ASSERTION_INVALID_SIGNATURE                        | "idp.external.com"        | "using a known bad payload"
+        samlResponse(issuer() >> assertion(fakeSign: true))     | "idp.external.com"        | "generating a saml:response with an invalid signature in the Assertion"
     }
 
     @Unroll
@@ -151,10 +151,10 @@ class SamlUtilitiesSelfTest extends Specification {
         response.issuer.value == expectedIssuer
 
         where:
-        saml                                                                                                                                                                                                                                               | expectedIssuer                                                        | creationMethod
-        samlResponse(issuer() >> status() >> assertion())      | SAML_EXTERNAL_ISSUER | "issuer(), status(), assertion()"
-        samlResponse(issuer() >> status() >> assertion([:]))   | SAML_EXTERNAL_ISSUER | "issuer(), status(), assertion([:])"
-        samlResponse(issuer(SAML_LEGACY_ISSUER) >> status())   | SAML_LEGACY_ISSUER   | "issuer($SAML_LEGACY_ISSUER), status()"
-        samlResponse(issuer() >> assertion(fakeSign: true))    | SAML_EXTERNAL_ISSUER | "issuer(), assertion(fakeSign: true)"
+        saml                                                 | expectedIssuer       | creationMethod
+        samlResponse(issuer() >> status() >> assertion())    | SAML_EXTERNAL_ISSUER | "issuer(), status(), assertion()"
+        samlResponse(issuer() >> status() >> assertion([:])) | SAML_EXTERNAL_ISSUER | "issuer(), status(), assertion([:])"
+        samlResponse(issuer(SAML_LEGACY_ISSUER) >> status()) | SAML_LEGACY_ISSUER   | "issuer($SAML_LEGACY_ISSUER), status()"
+        samlResponse(issuer() >> assertion(fakeSign: true))  | SAML_EXTERNAL_ISSUER | "issuer(), assertion(fakeSign: true)"
     }
 }
