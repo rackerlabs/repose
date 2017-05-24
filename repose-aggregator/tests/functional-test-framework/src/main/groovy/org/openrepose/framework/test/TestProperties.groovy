@@ -67,7 +67,7 @@ class TestProperties {
 
     TestProperties(String testRunDirectory = null) {
         // Open a stream of the default properties, which should always be available.
-        InputStream defaultPropertiesStream = ClassLoader.getSystemResource("default-test.properties").openStream()
+        InputStream defaultPropertiesStream = ClassLoader.getSystemResource("default-repose-test.properties").openStream()
 
         defaultPropertiesStream.withCloseable {
             // Locate user properties, or throw an exception if user properties cannot be located.
