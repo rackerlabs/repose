@@ -21,7 +21,7 @@ package features.core.valveSelfConfigure
 
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import framework.category.Slow
+import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import spock.lang.Shared

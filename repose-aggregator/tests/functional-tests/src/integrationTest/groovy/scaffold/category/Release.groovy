@@ -17,12 +17,12 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package framework.category
+package scaffold.category
 
 /*
  * This interface is used to associate spock tests to a category described by the class name.
  *
- * A test is considered slow if it requires >= 1 minute to run.
+ * A test is considered a bug test if it is expected to fail when validating desired behavior.
  */
 
-public interface Slow {}
+public interface Release {}

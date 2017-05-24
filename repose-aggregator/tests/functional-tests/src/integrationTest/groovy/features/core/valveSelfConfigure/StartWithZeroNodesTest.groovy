@@ -20,7 +20,7 @@
 package features.core.valveSelfConfigure
 
 import org.openrepose.framework.test.ReposeValveTest
-import framework.category.Slow
+import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Shared
 

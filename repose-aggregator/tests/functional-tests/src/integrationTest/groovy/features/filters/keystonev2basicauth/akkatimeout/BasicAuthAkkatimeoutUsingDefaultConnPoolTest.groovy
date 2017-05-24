@@ -23,7 +23,7 @@ import org.apache.commons.codec.binary.Base64
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeLogSearch
 import org.openrepose.framework.test.ReposeValveTest
-import framework.category.Slow
+import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain

@@ -22,7 +22,7 @@ package features.filters.headertranslation
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import framework.category.Flaky
+import scaffold.category.Flaky
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 

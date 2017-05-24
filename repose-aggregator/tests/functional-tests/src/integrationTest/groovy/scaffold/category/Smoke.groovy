@@ -17,12 +17,12 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package framework.category
+package scaffold.category
 
 /*
  * This interface is used to associate spock tests to a category described by the class name.
  *
- * A test is considered a bug test if it is expected to fail when validating desired behavior.
+ * A test is considered a release tests if it needs to part of parent level build & part of releases
  */
 
-public interface Bug {}
+public interface Smoke {}

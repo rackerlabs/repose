@@ -21,7 +21,7 @@ package features.core.proxy
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import framework.category.Bug
+import scaffold.category.Bug
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll

@@ -28,7 +28,7 @@ import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import framework.category.Release
+import scaffold.category.Release
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 

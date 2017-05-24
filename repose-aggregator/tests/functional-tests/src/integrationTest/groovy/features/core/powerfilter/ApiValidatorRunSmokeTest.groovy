@@ -21,7 +21,7 @@ package features.core.powerfilter
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import framework.category.Smoke
+import scaffold.category.Smoke
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 

@@ -21,7 +21,7 @@ package features.services.httpconnectionpool
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import framework.category.Slow
+import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handlers
 import org.rackspace.deproxy.MessageChain
