@@ -86,7 +86,9 @@ port.finder.port.range=100 # <19>
 port.finder.property.name.worker.id=org.gradle.test.worker # <20>
 ----
 <1> The absolute path of the root directory to run tests under.
-The user running the tests must have permission to read and write in this directory.
+The user running the tests must have permission to read and write in this directory. +
+It is advised that this be the build directory of the build tool being used to run the tests (e.g., `buildDir` in Gradle).
+Doing so enables the build tool to handle cleanup of any test resources.
 <2> The version of Repose.
 <3> The servlet container to run Repose in.
 A value of `valve` will run a standalone instance of Repose using an embedded container.
