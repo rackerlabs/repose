@@ -22,7 +22,7 @@ package features.services.datastore
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import org.openrepose.framework.test.category.Bug
+import framework.category.Bug
 import org.rackspace.deproxy.Deproxy
 
 @Category(Bug.class)

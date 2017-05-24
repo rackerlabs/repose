@@ -22,7 +22,7 @@ package features.filters.uritranslation.perftest
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import org.openrepose.framework.test.category.Benchmark
+import framework.category.Benchmark
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response

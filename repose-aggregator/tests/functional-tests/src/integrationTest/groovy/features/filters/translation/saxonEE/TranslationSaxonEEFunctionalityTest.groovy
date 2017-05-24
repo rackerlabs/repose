@@ -21,7 +21,7 @@ package features.filters.translation.saxonEE
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import org.openrepose.framework.test.category.SaxonEE
+import framework.category.SaxonEE
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain

@@ -22,7 +22,7 @@ package features.filters.ratelimiting
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import org.openrepose.framework.test.category.Slow
+import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response

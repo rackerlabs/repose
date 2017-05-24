@@ -21,7 +21,7 @@ package features.filters.translation
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import org.openrepose.framework.test.category.Bug
+import framework.category.Bug
 import org.rackspace.deproxy.Deproxy
 
 @Category(Bug.class)
