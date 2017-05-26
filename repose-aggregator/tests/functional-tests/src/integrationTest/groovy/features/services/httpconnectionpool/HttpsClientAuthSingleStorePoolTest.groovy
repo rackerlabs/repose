@@ -19,14 +19,14 @@
  */
 package features.services.httpconnectionpool
 
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.eclipse.jetty.http.HttpVersion
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.server.handler.AbstractHandler
 import org.eclipse.jetty.util.ssl.SslContextFactory
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Shared
 

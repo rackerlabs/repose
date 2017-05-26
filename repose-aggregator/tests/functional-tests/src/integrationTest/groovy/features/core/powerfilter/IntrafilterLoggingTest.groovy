@@ -19,10 +19,10 @@
  */
 package features.core.powerfilter
 
-import framework.ReposeLogSearch
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
 import groovy.json.JsonSlurper
+import org.openrepose.framework.test.ReposeLogSearch
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response

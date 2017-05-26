@@ -19,11 +19,10 @@
  */
 package features.filters.ratelimiting
 
-import framework.ReposeValveTest
 import groovy.json.JsonSlurper
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import spock.lang.Unroll
 
 /**
  * This test provides proof that the fix for REP-2233 works even with multiple filters.

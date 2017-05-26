@@ -19,7 +19,7 @@
  */
 package features.services.httpconnectionpool
 
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 

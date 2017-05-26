@@ -19,7 +19,7 @@
  */
 package features.filters.simplerbac
 
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll

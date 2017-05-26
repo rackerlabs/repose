@@ -19,10 +19,10 @@
  */
 package features.core.proxy
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeContainerLauncher
-import framework.ReposeLauncher
-import framework.TestProperties
+import org.openrepose.framework.test.ReposeConfigurationProvider
+import org.openrepose.framework.test.ReposeContainerLauncher
+import org.openrepose.framework.test.ReposeLauncher
+import org.openrepose.framework.test.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Specification

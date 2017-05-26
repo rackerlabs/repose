@@ -19,7 +19,6 @@
  */
 package features.services.datastore
 
-import framework.ReposeValveTest
 import org.apache.http.HttpResponse
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
@@ -29,6 +28,7 @@ import org.apache.http.ssl.SSLContexts
 import org.apache.http.util.EntityUtils
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.*
 import spock.lang.Shared
 

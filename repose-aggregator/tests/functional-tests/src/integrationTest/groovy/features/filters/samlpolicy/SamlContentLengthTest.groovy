@@ -20,16 +20,16 @@
 
 package features.filters.samlpolicy
 
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-import static features.filters.samlpolicy.util.SamlPayloads.*
-import static features.filters.samlpolicy.util.SamlUtilities.*
 import static javax.ws.rs.core.HttpHeaders.CONTENT_LENGTH
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
+import static org.openrepose.framework.test.util.saml.SamlPayloads.*
+import static org.openrepose.framework.test.util.saml.SamlUtilities.*
 
 /**
  * This functional test verifies the filter is setting the content length of the request correctly for downstream

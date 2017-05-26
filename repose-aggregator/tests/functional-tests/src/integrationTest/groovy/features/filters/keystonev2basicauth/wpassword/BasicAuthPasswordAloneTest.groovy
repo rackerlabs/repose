@@ -19,11 +19,11 @@
  */
 package features.filters.keystonev2basicauth.wpassword
 
-import framework.ReposeLogSearch
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
 import org.apache.commons.lang3.RandomStringUtils
 import org.openrepose.commons.utils.http.HttpDate
+import org.openrepose.framework.test.ReposeLogSearch
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response

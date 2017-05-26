@@ -19,13 +19,13 @@
  */
 package features.filters.keystonev2.cache
 
-import framework.ReposeValveTest
-import framework.category.Slow
-import framework.mocks.MockIdentityV2Service
+import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Slow
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 1/22/16.

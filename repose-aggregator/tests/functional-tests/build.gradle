@@ -17,6 +17,7 @@ dependencies {
     integrationTestCompile project(":repose-aggregator:commons:commons-configuration")
     integrationTestCompile project(":repose-aggregator:core:repose-core-api")
     integrationTestCompile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
+    integrationTestCompile project(":repose-aggregator:tests:functional-test-framework")
     integrationTestCompile "javax.ws.rs:javax.ws.rs-api"
     integrationTestCompile "org.eclipse.jetty:jetty-server"
     integrationTestCompile "org.eclipse.jetty:jetty-servlet"
@@ -24,7 +25,6 @@ dependencies {
     integrationTestCompile "org.springframework:spring-web"
     integrationTestCompile "org.slf4j:jcl-over-slf4j"
     integrationTestCompile "org.opensaml:opensaml-core"
-    integrationTestCompile "org.opensaml:opensaml-saml-impl"
     integrationTestCompile "org.xmlunit:xmlunit-legacy"
 
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
@@ -109,26 +109,28 @@ def tomcatFileName = tasks.getByPath(":repose-aggregator:tests:test-containers:t
 def mocksFileName = tasks.getByPath(":repose-aggregator:tests:mocks-servlet:war").archiveName.split("/").last()
 
 processIntegrationTestResources {
-    expand( reposeHome: copyArtifacts.outputDir,
-            version: version,
-            projectBuildDirectory: buildDir,
-            configTemplates: copyConfigs.outputDir,
-            reposeContainer: container,
-            valveLocation: "${copyArtifacts.outputDir}/$valveFileName",
-            lintLocation: "${copyArtifacts.outputDir}/$lintFileName",
-            warLocation: "${copyArtifacts.outputDir}/$warFileName",
-            glassfishLocation: "${copyArtifacts.outputDir}/$glassfishFileName",
-            tomcatLocation: "${copyArtifacts.outputDir}/$tomcatFileName",
-            mocksLocation: "${copyArtifacts.outputDir}/$mocksFileName",
-            targetHostname: targetHostName)
+    expand(
+        reposeHome: copyArtifacts.outputDir,
+        version: version,
+        testRootDir: buildDir,
+        configTemplates: copyConfigs.outputDir,
+        reposeContainer: container,
+        valveLocation: "${copyArtifacts.outputDir}/$valveFileName",
+        lintLocation: "${copyArtifacts.outputDir}/$lintFileName",
+        warLocation: "${copyArtifacts.outputDir}/$warFileName",
+        glassfishLocation: "${copyArtifacts.outputDir}/$glassfishFileName",
+        tomcatLocation: "${copyArtifacts.outputDir}/$tomcatFileName",
+        mocksLocation: "${copyArtifacts.outputDir}/$mocksFileName",
+        targetHostname: targetHostName
+    )
 }
 
 integrationTest {
     useJUnit {
         if (!project.hasProperty('runAll')) {
-            includeCategories "framework.category.Smoke"
+            includeCategories "scaffold.category.Smoke"
         } else {
-            excludeCategories "framework.category.Release", "framework.category.Bug", "framework.category.Flaky"
+            excludeCategories "scaffold.category.Release", "scaffold.category.Bug", "scaffold.category.Flaky"
             //todo: we have one test annotated with release, and i don't think it ever runs, maybe jenny explicitly invokes it post release?
             //todo: Maybe reevaluate whether we still want these tests and categories
         }
@@ -141,8 +143,4 @@ integrationTest {
             showStandardStreams = true
         }
     }
-}
-
-license {
-    excludes(["**/credentials.xsd", "**/atom.xsd", "**/xml.xsd"])
 }

@@ -19,7 +19,6 @@
  */
 package features.core.startup
 
-import framework.*
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
@@ -28,6 +27,8 @@ import org.apache.http.ssl.SSLContexts
 import org.eclipse.jetty.server.Request
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.server.handler.AbstractHandler
+import org.openrepose.framework.test.PortFinder
+import org.openrepose.framework.test.ReposeValveTest
 import spock.lang.Unroll
 
 import javax.servlet.ServletException

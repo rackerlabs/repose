@@ -19,10 +19,10 @@
  */
 package features.filters.ratelimiting
 
-import framework.ReposeValveTest
-import framework.category.Slow
 import groovy.json.JsonSlurper
 import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain

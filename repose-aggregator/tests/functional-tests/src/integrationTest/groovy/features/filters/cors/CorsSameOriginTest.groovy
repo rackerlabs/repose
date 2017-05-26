@@ -19,7 +19,6 @@
  */
 package features.filters.cors
 
-import framework.ReposeValveTest
 import org.apache.http.HttpResponse
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
@@ -30,6 +29,7 @@ import org.apache.http.ssl.SSLContexts
 import org.apache.http.util.EntityUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CorsHttpHeader
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.*
 import spock.lang.Shared
 import spock.lang.Unroll

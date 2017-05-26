@@ -19,10 +19,10 @@
  */
 package features.filters.rackspaceauthuser.multifactorauth
 
-import framework.PortFinder
-import framework.ReposeValveTest
 import org.apache.commons.lang3.RandomStringUtils
 import org.openrepose.commons.utils.http.OpenStackServiceHeader
+import org.openrepose.framework.test.PortFinder
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response

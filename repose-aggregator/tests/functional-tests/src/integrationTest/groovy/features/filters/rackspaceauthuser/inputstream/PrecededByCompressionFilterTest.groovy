@@ -21,11 +21,11 @@
 package features.filters.rackspaceauthuser.inputstream
 
 import features.filters.compression.CompressionHeaderTest
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
-import static features.filters.rackspaceauthuser.RackspaceAuthPayloads.*
+import static features.filters.rackspaceauthuser.RackspaceAuthPayloads.getPayloadTests
 
 class PrecededByCompressionFilterTest extends ReposeValveTest {
 

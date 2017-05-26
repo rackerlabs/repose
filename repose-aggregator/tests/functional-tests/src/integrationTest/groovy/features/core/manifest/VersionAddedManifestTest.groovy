@@ -19,7 +19,7 @@
  */
 package features.core.manifest
 
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeValveTest
 
 import java.util.jar.Attributes
 import java.util.jar.JarFile

@@ -19,10 +19,10 @@
  */
 package features.core.tracing
 
-import framework.ReposeValveTest
 import groovy.json.JsonSlurper
 import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll

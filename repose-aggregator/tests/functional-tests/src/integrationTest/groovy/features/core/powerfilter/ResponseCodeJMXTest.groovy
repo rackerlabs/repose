@@ -19,17 +19,14 @@
  */
 package features.core.powerfilter
 
-import framework.ReposeValveTest
-import framework.category.Slow
 import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
-import static javax.servlet.http.HttpServletResponse.SC_GONE
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.servlet.http.HttpServletResponse.*
 
 @Category(Slow.class)
 class ResponseCodeJMXTest extends ReposeValveTest {

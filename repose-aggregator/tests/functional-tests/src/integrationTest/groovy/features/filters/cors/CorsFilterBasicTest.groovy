@@ -19,9 +19,9 @@
  */
 package features.filters.cors
 
-import framework.ReposeValveTest
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CorsHttpHeader
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain

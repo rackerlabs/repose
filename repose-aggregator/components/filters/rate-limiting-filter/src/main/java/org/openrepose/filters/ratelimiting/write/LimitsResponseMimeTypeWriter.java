@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class LimitsResponseMimeTypeWriter {
 
@@ -35,11 +37,11 @@ public class LimitsResponseMimeTypeWriter {
      The order of the LinkedHashSet represents our preference; we would rather return media types that appear
      earlier in the list than those that appear later.
      */
-    public static final LinkedHashSet<MediaType> SUPPORTED_MEDIA_TYPES = new LinkedHashSet<>(Arrays.asList(
+    public static final Set<MediaType> SUPPORTED_MEDIA_TYPES = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(
             MediaType.APPLICATION_JSON,
             MediaType.APPLICATION_XML
             // TODO: Add support for MediaType.TEXT_XML
-    ));
+    )));
 
     private final LimitsEntityStreamTransformer responseTransformer;
 

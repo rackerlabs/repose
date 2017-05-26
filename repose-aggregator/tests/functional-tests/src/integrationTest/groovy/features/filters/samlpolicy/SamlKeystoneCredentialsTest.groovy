@@ -20,21 +20,19 @@
 
 package features.filters.samlpolicy
 
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
-import static features.filters.samlpolicy.util.SamlPayloads.*
-import static features.filters.samlpolicy.util.SamlUtilities.*
-import static framework.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON
+import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createIdentityFaultJsonWithValues
+import static org.openrepose.framework.test.util.saml.SamlPayloads.*
+import static org.openrepose.framework.test.util.saml.SamlUtilities.*
 
 /**
  * This functional test exercises the keystone credentials logic.

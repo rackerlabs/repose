@@ -19,7 +19,7 @@
  */
 package features.core.startup
 
-import framework.*
+import org.openrepose.framework.test.*
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Ignore
 import spock.lang.Specification

@@ -39,8 +39,8 @@
     holder.
 
 -->
-<domain log-root="${project.build.directory}/glassfish/logs"
-        application-root="${project.build.directory}/glassfish/applications"
+<domain log-root="${test.root.directory}/glassfish/logs"
+        application-root="${test.root.directory}/glassfish/applications"
         version="10.0">
     <system-applications/>
     <applications/>
@@ -49,13 +49,13 @@
         <jdbc-resource pool-name="DerbyPool" jndi-name="jdbc/__default"/>
         <jdbc-connection-pool name="__TimerPool" datasource-classname="org.apache.derby.jdbc.EmbeddedXADataSource"
                               res-type="javax.sql.XADataSource">
-            <property value="${project.build.directory}/glassfish/lib/databases/ejbtimer" name="databaseName"/>
+            <property value="${test.root.directory}/glassfish/lib/databases/ejbtimer" name="databaseName"/>
             <property value=";create=true" name="connectionAttributes"/>
         </jdbc-connection-pool>
         <jdbc-connection-pool is-isolation-level-guaranteed="false" name="DerbyPool"
                               datasource-classname="org.apache.derby.jdbc.EmbeddedDataSource"
                               res-type="javax.sql.DataSource">
-            <property name="databaseName" value="${project.build.directory}/glassfish/lib/databases/embedded_default"/>
+            <property name="databaseName" value="${test.root.directory}/glassfish/lib/databases/embedded_default"/>
             <property name="connectionAttributes" value=";create=true"/>
         </jdbc-connection-pool>
     </resources>
@@ -86,7 +86,7 @@
                 <jmx-connector enabled="false" auth-realm-name="admin-realm" security-enabled="false" address="0.0.0.0"
                                port="8686" name="system"/>
                 <das-config autodeploy-enabled="false" dynamic-reload-enabled="true" deploy-xml-validation="full"
-                            autodeploy-dir="${project.build.directory}/glassfish/autodeploy"/>
+                            autodeploy-dir="${test.root.directory}/glassfish/autodeploy"/>
                 <property value="/admin" name="adminConsoleContextRoot"/>
                 <property value="${com.sun.aas.installRoot}/lib/install/applications/admingui.war"
                           name="adminConsoleDownloadLocation"/>
@@ -95,7 +95,7 @@
             <connector-service shutdown-timeout-in-seconds="30">
             </connector-service>
             <ejb-container steady-pool-size="0" max-pool-size="32"
-                           session-store="${project.build.directory}/glassfish/session-store" pool-resize-quantity="8">
+                           session-store="${test.root.directory}/glassfish/session-store" pool-resize-quantity="8">
                 <ejb-timer-service/>
             </ejb-container>
             <mdb-container steady-pool-size="0" max-pool-size="32" pool-resize-quantity="8">
@@ -104,17 +104,17 @@
                 <jms-host name="default_JMS_host" host="localhost" port="7676" admin-user-name="admin"
                           admin-password="admin" lazy-init="false"/>
             </jms-service>
-            <log-service file="${project.build.directory}/glassfish/logs/server.log"
+            <log-service file="${test.root.directory}/glassfish/logs/server.log"
                          log-rotation-limit-in-bytes="2000000">
                 <module-log-levels/>
             </log-service>
             <security-service activate-default-principal-to-role-mapping="true" jacc="simple">
                 <auth-realm classname="com.sun.enterprise.security.auth.realm.file.FileRealm" name="admin-realm">
-                    <property value="${project.build.directory}/glassfish/config/admin-keyfile" name="file"/>
+                    <property value="${test.root.directory}/glassfish/config/admin-keyfile" name="file"/>
                     <property value="fileRealm" name="jaas-context"/>
                 </auth-realm>
                 <auth-realm classname="com.sun.enterprise.security.auth.realm.file.FileRealm" name="file">
-                    <property value="${project.build.directory}/glassfish/config/keyfile" name="file"/>
+                    <property value="${test.root.directory}/glassfish/config/keyfile" name="file"/>
                     <property value="fileRealm" name="jaas-context"/>
                 </auth-realm>
                 <auth-realm classname="com.sun.enterprise.security.auth.realm.certificate.CertificateRealm"
@@ -122,7 +122,7 @@
                 <jacc-provider
                         policy-configuration-factory-provider="com.sun.enterprise.security.provider.PolicyConfigurationFactoryImpl"
                         policy-provider="com.sun.enterprise.security.provider.PolicyWrapper" name="default">
-                    <property value="${project.build.directory}/glassfish/generated/policy" name="repository"/>
+                    <property value="${test.root.directory}/glassfish/generated/policy" name="repository"/>
                 </jacc-provider>
                 <jacc-provider
                         policy-configuration-factory-provider="com.sun.enterprise.security.jacc.provider.SimplePolicyConfigurationFactory"
@@ -150,7 +150,7 @@
                         <property value="s1as" name="signature.key.alias"/>
                         <property value="false" name="dynamic.username.password"/>
                         <property value="false" name="debug"/>
-                        <property value="${project.build.directory}/glassfish/config/wss-server-config-1.0.xml"
+                        <property value="${test.root.directory}/glassfish/config/wss-server-config-1.0.xml"
                                   name="security.config"/>
                     </provider-config>
                     <provider-config provider-id="XWS_ServerProvider"
@@ -170,7 +170,7 @@
                         <property value="s1as" name="encryption.key.alias"/>
                         <property value="s1as" name="signature.key.alias"/>
                         <property value="false" name="debug"/>
-                        <property value="${project.build.directory}/glassfish/config/wss-server-config-1.0.xml"
+                        <property value="${test.root.directory}/glassfish/config/wss-server-config-1.0.xml"
                                   name="security.config"/>
                     </provider-config>
                 </message-security-config>
@@ -179,12 +179,12 @@
             <monitoring-service>
                 <module-monitoring-levels/>
             </monitoring-service>
-            <transaction-service tx-log-dir="${project.build.directory}/glassfish/logs">
+            <transaction-service tx-log-dir="${test.root.directory}/glassfish/logs">
             </transaction-service>
             <java-config>
-                <jvm-options>-Djavax.net.ssl.keyStore=${project.build.directory}/glassfish/config/server.jks
+                <jvm-options>-Djavax.net.ssl.keyStore=${test.root.directory}/glassfish/config/server.jks
                 </jvm-options>
-                <jvm-options>-Djavax.net.ssl.trustStore=${project.build.directory}/glassfish/config/client.jks
+                <jvm-options>-Djavax.net.ssl.trustStore=${test.root.directory}/glassfish/config/client.jks
                 </jvm-options>
                 <jvm-options>-Dorg.glassfish.jms.InitializeOnDemand=true</jvm-options>
             </java-config>
