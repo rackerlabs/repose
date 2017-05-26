@@ -70,33 +70,10 @@ class ValidateCheckerTest extends ReposeValveTest {
 
         then:
         thrown(TimeoutException.class) // Thrown when processing a request, not at initialization
-        reposeLogSearch.searchByString("java.util.NoSuchElementException: key not found: SE9001").size() >= 1
-        reposeLogSearch.searchByString("/xsl/meta-check.xsl; lineNumber: 37; cvc-id.1: " +
-                "There is no ID/IDREF binding for IDREF 'SE9001'").size() == 0
+        reposeLogSearch.searchByString("Error loading validator for WADL").size() >= 1
+        reposeLogSearch.searchByString("key not found: SE9001").size() >= 1
 
         where:
-        configPath << ["invalidwithoutvalidation"]
-    }
-
-    @Unroll
-    def "expect initialization timeout when checker is #configPath"() {
-        given:
-        repose.stop()
-
-        def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/apivalidator/pcchecker/$configPath", params)
-        repose.start()
-
-        when:
-        repose.waitForNon500FromUrl(reposeEndpoint, 30)
-
-        then:
-        thrown(TimeoutException.class) // Thrown at initialization, and when processing requests
-        reposeLogSearch.searchByString("/xsl/meta-check.xsl; lineNumber: 38; columnNumber: 3; cvc-id.1: " +
-                "There is no ID/IDREF binding for IDREF 'SE9001'").size() >= 1
-
-        where:
-        configPath << ["invalidwithvalidation"]
+        configPath << ["invalidwithoutvalidation", "invalidwithvalidation"]
     }
 }
