@@ -40,11 +40,15 @@ public class MultiMeter extends Meter {
     }
 
     public static void markAll(Meter... meters) {
-        Stream.of(meters).forEach(Meter::mark);
+        for (Meter meter : meters) {
+            meter.mark();
+        }
     }
 
     public static void markNAll(long n, Meter... meters) {
-        Stream.of(meters).forEach(m -> m.mark(n));
+        for (Meter meter : meters) {
+            meter.mark(n);
+        }
     }
 
     @Override
