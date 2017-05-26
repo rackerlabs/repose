@@ -19,7 +19,7 @@
  */
 package features.core.embedded
 
-import framework.*
+import org.openrepose.framework.test.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Specification

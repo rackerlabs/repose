@@ -19,9 +19,9 @@
  */
 package features.filters.identityv3.projectidinuri
 
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV3Service
 import org.joda.time.DateTime
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll

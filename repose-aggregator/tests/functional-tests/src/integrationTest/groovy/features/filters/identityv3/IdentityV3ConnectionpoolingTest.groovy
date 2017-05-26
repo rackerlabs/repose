@@ -19,8 +19,8 @@
  */
 package features.filters.identityv3
 
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV3Service
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Handling

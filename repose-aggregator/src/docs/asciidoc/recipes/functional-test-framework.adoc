@@ -1,0 +1,168 @@
+= Functional Test Framework
+
+The Repose functional test framework is a testing library provided by the Repose team meant to simplify the process of creating functional tests for features in Repose or its extension components.
+
+This framework is based on the http://spockframework.org/[Spock framework].
+While there are features of this framework that are can be used without Spock, it is expected that tests utilizing this framework will be Spock tests.
+
+== Download
+
+The Repose functional test framework is published to https://maven.research.rackspacecloud.com/[an instance of Nexus hosted by Rackspace].
+
+It is highly recommended that a build system be used to manage this library.
+The following snippets provide the necessary additions to download this framework with some popular build systems.
+
+=== Maven
+
+[source,xml]
+.pom.xml
+----
+<repositories>
+    <repository>
+        <id>public.maven.research.rackspace.com</id>
+        <name>Rackspace Research</name>
+        <url>https://maven.research.rackspacecloud.com/content/groups/aggregate</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <dependency>
+      <groupId>org.openrepose</groupId>
+      <artifactId>functional-test-framework</artifactId>
+      <version>${version}</version>
+    </dependency>
+</dependencies>
+----
+
+=== Gradle
+
+[source,groovy]
+.build.gradle
+----
+repositories {
+    maven {
+        url "https://maven.research.rackspacecloud.com/content/groups/aggregate/"
+    }
+}
+
+dependencies {
+    compile "org.openrepose:functional-test-framework:${version}"
+}
+----
+
+== Setup
+
+There are two requirements that must be satisfied for this framework.
+
+The first requirement is that a `repose-test.properties` file is on the classpath when tests are run.
+The `repose-test.properties` file tells that framework what version of Repose, directories, host, and ports to use.
+It should be in the https://en.wikipedia.org/wiki/.properties#Format[Java properties file format] like the following example:
+
+[NOTE]
+====
+Not all properties are strictly required.
+In fact, most properties have reasonable defaults.
+However, any property which takes an absolute path should be given a value.
+====
+
+----
+# Required Properties
+test.root.directory=/default/test/root # <1>
+
+repose.home=/default/repose/home # <2>
+repose.config.templates=/default/config/templates # <3>
+
+# Required (If Used) Properties
+repose.jar=/default/valve/location # <4>
+repose.lint.jar=/default/lint/location # <5>
+repose.root.war=/default/root/war/location # <6>
+glassfish.jar=/default/glassfish/location # <7>
+tomcat.jar=/default/tomcat/location # <8>
+mocks.war=/default/mocks/war/location # <9>
+
+# Optional Properties
+repose.version=${version} # <10>
+repose.container=valve # <11>
+repose.config.directory=/configs # <12>
+repose.log.name=/logs/repose.log # <13>
+repose.lint.log.name=/logs/repose-lint.log # <14>
+repose.log.pattern=/logs/repose_%d{yyyy-MM-dd_HHmmss}.log # <15>
+
+target.hostname=localhost # <16>
+
+port.finder.port.start=10000 # <17>
+port.finder.port.max=65535 # <18>
+port.finder.port.range=100 # <19>
+port.finder.property.name.worker.id=org.gradle.test.worker # <20>
+----
+<1> The absolute path of the root directory to run tests under.
+The user running the tests must have permission to read and write in this directory. +
+It is advised that this be the build directory of the build tool being used to run the tests (e.g., `buildDir` in Gradle).
+Doing so enables the build tool to handle cleanup of any test resources.
+<2> The absolute path of the home directory which will contain Repose artifacts, and possibly other Repose test structures.
+<3> The absolute path of the directory which contains the configuration file templates.
+<4> The absolute path to the Repose JAR file.
+<5> The absolute path of the Repose Lint JAR file.
+<6> The absolute path of the Repose `ROOT.WAR` file.
+<7> The absolute path of the Glassfish JAR file.
+<8> The absolute path of the Tomcat JAR file.
+<9> The absolute path of the WAR file containing mock services.
+<10> The version of Repose.
+<11> The servlet container to run Repose in.
+A value of `valve` will run a standalone instance of Repose using an embedded container.
+<12> The path of the directory relative to the `test.root.directory` or `repose.home` directory which will contain Repose configuration files.
+<13> The Repose log file path relative to the `test.root.directory` or `repose.home` directory.
+<14> The Repose Lint log file path relative to the `test.root.directory` or `repose.home`.
+<15> The log filename path pattern relative to the `test.root.directory` or `repose.home` directory.
+<16> The target hostname (usually `localhost`).
+<17> The port number to start at when scanning for open ports.
+<18> The max port number which can be used when scanning for open ports.
+<19> The step size between workers when scanning for open ports.
+<20> The name of a System property the value of which will be used as the worker ID.
+
+The second requirement is that the Repose artifacts (e.g., JARs and EARs) must be placed in the directory specified by the `repose.home` property.
+If they are located elsewhere, the `ReposeValveTest` specification will not work.
+However, other utilities provided by the framework may still be used.
+
+== Usage
+
+=== Spock
+
+To make the most of this framework, tests should be written for the Spock testing framework.
+The Repose functional test framework provides a base Spock `Specification` in the form of the `ReposeValveTest` class.
+The `ReposeValveTest` specification provide utilities to populate configuration file templates, start Repose, and search the Repose log.
+
+The following simple example demonstrates how a Spock test can be written utilizing the Repose functional test framework.
+
+[source,groovy]
+----
+class MyTest extends ReposeValveTest {
+    def setupSpec() {
+        deproxy = new Deproxy() // <1>
+        deproxy.addEndpoint(properties.targetPort) // <2>
+
+        def params = properties.getDefaultTemplateParams() // <3>
+        repose.configurationProvider.applyConfigs("common", params) // <4>
+        repose.start() // <5>
+        repose.waitForNon500FromUrl(properties.reposeEndpoint) //<6>
+    }
+
+    def "this is an example test"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint) // <7>
+
+        then:
+        mc.receivedResponse.code.toInteger() == 200 // <8>
+    }
+}
+----
+<1> Instantiates https://github.com/rackerlabs/deproxy[Deproxy], a proxy testing tool.
+<2> Creates a Deproxy endpoint that will act as the origin service for Repose.
+<3> Retrieves a map of the test properties that will be used in templated configuration files.
+<4> Copies configuration files into the test directory being used by the test instance of Repose.
+Any variables in the configuration files will be substituted.
+The variable name will be matched to a key in the `params` map, and the corresponding value will replace the key in the configuration file.
+<5> Starts Repose.
+<6> Waits for Repose to finish starting, which is assumed to be when a non-`500` status code response is returned.
+<7> Using Deproxy, makes a request to Repose.
+<8> Asserts that the response status code from Repose is `200`.

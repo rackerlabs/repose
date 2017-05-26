@@ -19,8 +19,8 @@
  */
 package features.filters.slf4jlogging
 
-import framework.ReposeLogSearch
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeLogSearch
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
 class Slf4jHttpLoggingCustomDateFormatTest extends ReposeValveTest {

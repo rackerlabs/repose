@@ -20,10 +20,10 @@
 package features.filters.identityv3.cache
 
 import features.filters.keystonev2.AtomFeedResponseSimulator
-import framework.ReposeValveTest
-import framework.category.Slow
-import framework.mocks.MockIdentityV3Service
 import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Slow
+import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.MessageChain

@@ -20,26 +20,24 @@
 
 package features.filters.samlpolicy
 
-import features.filters.samlpolicy.util.SamlUtilities
-import framework.ReposeValveTest
-import framework.mocks.MockIdentityV2Service
 import groovy.json.JsonSlurper
+import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
+import org.openrepose.framework.test.util.saml.SamlUtilities
 import org.opensaml.saml.saml2.core.Attribute
 import org.opensaml.saml.saml2.core.Response as SamlResponse
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
-import static features.filters.samlpolicy.util.SamlPayloads.*
-import static features.filters.samlpolicy.util.SamlUtilities.*
-import static framework.mocks.MockIdentityV2Service.createIdpJsonWithValues
-import static framework.mocks.MockIdentityV2Service.createMappingJsonWithValues
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.ws.rs.core.HttpHeaders.ACCEPT
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON
-import static javax.ws.rs.core.MediaType.APPLICATION_XML
+import static javax.ws.rs.core.MediaType.*
+import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createIdpJsonWithValues
+import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createMappingJsonWithValues
+import static org.openrepose.framework.test.util.saml.SamlPayloads.*
+import static org.openrepose.framework.test.util.saml.SamlUtilities.*
 
 /**
  * This functional test ensures the attribute mappings are being set correctly on the request and the response.

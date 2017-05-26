@@ -19,8 +19,8 @@
  */
 package features.filters.apivalidator
 
-import framework.ReposeValveTest
 import groovy.json.JsonSlurper
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 

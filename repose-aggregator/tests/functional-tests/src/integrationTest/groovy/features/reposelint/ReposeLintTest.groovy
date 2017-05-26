@@ -19,11 +19,11 @@
  */
 package features.reposelint
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeLintLauncher
-import framework.ReposeLogSearch
-import framework.TestProperties
 import groovy.json.JsonSlurper
+import org.openrepose.framework.test.ReposeConfigurationProvider
+import org.openrepose.framework.test.ReposeLintLauncher
+import org.openrepose.framework.test.ReposeLogSearch
+import org.openrepose.framework.test.TestProperties
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll

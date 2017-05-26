@@ -19,7 +19,7 @@
  */
 package features.filters.uristripper
 
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
 import javax.servlet.http.HttpServletResponse

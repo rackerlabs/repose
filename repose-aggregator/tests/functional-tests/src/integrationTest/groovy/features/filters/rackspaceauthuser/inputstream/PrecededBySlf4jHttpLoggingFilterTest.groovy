@@ -20,11 +20,11 @@
 
 package features.filters.rackspaceauthuser.inputstream
 
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
-import static features.filters.rackspaceauthuser.RackspaceAuthPayloads.*
+import static features.filters.rackspaceauthuser.RackspaceAuthPayloads.getPayloadTests
 
 class PrecededBySlf4jHttpLoggingFilterTest extends ReposeValveTest {
 

@@ -19,10 +19,10 @@
  */
 package features.filters.uristripper
 
-import framework.ReposeValveTest
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import org.openrepose.commons.utils.http.media.MimeType
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
 class UriStripperRequestLinkResourceJsonMismatchRemoveTest extends ReposeValveTest {

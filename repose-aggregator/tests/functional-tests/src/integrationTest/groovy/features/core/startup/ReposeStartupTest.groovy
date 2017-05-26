@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,9 +19,6 @@
  */
 package features.core.startup
 
-import framework.PortFinder
-import framework.ReposeValveTest
-import framework.category.Release
 import org.apache.commons.io.FileUtils
 import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
@@ -29,6 +26,9 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
+import org.openrepose.framework.test.PortFinder
+import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Release
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 

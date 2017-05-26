@@ -19,7 +19,7 @@
  */
 package features.filters.ratelimiting
 
-import framework.ReposeValveTest
+import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
 class NoCaptureGroupsTest extends ReposeValveTest {

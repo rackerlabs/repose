@@ -19,9 +19,9 @@
  */
 package features.filters.uriNormalization
 
-import framework.ReposeValveTest
-import framework.category.Slow
 import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 
 import static javax.servlet.http.HttpServletResponse.SC_OK

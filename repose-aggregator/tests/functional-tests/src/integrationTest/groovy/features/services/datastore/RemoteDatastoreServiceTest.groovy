@@ -19,9 +19,9 @@
  */
 package features.services.datastore
 
-import framework.*
-import framework.category.Slow
 import org.junit.experimental.categories.Category
+import org.openrepose.framework.test.*
+import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Specification
 
