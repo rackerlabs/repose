@@ -66,15 +66,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   var keystoneV2Config: KeystoneV2Config = _
   var akkaServiceClient: AkkaServiceClient = _
 
-  private var configurationFile: String = DEFAULT_CONFIG
+  private var configurationFile: String = DefaultConfig
   private var sendTraceHeader = true
 
   override def init(filterConfig: FilterConfig): Unit = {
-    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
+    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DefaultConfig)
     logger.info(s"Initializing Keystone V2 Filter using config $configurationFile")
     val xsdURL: URL = this.getClass.getResource("/META-INF/schema/config/keystone-v2.xsd")
     configurationService.subscribeTo(
-      SYSTEM_MODEL_CONFIG,
+      SystemModelConfig,
       getClass.getResource("/META-INF/schema/system-model/system-model.xsd"),
       SystemModelConfigListener,
       classOf[SystemModel]
@@ -91,7 +91,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   override def destroy(): Unit = {
     Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(configurationFile, KeystoneV2ConfigListener)
-    configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigListener)
+    configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigListener)
     CacheInvalidationFeedListener.unRegisterFeeds()
   }
 
@@ -519,13 +519,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
         matchedUriTenant match {
           case Some(uriTenant) =>
-            request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$X_AUTH_PROXY $uriTenant")
+            request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$XAuthProxy $uriTenant")
           case None =>
             token.defaultTenantId match {
               case Some(tenant) =>
-                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$X_AUTH_PROXY $tenant")
+                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$XAuthProxy $tenant")
               case None =>
-                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, X_AUTH_PROXY)
+                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, XAuthProxy)
             }
         }
 
@@ -747,9 +747,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
 object KeystoneV2Filter {
 
-  private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
-  private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
-  private final val X_AUTH_PROXY = "Proxy"
+  private final val SystemModelConfig = "system-model.cfg.xml"
+  private final val DefaultConfig = "keystone-v2.cfg.xml"
+  private final val XAuthProxy = "Proxy"
 
   implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
 
