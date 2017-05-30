@@ -10,7 +10,7 @@ Converted the https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filte
 * https://repose.atlassian.net/browse/REP-5345[REP-5345] - the <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> has been released!
 * https://repose.atlassian.net/browse/REP-5523[REP-5523] - the <<recipes/functional-test-framework.adoc#,Repose Functional Test Framework>> has been released!
 
-== 8.5.0.1
+== 8.5.0.1 (2017-04-14)
 
 * https://repose.atlassian.net/browse/REP-4024[REP-4024] - the <<filters/header-normalization.adoc#, Header Normalization Filter>> updated to include removing headers on the Response.
 * https://repose.atlassian.net/browse/REP-3901[REP-3901] - the Debian and RPM Repose Valve and WAR artifacts will now create the `repose` user and group even if the configuration files are already present.
@@ -31,16 +31,16 @@ See <<services/metrics.adoc#,Metrics Service>> for details on the metrics curren
 However, there were some internal contract changes with the Via and Location header builders, but they should not affect any custom filters.
 * https://repose.atlassian.net/browse/REP-4465[REP-4465] - certain enums provided by Repose have been replaced by classes holding the same constant values.
 
-== 8.4.1.0
+== 8.4.1.0 (2017-02-24)
 
 * https://repose.atlassian.net/browse/REP-5101[REP-5101] - <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> now allows un-encoded `application/xml` requests in addition to the previous `application/x-www-form-urlencoded` requests.
 
-== 8.4.0.2
+== 8.4.0.2 (2017-02-21)
 
 * https://repose.atlassian.net/browse/REP-5100[REP-5100] - <<filters/rate-limiting.adoc#, Rate Limiting Filter>> was mistakenly getting the full parameter map, and not just the query parameters.
 * https://repose.atlassian.net/browse/REP-5071[REP-5071] - Repose is now using Attribute Mapping v1.0.2.
 
-== 8.4.0.1
+== 8.4.0.1 (2017-02-04)
 
 * https://repose.atlassian.net/browse/REP-4795[REP-4795] https://repose.atlassian.net/browse/REP-4831[REP-4831] - the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> has been released!
 * https://repose.atlassian.net/browse/REP-4653[REP-4653] - the <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>> updated to read request body of Forgot Password request to get the username and the <<filters/herp.adoc#, Highly Efficient Record Processor (HERP) Filter>> was updated to get `X-User-Name` from response headers.
@@ -52,6 +52,6 @@ However, there were some internal contract changes with the Via and Location hea
 * https://repose.atlassian.net/browse/REP-4892[REP-4892] - versioned searching of these docs has been fixed.
 * https://repose.atlassian.net/browse/REP-4999[REP-4999] - leading and trailing whitespace in directory values in the container.cfg.xml file are now ignored.
 
-== 8.3.0.1
+== 8.3.0.1 (2016-12-13)
 
 * https://repose.atlassian.net/browse/REP-4764[REP-4764] - `sendError` in the response wrapper will now call `sendError` on the underlying response when appropriate.
