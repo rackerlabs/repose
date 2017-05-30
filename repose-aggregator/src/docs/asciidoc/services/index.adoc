@@ -6,7 +6,7 @@ include::../_includes/in-progress.adoc[]
 *IN PROGRESS*
 
 == <<datastores.adoc#,Datastores>>
-*IN PROGRESS*
+Enables the local Repose node or an entire cluster to store various types of data.
 
 == <<health-check.adoc#,Health Check service>>
 *IN PROGRESS*

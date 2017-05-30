@@ -1,9 +1,5 @@
 = Datastores
 
-include::../_includes/in-progress.adoc[]
-
-== Configuration
-
 Repose uses one of the following datastore implementations to store various types of data:
 
 * Local datastore (name: local/default)
@@ -52,24 +48,23 @@ The following is a basic sample configuration.
 ----
 
 ==== Full Configuration
-
 [source,xml]
 .dist-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'
-                       connection-pool-id="default"         <!--1-->
-                       keystore-filename="keystore.jks"     <!--2-->
-                       keystore-password="password"         <!--3-->
-                       key-password="secret"                <!--4-->
+                       connection-pool-id="default" <!--1-->
+                       keystore-filename="keystore.jks" <!--2-->
+                       keystore-password="password" <!--3-->
+                       key-password="secret" <!--4-->
                        truststore-filename="truststore.jks" <!--5-->
-                       truststore-password="trusting">      <!--6-->
-    <allowed-hosts allow-all="false">                       <!--7--><!--8-->
-        <allow host="127.0.0.1"/>                           <!--9-->
+                       truststore-password="trusting"> <!--6-->
+    <allowed-hosts allow-all="false"> <!--7--> <!--8-->
+        <allow host="127.0.0.1"/> <!--9-->
     </allowed-hosts>
     <port-config>
-        <port port="9999" cluster="repose"/>                <!--10-->
-        <port port="7777" cluster="repose" node="node2"/>   <!--11-->
+        <port port="9999" cluster="repose"/> <!--10-->
+        <port port="7777" cluster="repose" node="node2"/> <!--11-->
     </port-config>
 </distributed-datastore>
 ----
@@ -77,28 +72,23 @@ The following is a basic sample configuration.
 <2> IF this attribute is configured,
     THEN it is assumed that it points to the Java keystore containing the client certificate to present for client authentication (e.g keystore.jks)
     AND the `keystore-password` and `key-password` attributes are no longer optional. +
-    [NOTE]
-    ====
-    IF the `keystore-filename` is defined,
-    THEN HTTPS will be used;
-    ELSE HTTP will be used.
-    ====
+    *NOTE:* +
+    _IF_ the `keystore-filename` is defined, +
+    _THEN_ HTTPS will be used; +
+    _ELSE_ HTTP will be used.
 <3> The password for the client authentication keystore.
 <4> The password for the particular client authentication key in the keystore.
 <5> The truststore used for validating the server this pool is connecting to.
     This is typically set to the same path as the client authentication keystore.
 <6> The password for the client authentication truststore. +
-    [NOTE]
-    ====
-    This attribute is only used if the `truststore-filename` attribute is present.
-    ====
+    *NOTE:* This attribute is only used if the `truststore-filename` attribute is present.
 <7> Defines a list of hosts who has access to the distributed datastore API calls.
     This does not add the host to the participating data storage nodes.
 <8> Setting the optional `allow-all` to `true` (defaults to `false`) will turn off host ACL checking.
 <9> Defines a host who has access to the distributed datastore API.
 <10> Defines the `port` on which all datastores in this `cluster` will listen.
 <11> Overrides the default `port`, defined for this `cluster` 's datastores to listen, only for this particular `node`.
-`
+
 === Security
 The distributed datastore provides the option to encrypt communication between nodes using HTTP over SSL/TLS.
 As mentioned above, this is achieved by configuring a keystore in the `dist-datastore.cfg.xml` file.
@@ -231,16 +221,15 @@ The following is a basic sample configuration.
 ----
 
 ==== Full Configuration
-
 [source,xml]
 .remote-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <remote-datastore>
-    <cluster id="repose"                             <!--1-->
-             host="remote.example.com"               <!--2-->
-             port="8080"                             <!--3-->
-             useHTTPS="true"                         <!--4-->
+    <cluster id="repose" <!--1-->
+             host="remote.example.com" <!--2-->
+             port="8080" <!--3-->
+             useHTTPS="true" <!--4-->
              connection-pool-id="remote-datastore"/> <!--5-->
 </remote-datastore>
 ----

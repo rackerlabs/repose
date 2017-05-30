@@ -6,7 +6,7 @@ include::../_includes/in-progress.adoc[]
 Enables users to add new headers and header values to a request and/or response.
 
 == <<api-validator.adoc#,API Validator Filter>>
-*IN PROGRESS*
+Validates calls to an API by checking the URI format, enforcing <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>>, ensuring payload schema compliance, and much more.
 
 == <<attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation filter>>
 For Identity usage in validating attribute mapping policies which may be applied by the <<saml-policy.adoc#,SAML Policy Translation Filter>>.
@@ -42,7 +42,7 @@ Enables users to add support for Cross-Origin Resource Sharing requests.
 *IN PROGRESS*
 
 == <<header-normalization.adoc#,Header Normalization filter>>
-*IN PROGRESS*
+Conditionally removes headers from a request and/or response.
 
 == <<header-translation.adoc#,Header Translation Filter>>
 *IN PROGRESS*
@@ -51,7 +51,7 @@ Enables users to add support for Cross-Origin Resource Sharing requests.
 *IN PROGRESS*
 
 == <<herp.adoc#,Highly Efficient Record Processor (HERP) Filter>>
-*IN PROGRESS*
+Logs a descriptive event for each API request so that usage can be audited.
 
 == <<ip-user.adoc#,IP User Filter>>
 *IN PROGRESS*
@@ -75,7 +75,7 @@ Provides a mechanism for authenticating incoming requests with the OpenStack Key
 For identity usage for rate limiting and user access events.
 
 == <<rate-limiting.adoc#,Rate Limiting Filter>>
-*IN PROGRESS*
+Limits the number of requests allowed through Repose to the origin service.
 
 == <<saml-policy.adoc#,SAML Policy Translation Filter>>
 Allows the translation and addition of new assertions to a SAML response request.
@@ -105,7 +105,7 @@ Enables users to write custom filters for Repose using a variety of scripting la
 *IN PROGRESS*
 
 == <<valkyrie-authorization.adoc#,Valkyrie Authorization Filter>>
-*IN PROGRESS*
+Authorizes users with permissions from a Valkyrie service, and normalizes request and/or response data given those permissions.
 
 == <<versioning.adoc#,Versioning Filter>>
 *IN PROGRESS*

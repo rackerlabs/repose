@@ -105,7 +105,7 @@ When the `enable-rax-roles` attribute for the API Validator filter is set to tru
 <validators multi-role-match="true" xmlns='http://openrepose.org/repose/validator/v1.0' version="1">
     <validator role="default"
                default="true"
-               wadl="file://my/wadl/filewithraxroles.wadl"
+               wadl="file:///my/wadl/filewithraxroles.wadl"
                dot-output="/tmp/default.dot"
                enable-rax-roles="true"
     />
