@@ -259,10 +259,10 @@ If you need to manually run Gatling, you can do so from the Gatling host.
 export GATLING_HOME="/root/gatling/current" <1>
 cd $GATLING_HOME
 
-gatling -s filters.saml.SamlSimulation # <2>
+gatling -s filters.saml.SamlFilterSimulation # <2>
 ----
 <1> `GATLING_HOME` needs to be set for Gatling to run.
-<2> `filters.saml.SamlSimulation` is the package-qualified class name of the simulation to run.
+<2> `filters.saml.SamlFilterSimulation` is the package-qualified class name of the simulation to run.
 It should be replaced with the FQCN of the simulation that should be run.
 
 === Configuring Gatling Manually

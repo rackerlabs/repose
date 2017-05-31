@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package filters.herp
+package filters.valkyrie
 
 import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
@@ -29,10 +29,10 @@ import scala.concurrent.duration._
 import scala.util.Random
 
 /**
- * Herp filter performance simulation.
- */
-class HerpSimulation extends Simulation {
-  import HerpSimulation._
+  * Valkyrie filter performance simulation.
+  */
+class ValkyrieFilterSimulation extends Simulation {
+  import ValkyrieFilterSimulation._
 
   // properties to configure the Gatling test
   val conf = ConfigFactory.load("application.conf")
@@ -52,18 +52,16 @@ class HerpSimulation extends Simulation {
 
   val feeder = Iterator.continually(Map(
     "tenantId" -> s"hybrid:${Random.numeric.take(8).mkString}",
-    "authToken" -> Random.alphanumeric.take(32).mkString,
-    "userId" -> Random.numeric.take(8).mkString,
-    "userName" -> Random.alphanumeric.take(10).mkString,
-    "impersonatorId" -> Random.numeric.take(8).mkString,
-    "impersonatorName" -> Random.alphanumeric.take(10).mkString
+    "authToken" -> Random.alphanumeric.take(10).mkString,
+    "authUser" -> Random.numeric.take(8).mkString,
+    "contactId" -> Random.numeric.take(8).mkString
   ))
 
   // set up the warm up scenario
   val warmup = scenario("Warmup")
     .feed(feeder)
     .forever() {
-      exec(getResource)
+      exec(getResourceWithDeviceId)
     }
     .inject(
       constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
@@ -72,10 +70,10 @@ class HerpSimulation extends Simulation {
       jumpToRps(0), holdFor(duration minutes))                 // stop scenario during actual test
 
   // set up the main scenario
-  val mainScenario = scenario("Herp Filter Test")
+  val mainScenario = scenario("Valkyrie Filter Test")
     .feed(feeder)
     .forever() {
-      exec(getResource)
+      exec(getResourceWithDeviceId)
     }
     .inject(
       nothingFor(warmUpDuration minutes),  // do nothing during warm up period
@@ -92,24 +90,21 @@ class HerpSimulation extends Simulation {
     global.successfulRequests.percent.gte(percentSuccessfulRequest)
   ).protocols(httpConf)
 
-  def getResource: HttpRequestBuilder = {
+  def getResourceWithDeviceId: HttpRequestBuilder = {
+    def deviceId = Random.numeric.take(8).mkString
+
     http(session => session.scenario)
-      .get("/resource")
-      .queryParam("tenantid", "12345")
-      .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationXml)
-      .header(HttpHeaderNames.Host, "localhost")
+      .get(_ => s"/resource/$deviceId")
+      .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
       .header("x-tenant-id", "${tenantId}")
       .header("x-auth-token", "${authToken}")
-      .header("x-roles", "default")
-      .header("x-user-id", "${userId}")
-      .header("x-user-name", "${userName}")
-      .header("x-impersonator-id", "${impersonatorId}")
-      .header("x-impersonator-name", "${impersonatorName}")
+      .header("x-auth-user", "${authUser}")
+      .header("x-contact-id", "${contactId}")
       .check(status.is(200))
   }
 }
 
-object HerpSimulation {
+object ValkyrieFilterSimulation {
   implicit class RandomStreams(val rand: Random) {
     def numeric: Stream[Char] = {
       def nextNum: Char = {

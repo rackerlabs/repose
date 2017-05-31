@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package filters.valkyrie
+package filters.keystonev2
 
 import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
@@ -29,11 +29,9 @@ import scala.concurrent.duration._
 import scala.util.Random
 
 /**
-  * Valkyrie filter performance simulation.
-  */
-class ValkyrieSimulation extends Simulation {
-  import ValkyrieSimulation._
-
+ * Keystone v2 filter performance simulation.
+ */
+class KeystoneV2FilterSimulation extends Simulation {
   // properties to configure the Gatling test
   val conf = ConfigFactory.load("application.conf")
   val confRoot = "test"
@@ -50,18 +48,13 @@ class ValkyrieSimulation extends Simulation {
 
   val httpConf = http.baseURL(s"http://$baseUrl")
 
-  val feeder = Iterator.continually(Map(
-    "tenantId" -> s"hybrid:${Random.numeric.take(8).mkString}",
-    "authToken" -> Random.alphanumeric.take(10).mkString,
-    "authUser" -> Random.numeric.take(8).mkString,
-    "contactId" -> Random.numeric.take(8).mkString
-  ))
+  val feeder = Iterator.continually(Map("authToken" -> Random.alphanumeric.take(250).mkString))
 
   // set up the warm up scenario
   val warmup = scenario("Warmup")
     .feed(feeder)
     .forever() {
-      exec(getResourceWithDeviceId)
+      exec(getRequest)
     }
     .inject(
       constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
@@ -70,10 +63,10 @@ class ValkyrieSimulation extends Simulation {
       jumpToRps(0), holdFor(duration minutes))                 // stop scenario during actual test
 
   // set up the main scenario
-  val mainScenario = scenario("Valkyrie Filter Test")
+  val mainScenario = scenario("Keystone v2 Filter Test")
     .feed(feeder)
     .forever() {
-      exec(getResourceWithDeviceId)
+      exec(getRequest)
     }
     .inject(
       nothingFor(warmUpDuration minutes),  // do nothing during warm up period
@@ -90,29 +83,10 @@ class ValkyrieSimulation extends Simulation {
     global.successfulRequests.percent.gte(percentSuccessfulRequest)
   ).protocols(httpConf)
 
-  def getResourceWithDeviceId: HttpRequestBuilder = {
-    def deviceId = Random.numeric.take(8).mkString
-
+  def getRequest: HttpRequestBuilder = {
     http(session => session.scenario)
-      .get(_ => s"/resource/$deviceId")
-      .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
-      .header("x-tenant-id", "${tenantId}")
+      .get("/")
       .header("x-auth-token", "${authToken}")
-      .header("x-auth-user", "${authUser}")
-      .header("x-contact-id", "${contactId}")
       .check(status.is(200))
-  }
-}
-
-object ValkyrieSimulation {
-  implicit class RandomStreams(val rand: Random) {
-    def numeric: Stream[Char] = {
-      def nextNum: Char = {
-        val chars = "0123456789"
-        chars charAt (rand nextInt chars.length)
-      }
-
-      Stream continually nextNum
-    }
   }
 }

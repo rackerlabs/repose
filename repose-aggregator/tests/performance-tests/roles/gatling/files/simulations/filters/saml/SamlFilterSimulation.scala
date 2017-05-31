@@ -35,8 +35,8 @@ import scala.collection.JavaConverters._
 /**
   * SAML Policy Translation filter performance simulation.
   */
-class SamlSimulation extends Simulation {
-  import SamlSimulation._
+class SamlFilterSimulation extends Simulation {
+  import SamlFilterSimulation._
 
   // properties specific to this test simulation
   val samlConf = ConfigFactory.load("saml_simulation.conf")
@@ -140,7 +140,7 @@ class SamlSimulation extends Simulation {
   }
 }
 
-object SamlSimulation {
+object SamlFilterSimulation {
   val LegacySamlIssuer = "http://legacy.idp.external.com"
   val SamlIssuerBase = "http://idp.external.com/"
 
