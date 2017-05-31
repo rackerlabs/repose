@@ -22,8 +22,8 @@ package org.openrepose.filters.keystonev2
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import javax.servlet.http.HttpServletResponse._
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse.{SC_UNAUTHORIZED, _}
 import javax.servlet.{FilterConfig, Servlet, ServletRequest, ServletResponse}
 import javax.ws.rs.core.HttpHeaders._
 import javax.ws.rs.core.MediaType
@@ -1593,11 +1593,12 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("not-tenant")), Nil: _*)
 
-      val response = mock[HttpServletResponse]
+      val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      verify(response).sendError(mockitoEq(SC_UNAUTHORIZED), anyString())
+      response.getStatus shouldBe SC_UNAUTHORIZED
+      response.getErrorMessage shouldBe "Tenant from URI does not match any of the tenants associated with the provided token"
     }
 
     it("sends all tenant IDs when configured to") {
@@ -1734,11 +1735,12 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(TestValidToken(defaultTenantId = Some("bu-%tts")), Nil: _*)
 
-      val response = mock[HttpServletResponse]
+      val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
       filter.doFilter(request, response, filterChain)
 
-      verify(response).sendError(mockitoEq(SC_UNAUTHORIZED), anyString())
+      response.getStatus shouldBe SC_UNAUTHORIZED
+      response.getErrorMessage shouldBe "Could not parse tenant from the URI"
     }
 
     it("should send the X-Authorization header with the tenant in the uri") {
