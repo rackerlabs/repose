@@ -556,6 +556,33 @@ with HttpDelegationManager {
       filterChain.getRequest should not be null
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeaders(OpenStackServiceHeader.AUTHENTICATED_BY).asScala.toSeq should contain only("PASSWORD", "PASSCODE")
     }
+
+    it("responds with a www-authenticate header when unauthorized down stream") {
+      val response = new MockHttpServletResponse
+      val mockServlet = mock[Servlet]
+      doAnswer(new Answer[Unit] {
+        override def answer(invocation: InvocationOnMock): Unit = {
+          response.setHeader(WWW_AUTHENTICATE, "Delegated")
+          response.setStatus(SC_UNAUTHORIZED)
+        }
+      }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
+      val filterChain = new MockFilterChain(mockServlet)
+
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
+      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf(classOf[String], classOf[String]), anyString(), any[MediaType], anyBoolean()))
+        .thenReturn(new ServiceClientResponse(SC_OK, adminAuthenticationTokenResponse()))
+      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatus shouldBe SC_UNAUTHORIZED
+      response.getHeaders(WWW_AUTHENTICATE) should contain("Keystone uri=https://some.identity.com")
+    }
   }
 
   describe("Configured to authenticate and authorize a specific service endpoint") {

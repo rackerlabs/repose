@@ -210,15 +210,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
                 logger.trace(s"Processing response with status code: $statusCode")
 
-                if (response.getStatus == SC_UNAUTHORIZED) {
-                  response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
-                }
               case None =>
                 logger.debug(s"Rejecting with status $statusCode")
-
-                if (statusCode == SC_UNAUTHORIZED) {
-                  response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
-                }
 
                 message match {
                   case Some(m) =>
@@ -228,6 +221,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 }
             }
         }
+
+        response.uncommit()
+
+        if (response.getStatus == SC_UNAUTHORIZED) {
+          response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
+        }
+
         response.commitToResponse()
       }
 
