@@ -287,6 +287,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       def validateToken(authToken: String): Try[ValidToken] = {
         logger.trace(s"Validating token: $authToken")
 
+        request.addHeader(AuthTokenKey, s"$TOKEN_KEY_PREFIX$authToken")
+
         Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[ValidToken]) map { validationResult =>
           logger.trace("Found cached user token to use")
           Success(validationResult)
@@ -750,6 +752,8 @@ object KeystoneV2Filter {
   private final val SystemModelConfig = "system-model.cfg.xml"
   private final val DefaultConfig = "keystone-v2.cfg.xml"
   private final val XAuthProxy = "Proxy"
+
+  val AuthTokenKey = "X-Auth-Token-Key"
 
   implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
 

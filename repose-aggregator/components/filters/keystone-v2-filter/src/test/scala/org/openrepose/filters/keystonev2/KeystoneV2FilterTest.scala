@@ -2023,6 +2023,24 @@ with HttpDelegationManager {
       val encodedEndpoints = Base64.encodeBase64String(endpointsResponse().getBytes)
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.X_CATALOG) shouldBe encodedEndpoints
     }
+
+    it("forwards the data store key for the parsed user token") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse()))
+      when(mockAkkaServiceClient.get(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
+        .thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(KeystoneV2Filter.AuthTokenKey) shouldBe s"$TOKEN_KEY_PREFIX$VALID_TOKEN"
+    }
   }
 
   describe("Handling tenanted roles") {
