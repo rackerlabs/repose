@@ -2222,7 +2222,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       wrappedResponse.sendError(418)
 
-      verify(mockResponse).sendError(418)
+      verify(mockResponse).sendError(418, null)
     }
 
     it("should call through to the underlying response if not in a mutable header mode (two arguments)") {
