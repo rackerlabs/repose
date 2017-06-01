@@ -27,7 +27,7 @@
 - name: Fetch the Gatling results for the Repose test
   fetch:
     src: "/root/{{ current_gatling_results_dir.path | basename }}.tar.gz"
-    dest: "{{ ansible_env.HOME }}/"
+    dest: "{{ hostvars['localhost']['ansible_env']['HOME'] }}/"
     flat: yes
   tags:
     - repose
@@ -62,7 +62,7 @@
 - name: Fetch the Gatling results for the origin service test
   fetch:
     src: "/root/{{ current_gatling_results_dir.path | basename }}.tar.gz"
-    dest: "{{ ansible_env.HOME }}/"
+    dest: "{{ hostvars['localhost']['ansible_env']['HOME'] }}/"
     flat: yes
   tags:
     - origin
