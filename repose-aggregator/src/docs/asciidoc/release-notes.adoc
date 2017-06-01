@@ -4,12 +4,14 @@ include::_includes/in-progress.adoc[]
 
 == Future Release
 
+== 8.6.0.0 (2017-06-01)
+
 * https://repose.atlassian.net/browse/REP-5234[REP-5234] - added the new <<services/datastores.adoc#_remote_datastore, Remote Datastore service>> which allows the Distributed Datastore service concept to work in dynamic containerized environments like OpenShift.
 * https://repose.atlassian.net/browse/REP-5343[REP-5343] - Updated the Keystone v2 Filter to support the new Apply RCN Roles feature of Rackspace Keystone v2 Identity.
 Converted the https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filter[old Keystone v2 Filter documentation] over to the <<filters/keystone-v2.adoc#, new versioned docs>>.
 * https://repose.atlassian.net/browse/REP-5345[REP-5345] - the <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> has been released!
 * https://repose.atlassian.net/browse/REP-5523[REP-5523] - the <<recipes/functional-test-framework.adoc#,Repose Functional Test Framework>> has been released!
-* https://repose.atlassian.net/browse/REP-5221[REP-5221] - Updated the API Checker library from v2.1.1 to v2.2.0.
+* https://repose.atlassian.net/browse/REP-5221[REP-5221] - Updated the API Checker library from v2.1.1 to v2.2.1.
 ** This brings the bulk metadata feature to the <<filters/api-validator.adoc#, API Validator filter>>.
 
 == 8.5.0.1 (2017-04-14)
