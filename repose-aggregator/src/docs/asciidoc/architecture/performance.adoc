@@ -41,12 +41,12 @@ The overall design of the automatic performance testing framework can be outline
 \--------/             \-------/
 ....
 
-A code change in the Repose GitHub repository will trigger a Jenkins job to run.
+A code change in the Repose GitHub repository on the master branch will trigger a Jenkins job to run.
 The Jenkins job will run the Ansible playbooks for all defined test cases.
 The Ansible playbooks, in turn, will provision the necessary cloud resources and begin executing the Gatling simulations for each test case.
 As Gatling runs, it will pipe the performance data it captures to InfluxDB.
 Once Gatling execution completes, the cloud resources will be cleaned up, and the Ansible playbook will finish executing.
-At some point, Grafana will query InfluxDB to retrieve the performance data which will be made available in the form of one or more dashboards.
+Grafana will query InfluxDB to retrieve the performance data which is available in the http://grafana.openrepose.org/dashboard/db/performance-tests?orgId=1[Performance Tests dashboard].
 
 ==== Gatling
 
@@ -112,12 +112,9 @@ Resulting in a database full of entries like the following:
 
 To learn more about how InfluxDB handles Graphite input, see https://github.com/influxdata/influxdb/blob/master/services/graphite/README.md[Graphite Input].
 
-==== Network
+==== Deployment
 
-A private network has been established to secure the transfer of performance data.
-This private network helps minimize host exposure to potential adversaries, and in doing so, helps prevent performance data corruption.
-
-The following diagram illustrates the network used during each interaction between components from the <<Design>>.
+The following diagram illustrates the interactions between each component referenced in the <<Design>>.
 
 image::../images/performance-test-framework.png[Performance Test Framework]
 
@@ -133,6 +130,7 @@ For example, the `repose-aggregator/tests/performance-tests/roles/repose/files/c
 . Create a vars file for the new test.
 .. These are located in `repose-aggregator/tests/performance-tests/test_vars/`.
 .. At a minimum, it should contain the `dir_prefix`, the filter chain, and the Gatling simulation name and package.
+.. The Gatling simulation name should follow the pattern: Name Type "Simulation" (e.g., SamlFilterSimulation, ComplexUseCaseSimulation).
 . If necessary, add Repose configuration files.
 .. Create any necessary new directories under `repose-aggregator/tests/performance-tests/roles/repose/` with the same names and hierarchy configured in the `dir_prefix`.
 Template files should be placed under the `templates/config/` directory, and raw configuration files should be placed under the `files/config/` directory.
@@ -158,18 +156,12 @@ The Jenkins job will run the performance tests and publish the results automatic
 
 === Running a Test Manually
 
-[IMPORTANT]
-.TODO
-====
-* Add the link to the Puppet manifest.
-====
-
 . Set up your environment.
 +
 [NOTE]
 ====
 We use Puppet to manage our performance test environment.
-The details of our environment can be found in our [Puppet manifest].
+The details of our environment can be found in our https://github.com/rackerlabs/repose-infrastructure-ng/blob/master/myModules/repose_jenkins/manifests/performance_slave.pp[Puppet manifest].
 If you have https://puppet.com/[Puppet] installed, you can download our manifest and re-create our environment by running `puppet apply` directly on the downloaded file.
 ====
 . Clone the https://github.com/rackerlabs/repose[Repose GitHub repository] from Github. +
@@ -203,66 +195,54 @@ ansible-playbook start_test.yml \ # <1>
 [IMPORTANT]
 .TODO
 ====
-* Add a link to our Grafana instance.
-* Describe the dashboard(s).
+* Describe the dashboard.
 ====
 
-Grafana serves as the user interface to performance test data.
+Grafana serves as the user interface to performance test data which can be seen in the http://grafana.openrepose.org/dashboard/db/performance-tests?orgId=1[Performance Tests dashboard].
 
 
 === HTML Report
 
 After test execution has completed, Gatling will generate an HTML report.
-The report can be found inside an archive residing in the `/root` directory with a file name like `gatling-results-repose-1487613066553.tar.gz`.
+The report can be found inside an archive residing in the home directory with a file name like `SamlFilterSimulationRepose-1496319945650.tar.gz`.
 The exact file name will be included in the output of the `Fetch the Gatling results` task which will resemble the following snippet:
 [listing]
 ----
 changed: [perf-filters-saml-testsuite01] => {
     "changed": true,
-    "checksum": "4abdc6827e21343904c5744df42c7da57db8c978",
-    "dest": "/root/gatling-results-repose-1487613066553.tar.gz", # <1>
-    "invocation": {
-        "module_args": {
-            "dest": "/root/",
-            "flat": true,
-            "src": "/root/gatling-results-repose-1487613066553.tar.gz"
-        },
-        "module_name": "fetch"
-    },
-    "md5sum": "5441b5b8229434a79c4546c74b85338a",
-    "remote_checksum": "4abdc6827e21343904c5744df42c7da57db8c978",
+    "checksum": "9bf6327e21d9029870e81451287aef61428329bf",
+    "dest": "/home/perftester/SamlFilterSimulationRepose-1496319945650.tar.gz", # <1>
+    "md5sum": "aeace1aecfb4949b0e6bbd104e87b7a0",
+    "remote_checksum": "9bf6327e21d9029870e81451287aef61428329bf",
     "remote_md5sum": null
 }
 ----
 <1> This is the file name.
 
-After the report archive is located, the content must be extracted before the report can be viewed.
+After the report archive is located, the contents must be extracted before the report can be viewed.
 That can be done with a command like the following: +
-`tar xvf /root/gatling-results-repose-1487613066553.tar.gz`
+`tar xvf /home/perftester/SamlFilterSimulationRepose-1496319945650.tar.gz`
 
-Once the report has been extracted, it can be viewed in the `index.html` file.
-Using a web browser will provide the best viewing experience.
-
-[NOTE]
-====
-The Ansible task that fetches the results from the Gatling host will place the results in the `/root` directory of the control machine.
-The `/root` directory needs to exist and be writable by the user running Ansible.
-====
+Once the report has been extracted, it can be viewed by opening the `index.html` file with a web browser.
 
 == Debugging
 
 === Running Gatling Manually
 
 If you need to manually run Gatling, you can do so from the Gatling host.
+
 [source,bash]
 ----
-export GATLING_HOME="/root/gatling/current" <1>
+export JAVA_OPTS="-Dtest.base_url=162.200.100.100:7070" # <1>
+export GATLING_HOME="/root/gatling/current" # <2>
 cd $GATLING_HOME
 
-gatling -s filters.saml.SamlFilterSimulation # <2>
+gatling -s filters.saml.SamlFilterSimulation # <3>
 ----
-<1> `GATLING_HOME` needs to be set for Gatling to run.
-<2> `filters.saml.SamlFilterSimulation` is the package-qualified class name of the simulation to run.
+<1> The target host and port need to be specified for all of the simulations.
+These JAVA_OPTS are only for Gatling and do not apply to Repose.
+<2> `GATLING_HOME` needs to be set for Gatling to run.
+<3> `filters.saml.SamlFilterSimulation` is the package-qualified class name of the simulation to run.
 It should be replaced with the FQCN of the simulation that should be run.
 
 === Configuring Gatling Manually
