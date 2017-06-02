@@ -156,6 +156,23 @@ The Jenkins job will run the performance tests and publish the results automatic
 
 === Running a Test Manually
 
+If you have the appropriate permissions on the Repose Jenkins instance, you can run the https://jenkins.openrepose.org/job/performance-test/[performance-test] Jenkins job to manually start a single performance test.
+
+. In the https://jenkins.openrepose.org/job/performance-test/[performance-test] Jenkins job click on the https://jenkins.openrepose.org/job/performance-test/build?delay=0sec[Build with Parameters] link.
+. Populate the build parameters for the test you want to run.
+. Click Build.
+
+.performance-test build parameters
+[options="header,autowidth"]
+|===
+| Name          | Required | Description                                                                   | Example
+| perf_test     | Yes      | name of the performance test you wish to perform                              | uses-cases/simple
+| script_lang   | No       | name of the scripting language to use when running the filters/scripting test | python
+| extra_options | No       | extra options to pass to the ansible-playbook command                         | `-e '{gatling: {test: {params: {duration_in_min: 1}}}}'`
+|===
+
+=== Running a Test Locally
+
 . Set up your environment.
 +
 [NOTE]
