@@ -94,4 +94,4 @@ boolean isLatestDockerHubVersion(String version) {
     return isLatest
 }
 
-pushImageLatest.onlyIf { isLatestVersion(reposeVersion) }
+pushImageLatest.onlyIf { isLatestDockerHubVersion(reposeVersion) }
