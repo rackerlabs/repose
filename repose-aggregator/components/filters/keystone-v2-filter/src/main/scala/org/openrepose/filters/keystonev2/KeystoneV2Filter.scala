@@ -33,7 +33,8 @@ import org.apache.commons.codec.binary.Base64
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
-import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
@@ -66,15 +67,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   var keystoneV2Config: KeystoneV2Config = _
   var akkaServiceClient: AkkaServiceClient = _
 
-  private var configurationFile: String = DEFAULT_CONFIG
+  private var configurationFile: String = DefaultConfig
   private var sendTraceHeader = true
 
   override def init(filterConfig: FilterConfig): Unit = {
-    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
+    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DefaultConfig)
     logger.info(s"Initializing Keystone V2 Filter using config $configurationFile")
     val xsdURL: URL = this.getClass.getResource("/META-INF/schema/config/keystone-v2.xsd")
     configurationService.subscribeTo(
-      SYSTEM_MODEL_CONFIG,
+      SystemModelConfig,
       getClass.getResource("/META-INF/schema/system-model/system-model.xsd"),
       SystemModelConfigListener,
       classOf[SystemModel]
@@ -91,7 +92,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   override def destroy(): Unit = {
     Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(configurationFile, KeystoneV2ConfigListener)
-    configurationService.unsubscribeFrom(SYSTEM_MODEL_CONFIG, SystemModelConfigListener)
+    configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigListener)
     CacheInvalidationFeedListener.unRegisterFeeds()
   }
 
@@ -109,9 +110,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         * DECLARE COMMON VALUES
         */
       lazy val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-      // Not using the mutable wrapper because it doesn't work properly at the moment, and
-      // we don't need to modify the response from further down the chain
-      lazy val response = servletResponse.asInstanceOf[HttpServletResponse]
+      lazy val response = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], MUTABLE, PASSTHROUGH)
       lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID)).filter(_ => sendTraceHeader)
       lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
       lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
@@ -211,15 +210,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
                 logger.trace(s"Processing response with status code: $statusCode")
 
-                if (response.getStatus == SC_UNAUTHORIZED) {
-                  response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
-                }
               case None =>
                 logger.debug(s"Rejecting with status $statusCode")
-
-                if (statusCode == SC_UNAUTHORIZED) {
-                  response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
-                }
 
                 message match {
                   case Some(m) =>
@@ -229,6 +221,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 }
             }
         }
+
+        response.uncommit()
+
+        if (response.getStatus == SC_UNAUTHORIZED) {
+          response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
+        }
+
+        response.commitToResponse()
       }
 
       /**
@@ -286,6 +286,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       def validateToken(authToken: String): Try[ValidToken] = {
         logger.trace(s"Validating token: $authToken")
+
+        request.addHeader(AuthTokenKey, s"$TOKEN_KEY_PREFIX$authToken")
 
         Option(datastore.get(s"$TOKEN_KEY_PREFIX$authToken").asInstanceOf[ValidToken]) map { validationResult =>
           logger.trace("Found cached user token to use")
@@ -519,13 +521,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
         matchedUriTenant match {
           case Some(uriTenant) =>
-            request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$X_AUTH_PROXY $uriTenant")
+            request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$XAuthProxy $uriTenant")
           case None =>
             token.defaultTenantId match {
               case Some(tenant) =>
-                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$X_AUTH_PROXY $tenant")
+                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$XAuthProxy $tenant")
               case None =>
-                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, X_AUTH_PROXY)
+                request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, XAuthProxy)
             }
         }
 
@@ -747,9 +749,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
 object KeystoneV2Filter {
 
-  private final val SYSTEM_MODEL_CONFIG = "system-model.cfg.xml"
-  private final val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
-  private final val X_AUTH_PROXY = "Proxy"
+  private final val SystemModelConfig = "system-model.cfg.xml"
+  private final val DefaultConfig = "keystone-v2.cfg.xml"
+  private final val XAuthProxy = "Proxy"
+
+  val AuthTokenKey = "X-Auth-Token-Key"
 
   implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
 

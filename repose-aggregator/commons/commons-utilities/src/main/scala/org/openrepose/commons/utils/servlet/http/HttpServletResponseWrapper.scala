@@ -130,27 +130,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @param i the status code to set
     */
   override def sendError(i: Int): Unit = {
-    if (isCommitted) {
-      throw new IllegalStateException("Cannot call sendError after the response has been committed")
-    }
-
-    // Set the status.
-    setStatus(i)
-
-    // Set the reason phrase.
-    reason = None
-
-    // Reset the buffered output.
-    resetBuffer()
-
-    // Track that the user intended to send an error.
-    sentError = true
-    committed = true
-
-    // If we are not in a mutable mode, immediately send error to the wrapped response.
-    if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
-      originalResponse.sendError(i)
-    }
+    sendError(i, null)
   }
 
   /** See [[sendError(i)]].
