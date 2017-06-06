@@ -13,25 +13,25 @@ Custom filters can be used to perform arbitrary processing with access to the bi
 * link:../schemas/scripting.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Required headers
-None.
+=== Required Request Headers
+This filter does not require any request headers.
 
-=== Required preceding filters
+=== Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
 
-=== Request headers created
+=== Request Headers Created
 Changes to request headers vary based on configuration.
 
-=== Request body changes
+=== Request Body Changes
 Changes to the request body varies based on configuration.
 
-=== Recommended follow-on (succeeding) filters
-This filter is not it strictly required by any other filters.
+=== Recommended Follow-On (Succeeding) Filters
+This filter is not strictly required by any other filters.
 
-=== Response body changes
+=== Response Body Changes
 Changes to the response body varies based on configuration.
 
-=== Response headers created
+=== Response Headers Created
 Changes to response headers vary based on configuration.
 
 === Response Status Codes

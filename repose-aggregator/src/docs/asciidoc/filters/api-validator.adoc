@@ -25,33 +25,33 @@ Most of the ideas described in this conference session are implemented in this f
 * link:../schemas/validator-configuration.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Required headers
+=== Required Request Headers
 This filter does not require any request headers.
 
 However, the configuration can require specific headers and/or values be present in order to successfully exit this filter.
 The most common use of a request header by this filter is for <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>> using the `X-Roles` header populated by the <<../filters/keystone-v2.adoc#,Keystone v2 filter>>.
 
-=== Required preceding filters
+=== Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
 
 However, due to the nature of this filter it is typically placed early in the filter chain immediately after any authentication filters.
 
-=== Request headers created
+=== Request Headers Created
 This filter only creates/modifies request headers when configured for <<../recipes/delegation.adoc#,Delegation>>.
 If delegation is enabled, then the `X-Delegated` header is created.
 This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within Repose.
 However, it can be exposed to the origin service under certain configurations.
 
-=== Request body changes
-This filter does not modify the response body.
+=== Request Body Changes
+This filter does not modify the request body.
 
-=== Recommended follow-on (succeeding) filters
+=== Recommended Follow-On (Succeeding) Filters
 This filter is not strictly required by any other filters.
 
-=== Response body changes
+=== Response Body Changes
 This filter does not modify the response body.
 
-=== Response headers created
+=== Response Headers Created
 This filter does not create/modify any response headers.
 
 === Response Status Codes

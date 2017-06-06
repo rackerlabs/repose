@@ -13,25 +13,25 @@ This filter does something really exciting.
 * link:../schemas/some.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Required headers
+=== Required Request Headers
 Banana.
 
-=== Required preceding filters
+=== Required Preceding Filters
 Banana.
 
-=== Request headers created
+=== Request Headers Created
 Banana.
 
-=== Request body changes
+=== Request Body Changes
 Banana.
 
-=== Recommended follow-on (succeeding) filters
+=== Recommended Follow-On (Succeeding) Filters
 Banana.
 
-=== Response body changes
+=== Response Body Changes
 Banana.
 
-=== Response headers created
+=== Response Headers Created
 Banana.
 
 === Response Status Codes

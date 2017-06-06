@@ -16,7 +16,7 @@ See <<Additional Information>> for more details on how rate limiting is performe
 * link:../schemas/rate-limiting-configuration.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Required Headers
+=== Required Request Headers
 * `X-PP-User` - Supplies a unique identifier for the user making the request.
 If the request matches a limit, the request count associated with this identifier will be incremented.
 * *(Optional)* `X-PP-Groups` - Supplies one or more identifier for the limit group(s) that the user belongs to.

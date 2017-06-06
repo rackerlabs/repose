@@ -20,7 +20,7 @@ Configuring CORS improperly could expose https://en.wikipedia.org/wiki/Cross-sit
 * *Configuration Schema:* link:../schemas/cors-configuration.xsd[cors-configuration.xsd]
 
 == Prerequisites & Postconditions
-=== Required Headers
+=== Required Request Headers
 The presence and values of certain headers will indicate what kind of request is being made.
 All of these headers will be supplied by the client making the request.
 
@@ -50,7 +50,7 @@ This Rate Limiting filter would be in addition to any Rate Limiting filter you m
 The first Rate Limiting filter would filter only by IP address, and the second Rate Limiting filter would continue to rate limit the way it's currently set up.
 
 === Request Headers Created
-This filter does not add any headers to the request.
+This filter does not create/modify any request headers.
 
 === Request Body Changes
 This filter does not modify the request body.

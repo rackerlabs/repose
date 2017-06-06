@@ -16,27 +16,27 @@ This filter has no configuration.
 ====
 
 == Prerequisites & Postconditions
-=== Required headers
+=== Required Request Headers
 * `Content-Type` - Declares the content type of the policy (e.g., XML or JSON) which will be used during validation.
 
-=== Required preceding filters
-None.
+=== Required Preceding Filters
+This filter has no dependencies on other filters.
 
-=== Request headers created
-None.
+=== Request Headers Created
+This filter does not create/modify any request headers.
 
-=== Request body changes
+=== Request Body Changes
 All requests that make it through this filter will have their respective bodies replaced by a normalized version of the original body.
 In some cases, the request body may not change.
 
-=== Recommended follow-on (succeeding) filters
+=== Recommended Follow-On (Succeeding) Filters
 * <<saml-policy.adoc#,SAML Policy Translation Filter>> - These two filters work well together to provide mechanisms for attribute mapping policy management and application.
 
-=== Response body changes
-None.
+=== Response Body Changes
+This filter does not modify the response body.
 
-=== Response headers created
-None.
+=== Response Headers Created
+This filter does not create/modify any response headers.
 
 === Response Status Codes
 [cols="2", options="header,autowidth"]

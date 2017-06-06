@@ -13,25 +13,25 @@ You can use the filter to add new headers with specific values to a request chai
 * link:../schemas/add-header.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Required headers
-None.
+=== Required Request Headers
+This filter does not require any request headers.
 
-=== Required preceding filters
+=== Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
 
-=== Request headers created
+=== Request Headers Created
 Changes to request headers vary based on configuration.
 
-=== Request body changes
+=== Request Body Changes
 This filter does not modify the request body.
 
-=== Recommended follow-on (succeeding) filters
+=== Recommended Follow-On (Succeeding) Filters
 This filter is not strictly required by any other filters.
 
-=== Response body changes
+=== Response Body Changes
 This filter does not modify the response body.
 
-=== Response headers created
+=== Response Headers Created
 Changes to response headers vary based on configuration.
 
 === Response Status Codes
