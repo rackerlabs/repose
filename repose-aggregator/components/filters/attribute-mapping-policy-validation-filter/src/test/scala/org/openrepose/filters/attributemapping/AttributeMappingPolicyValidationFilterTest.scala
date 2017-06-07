@@ -71,37 +71,15 @@ class AttributeMappingPolicyValidationFilterTest
 
   describe("getPolicyAsXmlSource") {
     it(s"should return a Source if the content-type is JSON") {
-      filter.getPolicyAsXmlSource(MediaType.APPLICATION_JSON_VALUE, new ByteArrayInputStream(ValidJsonPolicy.getBytes)) shouldBe a[Success[_]]
+      filter.validatePolicy(MediaType.APPLICATION_JSON_VALUE, new ByteArrayInputStream(ValidJsonPolicy.getBytes)) shouldBe a[Success[_]]
     }
 
     it(s"should return a Source if the content-type is XML") {
-      filter.getPolicyAsXmlSource(MediaType.APPLICATION_XML_VALUE, new ByteArrayInputStream(ValidXmlPolicy.getBytes)) shouldBe a[Success[_]]
+      filter.validatePolicy(MediaType.APPLICATION_XML_VALUE, new ByteArrayInputStream(ValidXmlPolicy.getBytes)) shouldBe a[Success[_]]
     }
 
     it("should return a Failure if the content-type is not supported") {
-      filter.getPolicyAsXmlSource("text/plain", new ByteArrayInputStream(ValidJsonPolicy.getBytes)) shouldBe a[Failure[_]]
-    }
-  }
-
-  describe("getPolicyAsInputStream") {
-    it(s"should return JSON with the provided content if the content-type is JSON") {
-      val result = filter.getPolicyAsInputStream(MediaType.APPLICATION_JSON_VALUE, new StreamSource(new ByteArrayInputStream(ValidXmlPolicy.getBytes)))
-
-      result shouldBe a[Success[_]]
-      // TODO: Replace this ghetto JSON comparison
-      hashByChar(Source.fromInputStream(result.get).mkString.replaceAll("\\s+", "")) shouldBe hashByChar(ValidJsonPolicy.replaceAll("\\s+", ""))
-    }
-
-    it(s"should return XML with the provided content if the content-type is XML") {
-      val result = filter.getPolicyAsInputStream(MediaType.APPLICATION_XML_VALUE, new StreamSource(new ByteArrayInputStream(ValidXmlPolicy.getBytes)))
-
-      result shouldBe a[Success[_]]
-      // TODO: Replace this ghetto XML comparison
-      hashByChar(Source.fromInputStream(result.get).mkString.replaceAll("\\s+", "")) shouldBe hashByChar(ValidXmlPolicy.replaceAll("\\s+", ""))
-    }
-
-    it("should return a Failure if the content-type is not supported") {
-      filter.getPolicyAsInputStream("text/plain", new StreamSource(ValidXmlPolicy)) shouldBe a[Failure[_]]
+      filter.validatePolicy("text/plain", new ByteArrayInputStream(ValidJsonPolicy.getBytes)) shouldBe a[Failure[_]]
     }
   }
 

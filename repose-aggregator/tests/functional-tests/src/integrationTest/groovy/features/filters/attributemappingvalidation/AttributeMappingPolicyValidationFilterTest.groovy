@@ -19,6 +19,7 @@
  */
 package features.filters.attributemappingvalidation
 
+import groovy.json.JsonSlurper
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -30,6 +31,10 @@ import static javax.ws.rs.core.MediaType.*
  * Created by adrian on 5/10/17.
  */
 class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
+
+    static JsonSlurper jsonSlurper = new JsonSlurper()
+    static XmlSlurper xmlSlurper = new XmlSlurper()
+
     def setupSpec() {
         reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
@@ -95,6 +100,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+        xmlSlurper.parseText(body) == xmlSlurper.parseText(mc.handlings[0].request.body as String)
     }
 
     def "should validate correct JSON"() {
@@ -104,18 +110,17 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             {
               "mapping": {
                 "rules": [
-                   {
+                  {
                     "local": {
                       "user": {
-                        "domain":"{D}",
-                        "name":"{D}",
-                        "email":"{D}",
-                        "roles":"{D}",
-                        "expire":"{D}"
-                       }
-                     }
-                   }
-                 ],
+                        "domain": "{D}",
+                        "name": "{D}",
+                        "email": "{D}",
+                        "expire": "{D}"
+                      }
+                    }
+                  }
+                ],
                 "version":"RAX-1"
               }
             }
@@ -127,6 +132,43 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+        jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
+    }
+
+    def "should not remove the name attribute from a remote in a JSON policy"() {
+        given:
+        String body =
+            """
+            {
+              "mapping": {
+                "rules": [
+                  {
+                    "local": {
+                      "user": {
+                        "name": "{D}"
+                      }
+                    },
+                    "remote": [
+                      {
+                        "multiValue": false,
+                        "name": "Username",
+                        "regex": false
+                      }
+                    ]
+                  }
+                ],
+                "version":"RAX-1"
+              }
+            }
+            """
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
     }
 
     def "should not validate bad XML"() {

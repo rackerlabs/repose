@@ -24,13 +24,14 @@ import javax.inject.Named
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_UNSUPPORTED_MEDIA_TYPE}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.xml.transform.TransformerException
 import javax.xml.transform.stream.{StreamResult, StreamSource}
-import javax.xml.transform.{Source, TransformerException}
 
 import com.fasterxml.jackson.core.{JsonParseException, JsonProcessingException}
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import net.sf.saxon.s9api.{SaxonApiException, XdmDestination}
+import net.sf.saxon.s9api.SaxonApiException
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 
@@ -54,11 +55,9 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
     val requestContentType = httpServletRequest.getContentType
 
     validateHttpMethod(httpServletRequest) flatMap { _ =>
-      getPolicyAsXmlSource(requestContentType, httpServletRequest.getInputStream)
-    } map { policyXmlSource =>
-      AttributeMapper.validatePolicy(policyXmlSource, XSDEngine.AUTO.toString)
-    } flatMap { normalizedPolicyXmlSource =>
-      getPolicyAsInputStream(requestContentType, normalizedPolicyXmlSource)
+      validatePolicy(requestContentType, httpServletRequest.getInputStream)
+    } map { bytes =>
+      new ServletInputStreamWrapper(new ByteArrayInputStream(bytes))
     } match {
       case Success(normalizedPolicyInputStream) =>
         chain.doFilter(
@@ -90,46 +89,36 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
     else Failure(UnsupportedHttpMethodException(s"${request.getMethod} is not a supported HTTP method"))
   }
 
-  def getPolicyAsXmlSource(contentType: String, policy: InputStream): Try[Source] = {
+  def validatePolicy(contentType: String, policy: InputStream): Try[Array[Byte]] = {
     val contentTypeLowerCase = contentType.toLowerCase
     val requestStreamSource = new StreamSource(policy)
+    val xsdEngineString = XSDEngine.AUTO.toString
 
     if (contentTypeLowerCase.contains("json")) {
       Try {
-        val outPolicyXml = new XdmDestination
-        AttributeMapper.policy2XML(requestStreamSource, outPolicyXml)
-        outPolicyXml.getXdmNode.asSource
-      }
-    } else if (contentTypeLowerCase.contains("xml")) {
-      Success(requestStreamSource)
-    } else {
-      Failure(UnsupportedContentTypeException(s"$contentType is not a supported Content-Type"))
-    }
-  }
+        // Validate the policy
+        val jsonNode = AttributeMapper.validatePolicy(
+          AttributeMapper.parseJsonNode(requestStreamSource),
+          xsdEngineString)
 
-  def getPolicyAsInputStream(contentType: String, policy: Source): Try[ServletInputStream] = {
-    val contentTypeLowerCase = contentType.toLowerCase
-
-    if (contentTypeLowerCase.contains("json")) {
-      Try {
-        // Transform the normalized policy Source into bytes
-        val jsonOutput = new ByteArrayOutputStream()
-        val jsonSerializer = AttributeMapper.processor.newSerializer(jsonOutput)
-        AttributeMapper.policy2JSON(policy, jsonSerializer, validate = false, XSDEngine.AUTO.toString)
-
-        // Wrap the policy bytes with a ServletInputStream
-        new ServletInputStreamWrapper(new ByteArrayInputStream(jsonOutput.toByteArray))
+        // Get the Bytes
+        new ObjectMapper().writeValueAsBytes(jsonNode)
       }
     } else if (contentTypeLowerCase.contains("xml")) {
       Try {
+        // Validate the policy
+        val xmlSource = AttributeMapper.validatePolicy(
+          requestStreamSource,
+          xsdEngineString)
+
         // Transform the normalized policy Source into bytes
         val transformer = transformerFactory.newTransformer()
         val xmlOutput = new ByteArrayOutputStream()
         val xmlStreamResult = new StreamResult(xmlOutput)
-        transformer.transform(policy, xmlStreamResult)
+        transformer.transform(xmlSource, xmlStreamResult)
 
-        // Wrap the policy bytes with a ServletInputStream
-        new ServletInputStreamWrapper(new ByteArrayInputStream(xmlOutput.toByteArray))
+        // Get the Bytes
+        xmlOutput.toByteArray
       }
     } else {
       Failure(UnsupportedContentTypeException(s"$contentType is not a supported Content-Type"))

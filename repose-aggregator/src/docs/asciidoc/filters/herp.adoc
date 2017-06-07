@@ -13,7 +13,7 @@ Events are recorded even if the API request is rejected by Repose before reachin
 * *Configuration Schema:* link:../schemas/highly-efficient-record-processor.xsd[highly-efficient-record-processor.xsd]
 
 == Prerequisites & Postconditions
-=== Required Headers
+=== Required Request Headers
 [cols="15,12,73", options="header"]
 .Response
 |===
@@ -43,7 +43,7 @@ This filter does not create/modify any request headers.
 This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-This filter is not it strictly required by any other filters.
+This filter is not strictly required by any other filters.
 However, the DeRP filter commonly follows the HERP filter.
 
 [CAUTION]

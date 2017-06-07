@@ -14,32 +14,32 @@ It'll attempt to locate a policy to use for the translation based on the asserti
 * link:../schemas/saml-policy.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Required headers
+=== Required Request Headers
 * `Content-Type` - Needs a value of `application/x-www-form-urlencoded` or `application/xml`
 
-=== Required preceding filters
-None
+=== Required Preceding Filters
+This filter has no dependencies on other filters.
 
-=== Request headers created
+=== Request Headers Created
 * `Content-Type` - Will be changed to `application/xml`
 * `Content-Length` - Will be removed if present
 * `Transfer-Encoding` - Will be set to `chunked`
 * `Identity-API-Version` - `1.0` if the assertion issuer is in the configured list and `2.0` otherwise.
 
-=== Request body changes
+=== Request Body Changes
 The request body will be decoded and replaced with an xml version if the content type is `application/x-www-form-urlencoded`.
 If issuer isn't in the configured bypass list indicating the use of the legacy v1.0 API, then the v2.0 API is assumed and a new assertion will be generated based on the matching issuer policy with `http://openrepose.org/filters/SAMLTranslation` as the issuer.
 Additionally the SAML Response will be signed with the configured credentials.
 
-=== Recommended follow-on (succeeding) filters
+=== Recommended Follow-On (Succeeding) Filters
 This filter is not strictly required by any other filters.
 
-=== Response body changes
+=== Response Body Changes
 If the legacy v1.0 API is in use, then the response body is not modified.
 However, if the v2.0 API is in use, then the response body will be updated with the additional attributes specified in the original SAML Response issuer's configured policy.
 
-=== Response headers created
-None.
+=== Response Headers Created
+This filter does not create/modify any response headers.
 
 === Response Status Codes
 [cols="2", options="header,autowidth"]

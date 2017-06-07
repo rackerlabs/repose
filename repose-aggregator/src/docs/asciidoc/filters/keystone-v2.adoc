@@ -10,16 +10,16 @@ Provides a mechanism for authenticating incoming requests with the OpenStack Key
 * link:../schemas/keystone-v2.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Required headers
+=== Required Request Headers
 * `X-Auth-Token` - is a required header that is used by this filter to define the operating parameters of the HTTP transaction.
 If an incoming HTTP request is missing the `X-Auth-Token` header, then a response status code of _Unauthorized_ (`401`) is returned.
 
-=== Required preceding filters
+=== Required Preceding Filters
 This filter has no dependencies on other filters.
 
 However, it is a good practice to prevent spoofing of identities by putting the <<header-normalization.adoc#, Header Normalization filter>> before any authentication and/or authorization filters so that it can remove any headers that would be populated by them.
 
-=== Request headers created
+=== Request Headers Created
 The following headers are created using the information returned from the authentication service:
 
 * `X-Authorization` - Informs origin service that user has been authenticated. (ex. "Proxy User")
@@ -71,20 +71,21 @@ If delegation is enabled, then the `X-Delegated` header is created.
 This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within Repose.
 However, it can be exposed to the origin service under certain configurations.
 
-=== Request body changes
+=== Request Body Changes
 This filter does not modify the request body.
 
-=== Recommended follow-on (succeeding) filters
-While there are no succeeding filters that are strictly required, the following filters may be useful:
+=== Recommended Follow-On (Succeeding) Filters
+This filter is not strictly required by any other filters.
+However, the following filters may be useful:
 
 * <<simple-rbac.adoc#, Simple RBAC filter>> - Provides role-based access control to the origin service's API, which can be configured to directly use the `X-PP-Groups`.
 * <<api-validator.adoc#, API Validator filter>> - Provides role-based access control to the origin service's API, making use of the `X-PP-Groups` header.
 * <<rate-limiting.adoc#, Rate Limiting filter>> - Provides rate limiting, making use of the `X-PP-User` header.
 
-=== Response body changes
+=== Response Body Changes
 This filter does not modify the response body.
 
-=== Response headers created
+=== Response Headers Created
 * `Retry-After` - This is included on all _Service Unavailable_ (`503`) responses to indicate when it is appropriate to retry the request again.
 * `WWW-Authenticate` - This is included on all _Unauthorized_ (`401`) responses to challenge the authorization of a user agent.
 This includes `401`s from further down the filter chain as well as the origin service.

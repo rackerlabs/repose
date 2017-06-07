@@ -10,25 +10,25 @@ include::../_includes/in-progress.adoc[]
 * link:../schemas/body-patcher.xsd[Schema]
 
 == Prerequisites & Postconditions
-=== Required headers
+=== Required Request Headers
 ???.
 
-=== Required preceding filters
+=== Required Preceding Filters
 ???.
 
-=== Request headers created
+=== Request Headers Created
 ???.
 
-=== Request body changes
+=== Request Body Changes
 ???.
 
-=== Recommended follow-on (succeeding) filters
+=== Recommended Follow-On (Succeeding) Filters
 ???.
 
-=== Response body changes
+=== Response Body Changes
 ???.
 
-=== Response headers created
+=== Response Headers Created
 ???.
 
 === Response Status Codes

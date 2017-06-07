@@ -13,7 +13,7 @@ It's meant to be used for login requests to capture username for both <<../recip
 * *Configuration Schema:* link:../schemas/rackspace-auth-user-configuration.xsd[rackspace-auth-user-configuration.xsd]
 
 == Prerequisites & Postconditions
-=== Required Headers
+=== Required Request Headers
 [cols="3", options="header,autowidth"]
 .Request
 |===
@@ -86,7 +86,7 @@ For further details about the reasoning behind this ordering see <<../recipes/us
 This filter does not modify the response body.
 
 === Response Headers Created
-This filter does not modify any response headers.
+This filter does not create/modify any response headers.
 
 === Response Status Codes
 There are no cases where this filter will terminate further processing of the filter chain.
