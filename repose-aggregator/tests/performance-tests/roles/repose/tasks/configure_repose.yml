@@ -56,7 +56,7 @@
 
 - name: Copy the Saxon license
   copy:
-    src: saxon-license.lic
+    src: "{{ ansible_env.HOME }}/saxon_ee/saxon-license.lic"
     dest: /etc/repose/saxon-license.lic
     mode: 0640
     owner: repose
