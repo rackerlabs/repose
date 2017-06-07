@@ -1,9 +1,13 @@
 #!/usr/bin/env groovy
 
-properties([parameters([string(
-        defaultValue: "",
-        description: "Optional - Extra options to add to the end of the ansible-playbook command.",
-        name: "extraOptions")])])
+properties([
+        buildDiscarder(logRotator(numToKeepStr: '14')),
+        pipelineTriggers([cron('H H(0-7) * * *')]),
+        parameters([string(
+                defaultValue: "",
+                description: "Optional - Extra options to add to the end of the ansible-playbook command.",
+                name: "extraOptions")])
+])
 
 stage("Performance Test") {
     // current list of performance tests to run (with the optional scripting language if applicable)
