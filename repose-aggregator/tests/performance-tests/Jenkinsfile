@@ -1,0 +1,49 @@
+#!/usr/bin/env groovy
+
+properties([
+        buildDiscarder(logRotator(numToKeepStr: '14')),
+        pipelineTriggers([cron('H H(0-7) * * *')]),
+        parameters([string(
+                defaultValue: "",
+                description: "Optional - Extra options to add to the end of the ansible-playbook command.",
+                name: "extraOptions")])
+])
+
+stage("Performance Test") {
+    // current list of performance tests to run (with the optional scripting language if applicable)
+    def perfTestsWithScriptLang = [
+            ["filters/herp",        ""],
+            ["filters/keystonev2",  ""],
+            ["filters/saml",        ""],
+            ["filters/scripting",   "groovy"],
+            ["filters/scripting",   "javascript"],
+            ["filters/scripting",   "python"],
+            ["filters/translation", ""],
+            ["filters/valkyrie",    ""],
+            ["use-cases/complex",   ""],
+            ["use-cases/simple",    ""]]
+    def performanceJenkinsJob = "performance-test"
+    def performanceTestParam = "perf_test"
+    def scriptingLanguageParam = "script_lang"
+    def extraOptionsParam = "extra_options"
+
+    def jobsToRun = [:]
+
+    for (int index = 0; index < perfTestsWithScriptLang.size(); index++) {
+        def perfTest = perfTestsWithScriptLang[index][0]
+        def scriptLang = perfTestsWithScriptLang[index][1]
+        def displayName = perfTest + (scriptLang ? "-$scriptLang" : "")
+
+        jobsToRun[displayName] = {
+            retry(3) {
+                build(job: performanceJenkinsJob, parameters: [
+                        [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
+                        [$class: "StringParameterValue", name: scriptingLanguageParam, value: scriptLang],
+                        [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
+            }
+        }
+    }
+
+    // starts the list of jobs to build in parallel
+    parallel(jobsToRun)
+}

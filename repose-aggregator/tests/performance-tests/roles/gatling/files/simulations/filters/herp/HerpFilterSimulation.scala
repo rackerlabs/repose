@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package filters.keystonev2
+package filters.herp
 
 import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
@@ -29,9 +29,11 @@ import scala.concurrent.duration._
 import scala.util.Random
 
 /**
- * Keystone v2 filter performance simulation.
+ * Herp filter performance simulation.
  */
-class KeystoneV2Simulation extends Simulation {
+class HerpFilterSimulation extends Simulation {
+  import HerpFilterSimulation._
+
   // properties to configure the Gatling test
   val conf = ConfigFactory.load("application.conf")
   val confRoot = "test"
@@ -48,13 +50,20 @@ class KeystoneV2Simulation extends Simulation {
 
   val httpConf = http.baseURL(s"http://$baseUrl")
 
-  val feeder = Iterator.continually(Map("authToken" -> Random.alphanumeric.take(250).mkString))
+  val feeder = Iterator.continually(Map(
+    "tenantId" -> s"hybrid:${Random.numeric.take(8).mkString}",
+    "authToken" -> Random.alphanumeric.take(32).mkString,
+    "userId" -> Random.numeric.take(8).mkString,
+    "userName" -> Random.alphanumeric.take(10).mkString,
+    "impersonatorId" -> Random.numeric.take(8).mkString,
+    "impersonatorName" -> Random.alphanumeric.take(10).mkString
+  ))
 
   // set up the warm up scenario
   val warmup = scenario("Warmup")
     .feed(feeder)
     .forever() {
-      exec(getRequest)
+      exec(getResource)
     }
     .inject(
       constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
@@ -63,10 +72,10 @@ class KeystoneV2Simulation extends Simulation {
       jumpToRps(0), holdFor(duration minutes))                 // stop scenario during actual test
 
   // set up the main scenario
-  val mainScenario = scenario("Keystone v2 Filter Test")
+  val mainScenario = scenario("Herp Filter Test")
     .feed(feeder)
     .forever() {
-      exec(getRequest)
+      exec(getResource)
     }
     .inject(
       nothingFor(warmUpDuration minutes),  // do nothing during warm up period
@@ -83,10 +92,32 @@ class KeystoneV2Simulation extends Simulation {
     global.successfulRequests.percent.gte(percentSuccessfulRequest)
   ).protocols(httpConf)
 
-  def getRequest: HttpRequestBuilder = {
+  def getResource: HttpRequestBuilder = {
     http(session => session.scenario)
-      .get("/")
+      .get("/resource")
+      .queryParam("tenantid", "12345")
+      .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationXml)
+      .header(HttpHeaderNames.Host, "localhost")
+      .header("x-tenant-id", "${tenantId}")
       .header("x-auth-token", "${authToken}")
+      .header("x-roles", "default")
+      .header("x-user-id", "${userId}")
+      .header("x-user-name", "${userName}")
+      .header("x-impersonator-id", "${impersonatorId}")
+      .header("x-impersonator-name", "${impersonatorName}")
       .check(status.is(200))
+  }
+}
+
+object HerpFilterSimulation {
+  implicit class RandomStreams(val rand: Random) {
+    def numeric: Stream[Char] = {
+      def nextNum: Char = {
+        val chars = "0123456789"
+        chars charAt (rand nextInt chars.length)
+      }
+
+      Stream continually nextNum
+    }
   }
 }

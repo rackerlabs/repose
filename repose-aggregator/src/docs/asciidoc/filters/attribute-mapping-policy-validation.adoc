@@ -7,7 +7,7 @@ This filter will only take action if the HTTP request method is `PUT`.
 
 == General filter information
 * *Name:* attribute-mapping-policy-validation
-* *Released:* TBD
+* *Released:* v8.6.0.0
 * *Bundle:* repose-extensions-filter-bundle
 
 [NOTE]

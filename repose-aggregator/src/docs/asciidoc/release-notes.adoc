@@ -4,6 +4,7 @@ include::_includes/in-progress.adoc[]
 
 == Future Release
 
+* https://repose.atlassian.net/browse/REP-5520[REP-5520] - Updated the  <<filters/keystone-v2.adoc#, Keystone v2 Filter>> to provide the token cache key, and to generally handle `401` - _Unauthroized_ responses.
 * https://repose.atlassian.net/browse/REP-5347[REP-5347] - updated the Attribute Mapping library from v1.0.2 to v1.1.1.
 
 == 8.6.0.0 (2017-06-02)

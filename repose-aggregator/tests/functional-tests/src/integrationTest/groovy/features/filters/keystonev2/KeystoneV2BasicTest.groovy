@@ -24,7 +24,10 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
 
 /**
  * Created by jennyvo on 6/18/15.
@@ -223,4 +226,26 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
+    def "Verify WWW-Authenticate response header is sent if user is unauthorized downstream"() {
+        when: "the origin service responds with a 401"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/servers/test",
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token],
+            defaultHandler: { new Response(SC_UNAUTHORIZED) })
+
+        then: "the response should contain the www-authenticate header with Keystone v2 as the challenge"
+        mc.receivedResponse.code.toInteger() == SC_UNAUTHORIZED
+        mc.receivedResponse.headers.getFirstValue("WWW-Authenticate").contains("Keystone")
+    }
+
+    def "Verify X-Auth-Token-Key request header is sent"() {
+        when: "the user makes a request to Repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/servers/test",
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "the request should be enriched with the X-Auth-Token-Key header"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Auth-Token-Key") == "IDENTITY:V2:TOKEN:${fakeIdentityV2Service.client_token}"
+    }
 }

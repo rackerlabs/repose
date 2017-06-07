@@ -38,7 +38,7 @@
   },
   gatling: {
     test: {
-      name: "SamlSimulation",
+      name: "SamlFilterSimulation",
       package: "filters.saml",
       config: "{{ dir_prefix }}/saml_simulation.conf",
       params: {
