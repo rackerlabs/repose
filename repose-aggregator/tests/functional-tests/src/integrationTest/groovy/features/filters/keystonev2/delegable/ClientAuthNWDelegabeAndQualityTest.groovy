@@ -126,6 +126,9 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
         request2.headers.contains("x-delegated")
         request2.headers.getFirstValue("x-delegated") =~ delegatedMsg
 
+        and: "the datastore key for the token is sent"
+        request2.headers.getFirstValue("X-Auth-Token-Key") == "IDENTITY:V2:TOKEN:${fakeIdentityV2Service.client_token}"
+
         where:
         authRespCode | delegatedMsg
         404          | "status_code=401`component=keystone-v2`message=Resource not found for validate token request;q=0.3" // REP-3212 changes
