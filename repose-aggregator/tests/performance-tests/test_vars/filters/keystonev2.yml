@@ -24,7 +24,7 @@
   },
   gatling: {
     test: {
-      name: "KeystoneV2Simulation",
+      name: "KeystoneV2FilterSimulation",
       package: "filters.keystonev2"
     }
   }

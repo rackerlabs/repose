@@ -5,7 +5,7 @@
         flavor: "io1-15"
       },
       files: {
-        /root/.ssh/authorized_keys: "/root/.ssh/id_rsa.pub"
+        /root/.ssh/authorized_keys: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
       }
     }
   }
