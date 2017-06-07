@@ -4,6 +4,8 @@ include::_includes/in-progress.adoc[]
 
 == Future Release
 
+* https://repose.atlassian.net/browse/REP-5520[REP-5520] - Updated the  <<filters/keystone-v2.adoc#, Keystone v2 Filter>> to provide the token cache key, and to generally handle `401` - _Unauthroized_ responses.
+
 == 8.6.0.0 (2017-06-02)
 
 * https://repose.atlassian.net/browse/REP-5234[REP-5234] - added the new <<services/datastores.adoc#_remote_datastore, Remote Datastore service>> which allows the Distributed Datastore service concept to work in dynamic containerized environments like OpenShift.
