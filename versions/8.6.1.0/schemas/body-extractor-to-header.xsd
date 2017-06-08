@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/repose/body-extractor-to-header/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/body-extractor-to-header/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+    <xs:element name="body-extractor-to-header" type="BodyExtractorToHeaderConfig"/>
+
+    <xs:complexType name="BodyExtractorToHeaderConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Body Extractor to Header filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="extraction" type="Extractor" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Extractor">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Config type for a Body extraction to a header value.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="header" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The name of the header to put the extracted value into.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="jsonpath" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The JPath to be applied to the Body in order to extract the desired value.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="defaultIfMiss" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The default value to use when the JPath doesn't match the Body. If no default attribute is
+                        supplied, the header will not be added in the event of no match.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="defaultIfNull" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The value to use when the JPath matches the Body, but the value is JSON
+                        <html:code>null</html:code>. If no default attribute is supplied, the header will not be added
+                        in the event of match that is null.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="overwrite" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Indicates to not add a new header if a match occurs, but rather to remove and replace the
+                        existing header. If a match does NOT occur and a
+                        <html:code>defaultIfMiss</html:code>
+                        value is provided, then the
+                        <html:code>defaultIfMiss</html:code>
+                        value will overwrite if one previously existed.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="quality" type="DoubleBetweenZeroAndOne" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Quality assigned this request header if a new value is added or an original value is replaced.
+                        If no quality is set, then no quality will be assigned to the new header(s).
+                    </html:p>
+                    <html:p>
+                        Quality factors are defined in the
+                        <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">
+                            HTTP RFC - Section-3.9
+                        </html:a>
+                        (for usage examples, see
+                        <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">
+                            HTTP RFC - Section 14.1
+                        </html:a>)
+                        as a mechanism for weighting values in multi-value headers.
+                        Possible values for quality are 0 to 1.0.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="DoubleBetweenZeroAndOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
