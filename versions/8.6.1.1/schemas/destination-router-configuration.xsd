@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:scr="http://docs.openrepose.org/repose/destination-router/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/destination-router/v1.0">
+
+    <!-- Configuration Schema Definitions -->
+    <xs:element name="destination-router" type="scr:DestinationRouterConfiguration"/>
+
+    <xs:complexType name="DestinationRouterConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Defines a collection of servlet context routing destinations and
+                    their associated quality factors.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="target" type="scr:Target" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Target">
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a destination id within the service domain.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="quality" type="scr:doubleBetweenZeroandOne">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Quality of this destination</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
