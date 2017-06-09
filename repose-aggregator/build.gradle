@@ -33,7 +33,8 @@ asciidoctor {
                'stylesheet': 'repose.css',
                'toc': 'left',
                'icons': 'font',
-               'docinfo': 'shared'
+               'docinfo': 'shared',
+               'sectanchors': ''
 
     resources {
         from 'src/docs/resources'
