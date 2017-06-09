@@ -9,16 +9,22 @@ properties([
                 name: "extraOptions")])
 ])
 
-stage("Performance Test") {
-    // current list of performance tests to run (with the optional scripting language if applicable)
-    def perfTests = []
-    node('performance') {
+def perfTests = []
+
+stage("Determining performance tests to run") {
+    node("performance") {
         checkout scm
-        dir('repose-aggregator/tests/performance-tests/test_vars') {
-            perfTests = sh(returnStdout: true, script: "find . -type f -name '*.yml' | sed 's/\\.\\///' | sed 's/\\.yml//'").split("\n")
+        dir("repose-aggregator/tests/performance-tests/test_vars") {
+            def files = findFiles(glob: "**/*.yml")
+            echo files.toString()
+            for (int index = 0; index < files.size(); index++) {
+                perfTests.add(files[index].path.replace(".yml", ""))
+            }
         }
     }
+}
 
+stage("Performance Test") {
     def performanceJenkinsJob = "performance-test"
     def performanceTestParam = "perf_test"
     def extraOptionsParam = "extra_options"
