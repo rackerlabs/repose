@@ -1,3 +1,8 @@
+# TODO: Remove this file? Don't want it to get picked up by the automated performance tests, but
+# TODO: keeping this file gives us a sensibly named way to run generic scripting tests.
+#
+# TODO: YAML does not seem to support include or inherit. As such, there is more duplication than
+# TODO: necessary because each scripting language only changes the "script_lang" variable.
 {
   dir_prefix: "filters/scripting",
   script_lang: "groovy",
