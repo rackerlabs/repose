@@ -11,14 +11,17 @@ properties([
 
 def perfTests = []
 
-stage("Determining performance tests to run") {
+stage("Determine performance tests to run") {
     node("performance") {
         checkout scm
         dir("repose-aggregator/tests/performance-tests/test_vars") {
             def files = findFiles(glob: "**/*.yml")
-            echo files.toString()
+            // collect all tests, but filter out the generic scripting test
             for (int index = 0; index < files.size(); index++) {
-                perfTests.add(files[index].path.replace(".yml", ""))
+                def test = files[index].path.replace(".yml", "")
+                if (!test.equalsIgnoreCase("filters/scripting")) {
+                    perfTests.add(test)
+                }
             }
         }
     }
