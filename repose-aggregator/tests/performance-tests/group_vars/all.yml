@@ -13,5 +13,10 @@
         origin_port: 8080
       }
     }
-  }
+  },
+  sysstat_options: "",
+  telegraf_influxdb_urls: [
+    "http://influxdb.openrepose.org:8086",
+  ],
+  telegraf_influxdb_database: "performance",
 }
