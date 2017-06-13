@@ -82,7 +82,7 @@ abstract class ReposeValveTest extends Specification {
         FileUtils.deleteQuietly(new File(logFile))
     }
 
-    def waitUntilReposeIsReady(int timeout = 30) {
+    def waitUntilReposeIsReady(int timeout = 180) {
         reposeLogSearch.awaitByString("Repose ready", 1, timeout)
     }
 
