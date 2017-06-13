@@ -119,7 +119,6 @@ class ReposeValveLauncher extends ReposeLauncher {
             }
         }
 
-        def jmxprops = ""
         def debugProps = ""
         def jacocoProps = ""
         def classPath = ""
@@ -140,7 +139,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         if (!jmxPort) {
             jmxPort = PortFinder.instance.getNextOpenPort()
         }
-        jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
+        def jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
         if (!classPaths.isEmpty()) {
             classPath = "-cp " + (classPaths as Set).join(";")
@@ -162,11 +161,11 @@ class ReposeValveLauncher extends ReposeLauncher {
             newEnv.putAll(System.getenv())
 
             additionalEnvironment.each { k, v ->
-                newEnv.put(k, v) //Should override anything, if there's anything to override
+                newEnv.put(k as String, v as String) //Should override anything, if there's anything to override
             }
             def envList = newEnv.collect { k, v -> "$k=$v" }
             this.process = cmd.execute(envList, null)
-            this.process.consumeProcessOutput(System.out, System.err)
+            this.process.consumeProcessOutput(System.out as Appendable, System.err as Appendable)
         })
 
         th.run()
@@ -190,11 +189,11 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
     }
 
-    def connectViaJmxRemote(jmxUrl) {
+    def connectViaJmxRemote(String jmxUrl) {
         try {
             jmx = new JmxClient(jmxUrl)
             return true
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
             return false
         }
     }
@@ -217,7 +216,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
-            println("Stopping Repose");
+            println("Stopping Repose")
             this.process?.destroy()
 
             print("Waiting for Repose to shutdown")
@@ -231,7 +230,7 @@ class ReposeValveLauncher extends ReposeLauncher {
             this.process.waitForOrKill(5000)
             killIfUp()
             if (throwExceptionOnKill) {
-                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: ${ioex.getMessage()}", ioex)
+                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: ${ioex.getMessage()}")
             }
         } finally {
             configurationProvider.cleanConfigDirectory()
@@ -247,11 +246,6 @@ class ReposeValveLauncher extends ReposeLauncher {
     void enableSuspend() {
         this.debugEnabled = true
         this.doSuspend = true
-    }
-
-    @Override
-    void addToClassPath(String path) {
-        classPaths.add(path)
     }
 
     /**
@@ -296,12 +290,12 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
-        def HashSet cfgBean = (HashSet) jmx.getMBeans("*org.openrepose.core.services.jmx:type=ConfigurationInformation")
+        HashSet cfgBean = (HashSet) jmx.getMBeans("*org.openrepose.core.services.jmx:type=ConfigurationInformation")
         if (cfgBean == null || cfgBean.isEmpty()) {
             return false
         }
 
-        def String beanName = cfgBean.iterator().next().name.toString()
+        String beanName = cfgBean.iterator().next().name.toString()
 
         //Doing the JMX invocation here, because it's kinda ugly
         Object[] opParams = [clusterId, nodeId]

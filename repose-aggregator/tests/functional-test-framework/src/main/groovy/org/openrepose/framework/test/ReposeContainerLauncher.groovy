@@ -36,14 +36,13 @@ class ReposeContainerLauncher extends ReposeLauncher {
     String rootWarLocation
     String[] appWars
     String debugPort
-    def classPaths = []
 
-    def boolean debugEnabled
-    def boolean doSuspend
+    boolean debugEnabled
+    boolean doSuspend
 
     def clock = new SystemClock()
 
-    def ReposeConfigurationProvider configurationProvider
+    ReposeConfigurationProvider configurationProvider
 
     ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar,
                             String clusterId, String nodeId,
@@ -54,7 +53,6 @@ class ReposeContainerLauncher extends ReposeLauncher {
         this.nodeId = nodeId
         this.reposePort = reposePort
         this.rootWarLocation = rootWarLocation
-
         this.appWars = appWars
     }
 
@@ -62,7 +60,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
     void start() {
         String configDirectory = configurationProvider.getReposeConfigDir()
 
-        String webXmlOverrides = "";
+        String webXmlOverrides = ""
 
         if (debugEnabled) {
             if (!debugPort) {
@@ -91,8 +89,8 @@ class ReposeContainerLauncher extends ReposeLauncher {
         def th = new Thread({
             this.process = cmd.execute()
             // TODO: This should probably go somewhere else and not just be consumed to the garbage.
-            this.process.consumeProcessOutput(System.out, System.err)
-        });
+            this.process.consumeProcessOutput(System.out as Appendable, System.err as Appendable)
+        })
 
         th.run()
         th.join()
@@ -116,7 +114,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
 
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
-            println("Stopping Repose");
+            println("Stopping Repose")
             this.process.destroy()
 
             print("Waiting for Repose Container to shutdown")
@@ -130,7 +128,7 @@ class ReposeContainerLauncher extends ReposeLauncher {
             this.process.waitForOrKill(5000)
             killIfUp()
             if (throwExceptionOnKill) {
-                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
+                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage())
             }
         }
     }
@@ -146,11 +144,11 @@ class ReposeContainerLauncher extends ReposeLauncher {
 
                 if (pid != null && !pid.isEmpty()) {
                     println("Killing running repose-valve process: " + pid)
-                    Runtime rt = Runtime.getRuntime();
+                    Runtime rt = Runtime.getRuntime()
                     if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
-                        rt.exec("taskkill " + pid.toInteger());
+                        rt.exec("taskkill " + pid.toInteger())
                     else
-                        rt.exec("kill -9 " + pid.toInteger());
+                        rt.exec("kill -9 " + pid.toInteger())
                 }
             }
         }
@@ -170,10 +168,5 @@ class ReposeContainerLauncher extends ReposeLauncher {
     void enableSuspend() {
         this.debugEnabled = true
         this.doSuspend = true
-    }
-
-    @Override
-    void addToClassPath(String path) {
-        classPaths.add(path)
     }
 }

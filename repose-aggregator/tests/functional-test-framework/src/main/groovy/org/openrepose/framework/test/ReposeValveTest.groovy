@@ -40,22 +40,18 @@ abstract class ReposeValveTest extends Specification {
     String jmxHostname = InetAddress.getLocalHost().getHostName()
 
     @Shared
-    def ReposeValveLauncher repose
+    ReposeValveLauncher repose
 
     @Shared
-    def Deproxy deproxy
+    Deproxy deproxy
 
     @Shared
-    def TestProperties properties
+    TestProperties properties
 
     @Shared
-    def ReposeLogSearch reposeLogSearch
-
-    @Shared
-    int clientId = 0
+    ReposeLogSearch reposeLogSearch
 
     def setupSpec() {
-
         String className = this.getClass().canonicalName
         properties = new TestProperties(className.replace('.', '/'))
 
@@ -64,30 +60,17 @@ abstract class ReposeValveTest extends Specification {
                 configureReposeValve()
                 repose.configurationProvider.cleanConfigDirectory()
                 break
-            case "tomcat":
-                throw new UnsupportedOperationException("Please implement me")
-            case "multinode":
-                String glassfishJar = properties.glassfishJar
-                configureReposeGlassfish(glassfishJar)
-                break
             default:
                 throw new UnsupportedOperationException("Unknown container: " + reposeContainer)
         }
     }
 
-    def configureReposeGlassfish(String glassfishJar) {
-        repose = new ReposeContainerLauncher(glassfishJar)
-        repose.enableDebug()
-    }
-
-
     def configureReposeValve() {
-
         ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(properties)
 
         repose = new ReposeValveLauncher(reposeConfigProvider, properties)
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(logFile);
+        reposeLogSearch = new ReposeLogSearch(logFile)
     }
 
     def cleanupSpec() {
@@ -111,9 +94,8 @@ abstract class ReposeValveTest extends Specification {
                                         boolean checkLogMessage = false) {
         def clock = new SystemClock()
         def innerDeproxy = new Deproxy()
-        def logSearch = new ReposeLogSearch(properties.logFile)
         if (checkLogMessage)
-            logSearch.cleanLog()
+            reposeLogSearch.cleanLog()
         MessageChain mc
         try {
             waitForCondition(clock, '35s', '1s', {
@@ -122,17 +104,17 @@ abstract class ReposeValveTest extends Specification {
                         //This needs to do a bit more regexp
                         // ClusterId and NodeID need to be known for what node we expect to be alive
                         // .*PowerFilter.* clusterId-nodeId: Repose Ready
-                        logSearch.awaitByString(
+                        reposeLogSearch.awaitByString(
                                 "Repose ready", 1, 35, TimeUnit.SECONDS).size() > 0) {
                     return true
                 }
                 try {
                     mc = innerDeproxy.makeRequest([url: reposeEndpoint])
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
                 if (mc != null) {
                     println mc.receivedResponse.code
-                    return mc.receivedResponse.code.equals(responseCode)
+                    return mc.receivedResponse.code == responseCode
                 } else {
                     return false
                 }
@@ -144,7 +126,6 @@ abstract class ReposeValveTest extends Specification {
                 return false
             }
         }
-
     }
 
     // Helper methods to minimize refactoring in all test classes
@@ -171,6 +152,4 @@ abstract class ReposeValveTest extends Specification {
     def getReposeContainer() {
         return properties.getReposeContainer()
     }
-
-
 }
