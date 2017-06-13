@@ -11,7 +11,6 @@
   vars_files:
       - test_vars/{{ perf_test }}.yml
   roles:
-    - jgeusebroek.sysstat
     - rossmcdonald.telegraf
     - repose
 

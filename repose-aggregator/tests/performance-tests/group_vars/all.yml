@@ -14,7 +14,6 @@
       }
     }
   },
-  sysstat_options: "",
   telegraf_influxdb_urls: [
     "http://influxdb.openrepose.org:8086",
   ],
