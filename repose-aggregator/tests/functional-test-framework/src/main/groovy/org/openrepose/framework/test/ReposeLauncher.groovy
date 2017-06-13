@@ -36,8 +36,6 @@ abstract class ReposeLauncher {
 
     abstract void enableDebug()
 
-    abstract boolean areAnyUp()
-
     boolean isUp() {
         this.process?.isAlive() ?: false
     }

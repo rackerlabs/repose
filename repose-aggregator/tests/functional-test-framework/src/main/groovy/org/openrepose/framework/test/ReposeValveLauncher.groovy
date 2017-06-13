@@ -79,11 +79,6 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     void start(Map params) {
-
-        boolean killOthersBeforeStarting = true
-        if (params.containsKey("killOthersBeforeStarting")) {
-            killOthersBeforeStarting = params.killOthersBeforeStarting
-        }
         boolean waitOnJmxAfterStarting = true
         if (params.containsKey("waitOnJmxAfterStarting")) {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
@@ -92,15 +87,14 @@ class ReposeValveLauncher extends ReposeLauncher {
         String clusterId = params.get('clusterId', "")
         String nodeId = params.get('nodeId', "")
 
-        start(killOthersBeforeStarting, waitOnJmxAfterStarting, clusterId, nodeId)
+        start(waitOnJmxAfterStarting, clusterId, nodeId)
     }
 
     /**
      * TODO: need to know what node in the system model we care about. There might be many, for multiple local node testing...
-     * @param killOthersBeforeStarting
      * @param waitOnJmxAfterStarting
      */
-    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String clusterId, String nodeId) {
+    void start(boolean waitOnJmxAfterStarting, String clusterId, String nodeId) {
 
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
@@ -110,13 +104,6 @@ class ReposeValveLauncher extends ReposeLauncher {
         File configFolder = new File(configDir)
         if (!configFolder.exists() || !configFolder.isDirectory()) {
             throw new FileNotFoundException("Missing or invalid configuration folder.")
-        }
-
-        if (killOthersBeforeStarting) {
-            waitForCondition(clock, '5s', '1s') {
-                killIfUp()
-                !isUp()
-            }
         }
 
         def debugProps = ""
@@ -228,12 +215,9 @@ class ReposeValveLauncher extends ReposeLauncher {
             println()
         } catch (IOException ioex) {
             this.process.waitForOrKill(5000)
-            killIfUp()
             if (throwExceptionOnKill) {
                 throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: ${ioex.getMessage()}")
             }
-        } finally {
-            configurationProvider.cleanConfigDirectory()
         }
     }
 
@@ -304,32 +288,5 @@ class ReposeValveLauncher extends ReposeLauncher {
         //Invoke the 'is repose ready' bit on it
         def nodeIsReady = jmx.server.invoke(new ObjectName(beanName), "isNodeReady", opParams, opSignature)
         return nodeIsReady
-    }
-
-    @Override
-    boolean areAnyUp() {
-        println TestUtils.getJvmProcesses()
-        return TestUtils.getJvmProcesses().contains("repose-valve.jar")
-    }
-
-    private static void killIfUp() {
-        String processes = TestUtils.getJvmProcesses()
-        def regex = /(\d*) repose-valve.jar .*spocktest .*/
-        def matcher = (processes =~ regex)
-        if (matcher.size() > 0) {
-
-            for (int i = 1; i <= matcher.size(); i++) {
-                String pid = matcher[0][i]
-
-                if (pid != null && !pid.isEmpty()) {
-                    println("Killing running repose-valve process: " + pid)
-                    Runtime rt = Runtime.getRuntime();
-                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
-                        rt.exec("taskkill " + pid.toInteger());
-                    else
-                        rt.exec("kill -9 " + pid.toInteger());
-                }
-            }
-        }
     }
 }

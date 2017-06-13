@@ -126,37 +126,10 @@ class ReposeContainerLauncher extends ReposeLauncher {
             println()
         } catch (IOException ioex) {
             this.process.waitForOrKill(5000)
-            killIfUp()
             if (throwExceptionOnKill) {
                 throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage())
             }
         }
-    }
-
-    private void killIfUp() {
-        String processes = TestUtils.getJvmProcesses()
-        def regex = /(\d*) ROOT.war .*/
-        def matcher = (processes =~ regex)
-        if (matcher.size() > 0) {
-
-            for (int i = 1; i <= matcher.size(); i++) {
-                String pid = matcher[0][i]
-
-                if (pid != null && !pid.isEmpty()) {
-                    println("Killing running repose-valve process: " + pid)
-                    Runtime rt = Runtime.getRuntime()
-                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
-                        rt.exec("taskkill " + pid.toInteger())
-                    else
-                        rt.exec("kill -9 " + pid.toInteger())
-                }
-            }
-        }
-    }
-
-    @Override
-    boolean areAnyUp() {
-        return TestUtils.getJvmProcesses().contains("ROOT.war")
     }
 
     @Override
