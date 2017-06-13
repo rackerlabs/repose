@@ -66,7 +66,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
 
         repose.start()
-        reposeLogSearch.awaitByString("Repose ready", 1, 30)
+        waitUntilReposeIsReady()
     }
 
     def setup() {

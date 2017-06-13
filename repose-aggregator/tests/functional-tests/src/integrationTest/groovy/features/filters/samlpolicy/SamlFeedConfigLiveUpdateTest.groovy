@@ -41,7 +41,6 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
     static final int FEED_POLLING_FREQUENCY_MILLIS = FEED_POLLING_FREQUENCY_SEC * 1_000
     static final String ATOM_FEED_LOG_SEARCH_STRING = "</atom:entry>"
 
-    static final int REPOSE_START_WAIT_SEC = 30
     static final int CONFIG_REFRESH_WAIT_SEC = 20
     static final String CONFIG_DIR_SRC = "features/filters/samlpolicy/feedconfigliveupdate"
 
@@ -87,7 +86,8 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         given: "we start Repose with no atom feed configured for the SAML filter"
         repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/nofeed", params)
         repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
-        waitForReposeToStart()
+        waitUntilReposeIsReady()
+
 
         and: "a unique issuer will be used when generating each saml:response"
         def samlIssuer = generateUniqueIssuer()
@@ -186,7 +186,8 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         given: "we start Repose with no atom feed configured for the SAML filter"
         repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/nofeed", params)
         repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
-        waitForReposeToStart()
+        waitUntilReposeIsReady()
+
 
         and: "a unique issuer will be used when generating each saml:response"
         def samlIssuer = generateUniqueIssuer()
@@ -240,7 +241,8 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         given: "we start Repose with an atom feed configured for the SAML filter"
         repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/feedone", params)
         repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
-        waitForReposeToStart()
+        waitUntilReposeIsReady()
+
 
         and: "two unique issuers will be used when generating each saml:response, one to prove the atom feed works and another to prove it stops working"
         def samlIssuer = generateUniqueIssuer()
@@ -363,7 +365,8 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
         given: "we start Repose with a particular atom feed configured for the SAML filter"
         repose.configurationProvider.applyConfigs("$CONFIG_DIR_SRC/feedone", params)
         repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
-        waitForReposeToStart()
+        waitUntilReposeIsReady()
+
 
         and: "a unique issuer will be used when generating each saml:response"
         def samlIssuer = generateUniqueIssuer()
@@ -504,10 +507,6 @@ class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
                 method: HTTP_POST,
                 headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
                 requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
-    }
-
-    def waitForReposeToStart() {
-        reposeLogSearch.awaitByString("Repose ready", 1, REPOSE_START_WAIT_SEC)
     }
 
     def waitForReposeToLoadConfiguration() {

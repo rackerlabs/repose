@@ -82,6 +82,10 @@ abstract class ReposeValveTest extends Specification {
         FileUtils.deleteQuietly(new File(logFile))
     }
 
+    def waitUntilReposeIsReady(int timeout = 30) {
+        reposeLogSearch.awaitByString("Repose ready", 1, timeout)
+    }
+
     /**
      * This needs to be the default way to determine if repose is ready to serve requests I think...
      * @param responseCode
