@@ -19,4 +19,44 @@
     "http://influxdb.openrepose.org:8086",
   ],
   telegraf_influxdb_database: "performance",
+  "telegraf_plugins": [
+    {
+      "name": "mem"
+    },
+    {
+      "name": "system"
+    },
+    {
+      "name": "cpu",
+      "options": {
+        "percpu": "true",
+        "totalcpu": "true",
+        "fielddrop": [
+          "time_*"
+        ]
+      }
+    },
+    {
+      "name": "disk",
+      "options": {
+        "mountpoints": [
+          "/"
+        ]
+      }
+    },
+    {
+      "name": "diskio",
+      "options": {
+        "skip_serial_number": "true"
+      }
+    },
+    {
+      "name": "net",
+      "options": {
+        "interfaces": [
+          "eth0"
+        ]
+      }
+    }
+  ]
 }
