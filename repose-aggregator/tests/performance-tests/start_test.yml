@@ -9,6 +9,16 @@
 - hosts: performance
   gather_facts: True
   vars_files:
+    - test_vars/{{ perf_test }}.yml
+  tasks:
+    - name: Set the test name as a Telegraf tag
+      set_fact:
+        telegraf_tags:
+          test_name: "{{ gatling.test.name }}"
+
+- hosts: performance
+  gather_facts: True
+  vars_files:
       - test_vars/{{ perf_test }}.yml
   roles:
     - rossmcdonald.telegraf

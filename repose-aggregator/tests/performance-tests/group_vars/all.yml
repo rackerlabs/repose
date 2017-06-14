@@ -15,9 +15,10 @@
     }
   },
   telegraf_influxdb_urls: [
-    "http://influxdb.openrepose.org:8086",
+    "udp://influxdb.performance.openrepose.org:8089",
   ],
   telegraf_influxdb_database: "performance",
+  telegraf_omit_hostname: "true",
   "telegraf_plugins": [
     {
       "name": "mem"
