@@ -19,6 +19,7 @@
   ],
   telegraf_influxdb_database: "performance",
   telegraf_omit_hostname: "true",
+  telegraf_agent_interval: "1s",
   "telegraf_plugins": [
     {
       "name": "mem"
