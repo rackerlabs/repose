@@ -22,6 +22,7 @@
       - test_vars/{{ perf_test }}.yml
   roles:
     - rossmcdonald.telegraf
+    - jmxtrans
     - repose
 
 - hosts: test_agent

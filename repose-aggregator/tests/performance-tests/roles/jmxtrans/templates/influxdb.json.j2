@@ -1,0 +1,15 @@
+{
+  "servers" : [ {
+    "port" : "27755",
+    "host" : "localhost",
+    "queries" : [ {
+      "obj" : "java.lang:type=Memory",
+      "attr" : [ "HeapMemoryUsage", "NonHeapMemoryUsage" ],
+      "outputWriters" : [ {
+        "@class" : "com.googlecode.jmxtrans.model.output.GraphiteWriterFactory",
+        "port" : 2003,
+        "host" : "influxdb.performance.openrepose.org"
+      } ]
+    } ]
+  } ]
+}

@@ -4,5 +4,5 @@
 Environment="SAXON_HOME=/etc/repose"
 {% endif %}
 {% if repose.systemd_opts.java_opts is defined %}
-Environment="JAVA_OPTS={{ repose.systemd_opts.java_opts }}"
+Environment="JAVA_OPTS={{ repose.systemd_opts.java_opts|join(' ') }}"
 {% endif %}

@@ -1,0 +1,5 @@
+---
+- name: Install jmxtrans
+  yum:
+    name: http://central.maven.org/maven2/org/jmxtrans/jmxtrans/265/jmxtrans-265.rpm
+    state: present

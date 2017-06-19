@@ -63,7 +63,14 @@
     },
     systemd_opts: {
       use_saxon: false,
-      java_opts: "-Xmx512m -Xms512m"
+      java_opts: [
+        "-Xmx512m",
+        "-Xms512m",
+        "-Dcom.sun.management.jmxremote.port=27755",
+        "-Dcom.sun.management.jmxremote.authenticate=false",
+        "-Dcom.sun.management.jmxremote.ssl=false",
+        "-Dcom.sun.management.jmxremote.local.only=true",
+      ],
     },
     service: {
       state: "started",

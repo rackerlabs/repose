@@ -1,0 +1,5 @@
+---
+- name: restart jmxtrans
+  service:
+    name: jmxtrans
+    state: restarted
