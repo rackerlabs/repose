@@ -13,5 +13,51 @@
         origin_port: 8080
       }
     }
-  }
+  },
+  telegraf_influxdb_urls: [
+    "udp://influxdb.performance.openrepose.org:8089",
+  ],
+  telegraf_influxdb_database: "performance",
+  telegraf_omit_hostname: "true",
+  telegraf_agent_interval: "1s",
+  "telegraf_plugins": [
+    {
+      "name": "mem"
+    },
+    {
+      "name": "system"
+    },
+    {
+      "name": "cpu",
+      "options": {
+        "percpu": "true",
+        "totalcpu": "true",
+        "fielddrop": [
+          "time_*"
+        ]
+      }
+    },
+    {
+      "name": "disk",
+      "options": {
+        "mountpoints": [
+          "/"
+        ]
+      }
+    },
+    {
+      "name": "diskio",
+      "options": {
+        "skip_serial_number": "true"
+      }
+    },
+    {
+      "name": "net",
+      "options": {
+        "interfaces": [
+          "eth0"
+        ]
+      }
+    }
+  ]
 }

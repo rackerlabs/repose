@@ -24,14 +24,19 @@ The overall design of the automatic performance testing framework can be outline
 
 [ditaa, perf-test-design-diagram, png]
 ....
-/-----------\           /-------\       /-------\         /-------\
-|           | Triggers  |       | Runs  |       | Starts  |       |
-|Code Change|---------->|Jenkins|------>|Ansible|-------->|Gatling|-+
-|           |           |       |       |       |         |       | |
-\-----------/           \-------/       \-------/         \-------/ |
-                                                                    |
-                                 Populates                          |
-      +-------------------------------------------------------------+
+/-----------\           /-------\       /-------\          /-------\
+|           | Triggers  |       | Runs  |       |  Starts  |       |
+|Code Change|---------->|Jenkins|------>|Ansible|----+---->|Gatling|-+
+|           |           |       |       |       |    |     |       | |
+\-----------/           \-------/       \-------/    |     \-------/ |
+                                                     |               |
+                                                     |     /------\  |
+                                                     |     |      |  |
+                                                     +---->|Repose|--+
+                                                           |      |  |
+                                                           \------/  |
+                                 Populates                           |
+      +--------------------------------------------------------------+
       |
       v
 /--------\             /-------\
@@ -77,6 +82,12 @@ gatling.computerworld.getComputers.all.percentiles75 219 1492629621
 gatling.computerworld.getComputers.all.percentiles95 219 1492629621
 gatling.computerworld.getComputers.all.percentiles99 219 1492629621
 ....
+
+==== Repose
+
+System data will be transported from Repose hosts to InfluxDB using https://docs.influxdata.com/telegraf/v1.3/[Telegraf].
+More specifically, Telegraf will collect system metrics like CPU usage, memory usage, and disk usage, and report those metrics to a UDP listener in InfluxDB.
+These metrics will provide better insight into the system constraints of hosts running Repose.
 
 ==== InfluxDB
 
