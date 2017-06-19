@@ -5,7 +5,7 @@
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
         </Console>
         <RollingFile name="RollingFile" fileName="/var/log/repose/current.log"
-                     filePattern="/var/log/repose/current-%d{yyyy-MM-dd_HHmmss}.log">
+                     filePattern="/var/log/repose/current-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="200 MB"/>

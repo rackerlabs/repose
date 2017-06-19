@@ -5,7 +5,7 @@
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
         </Console>
         <RollingFile name="RollingFile" fileName="/release-verification/var-log-repose-current.log"
-                     filePattern="/release-verification/var-log-repose-current-%d{yyyy-MM-dd_HHmmss}.log">
+                     filePattern="/release-verification/var-log-repose-current-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="Trans-Id:%X{traceGuid} - %d %-4r [%t] %-5p %c - %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="200 MB"/>

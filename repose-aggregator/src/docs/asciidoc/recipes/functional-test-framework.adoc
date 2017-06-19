@@ -86,7 +86,7 @@ repose.container=valve # <11>
 repose.config.directory=/configs # <12>
 repose.log.name=/logs/repose.log # <13>
 repose.lint.log.name=/logs/repose-lint.log # <14>
-repose.log.pattern=/logs/repose_%d{yyyy-MM-dd_HHmmss}.log # <15>
+repose.log.pattern=/logs/repose_%d{yyyy-MM-dd}-%i.log # <15>
 
 target.hostname=localhost # <16>
 
