@@ -49,9 +49,17 @@ integrationTest.mustRunAfter test
 
 dependencies {
     provided "javax.servlet:javax.servlet-api:3.1.0"
+    provided "javax.inject:javax.inject:1"
+
+    compile "org.openrepose:datastore-service-api:$reposeVersion"
+    compile "org.openrepose:keystone-v2-filter:$reposeVersion"
+    compile "org.openrepose:commons-utilities:$reposeVersion"
+    compile "org.scala-lang:scala-library:2.11.7"
 
     testCompile "junit:junit:4.12"
+    testCompile "org.hamcrest:hamcrest-all:1.3"
     testCompile "org.mockito:mockito-all:1.9.5"
+    testCompile "org.springframework:spring-test:4.1.4.RELEASE"
 
     integrationTestCompile "org.codehaus.groovy:groovy-all:2.4.3"
     integrationTestCompile "org.spockframework:spock-core:0.7-groovy-2.0"
