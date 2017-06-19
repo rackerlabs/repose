@@ -178,7 +178,6 @@ If you have the appropriate permissions on the Repose Jenkins instance, you can 
 |===
 | Name          | Required | Description                                                                   | Example
 | perf_test     | Yes      | name of the performance test you wish to perform                              | uses-cases/simple
-| script_lang   | No       | name of the scripting language to use when running the filters/scripting test | python
 | extra_options | No       | extra options to pass to the ansible-playbook command                         | `-e '{gatling: {test: {params: {duration_in_min: 1}}}}'`
 |===
 
@@ -434,13 +433,12 @@ ansible-playbook stop_test.yml \
 
 === Scripting Filter Test
 
-By default, the Scripting filter test will use the Groovy scripting config.
-You can specify one of the other scripting languages available using the following configuration override:
+When running a Scripting filter test, the `perf_test` variable will look slightly different than it does for other tests.
+The reason is that the scripting language to be used in the test is nested one level down in the `perf_test` variable value.
 
 [source,bash]
 ----
 ansible-playbook start_test.yml \
-  -e '{perf_test: filters/scripting,
-       script_lang: python}' \
+  -e '{perf_test: filters/scripting/python}' \
   -vvvv
 ----

@@ -9,36 +9,33 @@ properties([
                 name: "extraOptions")])
 ])
 
+def perfTests = []
+
+stage("Determine performance tests to run") {
+    node("performance") {
+        checkout scm
+        dir("repose-aggregator/tests/performance-tests/test_vars") {
+            def files = findFiles(glob: "**/*.yml")
+            for (int index = 0; index < files.size(); index++) {
+                perfTests.add(files[index].path.replace(".yml", ""))
+            }
+        }
+    }
+}
+
 stage("Performance Test") {
-    // current list of performance tests to run (with the optional scripting language if applicable)
-    def perfTestsWithScriptLang = [
-            ["filters/herp",        ""],
-            ["filters/keystonev2",  ""],
-            ["filters/saml",        ""],
-            ["filters/scripting",   "groovy"],
-            ["filters/scripting",   "javascript"],
-            ["filters/scripting",   "python"],
-            ["filters/translation", ""],
-            ["filters/valkyrie",    ""],
-            ["use-cases/complex",   ""],
-            ["use-cases/simple",    ""]]
     def performanceJenkinsJob = "performance-test"
     def performanceTestParam = "perf_test"
-    def scriptingLanguageParam = "script_lang"
     def extraOptionsParam = "extra_options"
 
     def jobsToRun = [:]
 
-    for (int index = 0; index < perfTestsWithScriptLang.size(); index++) {
-        def perfTest = perfTestsWithScriptLang[index][0]
-        def scriptLang = perfTestsWithScriptLang[index][1]
-        def displayName = perfTest + (scriptLang ? "-$scriptLang" : "")
-
-        jobsToRun[displayName] = {
+    for (int index = 0; index < perfTests.size(); index++) {
+        def perfTest = perfTests[index]
+        jobsToRun[perfTest] = {
             retry(3) {
                 build(job: performanceJenkinsJob, parameters: [
                         [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
-                        [$class: "StringParameterValue", name: scriptingLanguageParam, value: scriptLang],
                         [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
             }
         }
