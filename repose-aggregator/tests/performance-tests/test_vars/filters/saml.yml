@@ -24,7 +24,14 @@
       ]
     },
     systemd_opts: {
-      java_opts: "-Xmx1g -Xms1g"
+      java_opts: [
+        "-Xmx1g",
+        "-Xms1g",
+        "-Dcom.sun.management.jmxremote.port=27755",
+        "-Dcom.sun.management.jmxremote.authenticate=false",
+        "-Dcom.sun.management.jmxremote.ssl=false",
+        "-Dcom.sun.management.jmxremote.local.only=true",
+      ],
     }
   },
   nodejs: {
