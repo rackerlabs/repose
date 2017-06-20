@@ -197,7 +197,7 @@ public class TenantCullingFilterTest {
     }
 
     private KeystoneRequestHandler.ValidToken tokenWithTenant(String tenant) {
-        return tokenWithTenantAndRoles(tenant, new ArrayList());
+        return tokenWithTenantAndRoles(tenant, new ArrayList<>());
     }
 
     private KeystoneRequestHandler.ValidToken tokenWithRoles(List<KeystoneRequestHandler.Role> roles) {
