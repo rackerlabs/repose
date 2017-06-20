@@ -1,14 +1,19 @@
 {
   "servers" : [ {
-    "port" : "27755",
     "host" : "localhost",
+    "port" : "27755",
+    "runPeriodSeconds": 1,
     "queries" : [ {
       "obj" : "java.lang:type=Memory",
       "attr" : [ "HeapMemoryUsage", "NonHeapMemoryUsage" ],
+      "resultAlias": "memory",
       "outputWriters" : [ {
         "@class" : "com.googlecode.jmxtrans.model.output.GraphiteWriterFactory",
+        "rootPrefix": "jmxtrans",
         "port" : 2003,
-        "host" : "influxdb.performance.openrepose.org"
+        "host" : "influxdb.performance.openrepose.org",
+        "flushStrategy" : "timeBased",
+        "flushDelayInSeconds": 10
       } ]
     } ]
   } ]
