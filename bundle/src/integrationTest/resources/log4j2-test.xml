@@ -5,7 +5,7 @@
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
         </Console>
         <RollingFile name="RollingFile" fileName="${reposeHome}/logs/test.log"
-                     filePattern="${reposeHome}/logs/test-%d{yyyy-MM-dd_HHmmss}.log" immediateFlush="true">
+                     filePattern="${reposeHome}/logs/test-%d{yyyy-MM-dd}-%i.log" immediateFlush="true">
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="200 MB"/>
