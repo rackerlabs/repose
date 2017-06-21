@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,23 +21,17 @@ package org.openrepose.filters.ratelimiting;
 
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.transform.Transform;
-import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
 import org.openrepose.core.services.ratelimit.config.Limits;
 import org.openrepose.core.services.ratelimit.config.ObjectFactory;
 import org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration;
-import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
-import java.io.InputStream;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNotNull;
@@ -86,20 +80,6 @@ public class SchemaTest {
 
             assertThat("Expected element should have child elements",
                     jaxbUnmarshaller.unmarshal(sampleSource, Limits.class).getValue().getRates().getRate().size(), greaterThan(0));
-        }
-
-        @Test
-        @Ignore
-        public void output() throws Exception {
-            final LimitsEntityTransformer transformer = new LimitsEntityTransformer(jaxbContext);
-
-            final Transform<InputStream, JAXBElement<Limits>> limitsTransformer = new StreamToJaxbTransform(jaxbContext);
-
-            final JAXBElement<Limits> limitsElement =
-                    limitsTransformer.transform(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/limits.xml"));
-
-            System.out.println(transformer.entityAsXml(limitsElement.getValue()));
-            System.out.println(transformer.entityAsJson(limitsElement.getValue()));
         }
     }
 }
