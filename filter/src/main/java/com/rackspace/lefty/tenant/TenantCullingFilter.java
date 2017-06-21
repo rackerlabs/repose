@@ -16,8 +16,9 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID;
@@ -56,18 +57,16 @@ public class TenantCullingFilter implements Filter {
                                                                                               //this is a dirty hack, i have no idea why it has a ClassCastException without it
                 KeystoneRequestHandler.ValidToken token = (KeystoneRequestHandler.ValidToken) objectSerializer.readObject(objectSerializer.writeObject(datastore.get(cacheKey)));
                 if (token != null) {
-                    List<String> tenants = new ArrayList<>();
-
-                    if (token.defaultTenantId().isDefined()) {
-                        tenants.add(token.defaultTenantId().get());
-                    }
-
-                    JavaConverters.seqAsJavaListConverter(token.roles()).asJava()
+                    Set<String> tenants = JavaConverters.seqAsJavaListConverter(token.roles()).asJava()
                             .stream()
                             .filter(role -> relevantRoles.contains(role.name()))
                             .filter(role -> role.tenantId().isDefined())
                             .map(role -> role.tenantId().get())
-                            .forEach(tenants::add);
+                            .collect(Collectors.toSet());
+
+                    if (token.defaultTenantId().isDefined()) {
+                        tenants.add(token.defaultTenantId().get());
+                    }
 
                     request.removeHeader(TENANT_ID);
 
