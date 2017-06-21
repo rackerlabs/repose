@@ -12,7 +12,7 @@ import org.openrepose.filters.keystonev2.KeystoneV2Filter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import scala.Option;
-import scala.collection.JavaConversions;
+import scala.collection.JavaConverters;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -206,10 +206,10 @@ public class TenantCullingFilterTest {
 
     private KeystoneRequestHandler.ValidToken tokenWithTenantAndRoles(String tenant, List<KeystoneRequestHandler.Role> roles) {
         return new KeystoneRequestHandler.ValidToken(
-                null, null, JavaConversions.asScalaBuffer(roles).toSeq(),
+                null, null, JavaConverters.asScalaBufferConverter(roles).asScala().toSeq(),
                 Option.apply(null), Option.apply(null), Option.apply(tenant),
-                JavaConversions.asScalaBuffer(new ArrayList<String>()).toSeq(), Option.apply(null), Option.apply(null),
-                JavaConversions.asScalaBuffer(new ArrayList<String>()).toSeq(), Option.apply(null), Option.apply(null),
+                JavaConverters.asScalaBufferConverter(new ArrayList<String>()).asScala().toSeq(), Option.apply(null), Option.apply(null),
+                JavaConverters.asScalaBufferConverter(new ArrayList<String>()).asScala().toSeq(), Option.apply(null), Option.apply(null),
                 Option.apply(null));
     }
 

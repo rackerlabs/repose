@@ -8,7 +8,7 @@ import org.openrepose.filters.keystonev2.KeystoneRequestHandler;
 import org.openrepose.filters.keystonev2.KeystoneV2Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.collection.JavaConversions;
+import scala.collection.JavaConverters;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -62,7 +62,7 @@ public class TenantCullingFilter implements Filter {
                         tenants.add(token.defaultTenantId().get());
                     }
 
-                    JavaConversions.seqAsJavaList(token.roles())
+                    JavaConverters.seqAsJavaListConverter(token.roles()).asJava()
                             .stream()
                             .filter(role -> relevantRoles.contains(role.name()))
                             .filter(role -> role.tenantId().isDefined())
