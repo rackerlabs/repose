@@ -15,8 +15,8 @@ import static org.openrepose.commons.utils.http.CommonHttpHeader.AUTH_TOKEN
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
 
 class TenantCullingFilterFunctionalTest extends ReposeValveTest {
-    static MockIdentityV2Service fakeIdentityService
-
+    @Shared
+    MockIdentityV2Service fakeIdentityService
     @Shared
     def roleNameOne = 'role-name-one'
     @Shared
