@@ -4,12 +4,9 @@
 
 <module name="Checker">
 
-
     <module name="FileTabCharacter"/>
 
-
     <module name="TreeWalker">
-
 
         <module name="LeftCurly">
             <property name="option" value="eol"/>
@@ -21,7 +18,6 @@
             <property name="ignoreComments" value="true"/>
             <property name="message" value="Maximum 2 blank lines"/>
         </module>
-
 
         <module name="WhitespaceAfter">
             <property name="tokens" value="COMMA, TYPECAST, SEMI"/>
@@ -151,6 +147,5 @@
             <property name="ignoreComments" value="true"/>
             <property name="message" value="Missing blank line after import"/>
         </module>
-
     </module>
 </module>
