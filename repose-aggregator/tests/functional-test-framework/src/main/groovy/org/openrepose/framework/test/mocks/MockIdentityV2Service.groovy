@@ -34,8 +34,8 @@ import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 import java.util.concurrent.atomic.AtomicInteger
 
-import static org.openrepose.framework.test.util.saml.SamlUtilities.generateUniqueIdpId
 import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.framework.test.util.saml.SamlUtilities.generateUniqueIdpId
 
 /**
  * Created by jennyvo on 6/16/15.
@@ -689,7 +689,10 @@ class MockIdentityV2Service {
         }
 
         def bodyBuilder = shouldReturnXml ? this.&createAccessXmlWithValues : this.&createAccessJsonWithValues
-        def body = bodyBuilder(username: username, roles: samlAttributes.roles, authBy: authBy)
+        def body = bodyBuilder(
+            username: username,
+            roles: samlAttributes.roles.collect { roleName -> [name: roleName] },
+            authBy: authBy)
         def headers = ['Content-type': shouldReturnXml ? 'application/xml' : 'application/json']
 
         new Response(SC_OK, null, headers, body)
@@ -758,7 +761,7 @@ class MockIdentityV2Service {
         def tenantId = values.tenantId ?: client_tenantid
         def userId = values.userId ?: client_userid
         def username = values.username ?: client_username
-        def roleNames = values.roles ?: ["identity:admin"]
+        def roles = (values.roles ?: [["identity:admin"]])
 
         def json = new JsonBuilder()
 
@@ -767,9 +770,11 @@ class MockIdentityV2Service {
                 delegate.token {
                     id token
                     delegate.expires expires
-                    tenant {
-                        id tenantId
-                        name tenantId
+                    if (tenantId) {
+                        tenant {
+                            id tenantId
+                            name tenantId
+                        }
                     }
                     if (values.authBy) {
                         'RAX-AUTH:authenticatedBy' values.authBy
@@ -779,8 +784,8 @@ class MockIdentityV2Service {
                     id userId
                     name username
                     'RAX-AUTH:defaultRegion' "the-default-region"
-                    roles roleNames.withIndex(1).collect { role, index ->
-                        [name: role, id: index]
+                    delegate.roles roles.withIndex(1).collect { role, index ->
+                        [name: role.name, id: index] + (role.tenantId ? [tenantId: role.tenantId] : [:])
                     }
                 }
                 serviceCatalog([
@@ -811,7 +816,8 @@ class MockIdentityV2Service {
         def tenantId = values.tenantId ?: client_tenantid
         def userId = values.userId ?: client_userid
         def username = values.username ?: client_username
-        def roleNames = values.roles ?: ["identity:admin"]
+        // TODO: add support for role objects (which we'll need in order to return tenanted roles)
+        def roleNames = values.roles ? values.roles.collect { role -> role.name } : ["identity:admin"]
 
         // namespaces
         Map<String, String> rootElementAttributes = [:]
