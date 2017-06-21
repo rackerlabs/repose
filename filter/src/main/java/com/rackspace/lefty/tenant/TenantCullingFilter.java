@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID;
 
@@ -78,7 +79,8 @@ public class TenantCullingFilter implements Filter {
                     response.sendError(SC_UNAUTHORIZED);
                 }
             } catch (ClassNotFoundException cnfe) {
-                log.error("This shouldn't have been possible", cnfe);
+                log.error("This shouldn't have been possible, somehow the item that came back from datastore doesn't match a class available in the current classloader", cnfe);
+                response.sendError(SC_INTERNAL_SERVER_ERROR);
             }
         } else {
             log.debug("Cache key header not found");

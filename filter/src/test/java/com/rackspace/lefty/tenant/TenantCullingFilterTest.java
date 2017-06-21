@@ -4,13 +4,19 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler;
 import org.openrepose.filters.keystonev2.KeystoneV2Filter;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.util.ReflectionTestUtils;
 import scala.Option;
 import scala.collection.JavaConverters;
 
@@ -22,6 +28,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import static com.rackspace.lefty.tenant.TenantCullingFilter.RELEVANT_ROLES;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -33,6 +40,8 @@ import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
 /**
  * Created by adrian on 6/12/17.
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(ObjectSerializer.class)
 public class TenantCullingFilterTest {
 
     private TenantCullingFilter filter;
@@ -194,6 +203,26 @@ public class TenantCullingFilterTest {
 
         verifyZeroInteractions(filterChain);
         assertThat(response.getStatus(), equalTo(SC_UNAUTHORIZED));
+    }
+
+    @Test
+    public void doFilterClassNotFoundExceptionReturnsInternalError() throws Exception {
+        ObjectSerializer objectSerializer = (ObjectSerializer) ReflectionTestUtils.getField(filter, "objectSerializer");
+        ObjectSerializer spySerializer = PowerMockito.spy(objectSerializer);
+        ReflectionTestUtils.setField(filter, "objectSerializer", spySerializer);
+        PowerMockito.doThrow(new ClassNotFoundException("test exception")).when(spySerializer).readObject(any(byte[].class));
+
+        FilterChain filterChain = mock(FilterChain.class);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
+        KeystoneRequestHandler.ValidToken token = tokenWithTenant("123456");
+        when(datastore.get("cachekey")).thenReturn(token);
+
+        filter.doFilter(request, response, filterChain);
+
+        verifyZeroInteractions(filterChain);
+        assertThat(response.getStatus(), equalTo(SC_INTERNAL_SERVER_ERROR));
     }
 
     private KeystoneRequestHandler.ValidToken tokenWithTenant(String tenant) {
