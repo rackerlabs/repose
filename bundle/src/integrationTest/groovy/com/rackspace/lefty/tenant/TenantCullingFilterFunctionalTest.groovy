@@ -49,6 +49,6 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_OK
         def tenantIds = mc.handlings[0].request.headers.findAll(TENANT_ID)
         tenantIds.size() == 1
-        tenantIds[0] == '123456'
+        tenantIds[0] == fakeIdentityService.client_tenantid
     }
 }
