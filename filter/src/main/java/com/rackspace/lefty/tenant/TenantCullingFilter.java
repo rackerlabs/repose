@@ -1,5 +1,6 @@
 package com.rackspace.lefty.tenant;
 
+import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
@@ -31,10 +32,12 @@ public class TenantCullingFilter implements Filter {
 
     private Logger log = LoggerFactory.getLogger(TenantCullingFilter.class);
     private Datastore datastore;
+    private ObjectSerializer objectSerializer;
 
     @Inject
     public TenantCullingFilter(DatastoreService datastoreService) {
         datastore = datastoreService.getDefaultDatastore();
+        objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
     }
 
     @Override
@@ -49,29 +52,34 @@ public class TenantCullingFilter implements Filter {
         String cacheKey = request.getHeader(KeystoneV2Filter.AuthTokenKey());
         List<String> relevantRoles = request.getSplittableHeaders(RELEVANT_ROLES);
         if (cacheKey != null) {
-            KeystoneRequestHandler.ValidToken token = (KeystoneRequestHandler.ValidToken) datastore.get(cacheKey);
-            if (token != null) {
-                List<String> tenants = new ArrayList<>();
+            try {
+                                                                                              //this is a dirty hack, i have no idea why it has a ClassCastException without it
+                KeystoneRequestHandler.ValidToken token = (KeystoneRequestHandler.ValidToken) objectSerializer.readObject(objectSerializer.writeObject(datastore.get(cacheKey)));
+                if (token != null) {
+                    List<String> tenants = new ArrayList<>();
 
-                if (token.defaultTenantId().isDefined()) {
-                    tenants.add(token.defaultTenantId().get());
+                    if (token.defaultTenantId().isDefined()) {
+                        tenants.add(token.defaultTenantId().get());
+                    }
+
+                    JavaConversions.seqAsJavaList(token.roles())
+                            .stream()
+                            .filter(role -> relevantRoles.contains(role.name()))
+                            .filter(role -> role.tenantId().isDefined())
+                            .map(role -> role.tenantId().get())
+                            .forEach(tenants::add);
+
+                    request.removeHeader(TENANT_ID);
+
+                    tenants.forEach(tenant -> request.addHeader(TENANT_ID, tenant));
+
+                    chain.doFilter(request, response);
+                } else {
+                    log.debug("Cache miss for key: {}", cacheKey);
+                    response.sendError(SC_UNAUTHORIZED);
                 }
-
-                JavaConversions.seqAsJavaList(token.roles())
-                        .stream()
-                        .filter(role -> relevantRoles.contains(role.name()))
-                        .filter(role -> role.tenantId().isDefined())
-                        .map(role -> role.tenantId().get())
-                        .forEach(tenants::add);
-
-                request.removeHeader(TENANT_ID);
-
-                tenants.forEach(tenant -> request.addHeader(TENANT_ID, tenant));
-
-                chain.doFilter(request, response);
-            } else {
-                log.debug("Cache miss for key: {}", cacheKey);
-                response.sendError(SC_UNAUTHORIZED);
+            } catch (ClassNotFoundException cnfe) {
+                log.error("This shouldn't have been possible", cnfe);
             }
         } else {
             log.debug("Cache key header not found");
