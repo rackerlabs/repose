@@ -102,7 +102,6 @@ class KeystoneV2FilterAddHeadersTest extends ReposeValveTest {
     }
 
     // REP-2464: Auth filter should add headers not replace headers
-    @Ignore ("We can turn on when impersonator role to header merge in to branch")
     def "Verify with impersonation, repose should add x-impersonator-roles headers"() {
         given:
         fakeIdentityV2Service.with {
@@ -120,7 +119,7 @@ class KeystoneV2FilterAddHeadersTest extends ReposeValveTest {
                 method: 'GET',
                 headers: [
                         'content-type'        : 'application/json',
-                        'X-Subject-Token'     : fakeIdentityV2Service.client_token,
+                        'X-Auth-Token'     : fakeIdentityV2Service.client_token,
                         'x-impersonator-roles': 'repose-test'
                 ]
         )
