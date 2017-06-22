@@ -135,7 +135,7 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
     def "Removes Tenant when #testName"() {
         given: "a configured Keystone/Identity and appropriate request headers"
         fakeIdentityService.client_tenantid = null
-        fakeIdentityService.validateTokenHandler = createValidateTokenHandler([:])
+        fakeIdentityService.validateTokenHandler = createValidateTokenHandler(roles)
         def headers = [
                 (AUTH_TOKEN): fakeIdentityService.client_token,
                 (TENANT_ID) : tenantIdOne,
@@ -145,7 +145,7 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
-        then: "the origin service should receive only the default tenant"
+        then: "the origin service should not receive any tenants"
         mc.handlings.size() == 1
         mc.receivedResponse.code as Integer == SC_OK
         def tenantIds = mc.handlings[0].request.headers.findAll(TENANT_ID)
