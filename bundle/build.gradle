@@ -1,0 +1,83 @@
+apply plugin: 'groovy'
+apply plugin: 'ear'
+
+configurations {
+    integrationTestRunnable
+    integrationTestBundle
+}
+
+dependencies {
+
+    earlib project(":filter")
+
+    integrationTestCompile "org.codehaus.groovy:groovy-all:2.4.3"
+    integrationTestCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+    integrationTestCompile "org.openrepose:functional-test-framework:$reposeVersion"
+    integrationTestCompile "org.rackspace:deproxy:0.21"
+
+    integrationTestRunnable "org.openrepose:valve:$reposeVersion:all"
+
+    integrationTestBundle "org.openrepose:filter-bundle:$reposeVersion@ear"
+}
+
+task copyArtifacts() {
+    dependsOn(":bundle:ear")
+    ext.outputDir = "$buildDir/repose_home"
+    inputs.files(configurations.integrationTestRunnable.files,
+            configurations.integrationTestBundle.files,
+            ear.outputs.files)
+    outputs.dir outputDir
+
+    doLast {
+        //copy the runnables
+        file(outputDir).mkdirs()
+        copy {
+            from configurations.integrationTestRunnable.files
+            into outputDir
+        }
+
+        //copy the bundles
+        file("$outputDir/artifacts").mkdirs()
+        copy {
+            from configurations.integrationTestBundle.files
+            into "$outputDir/artifacts"
+        }
+        copy {
+            from ear.outputs.files
+            into "$outputDir/artifacts"
+        }
+    }
+}
+
+task copyConfigs() {
+    ext.outputDir = "$buildDir/configs"
+    inputs.dir "$projectDir/src/integrationTest/configs"
+    outputs.dir outputDir
+
+    doLast {
+        //copy the configs
+        file(outputDir).mkdirs()
+        copy {
+            from "$projectDir/src/integrationTest/configs"
+            into outputDir
+        }
+    }
+}
+
+integrationTest.dependsOn copyArtifacts, copyConfigs
+
+def container = "valve"
+def targetHostName = "localhost"
+def valveFileName = configurations.integrationTestRunnable.files.first().toString().split("/").last()
+
+processIntegrationTestResources {
+    expand(
+            reposeHome: copyArtifacts.outputDir,
+            version: reposeVersion,
+            testRootDir: buildDir,
+            configTemplates: copyConfigs.outputDir,
+            reposeContainer: container,
+            valveLocation: "${copyArtifacts.outputDir}/$valveFileName",
+            targetHostname: targetHostName
+    )
+}

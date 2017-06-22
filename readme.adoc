@@ -1,0 +1,46 @@
+= Ticketing Tenant Culling Filter
+
+The tenant culling filter is for use by ticketing (both dexter and picard) to use on resources that need further specific tenant id information.
+The filter looks at all the tenants that identity gives back for a user and creates and populates a list of them based on the roles that the user was granted access with.
+
+== General filter information
+* *Name:* tenant-culling
+* *Default Configuration:* No configuration
+* *Bundle:* lefty-filter-bundle
+
+== Prerequisites & Postconditions
+=== Required Request Headers
+* `X-Relevant-Roles` - The roles this user was granted access based on.
+* `X-Auth-Token-Key` - The datastore cache key that contains the users token information.
+
+=== Required Preceding Filters
+* Keystone v2 filter - Sets the user's tenant info in the datastore as well as sets the `X-Auth-Token-Key` header.
+* Simple RBAC Filter/API Validator Filter - Either one is required because they set the `X-Relevant-Roles` header.
+
+=== Request Headers Created
+* `X-Tenant-Id` - The tenants that match the roles this request was authorized with as well as the default if present.
+This header will be replaced if previously present.
+
+=== Request Body Changes
+This filter does not modify the request body.
+
+=== Recommended Follow-On (Succeeding) Filters
+None
+
+=== Response Body Changes
+None
+
+=== Response Headers Created
+None
+
+=== Response Status Codes
+[cols="2,a", options="header,autowidth"]
+|===
+|Response Code |Reason
+
+|401
+|
+* `X-Auth-Token-Key` is missing
+* The datastore fails to find an entry matching the presented key, typically because the TTL for the cached info has expired.
+
+|===
