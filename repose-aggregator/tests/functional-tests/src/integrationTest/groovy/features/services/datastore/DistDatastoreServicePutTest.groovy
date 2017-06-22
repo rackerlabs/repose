@@ -167,7 +167,6 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         "%2F%2D%20"                               | "random encoded characters"
     }
 
-    //@Ignore
     def "PUT with really large body within limit (2MEGS 2097152) should return 202"() {
         given:
         def largeBodyContent = RandomStringUtils.random(2006139, ('A'..'Z').join().toCharArray())
@@ -187,7 +186,6 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         largeBodyContent.size() == objectSerializer.readObject(mc.receivedResponse.body).size()
     }
 
-    //@Ignore
     def "PUT with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
         given:
         def largeBody = objectSerializer.writeObject(
