@@ -89,7 +89,10 @@ class ResponseCodeJMXTest extends ReposeValveTest {
             deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),
             deproxy.makeRequest(url: reposeEndpoint + "/cluster")]
 
-        then: "the 2xx metrics should be incremented by 3"
+        then: "the client received a good response code for every request"
+        responses.every { it.receivedResponse.code as Integer == SC_OK }
+
+        and: "the 2xx metrics should be incremented by 3"
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootEndpoint2xxMetric) == rootPath2xxTarget + 3
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose2xxMetric) == repose2xxTarget + 3
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(allEndpoints2xxMetric) == all2xxTarget + 3
@@ -98,9 +101,6 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanCountAttribute(rootEndpoint5xxMetric) == rootPath5xxTarget
         repose.jmx.getMBeanCountAttribute(repose5xxMetric) == repose5xxTarget
         repose.jmx.getMBeanCountAttribute(allEndpoints5xxMetric) == all5xxTarget
-
-        and: "the client received a good response code for every request"
-        responses.every { it.receivedResponse.code as Integer == SC_OK }
 
         where:
         loop << (1..500).toArray()
