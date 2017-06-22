@@ -1,6 +1,7 @@
 package com.rackspace.lefty.tenant
 
 import groovy.json.JsonBuilder
+import org.apache.commons.lang3.RandomStringUtils
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
@@ -17,6 +18,9 @@ import static org.openrepose.commons.utils.http.CommonHttpHeader.AUTH_TOKEN
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
 
 class TenantCullingFilterFunctionalTest extends ReposeValveTest {
+    static final def RELEVANT_ROLES = 'X-Relevant-Roles'
+    static final def BODY_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz '
+
     @Shared
     MockIdentityV2Service fakeIdentityService
     @Shared
@@ -79,8 +83,8 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         fakeIdentityService.client_tenantid = clientTenantId
         fakeIdentityService.validateTokenHandler = createValidateTokenHandler(roles)
         def headers = [
-                (AUTH_TOKEN)      : fakeIdentityService.client_token,
-                'X-Relevant-Roles': relevant
+                (AUTH_TOKEN)    : fakeIdentityService.client_token,
+                (RELEVANT_ROLES): relevant
         ]
 
         when: "the request is made"
@@ -125,6 +129,71 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         tenantIds.size() == 1
         tenantIds.contains(fakeIdentityService.client_tenantid)
         !tenantIds.contains(tenantIdOne)
+    }
+
+    @Unroll
+    def "Removes Tenant when #testName"() {
+        given: "a configured Keystone/Identity and appropriate request headers"
+        fakeIdentityService.client_tenantid = null
+        fakeIdentityService.validateTokenHandler = createValidateTokenHandler([:])
+        def headers = [
+                (AUTH_TOKEN): fakeIdentityService.client_token,
+                (TENANT_ID) : tenantIdOne,
+                (RELEVANT_ROLES): 'bogus'
+        ]
+
+        when: "the request is made"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+
+        then: "the origin service should receive only the default tenant"
+        mc.handlings.size() == 1
+        mc.receivedResponse.code as Integer == SC_OK
+        def tenantIds = mc.handlings[0].request.headers.findAll(TENANT_ID)
+        tenantIds.size() == 0
+
+        where:
+        testName                                    | roles
+        "no default and no tenanted roles"          | [:]
+        "no default and no matching tenanted roles" | [roles: twoRoles]
+    }
+
+    @Unroll
+    def "Culls Tenants and does not alter request and response bodies when HTTP verb is #httpMethod"() {
+        given: "a configured Keystone/Identity and appropriate request headers"
+        fakeIdentityService.client_tenantid = tenantIdDef
+        fakeIdentityService.validateTokenHandler = createValidateTokenHandler([roles: twoRoles])
+        def headers = [
+                (AUTH_TOKEN)    : fakeIdentityService.client_token,
+                (RELEVANT_ROLES): roleNameOne
+        ]
+        def requestBody = RandomStringUtils.random(256, BODY_CHARS)
+        def responseBody = RandomStringUtils.random(256, BODY_CHARS)
+
+        when: "the request is made"
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint,
+                method: httpMethod,
+                headers: headers,
+                requestBody: requestBody,
+                defaultHandler: { new Response(SC_OK, null, null, responseBody) }
+        )
+
+        then: "the origin service should receive the appropriate tenant(s)"
+        mc.handlings.size() == 1
+        mc.receivedResponse.code as Integer == SC_OK
+        def tenantIds = mc.handlings[0].request.headers.findAll(TENANT_ID)
+        def expected = [tenantIdDef, tenantIdOne]
+        def notExpected = [tenantIdTwo]
+        tenantIds.size() == expected.size()
+        tenantIds.containsAll(expected)
+        tenantIds.disjoint(notExpected)
+
+        and: "the request and response bodies should not be altered"
+        mc.receivedResponse.body == responseBody
+        mc.handlings[0].request.body == requestBody
+
+        where:
+        httpMethod << ['POST', 'PUT', 'PATCH', 'DELETE']
     }
 
     Closure<Response> createValidateTokenHandler(Map params) {
