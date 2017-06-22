@@ -11,6 +11,8 @@ import spock.lang.Shared
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON
 import static org.openrepose.commons.utils.http.CommonHttpHeader.AUTH_TOKEN
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
 
@@ -127,7 +129,7 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
 
     Closure<Response> createValidateTokenHandler(Map params) {
         { String tokenId, String tenantId, Request request ->
-            def headers = ["Content-type": "application/json"]
+            def headers = [(CONTENT_TYPE): APPLICATION_JSON]
             // TODO: The method in Repose's MockIdentityV2Service should be used when updated.
             //def body = fakeIdentityService.createAccessJsonWithValues(params)
             def body = createAccessJsonWithValues(params)
