@@ -35,9 +35,9 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
     def sameRoles = oneRole + [[name: roleNameOne, tenantId: tenantIdTwo]]
 
     def setupSpec() {
-        def params = properties.defaultTemplateParams
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort as Integer)
+        def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs('common', params)
         repose.configurationProvider.applyConfigs('withKeystone', params)
         repose.start()

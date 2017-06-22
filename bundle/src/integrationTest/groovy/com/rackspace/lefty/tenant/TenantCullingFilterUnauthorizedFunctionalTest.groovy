@@ -11,8 +11,8 @@ class TenantCullingFilterUnauthorizedFunctionalTest extends ReposeValveTest {
     static final String AUTH_TOKEN_KEY = "X-Auth-Token-Key"
 
     def setupSpec() {
-        def params = properties.defaultTemplateParams
         deproxy = new Deproxy()
+        def params = properties.defaultTemplateParams
         deproxy.addEndpoint(properties.targetPort)
         repose.configurationProvider.applyConfigs('common', params)
         repose.configurationProvider.applyConfigs('noKeystone', params)
