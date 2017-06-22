@@ -48,18 +48,14 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
     }
 
     def setup() {
-        fakeIdentityService.with {
-            // This is required to ensure that one piece of the authentication data is changed
-            // so that the cached version in the Akka Client is not used.
-            client_token = UUID.randomUUID().toString()
-        }
+        // This is required to ensure that one piece of the authentication data is changed
+        // so that the cached version in the Akka Client is not used.
+        fakeIdentityService.client_token = UUID.randomUUID().toString()
     }
 
     def "Sends default Tenant"() {
         given: "a configured Keystone/Identity and appropriate request header"
-        fakeIdentityService.with {
-            client_tenantid = UUID.randomUUID().toString()
-        }
+        fakeIdentityService.client_tenantid = UUID.randomUUID().toString()
         def headers = [
                 (AUTH_TOKEN): fakeIdentityService.client_token
         ]
@@ -78,10 +74,8 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
     @Unroll
     def "#testName"() {
         given: "a configured Keystone/Identity and appropriate request headers"
-        fakeIdentityService.with {
-            client_tenantid = clientTenantId
-            validateTokenHandler = createValidateTokenHandler(roles)
-        }
+        fakeIdentityService.client_tenantid = clientTenantId
+        fakeIdentityService.validateTokenHandler = createValidateTokenHandler(roles)
         def headers = [
                 (AUTH_TOKEN)      : fakeIdentityService.client_token,
                 'X-Relevant-Roles': relevant
@@ -113,9 +107,7 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
 
     def "Replaces Tenant"() {
         given: "a configured Keystone/Identity and appropriate request headers"
-        fakeIdentityService.with {
-            client_tenantid = UUID.randomUUID().toString()
-        }
+        fakeIdentityService.client_tenantid = UUID.randomUUID().toString()
         def headers = [
                 (AUTH_TOKEN): fakeIdentityService.client_token,
                 (TENANT_ID) : tenantIdOne
