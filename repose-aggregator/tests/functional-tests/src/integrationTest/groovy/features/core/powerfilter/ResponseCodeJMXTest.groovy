@@ -103,7 +103,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanCountAttribute(allEndpoints5xxMetric) == all5xxTarget
 
         where:
-        loop << (1..500).toArray()
+        loop << (1..50000).toArray()
     }
 
     def "when responses have 2XX and 5XX status codes, should increment 2XX and 5XX mbeans"() {
