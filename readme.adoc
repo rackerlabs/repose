@@ -14,7 +14,7 @@ The filter looks at all the tenants that identity gives back for a user and crea
 * `X-Auth-Token-Key` - The datastore cache key that contains the users token information.
 
 === Required Preceding Filters
-* Keystone v2 filter - Sets the users tenant info in the datastore as well as sets the `X-Auth-Token-Key` header.
+* Keystone v2 filter - Sets the user's tenant info in the datastore as well as sets the `X-Auth-Token-Key` header.
 * Simple RBAC Filter/API Validator Filter - Either one is required because they set the `X-Relevant-Roles` header.
 
 === Request Headers Created
