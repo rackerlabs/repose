@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,66 +20,52 @@
 package org.openrepose.commons.utils.regex;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
 /**
  * @author zinic
  */
-@RunWith(Enclosed.class)
 public class RegexSelectorTest {
 
-    @Ignore
-    public static class TestParent {
+    private RegexSelector<String> selector;
 
-        protected RegexSelector<String> selector;
-
-        @Before
-        public final void beforeAll() {
-            selector = new RegexSelector<>();
-            selector.addPattern("\\d\\d\\d[+-]", "notExpected");
-            selector.addPattern("[+-]\\d\\d\\d", "expected");
-        }
+    @Before
+    public final void beforeAll() {
+        selector = new RegexSelector<>();
+        selector.addPattern("\\d\\d\\d[+-]", "notExpected");
+        selector.addPattern("[+-]\\d\\d\\d", "expected");
     }
 
-    public static class WhenSelecting extends TestParent {
+    @Test
+    public void shouldSelectOnRegexMatch() {
+        final SelectorResult<String> foundResult = selector.select("-124");
 
-        @Test
-        public void shouldSelectOnRegexMatch() {
-            final SelectorResult<String> foundResult = selector.select("-124");
-
-            assertTrue("Selector must have a key.", foundResult.hasKey());
-            assertEquals("Selector should select expected key.", "expected", foundResult.getKey());
-        }
-
-        @Test
-        public void shouldReturnEmptyResultWithNoMatch() {
-            final SelectorResult<String> emptyResult = selector.select("expected");
-
-            assertFalse("Selector must not have a key.", emptyResult.hasKey());
-            assertNull("Selector should select expected key.", emptyResult.getKey());
-        }
+        assertTrue("Selector must have a key.", foundResult.hasKey());
+        assertEquals("Selector should select expected key.", "expected", foundResult.getKey());
     }
 
-    public static class WhenClearing extends TestParent {
+    @Test
+    public void shouldReturnEmptyResultWithNoMatch() {
+        final SelectorResult<String> emptyResult = selector.select("expected");
 
-        @Test
-        public void shouldClearStoredSelectors() {
-            final SelectorResult<String> foundResult = selector.select("-124");
+        assertFalse("Selector must not have a key.", emptyResult.hasKey());
+        assertNull("Selector should select expected key.", emptyResult.getKey());
+    }
 
-            assertTrue("Selector must have a key.", foundResult.hasKey());
-            assertEquals("Selector should select expected key.", "expected", foundResult.getKey());
+    @Test
+    public void shouldClearStoredSelectors() {
+        final SelectorResult<String> foundResult = selector.select("-124");
 
-            selector.clear();
+        assertTrue("Selector must have a key.", foundResult.hasKey());
+        assertEquals("Selector should select expected key.", "expected", foundResult.getKey());
 
-            final SelectorResult<String> emptySelection = selector.select("-124");
+        selector.clear();
 
-            assertFalse("Selector must not have a key.", emptySelection.hasKey());
-            assertNull("Selector should select expected key.", emptySelection.getKey());
-        }
+        final SelectorResult<String> emptySelection = selector.select("-124");
+
+        assertFalse("Selector must not have a key.", emptySelection.hasKey());
+        assertNull("Selector should select expected key.", emptySelection.getKey());
     }
 }
