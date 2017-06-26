@@ -21,10 +21,11 @@ package features.core.powerfilter
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
+import scaffold.category.Slow
 import spock.lang.Unroll
+import spock.util.concurrent.PollingConditions
 
 import static javax.servlet.http.HttpServletResponse.*
 
@@ -82,20 +83,24 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         def rootPath5xxTarget = repose.jmx.getMBeanCountAttribute(rootEndpoint5xxMetric)
         def repose5xxTarget = repose.jmx.getMBeanCountAttribute(repose5xxMetric)
         def all5xxTarget = repose.jmx.getMBeanCountAttribute(allEndpoints5xxMetric)
+        //One second timeout, initial delay is 0 and the delay is .1, which is every 100ms
+        def conditions = new PollingConditions(timeout: 1)
 
         when: "requests are made that should go to the default endpoint"
         def responses = [
-            deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),
-            deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),
-            deproxy.makeRequest(url: reposeEndpoint + "/cluster")]
+                deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),
+                deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),
+                deproxy.makeRequest(url: reposeEndpoint + "/cluster")]
 
         then: "the client received a good response code for every request"
         responses.every { it.receivedResponse.code as Integer == SC_OK }
 
         and: "the 2xx metrics should be incremented by 3"
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootEndpoint2xxMetric) == rootPath2xxTarget + 3
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose2xxMetric) == repose2xxTarget + 3
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(allEndpoints2xxMetric) == all2xxTarget + 3
+        conditions.eventually {
+            assert repose.jmx.getMBeanCountAttributeWithWaitForNonZero(rootEndpoint2xxMetric) == rootPath2xxTarget + 3
+            assert repose.jmx.getMBeanCountAttributeWithWaitForNonZero(repose2xxMetric) == repose2xxTarget + 3
+            assert repose.jmx.getMBeanCountAttributeWithWaitForNonZero(allEndpoints2xxMetric) == all2xxTarget + 3
+        }
 
         and: "the 5xx metrics should not be incremented"
         repose.jmx.getMBeanCountAttribute(rootEndpoint5xxMetric) == rootPath5xxTarget
@@ -117,8 +122,8 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
         when: "requests are made that should go to the default endpoint"
         def mc1 = deproxy.makeRequest(
-            url: reposeEndpoint + "/endpoint",
-            defaultHandler: { new Response(SC_BAD_GATEWAY) })
+                url: reposeEndpoint + "/endpoint",
+                defaultHandler: { new Response(SC_BAD_GATEWAY) })
         def mc2 = deproxy.makeRequest(url: reposeEndpoint + "/cluster")
 
         then: "the client received the correct response code"
@@ -148,11 +153,11 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
         when: "requests are made that should go to the default endpoint"
         def mc1 = deproxy.makeRequest(
-            url: reposeEndpoint + "/endpoint",
-            defaultHandler: { new Response(SC_BAD_GATEWAY) })
+                url: reposeEndpoint + "/endpoint",
+                defaultHandler: { new Response(SC_BAD_GATEWAY) })
         def mc2 = deproxy.makeRequest(
-            url: reposeEndpoint + "/endpoint",
-            defaultHandler: { new Response(SC_INTERNAL_SERVER_ERROR) })
+                url: reposeEndpoint + "/endpoint",
+                defaultHandler: { new Response(SC_INTERNAL_SERVER_ERROR) })
         def mc3 = deproxy.makeRequest(url: reposeEndpoint + "/cluster")
 
         then: "the client received the correct response codes"
@@ -188,9 +193,9 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
         when: "requests are made that should go to different endpoints"
         def responses = [
-            deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),  // /root_path
-            deproxy.makeRequest(url: reposeEndpoint + "/secondary"), // /root_path2
-            deproxy.makeRequest(url: reposeEndpoint + "/cluster")]   // /root_path
+                deproxy.makeRequest(url: reposeEndpoint + "/endpoint"),  // /root_path
+                deproxy.makeRequest(url: reposeEndpoint + "/secondary"), // /root_path2
+                deproxy.makeRequest(url: reposeEndpoint + "/cluster")]   // /root_path
 
         then: "the client received a good response code for every request"
         responses.every { it.receivedResponse.code as Integer == SC_OK }
