@@ -761,7 +761,7 @@ class MockIdentityV2Service {
         def tenantId = values.tenantId ?: client_tenantid
         def userId = values.userId ?: client_userid
         def username = values.username ?: client_username
-        def roles = (values.roles ?: [["identity:admin"]])
+        def roles = (values.roles ?: [[name: "identity:admin"]])
 
         def json = new JsonBuilder()
 
