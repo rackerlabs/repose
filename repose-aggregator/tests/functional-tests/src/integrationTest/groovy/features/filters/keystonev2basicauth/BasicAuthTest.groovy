@@ -210,7 +210,7 @@ class BasicAuthTest extends ReposeValveTest {
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
-    // REP-2880 - should fix this (removed @Ignore)
+
     // This test was removed due to a current limitation of the MockIdentityService to not differentiate between the two services calling it.
     @Unroll("Sending request with admin response set to HTTP #identityStatusCode")
     def "when failing to authenticate admin client"() {
