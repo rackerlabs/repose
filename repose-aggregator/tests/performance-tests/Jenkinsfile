@@ -27,6 +27,8 @@ stage("Performance Test") {
     def performanceJenkinsJob = "performance-test"
     def performanceTestParam = "perf_test"
     def extraOptionsParam = "extra_options"
+    def tenMinutesInSeconds = 600
+    def random = new Random()
 
     def jobsToRun = [:]
 
@@ -34,7 +36,9 @@ stage("Performance Test") {
         def perfTest = perfTests[index]
         jobsToRun[perfTest] = {
             retry(3) {
-                build(job: performanceJenkinsJob, parameters: [
+                build(job: performanceJenkinsJob,
+                      quietPeriod: random.nextInt(tenMinutesInSeconds),
+                      parameters: [
                         [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
                         [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
             }
