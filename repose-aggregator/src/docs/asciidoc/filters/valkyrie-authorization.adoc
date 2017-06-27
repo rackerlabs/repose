@@ -113,7 +113,7 @@ See https://tools.ietf.org/html/rfc7231#section-7.1.3[the official HTTP specific
 
 [NOTE]
 ====
-For more information about specific response codes that Repose will receive from the Valkyrie service, please refer to the https://www.example.com[Valkyrie documentataion].
+For more information about specific response codes that Repose will receive from the Valkyrie service, please refer to the https://one.rackspace.com/display/IDPLAT/Valkyrie[Valkyrie documentataion].
 ====
 
 == Account Admins
