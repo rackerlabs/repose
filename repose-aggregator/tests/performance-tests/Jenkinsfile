@@ -25,6 +25,7 @@ stage("Determine performance tests to run") {
 
 stage("Performance Test") {
     def performanceJenkinsJob = "performance-test"
+    def cleanupJenkinsJob = "performance-test-cleanup"
     def performanceTestParam = "perf_test"
     def extraOptionsParam = "extra_options"
     def tenMinutesInSeconds = 600
@@ -35,12 +36,20 @@ stage("Performance Test") {
     for (int index = 0; index < perfTests.size(); index++) {
         def perfTest = perfTests[index]
         jobsToRun[perfTest] = {
-            retry(3) {
-                build(job: performanceJenkinsJob,
-                      quietPeriod: random.nextInt(tenMinutesInSeconds),
+            try {
+                retry(3) {
+                    build(job: performanceJenkinsJob,
+                            quietPeriod: random.nextInt(tenMinutesInSeconds),
+                            parameters: [
+                                    [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
+                                    [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
+                }
+            } finally {
+                build(job: cleanupJenkinsJob,
+                      quietPeriod: 0,
                       parameters: [
-                        [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
-                        [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
+                                [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
+                                [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
             }
         }
     }
