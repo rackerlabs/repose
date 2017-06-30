@@ -21,6 +21,8 @@ package org.openrepose.nodeservice.atomfeed.impl
 
 import java.net.URL
 
+import akka.actor.ActorSystem
+import akka.testkit.{TestKit, TestProbe}
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -32,17 +34,20 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.systemmodel._
 import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedServiceConfigType, OpenStackIdentityV2AuthenticationType}
-import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AuthenticatedRequestFactory}
+import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager.RemoveNotifier
+import org.openrepose.nodeservice.atomfeed.AtomFeedListener
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpecLike, Matchers}
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
+import org.springframework.test.util.ReflectionTestUtils
 
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+class AtomFeedServiceImplTest
+  extends TestKit(ActorSystem()) with FunSpecLike with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
   val serviceListAppender = ctx.getConfiguration.getAppender("serviceList").asInstanceOf[ListAppender]
@@ -108,17 +113,20 @@ class AtomFeedServiceImplTest extends FunSpec with Matchers with MockitoSugar wi
   }
 
   describe("unregisterListener") {
-    //todo: ignored for the time being because it occasionally fails,
-    // and i don't want to see it happen in a release and cause a headache
-    // see REP-3664
-    ignore("should unregister a listener when passed a valid listener ID") {
+    it(s"should unregister a listener when passed a valid listener ID") {
       val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockHttpClientService, mockConfigService, mockAppContext)
 
-      val listenerId = atomFeedService.registerListener("feedId", mock[AtomFeedListener])
+      val listenerId = "test-listener-id"
+      val notifierManagerProbe = TestProbe()
+      val preListenerNotifierManagers = Map(listenerId -> notifierManagerProbe.ref)
+      ReflectionTestUtils.setField(atomFeedService, "listenerNotifierManagers", preListenerNotifierManagers)
+
       atomFeedService.unregisterListener(listenerId)
 
-      serviceListAppender.getEvents.exists(_.getMessage.getFormattedMessage.contains("Attempting to unregister")) shouldBe true
-      serviceListAppender.getEvents.exists(_.getMessage.getFormattedMessage.contains("not registered")) shouldBe false
+      val postListenerNotifierManagers = ReflectionTestUtils.getField(atomFeedService, "listenerNotifierManagers").asInstanceOf[Map[_, _]]
+
+      notifierManagerProbe.expectMsg(RemoveNotifier(listenerId))
+      postListenerNotifierManagers shouldBe empty
     }
 
     it("should report if a listener ID is not registered") {
