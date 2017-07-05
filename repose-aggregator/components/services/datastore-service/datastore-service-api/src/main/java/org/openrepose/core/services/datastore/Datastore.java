@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@
 package org.openrepose.core.services.datastore;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,6 +41,16 @@ public interface Datastore {
      *                                     stored value
      */
     Serializable get(String key) throws DatastoreOperationException;
+
+    /**
+     * Returns a set of keys that match the given criteria.
+     * Criteria can contain ?s for single character matches and *s for multi character matches.
+     *
+     * @param keyCriteria the criteria to match keys on
+     * @return all the keys that are in the datastore that match the criteria
+     * @throws DatastoreOperationException if an exception occurs while executing the query for keys
+     */
+    List<String> findKeys(String keyCriteria) throws DatastoreOperationException;
 
     /**
      * Put an element in the datastore.

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,10 +23,12 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.lang3.SerializationUtils;
 import org.openrepose.core.services.datastore.Datastore;
+import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.Patchable;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class EHCacheDatastore implements Datastore {
@@ -56,6 +58,11 @@ public class EHCacheDatastore implements Datastore {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public List<String> findKeys(String keyCriteria) throws DatastoreOperationException {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
