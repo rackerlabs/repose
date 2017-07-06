@@ -22,6 +22,7 @@ dependencies {
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.spockframework:spock-core"
     testCompile "org.mockito:mockito-all"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.hamcrest:hamcrest-all"

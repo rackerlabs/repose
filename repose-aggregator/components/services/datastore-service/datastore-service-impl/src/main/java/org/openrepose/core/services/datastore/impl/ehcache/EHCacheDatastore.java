@@ -21,15 +21,18 @@ package org.openrepose.core.services.datastore.impl.ehcache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.expression.ILike;
 import org.apache.commons.lang3.SerializationUtils;
 import org.openrepose.core.services.datastore.Datastore;
-import org.openrepose.core.services.datastore.DatastoreOperationException;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.Patchable;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class EHCacheDatastore implements Datastore {
 
@@ -61,8 +64,9 @@ public class EHCacheDatastore implements Datastore {
     }
 
     @Override
-    public List<String> findKeys(String keyCriteria) throws DatastoreOperationException {
-        throw new UnsupportedOperationException("Not implemented");
+    public List<String> findKeys(String keyCriteria) {
+        Results results = ehCacheInstance.createQuery().includeKeys().addCriteria(new ILike(Query.KEY.getAttributeName(), keyCriteria)).execute();
+        return results.all().stream().map(result -> (String)result.getKey()).collect(Collectors.toList());
     }
 
     @Override
