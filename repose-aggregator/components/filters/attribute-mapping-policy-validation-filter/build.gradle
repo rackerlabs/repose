@@ -6,6 +6,7 @@ dependencies {
     //todo: remove this once we can move the translation filter up to the same version of saxon
     compile "net.sf.saxon:Saxon-EE:9.7.0-15"
     compile "com.fasterxml.jackson.core:jackson-databind"
+    compile "commons-io:commons-io"
 
     provided "javax.servlet:javax.servlet-api"
     provided "javax.inject:javax.inject"

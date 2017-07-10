@@ -19,19 +19,19 @@
  */
 package org.openrepose.filters.attributemapping
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
+import java.io.{BufferedInputStream, InputStream}
 import javax.inject.Named
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_UNSUPPORTED_MEDIA_TYPE}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.transform.TransformerException
-import javax.xml.transform.stream.{StreamResult, StreamSource}
+import javax.xml.transform.stream.StreamSource
 
 import com.fasterxml.jackson.core.{JsonParseException, JsonProcessingException}
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.SaxonApiException
+import org.apache.commons.io.input.CloseShieldInputStream
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 
@@ -54,10 +54,10 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
     val httpServletResponse = response.asInstanceOf[HttpServletResponse]
     val requestContentType = httpServletRequest.getContentType
 
-    validateHttpMethod(httpServletRequest) flatMap { _ =>
-      validatePolicy(requestContentType, httpServletRequest.getInputStream)
-    } map { bytes =>
-      new ServletInputStreamWrapper(new ByteArrayInputStream(bytes))
+    validateHttpMethod(httpServletRequest) flatMap { request =>
+      validatePolicy(requestContentType, request.getInputStream)
+    } map { stream =>
+      new ServletInputStreamWrapper(stream)
     } match {
       case Success(normalizedPolicyInputStream) =>
         chain.doFilter(
@@ -84,41 +84,37 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
     }
   }
 
-  def validateHttpMethod(request: HttpServletRequest): Try[Unit.type] = {
-    if ("PUT".equalsIgnoreCase(request.getMethod)) Success(Unit)
+  def validateHttpMethod(request: HttpServletRequest): Try[HttpServletRequest] = {
+    if ("PUT".equalsIgnoreCase(request.getMethod)) Success(request)
     else Failure(UnsupportedHttpMethodException(s"${request.getMethod} is not a supported HTTP method"))
   }
 
-  def validatePolicy(contentType: String, policy: InputStream): Try[Array[Byte]] = {
+  def validatePolicy(contentType: String, policy: InputStream): Try[InputStream] = {
     val contentTypeLowerCase = contentType.toLowerCase
-    val requestStreamSource = new StreamSource(policy)
+    val bufferedStream = new BufferedInputStream(policy)
+    bufferedStream.mark(Integer.MAX_VALUE)
+    val requestStreamSource = new StreamSource(new CloseShieldInputStream(bufferedStream))
     val xsdEngineString = XSDEngine.AUTO.toString
 
     if (contentTypeLowerCase.contains("json")) {
       Try {
         // Validate the policy
-        val jsonNode = AttributeMapper.validatePolicy(
+        AttributeMapper.validatePolicy(
           AttributeMapper.parseJsonNode(requestStreamSource),
           xsdEngineString)
 
-        // Get the Bytes
-        new ObjectMapper().writeValueAsBytes(jsonNode)
+        bufferedStream.reset()
+        bufferedStream
       }
     } else if (contentTypeLowerCase.contains("xml")) {
       Try {
         // Validate the policy
-        val xmlSource = AttributeMapper.validatePolicy(
+        AttributeMapper.validatePolicy(
           requestStreamSource,
           xsdEngineString)
 
-        // Transform the normalized policy Source into bytes
-        val transformer = transformerFactory.newTransformer()
-        val xmlOutput = new ByteArrayOutputStream()
-        val xmlStreamResult = new StreamResult(xmlOutput)
-        transformer.transform(xmlSource, xmlStreamResult)
-
-        // Get the Bytes
-        xmlOutput.toByteArray
+        bufferedStream.reset()
+        bufferedStream
       }
     } else {
       Failure(UnsupportedContentTypeException(s"$contentType is not a supported Content-Type"))
