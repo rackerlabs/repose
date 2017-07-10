@@ -32,6 +32,7 @@ import static javax.ws.rs.core.MediaType.*
  */
 class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
 
+    static String TEXT_YAML = "text/yaml"
     static JsonSlurper jsonSlurper = new JsonSlurper()
     static XmlSlurper xmlSlurper = new XmlSlurper()
 
@@ -69,65 +70,25 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         "PUT"    | "banana" | 0
     }
 
-    def "should validate correct XML"() {
-        given:
-        String body =
-            """<?xml version="1.0" encoding="UTF-8"?>
-                <mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xmlns:xs="http://www.w3.org/2001/XMLSchema"
-                         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
-                         version="RAX-1">
-                   <rules>
-                      <rule>
-                        <local>
-                            <user>
-                               <name value="{D}"/>
-                               <email value="{D}"/>
-                               <expire value="{D}"/>
-                               <domain value="{D}"/>
-                               <roles value="{D}"/>
-                            </user>
-                         </local>
-                      </rule>
-                   </rules>
-                </mapping>
-            """
-
-        when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
-
-        then:
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        xmlSlurper.parseText(body) == xmlSlurper.parseText(mc.handlings[0].request.body as String)
-    }
-
     def "should validate correct JSON"() {
         given:
         String body =
-            """
-            {
-              "mapping": {
-                "rules": [
-                  {
-                    "local": {
-                      "user": {
-                        "domain": "{D}",
-                        "name": "{D}",
-                        "email": "{D}",
-                        "expire": "{D}"
-                      }
-                    }
-                  }
-                ],
-                "version":"RAX-1"
-              }
-            }
-            """
+"""
+---
+mapping:
+  rules:
+  - local:
+      user:
+        domain: "{D}"
+        name: "{D}"
+        email: "{D}"
+        roles: "{D}"
+        expire: "{D}"
+  version: RAX-1
+"""
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
 
         then:
         mc.receivedResponse.code == "200"
@@ -135,35 +96,25 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
     }
 
-    def "should not remove the name attribute from a remote in a JSON policy"() {
+    def "should not remove the name attribute from a remote in a YAML policy"() {
         given:
         String body =
-            """
-            {
-              "mapping": {
-                "rules": [
-                  {
-                    "local": {
-                      "user": {
-                        "name": "{D}"
-                      }
-                    },
-                    "remote": [
-                      {
-                        "multiValue": false,
-                        "name": "Username",
-                        "regex": false
-                      }
-                    ]
-                  }
-                ],
-                "version":"RAX-1"
-              }
-            }
-            """
+"""
+---
+mapping:
+  rules:
+  - local:
+      user:
+        name: "{D}"
+    remote:
+    - multiValue: false
+      name: Username
+      regex: false
+  version: RAX-1
+"""
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
 
         then:
         mc.receivedResponse.code == "200"
@@ -171,63 +122,25 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
     }
 
-    def "should not validate bad XML"() {
+    def "should not validate bad YAML"() {
         given:
         String body =
-            """<?xml version="1.0" encoding="UTF-8"?>
-                <mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xmlns:xs="http://www.w3.org/2001/XMLSchema"
-                         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
-                         version="RAX-1">
-                   <rules>
-                      <rule>
-                        <local>
-                            <user>
-                               <name value="{D}"/>
-                               <email value="{D}"/>
-                               <expire value="{D}"/>
-                               <domain value="{D}"/>
-                               <roles value="{D}"/>
-                            </user>
-                         </local>
-                      </rule>
-                   </rules>
-            """
+"""
+---
+mapping:
+  rules:
+    local:
+      user:
+        domain: "{D}"
+        name: "{D}"
+        email: "{D}"
+        roles: "{D}"
+        expire: "{D}"
+  version: RAX-1
+"""
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
-
-        then:
-        mc.receivedResponse.code == "400"
-        mc.handlings.size() == 0
-    }
-
-    def "should not validate bad JSON"() {
-        given:
-        String body =
-            """
-            {
-              "mapping": {
-                "rules": [
-                   {
-                    "local": {
-                      "user": {
-                        "domain":"{D}",
-                        "name":"{D}",
-                        "email":"{D}",
-                        "roles":"{D}",
-                        "expire":"{D}"
-                       }
-                     }
-                   }
-                 ],
-                "version":"RAX-1"
-              }
-            """
-
-        when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
 
         then:
         mc.receivedResponse.code == "400"
