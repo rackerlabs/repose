@@ -26,7 +26,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN
+import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
+import static javax.ws.rs.core.MediaType.*
 
 /**
  * Created by adrian on 5/10/17.
@@ -69,6 +70,18 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         "POST"   | "banana" | 1
         "DELETE" | ""       | 1
         "PUT"    | "banana" | 0
+    }
+
+    @Unroll
+    def "#contentType should be rejected with a 415"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": contentType], requestBody: "Lorem ipsum")
+
+        then:
+        mc.receivedResponse.code.toInteger() == SC_UNSUPPORTED_MEDIA_TYPE
+
+        where:
+        contentType << [APPLICATION_XML, APPLICATION_JSON, TEXT_PLAIN]
     }
 
     def "should validate correct JSON"() {
@@ -146,5 +159,32 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == "400"
         mc.handlings.size() == 0
+    }
+
+    def "YAML comments should be preserved"() {
+        given:
+        String comment = "Find me"
+        String body =
+            """
+            |---
+            |mapping: # ${comment}
+            |  rules:
+            |  - local:
+            |      user:
+            |        name: "{D}"
+            |    remote:
+            |    - multiValue: false
+            |      name: Username
+            |      regex: false
+            |  version: RAX-1
+            """.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        (mc.handlings[0].request.body as String).contains(comment)
     }
 }
