@@ -42,9 +42,6 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
 
   import AttributeMappingPolicyValidationFilter._
 
-  // Magic
-  private val transformerFactory = new net.sf.saxon.TransformerFactoryImpl
-
   override def init(filterConfig: FilterConfig): Unit = {}
 
   override def destroy(): Unit = {}
