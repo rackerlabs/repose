@@ -27,6 +27,8 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import org.yaml.snakeyaml.DumperOptions
+import org.yaml.snakeyaml.Yaml
 
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
@@ -717,42 +719,27 @@ class MockIdentityV2Service {
         json.toString()
     }
 
-    static String createMappingJsonWithValues(Map values = [:]) {
-        def json = new JsonBuilder()
-
-        json {
-            mapping {
-                rules([
-                        {
-                            local {
-                                user {
-                                    domain values.domain ?: DEFAULT_MAPPING_VALUE
-                                    name values.name ?: DEFAULT_MAPPING_VALUE
-                                    email values.email ?: DEFAULT_MAPPING_VALUE
-                                    roles values.roles ?: DEFAULT_MAPPING_VALUE
-                                    expire values.expire ?: DEFAULT_MAPPING_VALUE
-                                    if (values.userExtAttribs) {
-                                        values.userExtAttribs.each { key, value ->
-                                            "$key" value
-                                        }
-                                    }
-                                }
-                                if (values.local) {
-                                    values.local.each { key, value ->
-                                        "$key" value
-                                    }
-                                }
-                            }
-                            if (values.remote) {
-                                remote values.remote
-                            }
-                        }
-                ] + (values.rules ?: []))
-                version "RAX-1"
-            }
-        }
-
-        json.toString()
+    static String createMappingYamlWithValues(Map values = [:]) {
+        DumperOptions options = new DumperOptions()
+        options.setExplicitStart(true)
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK)
+        new Yaml(options).dump([
+                mapping: [
+                        rules  : [[
+                                          local: [
+                                                  user: [
+                                                          domain: (values.domain ?: DEFAULT_MAPPING_VALUE),
+                                                          name  : (values.name ?: DEFAULT_MAPPING_VALUE),
+                                                          email : (values.email ?: DEFAULT_MAPPING_VALUE),
+                                                          roles : (values.roles ?: DEFAULT_MAPPING_VALUE),
+                                                          expire: (values.expire ?: DEFAULT_MAPPING_VALUE)
+                                                  ] + (values.userExtAttribs ?: [])
+                                          ] + (values.local ?: []),
+                                  ] + (values.remote ? [remote: values.remote] : [:])
+                        ] + (values.rules ?: []),
+                        version: "RAX-1"
+                ]
+        ])
     }
 
     String createAccessJsonWithValues(Map values = [:]) {
@@ -1378,23 +1365,17 @@ class MockIdentityV2Service {
     static final String DEFAULT_MAPPING_VALUE = "{D}"
 
     static final String DEFAULT_MAPPING_POLICY = """\
-{
-    "mapping": {
-        "version": "RAX-1",
-        "description": "Default mapping policy",
-        "rules": [
-            {
-                "local": {
-                    "user": {
-                        "domain": "{D}",
-                        "email": "{D}",
-                        "expire": "{D}",
-                        "name": "{D}",
-                        "roles": "{D}"
-                    }
-                }
-            }
-        ]
-    }
-}"""
+---
+mapping:
+  description: 'Default mapping policy'
+  rules:
+  - local:
+      user:
+        domain: '{D}'
+        email: '{D}'
+        expire: '{D}'
+        name: '{D}'
+        roles: '{D}'
+  version: RAX-1
+"""
 }
