@@ -19,22 +19,23 @@
  */
 package features.filters.attributemappingvalidation
 
-import groovy.json.JsonSlurper
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-import static javax.ws.rs.core.MediaType.*
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN
 
 /**
  * Created by adrian on 5/10/17.
  */
 class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
 
-    static String TEXT_YAML = "text/yaml"
-    static JsonSlurper jsonSlurper = new JsonSlurper()
-    static XmlSlurper xmlSlurper = new XmlSlurper()
+    final static String TEXT_YAML = "text/yaml"
+
+    static ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory())
 
     def setupSpec() {
         reposeLogSearch.cleanLog()
@@ -73,19 +74,19 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should validate correct JSON"() {
         given:
         String body =
-"""
----
-mapping:
-  rules:
-  - local:
-      user:
-        domain: "{D}"
-        name: "{D}"
-        email: "{D}"
-        roles: "{D}"
-        expire: "{D}"
-  version: RAX-1
-"""
+            """
+            |---
+            |mapping:
+            |  rules:
+            |  - local:
+            |      user:
+            |        domain: "{D}"
+            |        name: "{D}"
+            |        email: "{D}"
+            |        roles: "{D}"
+            |        expire: "{D}"
+            |  version: RAX-1
+            """.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
@@ -93,25 +94,25 @@ mapping:
         then:
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
+        yamlMapper.readTree(body) == yamlMapper.readTree(mc.handlings[0].request.body as String)
     }
 
     def "should not remove the name attribute from a remote in a YAML policy"() {
         given:
         String body =
-"""
----
-mapping:
-  rules:
-  - local:
-      user:
-        name: "{D}"
-    remote:
-    - multiValue: false
-      name: Username
-      regex: false
-  version: RAX-1
-"""
+            """
+            |---
+            |mapping:
+            |  rules:
+            |  - local:
+            |      user:
+            |        name: "{D}"
+            |    remote:
+            |    - multiValue: false
+            |      name: Username
+            |      regex: false
+            |  version: RAX-1
+            """.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
@@ -119,25 +120,25 @@ mapping:
         then:
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
+        yamlMapper.readTree(body) == yamlMapper.readTree(mc.handlings[0].request.body as String)
     }
 
-    def "should not validate bad YAML"() {
+    def "should fail to validate bad YAML"() {
         given:
         String body =
-"""
----
-mapping:
-  rules:
-    local:
-      user:
-        domain: "{D}"
-        name: "{D}"
-        email: "{D}"
-        roles: "{D}"
-        expire: "{D}"
-  version: RAX-1
-"""
+            """
+            |---
+            |mapping:
+            |  rules:
+            |    local:
+            |      user:
+            |        domain: "{D}"
+            |        name: "{D}"
+            |        email: "{D}"
+            |        roles: "{D}"
+            |        expire: "{D}"
+            |  version: RAX-1
+            """.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)

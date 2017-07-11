@@ -26,6 +26,10 @@ dependencies {
     integrationTestCompile "org.slf4j:jcl-over-slf4j"
     integrationTestCompile "org.opensaml:opensaml-core"
     integrationTestCompile "org.xmlunit:xmlunit-legacy"
+    integrationTestCompile "com.fasterxml.jackson.core:jackson-annotations"
+    integrationTestCompile "com.fasterxml.jackson.core:jackson-core"
+    integrationTestCompile "com.fasterxml.jackson.core:jackson-databind"
+    integrationTestCompile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml"
 
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
