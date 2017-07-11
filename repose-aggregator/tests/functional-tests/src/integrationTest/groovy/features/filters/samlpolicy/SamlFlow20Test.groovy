@@ -413,7 +413,7 @@ class SamlFlow20Test extends ReposeValveTest {
                     SC_OK,
                     null,
                     [(CONTENT_TYPE): APPLICATION_JSON],
-                    createMappingJsonWithValues(rules: [[potato: [fries: [yummy: "yes"], hashBrowns: [:]]]]))
+                    createMappingYamlWithValues(rules: [[potato: [fries: [yummy: "yes"], hashBrowns: [:]]]]))
         }
 
         when:
