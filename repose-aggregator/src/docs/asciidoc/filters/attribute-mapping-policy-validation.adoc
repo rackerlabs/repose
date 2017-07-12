@@ -17,7 +17,7 @@ This filter has no configuration.
 
 == Prerequisites & Postconditions
 === Required Request Headers
-* `Content-Type` - Declares the content type of the policy (e.g., XML or JSON) which will be used during validation.
+* `Content-Type` - Declares the content type of the policy, must be YAML.
 
 === Required Preceding Filters
 This filter has no dependencies on other filters.
@@ -26,8 +26,7 @@ This filter has no dependencies on other filters.
 This filter does not create/modify any request headers.
 
 === Request Body Changes
-All requests that make it through this filter will have their respective bodies replaced by a normalized version of the original body.
-In some cases, the request body may not change.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
 * <<saml-policy.adoc#,SAML Policy Translation Filter>> - These two filters work well together to provide mechanisms for attribute mapping policy management and application.
@@ -49,7 +48,7 @@ This filter does not create/modify any response headers.
 a| * If the policy fails validation.
 
 | `415`
-a| * If the `Content-Type` is neither XML nor JSON, and therefore, the policy cannot be validated.
+a| * If the `Content-Type` is not YAML, and therefore, the policy cannot be validated.
 |===
 
 == Additional Information
