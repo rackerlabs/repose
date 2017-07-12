@@ -11,7 +11,7 @@ buildscript {
         classpath 'org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.2.0'
         classpath 'com.netflix.nebula:nebula-dependency-recommender:3.6.3'
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
-        classpath 'gradle.plugin.org.openrepose:gradle-jaxb-plugin:2.2.3'
+        classpath 'gradle.plugin.org.openrepose:gradle-jaxb-plugin:2.3.0'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
         classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:0.8.2'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
@@ -150,7 +150,7 @@ subprojects {
     targetCompatibility = 1.8
 
     task transformXSDs() {
-        description "Runs xml through an xslt transfurm"
+        description "Runs xml through an xslt transform"
         ext.outputDir = "$buildDir/src/generated-xsd"
         def xsltFile = "$rootDir/repose-aggregator/src/config/xsl/remove-1.1-elements.xsl"
         def schemaBaseDir = "$projectDir/src/main/resources/META-INF/schema"
@@ -209,6 +209,7 @@ subprojects {
         bindingsDir = transformXSDs.outputDir
         xjc {
             destinationDir = generatedDir
+            generateEpisodeFiles = false
         }
     }
 

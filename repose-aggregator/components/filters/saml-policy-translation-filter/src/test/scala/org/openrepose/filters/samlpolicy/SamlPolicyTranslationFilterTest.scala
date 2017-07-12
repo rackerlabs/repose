@@ -941,27 +941,19 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.any[Option[String]],
         MM.anyBoolean()
       )).thenReturn(Success(
-        """
-          |{
-          |  "mapping" : [
-          |    "version" : "RAX-1",
-          |    "description" : "Default mapping policy",
-          |    "rules": [
-          |      {
-          |        "local": {
-          |          "user": {
-          |            "domain":"{D}",
-          |            "name":"{D}",
-          |            "email":"{D}",
-          |            "roles":"{D}",
-          |            "expire":"{D}"
-          |          }
-          |        }
-          |      }
-          |    ]
-          |  }
-          |}
-        """.stripMargin))
+        """---
+          |mapping:
+          |  - description: 'Bad mapping policy'
+          |  - rules:
+          |    - local:
+          |        user:
+          |          domain: '{D}'
+          |          email: '{D}'
+          |          expire: '{D}'
+          |          name: '{D}'
+          |          roles: '{D}'
+          |  - version: RAX-1
+          |""".stripMargin))
 
       val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
 
@@ -988,13 +980,10 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.any[Option[String]],
         MM.anyBoolean()
       )).thenReturn(Success(
-        """
-          |{
-          |  "foo" : {
-          |    "bar" : "1",
-          |  }
-          |}
-        """.stripMargin))
+        """---
+          |foo:
+          |  bar: 1
+          |""".stripMargin))
 
       val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
 
@@ -1021,27 +1010,19 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.any[Option[String]],
         MM.anyBoolean()
       )).thenReturn(Success(
-        """
-          |{
-          |  "mapping" : {
-          |    "version" : "RAX-1",
-          |    "description" : "Default mapping policy",
-          |    "rules": [
-          |      {
-          |        "local": {
-          |          "user": {
-          |            "domain":"{D}",
-          |            "name":"{D}",
-          |            "email":"{D}",
-          |            "roles":"{D}",
-          |            "expire":"{D}"
-          |          }
-          |        }
-          |      }
-          |    ]
-          |  }
-          |}
-        """.stripMargin))
+        """---
+          |mapping:
+          |  description: 'Default mapping policy'
+          |  rules:
+          |  - local:
+          |      user:
+          |        domain: '{D}'
+          |        email: '{D}'
+          |        expire: '{D}'
+          |        name: '{D}'
+          |        roles: '{D}'
+          |  version: RAX-1
+          |""".stripMargin))
 
       val result = filter.getPolicy("issuer", None)
 
@@ -1058,25 +1039,23 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       .newDocumentBuilder()
       .parse(new InputSource(new StringReader(documentString)))
     val brokenXslt =
-      """
-        |<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+      """<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
         |                version="1.0">
         |    <xsl:template match="/">
         |        <xsl:message terminate="yes">Break ALL the things!</xsl:message>
         |    </xsl:template>
         |</xsl:stylesheet>
-      """.stripMargin
+        |""".stripMargin
     val brokenXsltExec = new Processor(false).newXsltCompiler()
       .compile(new StreamSource(new StringReader(brokenXslt)))
     val workingXslt =
-      """
-        |<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+      """<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
         |                version="1.0">
         |    <xsl:template match="/">
         |        <xsl:copy-of select="."/>
         |    </xsl:template>
         |</xsl:stylesheet>
-      """.stripMargin
+        |""".stripMargin
     val workingXsltExec = new Processor(false).newXsltCompiler()
       .compile(new StreamSource(new StringReader(workingXslt)))
 
@@ -1335,13 +1314,12 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         // Cache the issuers policy.
         val xslExec = AttributeMapper.compiler.compile(new StreamSource(new ByteArrayInputStream(
-          """
-            |<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          """<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
             |  <xsl:template match="/">
             |    <xsl:copy-of select="."/>
             |  </xsl:template>
             |</xsl:stylesheet>
-          """.stripMargin.getBytes)))
+            |""".stripMargin.getBytes)))
         val policyCache = ReflectionTestUtils.getField(
           filterSpy,
           "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache"
@@ -1363,13 +1341,12 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
           // Cache the issuers policy.
           val xslExec = AttributeMapper.compiler.compile(new StreamSource(new ByteArrayInputStream(
-            """
-              |<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            """<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
               |  <xsl:template match="/">
               |    <xsl:copy-of select="."/>
               |  </xsl:template>
               |</xsl:stylesheet>
-            """.stripMargin.getBytes)))
+              |""".stripMargin.getBytes)))
           val policyCache = ReflectionTestUtils.getField(
             filterSpy,
             "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache"
@@ -1391,13 +1368,12 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
       // Cache the issuers policy.
       val xslExec = AttributeMapper.compiler.compile(new StreamSource(new ByteArrayInputStream(
-        """
-          |<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+        """<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
           |  <xsl:template match="/">
           |    <xsl:copy-of select="."/>
           |  </xsl:template>
           |</xsl:stylesheet>
-        """.stripMargin.getBytes)))
+          |""".stripMargin.getBytes)))
       val policyCache = ReflectionTestUtils.getField(
         filterSpy,
         "org$openrepose$filters$samlpolicy$SamlPolicyTranslationFilter$$policyCache"

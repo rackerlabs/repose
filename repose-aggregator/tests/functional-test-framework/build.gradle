@@ -12,6 +12,7 @@ dependencies {
     compile 'org.linkedin:org.linkedin.util-groovy'
     compile 'org.opensaml:opensaml-core'
     compile 'org.opensaml:opensaml-saml-impl'
+    compile 'org.yaml:snakeyaml'
 }
 
 processResources {

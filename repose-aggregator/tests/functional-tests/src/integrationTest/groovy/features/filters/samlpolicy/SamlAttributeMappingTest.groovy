@@ -29,13 +29,14 @@ import org.opensaml.saml.saml2.core.Response as SamlResponse
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.ws.rs.core.HttpHeaders.ACCEPT
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.*
 import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createIdpJsonWithValues
-import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createMappingJsonWithValues
+import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createMappingYamlWithValues
 import static org.openrepose.framework.test.util.saml.SamlPayloads.*
 import static org.openrepose.framework.test.util.saml.SamlUtilities.*
 
@@ -71,15 +72,16 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         fakeIdentityV2Service.resetHandlers()
     }
 
-    def "the saml:response will be translated before being sent to the origin service"() {
+    @Unroll
+    def "the saml:response will be translated before being sent to the origin service #withOut path function in policy"() {
         given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
         def extAttribLiteral = "banana"
         def extAttribLiteralValue = "phone"
         def extAttribPath = "adventure"
         def extAttribPathValue = "Mordor"
-        def mappingPolicy = createMappingJsonWithValues(
-                userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
+        def mappingPolicy = createMappingYamlWithValues(
+                userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): extAttribPathPolicy],
+                remote: remoteValue)
 
         and: "a saml:response with a value at the path specified by the mapping policy"
         def samlIssuer = generateUniqueIssuer()
@@ -123,19 +125,28 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         attributes.find { it.name == "email" }.attributeValues[0].value == attribEmail
 
         and: "the extended attributes are set correctly"
-        attributes.find { it.name == "user/$extAttribLiteral" as String }.attributeValues[0].value == extAttribLiteralValue
+        attributes.find {
+            it.name == "user/$extAttribLiteral" as String
+        }.attributeValues[0].value == extAttribLiteralValue
         attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value == extAttribPathValue
+
+        where:
+        [withOut, extAttribPathPolicy, remoteValue] << [
+                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
+                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        ]
     }
 
-    def "the access response (JSON) from the origin service will be translated before being sent to the client"() {
+    @Unroll
+    def "the access response (JSON) from the origin service will be translated before being sent to the client #withOut path function in policy"() {
         given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
         def extAttribLiteral = "potato"
         def extAttribLiteralValue = "salad"
         def extAttribPath = "pie"
         def extAttribPathValue = "eye"
-        def mappingPolicy = createMappingJsonWithValues(
-                userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
+        def mappingPolicy = createMappingYamlWithValues(
+                userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): extAttribPathPolicy],
+                remote: remoteValue)
 
         and: "a saml:response with a value at the path specified by the mapping policy"
         def samlIssuer = generateUniqueIssuer()
@@ -167,17 +178,24 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         then: "the extended attributes are set correctly"
         json.access.'RAX-AUTH:extendedAttributes'.user."$extAttribLiteral" == extAttribLiteralValue
         json.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" == extAttribPathValue
+
+        where:
+        [withOut, extAttribPathPolicy, remoteValue] << [
+                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
+                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        ]
     }
 
-    def "the access response (XML) from the origin service will be translated before being sent to the client"() {
+    @Unroll
+    def "the access response (XML) from the origin service will be translated before being sent to the client #withOut path function in policy"() {
         given: "a mapping policy with a fixed value and a dynamic value in addition to the standard attributes"
         def extAttribLiteral = "blues"
         def extAttribLiteralValue = "clues"
         def extAttribPath = "Swiper"
         def extAttribPathValue = "no swiping plz"
-        def mappingPolicy = createMappingJsonWithValues(
-                userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
+        def mappingPolicy = createMappingYamlWithValues(
+                userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): extAttribPathPolicy],
+                remote: remoteValue)
 
         and: "a saml:response with a value at the path specified by the mapping policy"
         def samlIssuer = generateUniqueIssuer()
@@ -212,9 +230,16 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         then: "the extended attributes are set correctly"
         userGroup.'*'.find { it.@name == extAttribLiteral }.value[0].text() == extAttribLiteralValue
         userGroup.'*'.find { it.@name == extAttribPath }.value[0].text() == extAttribPathValue
+
+        where:
+        [withOut, extAttribPathPolicy, remoteValue] << [
+                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
+                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        ]
     }
 
-    def "the correct translation will be used on the request and response when cached"() {
+    @Unroll
+    def "the correct translation will be used on the request and response when cached #withOut path function in policy"() {
         given: "mapping policies with a literal value and a path-based value for three issuers"
         def numOfIssuers = 3
         def extAttribLiteral = "color"
@@ -222,9 +247,9 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def extAttribPath = "shape"
         def extAttribPathValues = ["square", "circle", "triangle"]
         def mappingPolicies = extAttribLiteralValues.collect { extAttribLiteralValue ->
-            createMappingJsonWithValues(
-                    userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                    remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
+            createMappingYamlWithValues(
+                    userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): extAttribPathPolicy],
+                    remote: remoteValue)
         }
 
         and: "saml:responses with a value at the path specified by the mapping policies"
@@ -273,8 +298,12 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         mcs.every { it.receivedResponse.code as Integer == SC_OK }
 
         when: "the saml:responses received by the origin service are unmarshalled"
-        List<SamlResponse> responses = mcs.collect { samlUtilities.unmarshallResponse(it.handlings[0].request.body as String) }
-        List<List<Attribute>> attributesPerResponse = responses.collect { it.assertions[0].attributeStatements[0].attributes }
+        List<SamlResponse> responses = mcs.collect {
+            samlUtilities.unmarshallResponse(it.handlings[0].request.body as String)
+        }
+        List<List<Attribute>> attributesPerResponse = responses.collect {
+            it.assertions[0].attributeStatements[0].attributes
+        }
 
         then: "all of the requests have two assertions"
         responses.every { it.assertions.size() == 2 }
@@ -334,6 +363,12 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         then: "the extended attributes are set correctly in the responses"
         jsons.collect { it.access.'RAX-AUTH:extendedAttributes'.user."$extAttribLiteral" } == extAttribLiteralValues
         jsons.collect { it.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" } == extAttribPathValuesRoundTwo
+
+        where:
+        [withOut, extAttribPathPolicy, remoteValue] << [
+                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
+                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        ]
     }
 
     def "the extended attributes section is not added to the request/response when the mapping policy does not include any"() {
@@ -369,14 +404,15 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         !json.access.'RAX-AUTH:extendedAttributes'
     }
 
-    def "when the specified path for an extended attribute is not present in the saml:response, it is not added to the request/response"() {
+    @Unroll
+    def "when the specified path for an extended attribute is not present in the saml:response, it is not added to the request/response #withOut path function in policy"() {
         given: "a mapping policy with a literal value and a path-based value (that won't be in the saml:response)"
         def extAttribLiteral = "Captain"
         def extAttribLiteralValue = "Planet"
         def extAttribPath = "cake"
-        def mappingPolicy = createMappingJsonWithValues(
-                userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): "{0}"],
-                remote: [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]])
+        def mappingPolicy = createMappingYamlWithValues(
+                userExtAttribs: [(extAttribLiteral): extAttribLiteralValue, (extAttribPath): extAttribPathPolicy],
+                remote: remoteValue)
 
         and: "a saml:response with no value at the path specified by the mapping policy"
         def samlIssuer = generateUniqueIssuer()
@@ -407,7 +443,9 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         response.assertions.size() == 2
 
         and: "the extended attribute for the literal value is set in the request"
-        attributes.find { it.name == "user/$extAttribLiteral" as String }.attributeValues[0].value == extAttribLiteralValue
+        attributes.find {
+            it.name == "user/$extAttribLiteral" as String
+        }.attributeValues[0].value == extAttribLiteralValue
 
         // TODO: This may be a bug in the attibuteMapping library.
         // TODO: It is adding an extended attribute that references a path in the SAML Response even though it doesn't exist.
@@ -422,5 +460,91 @@ class SamlAttributeMappingTest extends ReposeValveTest {
 
         and: "the extended attribute for the path value is not in the response"
         !json.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath"
+
+        where:
+        [withOut, extAttribPathPolicy, remoteValue] << [
+                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
+                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        ]
+    }
+
+    @Unroll
+    def "the saml:response will be translated before being sent to the origin service #testName"() {
+        given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
+        def extAttribLiteral = "Rick"
+        def extAttribLiteralValue = "Wubbalubbadubdub"
+        def extAttribPath = "Morty"
+        def extAttribPathValue = "IDontKnowAboutThis"
+        def mappingPolicy =
+                """${prefix}mapping:
+                |  rules:
+                |  - local:
+                |      user:
+                |        domain: '{D}'
+                |        name: '{D}'
+                |        email: '{D}'
+                |        roles: '{D}'
+                |        expire: '{D}'
+                |        $extAttribLiteral: $extAttribLiteralValue
+                |        $extAttribPath: '{0}'
+                |    remote:
+                |    - path: /saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID
+                |  version: RAX-1$suffix""".stripMargin()
+
+        and: "a saml:response with a value at the path specified by the mapping policy"
+        def samlIssuer = generateUniqueIssuer()
+        def attribName = "Bird Person"
+        def attribRole = "Tammy:GubbaNubNubDoRaKa"
+        def attribDomain = "193083"
+        def attribEmail = "BirdNTammy@GetSchwifty.com"
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
+                issuer: samlIssuer,
+                name: attribName,
+                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail]],
+                spProvidedId: extAttribPathValue,
+                fakeSign: true))
+
+        and: "an Identity mock that will return the mapping policy"
+        String idpId = generateUniqueIdpId()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
+                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
+
+        when: "a request is sent to Repose"
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service receives the request"
+        mc.handlings[0]
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the default attributes are set correctly"
+        attributes.find { it.name == "roles" }.attributeValues[0].value == attribRole
+        attributes.find { it.name == "domain" }.attributeValues[0].value == attribDomain
+        attributes.find { it.name == "email" }.attributeValues[0].value == attribEmail
+
+        and: "the extended attributes are set correctly"
+        attributes.find {
+            it.name == "user/$extAttribLiteral" as String
+        }.attributeValues[0].value == extAttribLiteralValue
+        attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value == extAttribPathValue
+
+        where:
+        [testName, prefix, suffix] << [
+                ["without explicit start", "", ""],
+                ["with explicit start", "---\n", ""],
+                ["with extra pre-whitespace and explicit start", "\n\n---\n", ""],
+                ["with extra pre-whitespace", "\n\n", ""],
+                ["with extra post-whitespace", "", "\n\n"],
+        ]
     }
 }
