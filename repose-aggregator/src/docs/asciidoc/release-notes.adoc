@@ -4,7 +4,7 @@ include::_includes/in-progress.adoc[]
 
 == Future Release
 
-* https://repose.atlassian.net/browse/REP-5757[REP-5757] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> to provide utilize YAML policy files.
+* https://repose.atlassian.net/browse/REP-5757[REP-5757] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> to utilize YAML policy files.
 
 == 8.6.1.1 (2017-06-08)
 
