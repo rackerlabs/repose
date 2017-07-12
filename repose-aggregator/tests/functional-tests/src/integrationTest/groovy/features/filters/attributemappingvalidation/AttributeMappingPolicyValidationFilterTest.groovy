@@ -19,11 +19,10 @@
  */
 package features.filters.attributemappingvalidation
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.yaml.snakeyaml.Yaml
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
@@ -36,7 +35,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
 
     final static String TEXT_YAML = "text/yaml"
 
-    static ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory())
+    static Yaml yaml = new Yaml()
 
     def setupSpec() {
         reposeLogSearch.cleanLog()
@@ -107,7 +106,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        yamlMapper.readTree(body) == yamlMapper.readTree(mc.handlings[0].request.body as String)
+        yaml.load(body) == yaml.load(mc.handlings[0].request.body as String)
     }
 
     def "should not remove the name attribute from a remote in a YAML policy"() {
@@ -133,7 +132,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        yamlMapper.readTree(body) == yamlMapper.readTree(mc.handlings[0].request.body as String)
+        yaml.load(body) == yaml.load(mc.handlings[0].request.body as String)
     }
 
     def "should fail to validate bad YAML"() {
