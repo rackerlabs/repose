@@ -467,4 +467,84 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                 ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
         ]
     }
+
+    @Unroll
+    def "the saml:response will be translated before being sent to the origin service #testName"() {
+        given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
+        def extAttribLiteral = "Rick"
+        def extAttribLiteralValue = "Wubbalubbadubdub"
+        def extAttribPath = "Morty"
+        def extAttribPathValue = "IDontKnowAboutThis"
+        def mappingPolicy =
+                """${prefix}mapping:
+                |  rules:
+                |  - local:
+                |      user:
+                |        domain: '{D}'
+                |        name: '{D}'
+                |        email: '{D}'
+                |        roles: '{D}'
+                |        expire: '{D}'
+                |        $extAttribLiteral: $extAttribLiteralValue
+                |        $extAttribPath: '{0}'
+                |    remote:
+                |    - path: /saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID
+                |  version: RAX-1$suffix""".stripMargin()
+
+        and: "a saml:response with a value at the path specified by the mapping policy"
+        def samlIssuer = generateUniqueIssuer()
+        def attribName = "Bird Person"
+        def attribRole = "Tammy:GubbaNubNubDoRaKa"
+        def attribDomain = "193083"
+        def attribEmail = "BirdNTammy@GetSchwifty.com"
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
+                issuer: samlIssuer,
+                name: attribName,
+                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail]],
+                spProvidedId: extAttribPathValue,
+                fakeSign: true))
+
+        and: "an Identity mock that will return the mapping policy"
+        String idpId = generateUniqueIdpId()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
+                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
+
+        when: "a request is sent to Repose"
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint + SAML_AUTH_URL,
+                method: HTTP_POST,
+                headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
+                requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service receives the request"
+        mc.handlings[0]
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the default attributes are set correctly"
+        attributes.find { it.name == "roles" }.attributeValues[0].value == attribRole
+        attributes.find { it.name == "domain" }.attributeValues[0].value == attribDomain
+        attributes.find { it.name == "email" }.attributeValues[0].value == attribEmail
+
+        and: "the extended attributes are set correctly"
+        attributes.find {
+            it.name == "user/$extAttribLiteral" as String
+        }.attributeValues[0].value == extAttribLiteralValue
+        attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value == extAttribPathValue
+
+        where:
+        [testName, prefix, suffix] << [
+                ["without explicit start", "", ""],
+                ["with explicit start", "---\n", ""],
+                ["with extra pre-whitespace and explicit start", "\n\n---\n", ""],
+                ["with extra pre-whitespace", "\n\n", ""],
+                ["with extra post-whitespace", "", "\n\n"],
+        ]
+    }
 }
