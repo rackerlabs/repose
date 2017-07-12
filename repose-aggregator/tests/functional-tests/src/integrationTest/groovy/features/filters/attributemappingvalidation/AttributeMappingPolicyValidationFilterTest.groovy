@@ -83,7 +83,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         contentType << [APPLICATION_XML, APPLICATION_JSON, TEXT_PLAIN]
     }
 
-    def "should validate correct JSON"() {
+    def "should validate correct YAML"() {
         given:
         String body =
             """
