@@ -651,24 +651,25 @@ class MockIdentityV2Service {
     }
 
     Closure<Response> createGetMappingPolicyForIdp(Map values = [defaultMapping: true]) {
-        def headers = ['Content-type': 'application/json']
+        def successHeaders = ['Content-type': 'text/yaml']
+        def failureHeaders = ['Content-type': 'application/json']
 
         return { String idpId, Request request ->
             if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token") && !values.skipAuthCheck) {
-                new Response(SC_UNAUTHORIZED, null, headers, UNAUTHORIZED_JSON)
+                new Response(SC_UNAUTHORIZED, null, failureHeaders, UNAUTHORIZED_JSON)
             } else {
                 def mappingForIdpId = values.mappings?.get(idpId)
 
                 if (mappingForIdpId) {
-                    new Response(SC_OK, null, headers, mappingForIdpId)
+                    new Response(SC_OK, null, successHeaders, mappingForIdpId)
                 } else if (values.defaultMapping) {
-                    new Response(SC_OK, null, headers, DEFAULT_MAPPING_POLICY)
+                    new Response(SC_OK, null, successHeaders, DEFAULT_MAPPING_POLICY)
                 } else {
                     def body = createIdentityFaultJsonWithValues(
                             name: "itemNotFound",
                             code: SC_NOT_FOUND,
                             message: "Identity Provider with id/name: '$idpId' was not found.")
-                    new Response(SC_NOT_FOUND, null, headers, body)
+                    new Response(SC_NOT_FOUND, null, failureHeaders, body)
                 }
             }
         }
