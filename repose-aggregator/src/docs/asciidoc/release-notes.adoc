@@ -2,10 +2,12 @@
 
 include::_includes/in-progress.adoc[]
 
-== Future Release
+== 8.6.2.0 (2017-06-13)
 
 * https://repose.atlassian.net/browse/REP-5757[REP-5757] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> to utilize YAML policy files.
+** Updated the `attribute-mapper` library from v1.1.1 to v1.2.0 to bring in the YAML updates made in https://repose.atlassian.net/browse/REP-5632[REP-5632]
 * https://repose.atlassian.net/browse/REP-5592[REP-5592] - Updated the <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> to only work for YAML bodies.
+* https://repose.atlassian.net/browse/REP-5694[REP-5694] - Updated the <<filters/valkyrie-authorization.adoc#,Valkyrie Authorization Filter>> versioned docs to point to the current Valkyrie service documentation.
 
 == 8.6.1.1 (2017-06-08)
 
