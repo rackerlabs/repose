@@ -22,15 +22,12 @@ package org.openrepose.filters.attributemapping
 import java.io.ByteArrayInputStream
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
-import javax.xml.transform.stream.StreamSource
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
-import org.springframework.http.MediaType
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
-import scala.io.Source
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
@@ -69,17 +66,13 @@ class AttributeMappingPolicyValidationFilterTest
     }
   }
 
-  describe("getPolicyAsXmlSource") {
-    it(s"should return a Source if the content-type is JSON") {
-      filter.validatePolicy(MediaType.APPLICATION_JSON_VALUE, new ByteArrayInputStream(ValidJsonPolicy.getBytes)) shouldBe a[Success[_]]
-    }
-
-    it(s"should return a Source if the content-type is XML") {
-      filter.validatePolicy(MediaType.APPLICATION_XML_VALUE, new ByteArrayInputStream(ValidXmlPolicy.getBytes)) shouldBe a[Success[_]]
+  describe("validatePolicy") {
+    it(s"should return a Source if the content-type is YAML") {
+      filter.validatePolicy(TextYaml, new ByteArrayInputStream(ValidYamlPolicy.getBytes)) shouldBe a[Success[_]]
     }
 
     it("should return a Failure if the content-type is not supported") {
-      filter.validatePolicy("text/plain", new ByteArrayInputStream(ValidJsonPolicy.getBytes)) shouldBe a[Failure[_]]
+      filter.validatePolicy("text/plain", new ByteArrayInputStream(ValidYamlPolicy.getBytes)) shouldBe a[Failure[_]]
     }
   }
 
@@ -94,21 +87,10 @@ class AttributeMappingPolicyValidationFilterTest
       response.getStatus shouldBe SC_UNSUPPORTED_MEDIA_TYPE
     }
 
-    it("should forward the request if JSON validation succeeds") {
+    it("should forward the request if YAML validation succeeds") {
       request.setMethod("PUT")
-      request.setContent(ValidJsonPolicy.getBytes)
-      request.setContentType(MediaType.APPLICATION_JSON_VALUE)
-
-      filter.doFilter(request, response, chain)
-
-      chain.getRequest should not be theSameInstanceAs(request)
-      chain.getResponse shouldBe theSameInstanceAs(response)
-    }
-
-    it("should forward the request if XML validation succeeds") {
-      request.setMethod("PUT")
-      request.setContent(ValidXmlPolicy.getBytes)
-      request.setContentType(MediaType.APPLICATION_XML_VALUE)
+      request.setContent(ValidYamlPolicy.getBytes)
+      request.setContentType(TextYaml)
 
       filter.doFilter(request, response, chain)
 
@@ -118,8 +100,8 @@ class AttributeMappingPolicyValidationFilterTest
 
     it("should return a 400 if the policy fails to validate") {
       request.setMethod("PUT")
-      request.setContent(InvalidJsonPolicy.getBytes)
-      request.setContentType(MediaType.APPLICATION_JSON_VALUE)
+      request.setContent(InvalidYamlPolicy.getBytes)
+      request.setContentType(TextYaml)
 
       filter.doFilter(request, response, chain)
 
@@ -141,6 +123,8 @@ class AttributeMappingPolicyValidationFilterTest
 }
 
 object AttributeMappingPolicyValidationFilterTest {
+  final val TextYaml: String = "text/yaml"
+
   final val UnsupportedHttpMethods = Set(
     "GET",
     "DELETE",
@@ -151,94 +135,34 @@ object AttributeMappingPolicyValidationFilterTest {
     "CONNECT",
     "TRACE")
 
-  final val ValidJsonPolicy: String =
+  final val ValidYamlPolicy: String =
     """
-      |{
-      |  "mapping": {
-      |    "rules": [
-      |       {
-      |        "local": {
-      |          "user": {
-      |            "domain":"{D}",
-      |            "name":"{D}",
-      |            "email":"{D}",
-      |            "roles":"{D}",
-      |            "expire":"{D}"
-      |          }
-      |        }
-      |      }
-      |    ],
-      |    "version":"RAX-1"
-      |  }
-      |}
+      |---
+      |mapping:
+      |  rules:
+      |  - local:
+      |      user:
+      |        domain: "{D}"
+      |        name: "{D}"
+      |        email: "{D}"
+      |        roles: "{D}"
+      |        expire: "{D}"
+      |  version: RAX-1
     """.stripMargin
 
-  final val InvalidJsonPolicy: String =
+  final val InvalidYamlPolicy: String =
     """
-      |{
-      |  "mapping": {
-      |    "rules": {
-      |       {
-      |        "local": {
-      |          "user": {
-      |            "domain":"{D}",
-      |            "name":"{D}",
-      |            "email":"{D}",
-      |            "roles":"{D}",
-      |            "expire":"{D}"
-      |          }
-      |        }
-      |      }
-      |    },
-      |    "version":"RAX-1"
-      |  }
-      |}
-    """.stripMargin
-
-  final val ValidXmlPolicy: String =
-    """<?xml version="1.0" encoding="UTF-8"?>
-      |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
-      |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
-      |         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
-      |         version="RAX-1">
-      |   <rules>
-      |      <rule>
-      |        <local>
-      |            <user>
-      |               <name value="{D}"/>
-      |               <email value="{D}"/>
-      |               <expire value="{D}"/>
-      |               <domain value="{D}"/>
-      |               <roles value="{D}"/>
-      |            </user>
-      |         </local>
-      |      </rule>
-      |   </rules>
-      |</mapping>
-    """.stripMargin
-
-  final val InvalidXmlPolicy: String =
-    """<?xml version="1.0" encoding="UTF-8"?>
-      |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
-      |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
-      |         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
-      |         version="RAX-1">
-      |   <rules>
-      |      <rule>
-      |        <local>
-      |            </user>
-      |               <name value="{D}"/>
-      |               <email value="{D}"/>
-      |               <expire value="{D}"/>
-      |               <domain value="{D}"/>
-      |               <roles value="{D}"/>
-      |            <user>
-      |         </local>
-      |      </rule>
-      |   </rules>
-      |</mapping>
+      |---
+      |mapping:
+      |  rules:
+      |    local:
+      |      user:
+      |        domain: "{D}"
+      |        name: "{D}"
+      |        email: "{D}"
+      |        roles: "{D}"
+      |        expire: "{D}"
+      |  version: RAX-1
     """.stripMargin
 
   def hashByChar(s: String): Int = s.map(_.hashCode).sum
