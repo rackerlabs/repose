@@ -13,6 +13,7 @@ dependencies {
     provided "javax.inject:javax.inject"
     provided "javax.ws.rs:javax.ws.rs-api"
 
+    testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
