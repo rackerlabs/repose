@@ -72,7 +72,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
   override def init(filterConfig: FilterConfig) {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info("Initializing filter using config " + config)
-    val xsdURL: URL = getClass.getResource("/META-INF/config/schema/keystone-v2-basic-auth.xsd")
+    val xsdURL: URL = getClass.getResource("/META-INF/schema/config/keystone-v2-basic-auth.xsd")
     configurationService.subscribeTo(
       filterConfig.getFilterName,
       config,
