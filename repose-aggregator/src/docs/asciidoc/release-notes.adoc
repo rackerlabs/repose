@@ -2,6 +2,20 @@
 
 include::_includes/in-progress.adoc[]
 
+== In Progress Work
+
+* https://repose.atlassian.net/browse/REP-5737[REP-5737] - Updated the following filters to correct a typo that would prevent proper configuration schema validation.
+** <<filters/ip-user.adoc#,IP User Filter>>
+** <<filters/keystone-v2-basic-auth.adoc#, Keystone v2 Basic Auth Filter>>
+** <<filters/openstack-identity-v3.adoc#, Openstack Identity v3 Filter>>
+** <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>>
+** <<filters/saml-policy.adoc#, SAML Policy Translation Filter>>
+
+[IMPORTANT]
+====
+As part of this correction, any configurations that were taking advantage of this lack of validation will cease to function.
+====
+
 == 8.6.2.0 (2017-06-13)
 
 * https://repose.atlassian.net/browse/REP-5757[REP-5757] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> to utilize YAML policy files.
