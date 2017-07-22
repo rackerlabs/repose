@@ -77,7 +77,7 @@ That means the <<rate-limiting.adoc#,rate limiting filter>> when rate limiting, 
 When doing both the order should be:
 
 . Rackspace Auth User
-. Highly Efficeint Record Processor
+. Highly Efficient Record Processor
 . Rate Limiting
 
 For further details about the reasoning behind this ordering see <<../recipes/user-access-events.adoc#,user access events>>.
