@@ -89,7 +89,7 @@ This filter does not modify the response body.
 This filter does not create/modify any response headers.
 
 === Response Status Codes
-There are no cases where this filter will terminate further processing of the filter chain.
+This filter does not modify the response code.
 
 == Examples
 [source,xml]
