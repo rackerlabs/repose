@@ -1,7 +1,5 @@
 = Rackspace Auth User Filter
 
-include::../_includes/in-progress.adoc[]
-
 The Rackspace Auth User filter is for usage in *Repose* instances that sit in front of Keystone v1 and v2 deployments.
 It's meant to be used for login requests to capture username for both <<../recipes/rate-limiting.adoc#,rate limiting>> and <<../recipes/user-access-events.adoc#,user access events>>.
 

@@ -1,7 +1,5 @@
 = Cross-Origin Resource Sharing (CORS) Filter
 
-include::../_includes/in-progress.adoc[]
-
 The Cross-Origin Resource Sharing (CORS) filter allows Repose to manage CORS requests without the origin service needing to understand CORS.
 For an introduction to CORS, see the <<CORS Overview>> section below.
 

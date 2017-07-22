@@ -1,7 +1,5 @@
 = Add Header Filter
 
-include::../_includes/in-progress.adoc[]
-
 The Add Header filter adds configured headers to a request and/or response.
 You can use the filter to add new headers with specific values to a request chain, and it can also replace (i.e. remove any existing headers with the configured name) headers.
 
