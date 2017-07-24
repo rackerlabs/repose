@@ -49,7 +49,7 @@ An example logging configuration where Phone Home messages are logged to a file 
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
         </Console>
         <!-- This is the appender to be used by the Phone Home service. It will log to the phone-home.log file, and will only keep the most recent message in the log. -->
-        <File name="PhoneHomeMessages" fileName="/var/log/repose/phone-home.log" append="false">
+        <File name="PhoneHomeMessages" fileName="/var/log/repose/phone-home.log" append="false"> <!--1-->
             <PatternLayout>
                 <Pattern>%m</Pattern>
             </PatternLayout>
@@ -60,9 +60,11 @@ An example logging configuration where Phone Home messages are logged to a file 
             <AppenderRef ref="STDOUT"/>
         </Root>
         <!-- This is the Phone Home service logger. It will only log to the PhoneHomeMessages appender, and not to STDOUT. -->
-        <Logger name="phone-home-message" level="info" additivity="false">
+        <Logger name="phone-home-message" level="info" additivity="false"> <!--2-->
             <AppenderRef ref="PhoneHomeMessages"/>
         </Logger>
     </Loggers>
 </Configuration>
 ----
+<1> Configure a separate file appender.
+<2> Configure the logger to use the appener.
