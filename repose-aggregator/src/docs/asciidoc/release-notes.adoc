@@ -2,6 +2,10 @@
 
 include::_includes/in-progress.adoc[]
 
+== In Progress Work
+
+* https://repose.atlassian.net/browse/REP-5748[REP-5748] - Updated the Phone Home service to correct a bug that was preventing the message from actually reaching back.
+
 == 8.6.2.0 (2017-06-13)
 
 * https://repose.atlassian.net/browse/REP-5757[REP-5757] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> to utilize YAML policy files.
