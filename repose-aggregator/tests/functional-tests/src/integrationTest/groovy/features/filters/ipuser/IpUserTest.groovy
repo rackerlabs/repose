@@ -92,24 +92,4 @@ class IpUserTest extends ReposeValveTest {
         !group.contains("local-group;q=0.6")
         !group.contains("local-lan-ip;q=0.6")
     }
-
-    def "should fail to start with bad config"() {
-        given: "Repose with a bad configuration"
-        def params = properties.defaultTemplateParams
-        repose.configurationProvider.cleanConfigDirectory()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/ipuser", params)
-        repose.configurationProvider.applyConfigs("features/filters/ipuser/badconfig", params)
-        repose.start()
-
-        when: "Request is sent to repose"
-        def mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get')
-
-        then: "Repose will respond appropriately"
-        mc.receivedResponse.code as Integer == SC_SERVICE_UNAVAILABLE
-
-        and: "will log the failure reasons"
-        reposeLogSearch.searchByString("The content of element 'ip-user' is not complete.").size() > 0
-        reposeLogSearch.searchByString("IpUserFilter - Filter has not yet initialized.").size() > 0
-    }
 }
