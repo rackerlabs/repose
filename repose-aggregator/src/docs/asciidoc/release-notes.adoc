@@ -1,10 +1,8 @@
 = Release Notes
 
-include::_includes/in-progress.adoc[]
-
 == In Progress Work
 
-* https://repose.atlassian.net/browse/REP-5748[REP-5748] - Updated the Phone Home service to correct a bug that was preventing the message from actually reaching back.
+* https://repose.atlassian.net/browse/REP-5748[REP-5748] - Updated the <<services/phone-home.adoc#, Phone Home Service>> to correct a bug that was preventing the message from actually reaching back.
 
 == 8.6.2.0 (2017-06-13)
 
