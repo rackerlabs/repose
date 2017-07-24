@@ -31,7 +31,7 @@ Explicit action must be taken for the Phone Home service to be used.
 ----
 <1> The `phone-home` element's `enabled` attribute must be set to `true` to activate this feature.
 <2> The name of the Service/API that this instance of Repose is in front of.
-<3> The contact mail for the origin service.
+<3> The contact email address for the origin service.
 
 === Message Logger Configuration
 When the Phone Home service is disabled, or when it cannot successfully send an update message to the configured data collection service, the content of the update that would have been sent will be logged to a logger named `phone-home-message`.
