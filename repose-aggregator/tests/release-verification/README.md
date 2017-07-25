@@ -2,8 +2,8 @@ The primary objective of this project is to provide an automated way of
 verifying releases.
 
 To accomplish that objective, a consistent, stable environment is provided
-by Docker or Vagrant and a supporting set of scripts. Gradle tasks provide
-simple management of the Docker or Vagrant environment.
+by Docker and a supporting set of scripts. Gradle tasks provide
+simple management of the Docker environment.
 
 Tangentially, the scaffolding put in place by this project provides a
 relatively simple way of standing up a Repose sandbox. A Repose sandbox
@@ -35,14 +35,14 @@ build the project locally and set up the built artifacts. A value of
 # Verifying A Release
 Gradle tasks have been set up to allow for verifying either the DEB
 packages, the RPM packages, or both. To verify a release, simply
-run `gradle smokeTest -Prelease-version=<version>` (e.g. 8.1.0.0) from
+run `gradle dockerSmokeTest -Prelease-version=<version>` (e.g. 8.1.0.0) from
 this project. If the build succeeds, then the release succeeded! Different
 versions require different configurations to test all of the artifacts.
 To verify a v7.x release from the main project dir, run something like
-`gradle :repose-aggregator:tests:release-verification:vagrantSmokeTest -Prelease-version=7.3.7.1 -Pconfig-dir=/Fully/Qualified/Path/repose/repose-aggregator/tests/release-verification/src/config_7`
+`gradle :repose-aggregator:tests:release-verification:dockerSmokeTest -Prelease-version=7.3.7.1 -Pconfig-dir=/Fully/Qualified/Path/repose/repose-aggregator/tests/release-verification/src/config_7`
 
 # Repose As A Sandbox
-A sandbox can be started in either Docker or Vagrant.
+A sandbox can only be started in Docker -- Vagrant is no longer supported.
 
 To start the Docker sandbox, run the `buildDebImage` or `buildRpmImage`
 task with the desired properties. Once the Docker image has been built,
@@ -58,15 +58,3 @@ the Docker container was started with
 then a debugger can be connected to the localhost on port 18038.
 Note that we overrode the Docker `CMD` instruction with
 `tail -f /var/log/repose.log` to keep the Docker container running.
-
-To start the Vagrant sandbox, run the `vagrantUpDeb` or `vagrantUpRpm` task
-with the desired properties. Once the sandbox is running, the environment
-can be accessed directly by running the `vagrant ssh` command from the
-directory containing the Vagrantfile (e.g., src/vagrant/deb relative to
-this project directory if the `vagrantUpDeb` task was run). To debug the
-instance of Repose running in the sandbox, connect a remote debugger to
-port 18038 on the local host for Debian builds and 18039 for RPM builds.
-This port is forwarded by Vagrant to connect to the JDWP port of Repose
-in Vagrant's guest VM. The ports 18088 and 18089 for the Debian and RPM
-builds are also exposed and are forwarded to the Repose port in Vagrant's
-guest VM.

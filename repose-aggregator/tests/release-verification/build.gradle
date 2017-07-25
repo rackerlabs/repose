@@ -1,6 +1,3 @@
-import com.bmuschko.gradle.vagrant.tasks.VagrantUp
-import com.bmuschko.gradle.vagrant.tasks.VagrantSsh
-import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -8,7 +5,6 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 
-apply plugin: 'com.bmuschko.vagrant-base'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
 String releaseVersion = project.hasProperty('release-version') ? project.property('release-version') : 'local'
@@ -18,8 +14,8 @@ File rpmDir = file("$buildDir/rpm")
 String configDir = project.hasProperty('config-dir') ? project.property('config-dir') : "$projectDir/src/config"
 
 FileCollection commonFiles = files("$projectDir/src/scripts", "$projectDir/src/fake-services", configDir)
-FileCollection debFiles = files("$projectDir/src/vagrant/deb", "$projectDir/src/docker/deb")
-FileCollection rpmFiles = files("$projectDir/src/vagrant/rpm", "$projectDir/src/docker/rpm")
+FileCollection debFiles = files("$projectDir/src/docker/deb")
+FileCollection rpmFiles = files("$projectDir/src/docker/rpm")
 
 if(!project.hasProperty('release-version')) {
     debFiles = debFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').getOutputs().getFiles(),
@@ -44,7 +40,7 @@ task copyDebFiles() {
         //make the deb directory
         debDir.mkdirs()
 
-        //copy the docker/vagrant files
+        //copy the docker files
         copy {
             from debFiles
             into debDir
@@ -78,7 +74,7 @@ task copyRpmFiles() {
         //make the rpm directory
         rpmDir.mkdirs()
 
-        //copy the docker/vagrant files
+        //copy the docker files
         copy {
             from rpmFiles
             into rpmDir
@@ -102,69 +98,6 @@ task copyRpmFiles() {
             into "$rpmDir/etc_repose"
         }
     }
-}
-
-vagrant {
-    environmentVariables {
-        variable 'REPOSE_VERSION', releaseVersion
-    }
-}
-
-task vagrantUpDeb(type: VagrantUp) {
-    dependsOn 'copyDebFiles'
-
-    boxDir = debDir
-}
-
-task vagrantUpSmokeTestDeb(type: VagrantUp) {
-    dependsOn 'copyDebFiles'
-    finalizedBy 'vagrantDestroyDeb'
-
-    boxDir = debDir
-}
-
-task vagrantSshSmokeTestDeb(type: VagrantSsh) {
-    dependsOn 'vagrantUpSmokeTestDeb'
-    finalizedBy 'vagrantDestroyDeb'
-
-    boxDir = debDir
-    sshCommand "sh /release-verification/scripts/verify_vagrant.sh"
-}
-
-task vagrantDestroyDeb(type: VagrantDestroy) {
-    boxDir = debDir
-}
-
-task vagrantUpRpm(type: VagrantUp) {
-    dependsOn 'copyRpmFiles'
-
-    boxDir = rpmDir
-}
-
-task vagrantUpSmokeTestRpm(type: VagrantUp) {
-    dependsOn 'copyRpmFiles'
-    finalizedBy 'vagrantDestroyRpm'
-
-    boxDir = rpmDir
-}
-
-task vagrantSshSmokeTestRpm(type: VagrantSsh) {
-    dependsOn 'vagrantUpSmokeTestRpm'
-    finalizedBy 'vagrantDestroyRpm'
-
-    boxDir = rpmDir
-    sshCommand "sh /release-verification/scripts/verify_vagrant.sh"
-}
-
-task vagrantDestroyRpm(type: VagrantDestroy) {
-    boxDir = rpmDir
-}
-
-task vagrantSmokeTest {
-    description = 'tests if the Repose instance can handle basic requests using Vagrant'
-    group = 'release'
-    dependsOn = ['vagrantSshSmokeTestDeb',
-                 'vagrantSshSmokeTestRpm']
 }
 
 // This forces the usage of jackson dependencies which were not being brought in as expected
