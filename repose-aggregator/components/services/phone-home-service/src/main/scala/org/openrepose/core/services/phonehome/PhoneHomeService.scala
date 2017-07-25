@@ -67,12 +67,12 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
   @PostConstruct
   def init(): Unit = {
     logger.debug("Registering system model listener")
+    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient()
     configurationService.subscribeTo(
       "system-model.cfg.xml",
       SystemModelConfigurationListener,
       classOf[SystemModel]
     )
-    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient()
   }
 
   private def sendUpdate(): Unit = {

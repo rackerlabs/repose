@@ -74,6 +74,7 @@ class PhoneHomeServiceTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
         reposeLogSearch.searchByString("PhoneHomeService - Registering system model listener")
         reposeLogSearch.searchByString("PhoneHomeService - Sending usage data update to data collection service")
+        reposeLogSearch.searchByString("PhoneHomeService - Could not send an update to the collection service").size() == 0
     }
 
     def "Start Repose with some filters verify phone home service log"() {
