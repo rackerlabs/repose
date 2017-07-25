@@ -36,7 +36,6 @@ task buildImage(type: DockerBuildImage) {
     finalizedBy 'removeImage'
     inputDir = file("$projectDir/src/docker")
     buildArgs = ['REPOSE_VERSION': reposeVersion]
-    // TODO: Set "forcerm" to true once the Docker Gradle plugin supports it
 }
 
 task tagImageVersion(type: DockerTagImage) {

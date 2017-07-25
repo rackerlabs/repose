@@ -195,7 +195,6 @@ task buildDebSmokeTestImage(type: DockerBuildImage) {
     inputDir = file(debDir)
     tag = 'repose:deb-release-verification'
     buildArgs = ['REPOSE_VERSION': releaseVersion]
-    // TODO: Set "forcerm" to true once the Docker Gradle plugin supports it
 }
 
 task buildRpmImage(type: DockerBuildImage) {
@@ -211,7 +210,6 @@ task buildRpmSmokeTestImage(type: DockerBuildImage) {
     inputDir = file(rpmDir)
     tag = 'repose:rpm-release-verification'
     buildArgs = ['REPOSE_VERSION': releaseVersion]
-    // TODO: Set "forcerm" to true once the Docker Gradle plugin supports it
 }
 
 task createDebContainer(type: DockerCreateContainer) {
