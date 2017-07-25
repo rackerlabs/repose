@@ -87,7 +87,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   import SamlPolicyTranslationFilter._
 
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
-  override val SCHEMA_LOCATION: String = "/META-INF/config/schema/saml-policy.xsd"
+  override val SCHEMA_LOCATION: String = "/META-INF/schema/config/saml-policy.xsd"
 
   private final val JsonObjectMapper = new ObjectMapper()
 

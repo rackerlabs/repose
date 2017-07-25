@@ -24,6 +24,10 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 
+import java.util.concurrent.TimeUnit
+
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
+
 class IpUserTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -88,5 +92,4 @@ class IpUserTest extends ReposeValveTest {
         !group.contains("local-group;q=0.6")
         !group.contains("local-lan-ip;q=0.6")
     }
-
 }

@@ -1,7 +1,5 @@
 = SAML Policy Translation Filter
 
-include::../_includes/in-progress.adoc[]
-
 This filter takes a SAML Response in the post binding, decodes it, adds a new translated assertion to it and then signs the entire response.
 It'll attempt to locate a policy to use for the translation based on the assertion issuer.
 

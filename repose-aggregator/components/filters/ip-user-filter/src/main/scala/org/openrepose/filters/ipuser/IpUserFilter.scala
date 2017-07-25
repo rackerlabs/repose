@@ -53,7 +53,7 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
   override def init(filterConfig: FilterConfig): Unit = {
     configName = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info(s"Initializing using config $configName")
-    val xsdURL: URL = getClass.getResource("/META-INF/config/schema/ip-user.xsd")
+    val xsdURL: URL = getClass.getResource("/META-INF/schema/config/ip-user.xsd")
 
     configurationService.subscribeTo(
       filterConfig.getFilterName,

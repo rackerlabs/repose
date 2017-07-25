@@ -1,52 +1,119 @@
 = IP User Filter
 
-include::../_includes/in-progress.adoc[]
+The IP User filter populates request headers using the client's IP address and matching configured group, if any.
 
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* ip-user
+* *Default Configuration:* ip-user.cfg.xml
+* *Released:* v7.2.2.0
 * *Bundle:* repose-filter-bundle
 * link:../schemas/ip-user.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+This filter does not require any request headers.
 
 === Required Preceding Filters
-???.
+This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
+However, due to the nature of this filter it is typically placed early in the filter chain.
 
 === Request Headers Created
-???.
+* `X-PP-User` - Will be set to the source IP of the request.
+* `X-PP-Groups` - Will be set to the name the first group with a matching Classless Inter-Domain Routing (CIDR) address.
+** IF there is not a match, THEN this header will not be added.
+
+[NOTE]
+====
+The name of these headers can be changed from these default values in the configuration.
+====
 
 === Request Body Changes
-???.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+This filter is not strictly required by any other filters.
+However, the following filters may be useful:
+
+* <<simple-rbac.adoc#, Simple RBAC filter>> - Provides role-based access control to the origin service's API, which can be configured to directly use the `X-PP-Groups`.
+* <<api-validator.adoc#, API Validator filter>> - Provides role-based access control to the origin service's API, making use of the `X-PP-Groups` header.
+* <<rate-limiting.adoc#, Rate Limiting filter>> - Provides rate limiting, making use of the `X-PP-User` header.
 
 === Response Body Changes
-???.
+This filter does not modify the response body.
 
 === Response Headers Created
-???.
+This filter does not create/modify any response headers.
 
 === Response Status Codes
-???.
+This filter does not modify the response code.
 
 == Examples
-=== Shows how to ???
-This configuration will ???.
+=== Basic Configuration
+This configuration will provide the default headers using the client's IP Address.
 
 [source,xml]
-.???.cfg.xml
+.keystone-v2.cfg.xml
 ----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
+<?xml version="1.0" encoding="UTF-8"?>
+<ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
+    <group name="sample-ipv4-group"> <!--1-->
+        <cidr-ip>192.168.1.0/24</cidr-ip> <!--2-->
+    </group>
+    <group name="match-all"> <!--3-->
+        <cidr-ip>0.0.0.0/0</cidr-ip> <!--4-->
+        <cidr-ip>0::0/0</cidr-ip> <!--5-->
+    </group>
+</ip-user>
 ----
-<1> Specifies ???.
+<1> Group definition with the required `name` attribute that will be added to the `X-PP-Groups` header.
+<2> An IPv4 Classless Inter-Domain Routing (CIDR) address definition.
+<3> The recommended "Match All" group definition.
+<4> The IPv4 CIDR address definition to match any.
+<5> The IPv6 CIDR address definition to match any.
 
-== Additional Information
-*Remove this section if not needed.*
+[NOTE]
+====
+There must be at least one `group` element defined.
+====
+
+=== Optional Configuration
+This configuration shows explicitly naming the user and group headers to their default values and setting their qualities to the default also.
+
+[source,xml]
+.keystone-v2.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
+    <user-header name="X-PP-User" <!--1-->
+                 quality="0.4"/> <!--2-->
+    <group-header name="X-PP-Groups" <!--3-->
+                  quality="0.4"/> <!--4-->
+    <group name="sample-ipv6-group"> <!--5-->
+        <cidr-ip>2001:db8::/48</cidr-ip> <!--6-->
+    </group>
+    <group name="sample-ipv4-group"> <!--5-->
+        <cidr-ip>192.168.1.0/24</cidr-ip> <!--7-->
+    </group>
+    <group name="match-all"> <!--8->
+        <cidr-ip>0.0.0.0/0</cidr-ip>
+        <cidr-ip>0::0/0</cidr-ip>
+    </group>
+</ip-user>
+----
+<1> Specifies the header name for the User information (i.e. IP Address). (Default: `X-PP-User`)
+<2> Specifies the quality to associate with the User information. (Default: `0.4`)
+<3> Specifies the header name for the Group information . (Default: `X-PP-Groups`)
+<4> Specifies the quality to associate with the Group information. (Default: `0.4`)
+<5> Group definitions with the required `name` attribute.
+<6> An IPv6 CIDR address definition.
+<7> An IPv4 CIDR address definition.
+<8> The recommended "Match All" group definition with both IPv4 and IPv6 CIDR address definitions.
+
+[NOTE]
+====
+IF present, THEN the `user-header` must be the first element.
+
+IF present, THEN the `group-header` must be the element directly before the first `group` element.
+
+There must be at least one `group` element definition.
+====

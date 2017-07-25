@@ -62,7 +62,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
   override def init(filterConfig: FilterConfig) {
     configFilename = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info("Initializing filter using config " + configFilename)
-    val xsdURL: URL = getClass.getResource("/META-INF/config/schema/openstack-identity-v3.xsd")
+    val xsdURL: URL = getClass.getResource("/META-INF/schema/config/openstack-identity-v3.xsd")
     configurationService.subscribeTo(filterConfig.getFilterName,
       configFilename,
       xsdURL,

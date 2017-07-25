@@ -47,7 +47,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
   import RackspaceAuthUserFilter._
 
   override final val DEFAULT_CONFIG = "rackspace-auth-user.cfg.xml"
-  override final val SCHEMA_LOCATION = "/META-INF/config/schema/rackspace-auth-user-configuration.xsd"
+  override final val SCHEMA_LOCATION = "/META-INF/schema/config/rackspace-auth-user-configuration.xsd"
 
   val datastore: Datastore = Option(datastoreService.getDistributedDatastore).getOrElse(datastoreService.getDefaultDatastore)
 

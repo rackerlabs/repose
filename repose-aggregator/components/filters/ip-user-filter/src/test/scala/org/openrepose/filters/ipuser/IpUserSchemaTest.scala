@@ -20,20 +20,22 @@
 package org.openrepose.filters.ipuser
 
 import org.junit.runner.RunWith
-import org.openrepose.filters.ipuser.config.IpUserConfig
+import org.openrepose.commons.test.ConfigValidator
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class ConfigValidationTest extends FunSpec with Matchers {
+class IpUserSchemaTest extends FunSpec with Matchers {
+  val validator = ConfigValidator("/META-INF/schema/config/ip-user.xsd")
 
-  //Only testing that valid config is valid
-  // That the default works
-  // And that the XSD 1.1 assertions work
+  describe("schema validation") {
+    it("should successfully validate the example config") {
+      validator.validateConfigFile("/META-INF/schema/examples/ip-user.cfg.xml")
+    }
 
-  describe("verification of XSD validations") {
-    it("returns a config object when given a valid configuration") {
-      val validConfig =
+    it("should successfully validate when given a complex configuration") {
+      val config =
         """<?xml version="1.0" encoding="UTF-8"?>
           |<ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
           |    <user-header name="user-header" quality="0.5"/>
@@ -54,21 +56,14 @@ class ConfigValidationTest extends FunSpec with Matchers {
           |    </group>
           |</ip-user>
         """.stripMargin
-      val resultant = Marshaller.configFromString(validConfig)
-      resultant shouldNot be(null)
-      resultant.getClass shouldEqual classOf[IpUserConfig]
-
-      //Verify the group settings and such are not the defaults
-      resultant.getUserHeader.getName shouldEqual "user-header"
-      resultant.getUserHeader.getQuality shouldEqual 0.5D
-      resultant.getGroupHeader.getName shouldEqual "group-header"
-      resultant.getGroupHeader.getQuality shouldEqual 0.5D
+      validator.validateConfigString(config)
     }
+
     //TODO: IF we want default true values, THEN we have to re-work where the defaults are specified; because XSD
     //      IF the element is present but empty, THEN you get default values.
     //      IF the element is NOT present, THEN you get a NULL value back.
-    it("returns a default group header name when only an empty element is specified") {
-      val validConfig =
+    it("should successfully validate when an empty group header element is specified") {
+      val config =
         """<?xml version="1.0" encoding="UTF-8"?>
           |<ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
           |    <group-header/>
@@ -77,18 +72,14 @@ class ConfigValidationTest extends FunSpec with Matchers {
           |    </group>
           |</ip-user>
         """.stripMargin
-      val resultant = Marshaller.configFromString(validConfig)
-      resultant shouldNot be(null)
-
-      //Cannot actually get a default value when it's an element :(
-      resultant.getGroupHeader.getName shouldBe "x-pp-groups"
-      resultant.getGroupHeader.getQuality shouldBe 0.4
+      validator.validateConfigString(config)
     }
+
     //TODO: IF we want default true values, THEN we have to re-work where the defaults are specified; because XSD
     //      IF the element is present but empty, THEN you get default values.
     //      IF the element is NOT present, THEN you get a NULL value back.
-    it("returns a default user header name when only an empty element is specified") {
-      val validConfig =
+    it("should successfully validate when an empty user header element is specified") {
+      val config =
         """<?xml version="1.0" encoding="UTF-8"?>
           |<ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
           |    <user-header/>
@@ -97,25 +88,38 @@ class ConfigValidationTest extends FunSpec with Matchers {
           |    </group>
           |</ip-user>
         """.stripMargin
-      val resultant = Marshaller.configFromString(validConfig)
-      resultant shouldNot be(null)
-
-      //Cannot actually get a default value when it's an element :(
-      resultant.getUserHeader.getName shouldBe "x-pp-user"
-      resultant.getUserHeader.getQuality shouldBe 0.4
+      validator.validateConfigString(config)
     }
 
-    it("validation fails when not given any cidr-ip elements") {
-      val invalidConfig =
+    it("should fail to validate when not given any group elements") {
+      val config =
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
+          |</ip-user>
+        """.stripMargin
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      val exceptionMessage = exception.getLocalizedMessage
+      exceptionMessage should include("is not complete")
+      exceptionMessage should include("group")
+      exceptionMessage should include("is expected")
+    }
+
+    it("should fail to validate when not given any cidr-ip elements") {
+      val config =
         """<?xml version="1.0" encoding="UTF-8"?>
           |<ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
           |    <group name="sample-group"/>
           |</ip-user>
         """.stripMargin
-
-      intercept[ClassCastException] {
-        Marshaller.configFromString(invalidConfig)
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
       }
+      val exceptionMessage = exception.getLocalizedMessage
+      exceptionMessage should include("is not complete")
+      exceptionMessage should include("cidr-ip")
+      exceptionMessage should include("is expected")
     }
   }
 }

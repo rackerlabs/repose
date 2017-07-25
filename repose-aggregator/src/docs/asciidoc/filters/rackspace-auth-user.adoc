@@ -1,7 +1,5 @@
 = Rackspace Auth User Filter
 
-include::../_includes/in-progress.adoc[]
-
 The Rackspace Auth User filter is for usage in *Repose* instances that sit in front of Keystone v1 and v2 deployments.
 It's meant to be used for login requests to capture username for both <<../recipes/rate-limiting.adoc#,rate limiting>> and <<../recipes/user-access-events.adoc#,user access events>>.
 
@@ -77,7 +75,7 @@ That means the <<rate-limiting.adoc#,rate limiting filter>> when rate limiting, 
 When doing both the order should be:
 
 . Rackspace Auth User
-. Highly Efficeint Record Processor
+. Highly Efficient Record Processor
 . Rate Limiting
 
 For further details about the reasoning behind this ordering see <<../recipes/user-access-events.adoc#,user access events>>.
@@ -89,7 +87,7 @@ This filter does not modify the response body.
 This filter does not create/modify any response headers.
 
 === Response Status Codes
-There are no cases where this filter will terminate further processing of the filter chain.
+This filter does not modify the response code.
 
 == Examples
 [source,xml]
