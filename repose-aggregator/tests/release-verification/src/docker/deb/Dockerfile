@@ -6,9 +6,6 @@ FROM ubuntu:xenial
 
 MAINTAINER The Repose Team <reposecore@rackspace.com>
 
-# This build-arg is used to pass the Repose version number which will be set up in this image.
-ARG REPOSE_VERSION
-
 # The service ports -- one for accepting HTTP traffic to Repose, and the other for connecting a JDWP debugger
 # Note that these are not exposed to the host by default, but can be using the Docker CLI -p or -P flag.
 EXPOSE 8080 10037
@@ -39,6 +36,9 @@ RUN sh /release-verification/scripts/fake_origin_prepare.sh
 RUN cp /release-verification/fake-services/fake-origin/package.json /opt/fake-origin/package.json
 RUN cp /release-verification/fake-services/fake-origin/app.js /opt/fake-origin/app.js
 RUN sh /release-verification/scripts/fake_origin_install_docker.sh
+
+# This build-arg is used to pass the Repose version number which will be set up in this image.
+ARG REPOSE_VERSION
 
 RUN apt-get update -qq && sh /release-verification/scripts/repose_install_deb.sh $REPOSE_VERSION
 RUN cp --force /release-verification/etc_repose/* /etc/repose/
