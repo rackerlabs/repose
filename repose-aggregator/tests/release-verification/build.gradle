@@ -245,7 +245,7 @@ task removeRpmSmokeTestImage(type: DockerRemoveImage) {
     force = true
 }
 
-task dockerSmokeTest {
+task smokeTest {
     description = 'tests if the Repose instance can handle basic requests using Docker'
     group = 'release'
     dependsOn = ['waitDebSmokeTestContainer',

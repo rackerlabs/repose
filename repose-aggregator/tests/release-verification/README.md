@@ -35,11 +35,11 @@ build the project locally and set up the built artifacts. A value of
 # Verifying A Release
 Gradle tasks have been set up to allow for verifying either the DEB
 packages, the RPM packages, or both. To verify a release, simply
-run `gradle dockerSmokeTest -Prelease-version=<version>` (e.g. 8.1.0.0) from
+run `gradle smokeTest -Prelease-version=<version>` (e.g. 8.1.0.0) from
 this project. If the build succeeds, then the release succeeded! Different
 versions require different configurations to test all of the artifacts.
 To verify a v7.x release from the main project dir, run something like
-`gradle :repose-aggregator:tests:release-verification:dockerSmokeTest -Prelease-version=7.3.7.1 -Pconfig-dir=/Fully/Qualified/Path/repose/repose-aggregator/tests/release-verification/src/config_7`
+`gradle :repose-aggregator:tests:release-verification:smokeTest -Prelease-version=7.3.7.1 -Pconfig-dir=/Fully/Qualified/Path/repose/repose-aggregator/tests/release-verification/src/config_7`
 
 # Repose As A Sandbox
 A sandbox can only be started in Docker -- Vagrant is no longer supported.
