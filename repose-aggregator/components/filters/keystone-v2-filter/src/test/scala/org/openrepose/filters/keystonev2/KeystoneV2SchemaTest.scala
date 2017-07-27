@@ -17,13 +17,12 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-
-package org.openrepose.filters.keystonev2.config
+package org.openrepose.filters.keystonev2
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
