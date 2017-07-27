@@ -118,7 +118,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       lazy val tenantFromUri =
         Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
           Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegex =>
-            val regex = uriExtractionRegex.r
+            val regex = uriExtractionRegex.get(0).r
             request.getRequestURI match {
               case regex(tenantId, _*) => Some(tenantId)
               case _ => throw UnparseableTenantException("Could not parse tenant from the URI")
