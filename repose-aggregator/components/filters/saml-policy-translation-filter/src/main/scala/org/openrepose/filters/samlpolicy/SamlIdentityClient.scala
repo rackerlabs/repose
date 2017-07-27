@@ -217,7 +217,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
                 .flatMap(Option.apply)
                 .map(_.getValue)
                 .getOrElse(StandardCharsets.ISO_8859_1.name())
-              Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString("\n")
+              Source.fromInputStream(serviceClientResponse.getData, responseEncoding).mkString
             } recover {
               case f: Exception =>
                 throw GenericIdentityException("Policy in response from Identity could not be read", f)
