@@ -200,7 +200,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
       PolicyRequestKey(idpId),
       s"$policyUri${PolicyPath(idpId)}",
       (Map(
-        HttpHeaders.ACCEPT -> "text/yaml",
+        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON,
         CommonHttpHeader.AUTH_TOKEN -> token
       ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
       checkCache
@@ -217,7 +217,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
                 .flatMap(Option.apply)
                 .map(_.getValue)
                 .getOrElse(StandardCharsets.ISO_8859_1.name())
-              Source.fromInputStream(serviceClientResponse.getData, responseEncoding).mkString
+              Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString
             } recover {
               case f: Exception =>
                 throw GenericIdentityException("Policy in response from Identity could not be read", f)
