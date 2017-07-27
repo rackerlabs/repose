@@ -34,7 +34,7 @@ class MultiTenantedCheckTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityV2Service fakeIdentityV2Service
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -63,7 +63,7 @@ class MultiTenantedCheckTest extends ReposeValveTest {
         given:
         fakeIdentityV2Service.with {
             client_token = clientToken
-            tokenExpiresAt = (new DateTime()).plusDays(1);
+            tokenExpiresAt = (new DateTime()).plusDays(1)
             client_tenantid = defaultTenant
             client_tenantid2 = "nast-id"
             service_admin_role = "not-admin"
