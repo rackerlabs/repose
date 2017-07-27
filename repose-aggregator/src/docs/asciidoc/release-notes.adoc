@@ -3,6 +3,7 @@
 == In Progress Work
 
 * https://repose.atlassian.net/browse/REP-5748[REP-5748] - Updated the <<services/phone-home.adoc#, Phone Home Service>> to correct a bug that was preventing the message from actually reaching back.
+* https://repose.atlassian.net/browse/REP-5116[REP-5116] - Updated the Jetty version used in the <<services/datastores.adoc#_distributed_datastore, Distributed Datastore service>> and <<recipes/valve-installation.adoc#, Valve>> artifact from v9.2.0.v20140526 to v9.2.22.v20170606.
 
 == In Progress Work
 
