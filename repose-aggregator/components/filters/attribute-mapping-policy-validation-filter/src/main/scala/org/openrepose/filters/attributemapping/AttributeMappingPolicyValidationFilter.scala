@@ -93,11 +93,21 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
     val requestStreamSource = new StreamSource(new CloseShieldInputStream(bufferedStream))
     val xsdEngineString = XSDEngine.AUTO.toString
 
-    if (contentTypeLowerCase.contains("yaml")) {
+    if (contentTypeLowerCase.contains("json")) {
       Try {
         // Validate the policy
         AttributeMapper.validatePolicy(
-          AttributeMapper.parseYamlNode(requestStreamSource),
+          AttributeMapper.parseJsonNode(requestStreamSource),
+          xsdEngineString)
+
+        bufferedStream.reset()
+        bufferedStream
+      }
+    } else if (contentTypeLowerCase.contains("xml")) {
+      Try {
+        // Validate the policy
+        AttributeMapper.validatePolicy(
+          requestStreamSource,
           xsdEngineString)
 
         bufferedStream.reset()
