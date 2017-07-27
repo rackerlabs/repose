@@ -41,14 +41,14 @@ import javax.xml.namespace.NamespaceContext
 import javax.xml.parsers.{DocumentBuilder, DocumentBuilderFactory}
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.{StreamResult, StreamSource}
-import javax.xml.transform.{Source, TransformerException, TransformerFactory}
+import javax.xml.transform.{TransformerException, TransformerFactory}
 import javax.xml.xpath.{XPathConstants, XPathExpression}
 
 import com.fasterxml.jackson.core.{JsonGenerator, JsonProcessingException}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.cache.{Cache, CacheBuilder}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
-import com.rackspace.identity.components.{AttributeMapper, PolicyFormat, XSDEngine}
+import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
@@ -350,11 +350,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
         }
       }
     } map { policy =>
-      AttributeMapper.generateXSLExec(
-        new StreamSource(new StringReader(policy)),
-        PolicyFormat.YAML,
-        validate = true,
-        XSDEngine.AUTO.toString)
+      AttributeMapper.generateXSLExec(JsonObjectMapper.readTree(policy), validate = true, XSDEngine.AUTO.toString)
     } recover {
       case e@(_: SaxonApiException | _: TransformerException) =>
         throw SamlPolicyException(SC_BAD_GATEWAY, "Failed to generate the policy transformation", e)
