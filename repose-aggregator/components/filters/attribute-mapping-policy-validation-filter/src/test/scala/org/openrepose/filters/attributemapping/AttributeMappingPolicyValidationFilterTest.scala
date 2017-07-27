@@ -69,12 +69,16 @@ class AttributeMappingPolicyValidationFilterTest
     }
   }
 
-  describe("getPolicyAsXmlSource") {
-    it(s"should return a Source if the content-type is JSON") {
+  describe("validatePolicy") {
+    it(s"should return a stream if the content-type is YAML") {
+      filter.validatePolicy(TextYaml, new ByteArrayInputStream(ValidYamlPolicy.getBytes)) shouldBe a[Success[_]]
+    }
+
+    it(s"should return a stream if the content-type is JSON") {
       filter.validatePolicy(MediaType.APPLICATION_JSON_VALUE, new ByteArrayInputStream(ValidJsonPolicy.getBytes)) shouldBe a[Success[_]]
     }
 
-    it(s"should return a Source if the content-type is XML") {
+    it(s"should return a stream if the content-type is XML") {
       filter.validatePolicy(MediaType.APPLICATION_XML_VALUE, new ByteArrayInputStream(ValidXmlPolicy.getBytes)) shouldBe a[Success[_]]
     }
 
@@ -92,6 +96,17 @@ class AttributeMappingPolicyValidationFilterTest
 
       response.isCommitted shouldBe true
       response.getStatus shouldBe SC_UNSUPPORTED_MEDIA_TYPE
+    }
+
+    it("should forward the request if YAML validation succeeds") {
+      request.setMethod("PUT")
+      request.setContent(ValidYamlPolicy.getBytes)
+      request.setContentType(TextYaml)
+
+      filter.doFilter(request, response, chain)
+
+      chain.getRequest should not be theSameInstanceAs(request)
+      chain.getResponse shouldBe theSameInstanceAs(response)
     }
 
     it("should forward the request if JSON validation succeeds") {
@@ -116,10 +131,32 @@ class AttributeMappingPolicyValidationFilterTest
       chain.getResponse shouldBe theSameInstanceAs(response)
     }
 
-    it("should return a 400 if the policy fails to validate") {
+    it("should return a 400 if the YAML policy fails to validate") {
+      request.setMethod("PUT")
+      request.setContent(InvalidYamlPolicy.getBytes)
+      request.setContentType(TextYaml)
+
+      filter.doFilter(request, response, chain)
+
+      response.getStatus shouldBe HttpServletResponse.SC_BAD_REQUEST
+      response.isCommitted shouldBe true
+    }
+
+    it("should return a 400 if the JSON policy fails to validate") {
       request.setMethod("PUT")
       request.setContent(InvalidJsonPolicy.getBytes)
       request.setContentType(MediaType.APPLICATION_JSON_VALUE)
+
+      filter.doFilter(request, response, chain)
+
+      response.getStatus shouldBe HttpServletResponse.SC_BAD_REQUEST
+      response.isCommitted shouldBe true
+    }
+
+    it("should return a 400 if the XML policy fails to validate") {
+      request.setMethod("PUT")
+      request.setContent(InvalidXmlPolicy.getBytes)
+      request.setContentType(MediaType.APPLICATION_XML_VALUE)
 
       filter.doFilter(request, response, chain)
 
@@ -141,6 +178,8 @@ class AttributeMappingPolicyValidationFilterTest
 }
 
 object AttributeMappingPolicyValidationFilterTest {
+  final val TextYaml: String = "text/yaml"
+
   final val UnsupportedHttpMethods = Set(
     "GET",
     "DELETE",
@@ -150,6 +189,36 @@ object AttributeMappingPolicyValidationFilterTest {
     "OPTIONS",
     "CONNECT",
     "TRACE")
+
+  final val ValidYamlPolicy: String =
+    """
+      |---
+      |mapping:
+      |  rules:
+      |  - local:
+      |      user:
+      |        domain: "{D}"
+      |        name: "{D}"
+      |        email: "{D}"
+      |        roles: "{D}"
+      |        expire: "{D}"
+      |  version: RAX-1
+    """.stripMargin
+
+  final val InvalidYamlPolicy: String =
+    """
+      |---
+      |mapping:
+      |  rules:
+      |    local:
+      |      user:
+      |        domain: "{D}"
+      |        name: "{D}"
+      |        email: "{D}"
+      |        roles: "{D}"
+      |        expire: "{D}"
+      |  version: RAX-1
+    """.stripMargin
 
   final val ValidJsonPolicy: String =
     """
