@@ -359,7 +359,8 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
     The post-strip Tenant ID is only used in the Tenant Validation check.
 <4> If in legacy roles mode, then all roles associated with a user token are forwarded.
     If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. (Default: false)
-<5> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with a single capturing group around the portion of the URI to extract the Tenant ID from for validation.
+<5> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
+    The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
 <6> If this element is included, then include Quality parameters on all the tenant ID headers sent.
 <7> The default tenant has the highest quality by default. (Default: 0.9)
 <8> Followed by the one that matches the URI by default (if any). (Default: 0.7)
@@ -375,6 +376,13 @@ If the Default Tenant and the URI Tenant are the same, then the highest quality 
 If the `validate-tenant` element is not present, then this filter will not attempt to validate a Tenant ID from the URI.
 
 The `uri-extraction-regex` will be used to populate the `X-Tenant-ID` header with the value extracted by the capturing group.
+====
+
+[NOTE]
+====
+There can be multiple `uri-extraction-regex` elements.
+This fascilitates complex Origin Service API's where the extraction point is not always in the same place.
+The elements are evaluated in order from top to bottom and the first successful extraction wins.
 ====
 
 === Tenant ID Validation Bypass
