@@ -7,6 +7,5 @@
             <uri-extraction-regex>.*/serversTwo/([-|\w]+)/?.*</uri-extraction-regex>
             <uri-extraction-regex>.*/serversToo/([-|\w]+)/?.*</uri-extraction-regex>
         </validate-tenant>
-        <send-tenant-id-quality/>
     </tenant-handling>
 </keystone-v2>
