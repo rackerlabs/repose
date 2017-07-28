@@ -195,12 +195,12 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     * @param checkCache whether or not to use the HTTP request cache
     * @return the policy if successful, or a failure if unsuccessful
     */
-  def getPolicy(idpId: String, token: String, traceId: Option[String], checkCache: Boolean): Try[String] = {
+  def getPolicy(idpId: String, token: String, traceId: Option[String], checkCache: Boolean): Try[Policy] = {
     val akkaResponse = Try(policyServiceClient.akkaServiceClient.get(
       PolicyRequestKey(idpId),
       s"$policyUri${PolicyPath(idpId)}",
       (Map(
-        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON,
+        HttpHeaders.ACCEPT -> String.join(",", TextYaml, MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML),
         CommonHttpHeader.AUTH_TOKEN -> token
       ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
       checkCache
@@ -211,13 +211,17 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
         serviceClientResponse.getStatus match {
           case SC_OK =>
             Try {
-              val responseEncoding = serviceClientResponse.getHeaders
+              val contentTypeHeader = serviceClientResponse.getHeaders
                 .find(hdr => HttpHeaders.CONTENT_TYPE.matches(hdr.getName))
-                .map(_.getElements.head.getParameterByName("charset"))
+                .map(_.getElements.head)
+              val responseEncoding = contentTypeHeader
+                .map(_.getParameterByName("charset"))
                 .flatMap(Option.apply)
                 .map(_.getValue)
                 .getOrElse(StandardCharsets.ISO_8859_1.name())
-              Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString
+              Policy(
+                Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString("\n"),
+                contentTypeHeader.map(_.getName).getOrElse(TextYaml))
             } recover {
               case f: Exception =>
                 throw GenericIdentityException("Policy in response from Identity could not be read", f)
@@ -238,6 +242,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
 
 object SamlIdentityClient {
   final val SC_TOO_MANY_REQUESTS: Int = 429
+  final val TextYaml: String = "text/yaml"
   final val TokenRequestKey: String = "SAML:TOKEN"
   final val IdpRequestKey: (String) => String = (issuer: String) => s"SAML:IDP:$issuer"
   final val PolicyRequestKey: (String) => String = (idpId: String) => s"SAML:POLICY:$idpId"
@@ -262,7 +267,12 @@ object SamlIdentityClient {
   case class UnexpectedStatusCodeException(statusCode: Int, message: String)
     extends Exception(message)
 
+  case class UnsupportedPolicyFormatException(message: String)
+    extends Exception(message) with IdentityException
+
   case class OverLimitException(retryAfter: String, message: String)
     extends Exception(message) with IdentityException
+
+  case class Policy(content: String, contentType: String)
 
 }

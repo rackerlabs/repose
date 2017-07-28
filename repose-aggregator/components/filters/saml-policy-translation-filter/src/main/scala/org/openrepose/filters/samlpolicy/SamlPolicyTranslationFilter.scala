@@ -48,7 +48,7 @@ import com.fasterxml.jackson.core.{JsonGenerator, JsonProcessingException}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.cache.{Cache, CacheBuilder}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
-import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
+import com.rackspace.identity.components.{AttributeMapper, PolicyFormat, XSDEngine}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
@@ -60,7 +60,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.SystemModel
-import org.openrepose.filters.samlpolicy.SamlIdentityClient.{GenericIdentityException, OverLimitException, UnexpectedStatusCodeException}
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{GenericIdentityException, OverLimitException, UnexpectedStatusCodeException, UnsupportedPolicyFormatException}
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.springframework.beans.factory.annotation.Value
@@ -350,10 +350,27 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
         }
       }
     } map { policy =>
-      AttributeMapper.generateXSLExec(JsonObjectMapper.readTree(policy), validate = true, XSDEngine.AUTO.toString)
+      val policyContentType = policy.contentType.toLowerCase
+      val policyFormat = if (policyContentType.contains("yaml")) {
+        PolicyFormat.YAML
+      } else if (policyContentType.contains("json")) {
+        PolicyFormat.JSON
+      } else if (policyContentType.contains("xml")) {
+        PolicyFormat.XML
+      } else {
+        throw UnsupportedPolicyFormatException(s"$policyContentType is not a supported policy format")
+      }
+
+      AttributeMapper.generateXSLExec(
+        new StreamSource(new StringReader(policy.content)),
+        policyFormat,
+        validate = true,
+        XSDEngine.AUTO.toString)
     } recover {
       case e@(_: SaxonApiException | _: TransformerException) =>
         throw SamlPolicyException(SC_BAD_GATEWAY, "Failed to generate the policy transformation", e)
+      case e: UnsupportedPolicyFormatException =>
+        throw SamlPolicyException(SC_BAD_GATEWAY, e.getMessage)
       case e: JsonProcessingException =>
         throw SamlPolicyException(SC_BAD_GATEWAY, "Failed parsing the policy as JSON", e)
       case e: UnexpectedStatusCodeException if e.statusCode == SC_NOT_FOUND =>
