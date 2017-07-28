@@ -42,7 +42,7 @@ class JettyConfigTest extends ReposeValveTest {
         repose.start()
     }
 
-    def "Repose should start and handle request normaly when the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout & soLingerTime"() {
+    def "Repose should start and handle request normally when the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout & soLingerTime"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
