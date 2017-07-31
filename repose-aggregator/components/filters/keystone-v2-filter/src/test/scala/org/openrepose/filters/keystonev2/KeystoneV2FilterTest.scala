@@ -2322,8 +2322,7 @@ with HttpDelegationManager {
     filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-    val testUris = Seq("One", "Two", "Too")
-    testUris foreach { uri =>
+    Seq("One", "Two", "Too") foreach { uri =>
       it(s"will authenticate and authorize if able to extract a tenant from the URI: /server$uri/345/foo") {
         //make a request and validate that it called the akka service client?
         val request = new MockHttpServletRequest
