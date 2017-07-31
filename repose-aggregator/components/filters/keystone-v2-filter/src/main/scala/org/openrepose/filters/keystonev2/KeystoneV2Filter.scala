@@ -47,6 +47,7 @@ import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, L
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
+import scala.util.matching.Regex
 import scala.util.{Failure, Random, Success, Try}
 import scala.xml.XML
 
@@ -115,19 +116,25 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
       lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
         Option(config.getIdentityService.getPassword).isEmpty
-      lazy val tenantFromUriOption: Option[String] =
-        Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
-          Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegexList =>
-            uriExtractionRegexList.asScala.map(_.r).collectFirst {
-              case uriExtractionRegex if Try(
-                request.getRequestURI match {
-                  case uriExtractionRegex(tenantId, _*) => tenantId
-                }).isSuccess => request.getRequestURI match {
-                  case uriExtractionRegex(tenantId, _*) => tenantId
-                }
+      lazy val tenantFromUriOption: Option[String] = {
+        def extractTenantIdFromUri(uri: String, regexes: Seq[Regex]): Option[String] = {
+          if (regexes.isEmpty) {
+            throw UnparseableTenantException("Could not parse tenant from the URI")
+          } else {
+            val regex = regexes.head
+            uri match {
+              case regex(tid, _*) => Some(tid)
+              case _ => extractTenantIdFromUri(uri, regexes.tail)
             }
           }
         }
+
+        Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
+          Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegexList =>
+            extractTenantIdFromUri(request.getRequestURI, uriExtractionRegexList.asScala.map(_.r))
+          }
+        }
+      }
 
       /**
         * BEGIN PROCESSING
@@ -320,17 +327,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
 
-      def getTenantFromUri: String = {
-        tenantFromUriOption match {
-          case Some(tenantFromUri) => tenantFromUri
-          case _ => throw UnparseableTenantException("Could not parse tenant from the URI")
-        }
-      }
-
       def getTenantScopedRoles(roles: Seq[Role]): Seq[Role] = {
         Option(config.getTenantHandling.getValidateTenant) match {
           case Some(validateTenant) if !validateTenant.isEnableLegacyRolesMode =>
-            val uriTenant = getTenantFromUri
+            val uriTenant = tenantFromUriOption.get
             roles.filter(role =>
               role.tenantId.forall(roleTenantId =>
                 roleTenantId.equals(uriTenant)))
@@ -351,13 +351,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       def getMatchingUriTenant(doTenantCheck: Boolean, validToken: ValidToken): Option[String] = {
         if (doTenantCheck) {
-          val uriTenant = getTenantFromUri
-          val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-          val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-          tokenTenants find { tokenTenant =>
-            tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
-              tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)
-            )
+          tenantFromUriOption flatMap { uriTenant =>
+            val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
+            val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
+            tokenTenants find { tokenTenant =>
+              tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
+                tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)
+              )
+            }
           }
         } else {
           None
