@@ -17,7 +17,11 @@ This filter has no configuration.
 
 == Prerequisites & Postconditions
 === Required Request Headers
-* `Content-Type` - Declares the content type of the policy, must be YAML.
+* `Content-Type` - Declares the content type of the policy.
+Currently supported content types are:
+** YAML
+** JSON
+** XML
 
 === Required Preceding Filters
 This filter has no dependencies on other filters.
@@ -48,7 +52,7 @@ This filter does not create/modify any response headers.
 a| * If the policy fails validation.
 
 | `415`
-a| * If the `Content-Type` is not YAML, and therefore, the policy cannot be validated.
+a| * If the `Content-Type` is not supported, and therefore, the policy cannot be validated.
 |===
 
 == Additional Information
