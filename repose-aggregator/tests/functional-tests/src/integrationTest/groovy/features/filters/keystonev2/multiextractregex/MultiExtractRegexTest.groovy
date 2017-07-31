@@ -71,8 +71,8 @@ class MultiExtractRegexTest extends ReposeValveTest {
         then: "everything with a valid Tenant ID that was extracted is sent to the origin service, otherwise it isn't"
         mc.receivedResponse.code as Integer == SC_OK
 
-        assert mc.handlings.size() == 1
-        assert mc.handlings[0].request.headers.findAll("x-tenant-id").get(0).contains(fakeIdentityV2Service.client_tenantid)
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.findAll("x-tenant-id").get(0).contains(fakeIdentityV2Service.client_tenantid)
 
         where:
         uriSegment << ["serversOne", "serversTwo", "serversToo"]
@@ -93,6 +93,6 @@ class MultiExtractRegexTest extends ReposeValveTest {
 
         then: "everything with a valid Tenant ID that was extracted is sent to the origin service, otherwise it isn't"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
-        assert mc.handlings.size() == 0
+        mc.handlings.size() == 0
     }
 }
