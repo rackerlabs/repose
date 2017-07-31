@@ -55,33 +55,44 @@ class MultiExtractRegexTest extends ReposeValveTest {
     }
 
     @Unroll("#uriSegment")
-    def "When the tenant ID can be in multiple places in the request URI"() {
+    def "When the tenant ID can be in multiple places in the request URI and it contains #uriSegment"() {
         given: "a configured Identity service"
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = UUID.randomUUID().toString()
         }
 
-        when:
-        "a request is sent to repose with URI containing $uriSegment"
+        when: "a request is sent to repose with URI containing $uriSegment"
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/$uriSegment/${fakeIdentityV2Service.client_tenantid}",
             method: 'GET',
             headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "everything with a valid Tenant ID that was extracted is sent to the origin service, otherwise it isn't"
-        mc.receivedResponse.code as Integer == serviceRespCode
+        mc.receivedResponse.code as Integer == SC_OK
 
-        if (serviceRespCode == SC_OK) {
-            assert mc.handlings.size() == 1
-            assert mc.handlings[0].request.headers.findAll("x-tenant-id").get(0).contains(fakeIdentityV2Service.client_tenantid)
-        } else assert mc.handlings.size() == 0
+        assert mc.handlings.size() == 1
+        assert mc.handlings[0].request.headers.findAll("x-tenant-id").get(0).contains(fakeIdentityV2Service.client_tenantid)
 
         where:
-        uriSegment  | serviceRespCode
-        "serversOne" | SC_OK
-        "serversTwo" | SC_OK
-        "serversToo" | SC_OK
-        "serversBad" | SC_UNAUTHORIZED
+        uriSegment << ["serversOne", "serversTwo", "serversToo"]
+    }
+
+    def "When the tenant ID can be in multiple places in the request URI and contains serversBad"() {
+        given: "a configured Identity service"
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = UUID.randomUUID().toString()
+        }
+
+        when: "a request is sent to repose with URI containing serversBad"
+        MessageChain mc = deproxy.makeRequest(
+            url: "$reposeEndpoint/serversBad/${fakeIdentityV2Service.client_tenantid}",
+            method: 'GET',
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "everything with a valid Tenant ID that was extracted is sent to the origin service, otherwise it isn't"
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
+        assert mc.handlings.size() == 0
     }
 }
