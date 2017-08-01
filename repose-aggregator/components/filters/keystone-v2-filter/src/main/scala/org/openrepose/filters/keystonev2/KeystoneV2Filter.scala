@@ -119,12 +119,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       lazy val tenantFromUri: String =
         Option(config.getTenantHandling.getValidateTenant).flatMap(validateTenantConfig =>
           Option(validateTenantConfig.getUriExtractionRegex).flatMap(uriExtractionRegexList =>
-            uriExtractionRegexList.asScala.toStream.map(_.r).flatMap({ uriExtractionRegex: Regex =>
+            uriExtractionRegexList.asScala.toStream.map(_.r).flatMap(uriExtractionRegex =>
               request.getRequestURI match {
                 case uriExtractionRegex(tenantId, _*) => Option(tenantId)
                 case _ => None
               }
-            }).headOption
+            ).headOption
           )).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI"))
 
       /**
