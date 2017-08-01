@@ -117,16 +117,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
         Option(config.getIdentityService.getPassword).isEmpty
       lazy val tenantFromUri: String =
-        Option(config.getTenantHandling.getValidateTenant).flatMap({ validateTenantConfig =>
-          Option(validateTenantConfig.getUriExtractionRegex).flatMap({ uriExtractionRegexList =>
+        Option(config.getTenantHandling.getValidateTenant).flatMap(validateTenantConfig =>
+          Option(validateTenantConfig.getUriExtractionRegex).flatMap(uriExtractionRegexList =>
             uriExtractionRegexList.asScala.toStream.map(_.r).flatMap({ uriExtractionRegex: Regex =>
-                          request.getRequestURI match {
-                            case uriExtractionRegex(tenantId, _*) => Option(tenantId)
-                            case _ => None
-                          }
-                        }).headOption
-          })
-        }).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI"))
+              request.getRequestURI match {
+                case uriExtractionRegex(tenantId, _*) => Option(tenantId)
+                case _ => None
+              }
+            }).headOption
+          )).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI"))
 
       /**
         * BEGIN PROCESSING
