@@ -116,25 +116,17 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       lazy val requestHandler = new KeystoneRequestHandler(keystoneV2Config.getIdentityService.getUri, akkaServiceClient, traceId)
       lazy val isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
         Option(config.getIdentityService.getPassword).isEmpty
-      lazy val tenantFromUriOption: Option[String] = {
-        def extractTenantIdFromUri(uri: String, regexes: Seq[Regex]): Option[String] = {
-          if (regexes.isEmpty) {
-            throw UnparseableTenantException("Could not parse tenant from the URI")
-          } else {
-            val regex = regexes.head
-            uri match {
-              case regex(tid, _*) => Some(tid)
-              case _ => extractTenantIdFromUri(uri, regexes.tail)
-            }
-          }
-        }
-
-        Option(config.getTenantHandling.getValidateTenant) flatMap { validateTenantConfig =>
-          Option(validateTenantConfig.getUriExtractionRegex) flatMap { uriExtractionRegexList =>
-            extractTenantIdFromUri(request.getRequestURI, uriExtractionRegexList.asScala.map(_.r))
-          }
-        }
-      }
+      lazy val tenantFromUriOption: Option[String] =
+        Option(config.getTenantHandling.getValidateTenant).flatMap({ validateTenantConfig =>
+          Option(validateTenantConfig.getUriExtractionRegex).flatMap({ uriExtractionRegexList =>
+            uriExtractionRegexList.asScala.toStream.map(_.r).flatMap({ uriExtractionRegex: Regex =>
+                          request.getRequestURI match {
+                            case uriExtractionRegex(tenantId, _*) => Option(tenantId)
+                            case _ => None
+                          }
+                        }).headOption
+          })
+        })
 
       /**
         * BEGIN PROCESSING
@@ -327,10 +319,17 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
 
+      def getTenantFromUri: String = {
+        tenantFromUriOption match {
+          case Some(tenantFromUri) => tenantFromUri
+          case _ => throw UnparseableTenantException("Could not parse tenant from the URI")
+        }
+      }
+
       def getTenantScopedRoles(roles: Seq[Role]): Seq[Role] = {
         Option(config.getTenantHandling.getValidateTenant) match {
           case Some(validateTenant) if !validateTenant.isEnableLegacyRolesMode =>
-            val uriTenant = tenantFromUriOption.get
+            val uriTenant = getTenantFromUri
             roles.filter(role =>
               role.tenantId.forall(roleTenantId =>
                 roleTenantId.equals(uriTenant)))
@@ -351,14 +350,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       def getMatchingUriTenant(doTenantCheck: Boolean, validToken: ValidToken): Option[String] = {
         if (doTenantCheck) {
-          tenantFromUriOption flatMap { uriTenant =>
-            val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-            val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-            tokenTenants find { tokenTenant =>
-              tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
-                tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)
-              )
-            }
+          val uriTenant = getTenantFromUri
+          val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
+          val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
+          tokenTenants find { tokenTenant =>
+            tokenTenant.equals(uriTenant) || prefixes.exists(prefix =>
+              tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(uriTenant)
+            )
           }
         } else {
           None
